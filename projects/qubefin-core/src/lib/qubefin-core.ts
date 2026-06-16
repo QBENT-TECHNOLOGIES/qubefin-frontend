@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'qfin-qubefin-core',
@@ -8,6 +8,7 @@ import { Component } from '@angular/core';
       qubefin-core works!
     </p>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: ``,
 })
 export class QubefinCore {
