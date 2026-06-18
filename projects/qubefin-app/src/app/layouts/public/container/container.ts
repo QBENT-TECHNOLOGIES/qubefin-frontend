@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'qfin-container',
-  imports: [],
+  imports: [RouterOutlet],
   templateUrl: './container.html',
-  styles: ``,
 })
 export class Container {
 

@@ -1,1 +1,176 @@
-<p>container works!</p>
+<!-- Background -->
+    <div class="fixed inset-0">
+
+        <img
+            src="bg-image.png"
+            alt=""
+            class="w-full h-full object-full">
+
+        <div class="absolute inset-0 bg-white/10"></div>
+
+    </div>
+
+    <!-- Main -->
+    <div class="relative z-10 min-h-screen">
+
+        <!-- Header -->
+        <div class="absolute top-8 right-10 flex items-center gap-4">
+
+            <span class="text-slate-700 font-medium">
+                Light Mode
+            </span>
+
+            <button class="relative w-14 h-8 bg-green-500 rounded-full">
+                <span class="absolute right-1 top-1 bg-white w-6 h-6 rounded-full"></span>
+            </button>
+
+        </div>
+
+        <div class="grid lg:grid-cols-2 min-h-screen">
+
+            <!-- LEFT PANEL -->
+            <div class="hidden lg:flex flex-col justify-between p-16">
+
+                <div>
+
+                    <!-- Logo -->
+                    <img
+                        src="logo.avif"
+                        class="h-28 mb-4"
+                        alt="WeGrow">
+
+                    
+
+                    <div class="w-20 h-1 bg-green-500 rounded-full mt-8"></div>
+
+                    <!-- Heading -->
+                    <div class="mt-16">
+
+                        <h1 class="text-4xl font-bold leading-tight text-slate-900">
+
+                            Empowering Growth
+
+                            <span class="block text-green-600">
+                                Through Technology
+                            </span>
+
+                        </h1>
+
+                        <div class="w-16 h-1 bg-blue-500 rounded-full mt-8 mb-8"></div>
+
+                        <p class="text-xl text-slate-600 leading-relaxed max-w-md">
+
+                            Integrated ERP platform for Microfinance &
+                            NBFC operations to streamline processes,
+                            ensure compliance and drive sustainable growth.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- Bottom Features -->
+                <div>
+
+                    <div class="grid grid-cols-4 gap-10">
+
+                        <div class="text-center">
+                            <div class="text-5xl mb-4">🌱</div>
+                            <div class="font-medium text-slate-700">
+                                Financial Inclusion
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="text-5xl mb-4">🛡️</div>
+                            <div class="font-medium text-slate-700">
+                                Trust & Compliance
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="text-5xl mb-4">👥</div>
+                            <div class="font-medium text-slate-700">
+                                Operational Excellence
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="text-5xl mb-4">📈</div>
+                            <div class="font-medium text-slate-700">
+                                Sustainable Growth
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-10 flex items-center justify-between text-slate-500">
+
+                        <span>
+                            © 2025 WeGrow Microfinance & NBFC
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT PANEL -->
+            <div class="flex items-center justify-center p-8">
+
+                <div class="glass-card rounded-[36px] w-full max-w-xl p-10">
+
+                    <!-- User Icon -->
+                    <div class="flex justify-center">
+
+                        <div class="w-24 h-24 rounded-full border border-green-200 flex items-center justify-center text-4xl">
+                            👤
+                        </div>
+
+                    </div>
+
+                    <div class="text-center mt-6">
+
+                        <h2 class="text-5xl font-bold text-slate-900">
+                            Welcome Back!
+                        </h2>
+
+                        <p class="text-2xl text-slate-500 mt-3">
+                            Sign in to access your WeGrow ERP
+                        </p>
+
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="flex items-center justify-center gap-4 my-8">
+
+                        <div class="w-20 h-px bg-green-500"></div>
+
+                        <span class="text-green-600 text-xl">🍃</span>
+
+                        <div class="w-20 h-px bg-green-500"></div>
+
+                    </div>
+
+                    <router-outlet></router-outlet>
+
+                    <!-- Footer -->
+                    <div class="mt-10 flex justify-center gap-6 text-slate-400">
+
+                        <span>Secure</span>
+                        <span>•</span>
+                        <span>Reliable</span>
+                        <span>•</span>
+                        <span>Compliant</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
