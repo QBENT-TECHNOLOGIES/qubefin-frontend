@@ -2,11 +2,17 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay, withNoIncrementalHydration } from '@angular/platform-browser';
+import { environment } from '../environments/environment';
+
+import { ENV_CONFIG } from 'qubefin-core';
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideBrowserGlobalErrorListeners(),
-    provideRouter(routes), provideClientHydration(withEventReplay(), withNoIncrementalHydration())
-  ]
+	providers: [
+		provideBrowserGlobalErrorListeners(),
+		provideRouter(routes),
+		{
+			provide: ENV_CONFIG,
+			useValue: environment
+		}
+	]
 };

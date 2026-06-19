@@ -52,15 +52,7 @@
             ],
             "styles": [
               "projects/qubefin-app/src/styles.css"
-            ],
-            "server": "projects/qubefin-app/src/main.server.ts",
-            "outputMode": "server",
-            "security": {
-              "allowedHosts": []
-            },
-            "ssr": {
-              "entry": "projects/qubefin-app/src/server.ts"
-            }
+            ]
           },
           "configurations": {
             "production": {
@@ -81,7 +73,13 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "projects/qubefin-app/src/environments/environment.ts",
+                  "with": "projects/qubefin-app/src/environments/environment.development.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
