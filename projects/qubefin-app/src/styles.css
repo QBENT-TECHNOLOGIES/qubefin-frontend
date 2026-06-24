@@ -26,9 +26,3 @@ body {
         0 20px 80px rgba(15, 23, 42, .08),
         0 10px 30px rgba(15, 23, 42, .05);
 }
-
-.mat-mdc-text-field-wrapper {
-  background: rgba(255,255,255,.75);
-  backdrop-filter: blur(12px);
-  border-radius: 18px !important;
-}

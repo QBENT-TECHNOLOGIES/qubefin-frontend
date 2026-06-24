@@ -1,157 +1,32 @@
-<!-- <form class="space-y-6">
-
-    <div>
-
-        <label class="block text-green-600 text-sm font-medium mb-2">
-            User ID
-        </label>
-
-        <input type="text" placeholder="Enter your user ID"
-            class="input-box w-full h-16 rounded-2xl border border-slate-200 px-5 text-sm bg-white/80 focus:ring-4 focus:ring-green-100 focus:border-green-500 outline-none">
-
-    </div>
-
-    <div>
-        <div class="flex justify-between items-center">
-
-            <label class="block text-green-600 text-sm font-medium mb-2">
-                Password
-            </label>
-
-            <a href="#" class="text-blue-600 text-xs">
-
-                Forgot Password?
-
-            </a>
-
-        </div>
-
-
-        <div class="relative">
-
-            <input type="password" placeholder="Enter your password"
-                class="input-box w-full h-16 rounded-2xl border border-slate-200 px-5 text-sm bg-white/80 focus:ring-4 focus:ring-green-100 focus:border-green-500 outline-none">
-
-            <button type="button" class="absolute right-5 top-5 text-slate-500">
-
-                👁
-
-            </button>
-
-        </div>
-
-    </div>
-
-
-
-    
-    <button class="w-full h-16 rounded-2xl
-                                   bg-linear-to-r
-                                   from-green-500
-                                   to-blue-600
-                                   text-white
-                                   text-2xl
-                                   font-semibold">
-
-        Sign In →
-
-    </button>
-
-</form> -->
-
 <form (ngSubmit)="submit()">
-
-  <!-- User ID -->
-  <mat-form-field appearance="outline" class="w-full">
-
+  <mat-form-field class="w-full">
     <mat-label>User ID</mat-label>
-
     <mat-icon class="material-symbols-outlined" matPrefix>
       person_outline
     </mat-icon>
-
-    <input
-      matInput
-      [formField]="loginForm.username"
-      autocomplete="username"
-      placeholder="Enter your user ID">
-
-    <!-- @if (
-      loginForm.username.touched() &&
-      loginForm.username.invalid()
-    ) {
-
-      <mat-error>
-        User ID is required
-      </mat-error>
-
-    } -->
-
+    <input matInput [formField]="loginForm.username" autocomplete="username" placeholder="Enter your user ID">
   </mat-form-field>
-
-  <!-- Password -->
-  <mat-form-field appearance="outline" class="w-full">
-
+  <mat-form-field class="w-full">
     <mat-label>Password</mat-label>
-
     <mat-icon class="material-symbols-outlined" matPrefix>
       lock_outline
     </mat-icon>
-
-    <input
-      matInput
-      [formField]="loginForm.password"
-      [type]="hidePassword() ? 'password' : 'text'"
-      autocomplete="current-password"
-      placeholder="Enter your password">
-
-    <button
-      mat-icon-button
-      matSuffix
-      type="button"
-      (click)="hidePassword.update(v => !v)">
-
+    <input matInput [formField]="loginForm.password" [type]="hidePassword() ? 'password' : 'text'"
+      autocomplete="current-password" placeholder="Enter your password">
+    <button matIconButton matSuffix type="button" (click)="hidePassword.update(v => !v)">
       <mat-icon class="material-symbols-outlined">
         {{ hidePassword()
         ? 'visibility'
         : 'visibility_off' }}
       </mat-icon>
-
     </button>
-
-    <!-- @if (
-      loginForm.password.touched() &&
-      loginForm.password.invalid()
-    ) {
-
-      <mat-error>
-        Password is required
-      </mat-error>
-
-    } -->
-
   </mat-form-field>
-
-  <div class="flex justify-between items-center mt-4">
-
-    <a
-      href="#"
-      class="text-blue-600 text-sm">
-
+  <div class="flex justify-end items-center">
+    <a href="#" class="text-blue-600 text-sm">
       Forgot Password?
-
     </a>
-
   </div>
-
-  <button
-    mat-flat-button
-    color="primary"
-    class="login-button w-full mt-6"
-    [disabled]="loginForm().invalid()">
-
+  <button matButton="filled" color="primary" class="w-full mt-6" [disabled]="loginForm().invalid()">
     Sign In
-
   </button>
-
 </form>

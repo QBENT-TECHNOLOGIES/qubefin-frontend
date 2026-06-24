@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { FormField, form } from '@angular/forms/signals';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -7,7 +8,7 @@ import { ValidateLoginModel } from '../../models/validate-login-model';
 
 @Component({
 	selector: 'qfin-validate-login',
-	imports: [FormField, MatFormFieldModule, MatIconModule, MatInputModule],
+	imports: [FormField, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
 	templateUrl: './validate-login.html'
 })
 export class ValidateLogin {
