@@ -1,5 +1,4 @@
-<!-- Form -->
-<form class="space-y-6">
+<!-- <form class="space-y-6">
 
     <div>
 
@@ -57,5 +56,102 @@
         Sign In →
 
     </button>
+
+</form> -->
+
+<form (ngSubmit)="submit()">
+
+  <!-- User ID -->
+  <mat-form-field appearance="outline" class="w-full">
+
+    <mat-label>User ID</mat-label>
+
+    <mat-icon class="material-symbols-outlined" matPrefix>
+      person_outline
+    </mat-icon>
+
+    <input
+      matInput
+      [formField]="loginForm.username"
+      autocomplete="username"
+      placeholder="Enter your user ID">
+
+    <!-- @if (
+      loginForm.username.touched() &&
+      loginForm.username.invalid()
+    ) {
+
+      <mat-error>
+        User ID is required
+      </mat-error>
+
+    } -->
+
+  </mat-form-field>
+
+  <!-- Password -->
+  <mat-form-field appearance="outline" class="w-full">
+
+    <mat-label>Password</mat-label>
+
+    <mat-icon class="material-symbols-outlined" matPrefix>
+      lock_outline
+    </mat-icon>
+
+    <input
+      matInput
+      [formField]="loginForm.password"
+      [type]="hidePassword() ? 'password' : 'text'"
+      autocomplete="current-password"
+      placeholder="Enter your password">
+
+    <button
+      mat-icon-button
+      matSuffix
+      type="button"
+      (click)="hidePassword.update(v => !v)">
+
+      <mat-icon class="material-symbols-outlined">
+        {{ hidePassword()
+        ? 'visibility'
+        : 'visibility_off' }}
+      </mat-icon>
+
+    </button>
+
+    <!-- @if (
+      loginForm.password.touched() &&
+      loginForm.password.invalid()
+    ) {
+
+      <mat-error>
+        Password is required
+      </mat-error>
+
+    } -->
+
+  </mat-form-field>
+
+  <div class="flex justify-between items-center mt-4">
+
+    <a
+      href="#"
+      class="text-blue-600 text-sm">
+
+      Forgot Password?
+
+    </a>
+
+  </div>
+
+  <button
+    mat-flat-button
+    color="primary"
+    class="login-button w-full mt-6"
+    [disabled]="loginForm().invalid()">
+
+    Sign In
+
+  </button>
 
 </form>
