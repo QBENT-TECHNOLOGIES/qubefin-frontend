@@ -4,7 +4,6 @@
   <mat-form-field class="w-full">
 
     <mat-label>User ID</mat-label>
-
     <mat-icon class="material-symbols-outlined" matPrefix>
       person_outline
     </mat-icon>
@@ -32,65 +31,25 @@
   <mat-form-field class="w-full">
 
     <mat-label>Password</mat-label>
-
     <mat-icon class="material-symbols-outlined" matPrefix>
       lock_outline
     </mat-icon>
-
-    <input
-      matInput
-      [formField]="loginForm.password"
-      [type]="hidePassword() ? 'password' : 'text'"
-      autocomplete="current-password"
-      placeholder="Enter your password">
-
-    <button
-      mat-icon-button
-      matSuffix
-      type="button"
-      (click)="hidePassword.update(v => !v)">
-
+    <input matInput [formField]="loginForm.password" [type]="hidePassword() ? 'password' : 'text'"
+      autocomplete="current-password" placeholder="Enter your password">
+    <button matIconButton matSuffix type="button" (click)="hidePassword.update(v => !v)">
       <mat-icon class="material-symbols-outlined">
         {{ hidePassword()
         ? 'visibility'
         : 'visibility_off' }}
       </mat-icon>
-
     </button>
-
-    <!-- @if (
-      loginForm.password.touched() &&
-      loginForm.password.invalid()
-    ) {
-
-      <mat-error>
-        Password is required
-      </mat-error>
-
-    } -->
-
   </mat-form-field>
-
-  <div class="flex justify-between items-center mt-4">
-
-    <a
-      href="#"
-      class="text-blue-600 text-sm">
-
+  <div class="flex justify-end items-center">
+    <a href="#" class="text-blue-600 text-sm">
       Forgot Password?
-
     </a>
-
   </div>
-
-  <button
-    mat-flat-button
-    color="primary"
-    class="login-button w-full mt-6"
-    [disabled]="loginForm().invalid()">
-
+  <button matButton="filled" color="primary" class="w-full mt-6" [disabled]="loginForm().invalid()">
     Sign In
-
   </button>
-
 </form>

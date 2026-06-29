@@ -11,6 +11,7 @@ import { AuthStore, LoginStateStore } from 'qubefin-core';
 @Component({
 	selector: 'qfin-validate-login',
 	imports: [FormField, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
+	imports: [FormField, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
 	templateUrl: './validate-login.html'
 })
 export class ValidateLogin {
