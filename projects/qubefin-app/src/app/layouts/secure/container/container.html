@@ -1,0 +1,15 @@
+<div class="relative transition-colors duration-300">
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <qfin-drawer [(isExpanded)]="isExpanded" [(isHovered)]="isHovered"></qfin-drawer>
+        <div class="flex flex-1 flex-col min-w-0 h-screen overflow-y-auto"
+            [ngClass]="isExpanded() || isHovered() ? 'lg:ml-72.5' : 'lg:ml-22.5'">
+            <qfin-header [(isExpanded)]="isExpanded"></qfin-header>
+            <div class="flex-1 p-6 relative">
+                <div class="w-full h-full" style="opacity: 1; transform: none;">
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+            <qfin-footer></qfin-footer>
+        </div>
+    </div>
+</div>

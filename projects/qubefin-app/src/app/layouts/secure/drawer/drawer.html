@@ -1,1 +1,82 @@
-<p>drawer works!</p>
+<aside
+    class="fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out border-r border-gray-200"
+    [ngClass]="
+    {
+        'lg:w-72.5': isExpanded() || isHovered(),
+        'lg:w-22.5': !isExpanded() && !isHovered(),
+        'lg:translate-x-0': true
+    }
+" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
+    <div [ngClass]="['py-8 flex',
+        !isExpanded() && !isHovered() ? 'lg:justify-center' : 'justify-start'
+    ]">
+        <a routerLink="/">
+            @if (isExpanded() || isHovered()) {
+            <img src="/assets/images/logo.avif" alt="Qbent Logo" width="150" height="40">
+            } @else {
+            <img src="/images/logo-32.png" alt="Qbent Logo" width="32" height="32">
+            }
+        </a>
+    </div>
+    <div class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+        <nav className="space-y-1 mt-6">
+            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+                href="/devices" data-discover="true">
+                <div class="absolute left-0 w-0.75 h-1/2 bg-blue-900 rounded-r-md z-10 origin-center" style="opacity: 1; transform: none;"></div>
+                <mat-icon class="material-symbols-outlined text-blue-900">
+                    dashboard
+                </mat-icon>
+                <span class="ml-3 text-blue-900 font-bold">Dashboard</span>
+            </a>
+            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+                href="/devices" data-discover="true">
+                <mat-icon class="material-symbols-outlined">
+                    public
+                </mat-icon>
+                <span class="ml-3">Global</span>
+            </a>
+            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+                href="/devices" data-discover="true">
+                <mat-icon class="material-symbols-outlined">
+                    group
+                </mat-icon>
+                <span class="ml-3">Members</span>
+            </a>
+            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+                href="/devices" data-discover="true">
+                <mat-icon class="material-symbols-outlined">
+                    money_bag
+                </mat-icon>
+                <span class="ml-3">Loans</span>
+            </a>
+            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+                href="/devices" data-discover="true">
+                <mat-icon class="material-symbols-outlined">
+                    groups
+                </mat-icon>
+                <span class="ml-3">Human Resource</span>
+            </a>
+            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+                href="/devices" data-discover="true">
+                <mat-icon class="material-symbols-outlined">
+                    receipt_longs
+                </mat-icon>
+                <span class="ml-3">Payroll</span>
+            </a>
+            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+                href="/devices" data-discover="true">
+                <mat-icon class="material-symbols-outlined">
+                    checkbook
+                </mat-icon>
+                <span class="ml-3">Accounting</span>
+            </a>
+            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+                href="/devices" data-discover="true">
+                <mat-icon class="material-symbols-outlined">
+                    monitoring
+                </mat-icon>
+                <span class="ml-3">Reports</span>
+            </a>
+        </nav>
+    </div>
+</aside>

@@ -1,4 +1,4 @@
 export interface ValidateLoginModel {
-  username: string;
+  userName: string;
   password: string;
 }

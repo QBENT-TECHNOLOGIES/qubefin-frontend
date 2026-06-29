@@ -1,1 +1,16 @@
-<p>register-mfa works!</p>
+<div>
+    <img [src]="qrCodeImageUrl()" width="200">
+</div>
+<div class="divider-container">
+    <div class="divider-text text-2xl font-bold">OR</div>
+</div>
+<div class="form-byeline text-center">Alternatively, you may enter the following code<br>to the Google
+    Authenticator
+    App</div>
+<div class="imp-text my-3 text-red-900 font-semibold">{{mfaKey()}}</div>
+
+<button mat-flat-button color="primary" class="login-button w-full mt-6" (click)="onSubmit()">
+
+    Sign In
+
+</button>

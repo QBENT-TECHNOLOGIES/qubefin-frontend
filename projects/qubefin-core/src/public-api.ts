@@ -9,6 +9,10 @@ export * from './lib/env-config';
 export * from './lib/enums/api-paths';
 export * from './lib/enums/storage-tokens';
 
+// Interceptors
+export * from './lib/interceptors/auth-interceptor';
+
+// Stores
 export * from './lib/stores/auth-store';
 export * from './lib/stores/login-state-store';
 

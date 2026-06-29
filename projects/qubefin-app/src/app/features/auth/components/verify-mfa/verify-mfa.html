@@ -1,1 +1,53 @@
-<p>verify-mfa works!</p>
+<form (submit)="onSubmit($event)">
+
+  <!-- User ID -->
+  <mat-form-field class="w-full">
+
+    <mat-label>MFA Code</mat-label>
+
+    <mat-icon class="material-symbols-outlined" matPrefix>
+      person_outline
+    </mat-icon>
+
+    <input
+      matInput
+      [formField]="mfaForm.mfaCode"
+      autocomplete="mfaycode"
+      placeholder="Enter MFA Code">
+
+    <!-- @if (
+      loginForm.username.touched() &&
+      loginForm.username.invalid()
+    ) {
+
+      <mat-error>
+        User ID is required
+      </mat-error>
+
+    } -->
+
+  </mat-form-field>
+
+  <div class="flex justify-between items-center mt-4">
+
+    <a
+      href="#"
+      class="text-blue-600 text-sm" (click)="onMfaRegister()">
+
+      Register MFA
+
+    </a>
+
+  </div>
+
+  <button
+    mat-flat-button
+    color="primary"
+    class="login-button w-full mt-6"
+    [disabled]="mfaForm().invalid()">
+
+    Sign In
+
+  </button>
+
+</form>
