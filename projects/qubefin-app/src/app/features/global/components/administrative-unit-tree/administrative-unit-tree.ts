@@ -16,16 +16,9 @@ export class AdministrativeUnitTree {
 	administrativeUnitTree = this.administrativeUnitStore.administrativeUnitTree;
 
 	childrenAccessor = (node: AdministrativeUnitTreeNode) => {
-		console.log(node.name, node.children);
+		//console.log(node.name, node.children);
 		return node.children ?? [];
 	}
 
 	hasChild = (_: number, node: AdministrativeUnitTreeNode) => !!node.children && node.children.length > 0;
-
-	constructor() {
-		effect(() => {
-			console.log(this.administrativeUnitTree());
-		});
-
-	}
 }
