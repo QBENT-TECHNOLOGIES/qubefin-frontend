@@ -4,7 +4,7 @@
         <div class="flex flex-1 flex-col min-w-0 h-screen overflow-y-auto"
             [ngClass]="isExpanded() || isHovered() ? 'lg:ml-72.5' : 'lg:ml-22.5'">
             <qfin-header [(isExpanded)]="isExpanded"></qfin-header>
-            <div class="flex-1 p-6 relative">
+            <div class="flex-1 p-6 relative overflow-auto">
                 <div class="w-full h-full" style="opacity: 1; transform: none;">
                     <router-outlet></router-outlet>
                 </div>

@@ -6,7 +6,6 @@ import { environment } from '../environments/environment';
 
 import { AuthInterceptor, ENV_CONFIG } from 'qubefin-core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { ENV_CONFIG } from 'qubefin-core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
 export const appConfig: ApplicationConfig = {

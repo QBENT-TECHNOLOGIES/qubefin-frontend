@@ -25,6 +25,10 @@ export const routes: Routes = [
             {
                 path: 'home',
                 loadChildren: () => import('./features/home/home-routes').then(m => m.HomeRoutes),
+            },
+            {
+                path: 'global',
+                loadChildren: () => import('./features/global/global-routes').then(m => m.GlobalRoutes),
             }
         ]
     }
