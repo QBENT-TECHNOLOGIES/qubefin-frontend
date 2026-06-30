@@ -4,10 +4,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTreeModule } from '@angular/material/tree';
 import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
 import { AdministrativeUnitTreeNode } from '../../models/administrative-unit-tree-node';
+import { CommonModule } from '@angular/common';
 
 @Component({
 	selector: 'qfin-administrative-unit-tree',
-	imports: [MatButtonModule, MatIconModule, MatTreeModule],
+	imports: [CommonModule, MatButtonModule, MatIconModule, MatTreeModule],
 	templateUrl: './administrative-unit-tree.html'
 })
 export class AdministrativeUnitTree {

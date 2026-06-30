@@ -17,6 +17,8 @@
   @include mat.card-overrides((elevated-container-color: white));
   @include mat.button-overrides((filled-container-shape: 4px,
     ));
+    @include mat.icon-button-overrides((touch-target-size: 36px
+    ));
   @include mat.expansion-overrides((container-shape: 0px,
       header-hover-state-layer-color: rgb(142, 197, 255),
     ));
@@ -28,6 +30,9 @@
       outlined-outline-width: 0px));
   @include mat.stepper-overrides((header-height: 48px));
   @include mat.slide-toggle-overrides((track-height: 32px, handle-width: 16px, handle-height: 16px));
+  @include mat.tree-overrides((
+    node-min-height: 24px,
+  ));
 }
 
 $compact-theme: mat.define-theme(

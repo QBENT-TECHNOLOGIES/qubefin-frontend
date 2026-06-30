@@ -1,5 +1,5 @@
 <div class="relative transition-colors duration-300">
-    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div class="fixed inset-0 overflow-hidden">
         <qfin-drawer [(isExpanded)]="isExpanded" [(isHovered)]="isHovered"></qfin-drawer>
         <div class="flex flex-1 flex-col min-w-0 h-screen overflow-y-auto"
             [ngClass]="isExpanded() || isHovered() ? 'lg:ml-72.5' : 'lg:ml-22.5'">

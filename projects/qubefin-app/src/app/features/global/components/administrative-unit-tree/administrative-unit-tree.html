@@ -1,26 +1,16 @@
-<mat-tree #tree [dataSource]="administrativeUnitTree()" [childrenAccessor]="childrenAccessor" class="example-tree">
-  <!-- This is the tree node template for leaf nodes -->
-  <!-- There is inline padding applied to this node using styles.
-    This padding value depends on the matIconButton width. -->
-  <mat-nested-tree-node *matTreeNodeDef="let node">
+<mat-tree #tree [dataSource]="administrativeUnitTree()" [childrenAccessor]="childrenAccessor">
+  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+    <button matIconButton disabled></button>
     {{node.name}}
-  </mat-nested-tree-node>
-  <!-- This is the tree node template for expandable nodes -->
-  <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodeToggle
-    [cdkTreeNodeTypeaheadLabel]="node.name">
-    <div class="mat-tree-node">
-      <button matIconButton [attr.aria-label]="'Toggle ' + node.name"
-      (click)="tree.toggle(node); $event.stopPropagation()">
-        <mat-icon class="material-symbols-outlined mat-icon-rtl-mirror">
-          {{tree.isExpanded(node) ? 'arrow_drop_down' : 'arrow_right'}}
-        </mat-icon>
-      </button>
-      {{node.name}}
-    </div>
-    <!-- There is inline padding applied to this div using styles.
-        This padding value depends on the matIconButton width.  -->
-    <div [class.example-tree-invisible]="!tree.isExpanded(node)" role="group">
-      <ng-container matTreeNodeOutlet></ng-container>
-    </div>
-  </mat-nested-tree-node>
+  </mat-tree-node>
+  <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding matTreeNodeToggle
+                 [cdkTreeNodeTypeaheadLabel]="node.name">
+    <button matIconButton matTreeNodeToggle
+            [attr.aria-label]="'Toggle ' + node.name">
+      <mat-icon class="material-symbols-outlined mat-icon-rtl-mirror">
+        {{tree.isExpanded(node) ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}}
+      </mat-icon>
+    </button>
+    {{node.name}}
+  </mat-tree-node>
 </mat-tree>
