@@ -14,6 +14,14 @@
   --mat-sys-corner-extra-large: 0;
   --mat-sys-corner-full: 0;
 
+    --mat-sys-body-large-size: 14px;
+  --mat-sys-body-medium-size: 14px;
+  --mat-sys-body-small-size: 12px;
+
+  --mat-sys-title-small-size: 14px;
+  --mat-sys-label-large-size: 14px;
+  --mat-sys-label-medium-size: 14px;
+
   @include mat.card-overrides((elevated-container-color: white));
   @include mat.button-overrides((filled-container-shape: 4px,
     ));
@@ -30,6 +38,7 @@
   @include mat.stepper-overrides((header-height: 48px));
   @include mat.slide-toggle-overrides((track-height: 32px, handle-width: 16px, handle-height: 16px));
   @include mat.tree-overrides((node-min-height: 24px,
+    container-background-color: white,
     ));
 }
 
@@ -45,6 +54,9 @@ html {
       typography: (brand-family: 'Inter, sans-serif',
         plain-family: 'Inter, sans-serif',
         body-family: 'Inter, sans-serif',
+        body-medium-size: 14px,
+        body-large-size: 14px,
+        label-large-size: 14px,
       ),
       density: -1,
     ));

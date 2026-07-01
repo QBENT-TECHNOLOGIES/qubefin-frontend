@@ -1,16 +1,24 @@
-<mat-tree #tree [dataSource]="administrativeUnitTree()" [childrenAccessor]="childrenAccessor">
+<mat-tree #tree [dataSource]="administrativeUnitTreeNodes()" [childrenAccessor]="childrenAccessor">
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
     <button matIconButton disabled></button>
-    {{node.name}}
+    <mat-icon class="material-symbols-outlined">
+      {{node.administrativeUnitTypeIcon}}
+    </mat-icon>
+    <span (click)="onDetailView(node.id)" class="ml-4 cursor-pointer">
+      {{node.name}}
+    </span>
   </mat-tree-node>
-  <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding matTreeNodeToggle
-                 [cdkTreeNodeTypeaheadLabel]="node.name">
-    <button matIconButton matTreeNodeToggle
-            [attr.aria-label]="'Toggle ' + node.name">
+  <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding [cdkTreeNodeTypeaheadLabel]="node.name">
+    <button matIconButton matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
       <mat-icon class="material-symbols-outlined mat-icon-rtl-mirror">
         {{tree.isExpanded(node) ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}}
       </mat-icon>
     </button>
-    {{node.name}}
+        <mat-icon class="material-symbols-outlined">
+      {{node.administrativeUnitTypeIcon}}
+    </mat-icon>
+    <span (click)="onDetailView(node.id)" class="ml-4 cursor-pointer">
+      {{node.name}}
+    </span>
   </mat-tree-node>
 </mat-tree>

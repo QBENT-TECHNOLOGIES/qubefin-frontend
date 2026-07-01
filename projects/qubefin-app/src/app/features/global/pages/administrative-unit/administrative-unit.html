@@ -1,1 +1,17 @@
-<qfin-administrative-unit-tree></qfin-administrative-unit-tree>
+<div class="flex gap-4">
+    <div class="w-120 bg-white border-r border-slate-200 flex flex-col gap-4">
+        <div class="px-4 py-3 border-b border-slate-200">
+            <h1 class="text-lg font-bold text-slate-800">
+                Administrative Units
+            </h1>
+        </div>
+        <div>
+            <qfin-administrative-unit-tree [administrativeUnitTreeNodes]="administrativeUnitTreeNodes()"
+                (onViewDetail)="viewDetail($event)"></qfin-administrative-unit-tree>
+        </div>
+    </div>
+    <div class="flex-1">
+        <qfin-administrative-unit-detail
+            [administrativeUnitId]="selectedAdministrativeUnitId()"></qfin-administrative-unit-detail>
+    </div>
+</div>

@@ -1,8 +1,7 @@
-import { Component, inject, effect } from '@angular/core';
+import { Component, inject, effect, ViewChild, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTreeModule } from '@angular/material/tree';
-import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
 import { AdministrativeUnitTreeNode } from '../../models/administrative-unit-tree-node';
 import { CommonModule } from '@angular/common';
 
@@ -12,14 +11,18 @@ import { CommonModule } from '@angular/common';
 	templateUrl: './administrative-unit-tree.html'
 })
 export class AdministrativeUnitTree {
-	administrativeUnitStore = inject(AdministrativeUnitStore);
+	
+	onViewDetail = output<string>();	
 
-	administrativeUnitTree = this.administrativeUnitStore.administrativeUnitTree;
+	administrativeUnitTreeNodes = input<AdministrativeUnitTreeNode[]>([]);
 
 	childrenAccessor = (node: AdministrativeUnitTreeNode) => {
-		//console.log(node.name, node.children);
 		return node.children ?? [];
 	}
 
 	hasChild = (_: number, node: AdministrativeUnitTreeNode) => !!node.children && node.children.length > 0;
+
+	onDetailView(id: string) {
+		this.onViewDetail.emit(id);
+	}
 }
