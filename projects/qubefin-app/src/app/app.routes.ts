@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { Container as PublicContainer } from './layouts/public/container/container';
-import { Container as SecureContainer } from './layouts/secure/container/container';
+import { Area } from './layouts/public/area/area';
+import { Container } from './layouts/secure/container/container';
 
 export const routes: Routes = [
     {
@@ -10,7 +10,7 @@ export const routes: Routes = [
     },
     {
         path: 'public',
-        component: PublicContainer,
+        component: Area,
         children: [
             {
                 path: 'auth',
@@ -20,7 +20,7 @@ export const routes: Routes = [
     },
     {
         path: 'secure',
-        component: SecureContainer,
+        component: Container,
         children: [
             {
                 path: 'home',

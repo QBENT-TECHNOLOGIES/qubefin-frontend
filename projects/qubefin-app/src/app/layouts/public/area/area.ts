@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
-  selector: 'qfin-container',
+  selector: 'qfin-area',
   imports: [RouterOutlet],
-  templateUrl: './container.html',
+  templateUrl: './area.html',
 })
-export class Container {
+export class Area {
 
 }

@@ -17,8 +17,7 @@
   @include mat.card-overrides((elevated-container-color: white));
   @include mat.button-overrides((filled-container-shape: 4px,
     ));
-    @include mat.icon-button-overrides((touch-target-size: 36px
-    ));
+  @include mat.icon-button-overrides((touch-target-size: 36px));
   @include mat.expansion-overrides((container-shape: 0px,
       header-hover-state-layer-color: rgb(142, 197, 255),
     ));
@@ -30,18 +29,11 @@
       outlined-outline-width: 0px));
   @include mat.stepper-overrides((header-height: 48px));
   @include mat.slide-toggle-overrides((track-height: 32px, handle-width: 16px, handle-height: 16px));
-  @include mat.tree-overrides((
-    node-min-height: 24px,
-  ));
+  @include mat.tree-overrides((node-min-height: 24px,
+    ));
 }
 
-$compact-theme: mat.define-theme(
-   (        
-      density:(
-         scale:-4
-      )
-   )
- );
+$compact-theme: mat.define-theme((density:(scale:-4)));
 
 @include mat.form-field-density($compact-theme);
 
@@ -50,42 +42,37 @@ html {
   @include mat.theme((color: (primary: mat.$azure-palette,
         tertiary: mat.$blue-palette,
       ),
-      typography: "Inter",
+      typography: (brand-family: 'Inter, sans-serif',
+        plain-family: 'Inter, sans-serif',
+        body-family: 'Inter, sans-serif',
+      ),
       density: -1,
     ));
 }
 
-body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  //font: var(--mat-sys-body-medium);
-  font-family: 'Inter', sans-serif;
-  ;
-
-  // Reset the user agent margin.
-  margin: 0;
-  height: 100%;
-}
+// body {
+//   color-scheme: light;
+//   background-color: var(--mat-sys-surface);
+//   color: var(--mat-sys-on-surface);
+//   font-family: 'Inter', sans-serif;
+//   margin: 0;
+//   height: 100%;
+// }
 
 .mat-mdc-form-field-focus-overlay {
-  display: none; /* Removes the hover/focus overlay */
+  display: none;
+  /* Removes the hover/focus overlay */
 }
 
 .mdc-text-field {
   padding: 0 !important;
 }
 
-.mat-mdc-form-field-hint-wrapper, .mat-mdc-form-field-error-wrapper {
+.mat-mdc-form-field-hint-wrapper,
+.mat-mdc-form-field-error-wrapper {
   padding: 0 !important;
 }
+
 // .mdc-line-ripple::before,
 // .mdc-line-ripple::after {
 //     left: 16px !important;
