@@ -1,3 +1,5 @@
+import { AdministrativeUnitHierarchyItem } from "./administrative-unit-hierarchy-item";
+
 export interface AdministrativeUnitRequest {
     id: string;
     name: string;
@@ -7,4 +9,5 @@ export interface AdministrativeUnitRequest {
     parentId?: string;
     parentName?: string;
     isActive: boolean;
+    hierarchy: AdministrativeUnitHierarchyItem[];
 }

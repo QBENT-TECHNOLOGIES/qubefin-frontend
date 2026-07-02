@@ -1,7 +1,7 @@
-import { Component, inject, effect, ViewChild, input, output } from '@angular/core';
+import { Component, inject, effect, ViewChild, input, output, AfterViewInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTreeModule } from '@angular/material/tree';
+import { MatTree, MatTreeModule } from '@angular/material/tree';
 import { AdministrativeUnitTreeNode } from '../../models/administrative-unit-tree-node';
 import { CommonModule } from '@angular/common';
 
@@ -10,8 +10,11 @@ import { CommonModule } from '@angular/common';
 	imports: [CommonModule, MatButtonModule, MatIconModule, MatTreeModule],
 	templateUrl: './administrative-unit-tree.html'
 })
-export class AdministrativeUnitTree {
-	
+export class AdministrativeUnitTree implements AfterViewInit {
+	ngAfterViewInit(): void {
+		this.tree.expand(this.administrativeUnitTreeNodes()[0]);
+	}
+	 @ViewChild(MatTree) tree!: MatTree<any>;
 	onViewDetail = output<string>();	
 
 	administrativeUnitTreeNodes = input<AdministrativeUnitTreeNode[]>([]);

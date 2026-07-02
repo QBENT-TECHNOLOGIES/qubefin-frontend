@@ -28,6 +28,9 @@ export class AdministrativeUnit {
 	constructor() {
 		effect(() => {
 			this.routeDataService.setRouteData(this.routeData());
+			if (this.administrativeUnitTreeNodes().length > 0) {
+				this.selectedAdministrativeUnitId.set(this.administrativeUnitTreeNodes()[0].id);
+			}
 		});
 	}
 

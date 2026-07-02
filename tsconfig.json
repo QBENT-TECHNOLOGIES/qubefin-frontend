@@ -33,9 +33,6 @@
     },
     {
       "path": "./projects/qubefin-core/tsconfig.lib.json"
-    },
-    {
-      "path": "./projects/qubefin-core/tsconfig.spec.json"
     }
   ]
 }

@@ -32,7 +32,8 @@ export class AdministrativeUnitDetail {
 		administrativeUnitTypeName: '',
 		parentId: '',
 		parentName: '',
-		isActive: true
+		isActive: true,
+		hierarchy: []
 	});
 	protected readonly administrativeUnitSchema: Schema<AdministrativeUnitRequest> = schema((path) => {
 		required(path.name, { message: 'Administrative Unit Name is required' });

@@ -9,7 +9,7 @@
     </span>
   </mat-tree-node>
   <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding [cdkTreeNodeTypeaheadLabel]="node.name">
-    <button matIconButton matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
+    <button matIconButton matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name"  [matTreeNodeToggleRecursive]="true">
       <mat-icon class="material-symbols-outlined mat-icon-rtl-mirror">
         {{tree.isExpanded(node) ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}}
       </mat-icon>
