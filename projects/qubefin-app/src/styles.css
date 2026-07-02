@@ -3,76 +3,53 @@
 @import 'tailwindcss';
 
 body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
 }
 
 .material-symbols-outlined {
-    font-variation-settings:
-        'FILL' 0,
-        'wght' 400,
-        'GRAD' 0,
-        'opsz' 16
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 16
 }
 
 @layer components {
 
-    .menu{
+  .menu {
 
-        @apply flex
-        items-center
-        gap-4
-        rounded-2xl
-        px-4
-        py-3
-        text-slate-700
-        hover:bg-sky-50
-        hover:text-blue-600
-        transition
-        cursor-pointer;
-    }
+    @apply flex items-center gap-4 rounded-2xl px-4 py-3 text-slate-700 hover:bg-sky-50 hover:text-blue-600 transition cursor-pointer;
+  }
 
-    .menu .material-symbols-rounded{
+  .menu .material-symbols-rounded {
 
-        @apply text-[22px];
-    }
+    @apply text-[22px];
+  }
 
-    .menu.active{
+  .menu.active {
 
-        @apply bg-linear-to-r
-        from-blue-500
-        via-sky-500
-        to-green-400
-        text-white
-        shadow-lg;
-    }
+    @apply bg-linear-to-r from-blue-500 via-sky-500 to-green-400 text-white shadow-lg;
+  }
 
-    .toolbar-btn{
+  .toolbar-btn {
 
-        @apply w-11
-        h-11
-        rounded-xl
-        hover:bg-slate-100
-        flex
-        items-center
-        justify-center
-        text-slate-600
-        transition;
-    }
+    @apply w-11 h-11 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-600 transition;
+  }
 
 }
 
 .glass-card {
-    background: rgba(255, 255, 255, .82);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+  background: rgba(255, 255, 255, .82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 
-    border: 1px solid rgba(255, 255, 255, .7);
+  border: 1px solid rgba(255, 255, 255, .7);
 
-    box-shadow:
-        0 20px 80px rgba(15, 23, 42, .08),
-        0 10px 30px rgba(15, 23, 42, .05);
+  box-shadow:
+    0 20px 80px rgba(15, 23, 42, .08),
+    0 10px 30px rgba(15, 23, 42, .05);
 }
 
 .example-tree-invisible {
@@ -98,7 +75,7 @@ body {
  * Leaf nodes need to have padding so as to align with other non-leaf nodes
  * under the same parent.
  */
-.example-tree div[role=group] > .mat-nested-tree-node {
+.example-tree div[role=group]>.mat-nested-tree-node {
   padding-left: 40px;
 }
 
@@ -116,6 +93,10 @@ body {
 
 .tree-node:hover {
   background: #f5f5f5;
+}
+
+.tree-node-active {
+  @apply text-blue-900 font-bold;
 }
 
 .tree-toggle {
@@ -153,6 +134,6 @@ body {
  * Leaf nodes need to have padding so as to align with other non-leaf nodes
  * under the same parent.
  */
-.admin-tree div[role=group] > .mat-nested-tree-node {
+.admin-tree div[role=group]>.mat-nested-tree-node {
   padding-left: 40px;
 }

@@ -28,7 +28,7 @@ export class ValidateLogin {
 		required(path.userName, { message: 'User Name is required' });
 		required(path.password, { message: 'Password is required' });
 	});
-	protected readonly loginForm = form(this.loginModel);
+	protected readonly loginForm = form(this.loginModel, this.loginSchema);
 
 	protected onSubmit(event: Event) {
 		if (this.loginForm().valid()) {

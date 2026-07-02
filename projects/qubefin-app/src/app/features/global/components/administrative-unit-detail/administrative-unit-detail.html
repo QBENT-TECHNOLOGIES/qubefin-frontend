@@ -1,12 +1,39 @@
 <div class="flex flex-col h-full justify-between">
     <div>
+        <div class="flex justify-between items-center px-4 py-1 border-b border-slate-200">
+            <div class="flex items-center gap-3 text-sm text-gray-500">
+                <mat-icon class="material-symbols-outlined">
+                    home
+                </mat-icon>
+                <mat-icon class="material-symbols-outlined">
+                    keyboard_arrow_right
+                </mat-icon>
+                <span>Global</span>
+                <mat-icon class="material-symbols-outlined">
+                    keyboard_arrow_right
+                </mat-icon>
+                <span>Administrative Units</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button type="button"
+                    class="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-600 shadow-sm transition-all duration-200 hover:text-white hover:bg-blue-700 hover:shadow-md cursor-pointer">
+                    <span class="material-symbols-outlined text-[20px]">add</span>
+                    New
+                </button>
+                <button type="button"
+                    class="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-600 shadow-sm transition-all duration-200 hover:text-white hover:bg-blue-700 hover:shadow-md cursor-pointer">
+                    <span class="material-symbols-outlined text-[20px]">edit</span>
+                    Edit
+                </button>
+            </div>
+        </div>
         <div class="flex p-4">
             <div class="flex w-full justify-between items-center">
                 <div class="flex items-center gap-2">
                     <div class="flex justify-center">
                         <div
-                            class="w-18 h-18 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-5xl! text-blue-700">
+                            class="w-14 h-14 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-4xl! text-blue-700">
                                 {{administrativeUnit()?.administrativeUnitTypeIcon}}
                             </span>
                         </div>
@@ -107,26 +134,26 @@
             </div>
         </div>
     </div>
-    <div class="border-t border-slate-200 p-8">
-        <h3 class="text-lg font-semibold mb-6">
+    <div class="border-t border-slate-200 px-6 py-3">
+        <h3 class="text-lg font-semibold mb-4">
             Audit Information
         </h3>
         <div class="grid grid-cols-4 gap-6 divide-x divide-gray-300">
             <div>
-                <label class="text-sm text-slate-500">Created By</label>
-                <p class="font-medium mt-1">Super Admin</p>
+                <label class="text-xs text-slate-500">Created By</label>
+                <p class="font-medium">Super Admin</p>
             </div>
             <div>
-                <label class="text-sm text-slate-500">Created On</label>
-                <p class="font-medium mt-1">22-06-2026 10:27 AM</p>
+                <label class="text-xs text-slate-500">Created On</label>
+                <p class="font-medium">22-06-2026 10:27 AM</p>
             </div>
             <div>
-                <label class="text-sm text-slate-500">Last Modified By</label>
-                <p class="font-medium mt-1">Super Admin</p>
+                <label class="text-xs text-slate-500">Last Modified By</label>
+                <p class="font-medium">Super Admin</p>
             </div>
             <div>
-                <label class="text-sm text-slate-500">Last Modified On</label>
-                <p class="font-medium mt-1">01-07-2026 11:20 PM</p>
+                <label class="text-xs text-slate-500">Last Modified On</label>
+                <p class="font-medium">01-07-2026 11:20 PM</p>
             </div>
+        </div>
     </div>
-</div>

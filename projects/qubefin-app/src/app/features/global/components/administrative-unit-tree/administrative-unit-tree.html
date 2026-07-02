@@ -1,24 +1,41 @@
-<mat-tree #tree [dataSource]="administrativeUnitTreeNodes()" [childrenAccessor]="childrenAccessor">
-  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-    <button matIconButton disabled></button>
-    <mat-icon class="material-symbols-outlined">
-      {{node.administrativeUnitTypeIcon}}
-    </mat-icon>
-    <span (click)="onDetailView(node.id)" class="ml-4 cursor-pointer">
-      {{node.name}}
-    </span>
-  </mat-tree-node>
-  <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding [cdkTreeNodeTypeaheadLabel]="node.name">
-    <button matIconButton matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name"  [matTreeNodeToggleRecursive]="true">
-      <mat-icon class="material-symbols-outlined mat-icon-rtl-mirror">
-        {{tree.isExpanded(node) ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}}
-      </mat-icon>
-    </button>
-        <mat-icon class="material-symbols-outlined">
-      {{node.administrativeUnitTypeIcon}}
-    </mat-icon>
-    <span (click)="onDetailView(node.id)" class="ml-4 cursor-pointer">
-      {{node.name}}
-    </span>
-  </mat-tree-node>
+<mat-tree #tree [dataSource]="administrativeUnitTreeNodes()" [childrenAccessor]="childrenAccessor" class="mr-4">
+	<mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+		<div class="group relative flex items-center px-2 w-full cursor-pointer transition-all duration-200 hover:bg-blue-100"
+			[class.tree-node-active]="selectedId() === node.id">
+			<button matIconButton disabled></button>
+			<mat-icon class="material-symbols-outlined">
+				{{node.administrativeUnitTypeIcon}}
+			</mat-icon>
+			<span (click)="onDetailView(node.id)" class="ml-4 cursor-pointer">
+				{{node.name}}
+			</span>
+			@if (selectedId() === node.id) {
+			<div class="absolute right-0 top-1/2 -translate-y-1/2
+           w-2 h-4 bg-blue-600" style="clip-path: polygon(100% 0, 100% 100%, 0 50%);">
+			</div>
+			}
+		</div>
+	</mat-tree-node>
+	<mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding [cdkTreeNodeTypeaheadLabel]="node.name">
+		<div class="group relative flex items-center px-2 w-full cursor-pointer transition-all duration-200 hover:bg-blue-100"
+			[class.tree-node-active]="selectedId() === node.id">
+			<button matIconButton matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.id"
+				[matTreeNodeToggleRecursive]="true">
+				<mat-icon class="material-symbols-outlined mat-icon-rtl-mirror">
+					{{tree.isExpanded(node) ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}}
+				</mat-icon>
+			</button>
+			<mat-icon class="material-symbols-outlined">
+				{{node.administrativeUnitTypeIcon}}
+			</mat-icon>
+			<span (click)="onDetailView(node.id)" class="ml-4 cursor-pointer">
+				{{node.name}}
+			</span>
+			@if (selectedId() === node.id) {
+			<div class="absolute right-0 top-1/2 -translate-y-1/2
+           w-2 h-4 bg-blue-600 shadow-md" style="clip-path: polygon(100% 0,100% 100%,0 50%);">
+			</div>
+			}
+		</div>
+	</mat-tree-node>
 </mat-tree>
