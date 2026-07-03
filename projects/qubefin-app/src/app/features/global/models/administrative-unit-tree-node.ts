@@ -8,3 +8,9 @@ export interface AdministrativeUnitTreeNode {
     isActive: boolean;
     children?: AdministrativeUnitTreeNode[];
 }
+
+export interface AdministrativeUnitBasic {
+    id: string;
+    name: string;
+    category: string;
+}

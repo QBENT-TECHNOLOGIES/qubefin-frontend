@@ -1,15 +1,16 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { AdministrativeUnitTree } from '../../components/administrative-unit-tree/administrative-unit-tree';
 import { ActivatedRoute } from '@angular/router';
-import { RouteDataService, RouteMeta } from 'qubefin-core';
+import { EMPTY_UUID, RouteDataService, RouteMeta } from 'qubefin-core';
 import { Observable } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AdministrativeUnitDetail } from '../../components/administrative-unit-detail/administrative-unit-detail';
 import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
+import { AdministrativeUnitView } from '../../components/administrative-unit-view/administrative-unit-view';
 
 @Component({
 	selector: 'qfin-administrative-unit',
-	imports: [AdministrativeUnitTree, AdministrativeUnitDetail],
+	imports: [AdministrativeUnitTree, AdministrativeUnitDetail, AdministrativeUnitView],
 	templateUrl: './administrative-unit.html'
 })
 export class AdministrativeUnit {
@@ -18,7 +19,8 @@ export class AdministrativeUnit {
 
 	administrativeUnitStore = inject(AdministrativeUnitStore);
 
-	selectedAdministrativeUnitId = signal<string>('');
+	isViewMode = signal<boolean>(true);
+	selectedAdministrativeUnitId = signal<string>(EMPTY_UUID);
 	administrativeUnitTreeNodes = this.administrativeUnitStore.administrativeUnitTree;
 
 	private routeData = toSignal(this.route.data as Observable<RouteMeta>, {
@@ -32,6 +34,11 @@ export class AdministrativeUnit {
 				this.selectedAdministrativeUnitId.set(this.administrativeUnitTreeNodes()[0].id);
 			}
 		});
+	}
+
+	protected onAdd() {
+		this.isViewMode.set(false);
+		this.selectedAdministrativeUnitId.set(EMPTY_UUID);
 	}
 
 	protected viewDetail(id: string) {

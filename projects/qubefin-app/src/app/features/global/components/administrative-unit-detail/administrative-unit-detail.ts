@@ -1,25 +1,65 @@
-import { Component, effect, inject, model, signal } from '@angular/core';
+import { Component, computed, effect, inject, model, signal, WritableSignal } from '@angular/core';
 import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
 import { AdministrativeUnitRequest } from '../../models/administrative-unit-request';
-import { form, required, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { AdministrativeUnitTypeStore } from '../../stores/administrative-unit-type-store';
+import { AdministrativeUnitType } from '../../models/administrative-unit-type';
+import { AdministrativeUnitBasic } from '../../models/administrative-unit-tree-node';
+import { AdministrativeUnitService } from '../../services/administrative-unit-service';
+import { EMPTY_UUID } from 'qubefin-core';
+
+export interface AdministrativeUnitTypeParentField {
+	id: string;
+	name: string;
+	category: string;
+	categoryIcon: string;
+	value: WritableSignal<string | null>;
+	parentId: WritableSignal<string | null>;
+	options: WritableSignal<AdministrativeUnitBasic[]>;
+}
 
 @Component({
 	selector: 'qfin-administrative-unit-detail',
-	imports: [MatIconModule],
+	imports: [FormField, MatIconModule, MatFormFieldModule, MatInputModule, MatSelectModule],
 	templateUrl: './administrative-unit-detail.html'
 })
 export class AdministrativeUnitDetail {
 	administrativeUnitStore = inject(AdministrativeUnitStore);
+	administrativeUnitTypeStore = inject(AdministrativeUnitTypeStore);
+	administrativeUnitService = inject(AdministrativeUnitService);
 
 	administrativeUnitId = model<string>('');
 
 	administrativeUnit = this.administrativeUnitStore.administrativeUnit;
+	administrativeUnitTypes = this.administrativeUnitTypeStore.administrativeUnitTypes;
 
 	constructor() {
 		effect(() => {
 			if (this.administrativeUnitId()) {
 				this.administrativeUnitStore.setAdministrativeUnitId(this.administrativeUnitId());
+			}
+
+			const selectedType = this.administrativeUnitTypes()
+				.find(x => x.id === this.administrativeUnitForm.administrativeUnitTypeId().value());
+
+			if (!selectedType) {
+				this.parentTypes.set([]);
+				return;
+			}
+
+			this.parentTypes.set(
+				this.getParents(selectedType)
+					.map(parent =>
+						this.createParentField(parent.id, parent.name, parent.category, parent.icon)
+					)
+			);
+
+			if (this.parentTypes().length > 0) {
+				this.loadOptionsForParentField(0);
 			}
 		});
 	}
@@ -39,4 +79,104 @@ export class AdministrativeUnitDetail {
 		required(path.name, { message: 'Administrative Unit Name is required' });
 	});
 	protected readonly administrativeUnitForm = form(this.administrativeUnitModel, this.administrativeUnitSchema);
+
+	parentTypes = signal<AdministrativeUnitTypeParentField[]>([]);
+
+	onParentChanged(index: number, value: string) {
+		const fields = this.parentTypes();
+		fields[index].value.set(value);
+		for (let i = index + 1; i < fields.length; i++) {
+			fields[i].value.set(null);
+			fields[i].options.set([]);
+			fields[i].parentId.set(null);
+		}
+		if (index + 1 < fields.length) {
+			fields[index + 1].parentId.set(value);
+			this.loadOptionsForParentField(index + 1);
+		}
+	}
+
+	onSubmit() {
+		if (!this.administrativeUnitForm().valid()) {
+			return;
+		}
+
+		const dataToSave = this.administrativeUnitForm().value();
+		if (this.administrativeUnitId() === EMPTY_UUID) {
+			console.log('Creating new administrative unit:', dataToSave);
+			this.administrativeUnitService.create(dataToSave).subscribe({
+				next: (resp: any) => {
+					
+				},
+				error: (err: any) => {
+					if (err.error.isError) {
+					}
+				}
+			});
+		} else {
+			this.administrativeUnitService.update(this.administrativeUnitId(), dataToSave).subscribe({
+				next: (resp: any) => {
+				},
+				error: (err: any) => {
+					if (err.error.isError) {
+					}
+				}
+			});
+		}
+	}
+
+	private loadOptionsForParentField(index: number) {
+		const field = this.parentTypes()[index];
+		this.administrativeUnitService
+			.loadChildren(field.parentId())
+			.subscribe({
+				next: result => {
+					console.log(field.category);
+					if (field.category === 'RURAL') {
+						result = result.filter(x => x.category.toLowerCase().includes('rural'));
+					}
+					if (field.category === 'URBAN') {
+						result = result.filter(x => x.category.toLowerCase().includes('urban'));
+					}
+
+					field.options.set(result);
+				},
+				error: () => {
+					field.options.set([]);
+				}
+			});
+	}
+
+	private getParents(selected: AdministrativeUnitType): AdministrativeUnitType[] {
+		return this.administrativeUnitTypes()
+			.filter(x => {
+				if (selected.category === 'RURAL')
+					return (x.category === 'COMMON' || x.category === 'RURAL')
+						&& x.levelNo < selected.levelNo;
+
+				if (selected.category === 'URBAN')
+					return (x.category === 'COMMON' || x.category === 'URBAN')
+						&& x.levelNo < selected.levelNo;
+
+				return x.levelNo < selected.levelNo;
+			})
+			.sort((a, b) => a.levelNo - b.levelNo);
+	}
+
+	private createParentField(
+		id: string,
+		name: string,
+		category: string,
+		categoryIcon: string
+	): AdministrativeUnitTypeParentField {
+		return {
+			id,
+			name,
+			category,
+			categoryIcon,
+			value: signal<string | null>(null),
+			parentId: signal<string | null>(null),
+			options: signal<AdministrativeUnitBasic[]>([])
+		};
+	}
 }

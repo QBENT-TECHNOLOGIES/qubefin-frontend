@@ -4,6 +4,11 @@
             <h1 class="text-lg font-bold text-slate-800">
                 Administrative Units
             </h1>
+                            <button type="button" (click)="onAdd()"
+                    class="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-600 shadow-sm transition-all duration-200 hover:text-white hover:bg-blue-700 hover:shadow-md cursor-pointer">
+                    <span class="material-symbols-outlined text-[20px]">add</span>
+                    New
+                </button>
         </div>
         <div class="h-full overflow-auto">
             <qfin-administrative-unit-tree [administrativeUnitTreeNodes]="administrativeUnitTreeNodes()"
@@ -11,7 +16,12 @@
         </div>
     </div>
     <div class="flex-1 grow">
-        <qfin-administrative-unit-detail
-            [administrativeUnitId]="selectedAdministrativeUnitId()"></qfin-administrative-unit-detail>
+        @if (isViewMode()) {
+            <qfin-administrative-unit-view
+                [administrativeUnitId]="selectedAdministrativeUnitId()"></qfin-administrative-unit-view>
+        } @else {
+            <qfin-administrative-unit-detail
+                [administrativeUnitId]="selectedAdministrativeUnitId()"></qfin-administrative-unit-detail>
+        }
     </div>
 </div>

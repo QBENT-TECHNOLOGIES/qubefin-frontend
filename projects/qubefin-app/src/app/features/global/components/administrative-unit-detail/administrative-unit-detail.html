@@ -1,159 +1,62 @@
 <div class="flex flex-col h-full justify-between">
-    <div>
-        <div class="flex justify-between items-center px-4 py-1 border-b border-slate-200">
-            <div class="flex items-center gap-3 text-sm text-gray-500">
-                <mat-icon class="material-symbols-outlined">
-                    home
-                </mat-icon>
-                <mat-icon class="material-symbols-outlined">
-                    keyboard_arrow_right
-                </mat-icon>
-                <span>Global</span>
-                <mat-icon class="material-symbols-outlined">
-                    keyboard_arrow_right
-                </mat-icon>
-                <span>Administrative Units</span>
-            </div>
-            <div class="flex items-center gap-3">
-                <button type="button"
-                    class="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-600 shadow-sm transition-all duration-200 hover:text-white hover:bg-blue-700 hover:shadow-md cursor-pointer">
-                    <span class="material-symbols-outlined text-[20px]">add</span>
-                    New
-                </button>
-                <button type="button"
-                    class="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-600 shadow-sm transition-all duration-200 hover:text-white hover:bg-blue-700 hover:shadow-md cursor-pointer">
-                    <span class="material-symbols-outlined text-[20px]">edit</span>
-                    Edit
-                </button>
-            </div>
-        </div>
-        <div class="flex p-4">
-            <div class="flex w-full justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <div class="flex justify-center">
-                        <div
-                            class="w-14 h-14 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-4xl! text-blue-700">
-                                {{administrativeUnit()?.administrativeUnitTypeIcon}}
-                            </span>
-                        </div>
-                    </div>
-                    <div>
-                        <h1 class="text-lg font-bold text-slate-800">
-                            {{administrativeUnit()?.name}}
-                        </h1>
-                    </div>
-                    <span class="rounded-xl bg-green-100 px-3 py-1 text-green-700">
-                        {{administrativeUnit()?.administrativeUnitTypeName}}
-                    </span>
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <span>Status</span>
-                    <span class="rounded-xl bg-green-100 px-3 py-1 text-green-700">
-                        {{administrativeUnit()?.isActive ? 'Active' : 'Inactive'}}
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="grid grid-cols-3 gap-6">
-            <div class="col-span-2 bg-white rounded-xl shadow-sm p-6">
-                <h3 class="text-lg font-semibold mb-6">
-                    General Information
-                </h3>
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <label class="text-sm text-slate-500">Name</label>
-                        <p class="font-medium mt-1">{{administrativeUnit()?.name}}</p>
-                    </div>
-                    <div>
-                        <label class="text-sm text-slate-500">Administrative Unit Type</label>
-                        <p class="font-medium mt-1">{{administrativeUnit()?.administrativeUnitTypeName}}</p>
-                    </div>
-                    @for (item of administrativeUnit()?.hierarchy; track $index) {
-                    @if (item.level > 0) {
-                    <div>
-                        <label class="text-sm text-slate-500">{{item.typeName}}</label>
-                        <p class="font-medium mt-1">{{item.name}}</p>
-                    </div>
-                    }
-                    }
-                    <div>
-                        <label class="text-sm text-slate-500">Parent Unit</label>
-                        <p class="font-medium mt-1">North 24 Parganas</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                <h2 class="text-lg font-semibold text-slate-900 mb-6">
-                    Hierarchy Path
-                </h2>
-
-                <div class="space-y-0">
-
-                    @for (item of administrativeUnit()?.hierarchy; track $index) {
-                    @if (item.level > 0) {
-                    <div class="relative flex gap-4 pb-6">
-                        <div class="relative flex flex-col items-center">
-                            <div class="w-4 h-4 rounded-full border-[3px] border-blue-600 bg-white z-10"></div>
-                            <div class="absolute top-4 h-full border-l-2 border-dashed border-blue-500"></div>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-slate-900">
-                                {{item.name}}
-                            </h3>
-                            <p class="text-slate-500">
-                                {{item.typeName}}
-                            </p>
-                        </div>
-                    </div>
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-slate-900 mb-6">
+            Add/Edit Administrative Unit
+        </h2>
+        <div class="space-y-4">
+            <div class="grid grid-cols-3 gap-6">
+                <mat-form-field>
+                    <mat-label>Unit Type</mat-label>
+                    <mat-select [formField]="administrativeUnitForm.administrativeUnitTypeId"
+                        placeholder="Select unit type">
+                        @for (unitType of administrativeUnitTypes(); track unitType) {
+                        <mat-option [value]="unitType.id">{{unitType.name}}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                @for(parentField of parentTypes(); track parentField.id; let last = $last; let i = $index){
+                <mat-form-field class="w-full">
+                    <mat-label>
+                        {{parentField.name}}
+                    </mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>
+                        {{parentField.categoryIcon}}
+                    </mat-icon>
+                    @if (last) {
+                    <mat-select [formField]="administrativeUnitForm.parentId">
+                        @for(item of parentField.options() ?? []; track item.id){
+                        <mat-option [value]="item.id">
+                            {{ item.name }}
+                        </mat-option>
+                        }
+                    </mat-select>
                     } @else {
-                    <div class="relative flex gap-4">
-                        <div class="relative flex items-start justify-center">
-                            <div
-                                class="flex items-center justify-center w-6 h-6 rounded-full border-[3px] border-blue-600 bg-white">
-                                <div class="w-3 h-3 rounded-full bg-blue-600"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h3 class="font-semibold text-slate-900">
-                                {{item.name}}
-                            </h3>
-                            <p class="text-slate-500">
-                                {{item.typeName}}
-                            </p>
-                        </div>
-                    </div>
-
+                    <mat-select [value]="parentField.value()" (valueChange)="onParentChanged(i, $event)">
+                        @for(item of parentField.options() ?? []; track item.id){
+                        <mat-option [value]="item.id">
+                            {{ item.name }}
+                        </mat-option>
+                        }
+                    </mat-select>
                     }
-                    }
-
-                    <!-- Current Item -->
-
-                </div>
+                </mat-form-field>
+                }
+            </div>
+            <div class="grid grid-cols-3 gap-6">
+                <mat-form-field class="w-full">
+                    <mat-label>Name</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>
+                        person_outline
+                    </mat-icon>
+                    <input matInput [formField]="administrativeUnitForm.name" autocomplete="name"
+                        placeholder="Enter name">
+                </mat-form-field>
             </div>
         </div>
+        <button type="button" (click)="onSubmit()"
+            class="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-600 shadow-sm transition-all duration-200 hover:text-white hover:bg-blue-700 hover:shadow-md cursor-pointer">
+            <span class="material-symbols-outlined text-[20px]">save</span>
+            Save / Update
+        </button>
     </div>
-    <div class="border-t border-slate-200 px-6 py-3">
-        <h3 class="text-lg font-semibold mb-4">
-            Audit Information
-        </h3>
-        <div class="grid grid-cols-4 gap-6 divide-x divide-gray-300">
-            <div>
-                <label class="text-xs text-slate-500">Created By</label>
-                <p class="font-medium">Super Admin</p>
-            </div>
-            <div>
-                <label class="text-xs text-slate-500">Created On</label>
-                <p class="font-medium">22-06-2026 10:27 AM</p>
-            </div>
-            <div>
-                <label class="text-xs text-slate-500">Last Modified By</label>
-                <p class="font-medium">Super Admin</p>
-            </div>
-            <div>
-                <label class="text-xs text-slate-500">Last Modified On</label>
-                <p class="font-medium">01-07-2026 11:20 PM</p>
-            </div>
-        </div>
-    </div>
+</div>

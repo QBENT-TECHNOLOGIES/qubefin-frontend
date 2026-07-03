@@ -6,7 +6,7 @@ export interface AdministrativeUnitRequest {
     administrativeUnitTypeId: string;
     administrativeUnitTypeIcon: string;
     administrativeUnitTypeName: string;
-    parentId?: string;
+    parentId: string | null;
     parentName?: string;
     isActive: boolean;
     hierarchy: AdministrativeUnitHierarchyItem[];
