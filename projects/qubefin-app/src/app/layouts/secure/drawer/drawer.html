@@ -18,65 +18,91 @@
             }
         </a>
     </div>
-    <div class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+    <!-- <div class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="space-y-1 mt-6">
+            @for (menuNode of userMenus(); track menuNode.name; let groupIndex = $index) {
             <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
                 href="/devices" data-discover="true">
-                <div class="absolute left-0 w-0.75 h-1/2 bg-blue-900 rounded-r-md z-10 origin-center" style="opacity: 1; transform: none;"></div>
+                <div class="absolute left-0 w-0.75 h-1/2 bg-blue-900 rounded-r-md z-10 origin-center"
+                    style="opacity: 1; transform: none;"></div>
                 <mat-icon class="material-symbols-outlined text-blue-900">
-                    dashboard
+                    {{menuNode.icon}}
                 </mat-icon>
-                <span class="ml-3 text-blue-900 font-bold">Dashboard</span>
+                <span class="ml-3 text-blue-900 font-bold">{{menuNode.name}}</span>
             </a>
-            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-                href="/devices" data-discover="true">
-                <mat-icon class="material-symbols-outlined">
-                    public
-                </mat-icon>
-                <span class="ml-3">Global</span>
-            </a>
-            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-                href="/devices" data-discover="true">
-                <mat-icon class="material-symbols-outlined">
-                    group
-                </mat-icon>
-                <span class="ml-3">Members</span>
-            </a>
-            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-                href="/devices" data-discover="true">
-                <mat-icon class="material-symbols-outlined">
-                    money_bag
-                </mat-icon>
-                <span class="ml-3">Loans</span>
-            </a>
-            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-                href="/devices" data-discover="true">
-                <mat-icon class="material-symbols-outlined">
-                    groups
-                </mat-icon>
-                <span class="ml-3">Human Resource</span>
-            </a>
-            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-                href="/devices" data-discover="true">
-                <mat-icon class="material-symbols-outlined">
-                    receipt_longs
-                </mat-icon>
-                <span class="ml-3">Payroll</span>
-            </a>
-            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-                href="/devices" data-discover="true">
-                <mat-icon class="material-symbols-outlined">
-                    checkbook
-                </mat-icon>
-                <span class="ml-3">Accounting</span>
-            </a>
-            <a class="relative isolate flex items-center rounded-lg transition-colors duration-200 focus:outline-none hover:no-underline w-full py-2.5 px-4 justify-start overflow-hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-                href="/devices" data-discover="true">
-                <mat-icon class="material-symbols-outlined">
-                    monitoring
-                </mat-icon>
-                <span class="ml-3">Reports</span>
-            </a>
+            }
+        </nav>
+    </div> -->
+    <div class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+        <nav class="mb-6">
+            <div class="flex flex-col gap-4">
+                @for (menuNode of userMenus(); track menuNode.id; let groupIndex = $index) {
+                <div>
+                    <h2 class="mb-4 text-xs uppercase flex leading-5 text-gray-400"
+                        [ngClass]="!isExpanded() && !isHovered() ? 'lg:justify-center' : 'justify-start'">
+                        @if (isExpanded() || isHovered()) {
+                        {{ menuNode.name }}
+                        } @else {
+                        <span class="material-symbols-outlined">
+                            more_horiz
+                        </span>
+                        }
+                    </h2>
+                    <ul class="flex flex-col gap-4">
+                        @for (item of menuNode.children; track item.name; let itemIndex = $index) {
+                        <li>
+                            @if (item.children && item.children?.length > 0) {
+                            <button class="menu-item group w-full"
+                                [ngClass]="!isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start'"
+                                [ngClass]="{'menu-item-active': isSubMenuOpen(groupIndex, itemIndex),'menu-item-inactive': !isSubMenuOpen(groupIndex, itemIndex)}"
+                                (click)="toggleSubmenu(groupIndex, itemIndex)">
+                                <span class="material-symbols-outlined"
+                                    [ngClass]="[isSubMenuOpen(groupIndex, itemIndex) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
+                                    {{ item.icon }}
+                                </span>
+                                @if (isExpanded() || isHovered()) {
+                                <span class="menu-item-text">{{ item.name }}</span>
+                                <span
+                                    class="material-symbols-outlined ml-auto w-5 h-5 transition-transform duration-200"
+                                    [ngClass]="{'rotate-180 text-brand-500': isSubMenuOpen(groupIndex,itemIndex)}">
+                                    keyboard_arrow_down
+                                </span>
+                                }
+                            </button>
+                            } @else {
+                            <a routerLink="{{ item.target }}"
+                                [ngClass]="{'menu-item group': true, 'menu-item-active': isActive(item.target!), 'menu-item-inactive': !isActive(item.target!)}">
+                                <span class="material-symbols-outlined"
+                                    [ngClass]="{'menu-item-icon-active': isActive(item.target!), 'menu-item-icon-inactive': !isActive(item.target!)}">
+                                    {{ item.icon }}
+                                </span>
+                                @if (isExpanded() || isHovered()) {
+                                <span class="menu-item-text">{{ item.name }}</span>
+                                }
+                            </a>
+                            }
+                            @if (isSubMenuOpen(groupIndex, itemIndex) && (isExpanded() || isHovered())) {
+                            <ul class="mt-2 space-y-1 ml-9">
+                                @for (subItem of item.children; track subItem.name) {
+                                <li>
+                                    <a routerLink="{{ subItem.target }}" class="menu-dropdown-item"
+                                        [ngClass]="{'menu-dropdown-item-active': isActive(subItem.target!), 'menu-dropdown-item-inactive': !isActive(subItem.target!)}">
+                                        <span class="material-symbols-outlined"
+                                            [ngClass]="{'menu-item-icon-active': isActive(subItem.target!), 'menu-item-icon-inactive': !isActive(subItem.target!)}">
+                                            {{ subItem.icon }}
+                                        </span>
+                                        {{ subItem.name }}
+                                    </a>
+                                </li>
+                                }
+                            </ul>
+                            }
+                        </li>
+                        }
+                    </ul>
+                </div>
+                }
+            </div>
         </nav>
     </div>
 </aside>

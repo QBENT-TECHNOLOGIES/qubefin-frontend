@@ -1,8 +1,13 @@
 <div class="flex flex-col h-full justify-between">
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <div class="border-b border-slate-200 px-6 py-5">
         <h2 class="text-lg font-semibold text-slate-900 mb-6">
-            Add/Edit Administrative Unit
+             {{ administrativeUnitId() ? 'Edit Administrative Unit' : 'Create Administrative Unit' }}
         </h2>
+        <p class="mt-1 text-sm text-slate-500">
+                Configure the administrative hierarchy and unit information.
+            </p>
+        </div>
         <div class="space-y-4">
             <div class="grid grid-cols-3 gap-6">
                 <mat-form-field>
@@ -22,7 +27,7 @@
                     <mat-icon class="material-symbols-outlined" matPrefix>
                         {{parentField.categoryIcon}}
                     </mat-icon>
-                    @if (last) {
+                    <!-- @if (last) {
                     <mat-select [formField]="administrativeUnitForm.parentId">
                         @for(item of parentField.options() ?? []; track item.id){
                         <mat-option [value]="item.id">
@@ -30,7 +35,7 @@
                         </mat-option>
                         }
                     </mat-select>
-                    } @else {
+                    } @else { -->
                     <mat-select [value]="parentField.value()" (valueChange)="onParentChanged(i, $event)">
                         @for(item of parentField.options() ?? []; track item.id){
                         <mat-option [value]="item.id">
@@ -38,7 +43,7 @@
                         </mat-option>
                         }
                     </mat-select>
-                    }
+                    <!-- } -->
                 </mat-form-field>
                 }
             </div>

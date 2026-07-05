@@ -44,4 +44,8 @@ export class AdministrativeUnit {
 	protected viewDetail(id: string) {
 		this.selectedAdministrativeUnitId.set(id);
 	}
+
+	protected onEdit() {
+		this.isViewMode.set(false);
+	}
 }

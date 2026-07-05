@@ -1,12 +1,12 @@
 <div class="relative transition-colors duration-300">
-    <div class="fixed inset-0 overflow-hidden">
-        <qfin-drawer [(isExpanded)]="isExpanded" [(isHovered)]="isHovered"></qfin-drawer>
-        <div class="flex flex-1 flex-col min-w-0 h-screen"
+    <div class="fixed inset-0 overflow-hidden h-full">
+        <qfin-drawer [(isExpanded)]="isExpanded" [(isHovered)]="isHovered" [userMenus]="userMenus()"></qfin-drawer>
+        <div class="flex flex-1 flex-col min-w-0 h-full"
             [ngClass]="isExpanded() || isHovered() ? 'lg:ml-72.5' : 'lg:ml-22.5'">
             <qfin-header [(isExpanded)]="isExpanded"></qfin-header>
             <div class="flex flex-1 flex-col relative h-full">
                 <qfin-breadcrumb></qfin-breadcrumb>
-                <div class="flex-1 p-6 relative overflow-auto">
+                <div class="flex-1 p-6 relative h-full overflow-hidden">
                     <div class="w-full h-full" style="opacity: 1; transform: none;">
                         <router-outlet></router-outlet>
                     </div>
@@ -15,3 +15,5 @@
             </div>
         </div>
     </div>
+</div>
+<!-- {{userMenus()}} -->
