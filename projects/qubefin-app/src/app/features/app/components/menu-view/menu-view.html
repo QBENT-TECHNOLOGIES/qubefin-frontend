@@ -7,18 +7,15 @@
                         <div
                             class="w-14 h-14 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center">
                             <span class="material-symbols-outlined text-4xl! text-blue-700">
-                                {{administrativeUnit()?.administrativeUnitTypeIcon}}
+                                {{menu()?.icon}}
                             </span>
                         </div>
                     </div>
                     <div>
                         <h1 class="text-lg font-bold text-slate-800">
-                            {{administrativeUnit()?.name}}
+                            {{menu()?.name}}
                         </h1>
                     </div>
-                    <span class="rounded-xl bg-green-100 px-3 py-1 text-green-700">
-                        {{administrativeUnit()?.administrativeUnitTypeName}}
-                    </span>
                     <button type="button" (click)="onShowEdit()"
                         class="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-600 shadow-sm transition-all duration-200 hover:text-white hover:bg-blue-700 hover:shadow-md cursor-pointer">
                         <span class="material-symbols-outlined text-[20px]">edit</span>
@@ -28,7 +25,7 @@
                 <div class="flex flex-col items-center gap-2">
                     <span>Status</span>
                     <span class="rounded-xl bg-green-100 px-3 py-1 text-green-700">
-                        {{administrativeUnit()?.isActive ? 'Active' : 'Inactive'}}
+                        {{menu()?.isActive ? 'Active' : 'Inactive'}}
                     </span>
                 </div>
             </div>
@@ -41,9 +38,9 @@
                 <div class="grid grid-cols-2 gap-6">
                     <div>
                         <label class="text-sm text-slate-500">Name</label>
-                        <p class="font-medium mt-1">{{administrativeUnit()?.name}}</p>
+                        <p class="font-medium mt-1">{{menu()?.name}}</p>
                     </div>
-                    <div>
+                    <!-- <div>
                         <label class="text-sm text-slate-500">Administrative Unit Type</label>
                         <p class="font-medium mt-1">{{administrativeUnit()?.administrativeUnitTypeName}}</p>
                     </div>
@@ -54,10 +51,10 @@
                         <p class="font-medium mt-1">{{item.name}}</p>
                     </div>
                     }
-                    }
+                    } -->
                     <div>
                         <label class="text-sm text-slate-500">Parent Unit</label>
-                        <p class="font-medium mt-1">North 24 Parganas</p>
+                        <p class="font-medium mt-1">{{menu()?.parentId}}</p>
                     </div>
                 </div>
             </div>
@@ -68,7 +65,7 @@
 
                 <div class="space-y-0">
 
-                    @for (item of administrativeUnit()?.hierarchy; track $index) {
+                    @for (item of menu()?.hierarchy; track $index) {
                     @if (item.level > 0) {
                     <div class="relative flex gap-4 pb-6">
                         <div class="relative flex flex-col items-center">
@@ -79,9 +76,6 @@
                             <h3 class="font-semibold text-slate-900">
                                 {{item.name}}
                             </h3>
-                            <p class="text-slate-500">
-                                {{item.typeName}}
-                            </p>
                         </div>
                     </div>
                     } @else {
@@ -97,9 +91,6 @@
                             <h3 class="font-semibold text-slate-900">
                                 {{item.name}}
                             </h3>
-                            <p class="text-slate-500">
-                                {{item.typeName}}
-                            </p>
                         </div>
                     </div>
 

@@ -7,6 +7,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { AdministrativeUnitDetail } from '../../components/administrative-unit-detail/administrative-unit-detail';
 import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
 import { AdministrativeUnitView } from '../../components/administrative-unit-view/administrative-unit-view';
+import { PermissionStore } from 'qubefin-core';
 
 @Component({
 	selector: 'qfin-administrative-unit',
@@ -17,7 +18,8 @@ export class AdministrativeUnit {
 	private readonly route = inject(ActivatedRoute);
 	private readonly routeDataService = inject(RouteDataService);
 
-	administrativeUnitStore = inject(AdministrativeUnitStore);
+	readonly permissionStore = inject(PermissionStore);
+	readonly administrativeUnitStore = inject(AdministrativeUnitStore);
 
 	isViewMode = signal<boolean>(true);
 	selectedAdministrativeUnitId = signal<string>(EMPTY_UUID);

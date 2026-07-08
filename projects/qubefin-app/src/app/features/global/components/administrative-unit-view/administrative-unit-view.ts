@@ -1,7 +1,7 @@
 import { Component, effect, inject, model, output, signal } from '@angular/core';
 import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
 import { MatIconModule } from '@angular/material/icon';
-import { EMPTY_UUID } from 'qubefin-core';
+import { EMPTY_UUID, PermissionStore } from 'qubefin-core';
 
 @Component({
 	selector: 'qfin-administrative-unit-view',
@@ -9,6 +9,7 @@ import { EMPTY_UUID } from 'qubefin-core';
 	templateUrl: './administrative-unit-view.html'
 })
 export class AdministrativeUnitView {
+	permissionStore = inject(PermissionStore);
 	administrativeUnitStore = inject(AdministrativeUnitStore);
 
 	administrativeUnitId = model<string>(EMPTY_UUID);
