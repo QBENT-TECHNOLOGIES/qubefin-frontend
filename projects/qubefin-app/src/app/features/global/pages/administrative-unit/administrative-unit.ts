@@ -1,17 +1,19 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { AdministrativeUnitTree } from '../../components/administrative-unit-tree/administrative-unit-tree';
 import { ActivatedRoute } from '@angular/router';
-import { EMPTY_UUID, RouteDataService, RouteMeta } from 'qubefin-core';
+import { EMPTY_UUID, RouteDataService, RouteMeta, PermissionStore } from 'qubefin-core';
 import { Observable } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AdministrativeUnitDetail } from '../../components/administrative-unit-detail/administrative-unit-detail';
 import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
 import { AdministrativeUnitView } from '../../components/administrative-unit-view/administrative-unit-view';
-import { PermissionStore } from 'qubefin-core';
+import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
+import { LucidePlus, LucideSearch, LucideFunnel } from '@lucide/angular';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
 	selector: 'qfin-administrative-unit',
-	imports: [AdministrativeUnitTree, AdministrativeUnitDetail, AdministrativeUnitView],
+	imports: [AdministrativeUnitTree, AdministrativeUnitDetail, AdministrativeUnitView, Breadcrumb, LucidePlus, MatTooltipModule, LucideSearch, LucideFunnel],
 	templateUrl: './administrative-unit.html'
 })
 export class AdministrativeUnit {

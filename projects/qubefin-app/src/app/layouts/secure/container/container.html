@@ -1,13 +1,13 @@
-<div class="relative transition-colors duration-300">
+<!-- <div class="relative transition-colors">
     <div class="fixed inset-0 overflow-hidden h-full">
         <qfin-drawer [(isExpanded)]="isExpanded" [(isHovered)]="isHovered" [userMenus]="userMenus()"></qfin-drawer>
-        <div class="flex flex-1 flex-col min-w-0 h-full"
+        <div class="flex flex-1 flex-col min-w-0 h-full transition-all duration-300 ease-in-out"
             [ngClass]="isExpanded() || isHovered() ? 'lg:ml-72.5' : 'lg:ml-22.5'">
-            <qfin-header [(isExpanded)]="isExpanded"></qfin-header>
-            <div class="flex flex-1 flex-col relative h-full">
+            <div class="flex flex-1 flex-col relative overflow-y-auto scroll-thin">
+                <qfin-header [(isExpanded)]="isExpanded"></qfin-header>
                 <qfin-breadcrumb></qfin-breadcrumb>
                 <div class="flex-1 p-6 relative h-full overflow-hidden">
-                    <div class="w-full h-full" style="opacity: 1; transform: none;">
+                    <div class="w-full h-full px-4 pb-6" style="opacity: 1; transform: none;">
                         <router-outlet></router-outlet>
                     </div>
                 </div>
@@ -15,5 +15,34 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 <!-- {{userMenus()}} -->
+
+<div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <qfin-drawer
+        [(isExpanded)]="isExpanded"
+        [(isHovered)]="isHovered"
+        [userMenus]="userMenus()">
+    </qfin-drawer>
+
+    <!-- Right Content -->
+    <div class="flex-1 min-w-0 flex flex-col h-screen bg-set">
+
+        <!-- Header -->
+        <header class="shrink-0 sticky top-0 z-50">
+            <qfin-header [(isExpanded)]="isExpanded"></qfin-header>
+        </header>
+
+        <!-- Scroll Area -->
+        <main class="flex-1 overflow-y-auto overflow-x-hidden px-4 pb-4 pt-2">
+            <router-outlet></router-outlet>
+        </main>
+
+        <!-- Footer -->
+        <footer class="shrink-0">
+            <qfin-footer></qfin-footer>
+        </footer>
+
+    </div>
+</div>

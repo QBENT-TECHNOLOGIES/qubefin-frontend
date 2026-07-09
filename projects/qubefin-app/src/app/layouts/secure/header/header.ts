@@ -1,13 +1,17 @@
 import { Component, computed, inject, model } from '@angular/core';
 import { RouteDataService } from 'qubefin-core';
-
+import { LucideSun, LucideMoon, LucideBell, LucidePanelLeftClose, LucideCircleQuestionMark } from '@lucide/angular';
+import { ThemeService } from '../../../services/theme.service';
 @Component({
 	selector: 'qfin-header',
-	imports: [],
+	standalone: true,
+	imports: [LucideSun, LucideMoon, LucideBell, LucidePanelLeftClose, LucideCircleQuestionMark],
 	templateUrl: './header.html'
 })
 export class Header {
 	routeDataService = inject(RouteDataService);
+
+	theme = inject(ThemeService);
 
 	isExpanded = model<boolean>(true);
 
@@ -18,5 +22,4 @@ export class Header {
 	onHandleToggleDrawer() {
 		this.isExpanded.set(!this.isExpanded());
 	}
-
 }
