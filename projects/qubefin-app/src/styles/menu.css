@@ -73,7 +73,7 @@
 }
 
 .menu-item-active::before {
-	@apply absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 rounded-full bg-primary-500;
+	@apply absolute -left-0.5 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-primary-500;
 	content: '';
-	box-shadow: rgba(22, 199, 132, 0.15) 0px 0px 0px 4px, rgba(22, 199, 132, 0.6) 0px 0px 14px;
+	box-shadow: rgba(22, 199, 132, 0.15) 0px 0px 0px 3px, rgba(22, 199, 132, 0.6) 0px 0px 14px;
 }
