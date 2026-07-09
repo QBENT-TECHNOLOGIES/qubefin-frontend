@@ -4,10 +4,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTree, MatTreeModule } from '@angular/material/tree';
 import { AdministrativeUnitTreeNode } from '../../models/administrative-unit-tree-node';
 import { CommonModule } from '@angular/common';
-
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { LucideChevronDown, LucideChevronRight } from '@lucide/angular';
 @Component({
 	selector: 'qfin-administrative-unit-tree',
-	imports: [CommonModule, MatButtonModule, MatIconModule, MatTreeModule],
+	imports: [CommonModule, MatButtonModule, MatIconModule, MatTreeModule, MatTooltipModule, LucideChevronDown, LucideChevronRight],
 	templateUrl: './administrative-unit-tree.html'
 })
 export class AdministrativeUnitTree implements AfterViewInit {

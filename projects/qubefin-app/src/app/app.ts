@@ -1,5 +1,12 @@
 import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {
+  NavigationStart,
+  NavigationEnd,
+  NavigationCancel,
+  NavigationError,
+  Router,
+  RouterOutlet,
+} from '@angular/router';
 
 @Component({
   selector: 'qfin-root',
@@ -9,4 +16,23 @@ import { RouterOutlet } from '@angular/router';
 })
 export class App {
   protected readonly title = signal('qubefin-app');
+  readonly isLoading = signal(true);
+
+  constructor(
+    private router: Router,
+  ) {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.isLoading.set(true);
+      }
+
+      if (
+        event instanceof NavigationEnd ||
+        event instanceof NavigationCancel ||
+        event instanceof NavigationError
+      ) {
+        this.isLoading.set(false);
+      }
+    });
+  }
 }

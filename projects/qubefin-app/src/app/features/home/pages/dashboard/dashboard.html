@@ -1,238 +1,232 @@
-<div class="grid grid-cols-5 gap-8">
-    <div
-        class="group relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/90 backdrop-blur-sm shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-        <div class="absolute inset-x-0 top-0 h-1 bg-yellow-500"></div>
-        <div class="p-6">
-            <div class="flex items-start justify-between">
-                <div
-                    class="flex h-14 w-14 items-center justify-center rounded-full bg-yellow-100">
-                    <span class="material-symbols-outlined text-2xl text-yellow-900">
-                        payments
-                    </span>
-                </div>
-                <div>
-                    <p class="text-sm font-medium tracking-wide text-slate-500">
-                        Total Disbursement
-                    </p>
-                    <h2 class="mt-4 text-2xl font-bold tracking-tight text-slate-900">
-                        ₹12.45 Cr
-                    </h2>
-                    <div class="mt-4 flex items-center gap-2">
-                        <span class="text-sm font-semibold text-green-600">
-                            +₹1.42 Cr
-                        </span>
-                        <span class="text-sm text-slate-400">
-                            vs last month
-                        </span>
-                    </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <!-- Card 1: Total Disbursement -->
+    <div class="glass lift shine-sweep rounded-3xl relative overflow-hidden p-6 flex flex-col justify-between h-57.5 border border-white/40 dark:border-white/5 shadow-glass dark:shadow">
+        <div>
+            <!-- Header: Label & Icon -->
+            <div class="flex items-center justify-between w-full">
+                <span class="text-xs font-bold uppercase tracking-wider text-secondary-600 dark:text-slate-300">
+                    Disbursement
+                </span>
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10 dark:bg-amber-400/20 border border-amber-500/20 dark:border-amber-400/30 text-amber-600 dark:text-amber-400 shadow-inner">
+                    <span class="material-symbols-outlined text-[20px]">payments</span>
                 </div>
             </div>
-            <div class="mt-6">
-                <svg viewBox="0 0 240 50" class="h-12 w-full">
-                    <defs>
-                        <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stop-color="#efb100" />
-                            <stop offset="100%" stop-color="#efb100" />
-                        </linearGradient>
-                    </defs>
-                    <path d="M0 42
-                       C15 38,25 20,40 25
-                       S70 42,90 28
-                       S120 18,140 22
-                       S170 36,190 18
-                       S220 25,240 12" fill="none" stroke="url(#lineGradient)" stroke-width="3"
-                        stroke-linecap="round" />
-                </svg>
+            
+            <!-- Value & Trend info -->
+            <div class="mt-4">
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100">
+                    ₹12.45 Cr
+                </h2>
+                <div class="mt-1 flex items-center gap-1.5 text-xs">
+                    <span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
+                        <span class="material-symbols-outlined text-[14px] font-bold">trending_up</span>
+                        +₹1.42 Cr
+                    </span>
+                    <span class="text-slate-400 dark:text-slate-500">
+                        vs last month
+                    </span>
+                </div>
             </div>
         </div>
-    </div>
-    <div
-        class="group relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/90 backdrop-blur-sm shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-        <div class="absolute inset-x-0 top-0 h-1 bg-purple-500"></div>
-        <div class="p-6">
-            <div class="flex items-start justify-between">
-                <div
-                    class="flex h-14 w-14 items-center justify-center rounded-full bg-purple-100">
-                    <span class="material-symbols-outlined text-3xl text-purple-900">
-                        account_balance_wallet
-                    </span>
-                </div>
-                <div>
-                    <p class="text-sm font-medium tracking-wide text-slate-500">
-                        Total Collection
-                    </p>
-                    <h2 class="mt-4 text-2xl font-bold tracking-tight text-slate-900">
-                        ₹12.45 Cr
-                    </h2>
-                    <div class="mt-4 flex items-center gap-2">
-                        <span class="text-sm font-semibold text-red-600">
-                            -₹0.21 Cr
-                        </span>
-                        <span class="text-sm text-slate-400">
-                            vs last month
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-6">
-                <svg viewBox="0 0 240 50" class="h-12 w-full">
-                    <defs>
-                        <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stop-color="#ad46ff" />
-                            <stop offset="100%" stop-color="#ad46ff" />
-                        </linearGradient>
-                    </defs>
-                    <path d="M0 42
-                       C15 38,25 20,40 25
-                       S70 42,90 28
-                       S120 18,140 22
-                       S170 36,190 18
-                       S220 25,240 12" fill="none" stroke="url(#lineGradient)" stroke-width="3"
-                        stroke-linecap="round" />
-                </svg>
-            </div>
+        <!-- Sparkline -->
+        <div class="w-full h-12 absolute bottom-0 left-0">
+            <svg viewBox="0 0 240 50" class="h-full w-full" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="disbursementGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="rgba(245, 158, 11, 0.25)" />
+                        <stop offset="100%" stop-color="rgba(245, 158, 11, 0)" />
+                    </linearGradient>
+                </defs>
+                <path d="M 0,40 C 15,35 25,20 40,28 S 70,35 90,22 S 120,12 140,18 S 170,30 190,14 S 220,10 240,5" 
+                    fill="none" stroke="#f59e0b" stroke-width=".5" stroke-linecap="round" />
+                <path d="M 0,40 C 15,35 25,20 40,28 S 70,35 90,22 S 120,12 140,18 S 170,30 190,14 S 220,10 240,5 L 240,50 L 0,50 Z" 
+                    fill="url(#disbursementGradient)" />
+            </svg>
         </div>
     </div>
-    <div
-        class="group relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/90 backdrop-blur-sm shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-        <div class="absolute inset-x-0 top-0 h-1 bg-blue-500"></div>
-        <div class="p-6">
-            <div class="flex items-start justify-between">
-                <div
-                    class="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
-                    <span class="material-symbols-outlined text-2xl text-blue-900">
-                        currency_rupee
-                    </span>
-                </div>
-                <div>
-                    <p class="text-sm font-medium tracking-wide text-slate-500">
-                        Total Outstanding
-                    </p>
-                    <h2 class="mt-4 text-2xl font-bold tracking-tight text-slate-900">
-                        ₹12.45 Cr
-                    </h2>
-                    <div class="mt-4 flex items-center gap-2">
-                        <span class="text-sm font-semibold text-green-600">
-                            +₹1.42 Cr
-                        </span>
-                        <span class="text-sm text-slate-400">
-                            vs last month
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-6">
-                <svg viewBox="0 0 240 50" class="h-12 w-full">
-                    <defs>
-                        <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stop-color="#22c55e" />
-                            <stop offset="100%" stop-color="#2563eb" />
-                        </linearGradient>
-                    </defs>
-                    <path d="M0 42
-                       C15 38,25 20,40 25
-                       S70 42,90 28
-                       S120 18,140 22
-                       S170 36,190 18
-                       S220 25,240 12" fill="none" stroke="url(#lineGradient)" stroke-width="3"
-                        stroke-linecap="round" />
-                </svg>
-            </div>
-        </div>
-    </div>
-    <div
-        class="group relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/90 backdrop-blur-sm shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-        <div class="absolute inset-x-0 top-0 h-1 bg-orange-500"></div>
-        <div class="p-6">
-            <div class="flex items-start justify-between">
-                <div
-                    class="flex h-14 w-14 items-center justify-center rounded-full bg-orange-100">
-                    <span class="material-symbols-outlined text-2xl text-orange-900">
-                        credit_card_clock
-                    </span>
-                </div>
-                <div>
-                    <p class="text-sm font-medium tracking-wide text-slate-500">
-                        Total Overdue
-                    </p>
-                    <h2 class="mt-4 text-2xl font-bold tracking-tight text-slate-900">
-                        ₹12.45 Cr
-                    </h2>
-                    <div class="mt-4 flex items-center gap-2">
-                        <span class="text-sm font-semibold text-green-600">
-                            +₹1.42 Cr
-                        </span>
-                        <span class="text-sm text-slate-400">
-                            vs last month
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-6">
-                <svg viewBox="0 0 240 50" class="h-12 w-full">
-                    <defs>
-                        <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stop-color="#22c55e" />
-                            <stop offset="100%" stop-color="#2563eb" />
-                        </linearGradient>
-                    </defs>
-                    <path d="M0 42
-                       C15 38,25 20,40 25
-                       S70 42,90 28
-                       S120 18,140 22
-                       S170 36,190 18
-                       S220 25,240 12" fill="none" stroke="url(#lineGradient)" stroke-width="3"
-                        stroke-linecap="round" />
-                </svg>
-            </div>
-        </div>
-    </div>
-    <div
-        class="group relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/90 backdrop-blur-sm shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-        <div class="absolute inset-x-0 top-0 h-1 bg-green-500"></div>
-        <div class="p-6">
-            <div class="flex items-start justify-between">
-                <div
-                    class="flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
-                    <span class="material-symbols-outlined text-3xl text-green-900">
-                        person
-                    </span>
-                </div>
-                <div>
-                    <p class="text-sm font-medium tracking-wide text-slate-500">
-                        Active Loan Accounts
-                    </p>
-                    <h2 class="mt-4 text-2xl font-bold tracking-tight text-slate-900">
-                        18,627
-                    </h2>
-                    <div class="mt-4 flex items-center gap-2">
-                        <span class="text-sm font-semibold text-green-600">
-                            + 5.7%
-                        </span>
-                        <span class="text-sm text-slate-400">
-                            vs last month
-                        </span>
-                    </div>
-                </div>
 
+    <!-- Card 2: Total Collection -->
+    <div class="glass lift shine-sweep rounded-3xl relative overflow-hidden p-6 flex flex-col justify-between h-57.5 border border-white/40 dark:border-white/5 shadow-glass dark:shadow">
+        <div>
+            <!-- Header: Label & Icon -->
+            <div class="flex items-center justify-between w-full">
+                <span class="text-xs font-bold uppercase tracking-wider text-secondary-600 dark:text-slate-300">
+                    Collection
+                </span>
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/10 dark:bg-purple-400/20 border border-purple-500/20 dark:border-purple-400/30 text-purple-600 dark:text-purple-400 shadow-inner">
+                    <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+                </div>
             </div>
-            <div class="mt-6">
-                <svg viewBox="0 0 240 50" class="h-12 w-full">
-                    <defs>
-                        <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stop-color="#22c55e" />
-                            <stop offset="100%" stop-color="#2563eb" />
-                        </linearGradient>
-                    </defs>
-                    <path d="M0 42
-                       C15 38,25 20,40 25
-                       S70 42,90 28
-                       S120 18,140 22
-                       S170 36,190 18
-                       S220 25,240 12" fill="none" stroke="url(#lineGradient)" stroke-width="3"
-                        stroke-linecap="round" />
-                </svg>
+            
+            <!-- Value & Trend info -->
+            <div class="mt-4">
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100">
+                    ₹12.45 Cr
+                </h2>
+                <div class="mt-1 flex items-center gap-1.5 text-xs">
+                    <span class="font-bold text-rose-600 dark:text-rose-400 flex items-center gap-0.5">
+                        <span class="material-symbols-outlined text-[14px] font-bold">trending_down</span>
+                        -₹0.21 Cr
+                    </span>
+                    <span class="text-slate-400 dark:text-slate-500">
+                        vs last month
+                    </span>
+                </div>
             </div>
+        </div>
+        
+        <!-- Sparkline -->
+        <div class="mt-4 w-full h-12 absolute bottom-0 left-0">
+            <svg viewBox="0 0 240 50" class="h-full w-full" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="collectionGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="rgba(168, 85, 247, 0.15)" />
+                        <stop offset="100%" stop-color="rgba(168, 85, 247, 0)" />
+                    </linearGradient>
+                </defs>
+                <path d="M 0,15 C 15,10 25,28 40,20 S 70,8 90,12 S 120,25 140,22 S 170,10 190,18 S 220,38 240,42" 
+                    fill="none" stroke="#a855f7" stroke-width=".5" stroke-linecap="round" />
+                <path d="M 0,15 C 15,10 25,28 40,20 S 70,8 90,12 S 120,25 140,22 S 170,10 190,18 S 220,38 240,42 L 240,50 L 0,50 Z" 
+                    fill="url(#collectionGradient)" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- Card 3: Total Outstanding -->
+    <div class="glass lift shine-sweep rounded-3xl relative overflow-hidden p-6 flex flex-col justify-between h-57.5 border border-white/40 dark:border-white/5 shadow-glass dark:shadow">
+        <div>
+            <!-- Header: Label & Icon -->
+            <div class="flex items-center justify-between w-full">
+                <span class="text-xs font-bold uppercase tracking-wider text-secondary-600 dark:text-slate-300">
+                    Outstanding
+                </span>
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/10 dark:bg-blue-400/20 border border-blue-500/20 dark:border-blue-400/30 text-blue-600 dark:text-blue-400 shadow-inner">
+                    <span class="material-symbols-outlined text-[20px]">currency_rupee</span>
+                </div>
+            </div>
+            
+            <!-- Value & Trend info -->
+            <div class="mt-4">
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100">
+                    ₹12.45 Cr
+                </h2>
+                <div class="mt-1 flex items-center gap-1.5 text-xs">
+                    <span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
+                        <span class="material-symbols-outlined text-[14px] font-bold">trending_up</span>
+                        +₹1.42 Cr
+                    </span>
+                    <span class="text-slate-400 dark:text-slate-500">
+                        vs last month
+                    </span>
+                </div>
+            </div>
+        </div>
+        <!-- Sparkline -->
+        <div class="mt-4 w-full h-12 absolute bottom-0 left-0">
+            <svg viewBox="0 0 240 50" class="h-full w-full" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="outstandingGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="rgba(37, 99, 235, 0.15)" />
+                        <stop offset="100%" stop-color="rgba(37, 99, 235, 0)" />
+                    </linearGradient>
+                </defs>
+                <path d="M 0,45 C 15,42 25,32 40,35 S 70,22 90,26 S 120,15 140,10 S 170,12 190,5 S 220,8 240,2" 
+                    fill="none" stroke="#2563eb" stroke-width=".5" stroke-linecap="round" />
+                <path d="M 0,45 C 15,42 25,32 40,35 S 70,22 90,26 S 120,15 140,10 S 170,12 190,5 S 220,8 240,2 L 240,50 L 0,50 Z" 
+                    fill="url(#outstandingGradient)" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- Card 4: Total Overdue -->
+    <div class="glass lift shine-sweep rounded-3xl relative overflow-hidden p-6 flex flex-col justify-between h-57.5 border border-white/40 dark:border-white/5 shadow-glass dark:shadow">
+        <div>
+            <!-- Header: Label & Icon -->
+            <div class="flex items-center justify-between w-full">
+                <span class="text-xs font-bold uppercase tracking-wider text-secondary-600 dark:text-slate-300">
+                    Overdue
+                </span>
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-orange-500/10 dark:bg-orange-400/20 border border-orange-500/20 dark:border-orange-400/30 text-orange-600 dark:text-orange-400 shadow-inner">
+                    <span class="material-symbols-outlined text-[20px]">credit_card_clock</span>
+                </div>
+            </div>
+            
+            <!-- Value & Trend info -->
+            <div class="mt-4">
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100">
+                    ₹12.45 Cr
+                </h2>
+                <div class="mt-1 flex items-center gap-1.5 text-xs">
+                    <span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
+                        <span class="material-symbols-outlined text-[14px] font-bold">trending_up</span>
+                        +₹1.42 Cr
+                    </span>
+                    <span class="text-slate-400 dark:text-slate-500">
+                        vs last month
+                    </span>
+                </div>
+            </div>
+        </div>
+        <!-- Sparkline -->
+        <div class="mt-4 w-full h-12 absolute bottom-0 left-0">
+            <svg viewBox="0 0 240 50" class="h-full w-full" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="overdueGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="rgba(249, 115, 22, 0.15)" />
+                        <stop offset="100%" stop-color="rgba(249, 115, 22, 0)" />
+                    </linearGradient>
+                </defs>
+                <path d="M 0,10 C 15,18 25,35 40,38 S 70,28 90,30 S 120,42 140,38 S 170,20 190,18 S 220,8 240,5" 
+                    fill="none" stroke="#f97316" stroke-width=".5" stroke-linecap="round" />
+                <path d="M 0,10 C 15,18 25,35 40,38 S 70,28 90,30 S 120,42 140,38 S 170,20 190,18 S 220,8 240,5 L 240,50 L 0,50 Z" 
+                    fill="url(#overdueGradient)" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- Card 5: Active Loan Accounts -->
+    <div class="glass lift shine-sweep rounded-3xl relative overflow-hidden p-6 flex flex-col justify-between h-57.5 border border-white/40 dark:border-white/5 shadow-glass dark:shadow">
+        <div>
+            <!-- Header: Label & Icon -->
+            <div class="flex items-center justify-between w-full">
+                <span class="text-xs font-bold uppercase tracking-wider text-secondary-600 dark:text-slate-300">
+                    Active Accounts
+                </span>
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-500/10 dark:bg-emerald-400/20 border border-emerald-500/20 dark:border-emerald-400/30 text-emerald-600 dark:text-emerald-400 shadow-inner">
+                    <span class="material-symbols-outlined text-[20px]">person</span>
+                </div>
+            </div>
+            
+            <!-- Value & Trend info -->
+            <div class="mt-4">
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100">
+                    18,627
+                </h2>
+                <div class="mt-1 flex items-center gap-1.5 text-xs">
+                    <span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
+                        <span class="material-symbols-outlined text-[14px] font-bold">trending_up</span>
+                        +5.7%
+                    </span>
+                    <span class="text-slate-400 dark:text-slate-500">
+                        vs last month
+                    </span>
+                </div>
+            </div>
+        </div>
+        <!-- Sparkline -->
+        <div class="mt-4 w-full h-12 absolute bottom-0 left-0">
+            <svg viewBox="0 0 240 50" class="h-full w-full" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="accountsGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="rgba(16, 185, 129, 0.15)" />
+                        <stop offset="100%" stop-color="rgba(16, 185, 129, 0)" />
+                    </linearGradient>
+                </defs>
+                <path d="M 0,38 C 15,36 25,25 40,22 S 70,28 90,20 S 120,15 140,18 S 170,8 190,6 S 220,4 240,2" 
+                    fill="none" stroke="#10b981" stroke-width=".5" stroke-linecap="round" />
+                <path d="M 0,38 C 15,36 25,25 40,22 S 70,28 90,20 S 120,15 140,18 S 170,8 190,6 S 220,4 240,2 L 240,50 L 0,50 Z" 
+                    fill="url(#accountsGradient)" />
+            </svg>
         </div>
     </div>
 </div>

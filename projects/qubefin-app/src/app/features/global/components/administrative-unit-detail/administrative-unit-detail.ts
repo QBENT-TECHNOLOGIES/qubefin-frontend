@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, model, signal, untracked, WritableSignal } from '@angular/core';
+import { Component, computed, effect, inject, model, output, signal, untracked, WritableSignal } from '@angular/core';
 import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
 import { AdministrativeUnitRequest } from '../../models/administrative-unit-request';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
@@ -11,6 +11,7 @@ import { AdministrativeUnitType } from '../../models/administrative-unit-type';
 import { AdministrativeUnitBasic } from '../../models/administrative-unit-tree-node';
 import { AdministrativeUnitService } from '../../services/administrative-unit-service';
 import { EMPTY_UUID } from 'qubefin-core';
+import { LucideSquarePen } from '@lucide/angular';
 
 export interface AdministrativeUnitTypeParentField {
 	id: string;
@@ -24,7 +25,7 @@ export interface AdministrativeUnitTypeParentField {
 
 @Component({
 	selector: 'qfin-administrative-unit-detail',
-	imports: [FormField, MatIconModule, MatFormFieldModule, MatInputModule, MatSelectModule],
+	imports: [FormField, MatIconModule, MatFormFieldModule, MatInputModule, MatSelectModule, LucideSquarePen],
 	templateUrl: './administrative-unit-detail.html'
 })
 export class AdministrativeUnitDetail {
@@ -33,6 +34,7 @@ export class AdministrativeUnitDetail {
 	administrativeUnitService = inject(AdministrativeUnitService);
 
 	administrativeUnitId = model<string>('');
+	cancel = output<void>();
 	private readonly hierarchyInitialized = signal(false);
 
 	administrativeUnit = this.administrativeUnitStore.administrativeUnit;
@@ -150,7 +152,6 @@ if (this.hierarchyInitialized()) {
 		console.log(dataToSave);
 		return;
 		if (this.administrativeUnitId() === EMPTY_UUID) {
-			console.log('Creating new administrative unit:', dataToSave);
 			this.administrativeUnitService.create(dataToSave).subscribe({
 				next: (resp: any) => {
 
@@ -170,6 +171,10 @@ if (this.hierarchyInitialized()) {
 				}
 			});
 		}
+	}
+
+	onCancel() {
+		this.cancel.emit();
 	}
 
 	private loadOptionsForParentField(index: number) {

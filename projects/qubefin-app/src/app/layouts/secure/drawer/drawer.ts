@@ -3,10 +3,12 @@ import { Component, input, model } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MenuTreeNode } from '../../../features/app/models/menu-tree-node';
 import { Router, RouterLink } from '@angular/router';
+import { LucideLogOut } from '@lucide/angular';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
 	selector: 'qfin-drawer',
-	imports: [CommonModule, RouterLink, MatIconModule],
+	imports: [CommonModule, RouterLink, MatIconModule, LucideLogOut, MatTooltipModule],
 	templateUrl: './drawer.html'
 })
 export class Drawer {
