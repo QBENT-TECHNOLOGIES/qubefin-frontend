@@ -1,15 +1,12 @@
 <aside
-    /* class="fixed lg:sticky top-0 left-0 mt-16 lg:mt-0 flex h-screen flex-col glass-card bg-surface dark:surface text-text border-r border-border transition-all duration-300 ease-in-out rounded-r-3xl" */
-    class="glass-card fixed lg:sticky top-0 left-0 h-screen w-70 shrink-0 z-50
-           -translate-x-full lg:translate-x-0 transition-all duration-300 ease-out
-           flex flex-col border-r border-white/40 dark:border-white/6 rounded-r-3xl lg:rounded-none"
+    class="drawer glass-card"
     [ngClass]="
     {
         'lg:w-70': isExpanded() || isHovered(),
-        'lg:w-22.5': !isExpanded() && !isHovered(),
+        'lg:w-20': !isExpanded() && !isHovered(),
         'lg:translate-x-0': true
-    }
-" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
+    }"
+    (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
     <div [ngClass]="['py-4 flex',
         !isExpanded() && !isHovered() ? 'lg:justify-center' : 'justify-center'
     ]">
@@ -113,23 +110,38 @@
 
     <!-- Profile card -->
     <div class="p-4 border-t border-slate-50 dark:border-white/6 overflow-hidden">
-        <div class="flex justify-between items-center rounded-lg shadow-md lift px-3 py-3">
-            <div class="flex items-center gap-3">
-                <div class="relative shrink-0">
-                    <div
-                        class="w-10 h-10 rounded-full bg-gradient-to-br from-secondary-500 to-accent-500 flex items-center justify-center text-white font-semibold text-sm">
-                        SA</div>
-                    <span
-                        class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-white dark:border-slate-900"></span>
+        @if (isExpanded() || isHovered()) {
+            <div class="flex justify-between items-center rounded-lg shadow-md lift px-3 py-3">
+                <div class="flex items-center gap-3">
+                    <div class="relative shrink-0">
+                        <div
+                            class="w-10 h-10 rounded-full bg-gradient-to-br from-secondary-500 to-accent-500 flex items-center justify-center text-white font-semibold text-sm">
+                            SA</div>
+                        <span
+                            class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-white dark:border-slate-900"></span>
+                    </div>
+                    <div class="profile-text overflow-hidden transition-all duration-300">
+                        <p class="text-sm font-semibold whitespace-nowrap dark:text-white">Super Admin</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">Super Admin</p>
+                    </div>
                 </div>
-                <div class="profile-text overflow-hidden transition-all duration-300">
-                    <p class="text-sm font-semibold whitespace-nowrap dark:text-white">Super Admin</p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">Super Admin</p>
+                <div class="bg-primary-500/10 dark:bg-primary-50/10 text-primary-600 dark:text-primary-400 p-2 rounded-4xl cursor-pointer w-10 h-10 flex items-center justify-center overflow-hidden" matTooltip="Log Out">
+                    <svg lucideLogOut class="w-5 h-5"></svg>
                 </div>
             </div>
-            <div class="bg-primary-500/10 dark:bg-primary-50/10 text-primary-600 dark:text-primary-400 p-2 rounded-4xl cursor-pointer w-10 h-10 flex items-center justify-center overflow-hidden" matTooltip="Log Out">
-                <svg lucideLogOut class="w-5 h-5"></svg>
+        } @else {
+            <div class="flex justify-between items-center lift py-3">
+                <div class="flex items-center gap-3">
+                    <div class="relative shrink-0">
+                        <div
+                            class="w-10 h-10 rounded-full bg-gradient-to-br from-secondary-500 to-accent-500 flex items-center justify-center text-white font-semibold text-sm">
+                            SA</div>
+                        <span
+                            class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-white dark:border-slate-900"></span>
+                    </div>
+                </div>
             </div>
-        </div>
+        }
     </div>
+    
 </aside>

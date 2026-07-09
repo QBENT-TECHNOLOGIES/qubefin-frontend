@@ -164,3 +164,12 @@ body {
 .log-card .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-text-field__input {
   @apply text-black;
 }
+
+.drawer {
+  @apply fixed lg:sticky top-0 left-0 h-screen shrink-0 z-50
+         -translate-x-full lg:translate-x-0
+         flex flex-col
+         border-r border-white/40 dark:border-white/6
+         rounded-r-3xl lg:rounded-none
+         transition-[width] duration-300 ease-in-out overflow-hidden;
+}
