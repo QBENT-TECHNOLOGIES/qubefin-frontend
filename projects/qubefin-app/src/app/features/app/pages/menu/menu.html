@@ -1,0 +1,27 @@
+<div class="flex gap-4 h-full min-h-0 w-full">
+    <div class="w-120 bg-white border-r border-slate-200 flex flex-col gap-4 h-full overflow-hidden">
+        <div class="flex px-4 py-2 border-b border-slate-200">
+            <h1 class="text-lg font-bold text-slate-800">
+                Menus
+            </h1>
+            <button type="button" (click)="onAdd()"
+                class="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-600 shadow-sm transition-all duration-200 hover:text-white hover:bg-blue-700 hover:shadow-md cursor-pointer">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                New
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto min-h-0">
+            <qfin-menu-tree-component [menuTreeNodes]="menuTreeNodes()"
+                (onViewDetail)="viewDetail($event)"></qfin-menu-tree-component>
+        </div>
+    </div>
+    <div class="flex-1 overflow-y-auto h-full">
+        @if (isViewMode()) {
+        <qfin-menu-view-component [menuId]="selectedMenuId()"
+            (showEdit)="onEdit()"></qfin-menu-view-component>
+        } @else {
+        <!-- <qfin-administrative-unit-detail
+            [administrativeUnitId]="selectedAdministrativeUnitId()"></qfin-administrative-unit-detail> -->
+        }
+    </div>
+</div>

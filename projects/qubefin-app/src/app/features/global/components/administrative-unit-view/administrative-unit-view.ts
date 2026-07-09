@@ -1,11 +1,12 @@
 import { Component, effect, inject, model, output, signal } from '@angular/core';
 import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
 import { MatIconModule } from '@angular/material/icon';
-import { EMPTY_UUID } from 'qubefin-core';
+import { EMPTY_UUID, PermissionStore } from 'qubefin-core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucidePencil, LucideUserCheck, LucideCalendarPlus, LucideUserCog, LucideCalendarClock, LucideUser,
 	LucideLayers,  LucideBuilding2, LucideMapPinned, LucideLandmark, LucideFactory
  } from '@lucide/angular';
+
 @Component({
 	selector: 'qfin-administrative-unit-view',
 	imports: [MatIconModule, MatTooltipModule, LucidePencil, LucideUserCheck, LucideCalendarPlus, LucideUserCog, 
@@ -13,6 +14,7 @@ import { LucidePencil, LucideUserCheck, LucideCalendarPlus, LucideUserCog, Lucid
 	templateUrl: './administrative-unit-view.html'
 })
 export class AdministrativeUnitView {
+	permissionStore = inject(PermissionStore);
 	administrativeUnitStore = inject(AdministrativeUnitStore);
 
 	administrativeUnitId = model<string>(EMPTY_UUID);

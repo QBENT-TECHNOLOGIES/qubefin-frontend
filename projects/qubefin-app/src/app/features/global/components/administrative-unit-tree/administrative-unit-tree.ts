@@ -12,6 +12,7 @@ import { LucideChevronDown, LucideChevronRight } from '@lucide/angular';
 	templateUrl: './administrative-unit-tree.html'
 })
 export class AdministrativeUnitTree implements AfterViewInit {
+
 	ngAfterViewInit(): void {
 		this.tree.expand(this.administrativeUnitTreeNodes()[0]);
 	}
