@@ -3,10 +3,10 @@ import { RouteDataService, RouteMeta } from 'qubefin-core';
 import { Observable } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-
+import { LucideBanknoteX, LucideHandCoins, LucideIndianRupee, LucideTrendingDown, LucideTrendingUp, LucideUser, LucideWallet } from '@lucide/angular';
 @Component({
 	selector: 'qfin-dashboard',
-	imports: [],
+	imports: [LucideHandCoins, LucideTrendingUp, LucideWallet, LucideTrendingDown, LucideIndianRupee, LucideBanknoteX, LucideUser],
 	templateUrl: './dashboard.html'
 })
 export class Dashboard {
