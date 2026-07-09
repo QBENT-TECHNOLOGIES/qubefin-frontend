@@ -1,10 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AuthStore, LoginStateStore } from 'qubefin-core';
 import { UserService } from '../../../app/services/user-service';
-
+import { LucideBadgeCheck, LucideArrowLeft } from '@lucide/angular';
 @Component({
 	selector: 'qfin-register-mfa',
-	imports: [],
+	imports: [LucideBadgeCheck, LucideArrowLeft],
 	templateUrl: './register-mfa.html'
 })
 export class RegisterMfa implements OnInit {
