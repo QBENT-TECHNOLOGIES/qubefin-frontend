@@ -1,0 +1,52 @@
+<div class="overflow-x-auto bg-white">
+    <table class="w-full text-left border-collapse whitespace-nowrap">
+        <thead>
+            <tr class="bg-gray-50 border-b border-gray-200">
+                <th class="p-3 text-sm font-semibold text-gray-600">Name</th>
+                @if (!isCollapsed()) {
+                <th class="p-3 text-sm font-semibold text-gray-600">Code</th>
+                <th class="p-3 text-sm font-semibold text-gray-600">Category</th>
+                <th class="p-3 text-sm font-semibold text-gray-600">Taxable</th>
+                <th class="p-3 text-sm font-semibold text-gray-600">Status</th>
+                }
+
+                <th class="p-3 text-sm font-semibold text-gray-600 text-right">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (item of data() || []; track item.id) {
+            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                [class.bg-blue-50]="selectedId() === item.id">
+                <td class="p-3 text-sm font-medium text-gray-800">
+                    {{ item.name }}
+                </td>
+                @if (!isCollapsed()) {
+                <td class="p-3 text-sm text-gray-600">{{ item.code }}</td>
+                <td class="p-3 text-sm text-gray-600">{{ item.categoryName }}</td>
+                <td class="p-3 text-sm text-gray-600">{{ item.isTaxable ? 'Yes' : 'No' }}</td>
+                <td class="p-3 text-sm">
+                    <span class="px-2 py-1 text-xs rounded-full font-medium" [class.bg-green-100]="item.isActive"
+                        [class.text-green-800]="item.isActive" [class.bg-red-100]="!item.isActive"
+                        [class.text-red-800]="!item.isActive">
+                        {{ item.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                </td>
+                }
+                <td class="p-3 text-sm text-right">
+                    <button mat-icon-button color="primary" matTooltip="View" (click)="onDetailView(item.id)">
+                        <mat-icon class="material-symbols-outlined">visibility</mat-icon>
+                    </button>
+                </td>
+
+            </tr>
+            } @empty {
+            <tr>
+                <td [attr.colspan]="isCollapsed() ? 2 : 5"
+                    class="p-8 text-center text-gray-500 border-b border-gray-100 italic">
+                    No salary components found.
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>

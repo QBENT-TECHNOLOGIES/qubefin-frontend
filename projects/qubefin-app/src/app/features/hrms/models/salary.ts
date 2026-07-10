@@ -4,6 +4,7 @@ export interface ISalaryModel {
   name: string;
   code: string;
   categoryId: string;
+  categoryName?:string;
   isTaxable: boolean;
   isPfapplicable: boolean;
   isEsiapplicable: boolean;
@@ -20,6 +21,7 @@ export class SalaryModel implements ISalaryModel {
   name: string = '';
   code: string = '';
   categoryId: string = '';
+  
   isTaxable: boolean = false;
   isPfapplicable: boolean = false;
   isEsiapplicable: boolean = false;
@@ -35,4 +37,8 @@ export class SalaryModel implements ISalaryModel {
       Object.assign(this, init);
     }
   }
+}
+export class SalaryCategories{
+  public id: string = '';
+  public name: string = '';
 }

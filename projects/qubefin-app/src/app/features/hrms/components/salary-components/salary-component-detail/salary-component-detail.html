@@ -1,0 +1,94 @@
+<div class="glass shadow-glass dark:shadow-md rounded-lg flex flex-col overflow-hidden">
+    <div class="px-6 py-5 border-b border-slate-200/20 dark:border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] dark:shadow-none">
+                <svg lucideSquarePen class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
+                    {{ isEditMode() ? 'Edit Salary Component' : 'Create Salary Component' }}
+                </h2>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                    Configure the salary component and its applicability rules.
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+            <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                {{ isEditMode() ? 'Edit Mode' : 'New Mode' }}
+            </span>
+        </div>
+    </div>
+    <div class="flex-1 overflow-y-auto scroll-thin p-4 space-y-6 min-h-0">
+        <div class="space-y-6">
+            <div>
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                    Configuration Details
+                </h3>
+                <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Name</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <input matInput [formField]="salaryForm.name" autocomplete="off" placeholder="Enter name">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Code</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>code</mat-icon>
+                    <input matInput [formField]="salaryForm.code" autocomplete="off" placeholder="Enter code">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Category</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>sell</mat-icon>
+                    <mat-select [formField]="salaryForm.categoryId" placeholder="Select category">
+                        @for (category of categories(); track category.id) {
+                        <mat-option [value]="category.id">
+                            {{ category.name }}
+                        </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Display Order</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>format_list_numbered</mat-icon>
+                    <input matInput type="number" [formField]="salaryForm.displayOrder"
+                        placeholder="Enter display order">
+                </mat-form-field>
+            </div>
+
+            <div>
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                    Applicability Rules
+                </h3>
+                <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 bg-slate-500/5 dark:bg-white/5 rounded-xl p-4 border border-slate-200/20 dark:border-white/5">
+                    <mat-checkbox [formField]="salaryForm.isActive" color="primary">Is Active?</mat-checkbox>
+                    <mat-checkbox [formField]="salaryForm.isTaxable" color="primary">Is Taxable?</mat-checkbox>
+                    <mat-checkbox [formField]="salaryForm.isPfapplicable" color="primary">PF Applicable?</mat-checkbox>
+                    <mat-checkbox [formField]="salaryForm.isEsiapplicable" color="primary">ESI
+                        Applicable?</mat-checkbox>
+                    <mat-checkbox [formField]="salaryForm.isCtccomponent" color="primary">Part of CTC?</mat-checkbox>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="border-t border-slate-200/20 dark:border-white/10 px-6 py-4 bg-slate-500/5 flex justify-end gap-3">
+        <button type="button" (click)="onCancelClicked()"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+            Cancel
+        </button>
+        <button type="button" (click)="onSubmit()"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition lift cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">save</span>
+            {{ isEditMode() ? 'Update' : 'Submit' }}
+        </button>
+    </div>
+</div>
