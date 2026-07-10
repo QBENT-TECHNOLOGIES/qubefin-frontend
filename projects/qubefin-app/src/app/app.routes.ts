@@ -37,6 +37,10 @@ export const routes: Routes = [
             {
                 path: 'hrms',
                 loadChildren: () => import('./features/hrms/hrms-routes').then(m => m.HrmsRoutes),
+            },
+            {
+                path: 'payroll',
+                loadChildren: () => import('./features/payroll/payroll-routes').then(m => m.PayrollRoutes)
             }
         ]
     }
