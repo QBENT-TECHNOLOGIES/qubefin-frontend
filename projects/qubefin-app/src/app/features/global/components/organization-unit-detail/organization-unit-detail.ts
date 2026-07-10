@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'qfin-organization-unit-detail',
+  selector: 'qfin-organization-unit-detail-component',
   imports: [],
-  templateUrl: './organization-unit-detail.html',
-  styles: ``,
+  templateUrl: './organization-unit-detail.html'
 })
-export class OrganizationUnitDetail {
+export class OrganizationUnitDetailComponent {
 
 }

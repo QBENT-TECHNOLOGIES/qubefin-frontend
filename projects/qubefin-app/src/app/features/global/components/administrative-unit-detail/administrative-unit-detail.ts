@@ -11,7 +11,8 @@ import { AdministrativeUnitType } from '../../models/administrative-unit-type';
 import { AdministrativeUnitBasic } from '../../models/administrative-unit-tree-node';
 import { AdministrativeUnitService } from '../../services/administrative-unit-service';
 import { EMPTY_UUID } from 'qubefin-core';
-import { LucideSquarePen } from '@lucide/angular';
+import { LucideDynamicIcon, LucideSquarePen } from '@lucide/angular';
+import { APP_ICONS_MAP } from '../../../../lucide-icons';
 
 export interface AdministrativeUnitTypeParentField {
 	id: string;
@@ -25,7 +26,7 @@ export interface AdministrativeUnitTypeParentField {
 
 @Component({
 	selector: 'qfin-administrative-unit-detail',
-	imports: [FormField, MatIconModule, MatFormFieldModule, MatInputModule, MatSelectModule, LucideSquarePen],
+	imports: [FormField, MatIconModule, MatFormFieldModule, MatInputModule, MatSelectModule, LucideSquarePen, LucideDynamicIcon],
 	templateUrl: './administrative-unit-detail.html'
 })
 export class AdministrativeUnitDetail {
@@ -36,6 +37,7 @@ export class AdministrativeUnitDetail {
 	administrativeUnitId = model<string>('');
 	cancel = output<void>();
 	private readonly hierarchyInitialized = signal(false);
+	readonly iconMap = APP_ICONS_MAP;
 
 	administrativeUnit = this.administrativeUnitStore.administrativeUnit;
 	administrativeUnitTypes = this.administrativeUnitTypeStore.administrativeUnitTypes;

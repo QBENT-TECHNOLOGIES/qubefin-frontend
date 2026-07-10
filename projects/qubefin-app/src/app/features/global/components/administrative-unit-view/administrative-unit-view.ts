@@ -3,14 +3,13 @@ import { AdministrativeUnitStore } from '../../stores/administrative-unit-store'
 import { MatIconModule } from '@angular/material/icon';
 import { EMPTY_UUID, PermissionStore } from 'qubefin-core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { LucidePencil, LucideUserCheck, LucideCalendarPlus, LucideUserCog, LucideCalendarClock, LucideUser,
-	LucideLayers,  LucideBuilding2, LucideMapPinned, LucideLandmark, LucideFactory
- } from '@lucide/angular';
+import { APP_ICONS_MAP } from '../../../../lucide-icons';
+import { CommonModule } from '@angular/common';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
 	selector: 'qfin-administrative-unit-view',
-	imports: [MatIconModule, MatTooltipModule, LucidePencil, LucideUserCheck, LucideCalendarPlus, LucideUserCog, 
-		LucideCalendarClock, LucideUser, LucideLayers, LucideBuilding2, LucideMapPinned, LucideLandmark, LucideFactory],
+	imports: [CommonModule, MatIconModule, MatTooltipModule, LucideDynamicIcon],
 	templateUrl: './administrative-unit-view.html'
 })
 export class AdministrativeUnitView {
@@ -18,6 +17,7 @@ export class AdministrativeUnitView {
 	administrativeUnitStore = inject(AdministrativeUnitStore);
 
 	administrativeUnitId = model<string>(EMPTY_UUID);
+	readonly iconMap = APP_ICONS_MAP;
 
 	showEdit = output<boolean>();
 
@@ -37,19 +37,6 @@ export class AdministrativeUnitView {
 	
 	onShowEdit() {
 		this.showEdit.emit(true);
-	}
-
-	getIcon(typeName: string): string {
-		const icons: Record<string, string> = {
-		Country: 'building2',
-		State: 'landmark',
-		District: 'map-pinned',
-		Division: 'layers',
-		Branch: 'factory',
-		Office: 'house',
-		};
-
-		return icons[typeName] ?? 'layers';
 	}
 }
 

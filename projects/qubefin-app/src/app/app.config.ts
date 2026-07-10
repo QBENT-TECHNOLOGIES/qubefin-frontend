@@ -8,6 +8,9 @@ import { AuthInterceptor, ENV_CONFIG } from 'qubefin-core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
+import { provideLucideIcons } from '@lucide/angular';
+import { APP_ICONS } from './lucide-icons';
+
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideBrowserGlobalErrorListeners(),
@@ -20,6 +23,7 @@ export const appConfig: ApplicationConfig = {
 		{
 			provide: ENV_CONFIG,
 			useValue: environment
-		}
+		},
+		provideLucideIcons(...APP_ICONS)
 	]
 };

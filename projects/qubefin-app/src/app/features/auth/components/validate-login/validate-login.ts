@@ -7,11 +7,10 @@ import { MatInputModule } from '@angular/material/input';
 import { ValidateLoginModel } from '../../models/validate-login-model';
 import { AuthService } from '../../services/auth-service';
 import { AuthStore, LoginStateStore } from 'qubefin-core';
-import { LucideEye, LucideEyeOff, LucideLogIn, LucideUser, LucideKeyRound, LucideShieldQuestionMark } from '@lucide/angular';
 
 @Component({
 	selector: 'qfin-validate-login',
-	imports: [FormField, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LucideEye, LucideEyeOff, LucideLogIn, LucideUser, LucideKeyRound, LucideShieldQuestionMark],
+	imports: [FormField, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
 	templateUrl: './validate-login.html'
 })
 export class ValidateLogin {

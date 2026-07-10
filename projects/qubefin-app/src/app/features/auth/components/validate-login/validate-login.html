@@ -4,7 +4,7 @@
     <mat-form-field class="w-full" appearance="outline">
       <mat-label>User ID</mat-label>
       <div matPrefix class="w-10 flex justify-center text-primary-700">
-        <svg lucideUser class="w-5 h-5"></svg>
+        <svg lucideIcon="user" class="w-5 h-5"></svg>
       </div>
       <mat-error>User ID is required</mat-error>
       <input matInput [formField]="loginForm.userName" autocomplete="username" placeholder="Enter your user ID">
@@ -26,30 +26,30 @@
     <mat-form-field class="w-full" appearance="outline">
       <mat-label>Password</mat-label>
       <div matPrefix class="w-10 flex justify-center text-primary-700">
-        <svg lucideKeyRound class="w-5 h-5"></svg>
+        <svg lucideIcon="key-round" class="w-5 h-5"></svg>
       </div>
       <mat-error>Password is required</mat-error>
       <input matInput [formField]="loginForm.password" [type]="hidePassword() ? 'password' : 'text'"
         autocomplete="current-password" placeholder="Enter your password">
       <div matSuffix (click)="hidePassword.update(v => !v)" class="pr-4">
         @if (hidePassword()) {
-          <svg lucideEye class="w-5 h-5 cursor-pointer"></svg>
+          <svg lucideIcon="eye" class="w-5 h-5 cursor-pointer"></svg>
         } @else {
-          <svg lucideEyeOff class="w-5 h-5 cursor-pointer"></svg>
+          <svg lucideIcon="eye-off" class="w-5 h-5 cursor-pointer"></svg>
         }
       </div>
     </mat-form-field>
   </div>
   <div class="flex justify-end items-center text-sm">
     <a class="text-sm flex items-center gap-2 cursor-pointer">
-      <svg lucideShieldQuestionMark class="w-5 h-5 text-blue-700 hover:text-blue-600"></svg>
+      <svg lucideIcon="shield-question-mark" class="w-5 h-5 text-blue-700 hover:text-blue-600"></svg>
       <span class="text-blue-600 hover:text-primary-700">Forgot Password?</span>
     </a>
   </div>
   <button [disabled]="loginForm().invalid()"
       class="ripple-btn shine-sweep rounded-lg px-5 py-[14px] font-lg
       flex items-center justify-center gap-2 text-sm shadow-md font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
-      <svg lucideLogIn class="w-4 h-4"></svg>
+      <svg lucideIcon="log-in" class="w-4 h-4"></svg>
       Sign In
   </button>
 </form>

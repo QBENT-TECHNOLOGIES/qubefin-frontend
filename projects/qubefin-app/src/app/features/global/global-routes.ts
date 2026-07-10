@@ -12,6 +12,15 @@ export const GlobalRoutes: Routes = [
                     subTitle: 'Manage and organize administrative units within your organization.',
                     icon: 'apartment'
                 }
+            },
+            {
+                path: 'organization-units',
+                loadComponent: () => import('./pages/organization-unit/organization-unit').then(m => m.OrganizationUnitPage),
+                data: {
+                    title: 'Organization Units',
+                    subTitle: 'Manage and organize Organization units within your organization.',
+                    icon: 'apartment'
+                }
             }
         ]
     }

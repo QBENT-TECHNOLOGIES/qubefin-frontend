@@ -34,7 +34,6 @@
                 </h3>
                 <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
             </div>
-            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Unit Type select -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -45,8 +44,8 @@
                         <mat-option [value]="unitType.id">{{unitType.name}}</mat-option>
                         }
                     </mat-select>
-                    <mat-icon class="material-symbols-outlined" matPrefix>
-                        person
+                    <mat-icon matPrefix>
+                        <svg lucideIcon="layers" class="w-5 h-5"></svg>
                     </mat-icon>
                 </mat-form-field>
 
@@ -56,8 +55,8 @@
                     <mat-label>
                         {{parentField.name}}
                     </mat-label>
-                    <mat-icon class="material-symbols-outlined" matPrefix>
-                        {{parentField.categoryIcon}}
+                    <mat-icon matPrefix>
+                        <svg [lucideIcon]="iconMap[parentField.categoryIcon]" class="w-5 h-5"></svg>
                     </mat-icon>
                     <mat-select [value]="parentField.value()" (valueChange)="onParentChanged(i, $event)">
                         @for(item of parentField.options() ?? []; track item.id){
@@ -72,8 +71,8 @@
                 <!-- Name field -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Name</mat-label>
-                    <mat-icon class="material-symbols-outlined" matPrefix>
-                        person_outline
+                    <mat-icon matPrefix>
+                        <svg lucideIcon="pencil" class="w-5 h-5"></svg>
                     </mat-icon>
                     <input matInput [formField]="administrativeUnitForm.name" autocomplete="name"
                         placeholder="Enter name">
@@ -87,14 +86,14 @@
         <!-- Cancel button -->
         <button type="button" (click)="onCancel()"
             class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-            <span class="material-symbols-outlined text-[18px]">close</span>
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
             Cancel
         </button>
 
         <!-- Submit button -->
         <button type="button" (click)="onSubmit()"
             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition lift cursor-pointer">
-            <span class="material-symbols-outlined text-[18px]">save</span>
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
             Save / Update
         </button>
     </div>
