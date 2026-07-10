@@ -14,3 +14,30 @@ export interface Payroll {
     finYear?: string;
     dayCount?: number;
 }
+export interface IMonthlyPayrollLineItem {
+  id: string;
+  employeeId: string;
+  employeeName?: string;
+  designationId: string;
+  designationTitle?: string;
+  companyId: string;
+  companyName?: string;
+  totalEarnings: number;
+  totalDeductions: number;
+}
+
+export interface IMonthlyPayrollHeader {
+  organizationUnitId: string;
+  organizationUnitName: string;
+  totalEarnings: number;
+  totalDeductions: number;
+  details: IMonthlyPayrollLineItem[];
+}
+
+export interface IMonthlyPayroll {
+  payrollMonth: number;
+  payrollYear: number;
+  payrollMonthYear: string;
+  isLocked: boolean;
+  headers: IMonthlyPayrollHeader[];
+}

@@ -1,7 +1,7 @@
 import { httpResource } from "@angular/common/http";
 import { computed, Injectable, signal } from "@angular/core";
 import { ApiPaths } from "qubefin-core";
-import { Payroll } from "../models/payroll-model";
+import { IMonthlyPayroll, Payroll } from "../models/payroll-model";
 
 @Injectable({
     providedIn: 'root'
@@ -9,7 +9,7 @@ import { Payroll } from "../models/payroll-model";
 export class PayrollStore {
     private readonly payrollId = signal<string | undefined>(undefined);
     payrollsResource = httpResource<{ payrolls: Payroll[] }>(
-        () => `${ApiPaths.HRMS}/payrolls`
+        () => `${ApiPaths.PAYROLL}/payrolls`
     );
     readonly payrolls = computed(() =>
         this.payrollsResource.value()?.payrolls ?? []
@@ -20,7 +20,7 @@ export class PayrollStore {
     private readonly payrollResource = httpResource<{ payroll: Payroll }>(() => {
         const id = this.payrollId();
         if (!id) return undefined;
-        return `${ApiPaths.HRMS}/payroll/${id}`;
+        return `${ApiPaths.PAYROLL}/payroll/${id}`;
     });
     readonly payroll = computed(() => this.payrollResource.value()?.payroll ?? undefined);
     readonly payrollLoading = computed(() => this.payrollResource.isLoading());
@@ -30,7 +30,7 @@ export class PayrollStore {
         if (this.payrollId() === id) return;
         this.payrollId.set(id);
     }
-    
+
     refreshList() {
         this.payrollsResource.reload();
     }
@@ -38,4 +38,25 @@ export class PayrollStore {
         this.payrollResource.reload();
     }
 
+    private readonly monthlyPayrollParams = signal<{ month: number; year: number } | undefined>(undefined);
+
+    monthlyPayrollResource = httpResource<{ payroll: IMonthlyPayroll }>(() => {
+        const params = this.monthlyPayrollParams();
+        if (!params) return undefined;
+        return `${ApiPaths.PAYROLL}/payrolls/${params.month}/${params.year}`;
+    });
+
+    readonly monthlyPayroll = computed(() => this.monthlyPayrollResource.value()?.payroll ?? undefined);
+    readonly monthlyPayrollLoading = computed(() => this.monthlyPayrollResource.isLoading());
+    readonly monthlyPayrollError = computed(() => this.monthlyPayrollResource.error());
+
+    setMonthlyPayrollParams(month: number, year: number) {
+        const current = this.monthlyPayrollParams();
+        if (current?.month === month && current?.year === year) return;
+        this.monthlyPayrollParams.set({ month, year });
+    }
+
+    refreshMonthlyPayroll() {
+        this.monthlyPayrollResource.reload();
+    }
 }

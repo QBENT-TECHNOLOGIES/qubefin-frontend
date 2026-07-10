@@ -14,10 +14,7 @@ export class PayrollService {
   getById(id: string){
     return this.httpClient.get(`${ApiPaths.PAYROLL}/payroll/${id}`);
   }
-  add(payroll: Payroll){
-    return this.httpClient.post(`${ApiPaths.PAYROLL}/payroll`, payroll);
-  }
-  update(id: string, payroll: Payroll){
-    return this.httpClient.put(`${ApiPaths.PAYROLL}/payroll/${id}`, payroll);
+  getMontlyPayrolls(month: number, year: number){
+    return this.httpClient.get(`${ApiPaths.PAYROLL}/payrolls/${month}/${year}`);
   }
 }
