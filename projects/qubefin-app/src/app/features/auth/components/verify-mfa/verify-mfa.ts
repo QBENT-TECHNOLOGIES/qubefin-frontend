@@ -7,10 +7,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
 	selector: 'qfin-verify-mfa',
-	imports: [FormField, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
+	imports: [FormField, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LucideDynamicIcon],
 	templateUrl: './verify-mfa.html'
 })
 export class VerifyMfa {

@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, model, output, signal, untracked, WritableSignal } from '@angular/core';
 import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
-import { AdministrativeUnitRequest } from '../../models/administrative-unit-request';
+import { AdministrativeUnit } from '../../models/administrative-unit';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,7 +11,7 @@ import { AdministrativeUnitType } from '../../models/administrative-unit-type';
 import { AdministrativeUnitBasic } from '../../models/administrative-unit-tree-node';
 import { AdministrativeUnitService } from '../../services/administrative-unit-service';
 import { EMPTY_UUID } from 'qubefin-core';
-import { LucideDynamicIcon, LucideSquarePen } from '@lucide/angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 
 export interface AdministrativeUnitTypeParentField {
@@ -25,11 +25,11 @@ export interface AdministrativeUnitTypeParentField {
 }
 
 @Component({
-	selector: 'qfin-administrative-unit-detail',
-	imports: [FormField, MatIconModule, MatFormFieldModule, MatInputModule, MatSelectModule, LucideSquarePen, LucideDynamicIcon],
+	selector: 'qfin-administrative-unit-detail-component',
+	imports: [FormField, MatIconModule, MatFormFieldModule, MatInputModule, MatSelectModule, LucideDynamicIcon],
 	templateUrl: './administrative-unit-detail.html'
 })
-export class AdministrativeUnitDetail {
+export class AdministrativeUnitDetailComponent {
 	administrativeUnitStore = inject(AdministrativeUnitStore);
 	administrativeUnitTypeStore = inject(AdministrativeUnitTypeStore);
 	administrativeUnitService = inject(AdministrativeUnitService);
@@ -45,8 +45,6 @@ export class AdministrativeUnitDetail {
 	constructor() {
 		effect(() => {
 			const id = this.administrativeUnitId();
-			// if (!id || id === EMPTY_UUID)
-			// 	return;
 			this.administrativeUnitStore.setAdministrativeUnitId(id);
 		});
 
@@ -72,46 +70,39 @@ export class AdministrativeUnitDetail {
 				return;
 			}
 
-			//const hierarchy = untracked(() => this.administrativeUnitModel().hierarchy);
-
 			this.parentTypes.set(
 				this.getParents(selectedType)
 					.map((parent, index) =>
 						this.createParentField(parent.id, parent.name, parent.category, parent.icon, null)
 					)
 			);
-
-			// if (this.parentTypes().length > 0) {
-			// 	//this.loadOptionsForParentField(0);
-			// 	this.populateHierarchy();
-			// }
 		});
 
 		effect(() => {
 
-if (this.hierarchyInitialized()) {
-        return;
-    }
+			if (this.hierarchyInitialized()) {
+				return;
+			}
 
-    if (!this.parentTypes().length) {
-        return;
-    }
+			if (!this.parentTypes().length) {
+				return;
+			}
 
-    const hierarchy = this.administrativeUnitModel().hierarchy;
+			const hierarchy = this.administrativeUnitModel().hierarchy;
 
-    if (hierarchy.length === 0) {
-        this.loadOptionsForParentField(0);
-    } else {
-        this.populateHierarchy();
-    }
+			if (hierarchy.length === 0) {
+				this.loadOptionsForParentField(0);
+			} else {
+				this.populateHierarchy();
+			}
 
-    this.hierarchyInitialized.set(true);
+			this.hierarchyInitialized.set(true);
 
-    });
+		});
 
 	}
 
-	protected readonly administrativeUnitModel = signal<AdministrativeUnitRequest>({
+	protected readonly administrativeUnitModel = signal<AdministrativeUnit>({
 		id: '',
 		name: '',
 		administrativeUnitTypeId: '',
@@ -120,9 +111,11 @@ if (this.hierarchyInitialized()) {
 		parentId: '',
 		parentName: '',
 		isActive: true,
+		createdBy: '',
+		createdOn: new Date(),
 		hierarchy: []
 	});
-	protected readonly administrativeUnitSchema: Schema<AdministrativeUnitRequest> = schema((path) => {
+	protected readonly administrativeUnitSchema: Schema<AdministrativeUnit> = schema((path) => {
 		required(path.name, { message: 'Administrative Unit Name is required' });
 	});
 	protected readonly administrativeUnitForm = form(this.administrativeUnitModel, this.administrativeUnitSchema);

@@ -14,15 +14,9 @@
             [class.dark:text-slate-300]="selectedId() !== node.id" (click)="onDetailView(node.id)">
 
             <svg [lucideIcon]="iconMap[node.administrativeUnitTypeIcon]"
-                class="text-[18px]! w-[18px]! h-[18px]! flex items-center justify-center"
+                class="text-[18px]! w-4.5! h-4.5! flex items-center justify-center"
                 [class.text-blue-500]="selectedId() === node.id" [class.text-slate-400]="selectedId() !== node.id"
                 [class.group-hover:text-blue-500]="selectedId() !== node.id"></svg>
-            <!-- <mat-icon
-                class="material-symbols-outlined text-[18px]! w-[18px]! h-[18px]! flex items-center justify-center"
-                [class.text-blue-500]="selectedId() === node.id" [class.text-slate-400]="selectedId() !== node.id"
-                [class.group-hover:text-blue-500]="selectedId() !== node.id">
-                {{node.administrativeUnitTypeIcon}}
-            </mat-icon> -->
             <span class="ml-3 text-sm font-medium transition-colors duration-200 truncate" matTooltip="{{node.name}}">
                 {{node.name}}
             </span>
@@ -57,15 +51,9 @@
             </div>
 
             <svg [lucideIcon]="iconMap[node.administrativeUnitTypeIcon]"
-                class="text-[18px]! w-[18px]! h-[18px]! flex items-center justify-center"
+                class="text-[18px]! w-4.5! h-4.5! flex items-center justify-center"
                 [class.text-blue-500]="selectedId() === node.id" [class.text-slate-400]="selectedId() !== node.id"
                 [class.group-hover:text-blue-500]="selectedId() !== node.id"></svg>
-            <!-- <mat-icon
-                class="material-symbols-outlined text-[18px]! w-[18px]! h-[18px]! flex items-center justify-center"
-                [class.text-blue-500]="selectedId() === node.id" [class.text-slate-400]="selectedId() !== node.id"
-                [class.group-hover:text-blue-500]="selectedId() !== node.id">
-                {{node.administrativeUnitTypeIcon}}
-            </mat-icon> -->
             <span class="ml-2 text-sm font-medium transition-colors duration-200 truncate" matTooltip="{{node.name}}">
                 {{node.name}}
             </span>

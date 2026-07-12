@@ -3,6 +3,7 @@
     <!-- User ID -->
     <mat-form-field class="w-full" appearance="outline">
       <mat-label>User ID</mat-label>
+      <!-- <mat-icon matPrefix> -->
       <div matPrefix class="w-10 flex justify-center text-primary-700">
         <svg lucideIcon="user" class="w-5 h-5"></svg>
       </div>
@@ -47,8 +48,8 @@
     </a>
   </div>
   <button [disabled]="loginForm().invalid()"
-      class="ripple-btn shine-sweep rounded-lg px-5 py-[14px] font-lg
-      flex items-center justify-center gap-2 text-sm shadow-md font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
+      class="ripple-btn shine-sweep rounded-lg px-5 py-3.5 font-lg
+      flex items-center justify-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
       <svg lucideIcon="log-in" class="w-4 h-4"></svg>
       Sign In
   </button>

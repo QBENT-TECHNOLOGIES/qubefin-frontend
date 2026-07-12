@@ -1,1 +1,100 @@
-<p>organization-unit-detail works!</p>
+<div class="glass shadow-glass dark:shadow-md rounded-lg flex flex-col overflow-hidden">
+    <!-- Header -->
+    <div class="px-6 py-5 border-b border-slate-200/20 dark:border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] dark:shadow-none">
+                <svg lucideSquarePen class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
+                    {{ organizationUnitId() && organizationUnitId() !== '00000000-0000-0000-0000-000000000000' ? 'Edit Administrative Unit' : 'Create Administrative Unit' }}
+                </h2>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                    Configure the organization hierarchy and unit information.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Status Indicator / Pill -->
+        <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+            <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                {{ organizationUnitId() && organizationUnitId() !== '00000000-0000-0000-0000-000000000000' ? 'Edit Mode' : 'New Mode' }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Scrollable content -->
+    <div class="flex-1 overflow-y-auto scroll-thin p-4 space-y-6 min-h-0">
+        <div class="space-y-6">
+            <div>
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                    <!-- <span class="material-symbols-outlined text-slate-400">tune</span> -->
+                    Configuration Details
+                </h3>
+                <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Unit Type select -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Unit Type</mat-label>
+                    <mat-select [formField]="organizationUnitForm.organizationUnitTypeId"
+                        placeholder="Select unit type">
+                        @for (unitType of organizationUnitTypes(); track unitType) {
+                        <mat-option [value]="unitType.id">{{unitType.name}}</mat-option>
+                        }
+                    </mat-select>
+                    <mat-icon matPrefix>
+                        <svg lucideIcon="layers" class="w-5 h-5"></svg>
+                    </mat-icon>
+                </mat-form-field>
+
+                <!-- Dynamic parent select dropdowns -->
+                @for(parentField of parentTypes(); track parentField.id; let last = $last; let i = $index){
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>
+                        {{parentField.name}}
+                    </mat-label>
+                    <mat-icon matPrefix>
+                        <svg [lucideIcon]="iconMap[parentField.typeIcon]" class="w-5 h-5"></svg>
+                    </mat-icon>
+                    <mat-select [value]="parentField.value()" (valueChange)="onParentChanged(i, $event)">
+                        @for(item of parentField.options() ?? []; track item.id){
+                        <mat-option [value]="item.id">
+                            {{ item.name }}
+                        </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                }
+
+                <!-- Name field -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Name</mat-label>
+                    <mat-icon matPrefix>
+                        <svg lucideIcon="pencil" class="w-5 h-5"></svg>
+                    </mat-icon>
+                    <input matInput [formField]="organizationUnitForm.name" autocomplete="name"
+                        placeholder="Enter name">
+                </mat-form-field>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions Footer -->
+    <div class="border-t border-slate-200/20 dark:border-white/10 px-6 py-4 bg-slate-500/5 flex justify-end gap-3">
+        <!-- Cancel button -->
+        <button type="button" (click)="onCancel()"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+            Cancel
+        </button>
+
+        <!-- Submit button -->
+        <button type="button" (click)="onSubmit()"
+            class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition lift cursor-pointer">
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
+            Save / Update
+        </button>
+    </div>
+</div>

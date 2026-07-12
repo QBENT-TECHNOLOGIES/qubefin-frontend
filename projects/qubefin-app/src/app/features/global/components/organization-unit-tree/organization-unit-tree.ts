@@ -5,17 +5,19 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTree, MatTreeModule } from '@angular/material/tree';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { LucideChevronDown, LucideChevronRight } from '@lucide/angular';
+import { LucideDynamicIcon } from '@lucide/angular';
+import { APP_ICONS_MAP } from '../../../../lucide-icons';
 
 @Component({
   selector: 'qfin-organization-unit-tree-component',
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatTreeModule, MatTooltipModule, LucideChevronDown, LucideChevronRight],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatTreeModule, MatTooltipModule, LucideDynamicIcon],
   templateUrl: './organization-unit-tree.html'
 })
 export class OrganizationUnitTreeComponent {
 	onViewDetail = output<string>();
 
 	selectedId = signal<string>('');
+	readonly iconMap = APP_ICONS_MAP;
 
 	organizationUnitTreeNodes = input<OrganizationUnitTreeNode[]>([]);
 

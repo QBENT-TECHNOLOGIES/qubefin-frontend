@@ -6,7 +6,7 @@ export const GlobalRoutes: Routes = [
         children: [
             {
                 path: 'administrative-units',
-                loadComponent: () => import('./pages/administrative-unit/administrative-unit').then(m => m.AdministrativeUnit),
+                loadComponent: () => import('./pages/administrative-unit/administrative-unit').then(m => m.AdministrativeUnitPage),
                 data: {
                     title: 'Administrative Units',
                     subTitle: 'Manage and organize administrative units within your organization.',

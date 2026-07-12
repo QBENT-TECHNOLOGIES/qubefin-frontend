@@ -9,11 +9,11 @@ import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
-	selector: 'qfin-administrative-unit-tree',
+	selector: 'qfin-administrative-unit-tree-component',
 	imports: [CommonModule, MatButtonModule, MatIconModule, MatTreeModule, MatTooltipModule, LucideDynamicIcon],
 	templateUrl: './administrative-unit-tree.html'
 })
-export class AdministrativeUnitTree implements AfterViewInit {
+export class AdministrativeUnitTreeComponent implements AfterViewInit {
 
 	ngAfterViewInit(): void {
 		this.tree.expand(this.administrativeUnitTreeNodes()[0]);

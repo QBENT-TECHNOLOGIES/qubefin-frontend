@@ -2,7 +2,7 @@
     <qfin-breadcrumb></qfin-breadcrumb>
     <div class="flex items-center gap-3">
         <button
-            class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm shadow-md font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+            class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
             (click)="onAdd()">
             <svg lucidePlus class="w-4 h-4"></svg>
             New Unit
@@ -33,12 +33,13 @@
     </aside>
     <section class="flex-1">
         @if (isViewMode()) {
-        <qfin-organization-unit-view-component [organizationUnitId]="selectedOrganizationUnitId()" (showEdit)="onEdit()">
+        <qfin-organization-unit-view-component [organizationUnitId]="selectedOrganizationUnitId()"
+            (showEdit)="onEdit()">
         </qfin-organization-unit-view-component>
         } @else {
-        <!-- <qfin-organization-unit-detail-component [organizationUnitId]="selectedOrganizationUnitId()"
+        <qfin-organization-unit-detail-component [organizationUnitId]="selectedOrganizationUnitId()"
             (cancel)="isViewMode.set(true)">
-        </qfin-organization-unit-detail-component> -->
+        </qfin-organization-unit-detail-component>
         }
     </section>
 </div>

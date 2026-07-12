@@ -38,7 +38,7 @@
             <div class="flex flex-col">
                 @for (menuNode of userMenus(); track menuNode.id; let groupIndex = $index) {
                 <div>
-                    <!-- <p class="mb-4 text-xs uppercase flex leading-5 text-gray-400"
+                    <p class="mb-4 text-xs uppercase flex leading-5 text-gray-400"
                         [ngClass]="!isExpanded() && !isHovered() ? 'lg:justify-center' : 'justify-start'">
                         @if (isExpanded() || isHovered()) {
                         {{ menuNode.name }}
@@ -47,7 +47,7 @@
                             more_horiz
                         </span>
                         }
-                    </p> -->
+                    </p>
                     <ul class="flex flex-col">
                         @for (item of menuNode.children; track item.name; let itemIndex = $index) {
                         <li>
@@ -56,27 +56,24 @@
                                 [ngClass]="!isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start'"
                                 [ngClass]="{'menu-item-active': isSubMenuOpen(groupIndex, itemIndex),'menu-item-inactive': !isSubMenuOpen(groupIndex, itemIndex)}"
                                 (click)="toggleSubmenu(groupIndex, itemIndex)">
-                                <span class="material-symbols-outlined"
+                                <svg [lucideIcon]="iconMap[item.icon]"
                                     [ngClass]="[isSubMenuOpen(groupIndex, itemIndex) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
-                                    {{ item.icon }}
-                                </span>
+                                </svg>
                                 @if (isExpanded() || isHovered()) {
                                 <span class="menu-item-text">{{ item.name }}</span>
-                                <span
-                                    class="material-symbols-outlined ml-auto w-5 h-5 transition-transform duration-200"
+                                <svg lucideIcon="chevron-down"
+                                    class="ml-auto w-5 h-5 transition-transform duration-200"
                                     [ngClass]="{'rotate-180 text-brand-500': isSubMenuOpen(groupIndex,itemIndex)}">
-                                    keyboard_arrow_down
-                                </span>
+                                </svg>
                                 }
                             </button>
                             } @else {
                             <div class="mt-2">
                                 <a routerLink="{{ item.target }}"
                                     [ngClass]="{'menu-item group gap-3 px-2 py-3 rounded-lg': true, 'menu-item-active': isActive(item.target!), 'menu-item-inactive': !isActive(item.target!)}">
-                                    <span class="material-symbols-outlined"
+                                    <svg [lucideIcon]="iconMap[item.icon]"
                                         [ngClass]="{'menu-item-icon-active': isActive(item.target!), 'menu-item-icon-inactive': !isActive(item.target!)}">
-                                        {{ item.icon }}
-                                    </span>
+                                    </svg>
                                     @if (isExpanded() || isHovered()) {
                                     <span class="menu-item-text">{{ item.name }}</span>
                                     }
@@ -115,7 +112,7 @@
                 <div class="flex items-center gap-3">
                     <div class="relative shrink-0">
                         <div
-                            class="w-10 h-10 rounded-full bg-gradient-to-br from-secondary-500 to-accent-500 flex items-center justify-center text-white font-semibold text-sm">
+                            class="w-10 h-10 rounded-full bg-linear-to-br from-secondary-500 to-accent-500 flex items-center justify-center text-white font-semibold text-sm">
                             SA</div>
                         <span
                             class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-white dark:border-slate-900"></span>
@@ -134,7 +131,7 @@
                 <div class="flex items-center gap-3">
                     <div class="relative shrink-0">
                         <div
-                            class="w-10 h-10 rounded-full bg-gradient-to-br from-secondary-500 to-accent-500 flex items-center justify-center text-white font-semibold text-sm">
+                            class="w-10 h-10 rounded-full bg-linear-to-br from-secondary-500 to-accent-500 flex items-center justify-center text-white font-semibold text-sm">
                             SA</div>
                         <span
                             class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-white dark:border-slate-900"></span>

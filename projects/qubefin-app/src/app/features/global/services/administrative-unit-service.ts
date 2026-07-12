@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { ApiPaths } from 'qubefin-core';
 import { Observable } from 'rxjs';
 import { AdministrativeUnitBasic } from '../models/administrative-unit-tree-node';
-import { AdministrativeUnitRequest } from '../models/administrative-unit-request';
+import { AdministrativeUnit } from '../models/administrative-unit';
 
 
 @Injectable({
@@ -13,11 +13,11 @@ export class AdministrativeUnitService {
 
     httpClient = inject(HttpClient);
 
-    create(administrativeUnit: AdministrativeUnitRequest) {
+    create(administrativeUnit: AdministrativeUnit) {
         return this.httpClient.post(`${ApiPaths.GLOBAL}/administrative-units`, administrativeUnit);
     }
 
-    update(id: string, administrativeUnit: AdministrativeUnitRequest) {
+    update(id: string, administrativeUnit: AdministrativeUnit) {
         return this.httpClient.put(`${ApiPaths.GLOBAL}/administrative-units/${id}`, administrativeUnit);
     }
 

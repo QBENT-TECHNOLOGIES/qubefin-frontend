@@ -1,20 +1,21 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, model } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
 import { MenuTreeNode } from '../../../features/app/models/menu-tree-node';
 import { Router, RouterLink } from '@angular/router';
-import { LucideLogOut } from '@lucide/angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { APP_ICONS_MAP } from '../../../lucide-icons';
 
 @Component({
 	selector: 'qfin-drawer',
-	imports: [CommonModule, RouterLink, MatIconModule, LucideLogOut, MatTooltipModule],
+	imports: [CommonModule, RouterLink, MatTooltipModule, LucideDynamicIcon],
 	templateUrl: './drawer.html'
 })
 export class Drawer {
 	isExpanded = model<boolean>(true);
 	isHovered = model<boolean>(false);
 
+	readonly iconMap = APP_ICONS_MAP;
 	openSubmenu: string | null = null;
 
 	userMenus = input<MenuTreeNode[]>();

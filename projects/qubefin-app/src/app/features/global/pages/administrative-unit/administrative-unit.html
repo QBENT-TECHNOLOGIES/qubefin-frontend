@@ -2,7 +2,7 @@
     <qfin-breadcrumb></qfin-breadcrumb>
     <div class="flex items-center gap-3">
         <button
-            class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm shadow-md font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+            class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
             (click)="onAdd()">
             <svg lucidePlus class="w-4 h-4"></svg>
             New Unit
@@ -25,20 +25,20 @@
                 </button>
             </div>
             <div class="flex-1 overflow-y-auto min-h-0 scroll-thin">
-                <qfin-administrative-unit-tree [administrativeUnitTreeNodes]="administrativeUnitTreeNodes()"
+                <qfin-administrative-unit-tree-component [administrativeUnitTreeNodes]="administrativeUnitTreeNodes()"
                     (onViewDetail)="viewDetail($event)">
-                </qfin-administrative-unit-tree>
+                </qfin-administrative-unit-tree-component>
             </div>
         </div>
     </aside>
     <section class="flex-1">
         @if (isViewMode()) {
-        <qfin-administrative-unit-view [administrativeUnitId]="selectedAdministrativeUnitId()" (showEdit)="onEdit()">
-        </qfin-administrative-unit-view>
+        <qfin-administrative-unit-view-component [administrativeUnitId]="selectedAdministrativeUnitId()" (showEdit)="onEdit()">
+        </qfin-administrative-unit-view-component>
         } @else {
-        <qfin-administrative-unit-detail [administrativeUnitId]="selectedAdministrativeUnitId()"
+        <qfin-administrative-unit-detail-component [administrativeUnitId]="selectedAdministrativeUnitId()"
             (cancel)="isViewMode.set(true)">
-        </qfin-administrative-unit-detail>
+        </qfin-administrative-unit-detail-component>
         }
     </section>
 </div>

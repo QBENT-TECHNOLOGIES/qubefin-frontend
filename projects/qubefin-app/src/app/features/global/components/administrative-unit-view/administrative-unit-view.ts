@@ -4,15 +4,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { EMPTY_UUID, PermissionStore } from 'qubefin-core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
-	selector: 'qfin-administrative-unit-view',
-	imports: [CommonModule, MatIconModule, MatTooltipModule, LucideDynamicIcon],
+	selector: 'qfin-administrative-unit-view-component',
+	imports: [CommonModule, DatePipe, MatIconModule, MatTooltipModule, LucideDynamicIcon],
 	templateUrl: './administrative-unit-view.html'
 })
-export class AdministrativeUnitView {
+export class AdministrativeUnitViewComponent {
 	permissionStore = inject(PermissionStore);
 	administrativeUnitStore = inject(AdministrativeUnitStore);
 

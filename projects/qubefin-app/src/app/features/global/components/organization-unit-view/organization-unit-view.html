@@ -4,10 +4,11 @@
             <!-- View Header -->
             <div class="flex px-6 py-5 items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-4xl bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] dark:shadow-none">
-                        <!-- <span class="material-symbols-outlined text-3xl text-primary-700 dark:text-primary-400">
-                            {{organizationUnit()?.organizationUnitTypeIcon}}
-                        </span> -->
+                    <div
+                        class="w-14 h-14 rounded-4xl bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] dark:shadow-none">
+                        <svg class="text-3xl text-primary-700 dark:text-primary-400"
+                            [lucideIcon]="iconMap[organizationUnit()?.organizationUnitTypeIcon!]">
+                        </svg>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
@@ -16,10 +17,11 @@
                             </h1>
                             <div class="p-2 rounded-4xl cursor-pointer hover:bg-secondary-500/10" matTooltip="Edit"
                                 (click)="onShowEdit()">
-                                <svg lucidePencil class="w-4 h-4 text-secondary dark:text-white"></svg>
+                                <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
                             </div>
                         </div>
-                        <p class="text-sm text-primary-700 dark:text-primary-400 font-medium">{{organizationUnit()?.organizationUnitTypeName}}</p>
+                        <p class="text-sm text-primary-700 dark:text-primary-400 font-medium">
+                            {{organizationUnit()?.organizationUnitTypeName}}</p>
                     </div>
                 </div>
 
@@ -55,29 +57,29 @@
             </div>
             <!-- General Information Card -->
             <div class="p-4">
-                <h3
-                    class="text-base font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2 ">
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2 ">
                     General Information
                 </h3>
                 <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div
-                        class="gen-info">
+                    <div class="gen-info">
                         <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
-                            <svg lucideUser class="w-5 h-5 text-primary-700"></svg>
+                            <svg lucideIcon="user" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
                             <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Name</label>
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{organizationUnit()?.name}}
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
+                                {{organizationUnit()?.name}}
                             </p>
                         </div>
                     </div>
                     <div class="gen-info">
                         <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
-                            <svg lucideLayers class="w-5 h-5 text-primary-700"></svg>
+                            <svg lucideIcon="layers" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
-                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Organization Unit
+                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Organization
+                                Unit
                                 Type</label>
                             <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
                                 {{organizationUnit()?.organizationUnitTypeName}}</p>
@@ -87,27 +89,7 @@
                     @if (item.level > 0) {
                     <div class="gen-info">
                         <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
-                            <!-- @switch (getIcon(item.typeName)) {
-                                @case ('building2') { -->
-                                <svg lucideBuilding2 class="w-5 h-5 text-primary-700"></svg>
-                                <!-- }
-                                
-                                @case ('landmark') {
-                                <svg lucideLandmark class="w-5 h-5 text-primary-700"></svg>
-                                }
-                                
-                                @case ('map-pinned') {
-                                <svg lucideMapPinned class="w-5 h-5 text-primary-700"></svg>
-                                }
-                                
-                                @case ('factory') {
-                                <svg lucideFactory class="w-5 h-5 text-primary-700"></svg>
-                                }
-                                
-                                @default {
-                                <svg lucideLayers class="w-5 h-5 text-primary-700"></svg>
-                                }
-                            } -->
+                            <svg [lucideIcon]="iconMap[item.typeIcon]" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
                             <label
@@ -119,8 +101,9 @@
                     }
                     @if (organizationUnit()?.parentName) {
                     <div class="gen-info">
-                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow-glass dark:shadow justify-center shrink-0">
-                            <svg lucideLayers class="w-5 h-5 text-primary-700"></svg>
+                        <div
+                            class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow-glass dark:shadow justify-center shrink-0">
+                            <svg lucideIcon="layers" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
                             <label class="text-xs text-slate-500 dark:text-slate-300 tracking-wider">Parent Unit</label>
@@ -130,56 +113,54 @@
                     </div>
                     }
                 </div>
-            </div>    
+            </div>
         </div>
         <div class="glass rounded-xl shadow-glass dark:shadow">
             <!-- Hierarchy Path timeline -->
-                <div
-                    class="p-4 flex flex-col">
-                    <h3
-                        class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 pb-3">
-                        Hierarchy Path
-                    </h3>
-                    <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
-                    <div class="flex-1 overflow-y-auto pr-2">
-                        <div class="space-y-0 pl-1">
-                            @for (item of organizationUnit()?.hierarchy; track $index; let last = $last) {
-                            <div class="relative flex gap-4" [class.pb-6]="!last">
-                                <div class="relative flex flex-col items-center">
-                                    <!-- Connection line -->
-                                    @if (!last) {
-                                    <div
-                                        class="absolute top-6 bottom-0 w-0.5 border-l-2 border-dashed border-blue-500/30 dark:border-blue-400/20">
-                                    </div>
-                                    }
-
-                                    <!-- Timeline Dot -->
-                                    @if (item.level > 0) {
-                                    <div
-                                        class="w-5 h-5 rounded-full border-2 border-blue-600 dark:border-blue-400 bg-slate-50 dark:bg-slate-900 flex items-center justify-center z-10 shadow-sm">
-                                        <div class="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-blue-400"></div>
-                                    </div>
-                                    } @else {
-                                    <div
-                                        class="w-5 h-5 rounded-full border-2 border-primary-700 dark:border-primary-400 bg-slate-50 dark:bg-slate-900 flex items-center justify-center z-10 shadow-sm">
-                                        <div class="w-2.5 h-2.5 rounded-full bg-primary-700 dark:bg-primary-400"></div>
-                                    </div>
-                                    }
+            <div class="p-4 flex flex-col">
+                <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 pb-3">
+                    Hierarchy Path
+                </h3>
+                <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
+                <div class="flex-1 overflow-y-auto pr-2">
+                    <div class="space-y-0 pl-1">
+                        @for (item of organizationUnit()?.hierarchy; track $index; let last = $last) {
+                        <div class="relative flex gap-4" [class.pb-6]="!last">
+                            <div class="relative flex flex-col items-center">
+                                <!-- Connection line -->
+                                @if (!last) {
+                                <div
+                                    class="absolute top-6 bottom-0 w-0.5 border-l-2 border-dashed border-blue-500/30 dark:border-blue-400/20">
                                 </div>
+                                }
 
-                                <div class="flex flex-col">
-                                    <h4 class="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-snug">
-                                        {{item.name}}
-                                    </h4>
-                                    <span class="text-xs text-slate-500 dark:text-slate-400 tracking-wider mt-0.5">
-                                        {{item.typeName}}
-                                    </span>
+                                <!-- Timeline Dot -->
+                                @if (item.level > 0) {
+                                <div
+                                    class="w-5 h-5 rounded-full border-2 border-blue-600 dark:border-blue-400 bg-slate-50 dark:bg-slate-900 flex items-center justify-center z-10 shadow-sm">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-blue-400"></div>
                                 </div>
+                                } @else {
+                                <div
+                                    class="w-5 h-5 rounded-full border-2 border-primary-700 dark:border-primary-400 bg-slate-50 dark:bg-slate-900 flex items-center justify-center z-10 shadow-sm">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-primary-700 dark:bg-primary-400"></div>
+                                </div>
+                                }
                             </div>
-                            }
+
+                            <div class="flex flex-col">
+                                <h4 class="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-snug">
+                                    {{item.name}}
+                                </h4>
+                                <span class="text-xs text-slate-500 dark:text-slate-400 tracking-wider mt-0.5">
+                                    {{item.typeName}}
+                                </span>
+                            </div>
                         </div>
+                        }
                     </div>
                 </div>
+            </div>
         </div>
     </div>
     <div class="glass rounded-xl shadow-glass dark:shadow p-4 pb-6">
@@ -193,39 +174,47 @@
             <div
                 class="grid grid-cols-2 md:grid-cols-4 gap-3 divide-y md:divide-y-0 md:divide-x divide-slate-200/20 dark:divide-white/10">
                 <div class="flex items-center gap-2">
-                    <div class="w-9 h-9 rounded-xl bg-primary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
-                        <svg lucideUserCheck class="w-4 h-4 text-primary-700"></svg>
+                    <div
+                        class="w-9 h-9 rounded-xl bg-primary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+                        <svg lucideIcon="user-check" class="w-4 h-4 text-primary-700"></svg>
                     </div>
                     <div>
-                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">Created By</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">Super Admin</p>
+                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+                            Created By</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{organizationUnit()?.createdBy}}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <div class="w-9 h-9 rounded-xl bg-secondary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
-                        <svg lucideCalendarPlus class="w-4 h-4 text-secondary-600"></svg>
+                    <div
+                        class="w-9 h-9 rounded-xl bg-secondary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+                        <svg lucideIcon="calendar-plus" class="w-4 h-4 text-secondary-600"></svg>
                     </div>
                     <div>
-                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">Created On</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">22-06-2026 10:27 AM</p>
+                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+                            Created On</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{organizationUnit()?.createdOn | date: 'dd-MM-yyyy hh:mm a'}}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <div class="w-9 h-9 rounded-xl bg-accent-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
-                        <svg lucideUserCog class="w-4 h-4 text-secondary-600"></svg>
+                    <div
+                        class="w-9 h-9 rounded-xl bg-accent-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+                        <svg lucideIcon="user-cog" class="w-4 h-4 text-secondary-600"></svg>
                     </div>
                     <div>
-                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">Last Modified By</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">Super Admin</p>
+                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+                            Last Modified By</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{organizationUnit()?.lastModifiedBy}}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <div class="w-9 h-9 rounded-xl bg-primary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
-                        <svg lucideCalendarClock class="w-4 h-4 text-primary-700"></svg>
+                    <div
+                        class="w-9 h-9 rounded-xl bg-primary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+                        <svg lucideIcon="calendar-clock" class="w-4 h-4 text-primary-700"></svg>
                     </div>
                     <div>
-                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">Last Modified On</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">01-07-2026 11:20 PM</p>
+                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+                            Last Modified On</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{organizationUnit()?.lastModifiedOn | date: 'dd-MM-yyyy hh:mm a'}}</p>
                     </div>
                 </div>
             </div>

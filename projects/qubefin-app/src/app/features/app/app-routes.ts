@@ -6,7 +6,12 @@ export const AppRoutes: Routes = [
         children: [
             {
                 path: 'menus',
-                loadComponent: () => import('./pages/menu/menu').then(m => m.MenuPage)
+                loadComponent: () => import('./pages/menu/menu').then(m => m.MenuPage),
+                data: {
+                    title: 'Menus',
+                    subTitle: 'Manage and organize menus of the system.',
+                    icon: 'apartment'
+                }
             }
         ]
     }

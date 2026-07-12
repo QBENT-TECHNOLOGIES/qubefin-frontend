@@ -8,5 +8,9 @@ export interface Menu {
     parentId: string | null;
     displayPosition: number;
     isActive: boolean;
+    createdBy: string;
+    createdOn: Date;
+    lastModifiedBy?: string;
+    lastModifiedOn?: Date;
     hierarchy: MenuHierarchyItem[];
 }
