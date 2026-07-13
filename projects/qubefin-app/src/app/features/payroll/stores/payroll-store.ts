@@ -1,12 +1,14 @@
 import { httpResource } from "@angular/common/http";
-import { computed, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { ApiPaths } from "qubefin-core";
 import { IMonthlyPayroll, IMonthWisePayroll, Payroll } from "../models/payroll-model";
+import { PayrollService } from "../services/payroll-service";
 
 @Injectable({
     providedIn: 'root'
 })
 export class PayrollStore {
+    private readonly payrollService = inject(PayrollService);
     private readonly payrollId = signal<string | undefined>(undefined);
     payrollsResource = httpResource<{ payrolls: Payroll[] }>(
         () => `${ApiPaths.PAYROLL}/payrolls`
@@ -62,13 +64,27 @@ export class PayrollStore {
     monthlyPayrollSummariesResource = httpResource<{ payrolls: IMonthWisePayroll[] }>(
         () => `${ApiPaths.PAYROLL}/month-wise-payroll`
     );
-     readonly monthlyPayrollSummaries = computed(() =>
+    readonly monthlyPayrollSummaries = computed(() =>
         this.monthlyPayrollSummariesResource.value()?.payrolls ?? []
     );
     readonly monthlyPayrollSummariesLoading = computed(() => this.monthlyPayrollSummariesResource.isLoading());
     readonly monthlyPayrollSummariesError = computed(() => this.monthlyPayrollSummariesResource.error());
- 
+
     refreshMonthlyPayrollSummaries() {
         this.monthlyPayrollSummariesResource.reload();
+    }
+    readonly lockingMonthId = signal<string | null>(null);
+    lockMonthlyPayroll(month: number, year: number) {
+        const lockId = `${year}-${month}`;
+        this.lockingMonthId.set(lockId);
+        this.payrollService.lockPayroll(year, month).subscribe({
+            next: () => {
+                this.lockingMonthId.set(null);
+                this.refreshMonthlyPayrollSummaries();
+            },
+            error: (err) => {
+                this.lockingMonthId.set(null);
+            }
+        });
     }
 }
