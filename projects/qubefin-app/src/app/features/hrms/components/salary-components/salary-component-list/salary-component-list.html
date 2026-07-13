@@ -1,32 +1,38 @@
-<div class="overflow-auto scroll-thin"
+<div class="overflow-auto scrollbar-thin"
     [ngClass]="{
         'h-[calc(100vh-170px-72px)] overflow-y-auto': isCollapsed()
     }">
-    <table class="w-full text-left border-collapse whitespace-nowrap">
+    <table class="table">
         <thead>
-            <tr class="border-b border-gray-100 bg-secondary-600/10 dark:bg-slate-500/10 dark:border-slate-700">
-                <th class="p-3 text-sm font-semibold text-secondary-600 dark:text-slate-200">Name</th>
+            <tr>
+                <th class="">Name</th>
                 @if (!isCollapsed()) {
-                    <th class="p-3 text-sm font-semibold text-secondary-600 dark:text-slate-200">Code</th>
-                    <th class="p-3 text-sm font-semibold text-secondary-600 dark:text-slate-200">Category</th>
-                    <th class="p-3 text-sm font-semibold text-secondary-600 dark:text-slate-200">Taxable</th>
-                    <th class="p-3 text-sm font-semibold text-secondary-600 dark:text-slate-200">Status</th>
+                    <th>Code</th>
+                    <th>Category</th>
+                    <th>Taxable</th>
+                    <th>Status</th>
                 }
-                <th class="p-3 text-sm font-semibold text-secondary-600 dark:text-slate-200 text-right">Action</th>
+                <th class="text-right">Action</th>
             </tr>
         </thead>
         <tbody>
             @for (item of data() || []; track item.id) {
-                <tr class="border-b border-gray-100 dark:border-slate-700 hover:bg-primary-500/5 dark:hover:bg-slate-200/10 transition-colors"
-                    [class.bg-primary-500/10]="selectedId() === item.id">
-                    <td class="px-3 py-1.5 text-sm font-medium  dark:text-slate-300">
+                <tr [class.bg-primary-500/10]="selectedId() === item.id">
+                    <td class="px-3 py-1.5 text-[13px] font-medium  dark:text-slate-300">
                         {{ item.name }}
                     </td>
                     @if (!isCollapsed()) {
-                        <td class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300">{{ item.code }}</td>
-                        <td class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300">{{ item.categoryName }}</td>
-                        <td class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300">{{ item.isTaxable ? 'Yes' : 'No' }}</td>
-                        <td class="px-3 py-1.5 text-sm">
+                        <td>{{ item.code }}</td>
+                        <td>{{ item.categoryName }}</td>
+                        <!-- <td>{{ item.isTaxable ? 'Yes' : 'No' }}</td> -->
+                        <td>
+                            @if (item.isTaxable) {
+                                <svg lucideIcon="check" matTooltip="Yes" class="w-5 h-5 text-green-600"></svg>
+                            } @else {
+                                <svg lucideIcon="x" matTooltip="No" class="w-5 h-5 text-red-600"></svg>
+                            }
+                        </td>
+                        <td>
                             <span class="px-2 py-1 text-xs rounded font-medium" [class.bg-green-100]="item.isActive"
                                 [class.text-green-800]="item.isActive" [class.bg-red-100]="!item.isActive"
                                 [class.text-red-800]="!item.isActive">
@@ -34,10 +40,10 @@
                             </span>
                         </td>
                     }
-                    <td class="px-3 py-1.5 text-sm text-right">
+                    <td class="text-right">
                         <div class="w-full flex justify-end">
                             <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10" matTooltip="View" (click)="onDetailView(item.id)">
-                                <svg lucideIcon="eye" class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
+                                <svg lucideIcon="chevron-right" class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
                             </div>
                         </div>
                     </td>
@@ -46,7 +52,7 @@
             } @empty {
             <tr>
                 <td [attr.colspan]="isCollapsed() ? 2 : 6"
-                    class="p-8 text-center text-gray-500 italic">
+                    class="p-8! text-center text-gray-500 italic">
                     No salary components found.
                 </td>
             </tr>

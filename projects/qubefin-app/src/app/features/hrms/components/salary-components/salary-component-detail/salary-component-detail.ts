@@ -10,6 +10,8 @@ import { SalaryStore } from '../../../stores/salary-store';
 import { SalaryComponentService } from '../../../services/salary-component-service';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { ISalaryModel, SalaryModel } from '../../../models/salary';
+import { APP_ICONS_MAP } from '../../../../../lucide-icons';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'qfin-salary-component-detail',
@@ -21,6 +23,7 @@ import { ISalaryModel, SalaryModel } from '../../../models/salary';
     MatSelectModule,
     MatCheckboxModule,
     FormField,
+    LucideDynamicIcon
   ],
   templateUrl: './salary-component-detail.html',
 })
@@ -28,7 +31,7 @@ export class SalaryComponentDetail {
   salaryId = input<string>(EMPTY_UUID);
   onCancel = output<void>();
   onSave = output<void>();
-
+  readonly iconMap = APP_ICONS_MAP;
   private readonly salaryStore = inject(SalaryStore);
   private readonly salaryComponentService = inject(SalaryComponentService);
   categories = this.salaryStore.categories;

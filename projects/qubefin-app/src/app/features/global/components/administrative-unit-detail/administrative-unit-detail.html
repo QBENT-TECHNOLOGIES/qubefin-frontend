@@ -3,7 +3,7 @@
     <div class="px-6 py-5 border-b border-slate-200/20 dark:border-white/10 flex items-center justify-between">
         <div class="flex items-center gap-4">
             <div class="w-14 h-14 rounded-2xl bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] dark:shadow-none">
-                <svg lucideSquarePen class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+                <svg lucideIcon="square-pen" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
             </div>
             <div>
                 <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
@@ -44,9 +44,9 @@
                         <mat-option [value]="unitType.id">{{unitType.name}}</mat-option>
                         }
                     </mat-select>
-                    <mat-icon matPrefix>
+                    <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="layers" class="w-5 h-5"></svg>
-                    </mat-icon>
+                    </div>
                 </mat-form-field>
 
                 <!-- Dynamic parent select dropdowns -->
@@ -55,9 +55,9 @@
                     <mat-label>
                         {{parentField.name}}
                     </mat-label>
-                    <mat-icon matPrefix>
+                    <div class="w-12 flex justify-center" matPrefix>
                         <svg [lucideIcon]="iconMap[parentField.categoryIcon]" class="w-5 h-5"></svg>
-                    </mat-icon>
+                    </div>
                     <mat-select [value]="parentField.value()" (valueChange)="onParentChanged(i, $event)">
                         @for(item of parentField.options() ?? []; track item.id){
                         <mat-option [value]="item.id">
@@ -71,9 +71,9 @@
                 <!-- Name field -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Name</mat-label>
-                    <mat-icon matPrefix>
+                    <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="pencil" class="w-5 h-5"></svg>
-                    </mat-icon>
+                    </div>
                     <input matInput [formField]="administrativeUnitForm.name" autocomplete="name"
                         placeholder="Enter name">
                 </mat-form-field>

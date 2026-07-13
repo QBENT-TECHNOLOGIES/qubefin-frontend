@@ -32,19 +32,25 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Name</mat-label>
-                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="user" class="w-5 h-5"></svg>
+                    </div>
                     <input matInput [formField]="salaryForm.name" autocomplete="off" placeholder="Enter name">
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Code</mat-label>
-                    <mat-icon class="material-symbols-outlined" matPrefix>code</mat-icon>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="code" class="w-5 h-5"></svg>
+                    </div>
                     <input matInput [formField]="salaryForm.code" autocomplete="off" placeholder="Enter code">
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Category</mat-label>
-                    <mat-icon class="material-symbols-outlined" matPrefix>sell</mat-icon>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                    </div>
                     <mat-select [formField]="salaryForm.categoryId" placeholder="Select category">
                         @for (category of categories(); track category.id) {
                         <mat-option [value]="category.id">
@@ -56,7 +62,9 @@
 
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Display Order</mat-label>
-                    <mat-icon class="material-symbols-outlined" matPrefix>format_list_numbered</mat-icon>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="list-ordered" class="w-5 h-5"></svg>
+                    </div>
                     <input matInput type="number" [formField]="salaryForm.displayOrder"
                         placeholder="Enter display order">
                 </mat-form-field>
@@ -67,7 +75,7 @@
                     Applicability Rules
                 </h3>
                 <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 bg-slate-100/50 dark:bg-white/5 dark:text-white rounded-xl p-4 border border-slate-200/20 dark:border-white/5">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-2 bg-slate-100/50 dark:bg-white/5 dark:text-white rounded-xl p-4 border border-slate-200/20 dark:border-white/5">
                     <mat-checkbox [formField]="salaryForm.isActive" color="primary">Is Active?</mat-checkbox>
                     <mat-checkbox [formField]="salaryForm.isTaxable" color="primary">Is Taxable?</mat-checkbox>
                     <mat-checkbox [formField]="salaryForm.isPfapplicable" color="primary">PF Applicable?</mat-checkbox>

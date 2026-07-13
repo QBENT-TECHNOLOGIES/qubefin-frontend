@@ -44,9 +44,9 @@
                         <mat-option [value]="unitType.id">{{unitType.name}}</mat-option>
                         }
                     </mat-select>
-                    <mat-icon matPrefix>
+                    <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="layers" class="w-5 h-5"></svg>
-                    </mat-icon>
+                    </div>
                 </mat-form-field>
 
                 <!-- Dynamic parent select dropdowns -->
@@ -55,9 +55,9 @@
                     <mat-label>
                         {{parentField.name}}
                     </mat-label>
-                    <mat-icon matPrefix>
+                    <div class="w-12 flex justify-center" matPrefix>
                         <svg [lucideIcon]="iconMap[parentField.typeIcon]" class="w-5 h-5"></svg>
-                    </mat-icon>
+                    </div>
                     <mat-select [value]="parentField.value()" (valueChange)="onParentChanged(i, $event)">
                         @for(item of parentField.options() ?? []; track item.id){
                         <mat-option [value]="item.id">
@@ -71,9 +71,9 @@
                 <!-- Name field -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Name</mat-label>
-                    <mat-icon matPrefix>
+                    <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="pencil" class="w-5 h-5"></svg>
-                    </mat-icon>
+                    </div>
                     <input matInput [formField]="organizationUnitForm.name" autocomplete="name"
                         placeholder="Enter name">
                 </mat-form-field>

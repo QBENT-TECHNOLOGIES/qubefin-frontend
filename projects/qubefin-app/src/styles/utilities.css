@@ -173,3 +173,86 @@ body {
          rounded-r-3xl lg:rounded-none
          transition-[width] duration-300 ease-in-out overflow-hidden;
 }
+/* For Table */
+.table {
+  @apply w-full text-left border-collapse whitespace-nowrap;
+}
+.table thead tr {
+  @apply border-b border-gray-100 bg-secondary-600/10 dark:bg-slate-500/10 dark:border-slate-700;
+}
+.table thead tr th {
+  @apply p-3 text-sm font-semibold text-secondary-600 dark:text-slate-200;
+}
+.table tbody tr {
+  @apply border-b border-gray-100 dark:border-slate-700 hover:bg-primary-500/5 dark:hover:bg-slate-200/10 transition-colors;
+}
+.table tbody tr td {
+  @apply px-3 py-1.5 text-[13px] text-gray-600 dark:text-slate-300;
+}
+/* For Drawer */
+.profile-menu.mat-mdc-menu-panel {
+  @apply overflow-hidden min-w-[280px] p-0 rounded-2xl bg-white/20 backdrop-blur-lg dark:bg-glass-dark;
+  box-shadow: 0 20px 50px rgba(15,23,42,.18), 0 5px 15px rgba(15,23,42,.08);
+}
+.profile-menu .mat-mdc-menu-content {
+  @apply p-0;
+}
+
+.menu-header {
+  @apply flex items-center gap-2 p-4 text-white mb-2 rounded-t-lg;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+}
+
+.avatar {
+  @apply w-[50px] h-[50px] rounded-full flex items-center justify-center bg-white/25 font-semibold text-lg;
+}
+
+.info h4 {
+  @apply m-0 font-semibold text-lg;
+}
+
+.info p {
+  @apply text-sm text-slate-100;
+}
+
+.menu-divider{
+  height:1px;
+  background:#e5e7eb;
+  margin:0px 0 5px;
+}
+
+.dark .menu-divider{
+    background:#374151;
+}
+
+.profile-menu .mat-mdc-menu-item{
+    height:46px;
+    border-radius:14px;
+    margin:3px 0;
+    transition:.25s;
+}
+.profile-menu .mat-mdc-menu-item .mat-mdc-menu-item-text {
+  @apply flex justify-self-start gap-1;
+}
+
+.profile-menu .mat-mdc-menu-item:hover{
+    background:#EEF2FF;
+    transform:translateX(6px);
+}
+
+.dark .profile-menu .mat-mdc-menu-item:hover{
+    background:#1f2937;
+}
+
+.profile-menu svg{
+    margin-right:14px;
+    color:#6366f1;
+}
+
+.logout{
+    color:#ef4444 !important;
+}
+
+.logout svg{
+    color:#ef4444 !important;
+}
