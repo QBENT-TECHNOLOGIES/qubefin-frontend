@@ -1,7 +1,7 @@
 import { httpResource } from "@angular/common/http";
 import { computed, Injectable, signal } from "@angular/core";
 import { ApiPaths } from "qubefin-core";
-import { IMonthlyPayroll, Payroll } from "../models/payroll-model";
+import { IMonthlyPayroll, IMonthWisePayroll, Payroll } from "../models/payroll-model";
 
 @Injectable({
     providedIn: 'root'
@@ -58,5 +58,17 @@ export class PayrollStore {
 
     refreshMonthlyPayroll() {
         this.monthlyPayrollResource.reload();
+    }
+    monthlyPayrollSummariesResource = httpResource<{ payrolls: IMonthWisePayroll[] }>(
+        () => `${ApiPaths.PAYROLL}/month-wise-payroll`
+    );
+     readonly monthlyPayrollSummaries = computed(() =>
+        this.monthlyPayrollSummariesResource.value()?.payrolls ?? []
+    );
+    readonly monthlyPayrollSummariesLoading = computed(() => this.monthlyPayrollSummariesResource.isLoading());
+    readonly monthlyPayrollSummariesError = computed(() => this.monthlyPayrollSummariesResource.error());
+ 
+    refreshMonthlyPayrollSummaries() {
+        this.monthlyPayrollSummariesResource.reload();
     }
 }
