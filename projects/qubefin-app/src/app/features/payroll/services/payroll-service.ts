@@ -17,4 +17,7 @@ export class PayrollService {
   getMontlyPayrolls(month: number, year: number){
     return this.httpClient.get(`${ApiPaths.PAYROLL}/payrolls/${month}/${year}`);
   }
+  getMonthWisePayroll(){
+    return this.httpClient.get(`${ApiPaths.PAYROLL}/month-wise-payroll`);
+  }
 }

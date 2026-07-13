@@ -1,13 +1,8 @@
-<!-- <div class="p-4 flex flex-col gap-4">
+<div class="p-4 flex flex-col gap-4">
     @if (!isDetailMode()) {
-    <div class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400">
-        Monthly Payroll list — coming next (backend summary query + list component baki ache).
-    </div> -->
-    <!--
-    <qfin-monthly-payroll-list (onViewMonth)="onViewMonth($event.month, $event.year)">
-    </qfin-monthly-payroll-list>
-    -->
-    <!-- } @else {
+    <qfin-month-wise-payrolls (onViewMonth)="onViewMonth($event.month, $event.year)">
+    </qfin-month-wise-payrolls>
+    } @else {
     <div class="flex items-center gap-3">
         <button type="button" (click)="onBackToList()"
             class="p-2 rounded-lg hover:bg-slate-500/10 dark:hover:bg-white/10 transition cursor-pointer">
@@ -21,4 +16,4 @@
     <qfin-monthly-payroll-detail [month]="selectedMonth()" [year]="selectedYear()">
     </qfin-monthly-payroll-detail>
     }
-</div> -->
+</div>
