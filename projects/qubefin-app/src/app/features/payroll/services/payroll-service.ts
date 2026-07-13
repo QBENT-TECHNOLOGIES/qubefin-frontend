@@ -20,4 +20,7 @@ export class PayrollService {
   getMonthWisePayroll(){
     return this.httpClient.get(`${ApiPaths.PAYROLL}/month-wise-payroll`);
   }
+  lockPayroll(year: number, month: number){
+    return this.httpClient.put(`${ApiPaths.PAYROLL}/lock-payrolls/${year}/${month}`, null)
+  }
 }

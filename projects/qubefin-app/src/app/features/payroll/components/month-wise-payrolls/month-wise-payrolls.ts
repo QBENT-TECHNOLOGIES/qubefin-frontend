@@ -15,13 +15,17 @@ export class MonthWisePayrolls {
   readonly icons = APP_ICONS_MAP;
   summaries = this.payrollStore.monthlyPayrollSummaries;
   loading = this.payrollStore.monthlyPayrollSummariesLoading;
- 
+
   onViewMonth = output<{ month: number; year: number }>();
- 
+
   onView(month: number, year: number) {
     this.onViewMonth.emit({ month, year });
   }
- 
+
   onLockMonth(month: number, year: number) {
+    const isConfirmed = confirm(`Are you sure you want to lock the payroll for ${month}/${year}?`);
+    if (isConfirmed) {
+      this.payrollStore.lockMonthlyPayroll(month, year);
+    }
   }
 }
