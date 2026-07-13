@@ -10,7 +10,6 @@ import { SalaryStore } from '../../../stores/salary-store';
 import { SalaryComponentService } from '../../../services/salary-component-service';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { ISalaryModel, SalaryModel } from '../../../models/salary';
-import { LucideSquarePen } from '@lucide/angular';
 
 @Component({
   selector: 'qfin-salary-component-detail',
@@ -22,7 +21,6 @@ import { LucideSquarePen } from '@lucide/angular';
     MatSelectModule,
     MatCheckboxModule,
     FormField,
-    LucideSquarePen
   ],
   templateUrl: './salary-component-detail.html',
 })

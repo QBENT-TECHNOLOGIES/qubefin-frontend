@@ -38,59 +38,56 @@
             <div class="flex flex-col">
                 @for (menuNode of userMenus(); track menuNode.id; let groupIndex = $index) {
                 <div>
-                    <p class="mb-4 text-xs uppercase flex leading-5 text-gray-400"
-                        [ngClass]="!isExpanded() && !isHovered() ? 'lg:justify-center' : 'justify-start'">
+                    <div class="menu-category-header" [ngClass]="!isExpanded() && !isHovered() ? 'justify-center py-2' : 'justify-between px-3 mb-2 mt-3'">
                         @if (isExpanded() || isHovered()) {
-                        {{ menuNode.name }}
+                            <span class="menu-category-text">{{ menuNode.name }}</span>
+                            <span class="menu-category-line"></span>
                         } @else {
-                        <span class="material-symbols-outlined">
-                            more_horiz
-                        </span>
+                            <span class="menu-category-dot"></span>
                         }
-                    </p>
-                    <ul class="flex flex-col">
+                    </div>
+                    <ul class="flex flex-col gap-[3]">
                         @for (item of menuNode.children; track item.name; let itemIndex = $index) {
-                        <li>
+                        <li class="relative">
                             @if (item.children && item.children?.length > 0) {
                             <button class="menu-item group w-full"
-                                [ngClass]="!isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start'"
-                                [ngClass]="{'menu-item-active': isSubMenuOpen(groupIndex, itemIndex),'menu-item-inactive': !isSubMenuOpen(groupIndex, itemIndex)}"
+                                [ngClass]="[!isExpanded() && !isHovered() ? 'justify-center px-2 py-3' : 'justify-start px-3.5 py-3', isSubMenuOpen(groupIndex, itemIndex) ? 'menu-item-active' : 'menu-item-inactive']"
                                 (click)="toggleSubmenu(groupIndex, itemIndex)">
                                 <svg [lucideIcon]="iconMap[item.icon]"
+                                    class="w-3 h-3 shrink-0 transition-colors duration-200"
                                     [ngClass]="[isSubMenuOpen(groupIndex, itemIndex) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
                                 </svg>
                                 @if (isExpanded() || isHovered()) {
                                 <span class="menu-item-text">{{ item.name }}</span>
                                 <svg lucideIcon="chevron-down"
-                                    class="ml-auto w-5 h-5 transition-transform duration-200"
-                                    [ngClass]="{'rotate-180 text-brand-500': isSubMenuOpen(groupIndex,itemIndex)}">
+                                    class="ml-auto w-4 h-4 transition-transform duration-200"
+                                    [ngClass]="{'rotate-180 text-primary-500': isSubMenuOpen(groupIndex, itemIndex), 'text-slate-400 dark:text-slate-500': !isSubMenuOpen(groupIndex, itemIndex)}">
                                 </svg>
                                 }
                             </button>
                             } @else {
-                            <div class="mt-2">
-                                <a routerLink="{{ item.target }}"
-                                    [ngClass]="{'menu-item group gap-3 px-2 py-3 rounded-lg': true, 'menu-item-active': isActive(item.target!), 'menu-item-inactive': !isActive(item.target!)}">
-                                    <svg [lucideIcon]="iconMap[item.icon]"
-                                        [ngClass]="{'menu-item-icon-active': isActive(item.target!), 'menu-item-icon-inactive': !isActive(item.target!)}">
-                                    </svg>
-                                    @if (isExpanded() || isHovered()) {
-                                    <span class="menu-item-text">{{ item.name }}</span>
-                                    }
-                                </a>
-                            </div>
+                            <a routerLink="{{ item.target }}"
+                                [ngClass]="['menu-item group', !isExpanded() && !isHovered() ? 'justify-center px-2 py-3 gap-2' : 'justify-start px-3.5 py-3 gap-2', isActive(item.target!) ? 'menu-item-active' : 'menu-item-inactive']">
+                                <svg [lucideIcon]="iconMap[item.icon]"
+                                    class="w-4 h-4 shrink-0 transition-colors duration-200"
+                                    [ngClass]="[isActive(item.target!) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
+                                </svg>
+                                @if (isExpanded() || isHovered()) {
+                                <span class="menu-item-text">{{ item.name }}</span>
+                                }
+                            </a>
                             }
                             @if (isSubMenuOpen(groupIndex, itemIndex) && (isExpanded() || isHovered())) {
-                            <ul class="mt-2 space-y-1 ml-7">
+                            <ul class="menu-dropdown-list">
                                 @for (subItem of item.children; track subItem.name) {
-                                <li>
-                                    <a routerLink="{{ subItem.target }}" class="menu-dropdown-item"
-                                        [ngClass]="{'menu-dropdown-item-active gap-3 px-2 py-3 rounded-lg': isActive(subItem.target!), 'menu-dropdown-item-inactive': !isActive(subItem.target!)}">
-                                        <span class="material-symbols-outlined"
-                                            [ngClass]="{'menu-item-icon-active': isActive(subItem.target!), 'menu-item-icon-inactive': !isActive(subItem.target!)}">
+                                <li class="relative">
+                                    <a routerLink="{{ subItem.target }}"
+                                        [ngClass]="['menu-dropdown-item group', isActive(subItem.target!) ? 'menu-dropdown-item-active' : 'menu-dropdown-item-inactive']">
+                                        <span class="material-symbols-outlined dropdown-icon"
+                                            [ngClass]="[isActive(subItem.target!) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
                                             {{ subItem.icon }}
                                         </span>
-                                        {{ subItem.name }}
+                                        <span class="menu-dropdown-text">{{ subItem.name }}</span>
                                     </a>
                                 </li>
                                 }
@@ -123,7 +120,7 @@
                     </div>
                 </div>
                 <div class="bg-primary-500/10 dark:bg-primary-50/10 text-primary-600 dark:text-primary-400 p-2 rounded-4xl cursor-pointer w-10 h-10 flex items-center justify-center overflow-hidden" matTooltip="Log Out">
-                    <svg lucideLogOut class="w-5 h-5"></svg>
+                    <svg lucideIcon="log-out" class="w-5 h-5"></svg>
                 </div>
             </div>
         } @else {

@@ -10,19 +10,20 @@ import { Observable } from 'rxjs';
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { LucidePlus, LucideSearch, LucideFunnel } from '@lucide/angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
+import { APP_ICONS_MAP } from '../../../../lucide-icons';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'qfin-salary-component',
-  imports: [SalaryComponentList, SalaryComponentView, SalaryComponentDetail, MatIconModule, MatButtonModule,
-    LucidePlus, MatTooltipModule, LucideSearch, LucideFunnel
-  ],
+  imports: [SalaryComponentList, SalaryComponentView, SalaryComponentDetail, MatIconModule, MatButtonModule, MatTooltipModule, LucideDynamicIcon, Breadcrumb, CommonModule],
   templateUrl: './salary-component.html',
 })
 export class SalaryComponent {
   public readonly EMPTY_UUID = EMPTY_UUID;
   private readonly route = inject(ActivatedRoute);
   private readonly routeDataService = inject(RouteDataService);
+  readonly iconMap = APP_ICONS_MAP;
   salaryStore = inject(SalaryStore);
   isViewMode = signal<boolean>(true);
   selectedSalaryComponentId = signal<string>(EMPTY_UUID);

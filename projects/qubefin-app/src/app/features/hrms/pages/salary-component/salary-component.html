@@ -1,29 +1,34 @@
-<div class="p-4 flex flex-col gap-4">
-    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-400/10 pb-3">
-        <h2 class="text-xl font-bold text-gray-800 dark:text-slate-100">Salary Head</h2>
-        <button
-            class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm shadow-md font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
-            (click)="onAdd()">
-            <svg lucidePlus class="w-4 h-4"></svg>
-            New Component
-        </button>
+<div class="flex flex-col gap-2">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+        <qfin-breadcrumb></qfin-breadcrumb>
+        <div class="flex items-center gap-3">
+            <button
+                class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+                (click)="onAdd()">
+                <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                New Component
+            </button>
+        </div>
     </div>
-
+    
     <div class="flex gap-4 items-start">
         <div class="glass rounded-xl shadow-glass dark:shadow transition-all duration-300 overflow-hidden"
             [class.w-full]="selectedSalaryComponentId() === EMPTY_UUID && isViewMode()"
-            [class.w-1/3]="selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()">
+            [class.w-1/4]="selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()"
+            [ngClass]="{
+                'sticky top-0 h-[calc(100vh-170px)]': selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()
+            }">
 
             <div class="flex items-center gap-2 px-4 py-3">
                 <div
                     class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
-                    <svg lucideSearch class="w-4 h-4 text-slate-400 shrink-0"></svg>
+                    <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
                     <input type="text" placeholder="Search components..." aria-label="Search salary components"
                         class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
                 </div>
                 <button aria-label="Filter"
                     class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
-                    <svg lucideFunnel class="w-4 h-4"></svg>
+                    <svg lucideIcon="funnel" class="w-4 h-4"></svg>
                 </button>
             </div>
 
@@ -34,34 +39,91 @@
         </div>
 
         @if (selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()) {
-        <div class="glass rounded-xl shadow-glass dark:shadow p-6 flex-1 transition-all">
-            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
-                <h3 class="font-bold text-lg text-gray-700 dark:text-slate-200">
-                    @if (selectedSalaryComponentId() === EMPTY_UUID) {
-                    Add Salary Component
-                    } @else if (isViewMode()) {
-                    Component Details
+            <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 flex-1 transition-all">
+                <!-- <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
+                    <h3 class="font-bold text-lg text-gray-700 dark:text-slate-200">
+                        @if (selectedSalaryComponentId() === EMPTY_UUID) {
+                        Add Salary Component
+                        } @else if (isViewMode()) {
+                        Component Details
+                        } @else {
+                        Edit Component
+                        }
+                    </h3>
+                    <button aria-label="Close"
+                        class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
+                        (click)="closePanel()">
+                        <svg lucideIcon="x" class="w-4 h-4"></svg>
+                    </button>
+                </div> -->
+                <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-14 h-14 rounded-xl shadow-md bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center dark:shadow-none">
+                                @if (selectedSalaryComponentId() === EMPTY_UUID) {
+                                <svg lucideIcon="plus" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+                                } @else if (isViewMode()) {
+                                <svg lucideIcon="eye" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+                                } @else {
+                                <svg lucideIcon="square-pen" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+                                }
+                            </div>
+                            <div>
+                                <div class="flex justify-start gap-2">
+                                    <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
+                                        @if (selectedSalaryComponentId() === EMPTY_UUID) {
+                                        Add Salary Component
+                                        } @else if (isViewMode()) {
+                                        Component Details
+                                        } @else {
+                                        Edit Salary Component
+                                        }
+                                    </h2>
+                                    <div
+                                        class="flex items-center gap-1.5 px-3 pt-1 pb-0 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+                                        <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                                            @if (selectedSalaryComponentId() === EMPTY_UUID) {
+                                            New Mode
+                                            } @else if (isViewMode()) {
+                                            View Mode
+                                            } @else {
+                                            Edit Mode
+                                            }
+                                        </span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                                    @if (selectedSalaryComponentId() === EMPTY_UUID) {
+                                    Create a new salary component and configure its applicability.
+                                    } @else if (isViewMode()) {
+                                    View the salary component details and configuration.
+                                    } @else {
+                                    Update the salary component and its applicability rules.
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <button aria-label="Close" matTooltip="Close"
+                        class="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
+                        (click)="closePanel()">
+                        <svg lucideIcon="x" class="w-4 h-4"></svg>
+                    </button>
+                </div>
+
+                <div>
+                    @if (isViewMode() && selectedSalaryComponentId() !== EMPTY_UUID) {
+                    <qfin-salary-component-view [(salaryId)]="selectedSalaryComponentId" (showEdit)="onEdit()">
+                    </qfin-salary-component-view>
                     } @else {
-                    Edit Component
+                    <qfin-salary-component-detail [salaryId]="selectedSalaryComponentId()" (onCancel)="closePanel()"
+                        (onSave)="closePanel()">
+                    </qfin-salary-component-detail>
                     }
-                </h3>
-                <button aria-label="Close"
-                    class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
-                    (click)="closePanel()">
-                    <svg lucideX class="w-4 h-4"></svg>
-                </button>
+                </div>
             </div>
-            <div>
-                @if (isViewMode() && selectedSalaryComponentId() !== EMPTY_UUID) {
-                <qfin-salary-component-view [(salaryId)]="selectedSalaryComponentId" (showEdit)="onEdit()">
-                </qfin-salary-component-view>
-                } @else {
-                <qfin-salary-component-detail [salaryId]="selectedSalaryComponentId()" (onCancel)="closePanel()"
-                    (onSave)="closePanel()">
-                </qfin-salary-component-detail>
-                }
-            </div>
-        </div>
         }
     </div>
 </div>

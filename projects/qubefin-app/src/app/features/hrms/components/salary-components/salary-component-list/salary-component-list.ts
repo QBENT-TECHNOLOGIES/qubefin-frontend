@@ -4,12 +4,14 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { APP_ICONS_MAP } from '../../../../../lucide-icons';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'qfin-salary-component-list',
   imports: [CommonModule, MatButtonModule,
     MatIconModule,
-    MatTooltipModule],
+    MatTooltipModule, LucideDynamicIcon],
   templateUrl: './salary-component-list.html',
 })
 export class SalaryComponentList {
@@ -17,6 +19,7 @@ export class SalaryComponentList {
   data = input<ISalaryModel[]>([]);
   isCollapsed = input<boolean>(false);
   selectedId = signal<string>('');
+  readonly iconMap = APP_ICONS_MAP;
   onDetailView(id: string) {
     this.selectedId.set(id);
     this.onViewDetail.emit(id);

@@ -54,13 +54,11 @@ export class Drawer {
 
 	isSubMenuOpen(groupIndex: number, itemIndex: number): boolean {
 		const key = `${groupIndex}-${itemIndex}`;
-		return false;
-		// return (
-		// 	this.openSubmenu === key ||
-		// 	(this.isAnySubmenuRouteActive() &&
-		// 		this.userMenus()![groupIndex].children?[itemIndex].children?.some((subItem: any) =>
-		// 			this.isActive(subItem.path)
-		// 		))
-		// ) ?? false;
+		const group = this.userMenus()?.[groupIndex];
+		const item = group?.children?.[itemIndex];
+		const hasActiveChild = item?.children?.some((subItem) =>
+			subItem.target ? this.isActive(subItem.target) : false
+		) ?? false;
+		return this.openSubmenu === key || hasActiveChild;
 	}
 }

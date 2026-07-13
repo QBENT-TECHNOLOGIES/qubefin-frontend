@@ -8,10 +8,12 @@ import { OrganizationUnitTreeComponent } from '../../components/organization-uni
 import { OrganizationUnitViewComponent } from '../../components/organization-unit-view/organization-unit-view';
 import { OrganizationUnitDetailComponent } from '../../components/organization-unit-detail/organization-unit-detail';
 import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
+import { APP_ICONS_MAP } from '../../../../lucide-icons';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'qfin-organization-unit-page',
-  imports: [Breadcrumb, OrganizationUnitTreeComponent, OrganizationUnitViewComponent, OrganizationUnitDetailComponent],
+  imports: [Breadcrumb, OrganizationUnitTreeComponent, OrganizationUnitViewComponent, OrganizationUnitDetailComponent, LucideDynamicIcon],
   templateUrl: './organization-unit.html'
 })
 export class OrganizationUnitPage {
@@ -20,6 +22,8 @@ export class OrganizationUnitPage {
 
 	readonly permissionStore = inject(PermissionStore);
 	readonly organizationUnitStore = inject(OrganizationUnitStore);
+
+	readonly iconMap = APP_ICONS_MAP;
 
 	isViewMode = signal<boolean>(true);
 	selectedOrganizationUnitId = signal<string>(EMPTY_UUID);

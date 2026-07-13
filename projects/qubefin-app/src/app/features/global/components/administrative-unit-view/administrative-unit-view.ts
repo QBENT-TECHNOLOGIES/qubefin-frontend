@@ -29,10 +29,6 @@ export class AdministrativeUnitViewComponent {
 				this.administrativeUnitStore.setAdministrativeUnitId(this.administrativeUnitId());
 			}
 		});
-
-		effect(() => {
-			console.log('Administrative Unit:', this.administrativeUnit());
-		});
 	}
 	
 	onShowEdit() {

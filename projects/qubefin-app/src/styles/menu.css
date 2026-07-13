@@ -1,79 +1,99 @@
+/* ==========================================================================
+   Navigation Menu Styles
+   ========================================================================== */
+
+/* Category Headers */
+.menu-category-header {
+	@apply flex items-center select-none transition-all duration-300;
+}
+
+.menu-category-text {
+	@apply text-[10px] font-extrabold tracking-widest text-slate-400 dark:text-slate-500 uppercase transition-all duration-300;
+}
+
+.menu-category-line {
+	@apply h-[1px] flex-1 bg-slate-200/60 dark:bg-slate-800/40 ml-2 transition-all duration-300;
+}
+
+.menu-category-dot {
+	@apply w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700 block transition-all duration-300;
+}
+
+/* Base Menu Item (Links and Buttons) */
 .menu-item {
-	@apply relative flex items-center w-full gap-3 font-medium text-sm;
+	@apply relative flex items-center w-full rounded-xl text-sm font-medium transition-all duration-200 select-none;
 }
 
+.menu-item-text {
+	@apply transition-transform duration-200 text-[12.8px];
+}
+
+/* Active State */
 .menu-item-active {
-	@apply bg-primary-500/10 text-primary-700 dark:text-primary-500 font-semibold transition relative;
-	box-shadow: 0 18px 45px rgba(15,23,42,0.12);
+	@apply bg-linear-to-r from-primary-500/10 to-primary-500/2 text-primary-700 font-semibold shadow-xs transition-all duration-300;
 }
+
 .dark .menu-item-active {
-	@apply bg-primary-600/15 text-primary-600 font-semibold transition relative;
-}
-
-.menu-item-inactive {
-	@apply text-secondary-600 dark:text-slate-50 hover:bg-primary-500/10 dark:hover:bg-white/5 transition font-semibold;
-	
-}
-.dark .menu-item-inactive {
-	@apply text-slate-300 hover:bg-white/10 transition;
-}
-
-.menu-item-icon {
-	@apply text-slate-500 group-hover:text-slate-700 dark:text-slate-400;
-}
-.dark .menu-item-icon {
-	@apply text-slate-300;
-}
-
-.menu-item-icon-active {
-	@apply text-primary-700 dark:text-primary-400;
-}
-
-.menu-item-icon-inactive {
-	@apply text-secondary-600 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-300;
-}
-.dark .menu-item-icon-inactive {
-	@apply text-slate-300;
-}
-
-.menu-item-arrow {
-	@apply relative;
-}
-
-.menu-item-arrow-active {
-	@apply rotate-180 text-primary-500 dark:text-primary-400;
-}
-
-.menu-item-arrow-inactive {
-	@apply text-secondary-600 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-300;
-}
-
-.menu-dropdown-item {
-	@apply relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium;
-}
-
-.menu-dropdown-item-active {
-	@apply bg-blue-50 text-primary-500 dark:bg-primary-500/12 dark:text-primary-400;
-}
-
-.menu-dropdown-item-inactive {
-	@apply text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5;
-}
-
-.menu-dropdown-badge {
-	@apply block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase text-primary-500 dark:text-primary-400;
-}
-
-.menu-dropdown-badge-active {
-	@apply bg-blue-100 dark:bg-blue-500/20;
-}
-
-.menu-dropdown-badge-inactive {
-	@apply bg-blue-50 group-hover:bg-blue-100 dark:bg-blue-500/15 dark:group-hover:bg-blue-500/20;
+	@apply from-primary-500/12 to-primary-500/1 text-primary-400 shadow-none;
 }
 
 .menu-item-active::before {
-	@apply absolute -left-0.5 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-primary-500;
 	content: '';
-	box-shadow: rgba(22, 199, 132, 0.15) 0px 0px 0px 3px, rgba(22, 199, 132, 0.6) 0px 0px 14px;
+	@apply absolute left-0 top-1/4 bottom-1/4 w-[3.5px] rounded-r-md bg-primary-500 transition-all duration-300;
+	box-shadow: 0 0 10px var(--color-primary-500), 0 0 4px var(--color-primary-500);
+}
+
+/* Inactive State */
+.menu-item-inactive {
+	@apply text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-white/5 hover:text-slate-950 dark:hover:text-white transition-all duration-200;
+}
+
+.menu-item-inactive:hover .menu-item-text {
+	@apply translate-x-0.5;
+}
+
+/* Icon States */
+.menu-item-icon-active {
+	@apply text-primary-500 dark:text-primary-400 scale-[1.05] transition-transform duration-200;
+}
+
+.menu-item-icon-inactive {
+	@apply text-slate-400 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors duration-200;
+}
+
+/* Dropdown / Submenu List Container */
+.menu-dropdown-list {
+	@apply mt-1.5 ml-6 pl-3 border-l border-slate-200/80 dark:border-slate-800/60 space-y-1 relative transition-all duration-300;
+}
+
+/* Dropdown Nested Items */
+.menu-dropdown-item {
+	@apply relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-200 select-none;
+}
+
+.menu-dropdown-text {
+	@apply transition-transform duration-200;
+}
+
+.menu-dropdown-item-active {
+	@apply bg-primary-500/8 text-primary-700 dark:bg-primary-500/12 dark:text-primary-400 font-semibold;
+}
+
+/* Timeline alignment: -12.5px offsets standard pl-3 (12px) to align dot perfectly on left border */
+.menu-dropdown-item-active::before {
+	content: '';
+	@apply absolute -left-[14.5px] top-1/2 -translate-y-1/2 w-[7px] h-[7px] rounded-full bg-primary-500 transition-all duration-300 z-10;
+	box-shadow: 0 0 8px var(--color-primary-500);
+}
+
+.menu-dropdown-item-inactive {
+	@apply text-slate-500 dark:text-slate-400 hover:bg-slate-100/60 dark:hover:bg-white/4 hover:text-slate-900 dark:hover:text-white;
+}
+
+.menu-dropdown-item-inactive:hover .menu-dropdown-text {
+	@apply translate-x-0.5;
+}
+
+.dropdown-icon {
+	@apply text-[18px] shrink-0 transition-colors duration-200;
 }
