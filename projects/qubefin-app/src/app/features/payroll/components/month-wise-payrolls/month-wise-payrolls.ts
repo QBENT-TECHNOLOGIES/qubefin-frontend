@@ -1,6 +1,6 @@
 import { APP_ICONS_MAP } from './../../../../lucide-icons';
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, inject, output, signal, input } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { PayrollStore } from '../../stores/payroll-store';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -8,10 +8,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
+import { MatMenuModule } from '@angular/material/menu';
 import { PayrollService } from '../../services/payroll-service';
 @Component({
   selector: 'qfin-month-wise-payrolls',
-  imports: [CommonModule, CurrencyPipe, LucideDynamicIcon, MatTooltipModule, MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule],
+  imports: [CommonModule, MatMenuModule, CurrencyPipe, LucideDynamicIcon, MatTooltipModule, MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule],
   templateUrl: './month-wise-payrolls.html',
 })
 export class MonthWisePayrolls {
@@ -20,6 +21,10 @@ export class MonthWisePayrolls {
   readonly iconMap = APP_ICONS_MAP;
   summaries = this.payrollStore.monthlyPayrollSummaries;
   loading = this.payrollStore.monthlyPayrollSummariesLoading;
+
+  isCollapsed = input<boolean>(false);
+  selectedMonth = input<number | null>(null);
+  selectedYear = input<number | null>(null);
 
   onViewMonth = output<{ month: number; year: number }>();
 

@@ -7,11 +7,11 @@ import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
-  selector: 'qfin-monthly-payroll-detail',
+  selector: 'qfin-monthly-payrolls-details',
   imports: [CommonModule, CurrencyPipe, MatExpansionModule, LucideDynamicIcon, MatTooltipModule],
-  templateUrl: './monthly-payroll-detail.html',
+  templateUrl: './monthly-payrolls-details.component.html',
 })
-export class MonthlyPayrollDetail {
+export class MonthlyPayrollsDetailsComponent {
   private readonly payrollStore = inject(PayrollStore);
 
   month = input.required<number>();
@@ -49,10 +49,4 @@ export class MonthlyPayrollDetail {
     return earnings - deductions;
   }
 
-  getInitials(name: string | undefined | null): string {
-    if (!name) return '';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  }
 }

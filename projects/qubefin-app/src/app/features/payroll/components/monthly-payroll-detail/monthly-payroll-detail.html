@@ -10,45 +10,102 @@
         <mat-expansion-panel 
             [expanded]="expandedOrgUnitId() === header.organizationUnitId"
             (opened)="togglePanel(header.organizationUnitId, true)"
-            class="!shadow-md border border-slate-200 dark:border-white/10 !rounded-lg overflow-hidden">
-                        <mat-expansion-panel-header class="!bg-[#2b1b60] hover:!bg-[#362277] transition !h-12">
-                <mat-panel-title class="!text-white font-medium flex items-center gap-2">
-                    {{ header.codeVal }} - {{ header.organizationUnitName }}
-                </mat-panel-title>
+            class="!shadow-none hover:!shadow-md transition-all duration-300 border !border-slate-200 dark:border-white/10 !rounded-xl glass overflow-hidden !m-0">
+            
+            <mat-expansion-panel-header class="!bg-slate-50/70 !rounded hover:!bg-slate-100/70 dark:!bg-slate-800/40 dark:hover:!bg-slate-800/60 !h-16 px-4 border-b border-slate-200/40 dark:border-white/5 transition duration-200">
+                <div class="flex flex-wrap md:flex-nowrap items-center justify-between gap-4 w-full select-none">
+                    <!-- Left: Org Info -->
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-primary-500/10 dark:bg-primary-400/10 flex items-center justify-center border border-primary-500/20 shrink-0">
+                            <svg [lucideIcon]="icons['Building2']" class="w-5 h-5 text-primary-600 dark:text-primary-400"></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-wide uppercase">
+                                {{ header.organizationUnitName }}
+                            </h3>
+                            <span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-200/60 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 font-semibold uppercase tracking-wider">
+                                Code: {{ header.codeVal }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Summary Metrics -->
+                    <div class="flex items-center gap-2 flex-wrap md:flex-nowrap text-xs font-medium mr-4">
+                        <!-- Headcount -->
+                        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800/80 border border-slate-200/50 dark:border-white/5">
+                            <svg [lucideIcon]="icons['Users']" class="w-4 h-4 text-slate-300"></svg>
+                            <span class="text-[11px] text-slate-500 dark:text-slate-300 uppercase tracking-wide">Employees:</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-100">{{ header.details.length }}</span>
+                        </div>
+
+                        <!-- Net Pay -->
+                        <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/10 dark:border-emerald-500/20">
+                            <span class="text-emerald-600 dark:text-emerald-400 uppercase tracking-wide text-[10px] font-bold">Net Pay:</span>
+                            <span class="font-bold text-emerald-600 dark:text-emerald-400">
+                                {{ (header.totalEarnings - header.totalDeductions) | currency:'INR' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </mat-expansion-panel-header>
-            <div class="overflow-x-auto bg-white dark:bg-slate-900">
-                <table class="w-full text-sm text-left">
-                    <thead class="bg-indigo-50/50 dark:bg-white/5 border-b border-slate-200 dark:border-white/10">
-                        <tr>
-                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200">#</th>
-                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200">Employee Name</th>
-                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200">Designation</th>
-                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200">Company</th>
-                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200 text-right">Earnings</th>
-                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200 text-right">Deductions</th>
-                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200 text-right">Net Pay</th>
-                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200 text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (emp of header.details; track emp.id; let i = $index) {
-                        <tr class="border-b border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-                            <td class="py-2.5 px-4 text-slate-600 dark:text-slate-400">{{ i + 1 }}</td>
-                            <td class="py-2.5 px-4 font-medium text-slate-800 dark:text-slate-100 uppercase">{{ emp.employeeName }}</td>
-                            <td class="py-2.5 px-4 text-slate-600 dark:text-slate-400">{{ emp.designationTitle }}</td>
-                            <td class="py-2.5 px-4 text-slate-600 dark:text-slate-400">{{ emp.companyName }}</td>
-                            <td class="py-2.5 px-4 text-right font-medium text-slate-700 dark:text-slate-300">{{ emp.totalEarnings | currency:'INR' }}</td>
-                            <td class="py-2.5 px-4 text-right font-medium text-slate-700 dark:text-slate-300">{{ emp.totalDeductions | currency:'INR' }}</td>
-                            <td class="py-2.5 px-4 text-right font-bold text-slate-800 dark:text-slate-100">{{ netPay(emp.totalEarnings, emp.totalDeductions) | currency:'INR' }}</td>
-                            <td class="py-2.5 px-4 text-center">
-                                <button type="button" matTooltip="Edit" (click)="onViewEmployeePayroll(emp.id)" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer transition">
-                                    <svg [lucideIcon]="icons['Pencil']" class="w-4 h-4 text-slate-700 dark:text-slate-300"></svg>
-                                </button>
-                            </td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
+            <div class="flex flex-col gap-3 p-4 bg-slate-50/50 dark:bg-slate-900/50">
+                @for (emp of header.details; track emp.id; let i = $index) {
+                <div class="dark:bg-slate-800/40 border border-slate-200/60 dark:border-white/5 rounded-xl p-2 flex flex-wrap md:flex-nowrap items-center justify-between gap-4 transition duration-200">
+                    <!-- Left: Employee Info -->
+                    <div class="flex items-center gap-3.5 min-w-[240px]">
+                        <div class="w-11 h-11 rounded-full bg-primary-500/10 dark:bg-primary-400/10 text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold text-sm border border-primary-500/20 uppercase shrink-0">
+                            {{ getInitials(emp.employeeName) }}
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide">
+                                {{ emp.employeeName }}
+                            </h4>
+                            <div class="flex flex-wrap items-center gap-1.5 mt-1 text-xs text-slate-400 dark:text-slate-400">
+                                <span class="font-medium text-slate-500 dark:text-slate-400">{{ emp.designationTitle }}</span>
+                                <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                                <span>{{ emp.companyName }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Middle: Financial breakdown -->
+                    <div class="flex flex-wrap items-center gap-4 sm:gap-6 flex-1 justify-start md:justify-end">
+                        <!-- Earnings -->
+                        <div class="flex flex-col items-start md:items-end min-w-[90px]">
+                            <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-300">Earnings</span>
+                            <span class="text-sm font-semibold text-emerald-600 dark:text-emerald-500 flex items-center gap-1 mt-0.5">
+                                <svg [lucideIcon]="icons['TrendingUp']" class="w-3.5 h-3.5 text-emerald-500"></svg>
+                                {{ emp.totalEarnings | currency:'INR' }}
+                            </span>
+                        </div>
+
+                        <!-- Deductions -->
+                        <div class="flex flex-col items-start md:items-end min-w-[90px]">
+                            <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-300">Deductions</span>
+                            <span class="text-sm font-semibold text-rose-500 dark:text-rose-400 flex items-center gap-1 mt-0.5">
+                                <svg [lucideIcon]="icons['TrendingDown']" class="w-3.5 h-3.5 text-rose-500"></svg>
+                                {{ emp.totalDeductions | currency:'INR' }}
+                            </span>
+                        </div>
+
+                        <!-- Net Pay -->
+                        <div class="flex flex-col items-start md:items-end min-w-[110px] px-3 py-1.5 rounded-lg">
+                            <span class="text-[10px] font-semibold uppercase tracking-wider text-primary-500 dark:text-primary-400">Net Pay</span>
+                            <span class="text-sm font-bold text-primary-600 dark:text-primary-400 mt-0.5">
+                                {{ netPay(emp.totalEarnings, emp.totalDeductions) | currency:'INR' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Actions -->
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button type="button" matTooltip="Edit" (click)="onViewEmployeePayroll(emp.id)" 
+                            class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:border-primary-500/50 dark:hover:border-primary-500/50 hover:bg-primary-500/5 dark:hover:bg-primary-500/10 transition cursor-pointer lift">
+                            <svg [lucideIcon]="icons['Pencil']" class="w-4 h-4"></svg>
+                        </button>
+                    </div>
+                </div>
+                }
             </div>
         </mat-expansion-panel>
         }

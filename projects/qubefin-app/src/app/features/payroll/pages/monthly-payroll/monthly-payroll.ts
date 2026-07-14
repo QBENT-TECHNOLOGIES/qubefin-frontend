@@ -8,10 +8,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+// import { MonthlyPayrollsDetailsComponent } from '../../components/monthly-payrolls-details/monthly-payrolls-details.component';
 
 @Component({
   selector: 'qfin-monthly-payroll',
-  imports: [MonthlyPayrollDetail, MonthWisePayrolls, Breadcrumb, LucideDynamicIcon, MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule],
+  imports: [CommonModule, MonthlyPayrollDetail, MonthWisePayrolls, Breadcrumb, LucideDynamicIcon, MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule],
   templateUrl: './monthly-payroll.html',
 })
 export class MonthlyPayroll {
@@ -36,5 +38,13 @@ export class MonthlyPayroll {
 
   protected toggleFilterArea() {
     this.showFilterArea.update(v => !v);
+  }
+
+  protected getMonthName(monthNum: number): string {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[monthNum - 1] || '';
   }
 }
