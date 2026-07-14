@@ -9,45 +9,43 @@ import { AuthService } from '../../services/auth-service';
 import { AuthStore, LoginStateStore } from 'qubefin-core';
 
 @Component({
-	selector: 'qfin-validate-login',
-	imports: [FormField, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
-	templateUrl: './validate-login.html'
+  selector: 'qfin-validate-login',
+  imports: [FormField, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
+  templateUrl: './validate-login.html',
 })
 export class ValidateLogin {
-	authStore = inject(AuthStore)
-	loginStateStore = inject(LoginStateStore);
-	authService = inject(AuthService);
+  authStore = inject(AuthStore);
+  loginStateStore = inject(LoginStateStore);
+  authService = inject(AuthService);
+  hidePassword = signal(true);
 
-	hidePassword = signal(true);
+  protected readonly loginModel = signal<ValidateLoginModel>({
+    userName: '',
+    password: '',
+  });
+  protected readonly loginSchema: Schema<ValidateLoginModel> = schema((path) => {
+    required(path.userName, { message: 'User Name is required' });
+    required(path.password, { message: 'Password is required' });
+  });
+  protected readonly loginForm = form(this.loginModel, this.loginSchema);
 
-	protected readonly loginModel = signal<ValidateLoginModel>({
-		userName: '',
-		password: ''
-	});
-	protected readonly loginSchema: Schema<ValidateLoginModel> = schema((path) => {
-		required(path.userName, { message: 'User Name is required' });
-		required(path.password, { message: 'Password is required' });
-	});
-	protected readonly loginForm = form(this.loginModel, this.loginSchema);
-
-	protected onSubmit(event: Event) {
-		if (this.loginForm().valid()) {
-			this.authService.validateLogin(this.loginForm().value()).subscribe({
-				next: (response) => {
-					if (response) {
-						this.authStore.setSessionToken(response.sessionToken);
-						this.loginStateStore.setLoginStep('mfa');
-					}
-				},
-				error: (err: any) => {
-					if (err.error) {
-						// this.message.set(err.error.message);
-						// this.messageType.set('error');
-					}
-				}
-			});
-		}
-		event.preventDefault();
-	}
+  protected onSubmit(event: Event) {
+    if (this.loginForm().valid()) {
+      this.authService.validateLogin(this.loginForm().value()).subscribe({
+        next: (response) => {
+          if (response) {
+            this.authStore.setSessionToken(response.sessionToken);
+            this.loginStateStore.setLoginStep('mfa');
+          }
+        },
+        error: (err: any) => {
+          if (err.error) {
+            // this.message.set(err.error.message);
+            // this.messageType.set('error');
+          }
+        },
+      });
+    }
+    event.preventDefault();
+  }
 }
-
