@@ -22,76 +22,91 @@
             [class.w-1/4]="selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()" [ngClass]="{
                 'sticky top-0 h-[calc(100vh-170px)]': selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()
             }">
+            
+            
+            @if (selectedSalaryComponentId() === EMPTY_UUID && isViewMode()) {
+                <!-- Filter Area -->
+                @if (showFilterArea()) {
+                <div class="p-3 transition-all duration-300">
+                    <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
+                        <!-- Search By Name/Code -->
+                        <div class="flex-1 min-w-[200px]">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                                <mat-label>Search By Name/Code</mat-label>
+                                <div class="w-12 flex justify-center" matPrefix>
+                                    <svg lucideIcon="search" class="w-5 h-5"></svg>
+                                </div>
+                                <input matInput autocomplete="off" placeholder="Enter name or code"
+                                    [(ngModel)]="tempSearch">
+                            </mat-form-field>
+                        </div>
 
-            <!-- Filter Area -->
-            @if (showFilterArea()) {
-            <div class="p-3 transition-all duration-300">
-                <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
-                    <!-- Search By Name/Code -->
-                    <div class="flex-1 min-w-[200px]">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Search By Name/Code</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="search" class="w-5 h-5"></svg>
+                        <!-- Category -->
+                        <div class="flex-1 min-w-[200px]">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                                <mat-label>Category</mat-label>
+                                <div class="w-12 flex justify-center" matPrefix>
+                                    <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                                </div>
+                                <mat-select placeholder="Select category" [(ngModel)]="tempCategory">
+                                    <mat-option value="">All Categories</mat-option>
+                                    @for (category of categories(); track category.id) {
+                                    <mat-option [value]="category.id">{{ category.name }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+
+                        <!-- Taxable Toggle -->
+                        <div class="flex flex-col select-none">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Taxable</span>
+                            <div
+                                class="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl w-30 border border-slate-200/50 dark:border-white/5 items-center h-10 shrink-0">
+                                <button type="button"
+                                    class="flex-1 text-center py-1.5 px-1 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer h-full flex items-center justify-center"
+                                    [ngClass]="tempTaxable === false ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200/10' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200'"
+                                    (click)="toggleTempTaxable(false)">
+                                    <!-- No -->
+                                    <svg lucideIcon="x" class="w-5 h-5"></svg>
+                                </button>
+                                <button type="button"
+                                    class="flex-1 text-center py-1.5 px-1 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer h-full flex items-center justify-center"
+                                    [ngClass]="tempTaxable === true ? 'bg-primary-500 text-white shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200'"
+                                    (click)="toggleTempTaxable(true)">
+                                    <!-- Yes -->
+                                    <svg lucideIcon="check" class="w-5 h-5"></svg>
+                                </button>
                             </div>
-                            <input matInput autocomplete="off" placeholder="Enter name or code"
-                                [(ngModel)]="tempSearch">
-                        </mat-form-field>
-                    </div>
+                        </div>
 
-                    <!-- Category -->
-                    <div class="flex-1 min-w-[200px]">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Category</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="tag" class="w-5 h-5"></svg>
-                            </div>
-                            <mat-select placeholder="Select category" [(ngModel)]="tempCategory">
-                                <mat-option value="">All Categories</mat-option>
-                                @for (category of categories(); track category.id) {
-                                <mat-option [value]="category.id">{{ category.name }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-
-                    <!-- Taxable Toggle -->
-                    <div class="flex flex-col select-none">
-                        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Taxable</span>
-                        <div
-                            class="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl w-30 border border-slate-200/50 dark:border-white/5 items-center h-10 shrink-0">
-                            <button type="button"
-                                class="flex-1 text-center py-1.5 px-1 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer h-full flex items-center justify-center"
-                                [ngClass]="tempTaxable === false ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200/10' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200'"
-                                (click)="toggleTempTaxable(false)">
-                                <!-- No -->
-                                <svg lucideIcon="x" class="w-5 h-5"></svg>
+                        <!-- Actions -->
+                        <div class="flex items-center gap-2.5 shrink-0">
+                            <button type="button" (click)="resetFilters()"
+                                class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
+                                <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                                Reset
                             </button>
-                            <button type="button"
-                                class="flex-1 text-center py-1.5 px-1 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer h-full flex items-center justify-center"
-                                [ngClass]="tempTaxable === true ? 'bg-primary-500 text-white shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200'"
-                                (click)="toggleTempTaxable(true)">
-                                <!-- Yes -->
-                                <svg lucideIcon="check" class="w-5 h-5"></svg>
+                            <button type="button" (click)="applyFilters()"
+                                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                                <svg lucideIcon="search" class="w-4 h-4"></svg>
+                                Search
                             </button>
                         </div>
                     </div>
-
-                    <!-- Actions -->
-                    <div class="flex items-center gap-2.5 shrink-0">
-                        <button type="button" (click)="resetFilters()"
-                            class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
-                            <span class="material-symbols-outlined text-[18px]">restart_alt</span>
-                            Reset
-                        </button>
-                        <button type="button" (click)="applyFilters()"
-                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                            <span class="material-symbols-outlined text-[18px]">search</span>
-                            Search
-                        </button>
-                    </div>
                 </div>
-            </div>
+                }
+            } @else {
+                <div class="flex items-center gap-2 px-4 py-3">
+                    <div
+                        class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
+                        <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
+                        <input type="text" [(ngModel)]="tempSearch" placeholder="Search by Name" class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
+                    </div>
+                    <button (click)="applyFilters()"
+                        class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
+                        <svg lucideIcon="search" class="w-4 h-4"></svg>
+                    </button>
+                </div>
             }
 
             <qfin-salary-component-list [data]="filteredSalaryComponents()"

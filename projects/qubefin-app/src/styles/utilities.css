@@ -256,3 +256,11 @@ body {
 .logout svg{
     color:#ef4444 !important;
 }
+
+.dark .mat-mdc-input-element::placeholder {
+  opacity: 0;
+}
+
+.dark .mat-mdc-form-field.mat-focused .mat-mdc-input-element::placeholder {
+  opacity: 1;
+}

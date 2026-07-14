@@ -79,13 +79,13 @@
   // Height
   // ==========================
   container-height: 48px
-));
+  ));
 
   @include mat.stepper-overrides((header-height: 48px));
   @include mat.slide-toggle-overrides((track-height: 32px, handle-width: 16px, handle-height: 16px));
   @include mat.tree-overrides((node-min-height: 24px,
       container-background-color: white,
-    ));
+  ));
 
 }
 
@@ -107,6 +107,10 @@
 
     container-height: 48px,
     outlined-container-shape: 6px,
+  ));
+
+   @include mat.select-overrides((
+    placeholder-text-color: #ffffff,
   ));
 }
 

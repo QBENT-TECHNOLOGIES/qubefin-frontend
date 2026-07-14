@@ -1,11 +1,17 @@
 import { Component, signal } from '@angular/core';
 import { MonthlyPayrollDetail } from '../../components/monthly-payroll-detail/monthly-payroll-detail';
-import { LucideArrowLeft } from '@lucide/angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { MonthWisePayrolls } from '../../components/month-wise-payrolls/month-wise-payrolls';
+import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
+import { APP_ICONS_MAP } from '../../../../lucide-icons';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'qfin-monthly-payroll',
-  imports: [MonthlyPayrollDetail, MonthWisePayrolls, LucideArrowLeft],
+  imports: [MonthlyPayrollDetail, MonthWisePayrolls, Breadcrumb, LucideDynamicIcon, MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule],
   templateUrl: './monthly-payroll.html',
 })
 export class MonthlyPayroll {
@@ -13,6 +19,10 @@ export class MonthlyPayroll {
  
   selectedMonth = signal<number>(new Date().getMonth() + 1);
   selectedYear = signal<number>(new Date().getFullYear());
+
+  showFilterArea = signal<boolean>(false);
+
+  readonly iconMap = APP_ICONS_MAP;
  
   protected onViewMonth(month: number, year: number) {
     this.selectedMonth.set(month);
@@ -22,5 +32,9 @@ export class MonthlyPayroll {
  
   protected onBackToList() {
     this.isDetailMode.set(false);
+  }
+
+  protected toggleFilterArea() {
+    this.showFilterArea.update(v => !v);
   }
 }

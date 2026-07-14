@@ -110,4 +110,5 @@
   @apply text-slate-300
 }
 .dark .mdc-checkbox .mdc-checkbox__background {
-  @apply border-slate-400 hover:border-white!}
+  @apply border-slate-400 hover:border-white!
+}
