@@ -10,6 +10,7 @@
                 <th class="text-right">Net Pay</th>
                 <th class="text-center">Status</th>
                 <th class="text-center">Actions</th>
+                <th class="text-center">Statutory Reports</th>
             </tr>
         </thead>
         <tbody>
@@ -66,6 +67,22 @@
                                 <svg lucideIcon="lock" class="w-5 h-5 text-rose-500 dark:text-rose-500 hover:text-rose-500"></svg>
                             </div>
                         }
+                    </div>
+                </td>
+                <td>
+                    <div class="flex items-center justify-center gap-1">
+                        <div (click)="onDownloadPfReport(item.payrollMonth, item.payrollYear)" matTooltip="Download PF Report" 
+                            class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-sky-500/10">
+                            <svg lucideIcon="file-down" class="w-5 h-5 text-sky-600 dark:text-sky-500 hover:text-sky-700"></svg>
+                        </div>
+                        <div (click)="onDownloadEsiReport(item.payrollMonth, item.payrollYear)" matTooltip="Download ESI Report" 
+                            class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-indigo-500/10">
+                            <svg lucideIcon="file-down" class="w-5 h-5 text-indigo-600 dark:text-indigo-500 hover:text-indigo-700"></svg>
+                        </div>
+                        <div (click)="onDownloadPTaxReport(item.payrollMonth, item.payrollYear)" matTooltip="Download PTax Report" 
+                            class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-teal-500/10">
+                            <svg lucideIcon="file-down" class="w-5 h-5 text-teal-600 dark:text-teal-500 hover:text-teal-700"></svg>
+                        </div>
                     </div>
                 </td>
             </tr>

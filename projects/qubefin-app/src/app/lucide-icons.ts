@@ -1,4 +1,4 @@
-import { LucideArrowLeft, LucideBadgeCheck, LucideBadgeIndianRupee, LucideBanknoteCheck, LucideBanknoteX, LucideBell, LucideBuilding, LucideBuilding2, LucideCalendarClock, LucideCalendarPlus, LucideChevronDown, LucideChevronRight, LucideCircleQuestionMark, LucideCombine, LucideEarth, LucideEye, LucideEyeOff, LucideFactory, LucideFileUser, LucideGlobe, LucideHandCoins, LucideHouse, LucideIconData, LucideKeyRound, LucideLandmark, LucideLandPlot, LucideLayers, LucideLayoutDashboard, LucideLock, LucideLockOpen, LucideLogIn, LucideLogOut, LucideMap, LucideMapPin, LucideMapPinHouse, LucideMapPinned, LucideMoon, LucidePanelLeftClose, LucidePanelLeftOpen, LucidePencil, LucidePlus, LucideSave, LucideShieldCheck, LucideShieldEllipsis, LucideShieldQuestionMark, LucideSignpost, LucideSignpostBig, LucideSplit, LucideSquareMenu, LucideSquarePen, LucideSquareUserRound, LucideSummary, LucideSun, LucideTrendingDown, LucideTrendingUp, LucideUser, LucideUserCheck, LucideUserCog, LucideUserKey, LucideUsers, LucideWallet, LucideX, LucideSearch, LucideFunnel, LucideReceiptText, LucideCheck, LucidePiggyBank, LucideShieldPlus, LucideTag, LucideLayoutGrid, LucideListOrdered, LucideArrowRight, LucideCode, LucideSettings, LucideCalendarCheck, LucideCalendar1, LucideBanknoteArrowUp, LucideBanknoteArrowDown, LucideRotateCcw } from "@lucide/angular";
+import { LucideArrowLeft, LucideBadgeCheck, LucideBadgeIndianRupee, LucideBanknoteCheck, LucideBanknoteX, LucideBell, LucideBuilding, LucideBuilding2, LucideCalendarClock, LucideCalendarPlus, LucideChevronDown, LucideChevronRight, LucideCircleQuestionMark, LucideCombine, LucideEarth, LucideEye, LucideEyeOff, LucideFactory, LucideFileUser, LucideGlobe, LucideHandCoins, LucideHouse, LucideIconData, LucideKeyRound, LucideLandmark, LucideLandPlot, LucideLayers, LucideLayoutDashboard, LucideLock, LucideLockOpen, LucideLogIn, LucideLogOut, LucideMap, LucideMapPin, LucideMapPinHouse, LucideMapPinned, LucideMoon, LucidePanelLeftClose, LucidePanelLeftOpen, LucidePencil, LucidePlus, LucideSave, LucideShieldCheck, LucideShieldEllipsis, LucideShieldQuestionMark, LucideSignpost, LucideSignpostBig, LucideSplit, LucideSquareMenu, LucideSquarePen, LucideSquareUserRound, LucideSummary, LucideSun, LucideTrendingDown, LucideTrendingUp, LucideUser, LucideUserCheck, LucideUserCog, LucideUserKey, LucideUsers, LucideWallet, LucideX, LucideSearch, LucideFunnel, LucideReceiptText, LucideCheck, LucidePiggyBank, LucideShieldPlus, LucideTag, LucideLayoutGrid, LucideListOrdered, LucideArrowRight, LucideCode, LucideSettings, LucideCalendarCheck, LucideCalendar1, LucideBanknoteArrowUp, LucideBanknoteArrowDown, LucideRotateCcw, LucideFileDown } from "@lucide/angular";
 
 export const APP_ICONS = [
     LucideArrowLeft,
@@ -78,7 +78,8 @@ export const APP_ICONS = [
     LucideCalendar1,
     LucideBanknoteArrowUp,
     LucideBanknoteArrowDown,
-    LucideRotateCcw
+    LucideRotateCcw,
+    LucideFileDown
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -160,4 +161,5 @@ export const APP_ICONS_MAP: Record<string, any> = {
     BanknoteArrowUp: LucideBanknoteArrowUp,
     BanknoteArrowDown: LucideBanknoteArrowDown,
     RotateCcw: LucideRotateCcw,
+    FileDown: LucideFileDown
 };
