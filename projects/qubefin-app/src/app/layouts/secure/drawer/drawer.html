@@ -1,20 +1,20 @@
 <aside
-    class="fixed mt-16 glass-card flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out border-r border-gray-200"
+    class="drawer glass-card"
     [ngClass]="
     {
-        'lg:w-72.5': isExpanded() || isHovered(),
-        'lg:w-22.5': !isExpanded() && !isHovered(),
+        'lg:w-70': isExpanded() || isHovered(),
+        'lg:w-20': !isExpanded() && !isHovered(),
         'lg:translate-x-0': true
-    }
-" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
-    <div [ngClass]="['py-8 flex',
-        !isExpanded() && !isHovered() ? 'lg:justify-center' : 'justify-start'
+    }"
+    (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
+    <div [ngClass]="['py-4 flex',
+        !isExpanded() && !isHovered() ? 'lg:justify-center' : 'justify-center'
     ]">
         <a routerLink="/">
             @if (isExpanded() || isHovered()) {
-            <img src="/assets/images/logo.avif" alt="Qbent Logo" width="150" height="40">
+            <img src="/assets/images/logo.png" alt="Qbent Logo" class="m-auto dark:brightness-0 dark:invert" width="200" height="40">
             } @else {
-            <img src="/images/logo-32.png" alt="Qbent Logo" width="32" height="32">
+            <img src="/assets/images/leaf.png" alt="Qbent Logo" class="dark:brightness-0 dark:invert" width="32" height="32">
             }
         </a>
     </div>
@@ -33,65 +33,61 @@
             }
         </nav>
     </div> -->
-    <div class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+    <div class="flex flex-col overflow-y-auto duration-300 ease-linear scroll-thin no-scrollbar px-2 flex-1 space-y-1.5">
         <nav class="mb-6">
-            <div class="flex flex-col gap-4">
+            <div class="flex flex-col">
                 @for (menuNode of userMenus(); track menuNode.id; let groupIndex = $index) {
                 <div>
-                    <h2 class="mb-4 text-xs uppercase flex leading-5 text-gray-400"
-                        [ngClass]="!isExpanded() && !isHovered() ? 'lg:justify-center' : 'justify-start'">
+                    <div class="menu-category-header" [ngClass]="!isExpanded() && !isHovered() ? 'justify-center py-2' : 'justify-between px-3 mb-2 mt-3'">
                         @if (isExpanded() || isHovered()) {
-                        {{ menuNode.name }}
+                            <span class="menu-category-text">{{ menuNode.name }}</span>
+                            <span class="menu-category-line"></span>
                         } @else {
-                        <span class="material-symbols-outlined">
-                            more_horiz
-                        </span>
+                            <span class="menu-category-dot"></span>
                         }
-                    </h2>
-                    <ul class="flex flex-col gap-4">
+                    </div>
+                    <ul class="flex flex-col gap-[3]">
                         @for (item of menuNode.children; track item.name; let itemIndex = $index) {
-                        <li>
+                        <li class="relative">
                             @if (item.children && item.children?.length > 0) {
                             <button class="menu-item group w-full"
-                                [ngClass]="!isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start'"
-                                [ngClass]="{'menu-item-active': isSubMenuOpen(groupIndex, itemIndex),'menu-item-inactive': !isSubMenuOpen(groupIndex, itemIndex)}"
+                                [ngClass]="[!isExpanded() && !isHovered() ? 'justify-center px-2 py-3' : 'justify-start px-3.5 py-3', isSubMenuOpen(groupIndex, itemIndex) ? 'menu-item-active' : 'menu-item-inactive']"
                                 (click)="toggleSubmenu(groupIndex, itemIndex)">
-                                <span class="material-symbols-outlined"
+                                <svg [lucideIcon]="iconMap[item.icon]"
+                                    class="w-3 h-3 shrink-0 transition-colors duration-200"
                                     [ngClass]="[isSubMenuOpen(groupIndex, itemIndex) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
-                                    {{ item.icon }}
-                                </span>
+                                </svg>
                                 @if (isExpanded() || isHovered()) {
                                 <span class="menu-item-text">{{ item.name }}</span>
-                                <span
-                                    class="material-symbols-outlined ml-auto w-5 h-5 transition-transform duration-200"
-                                    [ngClass]="{'rotate-180 text-brand-500': isSubMenuOpen(groupIndex,itemIndex)}">
-                                    keyboard_arrow_down
-                                </span>
+                                <svg lucideIcon="chevron-down"
+                                    class="ml-auto w-4 h-4 transition-transform duration-200"
+                                    [ngClass]="{'rotate-180 text-primary-500': isSubMenuOpen(groupIndex, itemIndex), 'text-slate-400 dark:text-slate-500': !isSubMenuOpen(groupIndex, itemIndex)}">
+                                </svg>
                                 }
                             </button>
                             } @else {
                             <a routerLink="{{ item.target }}"
-                                [ngClass]="{'menu-item group': true, 'menu-item-active': isActive(item.target!), 'menu-item-inactive': !isActive(item.target!)}">
-                                <span class="material-symbols-outlined"
-                                    [ngClass]="{'menu-item-icon-active': isActive(item.target!), 'menu-item-icon-inactive': !isActive(item.target!)}">
-                                    {{ item.icon }}
-                                </span>
+                                [ngClass]="['menu-item group', !isExpanded() && !isHovered() ? 'justify-center px-2 py-3 gap-2' : 'justify-start px-3.5 py-3 gap-2', isActive(item.target!) ? 'menu-item-active' : 'menu-item-inactive']">
+                                <svg [lucideIcon]="iconMap[item.icon]"
+                                    class="w-4 h-4 shrink-0 transition-colors duration-200"
+                                    [ngClass]="[isActive(item.target!) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
+                                </svg>
                                 @if (isExpanded() || isHovered()) {
                                 <span class="menu-item-text">{{ item.name }}</span>
                                 }
                             </a>
                             }
                             @if (isSubMenuOpen(groupIndex, itemIndex) && (isExpanded() || isHovered())) {
-                            <ul class="mt-2 space-y-1 ml-9">
+                            <ul class="menu-dropdown-list">
                                 @for (subItem of item.children; track subItem.name) {
-                                <li>
-                                    <a routerLink="{{ subItem.target }}" class="menu-dropdown-item"
-                                        [ngClass]="{'menu-dropdown-item-active': isActive(subItem.target!), 'menu-dropdown-item-inactive': !isActive(subItem.target!)}">
-                                        <span class="material-symbols-outlined"
-                                            [ngClass]="{'menu-item-icon-active': isActive(subItem.target!), 'menu-item-icon-inactive': !isActive(subItem.target!)}">
+                                <li class="relative">
+                                    <a routerLink="{{ subItem.target }}"
+                                        [ngClass]="['menu-dropdown-item group', isActive(subItem.target!) ? 'menu-dropdown-item-active' : 'menu-dropdown-item-inactive']">
+                                        <span class="material-symbols-outlined dropdown-icon"
+                                            [ngClass]="[isActive(subItem.target!) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
                                             {{ subItem.icon }}
                                         </span>
-                                        {{ subItem.name }}
+                                        <span class="menu-dropdown-text">{{ subItem.name }}</span>
                                     </a>
                                 </li>
                                 }
@@ -105,4 +101,41 @@
             </div>
         </nav>
     </div>
+
+    <!-- Profile card -->
+    <div class="p-4 border-t border-slate-50 dark:border-white/6 overflow-hidden">
+        @if (isExpanded() || isHovered()) {
+            <div class="flex justify-between items-center rounded-lg shadow-md lift px-3 py-3">
+                <div class="flex items-center gap-3">
+                    <div class="relative shrink-0">
+                        <div
+                            class="w-10 h-10 rounded-full bg-linear-to-br from-secondary-500 to-accent-500 flex items-center justify-center text-white font-semibold text-sm">
+                            SA</div>
+                        <span
+                            class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-white dark:border-slate-900"></span>
+                    </div>
+                    <div class="profile-text overflow-hidden transition-all duration-300">
+                        <p class="text-sm font-semibold whitespace-nowrap dark:text-white">Super Admin</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">Super Admin</p>
+                    </div>
+                </div>
+                <div class="bg-primary-500/10 dark:bg-primary-50/10 text-primary-600 dark:text-primary-400 p-2 rounded-4xl cursor-pointer w-10 h-10 flex items-center justify-center overflow-hidden" matTooltip="Log Out">
+                    <svg lucideIcon="log-out" class="w-5 h-5"></svg>
+                </div>
+            </div>
+        } @else {
+            <div class="flex justify-between items-center lift py-3">
+                <div class="flex items-center gap-3">
+                    <div class="relative shrink-0">
+                        <div
+                            class="w-10 h-10 rounded-full bg-linear-to-br from-secondary-500 to-accent-500 flex items-center justify-center text-white font-semibold text-sm">
+                            SA</div>
+                        <span
+                            class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-white dark:border-slate-900"></span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    
 </aside>

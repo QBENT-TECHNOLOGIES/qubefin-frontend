@@ -1,0 +1,21 @@
+:root{
+
+  --gradient-light:
+    linear-gradient(
+      135deg,
+      #EEF7FF,
+      #E6FFF8,
+      #FFFFFF,
+      #F5F8FF
+    );
+
+  --gradient-dark:
+    linear-gradient(
+      135deg,
+      #081320,
+      #0B172A,
+      #111827,
+      #08141F
+    );
+
+}

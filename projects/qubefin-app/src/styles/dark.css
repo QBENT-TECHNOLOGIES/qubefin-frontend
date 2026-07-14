@@ -1,0 +1,113 @@
+/* :root {
+  --app-bg: #f4f7fb;
+  --surface: rgba(255,255,255,.75);
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+}
+
+.dark {
+
+  --app-bg: #081320;
+
+  --surface: rgba(16,23,42,.65);
+
+  --text-primary: #ffffff;
+
+  --text-secondary: #94a3b8;
+  
+  --color-background: #081320;
+
+  --color-surface: #111827;
+
+  --color-text: #f8fafc;
+
+}
+
+.dark body {
+
+  background: var(--app-bg);
+
+  color: var(--text-primary);
+
+}
+
+.dark .glass-card {
+
+  background: rgba(17,25,40,.45);
+
+  border: 1px solid rgba(255,255,255,.08);
+
+}
+
+.dark .sidebar {
+
+  background: rgba(15,23,42,.8);
+
+}
+
+.dark .header {
+
+  background: rgba(15,23,42,.55);
+
+}
+
+.dark .card {
+
+  background: #111827;
+
+  color: white;
+
+}
+
+
+.dark .mat-mdc-card {
+
+  background: #111827;
+
+}
+
+.dark .mat-mdc-table {
+
+  background: transparent;
+
+}
+
+.dark .mat-mdc-dialog-container {
+
+  background: #111827;
+
+}
+
+.dark ::-webkit-scrollbar-thumb {
+
+  background: #334155;
+
+} */
+
+.dark body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+
+  background:
+    radial-gradient(circle at top left,
+      rgba(59, 130, 246, 0.18),
+      transparent 35%),
+    radial-gradient(circle at bottom right,
+      rgba(139, 92, 246, 0.15),
+      transparent 35%),
+    linear-gradient(
+      180deg,
+      rgba(2, 6, 23, 0.78),
+      rgba(15, 23, 42, 0.88)
+    );
+
+  /* backdrop-filter: blur(2px); */
+}
+
+.dark .mdc-label {
+  @apply text-slate-300
+}
+.dark .mdc-checkbox .mdc-checkbox__background {
+  @apply border-slate-400 hover:border-white!}

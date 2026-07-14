@@ -1,55 +1,56 @@
-<form (submit)="onSubmit($event)">
+<form (submit)="onSubmit($event)" class="flex flex-col gap-4">
+  <div class="flex flex-col gap-6">
+    <!-- User ID -->
+    <mat-form-field class="w-full" appearance="outline">
+      <mat-label>User ID</mat-label>
+      <!-- <mat-icon matPrefix> -->
+      <div matPrefix class="w-10 flex justify-center text-primary-700">
+        <svg lucideIcon="user" class="w-5 h-5"></svg>
+      </div>
+      <mat-error>User ID is required</mat-error>
+      <input matInput [formField]="loginForm.userName" autocomplete="username" placeholder="Enter your user ID">
 
-  <!-- User ID -->
-  <mat-form-field class="w-full">
+      <!-- @if (
+        loginForm.username.touched() &&
+        loginForm.username.invalid()
+      ) {
 
-    <mat-label>User ID</mat-label>
-    <mat-icon class="material-symbols-outlined" matPrefix>
-      person_outline
-    </mat-icon>
+        <mat-error>
+          User ID is required
+        </mat-error>
 
-    <input
-      matInput
-      [formField]="loginForm.userName"
-      autocomplete="username"
-      placeholder="Enter your user ID">
+      } -->
 
-    <!-- @if (
-      loginForm.username.touched() &&
-      loginForm.username.invalid()
-    ) {
+    </mat-form-field>
 
-      <mat-error>
-        User ID is required
-      </mat-error>
-
-    } -->
-
-  </mat-form-field>
-
-  <!-- Password -->
-  <mat-form-field class="w-full">
-
-    <mat-label>Password</mat-label>
-    <mat-icon class="material-symbols-outlined" matPrefix>
-      lock_outline
-    </mat-icon>
-    <input matInput [formField]="loginForm.password" [type]="hidePassword() ? 'password' : 'text'"
-      autocomplete="current-password" placeholder="Enter your password">
-    <button matIconButton matSuffix type="button" (click)="hidePassword.update(v => !v)">
-      <mat-icon class="material-symbols-outlined">
-        {{ hidePassword()
-        ? 'visibility'
-        : 'visibility_off' }}
-      </mat-icon>
-    </button>
-  </mat-form-field>
-  <div class="flex justify-end items-center">
-    <a href="#" class="text-blue-600 text-sm">
-      Forgot Password?
+    <!-- Password -->
+    <mat-form-field class="w-full" appearance="outline">
+      <mat-label>Password</mat-label>
+      <div matPrefix class="w-10 flex justify-center text-primary-700">
+        <svg lucideIcon="key-round" class="w-5 h-5"></svg>
+      </div>
+      <mat-error>Password is required</mat-error>
+      <input matInput [formField]="loginForm.password" [type]="hidePassword() ? 'password' : 'text'"
+        autocomplete="current-password" placeholder="Enter your password">
+      <div matSuffix (click)="hidePassword.update(v => !v)" class="pr-4">
+        @if (hidePassword()) {
+          <svg lucideIcon="eye" class="w-5 h-5 cursor-pointer"></svg>
+        } @else {
+          <svg lucideIcon="eye-off" class="w-5 h-5 cursor-pointer"></svg>
+        }
+      </div>
+    </mat-form-field>
+  </div>
+  <div class="flex justify-end items-center text-sm">
+    <a class="text-sm flex items-center gap-2 cursor-pointer">
+      <svg lucideIcon="shield-question-mark" class="w-5 h-5 text-blue-700 hover:text-blue-600"></svg>
+      <span class="text-blue-600 hover:text-primary-700">Forgot Password?</span>
     </a>
   </div>
-  <button matButton="filled" color="primary" class="w-full mt-6" [disabled]="loginForm().invalid()">
-    Sign In
+  <button [disabled]="loginForm().invalid()"
+      class="ripple-btn shine-sweep rounded-lg px-5 py-3.5 font-lg
+      flex items-center justify-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
+      <svg lucideIcon="log-in" class="w-4 h-4"></svg>
+      Sign In
   </button>
 </form>

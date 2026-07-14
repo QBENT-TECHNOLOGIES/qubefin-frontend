@@ -29,6 +29,18 @@ export const routes: Routes = [
             {
                 path: 'global',
                 loadChildren: () => import('./features/global/global-routes').then(m => m.GlobalRoutes),
+            },
+            {
+                path: 'admin',
+                loadChildren: () => import('./features/app/app-routes').then(m => m.AppRoutes),
+            },
+            {
+                path: 'hrms',
+                loadChildren: () => import('./features/hrms/hrms-routes').then(m => m.HrmsRoutes),
+            },
+            {
+                path: 'payroll',
+                loadChildren: () => import('./features/payroll/payroll-routes').then(m => m.PayrollRoutes)
             }
         ]
     }

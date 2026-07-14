@@ -1,199 +1,22 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+@custom-variant dark (&:where(.dark, .dark *));
+@import "./styles/theme.css";
+@import "./styles/gradients.css";
+@import "./styles/animations.css";
+@import "./styles/typography.css";
+@import "./styles/utilities.css";
+@import "./styles/components.css";
+@import "./styles/menu.css";
+@import "./styles/tree.css";
+@import "./styles/dark.css";
 
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
+.mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
 }
 
-.material-symbols-outlined {
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 16
-}
-
-@layer components {
-
-  .menu {
-
-    @apply flex items-center gap-4 rounded-2xl px-4 py-3 text-slate-700 hover:bg-sky-50 hover:text-blue-600 transition cursor-pointer;
-  }
-
-  .menu .material-symbols-rounded {
-
-    @apply text-[22px];
-  }
-
-  .menu.active {
-
-    @apply bg-linear-to-r from-blue-500 via-sky-500 to-green-400 text-white shadow-lg;
-  }
-
-  .toolbar-btn {
-
-    @apply w-11 h-11 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-600 transition;
-  }
-
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, .82);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-
-  border: 1px solid rgba(255, 255, 255, .7);
-
-  box-shadow:
-    0 20px 80px rgba(15, 23, 42, .08),
-    0 10px 30px rgba(15, 23, 42, .05);
-}
-
-.example-tree-invisible {
-  display: none;
-}
-
-.example-tree ul,
-.example-tree li {
-  margin-top: 0;
-  margin-bottom: 0;
-  list-style-type: none;
-}
-
-/*
- * This padding sets alignment of the nested nodes.
- */
-.example-tree .mat-nested-tree-node div[role=group] {
-  padding-left: 40px;
-}
-
-/*
- * Padding for leaf nodes.
- * Leaf nodes need to have padding so as to align with other non-leaf nodes
- * under the same parent.
- */
-.example-tree div[role=group]>.mat-nested-tree-node {
-  padding-left: 40px;
-}
-
-.admin-tree {
-  font-size: 13px;
-}
-
-.tree-node {
-  display: flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 0 4px;
-  border-radius: 4px;
-}
-
-.tree-node:hover {
-  background: #f5f5f5;
-}
-
-.tree-node-active {
-  @apply text-blue-900 font-bold;
-}
-
-.tree-toggle {
-  width: 24px !important;
-  height: 24px !important;
-  padding: 0 !important;
-  margin-right: 2px;
-}
-
-.tree-toggle .mat-icon {
-  width: 18px;
-  height: 18px;
-  font-size: 18px;
-  line-height: 18px;
-}
-
-.tree-label {
-  flex: 1;
-  white-space: nowrap;
-}
-
-.hidden {
-  display: none;
-}
-
-/*
- * This padding sets alignment of the nested nodes.
- */
-.admin-tree .mat-nested-tree-node div[role=group] {
-  padding-left: 40px;
-}
-
-/*
- * Padding for leaf nodes.
- * Leaf nodes need to have padding so as to align with other non-leaf nodes
- * under the same parent.
- */
-.admin-tree div[role=group]>.mat-nested-tree-node {
-  padding-left: 40px;
-}
-
-.menu-item {
-	@apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm;
-}
-
-.menu-item-active {
-	@apply bg-blue-50 text-blue-500 dark:bg-blue-500/12 dark:text-blue-400;
-}
-
-.menu-item-inactive {
-	@apply text-gray-700 hover:bg-gray-100 group-hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
-}
-
-.menu-item-icon {
-	@apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400;
-}
-
-.menu-item-icon-active {
-	@apply text-blue-500 dark:text-blue-400;
-}
-
-.menu-item-icon-inactive {
-	@apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
-}
-
-.menu-item-arrow {
-	@apply relative;
-}
-
-.menu-item-arrow-active {
-	@apply rotate-180 text-blue-500 dark:text-blue-400;
-}
-
-.menu-item-arrow-inactive {
-	@apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
-}
-
-.menu-dropdown-item {
-	@apply relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium;
-}
-
-.menu-dropdown-item-active {
-	@apply bg-blue-50 text-blue-500 dark:bg-blue-500/12 dark:text-blue-400;
-}
-
-.menu-dropdown-item-inactive {
-	@apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
-}
-
-.menu-dropdown-badge {
-	@apply block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase text-blue-500 dark:text-blue-400;
-}
-
-.menu-dropdown-badge-active {
-	@apply bg-blue-100 dark:bg-blue-500/20;
-}
-
-.menu-dropdown-badge-inactive {
-	@apply bg-blue-50 group-hover:bg-blue-100 dark:bg-blue-500/15 dark:group-hover:bg-blue-500/20;
+.mat-mdc-form-field.mat-form-field-invalid
+.mat-mdc-form-field-subscript-wrapper {
+    display: block !important;
 }

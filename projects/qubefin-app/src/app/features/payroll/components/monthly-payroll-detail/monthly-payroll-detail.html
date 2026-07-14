@@ -1,0 +1,57 @@
+<div class="flex flex-col gap-4">
+    @if (loading()) {
+    <div class="py-8 text-center text-slate-400 font-medium">Loading payroll details...</div>
+    } @else if (!monthlyPayroll()?.headers?.length) {
+    <div class="py-8 text-center text-slate-400 font-medium">No payroll details found for this month.</div>
+    } @else {
+    
+    <mat-accordion class="flex flex-col gap-2">
+        @for (header of monthlyPayroll()?.headers; track header.organizationUnitId; let idx = $index) {
+        <mat-expansion-panel 
+            [expanded]="expandedOrgUnitId() === header.organizationUnitId"
+            (opened)="togglePanel(header.organizationUnitId, true)"
+            class="!shadow-md border border-slate-200 dark:border-white/10 !rounded-lg overflow-hidden">
+                        <mat-expansion-panel-header class="!bg-[#2b1b60] hover:!bg-[#362277] transition !h-12">
+                <mat-panel-title class="!text-white font-medium flex items-center gap-2">
+                    {{ header.codeVal }} - {{ header.organizationUnitName }}
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="overflow-x-auto bg-white dark:bg-slate-900">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-indigo-50/50 dark:bg-white/5 border-b border-slate-200 dark:border-white/10">
+                        <tr>
+                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200">#</th>
+                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200">Employee Name</th>
+                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200">Designation</th>
+                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200">Company</th>
+                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200 text-right">Earnings</th>
+                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200 text-right">Deductions</th>
+                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200 text-right">Net Pay</th>
+                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (emp of header.details; track emp.id; let i = $index) {
+                        <tr class="border-b border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                            <td class="py-2.5 px-4 text-slate-600 dark:text-slate-400">{{ i + 1 }}</td>
+                            <td class="py-2.5 px-4 font-medium text-slate-800 dark:text-slate-100 uppercase">{{ emp.employeeName }}</td>
+                            <td class="py-2.5 px-4 text-slate-600 dark:text-slate-400">{{ emp.designationTitle }}</td>
+                            <td class="py-2.5 px-4 text-slate-600 dark:text-slate-400">{{ emp.companyName }}</td>
+                            <td class="py-2.5 px-4 text-right font-medium text-slate-700 dark:text-slate-300">{{ emp.totalEarnings | currency:'INR' }}</td>
+                            <td class="py-2.5 px-4 text-right font-medium text-slate-700 dark:text-slate-300">{{ emp.totalDeductions | currency:'INR' }}</td>
+                            <td class="py-2.5 px-4 text-right font-bold text-slate-800 dark:text-slate-100">{{ netPay(emp.totalEarnings, emp.totalDeductions) | currency:'INR' }}</td>
+                            <td class="py-2.5 px-4 text-center">
+                                <button type="button" matTooltip="Edit" (click)="onViewEmployeePayroll(emp.id)" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer transition">
+                                    <svg [lucideIcon]="icons['Pencil']" class="w-4 h-4 text-slate-700 dark:text-slate-300"></svg>
+                                </button>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </mat-expansion-panel>
+        }
+    </mat-accordion>
+    }
+</div>

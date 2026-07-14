@@ -2,7 +2,7 @@ import { httpResource } from "@angular/common/http";
 import { computed, Injectable, signal } from "@angular/core";
 import { ApiPaths, EMPTY_UUID } from "qubefin-core";
 import { AdministrativeUnitTreeNode } from "../models/administrative-unit-tree-node";
-import { AdministrativeUnitRequest } from "../models/administrative-unit-request";
+import { AdministrativeUnit } from "../models/administrative-unit";
 
 @Injectable({
     providedIn: 'root'
@@ -19,7 +19,7 @@ export class AdministrativeUnitStore {
     readonly error = computed(() => this.administrativeUnitTreeResource.error());
 
     // Single Administrative Unit
-    private readonly administrativeUnitResource = httpResource<AdministrativeUnitRequest>(() => {
+    private readonly administrativeUnitResource = httpResource<AdministrativeUnit>(() => {
         const id = this.administrativeUnitId();
         if (!id || id === EMPTY_UUID) return undefined;
         return `${ApiPaths.GLOBAL}/administrative-units/${id}`;

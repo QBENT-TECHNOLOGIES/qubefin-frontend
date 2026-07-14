@@ -1,1 +1,10 @@
 <router-outlet />
+<!-- Loader -->
+@if (isLoading()) {
+<div
+  class="fixed inset-0 z-[99999] flex items-center justify-center bg-white/5 backdrop-blur-md dark:bg-slate-950">
+  <div class="relative flex flex-col items-center">
+    <div class="custom-loader"></div>
+  </div>
+</div>
+}

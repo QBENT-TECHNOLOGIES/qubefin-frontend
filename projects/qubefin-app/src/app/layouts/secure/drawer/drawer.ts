@@ -1,18 +1,21 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, model } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
 import { MenuTreeNode } from '../../../features/app/models/menu-tree-node';
 import { Router, RouterLink } from '@angular/router';
+import { LucideDynamicIcon } from '@lucide/angular';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { APP_ICONS_MAP } from '../../../lucide-icons';
 
 @Component({
 	selector: 'qfin-drawer',
-	imports: [CommonModule, RouterLink, MatIconModule],
+	imports: [CommonModule, RouterLink, MatTooltipModule, LucideDynamicIcon],
 	templateUrl: './drawer.html'
 })
 export class Drawer {
 	isExpanded = model<boolean>(true);
 	isHovered = model<boolean>(false);
 
+	readonly iconMap = APP_ICONS_MAP;
 	openSubmenu: string | null = null;
 
 	userMenus = input<MenuTreeNode[]>();
@@ -51,13 +54,11 @@ export class Drawer {
 
 	isSubMenuOpen(groupIndex: number, itemIndex: number): boolean {
 		const key = `${groupIndex}-${itemIndex}`;
-		return false;
-		// return (
-		// 	this.openSubmenu === key ||
-		// 	(this.isAnySubmenuRouteActive() &&
-		// 		this.userMenus()![groupIndex].children?[itemIndex].children?.some((subItem: any) =>
-		// 			this.isActive(subItem.path)
-		// 		))
-		// ) ?? false;
+		const group = this.userMenus()?.[groupIndex];
+		const item = group?.children?.[itemIndex];
+		const hasActiveChild = item?.children?.some((subItem) =>
+			subItem.target ? this.isActive(subItem.target) : false
+		) ?? false;
+		return this.openSubmenu === key || hasActiveChild;
 	}
 }

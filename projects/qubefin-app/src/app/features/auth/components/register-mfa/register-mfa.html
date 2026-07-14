@@ -1,16 +1,24 @@
-<div>
-    <img [src]="qrCodeImageUrl()" width="200">
+<div class="flex flex-col justify-center gap-4">
+    <div class="w-[40%] min-h-[100px] m-auto p-1">
+        <img [src]="qrCodeImageUrl()" width="w-full">
+    </div>
+    <div class="flex items-center justify-center gap-4">
+        <div class="w-20 h-px bg-slate-300"></div>
+        <div class="divider-text text-md font-medium">OR</div>
+        <div class="w-20 h-px bg-slate-300"></div>
+    </div>
+    <div class="form-byeline text-center">Alternatively, you may enter the following code<br>to the Google
+        Authenticator
+        App</div>
+    <div class="imp-text text-center my-2 text-red-900 font-semibold">{{mfaKey()}}</div>
+
+    <button mat-flat-button color="primary" (click)="onSubmit()" class="w-full ripple-btn shine-sweep rounded-lg px-5 py-[14px] font-lg flex items-center justify-center gap-2 text-sm shadow-md font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
+        <svg lucideIcon="badge-check" class="w-4 h-4"></svg>
+        Login
+    </button>
+
+    <p class="text-center text-secondary-600 flex justify-center items-center gap-4 cursor-pointer hover:text-primary-700">
+        <svg lucideIcon="arrow-left" class="w-5 h-5"></svg>
+        Back to MFA Verify
+    </p>
 </div>
-<div class="divider-container">
-    <div class="divider-text text-2xl font-bold">OR</div>
-</div>
-<div class="form-byeline text-center">Alternatively, you may enter the following code<br>to the Google
-    Authenticator
-    App</div>
-<div class="imp-text my-3 text-red-900 font-semibold">{{mfaKey()}}</div>
-
-<button mat-flat-button color="primary" class="login-button w-full mt-6" (click)="onSubmit()">
-
-    Sign In
-
-</button>

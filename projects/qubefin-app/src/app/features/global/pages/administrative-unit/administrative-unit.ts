@@ -1,23 +1,31 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { AdministrativeUnitTree } from '../../components/administrative-unit-tree/administrative-unit-tree';
+import { AdministrativeUnitTreeComponent } from '../../components/administrative-unit-tree/administrative-unit-tree';
 import { ActivatedRoute } from '@angular/router';
-import { EMPTY_UUID, RouteDataService, RouteMeta } from 'qubefin-core';
+import { EMPTY_UUID, RouteDataService, RouteMeta, PermissionStore } from 'qubefin-core';
 import { Observable } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { AdministrativeUnitDetail } from '../../components/administrative-unit-detail/administrative-unit-detail';
+import { AdministrativeUnitDetailComponent } from '../../components/administrative-unit-detail/administrative-unit-detail';
 import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
-import { AdministrativeUnitView } from '../../components/administrative-unit-view/administrative-unit-view';
+import { AdministrativeUnitViewComponent } from '../../components/administrative-unit-view/administrative-unit-view';
+import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { APP_ICONS_MAP } from '../../../../lucide-icons';
+import { LucideDynamicIcon } from '@lucide/angular';
+
 
 @Component({
-	selector: 'qfin-administrative-unit',
-	imports: [AdministrativeUnitTree, AdministrativeUnitDetail, AdministrativeUnitView],
+	selector: 'qfin-administrative-unit-page',
+	imports: [AdministrativeUnitTreeComponent, AdministrativeUnitDetailComponent, AdministrativeUnitViewComponent, Breadcrumb, MatTooltipModule, LucideDynamicIcon],
 	templateUrl: './administrative-unit.html'
 })
-export class AdministrativeUnit {
+export class AdministrativeUnitPage {
 	private readonly route = inject(ActivatedRoute);
 	private readonly routeDataService = inject(RouteDataService);
 
-	administrativeUnitStore = inject(AdministrativeUnitStore);
+	readonly permissionStore = inject(PermissionStore);
+	readonly administrativeUnitStore = inject(AdministrativeUnitStore);
+
+	readonly iconMap = APP_ICONS_MAP;
 
 	isViewMode = signal<boolean>(true);
 	selectedAdministrativeUnitId = signal<string>(EMPTY_UUID);

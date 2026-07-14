@@ -7,7 +7,6 @@ import { AdministrativeUnitType } from "../models/administrative-unit-type";
     providedIn: 'root'
 })
 export class AdministrativeUnitTypeStore {
-    // All Administrative Unit Types
     administrativeUnitTypeTreeResource = httpResource<AdministrativeUnitType[]>(() => `${ApiPaths.GLOBAL}/administrative-unit-types`);
 
     readonly administrativeUnitTypes = computed(() => this.administrativeUnitTypeTreeResource.value() ?? []);

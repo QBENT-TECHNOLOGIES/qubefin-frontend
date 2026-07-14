@@ -48,6 +48,20 @@ export class LoginStateStore {
             return JSON.parse(raw) as LoginState;
         }
 
-        return { step: 'login', sessionId: crypto.randomUUID() };
+        return { step: 'login', sessionId: this.generateUUID() }; //crypto.randomUUID()
+    }
+
+    private generateUUID(): string {
+        // Check if Web Crypto API is available (Secure Context / HTTPS)
+        if (typeof window !== 'undefined' && window.crypto && window.crypto.randomUUID) {
+            return window.crypto.randomUUID();
+        }
+
+        // Math.random fallback for insecure (HTTP) contexts
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+            const random = (Math.random() * 16) | 0;
+            const value = char === 'x' ? random : (random & 0x3) | 0x8;
+            return value.toString(16);
+        });
     }
 }

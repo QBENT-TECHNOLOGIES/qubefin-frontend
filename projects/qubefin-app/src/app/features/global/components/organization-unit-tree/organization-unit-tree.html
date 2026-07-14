@@ -1,1 +1,67 @@
-<p>organization-unit-tree works!</p>
+<mat-tree #tree [dataSource]="organizationUnitTreeNodes()" [childrenAccessor]="childrenAccessor"
+    class="bg-transparent pr-4">
+    <!-- Leaf node without children -->
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding [matTreeNodePaddingIndent]="13">
+        <div class="group relative flex items-center py-2 px-2 mx-2 my-0.5 w-full rounded-xl cursor-pointer transition-all duration-300 select-none border border-transparent"
+            [class.bg-primary-500/10]="selectedId() === node.id" [class.text-primary-600]="selectedId() === node.id"
+            [class.dark:text-primary-600]="selectedId() === node.id"
+            [class.border-blue-500/10]="selectedId() === node.id"
+            [class.dark:border-blue-400/15]="selectedId() === node.id"
+            [class.shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]]="selectedId() === node.id"
+            [class.dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]]="selectedId() === node.id"
+            [class.hover:bg-slate-500/5]="selectedId() !== node.id"
+            [class.dark:hover:bg-white/5]="selectedId() !== node.id" [class.text-slate-700]="selectedId() !== node.id"
+            [class.dark:text-slate-300]="selectedId() !== node.id" (click)="onDetailView(node.id)">
+
+            <svg [lucideIcon]="iconMap[node.organizationUnitTypeIcon]"
+                class="text-[18px]! w-4.5! h-4.5! flex items-center justify-center"
+                [class.text-blue-500]="selectedId() === node.id" [class.text-slate-400]="selectedId() !== node.id"
+                [class.group-hover:text-blue-500]="selectedId() !== node.id"></svg>
+            <span class="ml-3 text-sm font-medium transition-colors duration-200 truncate" matTooltip="{{node.name}}">
+                {{node.name}}
+            </span>
+            @if (selectedId() === node.id) {
+            <div class="absolute -left-1 top-2.5 bottom-2.5 w-1 bg-primary-600 dark:bg-primary rounded-full shadow-sm">
+            </div>
+            }
+        </div>
+    </mat-tree-node>
+
+    <!-- Expandable parent node -->
+    <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding [matTreeNodePaddingIndent]="13"
+        [cdkTreeNodeTypeaheadLabel]="node.name">
+        <div class="group relative flex items-center py-2 px-2 mx-2 my-0.5 w-full rounded-xl cursor-pointer transition-all duration-300 select-none border border-transparent"
+            [class.bg-primary-500/10]="selectedId() === node.id" [class.text-primary-600]="selectedId() === node.id"
+            [class.dark:text-primary-600]="selectedId() === node.id"
+            [class.border-blue-500/10]="selectedId() === node.id"
+            [class.dark:border-blue-400/15]="selectedId() === node.id"
+            [class.shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]]="selectedId() === node.id"
+            [class.dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]]="selectedId() === node.id"
+            [class.hover:bg-slate-500/5]="selectedId() !== node.id"
+            [class.dark:hover:bg-white/5]="selectedId() !== node.id" [class.text-slate-700]="selectedId() !== node.id"
+            [class.dark:text-slate-300]="selectedId() !== node.id" (click)="onDetailView(node.id)">
+
+            <div matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.id" [matTreeNodeToggleRecursive]="true"
+                (click)="$event.stopPropagation()">
+                @if (tree.isExpanded(node)) {
+                <svg lucideIcon="chevron-down" class="w-4 h-4"></svg>
+                } @else {
+                <svg lucideIcon="chevron-right" class="w-4 h-4"></svg>
+                }
+            </div>
+
+            <svg [lucideIcon]="iconMap[node.organizationUnitTypeIcon]"
+                class="text-[18px]! w-4.5! h-4.5! flex items-center justify-center"
+                [class.text-blue-500]="selectedId() === node.id" [class.text-slate-400]="selectedId() !== node.id"
+                [class.group-hover:text-blue-500]="selectedId() !== node.id"></svg>
+            <span class="ml-2 text-sm font-medium transition-colors duration-200 truncate" matTooltip="{{node.name}}">
+                {{node.name}}
+            </span>
+
+            @if (selectedId() === node.id) {
+            <div class="absolute -left-1 top-2.5 bottom-2.5 w-1 bg-primary-600 dark:bg-primary rounded-full shadow-sm">
+            </div>
+            }
+        </div>
+    </mat-tree-node>
+</mat-tree>

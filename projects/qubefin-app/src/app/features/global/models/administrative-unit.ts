@@ -1,6 +1,6 @@
 import { AdministrativeUnitHierarchyItem } from "./administrative-unit-hierarchy-item";
 
-export interface AdministrativeUnitRequest {
+export interface AdministrativeUnit {
     id: string;
     name: string;
     administrativeUnitTypeId: string;
@@ -9,5 +9,9 @@ export interface AdministrativeUnitRequest {
     parentId: string | null;
     parentName?: string;
     isActive: boolean;
+    createdBy: string;
+    createdOn: Date;
+    lastModifiedBy?: string;
+    lastModifiedOn?: Date;
     hierarchy: AdministrativeUnitHierarchyItem[];
 }

@@ -4,13 +4,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTree, MatTreeModule } from '@angular/material/tree';
 import { AdministrativeUnitTreeNode } from '../../models/administrative-unit-tree-node';
 import { CommonModule } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { APP_ICONS_MAP } from '../../../../lucide-icons';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
-	selector: 'qfin-administrative-unit-tree',
-	imports: [CommonModule, MatButtonModule, MatIconModule, MatTreeModule],
+	selector: 'qfin-administrative-unit-tree-component',
+	imports: [CommonModule, MatButtonModule, MatIconModule, MatTreeModule, MatTooltipModule, LucideDynamicIcon],
 	templateUrl: './administrative-unit-tree.html'
 })
-export class AdministrativeUnitTree implements AfterViewInit {
+export class AdministrativeUnitTreeComponent implements AfterViewInit {
+
 	ngAfterViewInit(): void {
 		this.tree.expand(this.administrativeUnitTreeNodes()[0]);
 	}
@@ -19,6 +23,7 @@ export class AdministrativeUnitTree implements AfterViewInit {
 	onViewDetail = output<string>();
 
 	selectedId = signal<string>('');
+	readonly iconMap = APP_ICONS_MAP;
 
 	administrativeUnitTreeNodes = input<AdministrativeUnitTreeNode[]>([]);
 
