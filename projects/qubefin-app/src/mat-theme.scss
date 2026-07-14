@@ -87,6 +87,10 @@
       container-background-color: white,
   ));
 
+  @include mat.expansion-overrides((
+    container-background-color: transparent,
+  ));
+
 }
 
 .dark {
