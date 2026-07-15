@@ -1,0 +1,145 @@
+<div class="glass shadow-glass dark:shadow-md rounded-lg flex flex-col overflow-hidden">
+    <div class="px-6 py-5 border-b border-slate-200/20 dark:border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] dark:shadow-none">
+                <svg lucideSquarePen class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
+                    {{ isEditMode() ? 'Edit Employee Component' : 'Create Employee Component' }}
+                </h2>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                    Configure the employee component and its applicability rules.
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+            <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                {{ isEditMode() ? 'Edit Mode' : 'New Mode' }}
+            </span>
+        </div>
+    </div>
+    <div class="flex-1 overflow-y-auto scroll-thin p-4 space-y-6 min-h-0">
+        <div class="space-y-6">
+            <div>
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                    Configuration Details
+                </h3>
+                <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Code</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <input matInput [formField]="$any(employeeForm)['code']"  autocomplete="off" placeholder="Enter code">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Salutation</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <input matInput [formField]="$any(employeeForm)['salutation']"  autocomplete="off" placeholder="Enter Salutation">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>First Name</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <input matInput [formField]="employeeForm.firstName" autocomplete="off" placeholder="Enter name">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Middle Name</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <!-- Use explicitly declared string types -->
+                    <input matInput type="text" [formField]="$any(employeeForm)['middleName']" autocomplete="off" placeholder="Enter middle name">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Last Name</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <input matInput [formField]="employeeForm.lastName" autocomplete="off" placeholder="Enter last name">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Date of Birth</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
+                    <input 
+                        matInput 
+                        type="date" 
+                        [formField]="employeeForm.dateOfBirth" 
+                        autocomplete="off" 
+                        placeholder="Select Date Of Birth">
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Gender</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>sell</mat-icon>
+                    <mat-select [formField]="employeeForm.gender" placeholder="Select Gender">
+                        @for (gen of genders; track gen.id) {
+                        <mat-option [value]="gen.id">
+                            {{ gen.name }}
+                        </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Father Name</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <input matInput [formField]="$any(employeeForm)['fatherName']"  autocomplete="off" placeholder="Enter Father name">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Mother Name</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <input matInput [formField]="$any(employeeForm)['motherName']"  autocomplete="off" placeholder="Enter Mother Name">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Religion</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <input matInput [formField]="$any(employeeForm)['religion']"  autocomplete="off" placeholder="Enter Religion">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Caste</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <input matInput [formField]="$any(employeeForm)['caste']"  autocomplete="off" placeholder="Enter Caste">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Nationality</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <input matInput [formField]="$any(employeeForm)['nationality']"  autocomplete="off" placeholder="Enter Nationality">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Blood Group</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <input matInput [formField]="$any(employeeForm)['bloodGroup']"  autocomplete="off" placeholder="Enter Blood Group">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Disablity Type</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                    <input matInput [formField]="$any(employeeForm)['disablityType']"  autocomplete="off" placeholder="Enter Disablity Type">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Marital Status</mat-label>
+                    <mat-icon class="material-symbols-outlined" matPrefix>sell</mat-icon>
+                    <mat-select [formField]="employeeForm.maritalStatus" placeholder="Select Marital">
+                        @for (mrst of maritalStatusList; track mrst) {
+                        <mat-option [value]="mrst">
+                            {{ mrst }}
+                        </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="border-t border-slate-200/20 dark:border-white/10 px-6 py-4 bg-slate-500/5 flex justify-end gap-3">
+        <button type="button" (click)="onCancelClicked()"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+            Cancel
+        </button>
+        <button type="button" (click)="onSubmit()"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition lift cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">save</span>
+            {{ isEditMode() ? 'Update' : 'Submit' }}
+        </button>
+    </div>
+</div>
