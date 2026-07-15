@@ -2,16 +2,16 @@
     class="drawer glass-card"
     [ngClass]="
     {
-        'lg:w-70': isExpanded() || isHovered(),
-        'lg:w-20': !isExpanded() && !isHovered(),
+        'lg:w-70': isExpanded(),
+        'lg:w-20': !isExpanded(),
         'lg:translate-x-0': true
     }"
     (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
     <div [ngClass]="['py-4 flex',
-        !isExpanded() && !isHovered() ? 'lg:justify-center' : 'justify-center'
+        !isExpanded() ? 'lg:justify-center' : 'justify-center'
     ]">
         <a routerLink="/">
-            @if (isExpanded() || isHovered()) {
+            @if (isExpanded()) {
             <img src="/assets/images/logo.png" alt="Qbent Logo" class="m-auto dark:brightness-0 dark:invert" width="200" height="40">
             } @else {
             <img src="/assets/images/leaf.png" alt="Qbent Logo" class="dark:brightness-0 dark:invert" width="32" height="32">
@@ -38,8 +38,8 @@
             <div class="flex flex-col">
                 @for (menuNode of userMenus(); track menuNode.id; let groupIndex = $index) {
                 <div>
-                    <div class="menu-category-header" [ngClass]="!isExpanded() && !isHovered() ? 'justify-center py-2' : 'justify-between px-3 mb-2 mt-3'">
-                        @if (isExpanded() || isHovered()) {
+                    <div class="menu-category-header" [ngClass]="!isExpanded() ? 'justify-center py-2' : 'justify-between px-3 mb-2 mt-3'">
+                        @if (isExpanded()) {
                             <span class="menu-category-text">{{ menuNode.name }}</span>
                             <span class="menu-category-line"></span>
                         } @else {
@@ -51,13 +51,13 @@
                         <li class="relative">
                             @if (item.children && item.children?.length > 0) {
                             <button class="menu-item group w-full"
-                                [ngClass]="[!isExpanded() && !isHovered() ? 'justify-center px-2 py-3' : 'justify-start px-3.5 py-3', isSubMenuOpen(groupIndex, itemIndex) ? 'menu-item-active' : 'menu-item-inactive']"
+                                [ngClass]="[!isExpanded() ? 'justify-center px-2 py-3' : 'justify-start px-3.5 py-3', isSubMenuOpen(groupIndex, itemIndex) ? 'menu-item-active' : 'menu-item-inactive']"
                                 (click)="toggleSubmenu(groupIndex, itemIndex)">
                                 <svg [lucideIcon]="iconMap[item.icon]"
                                     class="w-3 h-3 shrink-0 transition-colors duration-200"
                                     [ngClass]="[isSubMenuOpen(groupIndex, itemIndex) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
                                 </svg>
-                                @if (isExpanded() || isHovered()) {
+                                @if (isExpanded()) {
                                 <span class="menu-item-text">{{ item.name }}</span>
                                 <svg lucideIcon="chevron-down"
                                     class="ml-auto w-4 h-4 transition-transform duration-200"
@@ -66,27 +66,30 @@
                                 }
                             </button>
                             } @else {
-                            <a routerLink="{{ item.target }}"
-                                [ngClass]="['menu-item group', !isExpanded() && !isHovered() ? 'justify-center px-2 py-3 gap-2' : 'justify-start px-3.5 py-3 gap-2', isActive(item.target!) ? 'menu-item-active' : 'menu-item-inactive']">
+                            <a routerLink="{{ item.target }}" [matTooltip]="item.name" [matTooltipDisabled]="isExpanded()" matTooltipPosition="right"
+                                [ngClass]="['menu-item group', !isExpanded() ? 'justify-center px-2 py-3 gap-2' : 'justify-start px-3.5 py-3 gap-2', isActive(item.target!) ? 'menu-item-active' : 'menu-item-inactive']">
                                 <svg [lucideIcon]="iconMap[item.icon]"
                                     class="w-4 h-4 shrink-0 transition-colors duration-200"
                                     [ngClass]="[isActive(item.target!) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
                                 </svg>
-                                @if (isExpanded() || isHovered()) {
+                                @if (isExpanded()) {
                                 <span class="menu-item-text">{{ item.name }}</span>
                                 }
                             </a>
                             }
-                            @if (isSubMenuOpen(groupIndex, itemIndex) && (isExpanded() || isHovered())) {
+                            @if (isSubMenuOpen(groupIndex, itemIndex) && (isExpanded())) {
                             <ul class="menu-dropdown-list">
                                 @for (subItem of item.children; track subItem.name) {
                                 <li class="relative">
                                     <a routerLink="{{ subItem.target }}"
                                         [ngClass]="['menu-dropdown-item group', isActive(subItem.target!) ? 'menu-dropdown-item-active' : 'menu-dropdown-item-inactive']">
-                                        <span class="material-symbols-outlined dropdown-icon"
+                                        <!-- <span class="material-symbols-outlined dropdown-icon"
                                             [ngClass]="[isActive(subItem.target!) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
                                             {{ subItem.icon }}
-                                        </span>
+                                        </span> -->
+                                        <svg [lucideIcon]="iconMap[subItem.icon]" class="w-4 h-4 shrink-0 transition-colors duration-200"
+                                            [ngClass]="[isActive(subItem.target!) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
+                                        </svg>
                                         <span class="menu-dropdown-text">{{ subItem.name }}</span>
                                     </a>
                                 </li>
@@ -104,7 +107,7 @@
 
     <!-- Profile card -->
     <div class="p-4 border-t border-slate-50 dark:border-white/6 overflow-hidden">
-        @if (isExpanded() || isHovered()) {
+        @if (isExpanded()) {
             <div class="flex justify-between items-center rounded-lg shadow-md lift px-3 py-3">
                 <div class="flex items-center gap-3">
                     <div class="relative shrink-0">

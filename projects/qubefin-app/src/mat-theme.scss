@@ -91,6 +91,19 @@
     container-background-color: transparent,
   ));
 
+  @include mat.select-overrides((
+    panel-background-color: rgba(255, 255, 255, 1),
+  ));
+
+  @include mat.menu-overrides((
+    container-color: rgba(255, 255, 255, 1),
+  ));
+
+  @include mat.tooltip-overrides((
+    container-color: #16C784,
+    supporting-text-color: #fff,
+  ))
+
 }
 
 .dark {

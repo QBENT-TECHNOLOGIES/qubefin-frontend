@@ -1,16 +1,18 @@
 import { Component, computed, inject, model } from '@angular/core';
 import { RouteDataService } from 'qubefin-core';
-import { LucideCircleQuestionMark, LucideDynamicIcon } from '@lucide/angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { ThemeService } from '../../../services/theme.service';
-import {MatMenuModule} from '@angular/material/menu';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { APP_ICONS_MAP } from '../../../lucide-icons';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 
 
 @Component({
 	selector: 'qfin-header',
 	standalone: true,
-	imports: [MatDividerModule, LucideDynamicIcon, MatMenuModule],
+	imports: [MatDividerModule, LucideDynamicIcon, MatMenuModule, MatTooltipModule],
 	templateUrl: './header.html'
 })
 export class Header {
