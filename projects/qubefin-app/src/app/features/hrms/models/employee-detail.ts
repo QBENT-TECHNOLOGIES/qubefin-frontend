@@ -248,48 +248,73 @@ export class EmployeeReference {
 }
 
 // --- PersonalInfo ---
-
+// Helper function to provide a fallback date
 export interface IEmployeePersonalInfo {
-  code: string | null;
-  salutation?: string | null;
+  code: string;
+  salutation: string;
   firstName: string;
-  middleName?: string | null;
+  middleName: string;
   lastName: string;
-  fullName?: string | null;
-  fatherName?: string | null;
-  motherName?: string | null;
+  fullName: string;
+  fatherName: string;
+  motherName: string;
   dateOfBirth: Date;
   gender: string;
-  religion?: string | null;
-  caste?: string | null;
-  nationality?: string | null;
-  bloodGroup?: string | null;
-  disablityType?: string | null;
+  religion: string;
+  caste: string;
+  nationality: string;
+  bloodGroup: string;
+  disablityType: string; 
   maritalStatus: string;
 }
 
-export class EmployeePersonalInfo {
-  code: string | null = '';
-  salutation?: string | null = '';
+export class EmployeePersonalInfo implements IEmployeePersonalInfo {
+  code: string = '';
+  salutation: string = '';
   firstName: string = '';
-  middleName?: string | null = '';
+  middleName: string = '';
   lastName: string = '';
-  fullName?: string | "";
-  fatherName?: string | null = '';
-  motherName?: string | null = '';
-  dateOfBirth: Date = defaultDate();
+  fullName: string = '';
+  fatherName: string = '';
+  motherName: string = '';
+  dateOfBirth: Date = new Date(); // Replaced custom defaultDate() with standard fallback
   gender: string = '';
-  religion?: string = '';
-  caste?: string | null = '';
-  nationality?: string = '';
-  bloodGroup?: string = '';
-  disablityType?: string | null = '';
+  religion: string = '';
+  caste: string = '';
+  nationality: string = '';
+  bloodGroup: string = '';
+  disablityType: string = '';
   maritalStatus: string = '';
 
-  constructor(init?: Partial<EmployeePersonalInfo>) {
-    Object.assign(this, init);
+  constructor(init?: Partial<IEmployeePersonalInfo>) {
+    if (init) {
+      Object.assign(this, {
+        ...init,
+        // Required fields fallback mapping
+        code: init.code ?? '',
+        salutation: init.salutation ?? '',
+        firstName: init.firstName ?? '',
+        lastName: init.lastName ?? '',
+        dateOfBirth: init.dateOfBirth ? new Date(init.dateOfBirth) : new Date(),
+        gender: init.gender ?? '',
+        maritalStatus: init.maritalStatus ?? '',
+
+        // Optional fields fallback mapping
+        middleName: init.middleName ?? '',
+        fullName: init.fullName ?? '',
+        fatherName: init.fatherName ?? '',
+        motherName: init.motherName ?? '',
+        religion: init.religion ?? '',
+        caste: init.caste ?? '',
+        nationality: init.nationality ?? '',
+        bloodGroup: init.bloodGroup ?? '',
+        disablityType: init.disablityType ?? ''
+      });
+    }
   }
 }
+
+
 
 // --- OfficialInfo ---
 
