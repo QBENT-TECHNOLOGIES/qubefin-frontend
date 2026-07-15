@@ -1,0 +1,37 @@
+import { Component, effect, inject, model, output } from '@angular/core';
+
+import { EMPTY_UUID } from 'qubefin-core';
+import { LucidePencil, LucidePiggyBank, LucideCheck, LucideLayoutGrid, LucideListOrdered, LucideReceiptText, LucideShieldPlus, LucideTag, LucideWallet, LucideX } from '@lucide/angular';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { DatePipe } from '@angular/common';
+import { EmployeeStore } from '../../../stores/employee-store';
+
+@Component({
+  selector: 'qfin-employee-component-view',
+  imports: [MatIconModule,
+    DatePipe,
+    MatTooltipModule,
+    LucidePencil,
+    LucideWallet
+    ],
+  templateUrl: './employee-component-view.html',
+})
+export class EmployeeComponentView {
+  employeeStore = inject(EmployeeStore);
+  employeeId = model<string>(EMPTY_UUID);
+  showEdit = output<boolean>();
+  employeeDetail = this.employeeStore.employeeInfoComponent;
+  
+  constructor() {
+    effect(() => {
+      if (this.employeeId() && this.employeeId() !== EMPTY_UUID) {
+        this.employeeStore.setEmployeeComponentId(this.employeeId());
+        console.log(this.employeeDetail());
+      }
+    });
+  }
+  onShowEdit() {
+    this.showEdit.emit(true);
+  }
+}
