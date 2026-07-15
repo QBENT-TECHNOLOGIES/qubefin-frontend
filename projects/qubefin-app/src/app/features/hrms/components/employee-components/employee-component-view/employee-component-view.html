@@ -1,0 +1,147 @@
+@if (employeeDetail(); as details) {
+<div class="flex flex-col gap-4">
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 items-stretch">
+        <div class="glass rounded-xl shadow-glass dark:shadow">
+            <!-- View Header -->
+            <div class="flex px-6 py-5 items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-4xl bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] dark:shadow-none">
+                        <svg lucideWallet class="w-6 h-6 text-primary-700 dark:text-primary-400"></svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <!-- Safely maps fields inside the personalInfo structure -->
+                            <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">
+                                {{ details?.salutation }} 
+                                {{ details?.firstName }} 
+                                {{ details?.middleName }} 
+                                {{ details?.lastName }}
+                            </h1>
+                            @if (details?.code) {
+                            <span class="px-2 py-0.5 rounded-md bg-slate-500/10 dark:bg-white/10 text-[11px] font-mono font-semibold text-slate-600 dark:text-slate-300">
+                                {{ details?.code }}
+                            </span>
+                            }
+                            <div class="p-2 rounded-4xl cursor-pointer hover:bg-secondary-500/10" matTooltip="Edit Profile"
+                                (click)="onShowEdit()">
+                                <svg lucidePencil class="w-4 h-4 text-secondary dark:text-white"></svg>
+                            </div>
+                        </div>
+                        <p class="text-sm text-primary-700 dark:text-primary-400 font-medium">Personal Information Profile</p>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="p-4">
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+                    Personal Details
+                </h3>
+                <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Date of Birth -->
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-500/5 border border-slate-200/10">
+                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <svg lucideCalendarDays class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Date of Birth</label>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                {{ details?.dateOfBirth | date:'longDate' }}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Gender -->
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-500/5 border border-slate-200/10">
+                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <svg lucideVenetianMask class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Gender</label>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                {{ details?.gender === 'M' ? 'Male' : details?.gender === 'F' ? 'Female' : 'Others' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Marital Status -->
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-500/5 border border-slate-200/10">
+                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <svg lucideHeart class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Marital Status</label>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                {{ details?.maritalStatus || 'Not Specified' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Blood Group -->
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-500/5 border border-slate-200/10">
+                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <svg lucideDroplet class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Blood Group</label>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                {{ details?.bloodGroup || 'Not Specified' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extended Metadata Block (Family & Demographics) -->
+            <div class="p-4 border-t border-slate-200/20 dark:border-white/5 mt-2">
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+                    Family & Nationality
+                </h3>
+                <div class="w-10 h-1 rounded-full bg-secondary-500 mt-1 mb-5"></div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Father's Name -->
+                    <div>
+                        <label class="text-[11px] text-slate-400 uppercase tracking-wider">Father's Name</label>
+                        <p class="font-medium text-slate-700 dark:text-slate-200 mt-0.5">
+                            {{ details?.fatherName || '—' }}
+                        </p>
+                    </div>
+
+                    <!-- Mother's Name -->
+                    <div>
+                        <label class="text-[11px] text-slate-400 uppercase tracking-wider">Mother's Name</label>
+                        <p class="font-medium text-slate-700 dark:text-slate-200 mt-0.5">
+                            {{ details?.motherName || '—' }}
+                        </p>
+                    </div>
+
+                    <!-- Nationality -->
+                    <div>
+                        <label class="text-[11px] text-slate-400 uppercase tracking-wider">Nationality</label>
+                        <p class="font-medium text-slate-700 dark:text-slate-200 mt-0.5">
+                            {{ details?.nationality || '—' }}
+                        </p>
+                    </div>
+
+                    <!-- Religion -->
+                    <div>
+                        <label class="text-[11px] text-slate-400 uppercase tracking-wider">Religion</label>
+                        <p class="font-medium text-slate-700 dark:text-slate-200 mt-0.5">
+                            {{ details?.religion || '—' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+} @else {
+<!-- Interactive Skeleton Loading Card State -->
+<div class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400 flex flex-col items-center justify-center gap-3 min-h-[300px]">
+    <div class="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+    <p class="text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400">Loading profile details...</p>
+</div>
+}
