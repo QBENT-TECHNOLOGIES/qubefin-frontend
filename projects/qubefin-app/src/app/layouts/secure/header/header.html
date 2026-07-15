@@ -1,6 +1,6 @@
 <header class="sticky top-0 z-30">
     <div class="flex border-l-0">
-        <div class="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
+        <div class="flex flex-col items-center justify-between grow lg:flex-row lg:px-4">
             <div class="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
                 @if (isExpanded()) {
                     <button (click)="onHandleToggleDrawer()" matTooltip="Drawer Close"
@@ -66,18 +66,13 @@
                             <svg lucideIcon="user" class="w-5 h-5"></svg>
                             <span class="dark:text-slate-300">My Profile</span>
                         </button>
-
-                        <button mat-menu-item>
-                            <svg lucideIcon="settings" class="w-5 h-5"></svg>
-                            <span class="dark:text-slate-300">Settings</span>
-                        </button>
                         <button mat-menu-item (click)="theme.toggle()" [attr.aria-checked]="theme.isDark()">
                             @if(theme.isDark()) {
                                 <svg lucideIcon="moon" class="w-5 h-5 dark:text-white"></svg>
-                                <span class="dark:text-slate-300">Dark Mode</span>
+                                <span class="dark:text-slate-300">Light Mode</span>
                             } @else {
                                 <svg lucideIcon="sun" class="w-5 h-5 dark:text-white"></svg>
-                                <span dark:text-slate-300>Light Mode</span>
+                                <span class="dark:text-slate-300">Dark Mode</span>
                             }
                         </button>
                         <div class="menu-divider"></div>
