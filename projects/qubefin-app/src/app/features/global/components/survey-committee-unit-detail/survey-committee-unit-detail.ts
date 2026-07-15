@@ -15,10 +15,21 @@ import { EMPTY_UUID } from 'qubefin-core';
 import { SurveyCommitteeStore } from '../../stores/survey-committee-store';
 import { SurveyCommitteeService } from '../../services/survey-committee-service';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { EmployeeSearchByText } from '../../../hrms/models/employee-search-by-text';
+import { EmployeeService } from '../../../hrms/services/employee-service';
+
+interface EmployeeSearchResponse {
+  value?: {
+    employees?: EmployeeSearchByText[];
+  };
+  valueOrDefault?: {
+    employees?: EmployeeSearchByText[];
+  };
+  employees?: EmployeeSearchByText[];
+}
 
 @Component({
   selector: 'qfin-survey-committee-unit-detail',
@@ -40,6 +51,9 @@ import { EmployeeSearchByText } from '../../../hrms/models/employee-search-by-te
 export class SurveyCommitteeUnitDetail {
   private readonly surveyCommitteeStore = inject(SurveyCommitteeStore);
   private readonly surveyCommitteeService = inject(SurveyCommitteeService);
+  private readonly employeeService = inject(EmployeeService);
+
+  private readonly dateAdapter = inject(DateAdapter<Date>);
 
   readonly committeeMemberId = input<string>(EMPTY_UUID);
   readonly cancel = output<void>();
@@ -52,7 +66,7 @@ export class SurveyCommitteeUnitDetail {
   readonly loading = this.surveyCommitteeStore.surveyCommitteeUnitLoading;
   readonly employeeOptions = signal<EmployeeSearchByText[]>([]);
   readonly employeeSearchText = signal('');
-  private readonly employeeSearch$ = new Subject<any>();
+  private readonly employeeSearch$ = new Subject<{ searchText: string }>();
 
   protected readonly formModel = signal<SurveyCommitteeItem>(this.createEmptyModel());
   protected readonly surveyCommitteeSchema: Schema<SurveyCommitteeItem> = schema((path) => {
@@ -63,16 +77,20 @@ export class SurveyCommitteeUnitDetail {
   protected readonly surveyCommitteeForm = form(this.formModel, this.surveyCommitteeSchema);
 
   constructor() {
+    this.dateAdapter.setLocale('en-GB');
     this.employeeSearch$
       .pipe(
         debounceTime(250),
         distinctUntilChanged(),
-        switchMap((searchText: any) =>
-          this.surveyCommitteeService.getEmployeesBySearchText(searchText),
-        ),
+        switchMap((searchText) => this.employeeService.getEmployeesBySearchText(searchText)),
       )
-      .subscribe((employees) => {
-        this.employeeOptions.set(employees as EmployeeSearchByText[]);
+      .subscribe((response: EmployeeSearchResponse) => {
+        this.employeeOptions.set(
+          response.value?.employees ??
+            response.valueOrDefault?.employees ??
+            response.employees ??
+            [],
+        );
       });
 
     effect(() => {
@@ -92,7 +110,7 @@ export class SurveyCommitteeUnitDetail {
           assignedFrom: member.assignedFrom ? new Date(member.assignedFrom) : new Date(),
           assignedTo: member.assignedTo ? new Date(member.assignedTo) : new Date(),
         });
-        this.employeeSearchText.set(member.employeeId);
+        this.employeeSearchText.set(member.employeeName);
       }
     });
 
@@ -119,10 +137,15 @@ export class SurveyCommitteeUnitDetail {
   }
 
   protected searchEmployees(searchText: string) {
+    if (this.isEditMode()) {
+      return;
+    }
+
     this.employeeSearchText.set(searchText);
 
     if (!searchText.trim()) {
       this.updateField('employeeId', '');
+      this.updateField('employeeName', '');
       this.employeeOptions.set([]);
       return;
     }
@@ -135,6 +158,7 @@ export class SurveyCommitteeUnitDetail {
     const employee = event.option.value as EmployeeSearchByText;
     this.employeeSearchText.set(employee.employeeName);
     this.updateField('employeeId', employee.id);
+    this.updateField('employeeName', employee.employeeName);
   }
 
   protected displayEmployeeName(employee: EmployeeSearchByText | string | null): string {
@@ -170,7 +194,7 @@ export class SurveyCommitteeUnitDetail {
       return;
     }
 
-    this.surveyCommitteeService.update(this.committeeMemberId(), dataToSave).subscribe({
+    this.surveyCommitteeService.update(dataToSave).subscribe({
       next: () => {
         this.surveyCommitteeStore.refreshList();
         this.surveyCommitteeStore.refreshDetail();
@@ -183,6 +207,7 @@ export class SurveyCommitteeUnitDetail {
     return {
       id: EMPTY_UUID,
       employeeId: '',
+      employeeName: '',
       isLead: false,
       isActive: true,
       assignedFrom: new Date(),

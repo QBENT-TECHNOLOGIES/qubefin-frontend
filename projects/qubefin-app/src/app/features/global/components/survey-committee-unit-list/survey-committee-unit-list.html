@@ -7,7 +7,10 @@
   <table class="table">
     <thead>
       <tr>
-        <th>Employee ID</th>
+        @if (!isCollapsed()) {
+        <th>Sl.</th>
+        }
+        <th>Employee Name</th>
         @if (!isCollapsed()) {
           <th>Lead</th>
           <th>Status</th>
@@ -18,18 +21,36 @@
       </tr>
     </thead>
     <tbody>
-      @for (item of data(); track item.id) {
+      @for (item of data(); let i = $index; track item.id) {
         <tr [class.bg-primary-500/10]="selectedId() === item.id">
+          
+        @if (!isCollapsed()) {
           <td class="px-3 py-2 text-[13px] font-medium dark:text-slate-300">
-            <div class="flex flex-col">
-              <span>{{ item.employeeId || 'Unassigned employee' }}</span>
-              @if (item.isLead) {
-                <span class="text-[11px] uppercase tracking-wide text-primary-600 dark:text-primary-400">
-                  Committee Lead
-                </span>
-              }
-            </div>
+            {{ i + 1 }}
           </td>
+        }
+          <td class="px-3 py-2 text-[13px] font-medium dark:text-slate-300">
+  <div class="flex items-center gap-2">
+    <span>{{ item.employeeName || 'Unassigned employee' }}</span>
+
+    @if (item.isLead) {
+      @if (!isCollapsed()) {
+        (
+        <span
+          class="text-[11px] uppercase tracking-wide text-primary-600 dark:text-primary-400">
+          Committee Lead
+        </span>
+        )
+      } @else {
+        <svg
+          lucideIcon="badge-check"
+          matTooltip="Committee Lead"
+          class="w-4 h-4 text-primary-600">
+        </svg>
+      }
+    }
+  </div>
+</td>
           @if (!isCollapsed()) {
             <td>
               @if (item.isLead) {

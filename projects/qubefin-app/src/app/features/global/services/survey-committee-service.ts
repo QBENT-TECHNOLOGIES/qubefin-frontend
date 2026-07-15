@@ -14,11 +14,7 @@ export class SurveyCommitteeService {
     return this.httpClient.post(this.basePath, surveyCommittee);
   }
 
-  update(id: string, surveyCommittee: SurveyCommitteeItem) {
-    return this.httpClient.put(`${this.basePath}/${id}`, surveyCommittee);
-  }
-
-  getEmployeesBySearchText(searchText: any) {
-    return this.httpClient.post(`${this.basePath}`, searchText);
+  update(surveyCommittee: SurveyCommitteeItem) {
+    return this.httpClient.put(`${this.basePath}`, surveyCommittee);
   }
 }

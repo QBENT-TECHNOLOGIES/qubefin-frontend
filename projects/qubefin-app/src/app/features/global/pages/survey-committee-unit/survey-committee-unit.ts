@@ -5,7 +5,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { LucideDynamicIcon } from '@lucide/angular';
+import {
+  LucideChevronLeft,
+  LucideChevronRight,
+  LucideDynamicIcon,
+} from '@lucide/angular';
 import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -26,6 +30,8 @@ import { SurveyCommitteeUnitDetail } from '../../components/survey-committee-uni
     MatIconModule,
     MatTooltipModule,
     LucideDynamicIcon,
+    LucideChevronLeft,
+    LucideChevronRight,
     Breadcrumb,
     CommonModule,
     SurveyCommitteeUnitList,
@@ -50,19 +56,7 @@ export class SurveyCommitteeUnit {
   );
 
   readonly showFilterArea = signal<boolean>(false);
-  readonly searchQuery = signal<string>('');
   tempSearch = '';
-
-  readonly filteredSurveyCommittees = computed(() => {
-    const query = this.searchQuery().trim().toLowerCase();
-    let list = this.surveyCommittees();
-
-    if (query) {
-      list = list.filter((item) => item.employeeId?.toLowerCase().includes(query));
-    }
-
-    return list;
-  });
 
   private readonly routeData = toSignal(this.route.data as Observable<RouteMeta>, {
     initialValue: { title: '', icon: '' },
@@ -102,12 +96,20 @@ export class SurveyCommitteeUnit {
   }
 
   protected applyFilters() {
-    this.searchQuery.set(this.tempSearch);
+    this.surveyCommitteeStore.setSearchQuery(this.tempSearch);
   }
 
   protected resetFilters() {
     this.tempSearch = '';
     this.applyFilters();
+  }
+
+  protected changePage(delta: number) {
+    const current = this.surveyCommitteeStore.pageIndex();
+    const next = current + delta;
+    if (next >= 0) {
+      this.surveyCommitteeStore.setPage(next);
+    }
   }
 
   protected onSaveCommittee() {

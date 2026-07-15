@@ -3,53 +3,57 @@ import { computed, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import { SurveyCommitteeItem } from '../models/survey-committee-item';
 
-type SurveyCommitteeListResponse =
-  | SurveyCommitteeItem[]
-  | {
-      surveyCommitteeUnits?: SurveyCommitteeItem[];
-      surveyCommittees?: SurveyCommitteeItem[];
-      items?: SurveyCommitteeItem[];
-    };
-
-type SurveyCommitteeDetailResponse =
-  | SurveyCommitteeItem
-  | {
-      surveyCommitteeUnit?: SurveyCommitteeItem;
-      surveyCommittee?: SurveyCommitteeItem;
-      item?: SurveyCommitteeItem;
-    };
-
 @Injectable({
   providedIn: 'root',
 })
 export class SurveyCommitteeStore {
+  // Detail State
   private readonly surveyCommitteeId = signal<string | undefined>(undefined);
-  private readonly basePath = `${ApiPaths.GLOBAL}/survey-committee-units`;
 
-  readonly surveyCommitteeUnitsResource = httpResource<SurveyCommitteeListResponse>(
-    () => this.basePath,
-  );
-  readonly surveyCommitteeUnits = computed(() => {
-    const value = this.surveyCommitteeUnitsResource.value();
+  // List State
+  readonly searchQuery = signal('');
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+  readonly sortOn = signal('assignedFrom');
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
 
-    if (!value) {
-      return [];
-    }
+  private readonly basePath = `${ApiPaths.GLOBAL}/survey-committees`;
 
-    if (Array.isArray(value)) {
-      return value.map((item) => this.normalizeItem(item));
-    }
+  // List Resource
+  readonly surveyCommitteeUnitsResource = httpResource<{
+    surveyCommittees: any[];
+    totalRecords: number;
+  }>(() => {
+    const search = encodeURIComponent(this.searchQuery());
+    const page = this.pageIndex();
+    const size = this.pageSize();
+    const sort = this.sortOn();
+    const dir = this.sortDirection();
 
-    return (value.surveyCommitteeUnits ?? value.surveyCommittees ?? value.items ?? []).map((item) =>
-      this.normalizeItem(item),
-    );
+    return `${this.basePath}/filter?searchText=${search}&sortOn=${sort}&sortDirection=${dir}&pageIndex=${page}&pageSize=${size}`;
   });
+
+  readonly surveyCommitteeUnits = computed(() =>
+    (this.surveyCommitteeUnitsResource.value()?.surveyCommittees ?? []).map((item) =>
+      this.normalizeItem(item),
+    ),
+  );
+
+  readonly totalRecords = computed(
+    () => this.surveyCommitteeUnitsResource.value()?.totalRecords ?? 0,
+  );
+
+  readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
 
   readonly loading = computed(() => this.surveyCommitteeUnitsResource.isLoading());
   readonly error = computed(() => this.surveyCommitteeUnitsResource.error());
 
-  private readonly surveyCommitteeUnitResource = httpResource<SurveyCommitteeDetailResponse>(() => {
+  // Detail Resource
+  private readonly surveyCommitteeUnitResource = httpResource<{
+    surveyCommitteeMember: any;
+  }>(() => {
     const id = this.surveyCommitteeId();
+
     if (!id || id === EMPTY_UUID) {
       return undefined;
     }
@@ -58,22 +62,37 @@ export class SurveyCommitteeStore {
   });
 
   readonly surveyCommitteeUnit = computed(() => {
-    const value = this.surveyCommitteeUnitResource.value();
+    const item = this.surveyCommitteeUnitResource.value()?.surveyCommitteeMember;
 
-    if (!value) {
-      return undefined;
-    }
-
-    if ('id' in value) {
-      return this.normalizeItem(value);
-    }
-
-    const item = value.surveyCommitteeUnit ?? value.surveyCommittee ?? value.item;
     return item ? this.normalizeItem(item) : undefined;
   });
 
-  readonly surveyCommitteeUnitLoading = computed(() => this.surveyCommitteeUnitResource.isLoading());
+  readonly surveyCommitteeUnitLoading = computed(() =>
+    this.surveyCommitteeUnitResource.isLoading(),
+  );
+
   readonly surveyCommitteeUnitError = computed(() => this.surveyCommitteeUnitResource.error());
+
+  // State Setters
+
+  setSearchQuery(query: string) {
+    this.searchQuery.set(query);
+    this.pageIndex.set(0);
+  }
+
+  setPage(index: number) {
+    this.pageIndex.set(index);
+  }
+
+  setPageSize(size: number) {
+    this.pageSize.set(size);
+    this.pageIndex.set(0);
+  }
+
+  setSort(field: string, direction: 'asc' | 'desc') {
+    this.sortOn.set(field);
+    this.sortDirection.set(direction);
+  }
 
   setSurveyCommitteeId(id: string | undefined) {
     if (this.surveyCommitteeId() === id) {
@@ -91,11 +110,15 @@ export class SurveyCommitteeStore {
     this.surveyCommitteeUnitResource.reload();
   }
 
-  private normalizeItem(item: SurveyCommitteeItem): SurveyCommitteeItem {
+  private normalizeItem(item: any): SurveyCommitteeItem {
     return {
       ...item,
-      assignedFrom: item.assignedFrom ? new Date(item.assignedFrom) : new Date(),
-      assignedTo: item.assignedTo ? new Date(item.assignedTo) : new Date(),
-    };
+      assignedFrom: item.assignedFrom
+        ? new Date(item.assignedFrom)
+        : (item.assignedFrom as unknown as Date),
+      assignedTo: item.assignedTo
+        ? new Date(item.assignedTo)
+        : (item.assignedTo as unknown as Date),
+    } as SurveyCommitteeItem;
   }
 }

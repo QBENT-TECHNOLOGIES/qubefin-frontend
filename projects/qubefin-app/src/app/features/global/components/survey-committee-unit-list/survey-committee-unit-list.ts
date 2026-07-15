@@ -9,13 +9,20 @@ import { SurveyCommitteeItem } from '../../models/survey-committee-item';
 
 @Component({
   selector: 'qfin-survey-committee-unit-list',
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatTooltipModule, LucideDynamicIcon, DatePipe],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    LucideDynamicIcon,
+    DatePipe,
+  ],
   templateUrl: './survey-committee-unit-list.html',
   styles: ``,
 })
 export class SurveyCommitteeUnitList {
   onViewDetail = output<string>();
-  readonly data = input<SurveyCommitteeItem[]>([]);
+  readonly data = input<any[]>([]);
   readonly isCollapsed = input<boolean>(false);
   readonly selectedId = input<string>('');
   readonly iconMap = APP_ICONS_MAP;
