@@ -102,7 +102,9 @@
   @include mat.tooltip-overrides((
     container-color: #16C784,
     supporting-text-color: #fff,
-  ))
+  ));
+
+  @include mat.stepper-overrides(());
 
 }
 

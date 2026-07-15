@@ -6,17 +6,24 @@ import { Observable } from 'rxjs';
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { LucidePlus, LucideSearch, LucideFunnel, LucideX, LucideChevronLeft, LucideChevronRight } from '@lucide/angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { EmployeeComponentList } from '../../components/employee-components/employee-component-list/employee-component-list';
 import { EmployeeComponentView } from '../../components/employee-components/employee-component-view/employee-component-view';
 import { EmployeeComponentDetail } from '../../components/employee-components/employee-component-detail/employee-component-detail';
 import { EmployeeStore } from '../../stores/employee-store';
+import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
+import { APP_ICONS_MAP } from '../../../../lucide-icons';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'qfin-employee-component',
   imports: [
-    EmployeeComponentList, EmployeeComponentView, EmployeeComponentDetail, MatIconModule, MatButtonModule,
-    LucidePlus, MatTooltipModule, LucideSearch, LucideFunnel, LucideX, LucideChevronLeft, LucideChevronRight
+    EmployeeComponentList,CommonModule, MatFormFieldModule, MatInputModule, FormsModule, Breadcrumb, EmployeeComponentView, EmployeeComponentDetail, MatIconModule, MatButtonModule, LucideDynamicIcon,
+    MatTooltipModule,
   ],
   templateUrl: './employee-component.html',
 })
@@ -24,7 +31,9 @@ export class EmployeeComponent {
   public readonly EMPTY_UUID = EMPTY_UUID;
   private readonly route = inject(ActivatedRoute);
   private readonly routeDataService = inject(RouteDataService);
-  
+  readonly iconMap = APP_ICONS_MAP;
+  // Filter properties
+  showFilterArea = signal<boolean>(false);
   // Injecting the store that manages pagination and filtering states
   readonly employeeStore = inject(EmployeeStore);
   
@@ -84,5 +93,16 @@ export class EmployeeComponent {
   protected handleSave() {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
+  }
+
+  protected toggleFilterArea() {
+    this.showFilterArea.update(v => !v);
+  }
+
+  protected applyFilters() {
+  }
+
+  protected resetFilters() {
+    this.applyFilters();
   }
 }
