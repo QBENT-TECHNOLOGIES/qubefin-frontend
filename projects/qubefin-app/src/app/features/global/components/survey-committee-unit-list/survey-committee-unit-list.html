@@ -1,0 +1,80 @@
+<div
+  class="overflow-auto scrollbar-thin"
+  [ngClass]="{
+    'h-[calc(100vh-170px-72px)] overflow-y-auto': isCollapsed(),
+  }"
+>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Employee ID</th>
+        @if (!isCollapsed()) {
+          <th>Lead</th>
+          <th>Status</th>
+          <th>Assigned From</th>
+          <th>Assigned To</th>
+        }
+        <th class="text-right">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of data(); track item.id) {
+        <tr [class.bg-primary-500/10]="selectedId() === item.id">
+          <td class="px-3 py-2 text-[13px] font-medium dark:text-slate-300">
+            <div class="flex flex-col">
+              <span>{{ item.employeeId || 'Unassigned employee' }}</span>
+              @if (item.isLead) {
+                <span class="text-[11px] uppercase tracking-wide text-primary-600 dark:text-primary-400">
+                  Committee Lead
+                </span>
+              }
+            </div>
+          </td>
+          @if (!isCollapsed()) {
+            <td>
+              @if (item.isLead) {
+                <svg lucideIcon="badge-check" matTooltip="Lead member" class="w-5 h-5 text-primary-600"></svg>
+              } @else {
+                <span class="text-xs text-slate-400">Member</span>
+              }
+            </td>
+            <td>
+              <span
+                class="px-2 py-1 text-xs rounded font-medium"
+                [class.bg-green-100]="item.isActive"
+                [class.text-green-800]="item.isActive"
+                [class.bg-red-100]="!item.isActive"
+                [class.text-red-800]="!item.isActive"
+              >
+                {{ item.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>{{ item.assignedFrom | date: 'mediumDate' }}</td>
+            <td>{{ item.assignedTo | date: 'mediumDate' }}</td>
+          }
+          <td class="text-right">
+            <div class="w-full flex justify-end">
+              <button
+                type="button"
+                class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
+                matTooltip="View"
+                (click)="onDetailView(item.id)"
+              >
+                <svg
+                  lucideIcon="chevron-right"
+                  class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"
+                ></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td [attr.colspan]="isCollapsed() ? 2 : 6" class="p-8! text-center text-gray-500 italic">
+            No survey committee members found.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
