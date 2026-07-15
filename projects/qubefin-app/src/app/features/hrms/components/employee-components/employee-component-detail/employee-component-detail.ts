@@ -64,7 +64,7 @@ export class EmployeeComponentDetail {
       if (this.isEditMode()) {
         const detail = this.employeeStore.employeeInfoComponent();
         if (detail) {
-          this.employeeModel.set(detail);
+          this.employeeModel.set(new EmployeePersonalInfo(detail));
         }
       } else {
         this.employeeModel.set(new EmployeePersonalInfo());
@@ -80,7 +80,7 @@ export class EmployeeComponentDetail {
     }
 
     const dataToSave = this.employeeForm().value();
-
+    dataToSave.dateOfBirth = new Date(dataToSave.dateOfBirth);
     if (!this.isEditMode()) {
       this.employeeService.create(dataToSave).subscribe({
         next: () => {
