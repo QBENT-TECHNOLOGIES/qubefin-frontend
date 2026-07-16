@@ -18,6 +18,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { CommonModule } from '@angular/common';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'qfin-salary-component',
@@ -34,7 +35,8 @@ import { CommonModule } from '@angular/common';
     MatTooltipModule,
     LucideDynamicIcon,
     Breadcrumb,
-    CommonModule
+    CommonModule,
+    MatSlideToggleModule
   ],
   templateUrl: './salary-component.html',
 })
@@ -127,13 +129,13 @@ export class SalaryComponent {
   protected applyFilters() {
     this.searchQuery.set(this.tempSearch);
     this.selectedCategory.set(this.tempCategory);
-    this.taxableFilter.set(this.tempTaxable);
+    // this.taxableFilter.set(this.tempTaxable);
   }
 
   protected resetFilters() {
     this.tempSearch = '';
     this.tempCategory = '';
-    this.tempTaxable = null;
+    // this.tempTaxable = null;
     this.applyFilters();
   }
 }
