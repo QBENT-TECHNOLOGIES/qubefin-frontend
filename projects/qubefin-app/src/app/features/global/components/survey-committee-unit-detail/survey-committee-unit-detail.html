@@ -4,45 +4,36 @@
     Loading survey committee member details...
   </div>
   } @else {
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-        <mat-label>Employee</mat-label>
-        <div class="w-12 flex justify-center" matPrefix>
-          <svg lucideIcon="user" class="w-5 h-5"></svg>
-        </div>
-        <input
-          matInput
-          [value]="employeeSearchText()"
-          (input)="searchEmployees($any($event.target).value)"
-          [matAutocomplete]="employeeAuto"
-          [readonly]="isEditMode()"
-          autocomplete="off"
-          [placeholder]="isEditMode() ? 'Employee' : 'Search employee'"
-        />
-        <mat-autocomplete
-          #employeeAuto="matAutocomplete"
-          [displayWith]="displayEmployeeName"
-          (optionSelected)="selectEmployee($event)"
-        >
-          @for (employee of employeeOptions(); track employee.id) {
-          <mat-option [value]="employee">
-            {{ employee.employeeName }}
-          </mat-option>
-          } @empty {
-            @if (employeeSearchText().trim()) {
-            <mat-option disabled>No employees found</mat-option>
-            }
-          }
-        </mat-autocomplete>
-      </mat-form-field>
-    @if (isEditMode()) {
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-      <mat-label>Assigned To</mat-label>
-
+      <mat-label>Employee</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="user" class="w-5 h-5"></svg>
+      </div>
+      <input matInput [value]="employeeSearchText()" (input)="searchEmployees($any($event.target).value)"
+        [matAutocomplete]="employeeAuto" [readonly]="isEditMode()" autocomplete="off"
+        [placeholder]="isEditMode() ? 'Employee' : 'Search employee'" />
+      <mat-autocomplete #employeeAuto="matAutocomplete" [displayWith]="displayEmployeeName"
+        (optionSelected)="selectEmployee($event)">
+        @for (employee of employeeOptions(); track employee.id) {
+        <mat-option [value]="employee">
+          {{ employee.employeeName }}
+        </mat-option>
+        } @empty {
+        @if (employeeSearchText().trim()) {
+        <mat-option disabled>No employees found</mat-option>
+        }
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+    @if (isEditMode() && !surveyCommitteeForm.isActive().value()) {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Date Of Separation</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
+      </div>
       <input matInput [matDatepicker]="picker" [formField]="surveyCommitteeForm.assignedTo" />
-
       <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
     }
@@ -52,7 +43,9 @@
         @if (isEditMode()) {
         <mat-checkbox [formField]="surveyCommitteeForm.isActive" color="primary">Is Active?</mat-checkbox>
         }
+        @if (isEditMode() && surveyCommitteeForm.isActive().value()) {
         <mat-checkbox [formField]="surveyCommitteeForm.isLead" color="primary">Is Lead?</mat-checkbox>
+        }
       </div>
     </div>
   </div>

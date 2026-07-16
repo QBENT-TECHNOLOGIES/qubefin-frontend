@@ -4,6 +4,6 @@ export interface SurveyCommitteeItem {
   employeeName: string;
   isLead: boolean;
   isActive: boolean;
-  assignedFrom: Date;
-  assignedTo: Date;
+  assignedFrom: Date | null;
+  assignedTo: Date | null;
 }

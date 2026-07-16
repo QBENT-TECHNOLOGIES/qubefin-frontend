@@ -71,36 +71,14 @@
       } @else if (surveyCommitteeStore.error()) {
       <div class="px-4 py-10 text-sm text-red-500">Unable to load survey committee members.</div>
       } @else {
-      <qfin-survey-committee-unit-list [data]="surveyCommittees()"
-        [isCollapsed]="selectedSurveyCommitteeId() !== EMPTY_UUID || !isViewMode()"
-        [selectedId]="selectedSurveyCommitteeId()" (onViewDetail)="onView($event)">
+      <qfin-survey-committee-unit-list 
+        [data]="surveyCommittees()" 
+        [totalRecords]="surveyCommitteeStore.totalRecords()"
+        [pageIndex]="surveyCommitteeStore.pageIndex()" [pageSize]="surveyCommitteeStore.pageSize()"
+        [selectedId]="selectedSurveyCommitteeId()"
+        [isCollapsed]="selectedSurveyCommitteeId() !== EMPTY_UUID || !isViewMode()" (pageChanged)="pageChanged($event)"
+        (onViewDetail)="onView($event)" (sortChanged)="onSortChanged($event)">
       </qfin-survey-committee-unit-list>
-
-      <div
-        class="flex items-center justify-between border-t border-slate-200 dark:border-slate-400/10 px-4 py-3 bg-slate-50/50 dark:bg-slate-800/20">
-        <div class="flex flex-col gap-0.5">
-          <span class="text-xs font-medium text-slate-700 dark:text-slate-300">
-            Page {{ surveyCommitteeStore.totalPages() > 0 ? surveyCommitteeStore.pageIndex() + 1 : 0 }} of {{
-            surveyCommitteeStore.totalPages() }}
-          </span>
-          <span class="text-[10px] text-slate-400">
-            Total Records: {{ surveyCommitteeStore.totalRecords() }}
-          </span>
-        </div>
-        <div class="flex gap-1">
-          <button [disabled]="surveyCommitteeStore.pageIndex() === 0 || surveyCommitteeStore.loading()"
-            (click)="changePage(-1)"
-            class="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-400/10 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer">
-            <svg lucideChevronLeft class="w-4 h-4 text-slate-600 dark:text-slate-400"></svg>
-          </button>
-          <button
-            [disabled]="(surveyCommitteeStore.pageIndex() + 1) >= surveyCommitteeStore.totalPages() || surveyCommitteeStore.loading()"
-            (click)="changePage(1)"
-            class="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-400/10 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer">
-            <svg lucideChevronRight class="w-4 h-4 text-slate-600 dark:text-slate-400"></svg>
-          </button>
-        </div>
-      </div>
       }
     </div>
 

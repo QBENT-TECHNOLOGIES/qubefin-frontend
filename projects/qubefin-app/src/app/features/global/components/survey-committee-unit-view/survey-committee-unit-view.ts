@@ -12,10 +12,14 @@ import { SurveyCommitteeStore } from '../../stores/survey-committee-store';
   styles: ``,
 })
 export class SurveyCommitteeUnitView {
-  private readonly surveyCommitteeStore = inject(SurveyCommitteeStore);
-  readonly committeeMemberId = model<string>(EMPTY_UUID);
-  readonly showEdit = output<void>();
   readonly iconMap = APP_ICONS_MAP;
+  private readonly surveyCommitteeStore = inject(SurveyCommitteeStore);
+
+  // Input From Parant
+  readonly committeeMemberId = model<string>(EMPTY_UUID);
+  // Emit From Child
+  readonly showEdit = output<void>();
+
   readonly committeeMember = this.surveyCommitteeStore.surveyCommitteeUnit;
   readonly loading = this.surveyCommitteeStore.surveyCommitteeUnitLoading;
   readonly error = this.surveyCommitteeStore.surveyCommitteeUnitError;

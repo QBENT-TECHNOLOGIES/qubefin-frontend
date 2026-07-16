@@ -7,73 +7,89 @@ import { SurveyCommitteeItem } from '../models/survey-committee-item';
   providedIn: 'root',
 })
 export class SurveyCommitteeStore {
-  // Detail State
+  // ===========================
+  // ApiBase Path
+  // ===========================
+  private readonly basePath = `${ApiPaths.GLOBAL}/survey-committees`;
+
+  // ===========================
+  // List State
+  // ===========================
   private readonly surveyCommitteeId = signal<string | undefined>(undefined);
 
-  // List State
+  // ===========================
+  // List Resource
+  // ===========================
   readonly searchQuery = signal('');
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
   readonly sortOn = signal('assignedFrom');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
 
-  private readonly basePath = `${ApiPaths.GLOBAL}/survey-committees`;
-
-  // List Resource
+  // ===========================
+  // List Api Call And Response
+  // ===========================
   readonly surveyCommitteeUnitsResource = httpResource<{
-    surveyCommittees: any[];
+    surveyCommittees: SurveyCommitteeItem[];
     totalRecords: number;
   }>(() => {
     const search = encodeURIComponent(this.searchQuery());
-    const page = this.pageIndex();
-    const size = this.pageSize();
-    const sort = this.sortOn();
-    const dir = this.sortDirection();
 
-    return `${this.basePath}/filter?searchText=${search}&sortOn=${sort}&sortDirection=${dir}&pageIndex=${page}&pageSize=${size}`;
+    return `${this.basePath}/filter?searchText=${search}&sortOn=${this.sortOn()}&sortDirection=${this.sortDirection()}&pageIndex=${this.pageIndex()}&pageSize=${this.pageSize()}`;
   });
 
+  // ===========================
+  // Preparing Data
+  // ===========================
+
   readonly surveyCommitteeUnits = computed(() =>
-    (this.surveyCommitteeUnitsResource.value()?.surveyCommittees ?? []).map((item) =>
-      this.normalizeItem(item),
-    ),
+    (this.surveyCommitteeUnitsResource.value()?.surveyCommittees ?? []).map(this.normalizeItem),
   );
 
   readonly totalRecords = computed(
     () => this.surveyCommitteeUnitsResource.value()?.totalRecords ?? 0,
   );
 
-  readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
+  // ===========================
+  // Loading And Error of the List Api
+  // ===========================
 
   readonly loading = computed(() => this.surveyCommitteeUnitsResource.isLoading());
   readonly error = computed(() => this.surveyCommitteeUnitsResource.error());
 
-  // Detail Resource
-  private readonly surveyCommitteeUnitResource = httpResource<{
-    surveyCommitteeMember: any;
+  // ===========================
+  // Detail Api Call And Response
+  // ===========================
+
+  readonly surveyCommitteeUnitResource = httpResource<{
+    surveyCommitteeMember: SurveyCommitteeItem;
   }>(() => {
     const id = this.surveyCommitteeId();
 
-    if (!id || id === EMPTY_UUID) {
-      return undefined;
-    }
-
-    return `${this.basePath}/${id}`;
+    return id && id !== EMPTY_UUID ? `${this.basePath}/${id}` : undefined;
   });
+
+  // ===========================
+  // Preparing Data
+  // ===========================
 
   readonly surveyCommitteeUnit = computed(() => {
     const item = this.surveyCommitteeUnitResource.value()?.surveyCommitteeMember;
-
     return item ? this.normalizeItem(item) : undefined;
   });
+
+  // ===========================
+  // Loading And Error of the Detail Api
+  // ===========================
 
   readonly surveyCommitteeUnitLoading = computed(() =>
     this.surveyCommitteeUnitResource.isLoading(),
   );
-
   readonly surveyCommitteeUnitError = computed(() => this.surveyCommitteeUnitResource.error());
 
-  // State Setters
+  // ===========================
+  // List Actions
+  // ===========================
 
   setSearchQuery(query: string) {
     this.searchQuery.set(query);
@@ -84,41 +100,38 @@ export class SurveyCommitteeStore {
     this.pageIndex.set(index);
   }
 
-  setPageSize(size: number) {
-    this.pageSize.set(size);
-    this.pageIndex.set(0);
+  setPageSize(items: number) {
+    this.pageSize.set(items);
   }
 
-  setSort(field: string, direction: 'asc' | 'desc') {
-    this.sortOn.set(field);
+  setSort(sort: string, direction: 'asc' | 'desc') {
+    this.sortOn.set(sort);
     this.sortDirection.set(direction);
-  }
-
-  setSurveyCommitteeId(id: string | undefined) {
-    if (this.surveyCommitteeId() === id) {
-      return;
-    }
-
-    this.surveyCommitteeId.set(id);
+    this.pageIndex.set(0);
   }
 
   refreshList() {
     this.surveyCommitteeUnitsResource.reload();
   }
 
+  // ===========================
+  // Detail Actions
+  // ===========================
+  setSurveyCommitteeId(id: string | undefined) {
+    if (this.surveyCommitteeId() !== id) {
+      this.surveyCommitteeId.set(id);
+    }
+  }
+
   refreshDetail() {
     this.surveyCommitteeUnitResource.reload();
   }
 
-  private normalizeItem(item: any): SurveyCommitteeItem {
+  private normalizeItem(item: SurveyCommitteeItem): SurveyCommitteeItem {
     return {
       ...item,
-      assignedFrom: item.assignedFrom
-        ? new Date(item.assignedFrom)
-        : (item.assignedFrom as unknown as Date),
-      assignedTo: item.assignedTo
-        ? new Date(item.assignedTo)
-        : (item.assignedTo as unknown as Date),
-    } as SurveyCommitteeItem;
+      assignedFrom: item.assignedFrom ? new Date(item.assignedFrom) : null,
+      assignedTo: item.assignedTo ? new Date(item.assignedTo) : null,
+    };
   }
 }

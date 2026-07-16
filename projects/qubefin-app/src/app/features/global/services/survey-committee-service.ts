@@ -14,7 +14,7 @@ export class SurveyCommitteeService {
     return this.httpClient.post(this.basePath, surveyCommittee);
   }
 
-  update(surveyCommittee: SurveyCommitteeItem) {
+  update(surveyCommittee: any) {
     return this.httpClient.put(`${this.basePath}`, surveyCommittee);
   }
 }

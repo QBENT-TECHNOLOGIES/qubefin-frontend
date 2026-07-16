@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import {
@@ -44,7 +44,7 @@ interface EmployeeSearchResponse {
     LucideDynamicIcon,
     MatDatepickerModule,
   ],
-  providers: [provideNativeDateAdapter()],
+  providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './survey-committee-unit-detail.html',
   styles: ``,
 })
@@ -54,6 +54,7 @@ export class SurveyCommitteeUnitDetail {
   private readonly employeeService = inject(EmployeeService);
 
   private readonly dateAdapter = inject(DateAdapter<Date>);
+  private readonly datePipe = inject(DatePipe);
 
   readonly committeeMemberId = input<string>(EMPTY_UUID);
   readonly cancel = output<void>();
@@ -70,9 +71,15 @@ export class SurveyCommitteeUnitDetail {
 
   protected readonly formModel = signal<SurveyCommitteeItem>(this.createEmptyModel());
   protected readonly surveyCommitteeSchema: Schema<SurveyCommitteeItem> = schema((path) => {
-    required(path.employeeId, { message: 'Employee ID is required' });
-    required(path.assignedFrom, { message: 'Assigned From is required' });
-    required(path.assignedTo, { message: 'Assigned To is required' });
+    required(path.employeeId, {
+      message: 'Employee ID is required',
+    });
+
+    if (!this.formModel().isActive) {
+      required(path.assignedTo, {
+        message: 'Assigned To is required',
+      });
+    }
   });
   protected readonly surveyCommitteeForm = form(this.formModel, this.surveyCommitteeSchema);
 
@@ -102,20 +109,47 @@ export class SurveyCommitteeUnitDetail {
         this.employeeOptions.set([]);
         return;
       }
+    });
 
+    effect(() => {
+      if (!this.isEditMode()) {
+        return;
+      }
+
+      const model = this.formModel();
+
+      if (!model.isActive) {
+        return;
+      }
+
+      const updates: Partial<SurveyCommitteeItem> = {};
+
+      if (model.assignedTo !== null) {
+        updates.assignedTo = null;
+      }
+
+      if (model.isLead) {
+        updates.isLead = false;
+      }
+
+      if (Object.keys(updates).length > 0) {
+        this.formModel.update((current) => ({
+          ...current,
+          ...updates,
+        }));
+      }
+    });
+
+    effect(() => {
       const member = this.committeeMember();
       if (member) {
         this.formModel.set({
           ...member,
-          assignedFrom: member.assignedFrom ? new Date(member.assignedFrom) : new Date(),
-          assignedTo: member.assignedTo ? new Date(member.assignedTo) : new Date(),
+          assignedTo: member.assignedTo ? new Date(member.assignedTo) : null,
         });
         this.employeeSearchText.set(member.employeeName);
       }
     });
-
-    // effect(() => {
-    // });
   }
 
   protected updateField<K extends keyof SurveyCommitteeItem>(
@@ -126,14 +160,6 @@ export class SurveyCommitteeUnitDetail {
       ...current,
       [field]: value,
     }));
-  }
-
-  protected updateAssignedFrom(value: string | null) {
-    this.updateField('assignedFrom', value ? new Date(value) : new Date());
-  }
-
-  protected updateAssignedTo(value: string | null) {
-    this.updateField('assignedTo', value ? new Date(value) : new Date());
   }
 
   protected searchEmployees(searchText: string) {
@@ -179,6 +205,14 @@ export class SurveyCommitteeUnitDetail {
     }
 
     const dataToSave = this.surveyCommitteeForm().value();
+    const payLoad = {
+      id: dataToSave.id,
+      isActive: dataToSave.isActive,
+      isLead: dataToSave.isLead,
+      assignedTo: dataToSave.isActive
+        ? null
+        : this.datePipe.transform(dataToSave.assignedTo, 'yyyy-MM-dd') || '',
+    };
 
     if (!dataToSave.employeeId?.trim()) {
       return;
@@ -194,7 +228,7 @@ export class SurveyCommitteeUnitDetail {
       return;
     }
 
-    this.surveyCommitteeService.update(dataToSave).subscribe({
+    this.surveyCommitteeService.update(payLoad).subscribe({
       next: () => {
         this.surveyCommitteeStore.refreshList();
         this.surveyCommitteeStore.refreshDetail();
@@ -210,8 +244,8 @@ export class SurveyCommitteeUnitDetail {
       employeeName: '',
       isLead: false,
       isActive: true,
-      assignedFrom: new Date(),
-      assignedTo: new Date(),
+      assignedFrom: null,
+      assignedTo: null,
     };
   }
 }
