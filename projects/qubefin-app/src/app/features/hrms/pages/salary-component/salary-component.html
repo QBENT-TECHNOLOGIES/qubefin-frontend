@@ -11,7 +11,7 @@
                 class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
                 (click)="onAdd()">
                 <svg lucideIcon="plus" class="w-4 h-4"></svg>
-                New Component
+                Add New
             </button>
         </div>
     </div>
@@ -58,7 +58,7 @@
                         </div>
 
                         <!-- Taxable Toggle -->
-                        <div class="flex flex-col select-none">
+                        <!-- <div class="flex flex-col select-none">
                             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Taxable</span>
                             <div
                                 class="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl w-30 border border-slate-200/50 dark:border-white/5 items-center h-10 shrink-0">
@@ -66,18 +66,16 @@
                                     class="flex-1 text-center py-1.5 px-1 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer h-full flex items-center justify-center"
                                     [ngClass]="tempTaxable === false ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200/10' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200'"
                                     (click)="toggleTempTaxable(false)">
-                                    <!-- No -->
                                     <svg lucideIcon="x" class="w-5 h-5"></svg>
                                 </button>
                                 <button type="button"
                                     class="flex-1 text-center py-1.5 px-1 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer h-full flex items-center justify-center"
                                     [ngClass]="tempTaxable === true ? 'bg-primary-500 text-white shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200'"
                                     (click)="toggleTempTaxable(true)">
-                                    <!-- Yes -->
                                     <svg lucideIcon="check" class="w-5 h-5"></svg>
                                 </button>
                             </div>
-                        </div>
+                        </div> -->
 
                         <!-- Actions -->
                         <div class="flex items-center gap-2.5 shrink-0">
@@ -136,7 +134,7 @@
             <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <div
+                        <!-- <div
                             class="w-14 h-14 rounded-xl shadow-md bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center dark:shadow-none">
                             @if (selectedSalaryComponentId() === EMPTY_UUID) {
                             <svg lucideIcon="plus" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
@@ -145,16 +143,16 @@
                             } @else {
                             <svg lucideIcon="square-pen" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
                             }
-                        </div>
+                        </div> -->
                         <div>
                             <div class="flex justify-start gap-2">
                                 <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
                                     @if (selectedSalaryComponentId() === EMPTY_UUID) {
-                                    Add Salary Component
+                                    Add Salary
                                     } @else if (isViewMode()) {
-                                    Component Details
+                                    Details
                                     } @else {
-                                    Edit Salary Component
+                                    Edit Salary
                                     }
                                 </h2>
                                 <div

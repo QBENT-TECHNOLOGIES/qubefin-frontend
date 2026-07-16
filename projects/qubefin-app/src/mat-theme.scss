@@ -44,8 +44,8 @@
   outlined-outline-width: 1px,
   outlined-focus-outline-width: 1.5px,
 
-  outlined-outline-color: #a5a5a5,
-  outlined-hover-outline-color: #2d2c7c,
+  outlined-outline-color: #d3d1d1,
+  outlined-hover-outline-color: #999999,
   outlined-focus-outline-color: #2d2c7c,
 
   // ==========================
@@ -54,15 +54,14 @@
   outlined-input-text-color:  #0f172a,
   outlined-disabled-input-text-color: #2d2c7c,
 
-  container-text-size: 15px,
-  container-text-weight: 500,
+  container-text-size: 14px,
   container-text-line-height: 22px,
   container-text-tracking: 0.2px,
 
   // ==========================
   // Placeholder
   // ==========================
-  outlined-input-text-placeholder-color: #2d2c7c,
+  outlined-input-text-placeholder-color: #999999,
 
   // ==========================
   // Label
@@ -108,6 +107,27 @@
     background-color: transparent,
     row-item-outline-width: 0px,
     header-container-height: 38px,
+  ));
+
+  @include mat.slide-toggle-overrides((
+    handle-shape: 15px,
+    hidden-track-opacity: 1,
+    hidden-track-transition: 0.75ms,
+    pressed-handle-size: 20px,
+    selected-handle-horizontal-margin: 20px,
+    selected-handle-size: 20px,
+    selected-icon-size: 17px,
+    selected-pressed-handle-horizontal-margin: 00px,
+    selected-track-outline-color: red,
+    selected-track-outline-width: 1px,
+    selected-with-icon-handle-horizontal-margin: 0px,
+    state-layer-size: 30px,
+    track-height: 25px,
+    track-shape: 15px,
+    with-icon-handle-size: 23px,
+    handle-elevation-shadow: none,
+    handle-surface-color: transparent,
+    
   ));
 
 }
