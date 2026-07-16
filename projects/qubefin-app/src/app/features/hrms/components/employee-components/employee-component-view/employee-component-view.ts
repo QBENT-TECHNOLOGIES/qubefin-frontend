@@ -14,7 +14,6 @@ import { APP_ICONS_MAP } from '../../../../../lucide-icons';
     DatePipe,
     MatTooltipModule,
     LucidePencil,
-    LucideWallet,
     LucideDynamicIcon
     ],
   templateUrl: './employee-component-view.html',
