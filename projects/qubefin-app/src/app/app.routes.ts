@@ -43,5 +43,9 @@ export const routes: Routes = [
                 loadChildren: () => import('./features/payroll/payroll-routes').then(m => m.PayrollRoutes)
             }
         ]
+    },
+    {
+        path: '**',
+        loadComponent: () => import('./features/page-notfound/page-notfound').then(m => m.PageNotfound),
     }
 ];

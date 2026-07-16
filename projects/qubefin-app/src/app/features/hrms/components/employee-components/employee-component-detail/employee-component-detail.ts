@@ -7,7 +7,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { EMPTY_UUID } from 'qubefin-core';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
-import { LucideDynamicIcon, LucideSquarePen } from '@lucide/angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { EmployeeStore } from '../../../stores/employee-store';
 import { EmployeeService } from '../../../services/employee-service';
 import { EmployeePersonalInfo, IEmployeePersonalInfo } from '../../../models/employee-detail';
@@ -25,7 +25,6 @@ import { APP_ICONS_MAP } from '../../../../../lucide-icons';
     MatSelectModule,
     MatCheckboxModule,
     FormField,
-    LucideSquarePen,
     MatStepperModule,
     LucideDynamicIcon
   ],

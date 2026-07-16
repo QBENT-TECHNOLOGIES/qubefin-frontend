@@ -1,7 +1,7 @@
 import { Component, effect, inject, model, output } from '@angular/core';
 
 import { EMPTY_UUID } from 'qubefin-core';
-import { LucidePencil, LucidePiggyBank, LucideCheck, LucideLayoutGrid, LucideListOrdered, LucideReceiptText, LucideShieldPlus, LucideTag, LucideWallet, LucideX, LucideDynamicIcon } from '@lucide/angular';
+import { LucidePencil, LucideDynamicIcon } from '@lucide/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DatePipe } from '@angular/common';
@@ -13,8 +13,6 @@ import { APP_ICONS_MAP } from '../../../../../lucide-icons';
   imports: [MatIconModule,
     DatePipe,
     MatTooltipModule,
-    LucidePencil,
-    LucideWallet,
     LucideDynamicIcon
     ],
   templateUrl: './employee-component-view.html',
