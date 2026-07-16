@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, ViewChild, ElementRef } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -7,10 +7,13 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { EMPTY_UUID } from 'qubefin-core';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
-import { LucideSquarePen } from '@lucide/angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { EmployeeStore } from '../../../stores/employee-store';
 import { EmployeeService } from '../../../services/employee-service';
 import { EmployeePersonalInfo, IEmployeePersonalInfo } from '../../../models/employee-detail';
+import { MatStepperModule } from '@angular/material/stepper';
+import { APP_ICONS_MAP } from '../../../../../lucide-icons';
+
 
 @Component({
   selector: 'qfin-employee-component-detail',
@@ -22,7 +25,8 @@ import { EmployeePersonalInfo, IEmployeePersonalInfo } from '../../../models/emp
     MatSelectModule,
     MatCheckboxModule,
     FormField,
-    LucideSquarePen
+    MatStepperModule,
+    LucideDynamicIcon
   ],
   templateUrl: './employee-component-detail.html',
 })
@@ -35,7 +39,7 @@ export class EmployeeComponentDetail {
 
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
-
+  readonly iconMap = APP_ICONS_MAP;
   isEditMode = computed(() => !!this.employeeId() && this.employeeId() !== EMPTY_UUID);
 
   protected readonly employeeModel = signal<IEmployeePersonalInfo>(new EmployeePersonalInfo());
@@ -51,6 +55,9 @@ export class EmployeeComponentDetail {
   });
 
   protected readonly employeeForm = form(this.employeeModel, this.employeeSchema);
+
+  @ViewChild('stepper', { read: ElementRef })
+  stepper!: ElementRef;
 
   constructor() {
     // this.employeeStore.loadCategories();
@@ -109,5 +116,31 @@ export class EmployeeComponentDetail {
 
   onCancelClicked() {
     this.onCancel.emit();
+  }
+
+  
+
+  ngAfterViewInit() {
+
+    const header = this.stepper.nativeElement.querySelector(
+      '.mat-horizontal-stepper-header-container'
+    );
+
+    if (!header) return;
+
+    header.addEventListener(
+      'wheel',
+      (event: WheelEvent) => {
+
+        event.preventDefault();
+
+        header.scrollBy({
+          left: event.deltaY,
+          behavior: 'smooth'
+        });
+
+      },
+      { passive: false }
+    );
   }
 }

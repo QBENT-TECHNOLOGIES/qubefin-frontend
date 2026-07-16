@@ -184,10 +184,13 @@ body {
   @apply p-3 text-sm font-semibold text-secondary-600 dark:text-slate-200;
 }
 .table tbody tr {
-  @apply border-b border-gray-100 dark:border-slate-700 hover:bg-primary-500/5 dark:hover:bg-slate-200/10 transition-colors;
+  @apply border-b border-gray-100 dark:border-slate-700 hover:bg-primary-500/5 dark:hover:bg-slate-200/5 transition-colors;
 }
 .table tbody tr td {
   @apply px-3 py-1.5 text-[13px] text-gray-600 dark:text-slate-300;
+}
+.table.mat-mdc-table .mat-mdc-header-cell {
+  @apply border-b border-gray-100 bg-secondary-500/1 dark:bg-slate-500/10 dark:border-slate-700;
 }
 /* For Drawer */
 .profile-menu.mat-mdc-menu-panel {
@@ -271,4 +274,192 @@ body {
 
 .mat-expansion-panel-body {
   @apply px-0!;
+}
+
+/* ==========================================================================
+   Horizontal Scrollable Mat-Stepper Styles (Modern Capsule Chips)
+   ========================================================================== */
+.scrollable-stepper-header.mat-stepper-horizontal {
+  background: transparent !important;
+  overflow: hidden !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Contain ALL internal Angular Material stepper wrappers within parent bounds */
+.scrollable-stepper-header .mat-horizontal-stepper-wrapper {
+  overflow: hidden !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.scrollable-stepper-header .mat-horizontal-content-container {
+  overflow: hidden !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
+/* Stepper header wrapper styled as a thin, horizontal scroll capsule bar */
+.scrollable-stepper-header .mat-horizontal-stepper-header-container {
+  overflow-x: auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  scrollbar-width: 2px !important; 
+  -ms-overflow-style: none !important;  
+  -webkit-overflow-scrolling: touch;
+  /* background: rgba(255, 255, 255, 0.45) !important; */
+  /* backdrop-filter: blur(12px) saturate(180%) !important; */
+  /* -webkit-backdrop-filter: blur(12px) saturate(180%) !important; */
+  /* border: 1px solid rgba(255, 255, 255, 0.5) !important; */
+  /* border-radius: 12px !important; */
+  padding: 8px 5px !important;
+  margin-bottom: 10px !important;
+  /* box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 4px 15px -5px rgba(15, 23, 42, 0.05) !important; */
+  align-items: center !important;
+  gap: 6px !important;
+  scroll-behavior: smooth;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  cursor: all-scroll;
+}
+
+/* Hide scrollbar handles in Webkit browsers to keep the UI clean */
+.scrollable-stepper-header .mat-horizontal-stepper-header-container::-webkit-scrollbar {
+  /* display: none; */
+  height: 5px;
+}
+
+/* Completely remove default horizontal connector lines */
+.scrollable-stepper-header .mat-stepper-horizontal-line {
+  display: none !important;
+}
+
+/* Style step headers as compact modern capsule pills (chips) */
+.scrollable-stepper-header .mat-step-header {
+  flex-shrink: 0 !important;
+  display: flex !important;
+  flex-direction: row !important; /* Side-by-side icon and text */
+  align-items: center !important;
+  justify-content: center !important;
+  height: 36px !important; /* Compact pill height */
+  min-width: max-content !important;
+  border-radius: 9999px !important; /* Circular ends pill */
+  padding: 0 14px !important;
+  margin: 2px !important;
+  background: rgba(148, 163, 184, 0.08) !important;
+  border: 1px solid rgba(148, 163, 184, 0.15) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+}
+
+.dark .scrollable-stepper-header .mat-step-header {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Selected / Active step style - Solid accent fill */
+.scrollable-stepper-header .mat-step-header[aria-selected="true"] {
+  background: #2563EB !important; /* Standard branding blue */
+  border-color: #2563EB !important;
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25) !important;
+}
+
+.dark .scrollable-stepper-header .mat-step-header[aria-selected="true"] {
+  background: #3b82f6 !important; /* Bright blue for dark mode */
+  border-color: #3b82f6 !important;
+  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Hover effects */
+.scrollable-stepper-header .mat-step-header:hover:not([aria-selected="true"]) {
+  background: rgba(148, 163, 184, 0.15) !important;
+  border-color: rgba(148, 163, 184, 0.25) !important;
+}
+
+.dark .scrollable-stepper-header .mat-step-header:hover:not([aria-selected="true"]) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Mini badge icon inside step capsule */
+.scrollable-stepper-header .mat-step-icon {
+  background-color: rgba(148, 163, 184, 0.15) !important;
+  color: #64748b !important;
+  font-weight: 700 !important;
+  font-size: 10px !important;
+  width: 20px !important;
+  height: 20px !important;
+  margin: 0 8px 0 0 !important; /* Spacing between circle and text label */
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+}
+
+.dark .scrollable-stepper-header .mat-step-icon {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #94a3b8 !important;
+}
+
+/* Selected icon style - Contrast text and background */
+.scrollable-stepper-header .mat-step-header[aria-selected="true"] .mat-step-icon {
+  background-color: #ffffff !important;
+  color: #2563EB !important;
+}
+
+.dark .scrollable-stepper-header .mat-step-header[aria-selected="true"] .mat-step-icon {
+  background-color: #ffffff !important;
+  color: #3b82f6 !important;
+}
+
+/* Done / Success Step Icon (Emerald checkmark state) */
+.scrollable-stepper-header .mat-step-icon-state-edit,
+.scrollable-stepper-header .mat-step-icon-state-done {
+  background-color: #10B981 !important;
+  color: #ffffff !important;
+}
+
+/* Step Label text styling inside horizontal pill */
+.scrollable-stepper-header .mat-step-label {
+  font-weight: 500 !important;
+  font-size: 12px !important;
+  color: #64748b !important;
+  white-space: nowrap !important;
+  transition: all 0.2s ease !important;
+}
+
+.dark .scrollable-stepper-header .mat-step-label {
+  color: #94a3b8 !important;
+}
+
+/* Selected Step Label */
+.scrollable-stepper-header .mat-step-header[aria-selected="true"] .mat-step-label {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.dark .scrollable-stepper-header .mat-step-header[aria-selected="true"] .mat-step-label {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* Step content transitions */
+.animate-fade-in {
+  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

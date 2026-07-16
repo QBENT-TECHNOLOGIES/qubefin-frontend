@@ -44,7 +44,7 @@
   outlined-outline-width: 1px,
   outlined-focus-outline-width: 1.5px,
 
-  outlined-outline-color: #2563EB,
+  outlined-outline-color: #a5a5a5,
   outlined-hover-outline-color: #2d2c7c,
   outlined-focus-outline-color: #2d2c7c,
 
@@ -102,7 +102,13 @@
   @include mat.tooltip-overrides((
     container-color: #16C784,
     supporting-text-color: #fff,
-  ))
+  ));
+
+  @include mat.table-overrides((
+    background-color: transparent,
+    row-item-outline-width: 0px,
+    header-container-height: 38px,
+  ));
 
 }
 

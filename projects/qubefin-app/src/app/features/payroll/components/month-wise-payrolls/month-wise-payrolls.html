@@ -2,92 +2,57 @@
     [ngClass]="{
         'h-[calc(100vh-170px-72px)] overflow-y-auto': isCollapsed()
     }">
-    <table class="table">
-        <thead>
-            <tr>
-                @if (!isCollapsed()) {
-                    <th>#</th>
-                }
-                <th>Month, Year</th>
-                @if (!isCollapsed()) {
-                    <th>No. of Employees</th>
-                    <th class="text-right">Earnings</th>
-                    <th class="text-right">Deductions</th>
-                }
-                <th class="text-right">Net Pay</th>
-                @if (!isCollapsed()) {
-                    <th class="text-center">Status</th>
-                    <th class="text-center">Reports</th>
-                }
-                <th class="text-center">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (loading()) {
-            <tr>
-                <td [attr.colspan]="isCollapsed() ? 2 : 9" class="py-8 text-center text-slate-400">Loading...</td>
-            </tr>
-            } @else if (!summaries().length) {
-            <tr>
-                <td [attr.colspan]="isCollapsed() ? 2 : 9" class="py-8 text-center text-slate-400">No payroll data found.</td>
-            </tr>
-            } @else {
-            @for (item of summaries(); track item.payrollMonthYear; let i = $index) {
-            <tr [class.bg-primary-500/10]="selectedMonth() === item.payrollMonth && selectedYear() === item.payrollYear">
-                @if (!isCollapsed()) {
-                    <td>{{ i + 1 }}</td>
-                }
-                <td class="font-medium text-slate-800 dark:text-slate-100 px-3 py-1.5 text-[13px]">{{ item.payrollMonthYear }}</td>
-                @if (!isCollapsed()) {
-                    <td>{{ item.employeeCount }}</td>
-                    <td class="text-right">{{ item.earnings | currency:'INR' }}</td>
-                    <td class="text-right">{{ item.deductions | currency:'INR' }}</td>
-                }
-                    <td class="text-right font-semibold">{{ item.netPay | currency:'INR' }}</td>
-                @if (!isCollapsed()) {
-                    <td class="text-center">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold"
-                            [class.bg-green-100]="!item.locked" [class.text-emerald-600]="!item.locked"
-                            [class.bg-rose-500/10]="item.locked" [class.text-rose-600]="item.locked">
-                            @if (item.locked) {
-                            <svg lucideIcon="lock" class="w-3 h-3"></svg> Locked
-                            } @else {
-                            <svg lucideIcon="lock-open" class="w-3 h-3"></svg> Open
-                            }
-                        </span>
-                    </td>
-                    
-                    <td class="text-center">
-                        <div class="w-full flex justify-center">
-                            <div matTooltip="Statutory Reports" [matMenuTriggerFor]="repotsList"
-                                class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-gray-500/5">
-                                <svg lucideIcon="ellipsis-vertical" class="w-5 h-5"></svg>
-                            </div>
-                        </div>
-                    </td>
-                }
-
-                <td>
-                    <div class="flex items-center justify-center gap-1">
-                        @if (isCollapsed()) {
-                            <div (click)="onView(item.payrollMonth, item.payrollYear)" matTooltip="View Details" 
-                                class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10">
-                                <svg lucideIcon="chevron-right" class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
-                            </div>
-                        } @else {
-                            <div (click)="onView(item.payrollMonth, item.payrollYear)" matTooltip="View Details" 
-                                class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10">
-                                <svg lucideIcon="eye" class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
-                            </div>
-                            @if (!item.locked) {
-                                <div (click)="onLockMonth(item.payrollMonth, item.payrollYear)" matTooltip="Lock Payroll" 
-                                    class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-rose-500/5">
-                                    <svg lucideIcon="lock" class="w-5 h-5 text-rose-500 dark:text-rose-500 hover:text-rose-500"></svg>
-                                </div>
-                            }
-                        }
+    
+    <table mat-table [dataSource]="summaries() || []" class="w-full table">
+        <ng-container matColumnDef="index">
+            <th mat-header-cell *matHeaderCellDef> # </th>
+            <td mat-cell *matCellDef="let item; let i = index"> {{ i + 1 }} </td>
+        </ng-container>
+        <ng-container matColumnDef="monthYear">
+            <th mat-header-cell *matHeaderCellDef> Month, Year </th>
+            <td mat-cell *matCellDef="let item" class="font-medium text-slate-800 dark:text-slate-100 px-3 py-1.5 text-[13px]"> 
+                {{ item.payrollMonthYear }} 
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="employees">
+            <th mat-header-cell *matHeaderCellDef> No. of Employees </th>
+            <td mat-cell *matCellDef="let item"> {{ item.employeeCount }} </td>
+        </ng-container>
+        <ng-container matColumnDef="earnings">
+            <th mat-header-cell *matHeaderCellDef class="text-right"> Earnings </th>
+            <td mat-cell *matCellDef="let item" class="text-right"> {{ item.earnings | currency:'INR' }} </td>
+        </ng-container>
+        <ng-container matColumnDef="deductions">
+            <th mat-header-cell *matHeaderCellDef class="text-right"> Deductions </th>
+            <td mat-cell *matCellDef="let item" class="text-right"> {{ item.deductions | currency:'INR' }} </td>
+        </ng-container>
+        <ng-container matColumnDef="netPay">
+            <th mat-header-cell *matHeaderCellDef class="text-right"> Net Pay </th>
+            <td mat-cell *matCellDef="let item" class="text-right font-semibold"> {{ item.netPay | currency:'INR' }} </td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef class="text-center"> Status </th>
+            <td mat-cell *matCellDef="let item" class="text-center">
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold"
+                    [class.bg-green-100]="!item.locked" [class.text-emerald-600]="!item.locked"
+                    [class.bg-rose-500/10]="item.locked" [class.text-rose-600]="item.locked">
+                    @if (item.locked) {
+                        <svg lucideIcon="lock" class="w-3 h-3"></svg> Locked
+                    } @else {
+                        <svg lucideIcon="lock-open" class="w-3 h-3"></svg> Open
+                    }
+                </span>
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="reports">
+            <th mat-header-cell *matHeaderCellDef class="!text-center"> Reports </th>
+            <td mat-cell *matCellDef="let item" class="!text-center">
+                <div class="w-full flex justify-center">
+                    <div matTooltip="Download" [matMenuTriggerFor]="repotsList"
+                        class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-gray-500/8">
+                        <svg lucideIcon="download" class="w-5 h-5 text-secondary-600/80"></svg>
                     </div>
-                </td>
+                </div>
                 <mat-menu #repotsList="matMenu" class="menus-area">
                     <button mat-menu-item (click)="onDownloadPfReport(item.payrollMonth, item.payrollYear)">
                         <svg lucideIcon="file-down" class="w-5 h-5 text-sky-600 dark:text-sky-500 hover:text-sky-700"></svg>
@@ -102,9 +67,46 @@
                         <span>Download PTax Report</span>
                     </button>
                 </mat-menu>
-            </tr>
-            }
-            }
-        </tbody>
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="!text-center"> Actions </th>
+            <td mat-cell *matCellDef="let item">
+                <div class="flex items-center justify-end gap-1">
+                    @if (isCollapsed()) {
+                        <div (click)="onView(item.payrollMonth, item.payrollYear)" matTooltip="View Details" 
+                            class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10">
+                            <svg lucideIcon="chevron-right" class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
+                        </div>
+                    } @else {
+                         @if (!item.locked) {
+                            <div (click)="onLockMonth(item.payrollMonth, item.payrollYear)" matTooltip="Lock Payroll" 
+                                class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-rose-500/5">
+                                <svg lucideIcon="lock" class="w-5 h-5 text-rose-500 dark:text-rose-500 hover:text-rose-500"></svg>
+                            </div>
+                        }
+                        <div (click)="onView(item.payrollMonth, item.payrollYear)" matTooltip="View Details" 
+                            class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10">
+                            <svg lucideIcon="chevron-right" class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
+                        </div>
+                    }
+                </div>
+            </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns();" 
+            [class.bg-primary-500]="selectedMonth() === row.payrollMonth && selectedYear() === row.payrollYear"
+            [class.bg-opacity-10]="selectedMonth() === row.payrollMonth && selectedYear() === row.payrollYear"
+            class="transition-colors">
+        </tr>
+        <tr class="mat-row" *matNoDataRow colspan="8">
+            <td class="mat-cell p-8 text-center text-slate-400 border-b-0" [attr.colspan]="displayedColumns().length">
+                @if (loading()) {
+                    Loading...
+                } @else {
+                    No payroll data found.
+                }
+            </td>
+        </tr>
     </table>
 </div>
