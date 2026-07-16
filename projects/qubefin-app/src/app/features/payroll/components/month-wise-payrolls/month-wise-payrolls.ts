@@ -1,6 +1,6 @@
 import { APP_ICONS_MAP } from './../../../../lucide-icons';
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { Component, inject, output, signal, input } from '@angular/core';
+import { Component, inject, output, signal, input, computed } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { PayrollStore } from '../../stores/payroll-store';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -10,9 +10,19 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
 import { PayrollService } from '../../services/payroll-service';
+import { MatTableModule } from '@angular/material/table';
 @Component({
   selector: 'qfin-month-wise-payrolls',
-  imports: [CommonModule, MatMenuModule, CurrencyPipe, LucideDynamicIcon, MatTooltipModule, MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule],
+  imports: [CommonModule,
+    MatMenuModule,
+    CurrencyPipe,
+    LucideDynamicIcon,
+    MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    FormsModule,
+    MatTableModule],
   templateUrl: './month-wise-payrolls.html',
 })
 export class MonthWisePayrolls {
@@ -27,7 +37,12 @@ export class MonthWisePayrolls {
   selectedYear = input<number | null>(null);
 
   onViewMonth = output<{ month: number; year: number }>();
-
+  displayedColumns = computed(() => {
+    if (this.isCollapsed()) {
+      return ['monthYear', 'netPay', 'actions'];
+    }
+    return ['index', 'monthYear', 'employees', 'earnings', 'deductions', 'netPay', 'status', 'reports', 'actions'];
+  });
   onView(month: number, year: number) {
     this.onViewMonth.emit({ month, year });
   }
