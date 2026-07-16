@@ -25,7 +25,6 @@ import { APP_ICONS_MAP } from '../../../../../lucide-icons';
     MatSelectModule,
     MatCheckboxModule,
     FormField,
-    LucideSquarePen,
     MatStepperModule,
     LucideDynamicIcon
   ],
