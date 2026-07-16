@@ -49,26 +49,43 @@ interface EmployeeSearchResponse {
   styles: ``,
 })
 export class SurveyCommitteeUnitDetail {
+  // ===========================
+  // Dependency Injection
+  // ===========================
   private readonly surveyCommitteeStore = inject(SurveyCommitteeStore);
   private readonly surveyCommitteeService = inject(SurveyCommitteeService);
   private readonly employeeService = inject(EmployeeService);
 
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
-
+  // ===========================
+  // Inputs & Outputs
+  // ===========================
   readonly committeeMemberId = input<string>(EMPTY_UUID);
+
   readonly cancel = output<void>();
   readonly save = output<void>();
+  // ===========================
+  // Component State
+  // ===========================
   readonly isEditMode = computed(
     () => !!this.committeeMemberId() && this.committeeMemberId() !== EMPTY_UUID,
   );
   readonly iconMap = APP_ICONS_MAP;
+  // ===========================
+  // Store Data
+  // ===========================
   readonly committeeMember = this.surveyCommitteeStore.surveyCommitteeUnit;
   readonly loading = this.surveyCommitteeStore.surveyCommitteeUnitLoading;
+  // ===========================
+  // Employee Search
+  // ===========================
   readonly employeeOptions = signal<EmployeeSearchByText[]>([]);
   readonly employeeSearchText = signal('');
   private readonly employeeSearch$ = new Subject<{ searchText: string }>();
-
+  // ===========================
+  // Form
+  // ===========================
   protected readonly formModel = signal<SurveyCommitteeItem>(this.createEmptyModel());
   protected readonly surveyCommitteeSchema: Schema<SurveyCommitteeItem> = schema((path) => {
     required(path.employeeId, {
@@ -84,7 +101,13 @@ export class SurveyCommitteeUnitDetail {
   protected readonly surveyCommitteeForm = form(this.formModel, this.surveyCommitteeSchema);
 
   constructor() {
+    // ===========================
+    // Configure Date Adapter
+    // ===========================
     this.dateAdapter.setLocale('en-GB');
+    // ===========================
+    // Employee Search Pipeline
+    // ===========================
     this.employeeSearch$
       .pipe(
         debounceTime(250),
@@ -99,7 +122,9 @@ export class SurveyCommitteeUnitDetail {
             [],
         );
       });
-
+    // ===========================
+    // Load Member / Reset Form
+    // ===========================
     effect(() => {
       this.surveyCommitteeStore.setSurveyCommitteeId(this.committeeMemberId());
 
@@ -110,7 +135,9 @@ export class SurveyCommitteeUnitDetail {
         return;
       }
     });
-
+    // ===========================
+    // Business Rules
+    // ===========================
     effect(() => {
       if (!this.isEditMode()) {
         return;
@@ -139,7 +166,9 @@ export class SurveyCommitteeUnitDetail {
         }));
       }
     });
-
+    // ===========================
+    // Populate Form
+    // ===========================
     effect(() => {
       const member = this.committeeMember();
       if (member) {
@@ -151,7 +180,9 @@ export class SurveyCommitteeUnitDetail {
       }
     });
   }
-
+  // ===========================
+  // Form Helpers
+  // ===========================
   protected updateField<K extends keyof SurveyCommitteeItem>(
     field: K,
     value: SurveyCommitteeItem[K],
@@ -161,7 +192,9 @@ export class SurveyCommitteeUnitDetail {
       [field]: value,
     }));
   }
-
+  // ===========================
+  // Employee Search Actions
+  // ===========================
   protected searchEmployees(searchText: string) {
     if (this.isEditMode()) {
       return;
@@ -179,14 +212,12 @@ export class SurveyCommitteeUnitDetail {
     let text = { searchText: searchText };
     this.employeeSearch$.next(text);
   }
-
   protected selectEmployee(event: MatAutocompleteSelectedEvent) {
     const employee = event.option.value as EmployeeSearchByText;
     this.employeeSearchText.set(employee.employeeName);
     this.updateField('employeeId', employee.id);
     this.updateField('employeeName', employee.employeeName);
   }
-
   protected displayEmployeeName(employee: EmployeeSearchByText | string | null): string {
     if (!employee) {
       return '';
@@ -194,11 +225,12 @@ export class SurveyCommitteeUnitDetail {
 
     return typeof employee === 'string' ? employee : employee.employeeName;
   }
-
+  // ===========================
+  // Form Actions
+  // ===========================
   protected onCancelClicked() {
     this.cancel.emit();
   }
-
   protected onSubmit() {
     if (!this.surveyCommitteeForm().valid()) {
       return;
@@ -236,7 +268,9 @@ export class SurveyCommitteeUnitDetail {
       },
     });
   }
-
+  // ===========================
+  // Helpers
+  // ===========================
   private createEmptyModel(): SurveyCommitteeItem {
     return {
       id: EMPTY_UUID,
