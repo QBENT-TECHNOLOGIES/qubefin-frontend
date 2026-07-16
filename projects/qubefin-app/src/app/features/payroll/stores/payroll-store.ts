@@ -19,12 +19,12 @@ export class PayrollStore {
 
     readonly loading = computed(() => this.payrollsResource.isLoading());
     readonly error = computed(() => this.payrollsResource.error());
-    private readonly payrollResource = httpResource<{ payroll: Payroll }>(() => {
+    private readonly payrollResource = httpResource<Payroll>(() => {
         const id = this.payrollId();
         if (!id) return undefined;
         return `${ApiPaths.PAYROLL}/payroll/${id}`;
     });
-    readonly payroll = computed(() => this.payrollResource.value()?.payroll ?? undefined);
+    readonly payroll = computed(() => this.payrollResource.value() ?? undefined);
     readonly payrollLoading = computed(() => this.payrollResource.isLoading());
     readonly payrollError = computed(() => this.payrollResource.error());
 
@@ -73,6 +73,47 @@ export class PayrollStore {
     refreshMonthlyPayrollSummaries() {
         this.monthlyPayrollSummariesResource.reload();
     }
+    readonly isCreatingPayroll = signal<boolean>(false);
+    createPayroll(companyId: string) {
+        this.isCreatingPayroll.set(true);
+        this.payrollService.createPayroll(companyId).subscribe({
+            next: (response) => {
+                this.isCreatingPayroll.set(false);
+                this.refreshMonthlyPayrollSummaries();
+            },
+            error: (err) => {
+                this.isCreatingPayroll.set(false);
+                let errorMessage = "Failed to generate payroll. Please try again.";
+                if (err.error && Array.isArray(err.error) && err.error.length > 0 && err.error[0].message) {
+                    errorMessage = err.error[0].message;
+                }
+                else if (err.error && typeof err.error === 'string') {
+                    errorMessage = err.error;
+                }
+                alert("⚠️ " + errorMessage);
+            }
+        });
+    }
+    readonly isUpdatingPayroll = signal<boolean>(false);
+    updatePayrollComponents(command: any, onSuccess: () => void) {
+        this.isUpdatingPayroll.set(true);
+        this.payrollService.updateEmployeePayroll(command).subscribe({
+            next: (response) => {
+                this.isUpdatingPayroll.set(false);
+                this.refreshDetail();
+                this.refreshMonthlyPayroll();
+                this.refreshMonthlyPayrollSummaries();
+                onSuccess();
+            },
+            error: (err) => {
+                this.isUpdatingPayroll.set(false);
+                let errorMessage = "Failed to update payroll.";
+                if (err.error?.message) errorMessage = err.error.message;
+                alert("⚠️ " + errorMessage);
+            }
+        });
+    }
+
     readonly lockingMonthId = signal<string | null>(null);
     lockMonthlyPayroll(month: number, year: number) {
         const lockId = `${year}-${month}`;

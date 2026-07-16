@@ -1,0 +1,154 @@
+<div class="flex flex-col h-full bg-white rounded-lg shadow-xl overflow-hidden w-[1000px] max-w-[95vw]">
+  @if (payrollStore.payrollLoading()) {
+    <div class="p-10 text-center flex flex-col items-center justify-center min-h-[400px]">
+      <p class="text-gray-600 font-medium text-lg">Loading Payroll Details...</p>
+    </div>
+  } 
+  @else if (payrollStore.payroll(); as payroll) {
+    <div class="px-6 py-4 bg-[#21145F] text-white flex justify-between items-center">
+      <h2 class="text-lg font-semibold tracking-wide">
+        Salary of <span class="font-bold">{{ payroll.employeeName | uppercase }}</span>({{ payroll.employeeCode }}) for {{ getMonthName(payroll.payrollMonth) }}, {{ payroll.payrollYear }}
+      </h2>
+      <button (click)="onCancel()" class="text-gray-300 hover:text-white transition cursor-pointer">
+        <svg lucideIcon="x" class="w-5 h-5"></svg>
+      </button>
+    </div>
+
+    <div class="p-6 overflow-y-auto bg-white flex-1">
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="border border-gray-300 rounded p-2.5 bg-white">
+          <span class="text-xs text-gray-500 block mb-1">Branch</span>
+          <span class="text-sm font-medium text-gray-800">{{ payroll.organizationUnitName }}</span>
+        </div>
+        <div class="border border-gray-300 rounded p-2.5 bg-white">
+          <span class="text-xs text-gray-500 block mb-1">Employee</span>
+          <span class="text-sm font-medium text-gray-800">{{ payroll.employeeCode }} - {{ payroll.employeeName }}</span>
+        </div>
+        <div class="border border-gray-300 rounded p-2.5 bg-white">
+          <span class="text-xs text-gray-500 block mb-1">Designation</span>
+          <span class="text-sm font-medium text-gray-800">{{ payroll.designationTitle }}</span>
+        </div>
+        <div class="border border-gray-300 rounded p-2.5 bg-white">
+          <span class="text-xs text-gray-500 block mb-1">Grade</span>
+          <span class="text-sm font-medium text-gray-800">{{ payroll.salaryGradeName }}</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-base font-bold text-gray-800 mb-2">Earnings</h3>
+          <div class="border border-gray-300 rounded overflow-hidden">
+            <table class="w-full text-sm text-left border-collapse">
+              <thead class="bg-[#EEF2FF]">
+                <tr>
+                  <th class="p-2.5 w-12 text-center font-semibold text-[#4252a1] border-r border-b border-gray-300">#</th>
+                  <th class="p-2.5 font-semibold text-[#4252a1] border-r border-b border-gray-300">Salary Head</th>
+                  <th class="p-2.5 w-36 font-semibold text-[#4252a1] text-right border-b border-gray-300">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of displayEarnings(); track item.id; let i = $index) {
+                  <tr class="hover:bg-gray-50 transition">
+                    <td class="p-2.5 text-center border-r border-b border-gray-200 text-gray-600">{{ i + 1 }}</td>
+                    <td class="p-2.5 border-r border-b border-gray-200 text-gray-800">{{ item.salaryComponentName }}</td>
+                    <td class="p-2 text-right border-b border-gray-200">
+                      @if (isEditMode()) {
+                        <input type="number" 
+                               [(ngModel)]="item.amount" 
+                               (ngModelChange)="onEarningAmountChange(item, $event)"
+                               class="w-full p-1.5 border border-gray-300 rounded text-right focus:outline-none focus:ring-1 focus:ring-[#4252a1] focus:border-[#4252a1] transition">
+                      } @else {
+                        <span class="text-gray-800 font-medium">{{ item.amount }}</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot class="bg-[#F8FAFC]">
+                <tr>
+                  <td colspan="2" class="p-2.5 font-bold text-gray-800 border-r border-t-2 border-gray-300">Total</td>
+                  <td class="p-2.5 text-right font-bold text-gray-900 border-t-2 border-gray-300">
+                    ₹{{ totalEarnings() | number:'1.2-2' }}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-base font-bold text-gray-800 mb-2">Deductions</h3>
+          <div class="border border-gray-300 rounded overflow-hidden">
+            <table class="w-full text-sm text-left border-collapse">
+              <thead class="bg-[#EEF2FF]">
+                <tr>
+                  <th class="p-2.5 w-12 text-center font-semibold text-[#4252a1] border-r border-b border-gray-300">#</th>
+                  <th class="p-2.5 font-semibold text-[#4252a1] border-r border-b border-gray-300">Salary Head</th>
+                  <th class="p-2.5 w-36 font-semibold text-[#4252a1] text-right border-b border-gray-300">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of displayDeductions(); track item.id; let i = $index) {
+                  <tr class="hover:bg-gray-50 transition">
+                    <td class="p-2.5 text-center border-r border-b border-gray-200 text-gray-600">{{ i + 1 }}</td>
+                    <td class="p-2.5 border-r border-b border-gray-200 text-gray-800">{{ item.salaryComponentName }}</td>
+                    <td class="p-2 text-right border-b border-gray-200">
+                      @if (isEditMode()) {
+                        <input type="number" 
+                               [(ngModel)]="item.amount" 
+                               (ngModelChange)="onDeductionAmountChange(item, $event)"
+                               class="w-full p-1.5 border border-gray-300 rounded text-right text-red-600 focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 transition">
+                      } @else {
+                        <span class="text-gray-800 font-medium">{{ item.amount }}</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot class="bg-[#F8FAFC]">
+                <tr>
+                  <td colspan="2" class="p-2.5 font-bold text-gray-800 border-r border-t-2 border-gray-300">Total</td>
+                  <td class="p-2.5 text-right font-bold text-red-600 border-t-2 border-gray-300">
+                    ₹{{ totalDeductions() | number:'1.2-2' }}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 flex flex-col">
+        <span class="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-1">Net Pay:</span>
+        <span class="text-2xl font-bold text-gray-900">₹{{ netPay() | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 rounded-b-lg">
+      @if (!payroll.isLocked) {
+        <button (click)="onSave()" 
+                [disabled]="payrollStore.isUpdatingPayroll()" 
+                class="px-5 py-2 flex items-center gap-2 bg-[#4252a1] hover:bg-[#344185] text-white text-sm font-medium rounded shadow-sm transition disabled:opacity-50">
+          @if (payrollStore.isUpdatingPayroll()) {
+            Saving...
+          } @else {
+            <svg lucideIcon="save" class="w-4 h-4"></svg> Save
+          }
+        </button>
+      }
+
+      @if (!isEditMode() && !payroll.isLocked) {
+        <button (click)="onEdit()" 
+                class="px-5 py-2 flex items-center gap-2 bg-[#4252a1] hover:bg-[#344185] text-white text-sm font-medium rounded shadow-sm transition">
+          <svg lucideIcon="pencil" class="w-4 h-4"></svg> Edit
+        </button>
+      }
+
+      <button (click)="onCancel()" 
+              [disabled]="payrollStore.isUpdatingPayroll()"
+              class="px-5 py-2 flex items-center gap-2 bg-[#d84074] hover:bg-[#bd3262] text-white text-sm font-medium rounded shadow-sm transition disabled:opacity-50">
+        <svg lucideIcon="chevron-left" class="w-4 h-4"></svg> Cancel
+      </button>
+    </div>
+  }
+</div>
