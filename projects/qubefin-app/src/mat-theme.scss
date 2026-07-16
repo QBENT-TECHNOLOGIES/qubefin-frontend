@@ -104,7 +104,11 @@
     supporting-text-color: #fff,
   ));
 
-  @include mat.stepper-overrides(());
+  @include mat.table-overrides((
+    background-color: transparent,
+    row-item-outline-width: 0px,
+    header-container-height: 38px,
+  ));
 
 }
 
