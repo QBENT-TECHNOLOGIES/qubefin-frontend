@@ -1,4 +1,4 @@
-import { Payroll } from './../models/payroll-model';
+import { Payroll, PayslipRptParam } from './../models/payroll-model';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ApiPaths } from 'qubefin-core';
@@ -31,5 +31,14 @@ export class PayrollService {
   }
   getEsiReport(month:number, year: number){
     return this.httpClient.get(`${ApiPaths.PAYROLL}/esi-report/${month}/${year}`, { responseType: 'blob' });
+  }
+  createPayroll(companyId: string){
+    return this.httpClient.post(`${ApiPaths.PAYROLL}/create?companyId=${companyId}`, null);
+  }
+  updateEmployeePayroll(command: any) {
+    return this.httpClient.put(`${ApiPaths.PAYROLL}/update-employee-payroll`, command);
+  }
+  getPayslip(model: PayslipRptParam){
+    return this.httpClient.post(`${ApiPaths.PAYROLL}/payslip`, model, { responseType: 'blob' });
   }
 }
