@@ -103,6 +103,7 @@
   @include mat.tooltip-overrides((
     container-color: #16C784,
     supporting-text-color: #fff,
+    container-shape: 6px,
   ));
 
   @include mat.table-overrides((
