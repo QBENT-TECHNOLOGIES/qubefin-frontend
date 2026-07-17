@@ -2,7 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { MonthlyPayrollDetail } from '../../components/monthly-payroll-detail/monthly-payroll-detail';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MonthWisePayrolls } from '../../components/month-wise-payrolls/month-wise-payrolls';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,7 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CreatePayrollModal } from '../../components/create-payroll-modal/create-payroll-modal';
 @Component({
   selector: 'qfin-monthly-payroll',
-  imports: [CommonModule, MonthlyPayrollDetail, MonthWisePayrolls, Breadcrumb, LucideDynamicIcon, MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule],
+  imports: [CommonModule, MonthlyPayrollDetail, MonthWisePayrolls, LucideDynamicIcon, MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule],
   templateUrl: './monthly-payroll.html',
 })
 export class MonthlyPayroll {

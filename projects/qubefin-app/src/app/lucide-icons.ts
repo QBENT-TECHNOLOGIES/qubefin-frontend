@@ -101,7 +101,7 @@ export const APP_ICONS = [
     LucideLampDesk,
     LucideDownload,
     LucideEllipsisVertical,
-    LucideNotebookText
+    LucideNotebookText,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {

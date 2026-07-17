@@ -11,7 +11,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -19,7 +18,7 @@ import { FormsModule } from '@angular/forms';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { CommonModule } from '@angular/common';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-
+import { ISalaryModel } from '../../models/salary';
 @Component({
   selector: 'qfin-salary-component',
   imports: [
@@ -34,9 +33,8 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
     MatButtonModule,
     MatTooltipModule,
     LucideDynamicIcon,
-    Breadcrumb,
     CommonModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
   ],
   templateUrl: './salary-component.html',
 })
@@ -137,6 +135,39 @@ export class SalaryComponent {
     this.tempCategory = '';
     // this.tempTaxable = null;
     this.applyFilters();
+  }
+
+  getCategoryIcon(categoryName: string): any {
+    switch (categoryName?.toLowerCase().trim()) {
+      case 'deduction':
+        return this.iconMap['BanknoteX'];
+
+      case 'employer contribution':
+        return this.iconMap['HandCoins'];
+
+      case 'earning':
+        return this.iconMap['BanknoteArrowUp'];
+
+      default:
+        return this.iconMap['Coins'];
+    }
+  }
+
+  protected selectCategory(category: { id: string; name: string }) {
+    if (this.selectedCategory() === category.id) {
+      // Same category clicked → remove category filter
+      this.selectedCategory.set('');
+      this.tempCategory = '';
+    } else {
+      // New category clicked → apply filter
+      this.selectedCategory.set(category.id);
+      this.tempCategory = category.id;
+    }
+  }
+
+  protected resetCategoryFilter() {
+    this.selectedCategory.set('');
+    this.tempCategory = '';
   }
 }
 

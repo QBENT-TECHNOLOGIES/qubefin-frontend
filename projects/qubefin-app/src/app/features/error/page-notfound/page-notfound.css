@@ -1,8 +1,3 @@
-/* ═══════════════════════════════════════════════════════════════
-   Page Not Found — Component Styles
-   Glass outline 404, orbital rings, button hover effects
-   ═══════════════════════════════════════════════════════════════ */
-
 /* ─── Glass Outline Hero Text ─── */
 .notfound-hero-text {
   font-size: clamp(120px, 22vw, 200px);
