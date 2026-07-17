@@ -6,13 +6,14 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { APP_ICONS_MAP } from '../../../lucide-icons';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Breadcrumb } from "../breadcrumb/breadcrumb";
 
 
 
 @Component({
 	selector: 'qfin-header',
 	standalone: true,
-	imports: [MatDividerModule, LucideDynamicIcon, MatMenuModule, MatTooltipModule],
+	imports: [MatDividerModule, LucideDynamicIcon, MatMenuModule, MatTooltipModule, Breadcrumb],
 	templateUrl: './header.html'
 })
 export class Header {
