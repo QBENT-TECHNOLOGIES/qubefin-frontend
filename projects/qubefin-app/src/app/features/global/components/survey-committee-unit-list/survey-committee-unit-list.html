@@ -1,77 +1,90 @@
-<table mat-table [dataSource]="data()" matSort matSortActive="assignedFrom" matSortDirection="desc" matSortDisableClear
-  (matSortChange)="onSortChange($event)" class="w-full table">
+<div class="overflow-auto scroll-thin" [ngClass]="{
+        'h-[calc(100vh-170px-72px)] overflow-y-auto': isCollapsed()
+    }">
+  <table mat-table [dataSource]="data()" matSort matSortActive="assignedFrom" matSortDirection="desc"
+    matSortDisableClear (matSortChange)="onSortChange($event)" class="w-full table">
 
-  <!-- Sl -->   
-  <ng-container matColumnDef="sl">
-    <th mat-header-cell *matHeaderCellDef>Sl.</th>
-    <td mat-cell *matCellDef="let row; let i = index" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
-      {{ pageIndex() * pageSize() + i + 1 }}
-    </td>
-  </ng-container>
+    <!-- Sl -->
+    <ng-container matColumnDef="sl">
+      <th mat-header-cell *matHeaderCellDef>Sl.</th>
+      <td mat-cell *matCellDef="let row; let i = index" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+        {{ pageIndex() * pageSize() + i + 1 }}
+      </td>
+    </ng-container>
 
-  <!-- Employee -->
-  <ng-container matColumnDef="employee">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header="employeeName">Employee</th>
-    <td mat-cell *matCellDef="let item" lass="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
-      <div class="flex items-center gap-2"> {{ item.employeeName }}
+    <!-- Employee -->
+    <ng-container matColumnDef="employee">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="employeeName">Employee</th>
+      <td mat-cell *matCellDef="let item" lass="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+        <div class="flex items-center gap-2"> {{ item.employeeName }}
+          @if(item.isLead && !isCollapsed()){
+          <span class="text-primary-600 text-xs">
+            (Committee Lead)
+          </span>
+          }@else if(item.isLead){
+          <svg class="text-primary-600 text-xs" lucideIcon="badge-check"></svg>
+          }
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Lead -->
+    <ng-container matColumnDef="lead">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="isLead"> Lead </th>
+      <td mat-cell *matCellDef="let item">
         @if(item.isLead){
-        <span class="text-primary-600 text-xs">
-          Committee Lead
-        </span>
-        }
-      </div>
-    </td>
-  </ng-container>
+        <svg class="text-primary-600 text-xs" lucideIcon="badge-check"></svg>
+        } @else { Member }
+      </td>
+    </ng-container>
 
-  <!-- Lead -->
-  <ng-container matColumnDef="lead">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header="isLead"> Lead </th>
-    <td mat-cell *matCellDef="let item">
-      @if(item.isLead){
-      <svg lucideIcon="badge-check"></svg>
-      } @else { Member }
-    </td>
-  </ng-container>
+    <!-- Status -->
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="isActive">Status</th>
+      <td mat-cell *matCellDef="let item"> <span class="px-2 py-1 text-xs rounded font-medium"
+          [class.bg-green-100]="item.isActive" [class.text-green-800]="item.isActive"
+          [class.bg-red-100]="!item.isActive" [class.text-red-800]="!item.isActive">
+          {{ item.isActive ? 'Active' : 'Inactive' }}
+        </span> </td>
 
-  <!-- Status -->
-  <ng-container matColumnDef="status">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header="isActive">Status</th>
-    <td mat-cell *matCellDef="let item"> {{ item.isActive ? 'Active' : 'Inactive' }} </td>
-  </ng-container>
+    </ng-container>
 
-  <!-- Assigned From -->
-  <ng-container matColumnDef="assignedFrom">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header="assignedFrom"> Assigned From </th>
-    <td mat-cell *matCellDef="let item"> {{ item.assignedFrom | date }} </td>
-  </ng-container>
+    <!-- Assigned From -->
+    <ng-container matColumnDef="assignedFrom">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="assignedFrom"> Assigned From </th>
+      <td mat-cell *matCellDef="let item"> {{ item.assignedFrom | date }} </td>
+    </ng-container>
 
-  <!-- Assigned To -->
-  <ng-container matColumnDef="assignedTo">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header="assignedTo"> Assigned To </th>
-    <td mat-cell *matCellDef="let item"> {{ item.assignedTo | date }} </td>
-  </ng-container>
+    <!-- Assigned To -->
+    <ng-container matColumnDef="assignedTo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="assignedTo"> Assigned To </th>
+      <td mat-cell *matCellDef="let item"> {{ item.assignedTo | date }} </td>
+    </ng-container>
 
-  <!-- Action -->
-  <ng-container matColumnDef="action">
-    <th mat-header-cell *matHeaderCellDef> Actions</th>
-    <td mat-cell *matCellDef="let item">
-      <button mat-icon-button (click)="onDetailView(item.id)">
-        <svg lucideIcon="chevron-right"></svg>
-      </button>
-    </td>
-  </ng-container>
+    <!-- Action -->
+    <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef> Actions</th>
+      <td mat-cell *matCellDef="let item">
+        <button mat-icon-button (click)="onDetailView(item.id)">
+          <svg lucideIcon="chevron-right"></svg>
+        </button>
+      </td>
+    </ng-container>
 
-  <tr mat-header-row *matHeaderRowDef="columns"></tr>
-  <tr mat-row *matRowDef="let row; columns: columns" [class.bg-primary-500/10]="selectedId()===row.id">
-  </tr>
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns" [class.bg-primary-500/10]="selectedId()===row.id">
+    </tr>
 
-  <tr class="mat-row" *matNoDataRow colspan="6">
-    <td class="mat-cell text-center p-8 italic text-gray-500 border-b-0" [attr.colspan]="columns.length">
-      No salary components found.
-    </td>
-  </tr>
-</table>
+    <tr class="mat-row" *matNoDataRow colspan="6">
+      <td class="mat-cell text-center p-8 italic text-gray-500 border-b-0" [attr.colspan]="columns.length">
+        No salary components found.
+      </td>
+    </tr>
+  </table>
+  @if (!isCollapsed()) {   
 
-<mat-paginator [length]="totalRecords()" [pageSize]="pageSize()" [pageIndex]="pageIndex()"
-  [pageSizeOptions]="[10,20,50]" (page)="onPage($event)">
-</mat-paginator>
+  <mat-paginator [length]="totalRecords()" [pageSize]="pageSize()" [pageIndex]="pageIndex()"
+    [pageSizeOptions]="[10,20,50]" (page)="onPage($event)">
+  </mat-paginator>
+  }
+</div>

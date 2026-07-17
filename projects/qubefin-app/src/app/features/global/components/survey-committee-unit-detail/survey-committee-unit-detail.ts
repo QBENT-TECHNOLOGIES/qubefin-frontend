@@ -143,23 +143,29 @@ export class SurveyCommitteeUnitDetail {
         return;
       }
 
-      const model = this.formModel();
-
-      if (!model.isActive) {
-        return;
-      }
+      const { isActive, isLead, assignedTo } = this.formModel();
 
       const updates: Partial<SurveyCommitteeItem> = {};
 
-      if (model.assignedTo !== null) {
-        updates.assignedTo = null;
+      if (!isActive) {
+        // Member is becoming inactive
+        if (isLead) {
+          updates.isLead = false;
+        }
+
+        // Keep assignedTo for user to select.
+        // If you want today's date automatically:
+        // if (!assignedTo) {
+        //   updates.assignedTo = new Date();
+        // }
+      } else {
+        // Member is active
+        if (assignedTo !== null) {
+          updates.assignedTo = null;
+        }
       }
 
-      if (model.isLead) {
-        updates.isLead = false;
-      }
-
-      if (Object.keys(updates).length > 0) {
+      if (Object.keys(updates).length) {
         this.formModel.update((current) => ({
           ...current,
           ...updates,

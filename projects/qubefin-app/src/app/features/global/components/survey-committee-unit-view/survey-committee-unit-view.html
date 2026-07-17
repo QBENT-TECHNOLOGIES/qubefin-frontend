@@ -1,4 +1,4 @@
-@if (loading()) {
+<!-- @if (loading()) {
   <div class="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-sm text-slate-500">
     Loading survey committee member details...
   </div>
@@ -56,4 +56,115 @@
   <div class="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-sm text-slate-500">
     Select a survey committee member to view details.
   </div>
+} -->
+
+@if (committeeMember(); as member) {
+<div class="flex flex-col gap-4">
+  <div class="flex-1">
+    <div
+      class="bg-white/20 dark:bg-glass-dark rounded-xl border border-slate-200/60 dark:border-glass-dark/10 dark:shadow">
+      <!-- View Header -->
+      <div class="flex px-4 py-4 items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div
+            class="w-12 h-12 rounded-sm bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] dark:shadow-none">
+            <svg lucideIcon="user" class="w-6 h-6 text-primary-700 dark:text-primary-400"></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <!-- Safely maps fields inside the personalInfo structure -->
+              <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">
+                {{ member.employeeName || 'Unknown Employee' }} 
+                @if(member.isLead){
+                <span class="text-primary-600 text-xs">
+                  Committee Lead
+                </span>
+                }
+              </h1>
+              <div class="p-2 rounded-4xl cursor-pointer hover:bg-secondary-500/10" matTooltip="Edit Member"
+                (click)="onEdit()">
+                <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
+              </div>
+            </div>
+            <p class="text-sm text-primary-700 dark:text-primary-400 font-medium">Survey Committee Member</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-self-start w-full gap-5 pt-0 p-4">
+        <div class="flex-1">
+          <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+            Member Details
+          </h3>
+          <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Committee Role -->
+            <div class="gen-info">
+              <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                <svg lucideIcon="user" class="w-5 h-5 text-primary-700"></svg>
+              </div>
+              <div>
+                <label class="text-[11px] text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Committee
+                  Role</label>
+                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                  {{ member.isLead ? 'Lead Member' : 'Member' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Status -->
+            <div class="gen-info">
+              <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                <svg lucideIcon="user" class="w-5 h-5 text-primary-700"></svg>
+              </div>
+              <div>
+                <label
+                  class="text-[11px] text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Status</label>
+                <span class="px-2 py-1 text-xs rounded font-medium" [class.bg-green-100]="member.isActive"
+                    [class.text-green-800]="member.isActive" [class.bg-red-100]="!member.isActive"
+                    [class.text-red-800]="!member.isActive">
+                    {{ member.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Assigned From -->
+            <div class="gen-info">
+              <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+              </div>
+              <div>
+                <label class="text-[11px] text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Assigned
+                  From</label>
+                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                  {{ member.assignedFrom | date: 'mediumDate' }}
+                </p>
+              </div>
+            </div>
+
+            <!--Assigned To -->
+            <div class="gen-info">
+              <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+              </div>
+              <div>
+                <label class="text-[11px] text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Assigned
+                  To</label>
+                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                  {{ member.isActive ? "Present" : (member.assignedTo | date: 'mediumDate') }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+} @else {
+<!-- Interactive Skeleton Loading Card State -->
+<div
+  class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400 flex flex-col items-center justify-center gap-3 min-h-[300px]">
+  <div class="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+  <p class="text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400">Loading profile details...</p>
+</div>
 }

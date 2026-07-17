@@ -5,7 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { LucideChevronLeft, LucideChevronRight, LucideDynamicIcon } from '@lucide/angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -55,6 +55,7 @@ export class SurveyCommitteeUnit {
   readonly isViewMode = signal<boolean>(true);
   readonly showFilterArea = signal<boolean>(false);
   readonly selectedSurveyCommitteeId = signal<string>(EMPTY_UUID);
+  readonly tempSearch = signal<string>('');
   // ===========================
   // Store Data
   // ===========================
@@ -62,10 +63,6 @@ export class SurveyCommitteeUnit {
   readonly hasSelectedSurveyCommittee = computed(
     () => this.selectedSurveyCommitteeId() !== EMPTY_UUID || !this.isViewMode(),
   );
-  // ===========================
-  // Search State
-  // ===========================
-  tempSearch = '';
   // ===========================
   // Route Data
   // ===========================
@@ -103,10 +100,10 @@ export class SurveyCommitteeUnit {
     this.showFilterArea.update((v) => !v);
   }
   protected applyFilters() {
-    this.surveyCommitteeStore.setSearchQuery(this.tempSearch);
+    this.surveyCommitteeStore.setSearchQuery(this.tempSearch());
   }
   protected resetFilters() {
-    this.tempSearch = '';
+    this.tempSearch.set('');
     this.applyFilters();
   }
 
