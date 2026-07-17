@@ -59,20 +59,21 @@
         </div>
     </div>
     <!-- Content Section -->
-    <div class="flex items-start" [ngClass]="{'gap-4':isViewMode() && selectedSalaryComponentId() !== EMPTY_UUID}">
-        <div class="glass rounded-xl shadow-glass dark:shadow overflow-hidden transition-all duration-500 ease-in-out"
+    <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
+        <div class="glass rounded-xl shadow-glass dark:shadow
+           overflow-hidden min-w-0 shrink-0
+           transition-[width,max-width,opacity,transform] 
+           duration-500 ease-in-out"
             [ngClass]="{
-            'w-full opacity-100 translate-x-0':
-                selectedSalaryComponentId() === EMPTY_UUID && isViewMode(),
+                'w-full max-w-full opacity-100 translate-x-0':
+                    selectedSalaryComponentId() === EMPTY_UUID && isViewMode(),
 
-            'w-1/4 opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]':
-                isViewMode() && selectedSalaryComponentId() !== EMPTY_UUID,
+                'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]':
+                    isViewMode() && selectedSalaryComponentId() !== EMPTY_UUID,
 
-            'w-0 opacity-0 -translate-x-4 pointer-events-none':
-                !isViewMode()
-        }">
-
-
+                'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
+                    !isViewMode()
+            }">
             <!-- COLLAPSED SEARCH -->
             @if (selectedSalaryComponentId() === EMPTY_UUID && isViewMode()) {
             @if (showFilterArea()) {
