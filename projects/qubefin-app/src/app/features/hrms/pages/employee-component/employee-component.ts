@@ -11,7 +11,6 @@ import { EmployeeComponentList } from '../../components/employee-components/empl
 import { EmployeeComponentView } from '../../components/employee-components/employee-component-view/employee-component-view';
 import { EmployeeComponentDetail } from '../../components/employee-components/employee-component-detail/employee-component-detail';
 import { EmployeeStore } from '../../stores/employee-store';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -22,7 +21,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'qfin-employee-component',
   imports: [
-    EmployeeComponentList,CommonModule, MatFormFieldModule, MatInputModule, FormsModule, Breadcrumb, EmployeeComponentView, EmployeeComponentDetail, MatIconModule, MatButtonModule, LucideDynamicIcon,
+    EmployeeComponentList,CommonModule, MatFormFieldModule, MatInputModule, FormsModule, EmployeeComponentView, EmployeeComponentDetail, MatIconModule, MatButtonModule, LucideDynamicIcon,
     MatTooltipModule,
   ],
   templateUrl: './employee-component.html',
