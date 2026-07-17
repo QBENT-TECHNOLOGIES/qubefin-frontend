@@ -24,7 +24,7 @@ export const GlobalRoutes: Routes = [
             },
             {
                 path: 'surveys',
-                loadComponent: () => import('./pages/surveys/surveys').then(m => m.Surveys),
+                loadComponent: () => import('./pages/survey-unit/survey-unit').then(m => m.SurveyUnit),
                 data: {
                     title: 'Surveys',
                     subTitle: 'Manage and organize surveys within your organization.',

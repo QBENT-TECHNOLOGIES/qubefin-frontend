@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
-import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
+import { ApiPaths } from 'qubefin-core';
 import { ISurveySearchResult } from '../models/survey';
 
 @Injectable({
@@ -33,7 +33,7 @@ export class SurveyStore {
         surveys: ISurveySearchResult[];
         totalRecords: number;
     }>(() => ({
-        url: `${this.basePath}/filter`,
+        url: `${this.basePath}`,
         method: 'POST',
         body: {
             searchText: this.searchQuery(),
