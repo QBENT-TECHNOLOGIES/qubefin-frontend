@@ -10,7 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { SurveyCommitteeItem } from '../../models/survey-committee-item';
+import { ISurveyCommitteeItem } from '../../models/survey-committee-item';
 import { EMPTY_UUID } from 'qubefin-core';
 import { SurveyCommitteeStore } from '../../stores/survey-committee-store';
 import { SurveyCommitteeService } from '../../services/survey-committee-service';
@@ -86,8 +86,8 @@ export class SurveyCommitteeUnitDetail {
   // ===========================
   // Form
   // ===========================
-  protected readonly formModel = signal<SurveyCommitteeItem>(this.createEmptyModel());
-  protected readonly surveyCommitteeSchema: Schema<SurveyCommitteeItem> = schema((path) => {
+  protected readonly formModel = signal<ISurveyCommitteeItem>(this.createEmptyModel());
+  protected readonly surveyCommitteeSchema: Schema<ISurveyCommitteeItem> = schema((path) => {
     required(path.employeeId, {
       message: 'Employee ID is required',
     });
@@ -143,23 +143,29 @@ export class SurveyCommitteeUnitDetail {
         return;
       }
 
-      const model = this.formModel();
+      const { isActive, isLead, assignedTo } = this.formModel();
 
-      if (!model.isActive) {
-        return;
+      const updates: Partial<ISurveyCommitteeItem> = {};
+
+      if (!isActive) {
+        // Member is becoming inactive
+        if (isLead) {
+          updates.isLead = false;
+        }
+
+        // Keep assignedTo for user to select.
+        // If you want today's date automatically:
+        // if (!assignedTo) {
+        //   updates.assignedTo = new Date();
+        // }
+      } else {
+        // Member is active
+        if (assignedTo !== null) {
+          updates.assignedTo = null;
+        }
       }
 
-      const updates: Partial<SurveyCommitteeItem> = {};
-
-      if (model.assignedTo !== null) {
-        updates.assignedTo = null;
-      }
-
-      if (model.isLead) {
-        updates.isLead = false;
-      }
-
-      if (Object.keys(updates).length > 0) {
+      if (Object.keys(updates).length) {
         this.formModel.update((current) => ({
           ...current,
           ...updates,
@@ -183,9 +189,9 @@ export class SurveyCommitteeUnitDetail {
   // ===========================
   // Form Helpers
   // ===========================
-  protected updateField<K extends keyof SurveyCommitteeItem>(
+  protected updateField<K extends keyof ISurveyCommitteeItem>(
     field: K,
-    value: SurveyCommitteeItem[K],
+    value: ISurveyCommitteeItem[K],
   ) {
     this.formModel.update((current) => ({
       ...current,
@@ -271,7 +277,7 @@ export class SurveyCommitteeUnitDetail {
   // ===========================
   // Helpers
   // ===========================
-  private createEmptyModel(): SurveyCommitteeItem {
+  private createEmptyModel(): ISurveyCommitteeItem {
     return {
       id: EMPTY_UUID,
       employeeId: '',
@@ -280,6 +286,7 @@ export class SurveyCommitteeUnitDetail {
       isActive: true,
       assignedFrom: null,
       assignedTo: null,
+      auditInfo: null,
     };
   }
 }

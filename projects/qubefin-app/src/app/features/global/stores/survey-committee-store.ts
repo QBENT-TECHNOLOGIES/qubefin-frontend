@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
-import { SurveyCommitteeItem } from '../models/survey-committee-item';
+import { ISurveyCommitteeItem } from '../models/survey-committee-item';
 
 @Injectable({
   providedIn: 'root',
@@ -30,7 +30,7 @@ export class SurveyCommitteeStore {
   // List Api Call And Response
   // ===========================
   readonly surveyCommitteeUnitsResource = httpResource<{
-    surveyCommittees: SurveyCommitteeItem[];
+    surveyCommittees: ISurveyCommitteeItem[];
     totalRecords: number;
   }>(() => {
     const search = encodeURIComponent(this.searchQuery());
@@ -62,7 +62,7 @@ export class SurveyCommitteeStore {
   // ===========================
 
   readonly surveyCommitteeUnitResource = httpResource<{
-    surveyCommitteeMember: SurveyCommitteeItem;
+    surveyCommitteeMember: ISurveyCommitteeItem;
   }>(() => {
     const id = this.surveyCommitteeId();
 
@@ -127,11 +127,20 @@ export class SurveyCommitteeStore {
     this.surveyCommitteeUnitResource.reload();
   }
 
-  private normalizeItem(item: SurveyCommitteeItem): SurveyCommitteeItem {
+  private normalizeItem(item: ISurveyCommitteeItem): ISurveyCommitteeItem {
     return {
       ...item,
       assignedFrom: item.assignedFrom ? new Date(item.assignedFrom) : null,
       assignedTo: item.assignedTo ? new Date(item.assignedTo) : null,
+      auditInfo: item.auditInfo
+        ? {
+            ...item.auditInfo,
+            createdOn: item.auditInfo.createdOn ? new Date(item.auditInfo.createdOn) : null,
+            lastModifiedOn: item.auditInfo.lastModifiedOn
+              ? new Date(item.auditInfo.lastModifiedOn)
+              : null,
+          }
+        : null,
     };
   }
 }

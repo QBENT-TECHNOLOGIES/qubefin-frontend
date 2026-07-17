@@ -5,7 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { LucideChevronLeft, LucideChevronRight, LucideDynamicIcon } from '@lucide/angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -18,10 +18,12 @@ import { SurveyCommitteeUnitView } from '../../components/survey-committee-unit-
 import { SurveyCommitteeUnitDetail } from '../../components/survey-committee-unit-detail/survey-committee-unit-detail';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
+import { form, FormField } from '@angular/forms/signals';
 
 @Component({
   selector: 'qfin-survey-committee-unit',
   imports: [
+    FormField,
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
@@ -55,6 +57,11 @@ export class SurveyCommitteeUnit {
   readonly isViewMode = signal<boolean>(true);
   readonly showFilterArea = signal<boolean>(false);
   readonly selectedSurveyCommitteeId = signal<string>(EMPTY_UUID);
+  // 1. Plain model signal — source of truth
+  readonly searchModel = signal({ tempSearch: '' });
+
+  // 2. Wrap it with form() to get the reactive field tree
+  readonly searchForm = form(this.searchModel);
   // ===========================
   // Store Data
   // ===========================
@@ -62,10 +69,6 @@ export class SurveyCommitteeUnit {
   readonly hasSelectedSurveyCommittee = computed(
     () => this.selectedSurveyCommitteeId() !== EMPTY_UUID || !this.isViewMode(),
   );
-  // ===========================
-  // Search State
-  // ===========================
-  tempSearch = '';
   // ===========================
   // Route Data
   // ===========================
@@ -103,10 +106,10 @@ export class SurveyCommitteeUnit {
     this.showFilterArea.update((v) => !v);
   }
   protected applyFilters() {
-    this.surveyCommitteeStore.setSearchQuery(this.tempSearch);
+    this.surveyCommitteeStore.setSearchQuery(this.searchForm.tempSearch().value());
   }
   protected resetFilters() {
-    this.tempSearch = '';
+    this.searchModel.update((m) => ({ ...m, tempSearch: '' }));
     this.applyFilters();
   }
 

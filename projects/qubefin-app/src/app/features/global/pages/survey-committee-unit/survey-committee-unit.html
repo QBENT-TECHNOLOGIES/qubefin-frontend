@@ -32,7 +32,7 @@
               <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="search" class="w-5 h-5"></svg>
               </div>
-              <input matInput autocomplete="off" placeholder="Enter employee name" [(ngModel)]="tempSearch" />
+              <input matInput autocomplete="off" placeholder="Enter employee name" [formField]="searchForm.tempSearch" class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400"/>
             </mat-form-field>
           </div>
 
@@ -56,7 +56,7 @@
         <div
           class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
           <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
-          <input type="text" [(ngModel)]="tempSearch" placeholder="Search by employee ID"
+          <input type="text" [formField]="searchForm.tempSearch" placeholder="Search by employee ID"
             class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
         </div>
         <button (click)="applyFilters()"
@@ -92,7 +92,7 @@
               @if (selectedSurveyCommitteeId() === EMPTY_UUID) {
               <svg lucideIcon="plus" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
               } @else if (isViewMode()) {
-              <svg lucideIcon="eye" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+              <svg lucideIcon="user" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
               } @else {
               <svg lucideIcon="square-pen" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
               }
@@ -126,7 +126,7 @@
                 @if (selectedSurveyCommitteeId() === EMPTY_UUID) {
                 Add a committee member and define their assignment window.
                 } @else if (isViewMode()) {
-                Review assignment details, status, and committee role.
+                Review survey details, status, and manage survey.
                 } @else {
                 Update the selected committee member assignment.
                 }
