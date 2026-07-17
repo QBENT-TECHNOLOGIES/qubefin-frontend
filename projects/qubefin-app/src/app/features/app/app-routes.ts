@@ -12,6 +12,15 @@ export const AppRoutes: Routes = [
                     subTitle: 'Manage and organize menus of the system.',
                     icon: 'apartment'
                 }
+            },
+            {
+                path: 'roles',
+                loadComponent: () => import('./pages/role/role').then(m => m.RolePage),
+                data: {
+                    title: 'Roles',
+                    subTitle: 'Manage and organize roles of the system.',
+                    icon: 'user'
+                }
             }
         ]
     }
