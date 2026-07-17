@@ -393,26 +393,26 @@ export class EmployeeContactInfo {
 // --- AddressInfo ---
 
 export interface IEmployeeAddressInfo {
-  houseNo?: string | null;
-  roadName?: string | null;
-  landMark?: string | null;
-  administrativeUnitId?: string | null; // Guid? maps to nullable string
-  policeStationId?: string | null;       // Guid? maps to nullable string
-  postOfficeId?: string | null;          // Guid? maps to nullable string
-  pinCode?: string | null;
-  ownerShipOfHouse?: string | null;
-  durationOfStayInMonths?: number | null; // int? maps to nullable number
+  houseNo: string;
+  roadName?: string;
+  landMark?: string;
+  administrativeUnitId?: string; // Guid? maps to nullable string
+  policeStationId?: string;       // Guid? maps to nullable string
+  postOfficeId?: string;          // Guid? maps to nullable string
+  pinCode?: string;
+  ownerShipOfHouse?: string;
+  durationOfStayInMonths?: number; // int? maps to nullable number
 }
 export class EmployeeAddressInfo {
-  houseNo?: string | null = '';
-  roadName?: string | null = '';
-  landMark?: string | null = '';
-  administrativeUnitId?: string | null = '';
-  policeStationId?: string | null = '';
-  postOfficeId?: string | null = '';
-  pinCode?: string | null = '';
-  ownerShipOfHouse?: string | null = '';
-  durationOfStayInMonths?: number | null = 0;
+  houseNo: string = '';
+  roadName?: string  = '';
+  landMark?: string  = '';
+  administrativeUnitId?: string  = '';
+  policeStationId?: string  = '';
+  postOfficeId?: string  = '';
+  pinCode?: string  = '';
+  ownerShipOfHouse?: string  = '';
+  durationOfStayInMonths?: number  = 0;
 
   constructor(init?: Partial<EmployeeAddressInfo>) {
     Object.assign(this, init);

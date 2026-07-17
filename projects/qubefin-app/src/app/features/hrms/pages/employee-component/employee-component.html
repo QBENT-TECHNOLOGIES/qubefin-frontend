@@ -210,7 +210,7 @@
                 </qfin-employee-component-view>
                 } @else {
                 <qfin-employee-component-detail [employeeId]="selectedEmployeeComponentId()" (onCancel)="handleCancel()"
-                    (onSave)="handleSave()">
+                    (onChildSave)="handleSave()">
                 </qfin-employee-component-detail>
                 }
             </div>
