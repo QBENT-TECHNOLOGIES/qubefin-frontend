@@ -46,13 +46,7 @@ export class AddressComponentDetail {
   protected readonly permanentAddressModel = signal<IEmployeeAddressInfo>(new EmployeeAddressInfo());
 
   protected readonly employeeAddressSchema: Schema<IEmployeeAddressInfo> = schema((path) => {
-    // required(path.firstName, { message: 'First name is required' });
-    // required(path.code, { message: 'code is required' });
-    
-    // required(path.lastName, { message: 'Last name is required' });
-    // required(path.dateOfBirth, { message: 'Date of birth is required' });
-    // required(path.gender, { message: 'Gender is required' });
-    // required(path.maritalStatus, { message: 'Gender is required' });
+    required(path.houseNo, { message: 'house No is required' });
   });
 
   protected readonly presentAddressForm = form(this.presentAddressModel, this.employeeAddressSchema);
@@ -74,6 +68,7 @@ export class AddressComponentDetail {
         this.employeeService.getAddressData(this.empId()).subscribe((resp: any) => {
         this.employeeStore.setEmployeeComponentId(resp.id);
           this.presentAddressModel.set(new EmployeeAddressInfo(resp.presentAddressInfo));
+
           this.permanentAddressModel.set(new EmployeeAddressInfo(resp.permanentAddressInfo));
         })
        } else {
