@@ -414,8 +414,15 @@ export class EmployeeAddressInfo {
   ownerShipOfHouse  = '';
   durationOfStayInMonths  = 0;
 
-  constructor(init?: Partial<EmployeeAddressInfo>) {
-    Object.assign(this, init);
+  constructor(init?: Partial<IEmployeeAddressInfo>) {
+    if (!init) return;
+
+    Object.assign(
+      this,
+      Object.fromEntries(
+        Object.entries(init).map(([k, v]) => [k, v ?? this[k as keyof EmployeeAddressInfo]]),
+      ),
+    );
   }
 }
 

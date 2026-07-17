@@ -68,6 +68,17 @@ export class AddressComponentDetail {
         this.employeeService.getAddressData(this.empId()).subscribe((resp: any) => {
         this.employeeStore.setEmployeeComponentId(resp.id);
           this.presentAddressModel.set(new EmployeeAddressInfo(resp.presentAddressInfo));
+          // this.presentAddressModel.update(model => ({
+          //   houseNo: resp.presentAddressInfo.houseNo ?? '',
+          //   roadName: resp.presentAddressInfo.roadName ?? '',
+          //   landMark: resp.presentAddressInfo.landMark ?? '',
+          //   administrativeUnitId: resp.presentAddressInfo.administrativeUnitId ?? '',
+          //   policeStationId: resp.presentAddressInfo.policeStationId ?? '',
+          //   postOfficeId: resp.presentAddressInfo.postOfficeId ?? '',
+          //   pinCode: resp.presentAddressInfo.pinCode ?? '',
+          //   ownerShipOfHouse: resp.presentAddressInfo.ownerShipOfHouse ?? '',
+          //   durationOfStayInMonths: resp.presentAddressInfo.durationOfStayInMonths ?? 0,
+          // }));
 
           this.permanentAddressModel.set(new EmployeeAddressInfo(resp.permanentAddressInfo));
         })
@@ -87,6 +98,13 @@ export class AddressComponentDetail {
     }
 
     const dataToSave :  any= {presentAddress :this.presentAddressForm().value(), permanentAddress :this.permanentAddressForm().value()};
+    dataToSave.presentAddress.administrativeUnitId = dataToSave.presentAddress.administrativeUnitId == "" ? null : dataToSave.presentAddress.administrativeUnitId;
+    dataToSave.presentAddress.policeStationId = dataToSave.presentAddress.policeStationId == "" ? null : dataToSave.presentAddress.policeStationId;
+    dataToSave.presentAddress.postOfficeId = dataToSave.presentAddress.postOfficeId == "" ? null : dataToSave.presentAddress.postOfficeId;
+    
+    dataToSave.permanentAddress.administrativeUnitId = dataToSave.presentAddress.administrativeUnitId == "" ? null : dataToSave.presentAddress.administrativeUnitId;
+    dataToSave.permanentAddress.policeStationId = dataToSave.presentAddress.policeStationId == "" ? null : dataToSave.presentAddress.policeStationId;
+    dataToSave.permanentAddress.postOfficeId = dataToSave.presentAddress.postOfficeId == "" ? null : dataToSave.presentAddress.postOfficeId;
     if (this.isEditMode()) {
       this.employeeService.updateAddresslInfo( this.empId(),dataToSave).subscribe({
         next: () => {
