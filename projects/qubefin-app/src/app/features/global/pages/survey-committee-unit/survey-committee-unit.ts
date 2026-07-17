@@ -18,10 +18,12 @@ import { SurveyCommitteeUnitView } from '../../components/survey-committee-unit-
 import { SurveyCommitteeUnitDetail } from '../../components/survey-committee-unit-detail/survey-committee-unit-detail';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
+import { form, FormField } from '@angular/forms/signals';
 
 @Component({
   selector: 'qfin-survey-committee-unit',
   imports: [
+    FormField,
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
@@ -55,7 +57,11 @@ export class SurveyCommitteeUnit {
   readonly isViewMode = signal<boolean>(true);
   readonly showFilterArea = signal<boolean>(false);
   readonly selectedSurveyCommitteeId = signal<string>(EMPTY_UUID);
-  readonly tempSearch = signal<string>('');
+  // 1. Plain model signal — source of truth
+  readonly searchModel = signal({ tempSearch: '' });
+
+  // 2. Wrap it with form() to get the reactive field tree
+  readonly searchForm = form(this.searchModel);
   // ===========================
   // Store Data
   // ===========================
@@ -100,10 +106,10 @@ export class SurveyCommitteeUnit {
     this.showFilterArea.update((v) => !v);
   }
   protected applyFilters() {
-    this.surveyCommitteeStore.setSearchQuery(this.tempSearch());
+    this.surveyCommitteeStore.setSearchQuery(this.searchForm.tempSearch().value());
   }
   protected resetFilters() {
-    this.tempSearch.set('');
+    this.searchModel.update((m) => ({ ...m, tempSearch: '' }));
     this.applyFilters();
   }
 
