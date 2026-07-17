@@ -1,801 +1,778 @@
-<div class="">
-    <!-- <div class="px-6 py-5 border-b border-slate-200/20 dark:border-white/10 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] dark:shadow-none">
-                <svg lucideSquarePen class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+
+<div class="flex-1 overflow-y-auto overflow-x-hidden scroll-thin min-h-0 min-w-0">
+    <mat-stepper linear #stepper class="scrollable-stepper-header bg-transparent">
+        <!-- Completed -->
+        <ng-template matStepperIcon="done">
+            <svg lucideIcon="check" class="w-3 h-3 text-white-600">
+            </svg>
+        </ng-template>
+
+        <!-- Editable -->
+        <ng-template matStepperIcon="edit">
+            <svg lucideIcon="pencil" class="w-3 h-3 text-white-600">
+            </svg>
+        </ng-template>
+        <!-- Step 1: Personal Info -->
+        <mat-step>
+            <ng-template matStepLabel>Personal Info</ng-template>
+            <div class="animate-fade-in">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                        Personal Info
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Code</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="id-card-lanyard" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [formField]="$any(employeeForm)['code']" autocomplete="off"
+                            placeholder="Enter code">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Salutation</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="swatch-book" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [formField]="$any(employeeForm)['salutation']" autocomplete="off"
+                            placeholder="Enter Salutation">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>First Name</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="user" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [formField]="employeeForm.firstName" autocomplete="off"
+                            placeholder="Enter name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Middle Name</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="user" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput type="text" [formField]="$any(employeeForm)['middleName']"
+                            autocomplete="off" placeholder="Enter middle name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Last Name</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="user" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [formField]="employeeForm.lastName" autocomplete="off"
+                            placeholder="Enter last name">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Date of Birth</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput type="date" [formField]="employeeForm.dateOfBirth" autocomplete="off"
+                            placeholder="Select Date Of Birth">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Gender</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                        </div>
+                        <mat-select [formField]="employeeForm.gender" placeholder="Select Gender">
+                            @for (gen of genders; track gen.id) {
+                            <mat-option [value]="gen.id">
+                                {{ gen.name }}
+                            </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Father Name</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="mars" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [formField]="$any(employeeForm)['fatherName']" autocomplete="off"
+                            placeholder="Enter Father name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Mother Name</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="venus" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [formField]="$any(employeeForm)['motherName']" autocomplete="off"
+                            placeholder="Enter Mother Name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Religion</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="chess-bishop" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [formField]="$any(employeeForm)['religion']" autocomplete="off"
+                            placeholder="Enter Religion">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Caste</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="clipboard-check" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [formField]="$any(employeeForm)['caste']" autocomplete="off"
+                            placeholder="Enter Caste">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Nationality</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="flag" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [formField]="$any(employeeForm)['nationality']" autocomplete="off"
+                            placeholder="Enter Nationality">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Blood Group</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="droplet" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [formField]="$any(employeeForm)['bloodGroup']" autocomplete="off"
+                            placeholder="Enter Blood Group">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Disablity Type</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="accessibility" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [formField]="employeeForm.disablityType" autocomplete="off"
+                            placeholder="Enter Disablity Type">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Marital Status</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                        </div>
+                        <mat-select [formField]="employeeForm.maritalStatus" placeholder="Select Marital">
+                            @for (mrst of maritalStatusList; track mrst) {
+                            <mat-option [value]="mrst">
+                                {{ mrst }}
+                            </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <div
+                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
+                    <div class="flex flex-1 justify-end items-center gap-3">
+                        <button type="button" matStepperNext
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            Save
+                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div>
-                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
-                    {{ isEditMode() ? 'Edit Employee Component' : 'Create Employee Component' }}
-                </h2>
-                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                    Configure the employee component and its applicability rules.
-                </p>
+        </mat-step>
+
+        <!-- Step 2: Address Info -->
+        <mat-step>
+            <ng-template matStepLabel>Address Info</ng-template>
+            <div class="animate-fade-in">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                        Address Info
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>House/Plot No</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="house" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput autocomplete="off" placeholder="Enter House/Plot No">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Road/Street Name</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="road" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput autocomplete="off" placeholder="Enter Road/Street Name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Landmark</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="map-pin-house" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput autocomplete="off" placeholder="Enter Landmark">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Pin Code</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput autocomplete="off" placeholder="Enter Pin Code">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Ownership of House</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="house-plus" class="w-5 h-5"></svg>
+                        </div>
+                        <mat-select placeholder="Select Ownership">
+                            <mat-option value="Owned">Owned</mat-option>
+                            <mat-option value="Rented">Rented</mat-option>
+                            <mat-option value="Leased">Leased</mat-option>
+                            <mat-option value="Other">Other</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Duration of Stay (Months)</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput type="number" autocomplete="off" placeholder="Enter duration in months">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Police Station</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="siren" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput autocomplete="off" placeholder="Enter Police Station">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Post Office</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput autocomplete="off" placeholder="Enter Post Office">
+                    </mat-form-field>
+                </div>
+                <div
+                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
+                    <div>
+                        <button type="button"
+                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
+                            Save as Draft
+                        </button>
+                    </div>
+                    <div class="flex flex-1 justify-end items-center gap-3">
+                        <button type="button" matStepperPrevious
+                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
+                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
+                            Previous
+                        </button>
+                        <button type="button" matStepperNext
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            Save
+                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
-            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
-            <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                {{ isEditMode() ? 'Edit Mode' : 'New Mode' }}
-            </span>
-        </div>
-    </div> -->
-    <div class="flex-1 overflow-y-auto overflow-x-hidden scroll-thin min-h-0 min-w-0">
-        <mat-stepper linear #stepper class="scrollable-stepper-header bg-transparent">
-            <!-- Completed -->
-            <ng-template matStepperIcon="done">
-                <svg
-                lucideIcon="check"
-                    class="w-3 h-3 text-white-600">
-                </svg>
-            </ng-template>
+        </mat-step>
 
-            <!-- Editable -->
-            <ng-template matStepperIcon="edit">
-                <svg
-                lucideIcon="pencil"
-                class="w-3 h-3 text-white-600">
-                </svg>
-            </ng-template>
-            <!-- Step 1: Personal Info -->
-            <mat-step>
-                <ng-template matStepLabel>Personal Info</ng-template>
-                <div class="animate-fade-in">
+        <!-- Step 3: Contact Info -->
+        <mat-step>
+            <ng-template matStepLabel>Contact Info</ng-template>
+            <div class="space-y-6 animate-fade-in pt-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                        Contact Info
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Mobile No</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>call</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Mobile No">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Personal Email</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>mail</mat-icon>
+                        <input matInput type="email" autocomplete="off" placeholder="Enter Personal Email">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Emergency Contact Person</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Relation</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>family_history</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Relation">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Emergency Contact Mobile</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>call</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Mobile No">
+                    </mat-form-field>
+                </div>
+
+                <div
+                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
                     <div>
-                        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                            Personal Info
-                        </h3>
-                        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                        <button type="button"
+                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
+                            Save as Draft
+                        </button>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Code</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="id-card-lanyard" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput [formField]="$any(employeeForm)['code']" autocomplete="off" placeholder="Enter code">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Salutation</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="swatch-book" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput [formField]="$any(employeeForm)['salutation']" autocomplete="off" placeholder="Enter Salutation">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>First Name</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="user" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput [formField]="employeeForm.firstName" autocomplete="off" placeholder="Enter name">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Middle Name</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="user" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput type="text" [formField]="$any(employeeForm)['middleName']" autocomplete="off" placeholder="Enter middle name">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Last Name</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="user" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput [formField]="employeeForm.lastName" autocomplete="off" placeholder="Enter last name">
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Date of Birth</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput type="date" [formField]="employeeForm.dateOfBirth" autocomplete="off" placeholder="Select Date Of Birth">
-                        </mat-form-field>
-                        
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Gender</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="tag" class="w-5 h-5"></svg>
-                            </div>
-                            <mat-select [formField]="employeeForm.gender" placeholder="Select Gender">
-                                @for (gen of genders; track gen.id) {
-                                <mat-option [value]="gen.id">
-                                    {{ gen.name }}
-                                </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Father Name</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="mars" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput [formField]="$any(employeeForm)['fatherName']" autocomplete="off" placeholder="Enter Father name">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Mother Name</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="venus" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput [formField]="$any(employeeForm)['motherName']" autocomplete="off" placeholder="Enter Mother Name">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Religion</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="chess-bishop" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput [formField]="$any(employeeForm)['religion']" autocomplete="off" placeholder="Enter Religion">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Caste</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="clipboard-check" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput [formField]="$any(employeeForm)['caste']" autocomplete="off" placeholder="Enter Caste">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Nationality</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="flag" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput [formField]="$any(employeeForm)['nationality']" autocomplete="off" placeholder="Enter Nationality">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Blood Group</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="droplet" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput [formField]="$any(employeeForm)['bloodGroup']" autocomplete="off" placeholder="Enter Blood Group">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Disablity Type</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="accessibility" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput [formField]="employeeForm.disablityType" autocomplete="off" placeholder="Enter Disablity Type">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Marital Status</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="tag" class="w-5 h-5"></svg>
-                            </div>
-                            <mat-select [formField]="employeeForm.maritalStatus" placeholder="Select Marital">
-                                @for (mrst of maritalStatusList; track mrst) {
-                                <mat-option [value]="mrst">
-                                    {{ mrst }}
-                                </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-
-                    <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                        <div>
-                            <button type="button" (click)="onCancelClicked()"
-                                class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                                <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                                Save as Draft
-                            </button>
-                        </div>
-                        <div class="flex flex-1 justify-end items-center gap-3">
-                            <button type="button" matStepperNext
-                                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                                Save &amp; Next
-                                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                            </button>
-                        </div>
+                    <div class="flex flex-1 justify-end items-center gap-3">
+                        <button type="button" matStepperPrevious
+                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
+                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
+                            Previous
+                        </button>
+                        <button type="button" matStepperNext
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            Save
+                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+                        </button>
                     </div>
                 </div>
-            </mat-step>
+            </div>
+        </mat-step>
 
-            <!-- Step 2: Address Info -->
-            <mat-step>
-                <ng-template matStepLabel>Address Info</ng-template>
-                <div class="animate-fade-in">
+        <!-- Step 4: Official Info -->
+        <mat-step>
+            <ng-template matStepLabel>Official Info</ng-template>
+            <div class="space-y-6 animate-fade-in pt-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                        Official Info
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Official Email</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>mail</mat-icon>
+                        <input matInput type="email" autocomplete="off" placeholder="Enter Official Email">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Employment Type</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>work</mat-icon>
+                        <mat-select placeholder="Select Type">
+                            <mat-option value="Permanent">Permanent</mat-option>
+                            <mat-option value="Contractual">Contractual</mat-option>
+                            <mat-option value="Probation">Probation</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Joining Date</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
+                        <input matInput type="date" autocomplete="off">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Confirmation Date</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
+                        <input matInput type="date" autocomplete="off">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Referred By</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Referrer Name">
+                    </mat-form-field>
+                </div>
+
+                <div
+                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
                     <div>
-                        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                            Address Info
-                        </h3>
-                        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                        <button type="button"
+                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
+                            Save as Draft
+                        </button>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>House/Plot No</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="house" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput autocomplete="off" placeholder="Enter House/Plot No">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Road/Street Name</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="road" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput autocomplete="off" placeholder="Enter Road/Street Name">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Landmark</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="map-pin-house" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput autocomplete="off" placeholder="Enter Landmark">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Pin Code</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput autocomplete="off" placeholder="Enter Pin Code">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Ownership of House</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="house-plus" class="w-5 h-5"></svg>
-                            </div>
-                            <mat-select placeholder="Select Ownership">
-                                <mat-option value="Owned">Owned</mat-option>
-                                <mat-option value="Rented">Rented</mat-option>
-                                <mat-option value="Leased">Leased</mat-option>
-                                <mat-option value="Other">Other</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Duration of Stay (Months)</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput type="number" autocomplete="off" placeholder="Enter duration in months">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Police Station</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="siren" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput autocomplete="off" placeholder="Enter Police Station">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Post Office</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput autocomplete="off" placeholder="Enter Post Office">
-                        </mat-form-field>
-                    </div>
-                    <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                        <div>
-                            <button type="button"
-                                class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                                <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                                Save as Draft
-                            </button>
-                        </div>
-                        <div class="flex flex-1 justify-end items-center gap-3">
-                            <button type="button" matStepperPrevious
-                                class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                                <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                                Back
-                            </button>
-                            <button type="button" matStepperNext
-                                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                                Save &amp; Next
-                                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                            </button>
-                        </div>
+                    <div class="flex flex-1 justify-end items-center gap-3">
+                        <button type="button" matStepperPrevious
+                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
+                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
+                            Previous
+                        </button>
+                        <button type="button" matStepperNext
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            Save
+                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+                        </button>
                     </div>
                 </div>
-            </mat-step>
+            </div>
+        </mat-step>
 
-            <!-- Step 3: Contact Info -->
-            <mat-step>
-                <ng-template matStepLabel>Contact Info</ng-template>
-                <div class="space-y-6 animate-fade-in pt-4">
+        <!-- Step 5: KYC Info -->
+        <mat-step>
+            <ng-template matStepLabel>KYC Info</ng-template>
+            <div class="space-y-6 animate-fade-in pt-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                        KYC Info
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>National ID / Aadhaar No</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>fingerprint</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Aadhaar Number">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Tax ID / PAN No</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>percent</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter PAN Number">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Passport Number</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>travel_explore</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Passport Number">
+                    </mat-form-field>
+                </div>
+
+                <div
+                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
                     <div>
-                        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                            Contact Info
-                        </h3>
-                        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                        <button type="button"
+                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
+                            Save as Draft
+                        </button>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Mobile No</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>call</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Mobile No">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Personal Email</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>mail</mat-icon>
-                            <input matInput type="email" autocomplete="off" placeholder="Enter Personal Email">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Emergency Contact Person</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Name">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Relation</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>family_history</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Relation">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Emergency Contact Mobile</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>call</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Mobile No">
-                        </mat-form-field>
-                    </div>
-
-                    <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                        <div>
-                            <button type="button"
-                                class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                                <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                                Save as Draft
-                            </button>
-                        </div>
-                        <div class="flex flex-1 justify-end items-center gap-3">
-                            <button type="button" matStepperPrevious
-                                class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                                <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                                Back
-                            </button>
-                            <button type="button" matStepperNext
-                                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                                Save &amp; Next
-                                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                            </button>
-                        </div>
+                    <div class="flex flex-1 justify-end items-center gap-3">
+                        <button type="button" matStepperPrevious
+                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
+                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
+                            Previous
+                        </button>
+                        <button type="button" matStepperNext
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            Save
+                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+                        </button>
                     </div>
                 </div>
-            </mat-step>
+            </div>
+        </mat-step>
 
-            <!-- Step 4: Official Info -->
-            <mat-step>
-                <ng-template matStepLabel>Official Info</ng-template>
-                <div class="space-y-6 animate-fade-in pt-4">
+        <!-- Step 6: Documents Info -->
+        <mat-step>
+            <ng-template matStepLabel>Documents Info</ng-template>
+            <div class="space-y-6 animate-fade-in pt-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                        Documents Info
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Document Category</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>folder</mat-icon>
+                        <mat-select placeholder="Select Category">
+                            <mat-option value="Identity">Identity Proof</mat-option>
+                            <mat-option value="Address">Address Proof</mat-option>
+                            <mat-option value="Academic">Academic Certificate</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Document Name</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>description</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Document Name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Document Number</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>tag</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Document Number">
+                    </mat-form-field>
+                </div>
+
+                <div
+                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
                     <div>
-                        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                            Official Info
-                        </h3>
-                        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                        <button type="button"
+                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
+                            Save as Draft
+                        </button>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Official Email</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>mail</mat-icon>
-                            <input matInput type="email" autocomplete="off" placeholder="Enter Official Email">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Employment Type</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>work</mat-icon>
-                            <mat-select placeholder="Select Type">
-                                <mat-option value="Permanent">Permanent</mat-option>
-                                <mat-option value="Contractual">Contractual</mat-option>
-                                <mat-option value="Probation">Probation</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Joining Date</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
-                            <input matInput type="date" autocomplete="off">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Confirmation Date</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
-                            <input matInput type="date" autocomplete="off">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Referred By</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Referrer Name">
-                        </mat-form-field>
-                    </div>
-
-                    <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                        <div>
-                            <button type="button"
-                                class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                                <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                                Save as Draft
-                            </button>
-                        </div>
-                        <div class="flex flex-1 justify-end items-center gap-3">
-                            <button type="button" matStepperPrevious
-                                class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                                <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                                Back
-                            </button>
-                            <button type="button" matStepperNext
-                                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                                Save &amp; Next
-                                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                            </button>
-                        </div>
+                    <div class="flex flex-1 justify-end items-center gap-3">
+                        <button type="button" matStepperPrevious
+                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
+                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
+                            Previous
+                        </button>
+                        <button type="button" matStepperNext
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            Save
+                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+                        </button>
                     </div>
                 </div>
-            </mat-step>
+            </div>
+        </mat-step>
 
-            <!-- Step 5: KYC Info -->
-            <mat-step>
-                <ng-template matStepLabel>KYC Info</ng-template>
-                <div class="space-y-6 animate-fade-in pt-4">
+        <!-- Step 7: Reference Info -->
+        <mat-step>
+            <ng-template matStepLabel>Reference Info</ng-template>
+            <div class="space-y-6 animate-fade-in pt-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                        Reference Info
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Person Name</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Mobile No</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>call</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Mobile No">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Email ID</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>mail</mat-icon>
+                        <input matInput type="email" autocomplete="off" placeholder="Enter Email ID">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Address</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>home</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Address">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Relation/How Do You Know</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>handshake</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Description">
+                    </mat-form-field>
+                </div>
+
+                <div
+                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
                     <div>
-                        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                            KYC Info
-                        </h3>
-                        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                        <button type="button"
+                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
+                            Save as Draft
+                        </button>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>National ID / Aadhaar No</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>fingerprint</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Aadhaar Number">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Tax ID / PAN No</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>percent</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter PAN Number">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Passport Number</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>travel_explore</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Passport Number">
-                        </mat-form-field>
-                    </div>
-
-                    <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                        <div>
-                            <button type="button"
-                                class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                                <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                                Save as Draft
-                            </button>
-                        </div>
-                        <div class="flex flex-1 justify-end items-center gap-3">
-                            <button type="button" matStepperPrevious
-                                class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                                <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                                Back
-                            </button>
-                            <button type="button" matStepperNext
-                                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                                Save &amp; Next
-                                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                            </button>
-                        </div>
+                    <div class="flex flex-1 justify-end items-center gap-3">
+                        <button type="button" matStepperPrevious
+                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
+                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
+                            Previous
+                        </button>
+                        <button type="button" matStepperNext
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            Save
+                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+                        </button>
                     </div>
                 </div>
-            </mat-step>
+            </div>
+        </mat-step>
 
-            <!-- Step 6: Documents Info -->
-            <mat-step>
-                <ng-template matStepLabel>Documents Info</ng-template>
-                <div class="space-y-6 animate-fade-in pt-4">
+        <!-- Step 8: Previous Employement -->
+        <mat-step>
+            <ng-template matStepLabel>Previous Employment</ng-template>
+            <div class="space-y-6 animate-fade-in pt-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                        Previous Employment
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Employer Name</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>corporate_fare</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Company Name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Designation</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>work_outline</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Designation">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>From Date</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
+                        <input matInput type="date" autocomplete="off">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>To Date</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
+                        <input matInput type="date" autocomplete="off">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Last Drawn Salary</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>payments</mat-icon>
+                        <input matInput type="number" autocomplete="off" placeholder="Enter Annual CTC">
+                    </mat-form-field>
+                </div>
+
+                <div
+                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
                     <div>
-                        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                            Documents Info
-                        </h3>
-                        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                        <button type="button"
+                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
+                            Save as Draft
+                        </button>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Document Category</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>folder</mat-icon>
-                            <mat-select placeholder="Select Category">
-                                <mat-option value="Identity">Identity Proof</mat-option>
-                                <mat-option value="Address">Address Proof</mat-option>
-                                <mat-option value="Academic">Academic Certificate</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Document Name</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>description</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Document Name">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Document Number</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>tag</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Document Number">
-                        </mat-form-field>
-                    </div>
-
-                    <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                        <div>
-                            <button type="button"
-                                class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                                <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                                Save as Draft
-                            </button>
-                        </div>
-                        <div class="flex flex-1 justify-end items-center gap-3">
-                            <button type="button" matStepperPrevious
-                                class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                                <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                                Back
-                            </button>
-                            <button type="button" matStepperNext
-                                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                                Save &amp; Next
-                                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                            </button>
-                        </div>
+                    <div class="flex flex-1 justify-end items-center gap-3">
+                        <button type="button" matStepperPrevious
+                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
+                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
+                            Previous
+                        </button>
+                        <button type="button" matStepperNext
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            Save
+                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+                        </button>
                     </div>
                 </div>
-            </mat-step>
+            </div>
+        </mat-step>
 
-            <!-- Step 7: Reference Info -->
-            <mat-step>
-                <ng-template matStepLabel>Reference Info</ng-template>
-                <div class="space-y-6 animate-fade-in pt-4">
+        <!-- Step 9: Qualification Info -->
+        <mat-step>
+            <ng-template matStepLabel>Qualification Info</ng-template>
+            <div class="space-y-6 animate-fade-in pt-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                        Qualification Info
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Academic Stream</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>school</mat-icon>
+                        <input matInput autocomplete="off" placeholder="e.g. B.Tech / MBA / HSC">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Specialization</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>biotech</mat-icon>
+                        <input matInput autocomplete="off" placeholder="e.g. Computer Science">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Year of Passing</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
+                        <input matInput type="number" autocomplete="off" placeholder="Enter Year">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>University / Board</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>account_balance</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter University/Board">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Grade / Percentage / CGPA</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>grade</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter grade or percentage">
+                    </mat-form-field>
+                </div>
+
+                <div
+                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
                     <div>
-                        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                            Reference Info
-                        </h3>
-                        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                        <button type="button"
+                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
+                            Save as Draft
+                        </button>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Person Name</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Name">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Mobile No</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>call</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Mobile No">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Email ID</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>mail</mat-icon>
-                            <input matInput type="email" autocomplete="off" placeholder="Enter Email ID">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Address</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>home</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Address">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Relation/How Do You Know</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>handshake</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Description">
-                        </mat-form-field>
-                    </div>
-
-                    <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                        <div>
-                            <button type="button"
-                                class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                                <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                                Save as Draft
-                            </button>
-                        </div>
-                        <div class="flex flex-1 justify-end items-center gap-3">
-                            <button type="button" matStepperPrevious
-                                class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                                <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                                Back
-                            </button>
-                            <button type="button" matStepperNext
-                                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                                Save &amp; Next
-                                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                            </button>
-                        </div>
+                    <div class="flex flex-1 justify-end items-center gap-3">
+                        <button type="button" matStepperPrevious
+                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
+                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
+                            Previous
+                        </button>
+                        <button type="button" matStepperNext
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            Save
+                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+                        </button>
                     </div>
                 </div>
-            </mat-step>
+            </div>
+        </mat-step>
 
-            <!-- Step 8: Previous Employement -->
-            <mat-step>
-                <ng-template matStepLabel>Previous Employment</ng-template>
-                <div class="space-y-6 animate-fade-in pt-4">
+        <!-- Step 10: Bank Details Info -->
+        <mat-step>
+            <ng-template matStepLabel>Bank Details Info</ng-template>
+            <div class="space-y-6 animate-fade-in pt-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                        Bank Details Info
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Bank Holder Name</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Holder Name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Bank Name</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>account_balance</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Bank Name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Account Number</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>credit_card</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Account Number">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>IFSC Code</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>key</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter IFSC Code">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Branch Name</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>location_on</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter Branch Name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Universal Account Number (UAN)</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
+                        <input matInput autocomplete="off" placeholder="Enter UAN No">
+                    </mat-form-field>
+                </div>
+
+                <div
+                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
                     <div>
-                        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                            Previous Employment
-                        </h3>
-                        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                        <button type="button"
+                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
+                            Save as Draft
+                        </button>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Employer Name</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>corporate_fare</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Company Name">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Designation</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>work_outline</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Designation">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>From Date</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
-                            <input matInput type="date" autocomplete="off">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>To Date</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
-                            <input matInput type="date" autocomplete="off">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Last Drawn Salary</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>payments</mat-icon>
-                            <input matInput type="number" autocomplete="off" placeholder="Enter Annual CTC">
-                        </mat-form-field>
-                    </div>
-
-                    <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                        <div>
-                            <button type="button"
-                                class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                                <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                                Save as Draft
-                            </button>
-                        </div>
-                        <div class="flex flex-1 justify-end items-center gap-3">
-                            <button type="button" matStepperPrevious
-                                class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                                <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                                Back
-                            </button>
-                            <button type="button" matStepperNext
-                                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                                Save &amp; Next
-                                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                            </button>
-                        </div>
+                    <div class="flex flex-1 justify-end items-center gap-3">
+                        <button type="button" matStepperPrevious
+                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
+                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
+                            Previous
+                        </button>
+                        <button type="button" matStepperNext
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            Submit &amp; Preview
+                            <svg lucideIcon="save" class="w-5 h-5"></svg>
+                        </button>
                     </div>
                 </div>
-            </mat-step>
-
-            <!-- Step 9: Qualification Info -->
-            <mat-step>
-                <ng-template matStepLabel>Qualification Info</ng-template>
-                <div class="space-y-6 animate-fade-in pt-4">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                            Qualification Info
-                        </h3>
-                        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Academic Stream</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>school</mat-icon>
-                            <input matInput autocomplete="off" placeholder="e.g. B.Tech / MBA / HSC">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Specialization</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>biotech</mat-icon>
-                            <input matInput autocomplete="off" placeholder="e.g. Computer Science">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Year of Passing</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
-                            <input matInput type="number" autocomplete="off" placeholder="Enter Year">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>University / Board</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>account_balance</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter University/Board">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Grade / Percentage / CGPA</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>grade</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter grade or percentage">
-                        </mat-form-field>
-                    </div>
-
-                    <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                        <div>
-                            <button type="button"
-                                class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                                <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                                Save as Draft
-                            </button>
-                        </div>
-                        <div class="flex flex-1 justify-end items-center gap-3">
-                            <button type="button" matStepperPrevious
-                                class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                                <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                                Back
-                            </button>
-                            <button type="button" matStepperNext
-                                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                                Save &amp; Next
-                                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </mat-step>
-
-            <!-- Step 10: Bank Details Info -->
-            <mat-step>
-                <ng-template matStepLabel>Bank Details Info</ng-template>
-                <div class="space-y-6 animate-fade-in pt-4">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                            Bank Details Info
-                        </h3>
-                        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Bank Holder Name</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Holder Name">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Bank Name</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>account_balance</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Bank Name">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Account Number</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>credit_card</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Account Number">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>IFSC Code</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>key</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter IFSC Code">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Branch Name</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>location_on</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter Branch Name">
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Universal Account Number (UAN)</mat-label>
-                            <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
-                            <input matInput autocomplete="off" placeholder="Enter UAN No">
-                        </mat-form-field>
-                    </div>
-
-                    <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                        <div>
-                            <button type="button"
-                                class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                                <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                                Save as Draft
-                            </button>
-                        </div>
-                        <div class="flex flex-1 justify-end items-center gap-3">
-                            <button type="button" matStepperPrevious
-                                class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                                <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                                Back
-                            </button>
-                            <button type="button" matStepperNext
-                                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                                Submit &amp; Preview
-                                <svg lucideIcon="save" class="w-5 h-5"></svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </mat-step>
-        </mat-stepper>
-    </div>
-
-    <!-- <div class="border-t border-slate-200/20 dark:border-white/10 px-6 py-4 bg-slate-500/5 flex justify-end gap-3">
-        <button type="button" (click)="onCancelClicked()"
-            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-            <span class="material-symbols-outlined text-[18px]">close</span>
-            Cancel
-        </button>
-        <button type="button" (click)="onSubmit()"
-            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition lift cursor-pointer">
-            <span class="material-symbols-outlined text-[18px]">save</span>
-            {{ isEditMode() ? 'Update' : 'Submit' }}
-        </button>
-    </div> -->
+            </div>
+        </mat-step>
+    </mat-stepper>
 </div>
