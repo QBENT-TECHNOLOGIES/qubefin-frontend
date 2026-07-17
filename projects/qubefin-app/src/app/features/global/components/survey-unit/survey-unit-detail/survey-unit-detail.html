@@ -1,0 +1,205 @@
+<div class="space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-1 gap-4">
+
+        <!-- General Information -->
+        <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
+            <div class="p-5">
+                <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                    General Information
+                </h3>
+                <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @if (isEditMode()) {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Assignment No</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [value]="formModel().assignmentNo" readonly />
+                    </mat-form-field>
+                    }
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Survey Type</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+                        </div>
+                        <mat-select [value]="formModel().surveyType" (valueChange)="updateField('surveyType',$event)">
+                            @for(type of surveyTypes(); track type){
+                            <mat-option [value]="type"> {{type}}
+                            </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Assignment Date</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [matDatepicker]="assignmentPicker" [value]="formModel().assignmentDate"
+                            (dateChange)="updateField('assignmentDate',$event.value)" />
+                        <mat-datepicker-toggle matIconSuffix [for]="assignmentPicker">
+                        </mat-datepicker-toggle>
+                        <mat-datepicker #assignmentPicker>
+                        </mat-datepicker>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Tentative Submission Date</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [matDatepicker]="tentativePicker" [value]="formModel().tentativeSubmissionDate"
+                            (dateChange)="updateField('tentativeSubmissionDate',$event.value)" />
+                        <mat-datepicker-toggle matIconSuffix [for]="tentativePicker">
+                        </mat-datepicker-toggle>
+                        <mat-datepicker #tentativePicker>
+                        </mat-datepicker>
+                        @if(!isTentativeDateValid()){
+                        <mat-error>
+                            Tentative Submission Date must be greater than Assignment Date.
+                        </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Country</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="globe" class="w-5 h-5"></svg>
+                        </div>
+                        <mat-select [value]="formModel().countryId" (valueChange)="updateField('countryId', $event)">
+                            @for(country of countries(); track country.id){
+                            <mat-option [value]="country.id"> {{ country.name }} </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>State</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="map" class="w-5 h-5"></svg>
+                        </div>
+                        <mat-select [value]="formModel().stateId" (valueChange)="updateField('stateId', $event)">
+                            @for(state of states(); track state.id){
+                            <mat-option [value]="state.id"> {{ state.name }} </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>District</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                        </div>
+                        <mat-select [value]="formModel().districtId" (valueChange)="updateField('districtId', $event)">
+                            @for(district of districts(); track district.id){
+                            <mat-option [value]="district.id"> {{ district.name }} </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Administrative Unit</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="building" class="w-5 h-5"></svg>
+                        </div>
+                        <mat-select [value]="formModel().administrativeUnitId"
+                            (valueChange)="updateField('administrativeUnitId', $event)">
+                            @for(unit of administrativeUnits(); track unit.id){
+                            <mat-option [value]="unit.id"> {{ unit.name }} </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class=" w-full">
+                        <mat-label>Proposed Area</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="map-pinned" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [value]="formModel().proposedArea"
+                            (input)="updateField('proposedArea', $any($event.target).value)"
+                            placeholder="Enter proposed survey area" />
+                    </mat-form-field>
+
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Employee</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="user" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [value]="employeeSearchText()"
+                            (input)="searchEmployees($any($event.target).value)" [matAutocomplete]="employeeAuto"
+                            [readonly]="isEditMode()" autocomplete="off"
+                            [placeholder]="isEditMode() ? 'Employee' : 'Search employee'" />
+                        <mat-autocomplete #employeeAuto="matAutocomplete" [displayWith]="displayEmployeeName"
+                            (optionSelected)="selectEmployee($event)">
+                            @for (employee of employeeOptions(); track employee.id) {
+                            <mat-option [value]="employee">
+                                {{ employee.employeeName }}
+                            </mat-option>
+                            } @empty {
+                            @if (employeeSearchText().trim()) {
+                            <mat-option disabled>No employees found</mat-option>
+                            }
+                            }
+                        </mat-autocomplete>
+                    </mat-form-field>
+                </div>
+            </div>
+        </div>
+        <!-- Survey Members -->
+        <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
+            <div class="p-5">
+                <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                    Survey Members
+                </h3>
+                <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+                <div class="flex flex-col divide-y divide-slate-200/20 dark:divide-white/10">
+                    @for(member of formModel().surveyMembers; track member.employeeId) {
+                    <div class="flex items-center justify-between py-3">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+                                <svg lucideIcon="user" class="w-5 h-5 text-primary-600"></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-800 dark:text-white">
+                                    {{ member.name }}
+                                </p>
+                            </div>
+                        </div>
+                        @if(member.isLead){
+                        <span
+                            class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                            <svg class="text-primary-600 text-xs w-4 h-4" lucideIcon="badge-check"></svg>
+                            Lead
+                        </span>
+                        } @else {
+                        <span
+                            class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                            Member
+                        </span>
+                        }
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+
+    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3">
+        <button type="button" (click)="onCancelClicked()"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+            Cancel
+        </button>
+        <button type="button" (click)="onSubmit()"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
+            {{ isEditMode() ? 'Update' : 'Save' }}
+        </button>
+    </div>
+</div>

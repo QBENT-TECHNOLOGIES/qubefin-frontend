@@ -5,6 +5,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'qfin-survey-unit-list',
@@ -15,12 +16,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatSortModule,
     MatTooltipModule,
     MatButtonModule,
+    LucideDynamicIcon,
   ],
   templateUrl: './survey-unit-list.html',
   styles: ``,
 })
 export class SurveyUnitList {
- // Input From Parant
+  // Input From Parant
   readonly data = input<any[]>([]);
   readonly totalRecords = input(0);
   readonly pageIndex = input(0);

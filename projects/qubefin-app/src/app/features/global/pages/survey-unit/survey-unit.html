@@ -103,7 +103,7 @@
                   @if (selectedsurveyStoreId() === EMPTY_UUID) {
                   Add Survey
                   } @else if (isViewMode()) {
-                  Member Details
+                  Survey Details
                   } @else {
                   Edit Survey
                   }
@@ -142,14 +142,14 @@
       </div>
 
       <div>
-        <!-- @if (isViewMode() && selectedsurveyStoreId() !== EMPTY_UUID) {
-        <qfin-survey-committee-unit-view [committeeMemberId]="selectedsurveyStoreId()" (showEdit)="onEdit()">
-        </qfin-survey-committee-unit-view>
+        @if (isViewMode() && selectedsurveyStoreId() !== EMPTY_UUID) {
+        <qfin-survey-unit-view [surveyId]="selectedsurveyStoreId()" (showEdit)="onEdit()">
+        </qfin-survey-unit-view>
         } @else {
-        <qfin-survey-committee-unit-detail [committeeMemberId]="selectedsurveyStoreId()" (cancel)="closePanel()"
-          (save)="onSaveCommittee()">
-        </qfin-survey-committee-unit-detail>
-        } -->
+        <qfin-survey-unit-detail [surveyId]="selectedsurveyStoreId()" (cancel)="closePanel()"
+          (save)="onSurvey()">
+        </qfin-survey-unit-detail>
+        }
       </div>
     </div>
     }

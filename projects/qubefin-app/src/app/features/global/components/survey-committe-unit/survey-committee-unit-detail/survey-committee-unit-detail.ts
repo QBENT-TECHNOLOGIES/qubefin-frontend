@@ -10,26 +10,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { ISurveyCommitteeItem } from '../../models/survey-committee-item';
+import { ISurveyCommitteeItem } from '../../../models/survey-committee-item';
 import { EMPTY_UUID } from 'qubefin-core';
-import { SurveyCommitteeStore } from '../../stores/survey-committee-store';
-import { SurveyCommitteeService } from '../../services/survey-committee-service';
+import { SurveyCommitteeStore } from '../../../stores/survey-committee-store';
+import { SurveyCommitteeService } from '../../../services/survey-committee-service';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
-import { APP_ICONS_MAP } from '../../../../lucide-icons';
+import { APP_ICONS_MAP } from '../../../../../lucide-icons';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
-import { EmployeeSearchByText } from '../../../hrms/models/employee-search-by-text';
-import { EmployeeService } from '../../../hrms/services/employee-service';
-
-interface EmployeeSearchResponse {
-  value?: {
-    employees?: EmployeeSearchByText[];
-  };
-  valueOrDefault?: {
-    employees?: EmployeeSearchByText[];
-  };
-  employees?: EmployeeSearchByText[];
-}
+import {
+  EmployeeSearchByText,
+  EmployeeSearchResponse,
+} from '../../../../hrms/models/employee-search-by-text';
+import { EmployeeService } from '../../../../hrms/services/employee-service';
 
 @Component({
   selector: 'qfin-survey-committee-unit-detail',

@@ -7,29 +7,33 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { EMPTY_UUID, RouteDataService, RouteMeta }  from 'qubefin-core';
+import { EMPTY_UUID, RouteDataService, RouteMeta } from 'qubefin-core';
 import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { SurveyStore } from '../../stores/survey-store';
-import { SurveyUnitList } from '../../components/survey-unit-list/survey-unit-list';
+import { SurveyUnitList } from '../../components/survey-unit/survey-unit-list/survey-unit-list';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
+import { SurveyUnitView } from '../../components/survey-unit/survey-unit-view/survey-unit-view';
+import { SurveyUnitDetail } from '../../components/survey-unit/survey-unit-detail/survey-unit-detail';
 
 @Component({
   selector: 'qfin-survey-unit',
   imports: [
-      MatFormFieldModule,
-      MatInputModule,
-      FormsModule,
-      MatIconModule,
-      MatTooltipModule,
-      LucideDynamicIcon,
-      Breadcrumb,
-      CommonModule,
-      SurveyUnitList,
-    ],
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    MatIconModule,
+    MatTooltipModule,
+    LucideDynamicIcon,
+    Breadcrumb,
+    CommonModule,
+    SurveyUnitList,
+    SurveyUnitView,
+    SurveyUnitDetail,
+  ],
   templateUrl: './survey-unit.html',
   styles: ``,
 })
@@ -130,7 +134,7 @@ export class SurveyUnit {
   // ===========================
   // Form Events
   // ===========================
-  protected onSaveCommittee() {
+  protected onSurvey() {
     this.closePanel();
   }
 }

@@ -2,8 +2,8 @@ import { DatePipe } from '@angular/common';
 import { Component, effect, inject, model, output } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EMPTY_UUID } from 'qubefin-core';
-import { APP_ICONS_MAP } from '../../../../lucide-icons';
-import { SurveyCommitteeStore } from '../../stores/survey-committee-store';
+import { APP_ICONS_MAP } from '../../../../../lucide-icons';
+import { SurveyCommitteeStore } from '../../../stores/survey-committee-store';
 
 @Component({
   selector: 'qfin-survey-committee-unit-view',
