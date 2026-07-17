@@ -128,8 +128,7 @@
                             <svg lucideIcon="user" class="w-5 h-5"></svg>
                         </div>
                         <input matInput [value]="employeeSearchText()"
-                            (input)="searchEmployees($any($event.target).value)" [matAutocomplete]="employeeAuto"
-                            [readonly]="isEditMode()" autocomplete="off"
+                            (input)="searchEmployees($any($event.target).value)" [matAutocomplete]="employeeAuto" autocomplete="off"
                             [placeholder]="isEditMode() ? 'Employee' : 'Search employee'" />
                         <mat-autocomplete #employeeAuto="matAutocomplete" [displayWith]="displayEmployeeName"
                             (optionSelected)="selectEmployee($event)">
