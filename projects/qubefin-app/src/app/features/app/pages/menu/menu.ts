@@ -6,11 +6,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 import { MenuTreeComponent } from '../../components/menu-tree/menu-tree';
 import { MenuViewComponent } from '../../components/menu-view/menu-view';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 
 @Component({
   selector: 'qfin-menu-page',
-  imports: [Breadcrumb, MenuTreeComponent, MenuViewComponent],
+  imports: [MenuTreeComponent, MenuViewComponent],
   templateUrl: './menu.html'
 })
 export class MenuPage {

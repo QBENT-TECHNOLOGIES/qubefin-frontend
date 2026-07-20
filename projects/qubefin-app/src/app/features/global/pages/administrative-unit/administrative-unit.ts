@@ -7,7 +7,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { AdministrativeUnitDetailComponent } from '../../components/administrative-unit-detail/administrative-unit-detail';
 import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
 import { AdministrativeUnitViewComponent } from '../../components/administrative-unit-view/administrative-unit-view';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -15,7 +14,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
 	selector: 'qfin-administrative-unit-page',
-	imports: [AdministrativeUnitTreeComponent, AdministrativeUnitDetailComponent, AdministrativeUnitViewComponent, Breadcrumb, MatTooltipModule, LucideDynamicIcon],
+	imports: [AdministrativeUnitTreeComponent, AdministrativeUnitDetailComponent, AdministrativeUnitViewComponent, MatTooltipModule, LucideDynamicIcon],
 	templateUrl: './administrative-unit.html'
 })
 export class AdministrativeUnitPage {
