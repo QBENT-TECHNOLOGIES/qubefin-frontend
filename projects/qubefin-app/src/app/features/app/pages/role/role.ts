@@ -1,38 +1,44 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RoleListComponent } from '../../components/role-list/role-list';
-import { ActivatedRoute } from '@angular/router';
-import { EMPTY_UUID, RouteDataService, RouteMeta } from 'qubefin-core';
+import { EMPTY_UUID } from 'qubefin-core';
 import { RoleStore } from '../../stores/role-store';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { CommonModule } from '@angular/common';
+import { LucideDynamicIcon } from '@lucide/angular';
+import { RoleSearchParam } from '../../models/role';
+import { form } from '@angular/forms/signals';
+import { Sort } from '@angular/material/sort';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
 	selector: 'qfin-role-page',
-	imports: [CommonModule, RoleListComponent],
+	imports: [CommonModule, RoleListComponent, LucideDynamicIcon],
 	templateUrl: './role.html'
 })
 export class RolePage {
 	public readonly EMPTY_UUID = EMPTY_UUID;
-	private readonly route = inject(ActivatedRoute);
-	private readonly routeDataService = inject(RouteDataService);
 
 	roleStore = inject(RoleStore);
 
 	isViewMode = signal<boolean>(true);
 	showFilterArea = signal<boolean>(false);
 	selectedRoleId = signal<string>(EMPTY_UUID);
-	roles = this.roleStore.roles;
+	searchedRoles = this.roleStore.searchedRoles;
 
-	private routeData = toSignal(this.route.data as Observable<RouteMeta>, {
-		initialValue: { title: '', icon: '' }
+	protected readonly roleSearchFields = signal<RoleSearchParam>({
+		searchText: '',
+		sortOn: '',
+		sortDirection: 'ASC',
+		pageIndex: 0,
+		pageSize: 10
 	});
 
-	constructor() {
-		effect(() => {
-			this.routeDataService.setRouteData(this.routeData());
-		});
+	protected readonly roleSearchForm = form(this.roleSearchFields);
+
+	onSort(sort: Sort) {
+	}
+
+	onPageChange(event: PageEvent) {
+
 	}
 
 	protected onAdd() {

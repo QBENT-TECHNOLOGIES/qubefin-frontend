@@ -46,7 +46,7 @@
             }
 
             <!-- LIST -->
-            <qfin-role-list-component [data]="roles()">
+            <qfin-role-list-component [data]="searchedRoles().roles" (sortChange)="onSort($event)" (pageChange)="onPageChange($event)">
             </qfin-role-list-component>
         </div>
 
