@@ -122,12 +122,12 @@ export class EmployeeStore {
 
 
   // --- UTILITY SERVICE ---
-  private readonly utilityResource = httpResource<{ utilities: Utility[] }>(() => {
+  private readonly utilityResource = httpResource< Utility[]>(() => {
   return `${ApiPaths.GLOBAL}/utilities`;
 });
 
 readonly utilityComponent = computed<Utility[]>(() =>
-  this.utilityResource.value()?.utilities ?? []
+  this.utilityResource.value() ?? []
 );
 
   readonly utilityComponentLoading = computed(() => this.utilityResource.isLoading());

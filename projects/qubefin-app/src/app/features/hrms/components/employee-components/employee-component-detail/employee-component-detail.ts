@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input, output, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, input, output, signal, ViewChild, ElementRef, effect } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -44,9 +44,10 @@ readonly activeStepIndex = signal(0);
   stepper!: ElementRef;
 
   constructor() {
-    console.log(this.utilityComponents())
-    
-  }
+  effect(() => {
+    console.log('Utilities:', this.utilityComponents());
+  });
+}
   onStepChange(index: number) {
     this.activeStepIndex.set(index);
   }
