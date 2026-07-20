@@ -53,10 +53,35 @@ export class AddressComponentDetail {
 
   protected readonly presentAddressForm = form(this.presentAddressModel, this.employeeAddressSchema);
   protected readonly permanentAddressForm = form(this.permanentAddressModel, this.employeeAddressSchema);
-
+  readonly sameAsPresentAddress = signal(false);
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
+  onSameAddressChange(checked: boolean): void {
+    this.sameAsPresentAddress.set(checked);
 
+    if (checked) {
+      this.permanentAddressModel.set(
+        new EmployeeAddressInfo({
+          ...this.presentAddressForm().value()
+        })
+      );
+
+      // this.permanentAddressForm.disable();
+    } else {
+      // this.permanentAddressForm.enable();
+    }
+  }
+  constructor() {
+    effect(() => {
+      if (!this.sameAsPresentAddress()) return;
+
+      this.permanentAddressModel.set(
+        new EmployeeAddressInfo({
+          ...this.presentAddressModel()
+        })
+      );
+    });
+  }
   // constructor() {
   //   // this.employeeStore.loadCategories();
   //   effect(() => {

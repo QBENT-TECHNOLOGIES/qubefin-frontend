@@ -36,8 +36,6 @@ export class ContactComponentDetail {
   empId = input<string>(EMPTY_UUID);
 //   onCancel = output<void>();
   onAddressUpdate = output<void>();
-  genders = [{id:"M", name:"Male"},{id:"F", name:"Female"},{id:"O", name:"Others"} ];
-  maritalStatusList = ["Single","Married","Separated","Divorced","Widowed" ];
 
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);

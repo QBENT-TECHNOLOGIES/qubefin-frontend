@@ -91,6 +91,14 @@
             </mat-select>
         </mat-form-field>
     </div>
+    <!-- Same Address Checkbox -->
+    <div class="my-6 flex items-center">
+        <mat-checkbox
+            [checked]="sameAsPresentAddress()"
+            (change)="onSameAddressChange($event.checked)">
+            Permanent Address is same as Present Address
+        </mat-checkbox>
+    </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>House/Plot No</mat-label>
