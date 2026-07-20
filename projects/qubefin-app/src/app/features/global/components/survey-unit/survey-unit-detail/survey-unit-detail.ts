@@ -16,7 +16,7 @@ import {
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
-import { form, FormField, required, Schema, schema } from '@angular/forms/signals';
+import { form, required, Schema, schema } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,6 +24,9 @@ import { MatInputModule } from '@angular/material/input';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import Swal from 'sweetalert2';
+import { AdministrativeUnitCascade } from '../../administrative-unit-cascade/administrative-unit-cascade';
 
 @Component({
   selector: 'qfin-survey-unit-detail',
@@ -37,12 +40,15 @@ import { MatSelectModule } from '@angular/material/select';
     LucideDynamicIcon,
     MatDatepickerModule,
     MatSelectModule,
+    MatTooltipModule,
+    AdministrativeUnitCascade,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './survey-unit-detail.html',
   styles: ``,
 })
 export class SurveyUnitDetail {
+  readonly surveyTypes = signal<string[]>(['Branch Survey', 'Group Survey', 'Regional Survey']);
   private readonly surveyStore = inject(SurveyStore);
   private readonly surveyService = inject(SurveyService);
   private readonly employeeService = inject(EmployeeService);
@@ -58,6 +64,7 @@ export class SurveyUnitDetail {
   readonly isEditMode = computed(() => this.surveyId() !== EMPTY_UUID);
 
   protected readonly formModel = signal<ISurveyDetail>(this.createEmptyModel());
+  readonly isMemberSelected = signal<boolean>(false);
   private createEmptyModel(): ISurveyDetail {
     return {
       id: EMPTY_UUID,
@@ -67,41 +74,38 @@ export class SurveyUnitDetail {
       assignmentDate: new Date(),
       tentativeSubmissionDate: null,
       proposedArea: '',
-      countryId: '',
-      stateId: '',
-      districtId: '',
       administrativeUnitId: '',
       administrativeUnitName: null,
-      surveyMembers: [],
+      surveyAssigneds: [],
     };
   }
+  readonly surveyAssigneds = computed(() => this.formModel().surveyAssigneds);
+  protected updateField<K extends keyof ISurveyDetail>(field: K, value: ISurveyDetail[K]) {
+    this.formModel.update((current) => ({
+      ...current,
 
-  // DEMO Data ----- Start
-  readonly surveyTypes = signal<string[]>(['Branch Survey', 'Group Survey', 'Regional Survey']);
+      [field]: value,
+    }));
+  }
+  protected readonly surveySchema: Schema<ISurveyDetail> = schema((path) => {
+    required(path.surveyType, {
+      message: 'Survey Type is required',
+    });
 
-  readonly countries = signal([{ id: '1', name: 'India' }]);
+    required(path.assignmentDate, {
+      message: 'Assignment Date is required',
+    });
 
-  readonly states = signal([
-    { id: '1', name: 'West Bengal' },
-    { id: '2', name: 'Odisha' },
-  ]);
+    required(path.administrativeUnitId, {
+      message: 'Administrative Unit is required',
+    });
 
-  readonly districts = signal([
-    { id: '1', name: 'Kolkata' },
-    { id: '2', name: 'North 24 Parganas' },
-  ]);
+    required(path.proposedArea, {
+      message: 'Proposed Area is required',
+    });
+  });
+  protected readonly surveyForm = form(this.formModel, this.surveySchema);
 
-  readonly administrativeUnits = signal([
-    {
-      id: '1',
-      name: 'Baranagar Administrative Unit',
-    },
-    {
-      id: '2',
-      name: 'Salt Lake Administrative Unit',
-    },
-  ]);
-  // DEMO Data ----- End
   readonly employeeOptions = signal<EmployeeSearchByText[]>([]);
 
   readonly employeeSearchText = signal('');
@@ -159,12 +163,15 @@ export class SurveyUnitDetail {
 
     return tentative > assignment;
   });
+  // Member Search, Select, Remove And Set As lead
   protected searchEmployees(searchText: string) {
     this.employeeSearchText.set(searchText);
 
     if (!searchText.trim()) {
       this.employeeOptions.set([]);
-
+      this.employeeSearchText.set('');
+      this.selectedEmployee.set(null);
+      this.isMemberSelected.set(false);
       return;
     }
 
@@ -179,6 +186,7 @@ export class SurveyUnitDetail {
     this.selectedEmployee.set(employee);
 
     this.employeeSearchText.set(employee.employeeName);
+    this.isMemberSelected.set(true);
   }
 
   displayEmployeeName(employee: EmployeeSearchByText | string | null): string {
@@ -189,103 +197,83 @@ export class SurveyUnitDetail {
 
   protected addMember() {
     const employee = this.selectedEmployee();
+    console.log(employee);
 
     if (!employee) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please select a member before add!',
+      });
       return;
     }
 
-    const members = [...this.formModel().surveyMembers];
-
+    const members = [...this.formModel().surveyAssigneds];
     const exists = members.some((x) => x.employeeId === employee.id);
 
     if (exists) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Member is already added!',
+      });
+      this.employeeSearchText.set('');
+      this.selectedEmployee.set(null);
       return;
     }
 
     members.push({
       employeeId: employee.id,
-      name: employee.employeeName,
+      employeeName: employee.employeeName,
       isLead: members.length === 0,
     });
 
     this.formModel.update((current) => ({
       ...current,
-      surveyMembers: members,
+      surveyAssigneds: members,
     }));
-
+    this.isMemberSelected.set(false);
     this.selectedEmployee.set(null);
-
     this.employeeSearchText.set('');
-
     this.employeeOptions.set([]);
   }
+
   protected removeMember(employeeId: string) {
-    let members = this.formModel().surveyMembers.filter((x) => x.employeeId !== employeeId);
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You want to remove this member!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let members = this.formModel().surveyAssigneds.filter((x) => x.employeeId !== employeeId);
 
-    if (members.length > 0 && !members.some((x) => x.isLead)) {
-      members[0].isLead = true;
-    }
+        // if (members.length > 0 && !members.some((x) => x.isLead)) {
+        //   members[0].isLead = true;
+        // }
 
+        this.formModel.update((current) => ({
+          ...current,
+
+          surveyAssigneds: members,
+        }));
+      }
+    });
+  }
+
+  protected setLead(employeeId: string, checked: boolean): void {
     this.formModel.update((current) => ({
       ...current,
-
-      surveyMembers: members,
+      surveyAssigneds: current.surveyAssigneds.map((member) =>
+        member.employeeId === employeeId ? { ...member, isLead: checked } : member,
+      ),
     }));
   }
-  protected setLead(employeeId: string) {
-    const members = this.formModel().surveyMembers.map((member) => ({
-      ...member,
 
-      isLead: member.employeeId === employeeId,
-    }));
-
-    this.formModel.update((current) => ({
-      ...current,
-
-      surveyMembers: members,
-    }));
-  }
-  readonly surveyMembers = computed(() => this.formModel().surveyMembers);
-  protected updateField<K extends keyof ISurveyDetail>(field: K, value: ISurveyDetail[K]) {
-    this.formModel.update((current) => ({
-      ...current,
-
-      [field]: value,
-    }));
-  }
-  protected readonly surveySchema: Schema<ISurveyDetail> = schema((path) => {
-    required(path.surveyType, {
-      message: 'Survey Type is required',
-    });
-
-    required(path.assignmentDate, {
-      message: 'Assignment Date is required',
-    });
-
-    required(path.countryId, {
-      message: 'Country is required',
-    });
-
-    required(path.stateId, {
-      message: 'State is required',
-    });
-
-    required(path.districtId, {
-      message: 'District is required',
-    });
-
-    required(path.administrativeUnitId, {
-      message: 'Administrative Unit is required',
-    });
-
-    required(path.proposedArea, {
-      message: 'Proposed Area is required',
-    });
-  });
-  protected readonly surveyForm = form(this.formModel, this.surveySchema);
-  protected onCancelClicked() {
-    this.cancel.emit();
-  }
+  //  Member part Ends
 
   protected onSubmit() {
     if (!this.surveyForm().valid()) {
@@ -296,19 +284,76 @@ export class SurveyUnitDetail {
       return;
     }
 
-    if (this.formModel().surveyMembers.length === 0) {
+    if (this.formModel().surveyAssigneds.length === 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please select at least two members.',
+      });
       return;
     }
-    const payload = {
-      ...this.formModel(),
 
-      assignmentDate: this.datePipe.transform(this.formModel().assignmentDate, 'yyyy-MM-dd'),
+    if (!this.formModel().surveyAssigneds.some((m) => m.isLead)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please select atleast one member as lead.',
+      });
+      return;
+    }
 
-      tentativeSubmissionDate: this.formModel().tentativeSubmissionDate
-        ? this.datePipe.transform(this.formModel().tentativeSubmissionDate, 'yyyy-MM-dd')
-        : null,
-    };
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `You want to ${this.isEditMode() ? 'update' : 'create'} this survey!`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const payload: ISurveyDetail = {
+          ...this.formModel(),
+          assignmentNo: this.generateAssignmentNo(),
+          assignmentDate:
+            this.datePipe.transform(this.formModel().assignmentDate, 'yyyy-MM-dd') || '',
 
-    console.log(payload);
+          tentativeSubmissionDate: this.formModel().tentativeSubmissionDate
+            ? this.datePipe.transform(this.formModel().tentativeSubmissionDate, 'yyyy-MM-dd')
+            : null,
+        };
+
+        if (!this.isEditMode()) {
+          this.surveyService.create(payload).subscribe({
+            next: () => {
+              this.surveyStore.refreshList();
+              this.save.emit();
+            },
+          });
+          return;
+        }
+
+        this.surveyService.update(payload).subscribe({
+          next: () => {
+            this.surveyStore.refreshList();
+            this.surveyStore.refreshDetail();
+            this.save.emit();
+          },
+        });
+
+        Swal.fire({
+          title: 'Success!',
+          text: `The survey is successfully ${this.isEditMode() ? 'update' : 'create'}`,
+          icon: 'success',
+        });
+      }
+    });
+  }
+  generateAssignmentNo(): string {
+    const number = Math.floor(100000 + Math.random() * 900000);
+    return `ASG${number}`;
+  }
+  protected onCancelClicked() {
+    this.cancel.emit();
   }
 }

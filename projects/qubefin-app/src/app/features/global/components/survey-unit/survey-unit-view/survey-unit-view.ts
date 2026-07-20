@@ -35,6 +35,17 @@ export class SurveyUnitView {
 
       this.isActive.set(tentativeSubmissionDate != null && tentativeSubmissionDate >= new Date());
     });
+
+    effect(() => {
+      const survey = this.surveyStore.surveyUnit();
+
+      if (!survey) return;
+
+      console.log(survey.surveyAssigneds);
+
+      // Assign to your local array or FormArray here
+      // this.members = survey.surveyAssigneds;
+    });
   }
 
   onEdit() {

@@ -99,6 +99,7 @@ import {
   LucideSiren,
   LucideLampDesk,
   LucideDownload,
+  LucideTrash2,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -201,6 +202,7 @@ export const APP_ICONS = [
   LucideSiren,
   LucideLampDesk,
   LucideDownload,
+  LucideTrash2,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -303,4 +305,5 @@ export const APP_ICONS_MAP: Record<string, any> = {
   Siren: LucideSiren,
   Lampdesk: LucideLampDesk,
   Download: LucideDownload,
+  Trash2: LucideTrash2,
 };

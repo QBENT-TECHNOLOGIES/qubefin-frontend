@@ -108,7 +108,7 @@
                 </h3>
                 <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
                 <div class="flex flex-col divide-y divide-slate-200/20 dark:divide-white/10">
-                    @for(member of detail.surveyMembers; track member.employeeId) {
+                    @for(member of detail.surveyAssigneds; track member.employeeId) {
                     <div class="flex items-center justify-between py-3">
                         <div class="flex items-center gap-3">
                             <div
@@ -117,7 +117,7 @@
                             </div>
                             <div>
                                 <p class="text-sm font-semibold text-slate-800 dark:text-white">
-                                    {{ member.name }}
+                                    {{ member.employeeName }}
                                 </p>
                             </div>
                         </div>

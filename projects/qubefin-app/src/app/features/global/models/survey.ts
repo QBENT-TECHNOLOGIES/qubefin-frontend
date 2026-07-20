@@ -12,21 +12,16 @@ export interface ISurveyDetail {
   sequence: number;
   surveyType: string;
   assignmentNo: string;
-  assignmentDate: Date;
+  assignmentDate: Date | string;
   proposedArea: string;
-
-  countryId: string;
-  stateId: string;
-  districtId: string;
   administrativeUnitId: string;
-
   administrativeUnitName: string | null;
-  tentativeSubmissionDate: Date | null;
-  surveyMembers: ISurveyMembers[];
+  tentativeSubmissionDate: Date | null | string;
+  surveyAssigneds: ISurveyMembers[];
 }
 
 export interface ISurveyMembers {
   employeeId: string;
-  name: string | null;
+  employeeName: string | null;
   isLead: boolean;
 }
