@@ -1,14 +1,36 @@
 import { httpResource } from "@angular/common/http";
 import { computed, Injectable, signal } from "@angular/core";
 import { ApiPaths, EMPTY_UUID } from "qubefin-core";
-import { Role } from "../models/role";
+import { Role, RoleSearchResult } from "../models/role";
 
 @Injectable({
     providedIn: 'root'
 })
 export class RoleStore {
     // Internal State
-    private readonly roleId = signal<string | undefined>(undefined);
+    private roleState = signal({
+        searchText: '',
+        currentPage: 0,
+        itemsPerPage: 20,
+        sortOn: '',
+        sortDirection: 'asc',
+        roleId: EMPTY_UUID
+    });
+
+    // Selectors
+    readonly searchParams = computed(() => {
+        const searchState = this.roleState();
+        return {
+            searchText: searchState.searchText,
+            currentPage: searchState.currentPage,
+            itemsPerPage: searchState.itemsPerPage,
+            sortOn: searchState.sortOn,
+            sortDirection: searchState.sortDirection
+        };
+    });
+
+    readonly hasRoleId = computed(() => this.roleState().roleId !== EMPTY_UUID);
+    //private readonly roleId = signal<string | undefined>(undefined);
 
     // All Roles
     rolesResource = httpResource<Role[]>(() => `${ApiPaths.APP}/roles`);
@@ -17,20 +39,40 @@ export class RoleStore {
     readonly loading = computed(() => this.rolesResource.isLoading());
     readonly error = computed(() => this.rolesResource.error());
 
-    // Single Role
-    private readonly roleResource = httpResource<Role>(() => {
-        const id = this.roleId();
-        if (!id || id === EMPTY_UUID) return undefined;
-        return `${ApiPaths.APP}/roles/${id}`;
+    // Search Employees
+    rolesSearchResource = httpResource<RoleSearchResult>(() => {
+        const params = new URLSearchParams(this.searchParams() as any);
+        return `${ApiPaths.APP}/roles/search?${params.toString()}`;
     });
+
+    readonly searchedRoles = computed(() => this.rolesSearchResource.value() ?? {
+        totalCount: 0,
+        roles: []
+    });
+    readonly searchedLoading = computed(() => this.rolesSearchResource.isLoading());
+    readonly searchedError = computed(() => this.rolesSearchResource.error());
+
+    // Single Role
+    private readonly roleResource = httpResource<Role>(() =>
+        this.hasRoleId()
+            ? `${ApiPaths.APP}/roles/${this.roleState().roleId}`
+            : undefined
+    );
 
     readonly role = computed(() => this.roleResource.value() ?? undefined);
     readonly roleLoading = computed(() => this.roleResource.isLoading());
     readonly roleError = computed(() => this.roleResource.error());
 
     // Actions
-    setRoleId(roleId: string | undefined) {
-        if (this.roleId() === roleId) return;
-        this.roleId.set(roleId);
+    updateStateParams(params: Partial<ReturnType<typeof this.roleState>>) {
+        this.roleState.update(current => ({ ...current, ...params }));
+    }
+
+    setSort(sortOn: string, sortDirection: string) {
+        this.updateStateParams({ sortOn, sortDirection });
+    }
+
+    setRoleId(id: string | undefined) {
+        this.updateStateParams({ roleId: id });
     }
 }
