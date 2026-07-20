@@ -12,7 +12,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import { EmployeeService } from '../../../../services/employee-service';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
-import { EmployeePersonalInfo, IEmployeePersonalInfo } from '../../../../models/employee-detail';
+import { EmployeePersonalInfo, IEmployeePersonalInfo, Utility } from '../../../../models/employee-detail';
 
 
 @Component({
@@ -32,9 +32,12 @@ import { EmployeePersonalInfo, IEmployeePersonalInfo } from '../../../../models/
 })
 export class PersonalComponentDetail {
   empId = input<string>(EMPTY_UUID);
+    utilities = input<Utility[]>([]);
   activeIndex = input<number>(0);
 //   onCancel = output<void>();
   onSave = output<void>();
+  onUpdate = output<void>();
+  bloodList= [];
   genders = [{id:"M", name:"Male"},{id:"F", name:"Female"},{id:"O", name:"Others"} ];
   maritalStatusList = ["Single","Married","Separated","Divorced","Widowed" ];
 
@@ -61,13 +64,10 @@ export class PersonalComponentDetail {
   stepper!: ElementRef;
 
   constructor() {
-    // effect(() => {
-    //     const index = this.activeIndex()
-    //     if (index > 0) {
-    //     this.employeeStore.setEmployeeComponentId(id);
-    //   }
-    // })
-    // this.employeeStore.loadCategories();
+    effect(() => {
+      
+      this.loadBloodGroups();
+    });
     effect(() => {
       const id = this.empId();
       if (id && id !== EMPTY_UUID) {
@@ -85,7 +85,12 @@ export class PersonalComponentDetail {
       }
     });
   }
+  loadBloodGroups(){
+    const bloodList = this.utilities().length > 0 ? this.utilities().filter((m: any) => m.sysKey == "BLOODGROUP") : [];
+    
+    return this.utilities().length > 0 ? this.utilities().filter((m: any) => m.sysKey == "BLOODGROUP") : [];
 
+  }
   onSubmit() {
     console.log(this.employeeForm().value());
     
@@ -111,7 +116,7 @@ export class PersonalComponentDetail {
         next: () => {
           this.employeeStore.refreshList();
           this.employeeStore.refreshDetail();
-          this.onSave.emit();
+          this.onUpdate.emit();
         },
         error: (err: any) => {
           if (err.error?.isError) {

@@ -40,6 +40,7 @@ export class EmployeeComponent {
   selectedEmployeeComponentId = signal<string>(EMPTY_UUID);
   employeeComponents = this.employeeStore.employeeListComponents;
   
+  
   private routeData = toSignal(this.route.data as Observable<RouteMeta>, {
     initialValue: { title: '', icon: '' }
   });
@@ -92,6 +93,9 @@ export class EmployeeComponent {
   protected handleSave() {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
+  }
+  protected handleUpdate(event: any) {
+    console.log(event);
   }
 
   protected toggleFilterArea() {

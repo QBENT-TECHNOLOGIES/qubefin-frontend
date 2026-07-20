@@ -22,9 +22,10 @@
             <mat-step>
                 <ng-template matStepLabel>Personal Info</ng-template>
                 @if (activeStepIndex() == 0) {
-                    <qfin-personal-component 
+                    <qfin-personal-component [utilities]="utilityComponents()"
                         [empId]="employeeId()"
                         (onSave)="handleSave()"
+                        (onUpdate)="handlePersonal()"
                         [activeIndex]="activeStepIndex()">
                     </qfin-personal-component>
                 }
@@ -35,9 +36,9 @@
             <mat-step >
                 <ng-template matStepLabel>Address Info</ng-template>
                  @if (activeStepIndex() == 1) {
-                <qfin-address-component 
+                <qfin-address-component [utilities]="utilityComponents()"
                     [empId]="employeeId()"
-                    (onSave)="handleSave()">
+                    (onAddressUpdate)="handleAddress()">
                 </qfin-address-component>
                 }
             </mat-step>

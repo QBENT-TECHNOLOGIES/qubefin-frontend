@@ -99,13 +99,17 @@
             </div>
             <input matInput [formField]="$any(employeeForm)['nationality']" autocomplete="off" placeholder="Enter Nationality">
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Blood Group</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="droplet" class="w-5 h-5"></svg>
-            </div>
-            <input matInput [formField]="$any(employeeForm)['bloodGroup']" autocomplete="off" placeholder="Enter Blood Group">
-        </mat-form-field>
+            
+            <mat-select [formField]="employeeForm.bloodGroup" placeholder="Select Marital">
+                @for (blood of loadBloodGroups(); track blood) {
+                <mat-option [value]="blood.value">
+                    {{ blood.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field> -->
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Disablity Type</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
