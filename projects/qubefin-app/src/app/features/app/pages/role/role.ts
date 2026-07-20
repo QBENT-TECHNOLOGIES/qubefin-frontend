@@ -6,20 +6,23 @@ import { RoleStore } from '../../stores/role-store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
+import { CommonModule } from '@angular/common';
 
 @Component({
 	selector: 'qfin-role-page',
-	imports: [Breadcrumb, RoleListComponent],
+	imports: [CommonModule, RoleListComponent],
 	templateUrl: './role.html'
 })
 export class RolePage {
+	public readonly EMPTY_UUID = EMPTY_UUID;
 	private readonly route = inject(ActivatedRoute);
 	private readonly routeDataService = inject(RouteDataService);
 
 	roleStore = inject(RoleStore);
 
 	isViewMode = signal<boolean>(true);
-	selectedMenuId = signal<string>(EMPTY_UUID);
+	showFilterArea = signal<boolean>(false);
+	selectedRoleId = signal<string>(EMPTY_UUID);
 	roles = this.roleStore.roles;
 
 	private routeData = toSignal(this.route.data as Observable<RouteMeta>, {
@@ -34,10 +37,10 @@ export class RolePage {
 
 	protected onAdd() {
 		this.isViewMode.set(false);
-		this.selectedMenuId.set(EMPTY_UUID);
+		this.selectedRoleId.set(EMPTY_UUID);
 	}
 
 	protected viewDetail(id: string) {
-		this.selectedMenuId.set(id);
+		this.selectedRoleId.set(id);
 	}
 }

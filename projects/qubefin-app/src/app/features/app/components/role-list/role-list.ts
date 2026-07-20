@@ -16,7 +16,7 @@ export class RoleListComponent {
 	readonly iconMap = APP_ICONS_MAP;
 
 	isCollapsed = signal<boolean>(false);
-	roles = input<Role[]>([]);
+	data = input<Role[]>([]);
 
 	displayedColumns: string[] = ['index', 'name', 'actions'];
 
