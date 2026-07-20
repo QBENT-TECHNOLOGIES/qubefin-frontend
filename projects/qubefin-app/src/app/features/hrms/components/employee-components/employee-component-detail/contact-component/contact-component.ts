@@ -12,7 +12,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import { EmployeeService } from '../../../../services/employee-service';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
-import { EmployeeAddressInfo, IEmployeeAddressInfo } from '../../../../models/employee-detail';
+import { EmployeeAddressInfo, EmployeeContactInfo, IEmployeeAddressInfo, IEmployeeContactInfo } from '../../../../models/employee-detail';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
 
@@ -35,22 +35,20 @@ import { of, tap } from 'rxjs';
 export class ContactComponentDetail {
   empId = input<string>(EMPTY_UUID);
 //   onCancel = output<void>();
-  onAddressUpdate = output<void>();
+  onContactUpdate = output<void>();
 
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   readonly iconMap = APP_ICONS_MAP;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
-  protected readonly presentAddressModel = signal<IEmployeeAddressInfo>(new EmployeeAddressInfo());
-  protected readonly permanentAddressModel = signal<IEmployeeAddressInfo>(new EmployeeAddressInfo());
+  protected readonly contactModel = signal<IEmployeeContactInfo>(new EmployeeContactInfo());
 
-  protected readonly employeeAddressSchema: Schema<IEmployeeAddressInfo> = schema((path) => {
-    required(path.houseNo, { message: 'house No is required' });
+  protected readonly contactSchema: Schema<IEmployeeContactInfo> = schema((path) => {
+    required(path.mobileNo, { message: 'Mobile No is required' });
   });
 
-  protected readonly presentAddressForm = form(this.presentAddressModel, this.employeeAddressSchema);
-  protected readonly permanentAddressForm = form(this.permanentAddressModel, this.employeeAddressSchema);
+  protected readonly contactForm = form(this.contactModel, this.contactSchema);
 
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
@@ -94,16 +92,15 @@ export class ContactComponentDetail {
       if (params.editMode && params.id !== EMPTY_UUID) {
         this.employeeStore.setEmployeeComponentId(params.id);
         
-        return this.employeeService.getAddressData(params.id).pipe(
+        return this.employeeService.getContactData(params.id).pipe(
           tap((resp: any) => {
             this.employeeStore.setEmployeeComponentId(resp.id);
-            this.presentAddressModel.set(new EmployeeAddressInfo(resp.presentAddressInfo));
-            this.permanentAddressModel.set(new EmployeeAddressInfo(resp.permanentAddressInfo));
+            this.contactModel.set(new EmployeeContactInfo(resp));
           })
         );
       } else {
-        this.presentAddressModel.set(new EmployeeAddressInfo());
-        this.permanentAddressModel.set(new EmployeeAddressInfo());
+        this.contactModel.set(new EmployeeContactInfo());
+        this.contactModel.set(new EmployeeContactInfo());
         return of(null); // Safely stream an empty observable
       }
     }
@@ -113,24 +110,27 @@ export class ContactComponentDetail {
     // console.log(this.presentAddressForm().value());
     // console.log(this.permanentAddressForm().value());
     
-    if (!this.presentAddressForm().valid() || !this.permanentAddressForm().valid()) {
+    if (!this.contactForm().valid()) {
       return;
     }
 
-    const dataToSave :  any= {presentAddress :this.presentAddressForm().value(), permanentAddress :this.permanentAddressForm().value()};
-    dataToSave.presentAddress.administrativeUnitId = dataToSave.presentAddress.administrativeUnitId == "" ? null : dataToSave.presentAddress.administrativeUnitId;
-    dataToSave.presentAddress.policeStationId = dataToSave.presentAddress.policeStationId == "" ? null : dataToSave.presentAddress.policeStationId;
-    dataToSave.presentAddress.postOfficeId = dataToSave.presentAddress.postOfficeId == "" ? null : dataToSave.presentAddress.postOfficeId;
+    const data = this.contactForm().value();
+    const dataToSave: any = this.contactForm().value();
+    dataToSave.mobileNo = dataToSave.personalEmail == "" ? null : dataToSave.mobileNo;
+    dataToSave.personalEmail = dataToSave.personalEmail == "" ? null : dataToSave.personalEmail;
+    dataToSave.primaryEmergencyRelation = dataToSave.primaryEmergencyRelation == "" ? null : dataToSave.primaryEmergencyRelation;
+    dataToSave.primaryEmergencyName = dataToSave.primaryEmergencyName == "" ? null : dataToSave.primaryEmergencyName;
+    dataToSave.primaryEmergencyMobile = dataToSave.primaryEmergencyMobile == "" ? null : dataToSave.primaryEmergencyMobile;
+    dataToSave.secondaryEmergencyRelation = dataToSave.secondaryEmergencyRelation == "" ? null : dataToSave.secondaryEmergencyRelation;
+    dataToSave.secondaryEmergencyName = dataToSave.secondaryEmergencyName == "" ? null : dataToSave.secondaryEmergencyName;
+    dataToSave.secondaryEmergencyMobile = dataToSave.secondaryEmergencyMobile == "" ? null : dataToSave.secondaryEmergencyMobile;
     
-    dataToSave.permanentAddress.administrativeUnitId = dataToSave.presentAddress.administrativeUnitId == "" ? null : dataToSave.presentAddress.administrativeUnitId;
-    dataToSave.permanentAddress.policeStationId = dataToSave.presentAddress.policeStationId == "" ? null : dataToSave.presentAddress.policeStationId;
-    dataToSave.permanentAddress.postOfficeId = dataToSave.presentAddress.postOfficeId == "" ? null : dataToSave.presentAddress.postOfficeId;
     if (this.isEditMode()) {
-      this.employeeService.updateAddresslInfo( this.empId(),dataToSave).subscribe({
+      this.employeeService.updateContactInfo( this.empId(),dataToSave).subscribe({
         next: () => {
           this.employeeStore.refreshList();
           this.employeeStore.refreshDetail();
-          this.onAddressUpdate.emit();
+          this.onContactUpdate.emit();
         },
         error: (err: any) => {
           if (err.error?.isError) {

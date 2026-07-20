@@ -11,6 +11,7 @@ import { EmployeeStore } from '../../../stores/employee-store';
 import { MatStepperModule } from '@angular/material/stepper';
 import { PersonalComponentDetail } from './personal-component/personal-component';
 import { AddressComponentDetail } from './address-component/address-component';
+import { ContactComponentDetail } from './contact-component/contact-component';
 
 
 @Component({
@@ -26,6 +27,7 @@ import { AddressComponentDetail } from './address-component/address-component';
     LucideDynamicIcon,
     PersonalComponentDetail,
     AddressComponentDetail,
+    ContactComponentDetail
   ],
   templateUrl: './employee-component-detail.html',
 })
@@ -55,7 +57,11 @@ readonly activeStepIndex = signal(0);
     this.onStepChange(1)
   }
   handleAddress(){
+    this.onStepChange(2)
+  }
+  handleContact(){
     this.onStepChange(0)
+
   }
   
   handleSave(){

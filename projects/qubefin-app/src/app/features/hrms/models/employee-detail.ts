@@ -351,43 +351,59 @@ export class EmployeeOfficialInfo {
 
 // --- Contact ---
 
-export interface IEmergencyContact {
-  relation?: string | null;
-  name?: string | null;
-  mobile?: string | null;
-}
+// export interface IEmergencyContact {
+//   relation: string | null;
+//   name: string | null;
+//   mobile: string | null;
+// }
+
+
+// export class EmergencyContact {
+//   relation: string  = '';
+//   name: string  = '';
+//   mobile: string  = '';
+
+//   constructor(init?: Partial<IEmergencyContact>) {
+//     if (!init) return;
+
+//     Object.assign(
+//       this,
+//       Object.fromEntries(
+//         Object.entries(init).map(([k, v]) => [k, v ?? this[k as keyof IEmergencyContact]]),
+//       ),
+//     );
+//   }
+// }
 
 export interface IEmployeeContactInfo {
   mobileNo: string;                           // maps to non-nullable string
-  personalEmail?: string | null;               // maps to nullable string
-  primaryContact: IEmergencyContact;           // nested instance object
-  secondaryContact: IEmergencyContact;         // nested instance object
+  personalEmail: string;               // maps to nullable string
+  primaryEmergencyRelation: string;           // nested instance object
+  primaryEmergencyName: string;         // nested instance object
+  primaryEmergencyMobile: string;          // maps to nullable string
+  secondaryEmergencyRelation: string;           // nested instance object
+  secondaryEmergencyName: string;         // nested instance object
+  secondaryEmergencyMobile: string;        // nested instance object
 }
-
-export class EmergencyContact {
-  relation?: string | null = '';
-  name?: string | null = '';
-  mobile?: string | null = '';
-
-  constructor(init?: Partial<EmergencyContact>) {
-    Object.assign(this, init);
-  }
-}
-
 export class EmployeeContactInfo {
-  mobileNo: string = '';
-  personalEmail?: string | null = '';
-  primaryContact: EmergencyContact = new EmergencyContact();
-  secondaryContact: EmergencyContact = new EmergencyContact();
+  mobileNo ="";                          // maps to non-nullable string
+  personalEmail  = "";            // maps to nullable string
+  primaryEmergencyRelation   = "";       // nested instance object
+  primaryEmergencyName     = "";   // nested instance object
+  primaryEmergencyMobile    = "";     // maps to nullable string
+  secondaryEmergencyRelation   = "";       // nested instance object
+  secondaryEmergencyName    = "";    // nested instance object
+  secondaryEmergencyMobile = "";
 
-  constructor(init?: Partial<EmployeeContactInfo>) {
-    this.primaryContact = init?.primaryContact ? new EmergencyContact(init.primaryContact) : new EmergencyContact();
-    this.secondaryContact = init?.secondaryContact ? new EmergencyContact(init.secondaryContact) : new EmergencyContact();
-    
-    if (init) {
-      const { primaryContact, secondaryContact, ...rest } = init;
-      Object.assign(this, rest);
-    }
+  constructor(init?: Partial<IEmployeeContactInfo>) {
+    if (!init) return;
+
+    Object.assign(
+      this,
+      Object.fromEntries(
+        Object.entries(init).map(([k, v]) => [k, v ?? this[k as keyof IEmployeeContactInfo]]),
+      ),
+    );
   }
 }
 // --- AddressInfo ---

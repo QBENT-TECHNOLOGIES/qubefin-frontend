@@ -2,7 +2,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ApiPaths } from 'qubefin-core';
-import { EmployeeAddressInfo, EmployeePersonalInfo } from '../models/employee-detail';
+import { EmployeeAddressInfo, EmployeeContactInfo, EmployeePersonalInfo } from '../models/employee-detail';
 
 @Injectable({
     providedIn: 'root',
@@ -21,6 +21,9 @@ export class EmployeeService {
     getAddressData(id: string) {
         return this.httpClient.get(`${ApiPaths.HRMS}/employees/address-details/${id}`);
     }
+    getContactData(id: string) {
+        return this.httpClient.get(`${ApiPaths.HRMS}/employees/contact-details/${id}`);
+    }
 
     create(personalInfo: any) {
         return this.httpClient.post(`${ApiPaths.HRMS}/employees`, personalInfo);
@@ -33,5 +36,8 @@ export class EmployeeService {
     }
     updateAddresslInfo(employeeId: string,addressInfo: EmployeeAddressInfo) {
         return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/address/` + employeeId, addressInfo);
+    }
+    updateContactInfo(employeeId: string,contact: EmployeeContactInfo) {
+        return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/contact/` + employeeId, contact);
     }
 }
