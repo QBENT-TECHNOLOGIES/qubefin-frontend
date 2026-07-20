@@ -1,7 +1,7 @@
 import { httpResource } from "@angular/common/http";
 import { computed, Injectable, signal } from "@angular/core";
 import { ApiPaths, EMPTY_UUID } from "qubefin-core";
-import { Employee, IEmployee, IEmployeeAddressInfo, IEmployeePersonalInfo, IEmployeesBySearchResult } from "../models/employee-detail";
+import { IEmployeePersonalInfo, IEmployeesBySearchResult } from "../models/employee-detail";
 
 @Injectable({
   providedIn: 'root'
@@ -120,5 +120,14 @@ export class EmployeeStore {
   //   this.personalInfoComponentResource.reload();
   // }
 
+
+  // --- UTILITY SERVICE ---
+  private readonly utilityResource = httpResource<{ utilities: any[] }>(() => {
+    return `${ApiPaths.GLOBAL}/utilities`;
+  });
+
+  readonly utilityComponent =  computed(() => this.utilityResource.value() ?? []) ;
+  readonly utilityComponentLoading = computed(() => this.utilityResource.isLoading());
+  readonly utilityComponentError = computed(() => this.utilityResource.error());
   
 }

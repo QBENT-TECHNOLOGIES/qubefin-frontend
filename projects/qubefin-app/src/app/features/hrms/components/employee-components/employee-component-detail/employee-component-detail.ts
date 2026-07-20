@@ -1,18 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, input, output, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, input, output, signal, ViewChild, ElementRef } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { EMPTY_UUID } from 'qubefin-core';
-import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EmployeeStore } from '../../../stores/employee-store';
-import { EmployeeService } from '../../../services/employee-service';
-import { EmployeePersonalInfo, IEmployeePersonalInfo } from '../../../models/employee-detail';
 import { MatStepperModule } from '@angular/material/stepper';
-import { APP_ICONS_MAP } from '../../../../../lucide-icons';
 import { PersonalComponentDetail } from './personal-component/personal-component';
 import { AddressComponentDetail } from './address-component/address-component';
 
@@ -41,18 +37,26 @@ export class EmployeeComponentDetail {
   
 readonly activeStepIndex = signal(0);
   private readonly employeeStore = inject(EmployeeStore);
-
+  utilityComponents = this.employeeStore.utilityComponent;
+  
 
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
 
   constructor() {
-    
+    console.log(this.utilityComponents())
     
   }
   onStepChange(index: number) {
     this.activeStepIndex.set(index);
   }
+  handlePersonal(){
+    this.onStepChange(1)
+  }
+  handleAddress(){
+    this.onStepChange(0)
+  }
+  
   handleSave(){
     this.onChildSave.emit();
   }

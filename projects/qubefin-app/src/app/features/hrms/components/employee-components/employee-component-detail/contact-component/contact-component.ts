@@ -12,11 +12,11 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import { EmployeeService } from '../../../../services/employee-service';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
-import { EmployeeAddressInfo, IEmployeeAddressInfo, Utility } from '../../../../models/employee-detail';
+import { EmployeeAddressInfo, IEmployeeAddressInfo } from '../../../../models/employee-detail';
 
 
 @Component({
-  selector: 'qfin-address-component',
+  selector: 'qfin-contact-component',
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -28,11 +28,10 @@ import { EmployeeAddressInfo, IEmployeeAddressInfo, Utility } from '../../../../
     MatStepperModule,
     LucideDynamicIcon
   ],
-  templateUrl: './address-component.html',
+  templateUrl: './contact-component.html',
 })
-export class AddressComponentDetail {
+export class ContactComponentDetail {
   empId = input<string>(EMPTY_UUID);
-  utilities = input<Utility[]>([]);
 //   onCancel = output<void>();
   onAddressUpdate = output<void>();
   genders = [{id:"M", name:"Male"},{id:"F", name:"Female"},{id:"O", name:"Others"} ];
