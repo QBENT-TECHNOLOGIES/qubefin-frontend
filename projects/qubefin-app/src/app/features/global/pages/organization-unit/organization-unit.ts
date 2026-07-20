@@ -7,13 +7,12 @@ import { Observable } from 'rxjs';
 import { OrganizationUnitTreeComponent } from '../../components/organization-unit-tree/organization-unit-tree';
 import { OrganizationUnitViewComponent } from '../../components/organization-unit-view/organization-unit-view';
 import { OrganizationUnitDetailComponent } from '../../components/organization-unit-detail/organization-unit-detail';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'qfin-organization-unit-page',
-  imports: [Breadcrumb, OrganizationUnitTreeComponent, OrganizationUnitViewComponent, OrganizationUnitDetailComponent, LucideDynamicIcon],
+  imports: [OrganizationUnitTreeComponent, OrganizationUnitViewComponent, OrganizationUnitDetailComponent, LucideDynamicIcon],
   templateUrl: './organization-unit.html'
 })
 export class OrganizationUnitPage {
