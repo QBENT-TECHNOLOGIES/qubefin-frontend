@@ -78,6 +78,9 @@ export class EmployeeComponent {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
   }
+  protected handleUpdate(event: any) {
+    console.log(event);
+  }
 
   protected toggleFilterArea() {
     this.showFilterArea.update(v => !v);

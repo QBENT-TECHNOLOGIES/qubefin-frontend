@@ -12,7 +12,9 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import { EmployeeService } from '../../../../services/employee-service';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
-import { EmployeePersonalInfo, IEmployeePersonalInfo } from '../../../../models/employee-detail';
+import { EmployeePersonalInfo, IEmployeePersonalInfo, Utility } from '../../../../models/employee-detail';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { of, tap } from 'rxjs';
 
 
 @Component({
@@ -32,11 +34,11 @@ import { EmployeePersonalInfo, IEmployeePersonalInfo } from '../../../../models/
 })
 export class PersonalComponentDetail {
   empId = input<string>(EMPTY_UUID);
+  utilities = input<Utility[]>([]);
   activeIndex = input<number>(0);
 //   onCancel = output<void>();
   onSave = output<void>();
-  genders = [{id:"M", name:"Male"},{id:"F", name:"Female"},{id:"O", name:"Others"} ];
-  maritalStatusList = ["Single","Married","Separated","Divorced","Widowed" ];
+  onUpdate = output<void>();
 
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
@@ -59,35 +61,77 @@ export class PersonalComponentDetail {
 
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
+  protected readonly bloodGroups = computed(() => this.filterUtility('BLOODGROUP'));
+  protected readonly maritalStatuses = computed(() => this.filterUtility('MARITALSTATUS'));
+  protected readonly genders = computed(() => this.filterUtility('GENDER'));
+  protected readonly castes = computed(() => this.filterUtility('CASTE'));
+  protected readonly religions = computed(() => this.filterUtility('RELIGION'));
+  protected readonly salutations = computed(() => this.filterUtility('SALUTAION')); // Kept matching typo from original code
 
-  constructor() {
-    // effect(() => {
-    //     const index = this.activeIndex()
-    //     if (index > 0) {
-    //     this.employeeStore.setEmployeeComponentId(id);
-    //   }
-    // })
-    // this.employeeStore.loadCategories();
-    effect(() => {
-      const id = this.empId();
-      if (id && id !== EMPTY_UUID) {
-        this.employeeStore.setEmployeeComponentId(id);
-      }
-    });
-    effect(() => {
-      const id = this.empId();
-      if ( id !== EMPTY_UUID) {
-        this.employeeService.getPresonalData(id).subscribe(resp => {
-          this.employeeModel.set(new EmployeePersonalInfo(resp));
-        })
+  private filterUtility(sysKey: string): Utility[] {
+    const list = this.utilities();
+    return list.length > 0 ? list.filter((m: any) => m.sysKey === sysKey) : [];
+  }
+  // constructor() {
+    
+  //   effect(() => {
+  //     const id = this.empId();
+  //     if (id && id !== EMPTY_UUID) {
+  //       this.employeeStore.setEmployeeComponentId(id);
+  //     }
+  //   });
+  //   effect(() => {
+  //     const id = this.empId();
+  //     if ( id !== EMPTY_UUID) {
+  //       this.employeeService.getPresonalData(id).subscribe(resp => {
+  //         this.employeeModel.set(new EmployeePersonalInfo(resp));
+  //       })
+  //     } else {
+  //       this.employeeModel.set(new EmployeePersonalInfo());
+  //     }
+  //   });
+  // }
+
+  // 🚀 Native Angular 20+ Data Fetcher (Replaces all constructor effects & manual mapping leaks)
+  private personalDataResource = rxResource({
+    params: () => ({ id: this.empId() }),
+    stream: ({ params }) => {
+      if (params.id && params.id !== EMPTY_UUID) {
+        this.employeeStore.setEmployeeComponentId(params.id);
+        
+        return this.employeeService.getPresonalData(params.id).pipe(
+          tap((resp: any) => {
+            this.employeeModel.set(new EmployeePersonalInfo(resp));
+          })
+        );
       } else {
         this.employeeModel.set(new EmployeePersonalInfo());
+        return of(null);
       }
-    });
+    }
+  });
+  loadBloodGroups(){
+    return this.utilities().length > 0 ? this.utilities().filter((m: any) => m.sysKey == "BLOODGROUP") : [];
   }
-
+  
+  loadMaritalStatus(){
+    return this.utilities().length > 0 ? this.utilities().filter((m: any) => m.sysKey == "MARITALSTATUS") : [];
+  }
+  
+  loadGender(){
+    return this.utilities().length > 0 ? this.utilities().filter((m: any) => m.sysKey == "GENDER") : [];
+  }
+  loadCast(){
+    return this.utilities().length > 0 ? this.utilities().filter((m: any) => m.sysKey == "CASTE") : [];
+  }
+  loadReligion(){
+    return this.utilities().length > 0 ? this.utilities().filter((m: any) => m.sysKey == "RELIGION") : [];
+  }
+  loadSalutation(){
+    return this.utilities().length > 0 ? this.utilities().filter((m: any) => m.sysKey == "SALUTAION") : [];
+  }
   onSubmit() {
-    console.log(this.employeeForm().value());
+    // console.log(this.employeeForm().value());
     
     if (!this.employeeForm().valid()) {
       return;
@@ -111,7 +155,7 @@ export class PersonalComponentDetail {
         next: () => {
           this.employeeStore.refreshList();
           this.employeeStore.refreshDetail();
-          this.onSave.emit();
+          this.onUpdate.emit();
         },
         error: (err: any) => {
           if (err.error?.isError) {

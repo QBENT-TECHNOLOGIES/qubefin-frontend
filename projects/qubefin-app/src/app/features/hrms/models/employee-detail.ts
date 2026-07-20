@@ -564,5 +564,10 @@ export interface IEmployeesBySearchResult {
   isActive: boolean;                  // bool maps to required boolean
 }
 
+export class Utility {
+  sysKey: string="";                         
+  sysVal?: string ="";                     
+}
+
 
 

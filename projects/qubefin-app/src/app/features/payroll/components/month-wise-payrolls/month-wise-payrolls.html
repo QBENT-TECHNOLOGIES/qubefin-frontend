@@ -100,11 +100,14 @@
             class="transition-colors">
         </tr>
         <tr class="mat-row" *matNoDataRow colspan="8">
-            <td class="mat-cell p-8 text-center text-slate-400 border-b-0" [attr.colspan]="displayedColumns().length">
+            <td class="mat-cell px-8 !text-center text-slate-400 border-b-0" [attr.colspan]="displayedColumns().length">
                 @if (loading()) {
                     Loading...
                 } @else {
-                    No payroll data found.
+                    <div class="flex justify-center items-center gap-2">
+                        <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>
+                        No payroll data found.
+                    </div>
                 }
             </td>
         </tr>
