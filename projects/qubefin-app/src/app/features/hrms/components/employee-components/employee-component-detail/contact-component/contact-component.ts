@@ -13,6 +13,8 @@ import { EmployeeStore } from '../../../../stores/employee-store';
 import { EmployeeService } from '../../../../services/employee-service';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeAddressInfo, IEmployeeAddressInfo } from '../../../../models/employee-detail';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { of, tap } from 'rxjs';
 
 
 @Component({
@@ -55,43 +57,63 @@ export class ContactComponentDetail {
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
 
-  constructor() {
-    // this.employeeStore.loadCategories();
-    effect(() => {
-      const id = this.empId();
-      if (id && id !== EMPTY_UUID) {
-        this.employeeStore.setEmployeeComponentId(id);
-      }
-    });
-    effect(() => {
-      if (this.isEditMode() && this.empId() !== EMPTY_UUID) {
-        this.employeeService.getAddressData(this.empId()).subscribe((resp: any) => {
-        this.employeeStore.setEmployeeComponentId(resp.id);
-          this.presentAddressModel.set(new EmployeeAddressInfo(resp.presentAddressInfo));
-          // this.presentAddressModel.update(model => ({
-          //   houseNo: resp.presentAddressInfo.houseNo ?? '',
-          //   roadName: resp.presentAddressInfo.roadName ?? '',
-          //   landMark: resp.presentAddressInfo.landMark ?? '',
-          //   administrativeUnitId: resp.presentAddressInfo.administrativeUnitId ?? '',
-          //   policeStationId: resp.presentAddressInfo.policeStationId ?? '',
-          //   postOfficeId: resp.presentAddressInfo.postOfficeId ?? '',
-          //   pinCode: resp.presentAddressInfo.pinCode ?? '',
-          //   ownerShipOfHouse: resp.presentAddressInfo.ownerShipOfHouse ?? '',
-          //   durationOfStayInMonths: resp.presentAddressInfo.durationOfStayInMonths ?? 0,
-          // }));
+  // constructor() {
+  //   // this.employeeStore.loadCategories();
+  //   effect(() => {
+  //     const id = this.empId();
+  //     if (id && id !== EMPTY_UUID) {
+  //       this.employeeStore.setEmployeeComponentId(id);
+  //     }
+  //   });
+  //   effect(() => {
+  //     if (this.isEditMode() && this.empId() !== EMPTY_UUID) {
+  //       this.employeeService.getAddressData(this.empId()).subscribe((resp: any) => {
+  //       this.employeeStore.setEmployeeComponentId(resp.id);
+  //         this.presentAddressModel.set(new EmployeeAddressInfo(resp.presentAddressInfo));
+  //         // this.presentAddressModel.update(model => ({
+  //         //   houseNo: resp.presentAddressInfo.houseNo ?? '',
+  //         //   roadName: resp.presentAddressInfo.roadName ?? '',
+  //         //   landMark: resp.presentAddressInfo.landMark ?? '',
+  //         //   administrativeUnitId: resp.presentAddressInfo.administrativeUnitId ?? '',
+  //         //   policeStationId: resp.presentAddressInfo.policeStationId ?? '',
+  //         //   postOfficeId: resp.presentAddressInfo.postOfficeId ?? '',
+  //         //   pinCode: resp.presentAddressInfo.pinCode ?? '',
+  //         //   ownerShipOfHouse: resp.presentAddressInfo.ownerShipOfHouse ?? '',
+  //         //   durationOfStayInMonths: resp.presentAddressInfo.durationOfStayInMonths ?? 0,
+  //         // }));
 
-          this.permanentAddressModel.set(new EmployeeAddressInfo(resp.permanentAddressInfo));
-        })
-       } else {
+  //         this.permanentAddressModel.set(new EmployeeAddressInfo(resp.permanentAddressInfo));
+  //       })
+  //      } else {
+  //       this.presentAddressModel.set(new EmployeeAddressInfo());
+  //       this.permanentAddressModel.set(new EmployeeAddressInfo());
+  //     }
+  //   });
+  // }
+   private addressResource = rxResource({
+    params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
+    stream: ({ params }) => {
+      if (params.editMode && params.id !== EMPTY_UUID) {
+        this.employeeStore.setEmployeeComponentId(params.id);
+        
+        return this.employeeService.getAddressData(params.id).pipe(
+          tap((resp: any) => {
+            this.employeeStore.setEmployeeComponentId(resp.id);
+            this.presentAddressModel.set(new EmployeeAddressInfo(resp.presentAddressInfo));
+            this.permanentAddressModel.set(new EmployeeAddressInfo(resp.permanentAddressInfo));
+          })
+        );
+      } else {
         this.presentAddressModel.set(new EmployeeAddressInfo());
         this.permanentAddressModel.set(new EmployeeAddressInfo());
+        return of(null); // Safely stream an empty observable
       }
-    });
-  }
+    }
+  });
 
   onSubmit() {
-    console.log(this.presentAddressForm().value());
-    console.log(this.permanentAddressForm().value());
+    // console.log(this.presentAddressForm().value());
+    // console.log(this.permanentAddressForm().value());
     
     if (!this.presentAddressForm().valid() || !this.permanentAddressForm().valid()) {
       return;

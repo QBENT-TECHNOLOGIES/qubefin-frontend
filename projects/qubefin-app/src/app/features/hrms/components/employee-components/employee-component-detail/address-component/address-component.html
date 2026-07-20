@@ -67,14 +67,28 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="siren" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="presentAddressForm.policeStationId" placeholder="Enter Police Station">
+            <!-- <input matInput autocomplete="off" [formField]="presentAddressForm.policeStationId" placeholder="Enter Police Station"> -->
+            <mat-select [formField]="presentAddressForm.policeStationId" placeholder="Select Police Station">
+                @for (police of policeStations; track police) {
+                <mat-option [value]="police">
+                    {{ police }}
+                </mat-option>
+                }
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Post Office</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="presentAddressForm.postOfficeId" placeholder="Enter Post Office">
+            <!-- <input matInput autocomplete="off" [formField]="presentAddressForm.postOfficeId" placeholder="Enter Post Office"> -->
+             <mat-select [formField]="presentAddressForm.policeStationId" placeholder="Select Post Office">
+                @for (post of postOffices; track post) {
+                <mat-option [value]="post">
+                    {{ post }}
+                </mat-option>
+                }
+            </mat-select>
         </mat-form-field>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -565,8 +565,8 @@ export interface IEmployeesBySearchResult {
 }
 
 export class Utility {
-  SysKey: string="";                         
-  SysVal?: string ="";                     
+  sysKey: string="";                         
+  sysVal?: string ="";                     
 }
 
 
