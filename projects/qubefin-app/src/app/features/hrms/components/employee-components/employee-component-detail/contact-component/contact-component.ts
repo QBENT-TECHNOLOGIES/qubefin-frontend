@@ -16,7 +16,6 @@ import { EmployeeAddressInfo, EmployeeContactInfo, IEmployeeAddressInfo, IEmploy
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
 
-
 @Component({
   selector: 'qfin-contact-component',
   imports: [
