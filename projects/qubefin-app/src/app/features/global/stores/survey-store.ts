@@ -143,6 +143,7 @@ export class SurveyStore {
         ? new Date(item.tentativeSubmissionDate)
         : null,
       surveyAssigneds: (item.surveyAssigneds ?? []).map((member) => ({
+        id: member.id,
         employeeId: member.employeeId,
         employeeName: member.employeeName,
         isLead: member.isLead,

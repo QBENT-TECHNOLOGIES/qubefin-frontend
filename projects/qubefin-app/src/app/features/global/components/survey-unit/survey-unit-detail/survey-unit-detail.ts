@@ -233,6 +233,7 @@ export class SurveyUnitDetail {
     }
 
     members.push({
+      id: EMPTY_UUID,
       employeeId: employee.id,
       employeeName: employee.employeeName,
       isLead: members.length === 0,

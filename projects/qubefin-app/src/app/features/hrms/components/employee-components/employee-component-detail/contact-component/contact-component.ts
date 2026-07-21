@@ -85,7 +85,7 @@ export class ContactComponentDetail {
   //     }
   //   });
   // }
-   private addressResource = rxResource({
+   private contactResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
       if (params.editMode && params.id !== EMPTY_UUID) {
@@ -115,7 +115,7 @@ export class ContactComponentDetail {
 
     const data = this.contactForm().value();
     const dataToSave: any = this.contactForm().value();
-    dataToSave.mobileNo = dataToSave.personalEmail == "" ? null : dataToSave.mobileNo;
+    dataToSave.mobileNo = dataToSave.mobileNo == "" ? null : dataToSave.mobileNo;
     dataToSave.personalEmail = dataToSave.personalEmail == "" ? null : dataToSave.personalEmail;
     dataToSave.primaryEmergencyRelation = dataToSave.primaryEmergencyRelation == "" ? null : dataToSave.primaryEmergencyRelation;
     dataToSave.primaryEmergencyName = dataToSave.primaryEmergencyName == "" ? null : dataToSave.primaryEmergencyName;

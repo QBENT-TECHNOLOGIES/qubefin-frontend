@@ -5,7 +5,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
 @Component({
 	selector: 'qfin-menu-tree-component',
 	imports: [MatIconModule, MatTreeModule, MatTooltipModule, LucideDynamicIcon],

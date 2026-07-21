@@ -1,0 +1,71 @@
+<div class="space-y-6 animate-fade-in pt-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                        KYC Info
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Document</mat-label>
+                        <mat-icon class="material-symbols-outlined" matPrefix>description</mat-icon>
+                        <mat-select [formField]="kycForm.documentName" placeholder="Select Document">
+                            @for (docs of kycDocs(); track docs) {
+                            <mat-option [value]="docs.id">
+                                {{ docs.name }}
+                            </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                    @if (selectedDocument()?.isMandatory) {
+                                
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Document Number</mat-label>
+                                <mat-icon class="material-symbols-outlined" matPrefix>tag</mat-icon>
+                                
+                                <input matInput autocomplete="off" placeholder="Enter Document Number" [formField]="kycForm.documentNo">
+                                
+                    </mat-form-field>
+                    }
+                    @if (selectedDocument()?.isDateValidate) {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Valid From</mat-label>
+                        
+                            
+                                <div class="w-12 flex justify-center" matPrefix>
+                                    <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                                </div>
+                                <input matInput type="date" [formField]="kycForm.validFrom" autocomplete="off" placeholder="Valid From">
+                            
+                        
+                    </mat-form-field>
+                    }
+                    @if (selectedDocument()?.isDateValidate) {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Valid Till</mat-label>
+                        
+                                <div class="w-12 flex justify-center" matPrefix>
+                                    <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                                </div>
+                                <input matInput type="date" [formField]="kycForm.validTill" autocomplete="off" placeholder="Valid Till">
+                            
+                        
+                    </mat-form-field> 
+                    }
+                </div>
+
+                <div
+                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
+                    
+                    <div class="flex flex-1 justify-end items-center gap-3">
+                        
+                        <button type="button" (click)="onSubmit()"
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            Save
+                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
