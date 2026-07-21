@@ -11,7 +11,7 @@ export class RoleStore {
     private roleState = signal({
         searchText: '',
         pageIndex: 0,
-        pageSize: 1,
+        pageSize: 10,
         sortOn: 'name',
         sortDirection: 'asc',
         roleId: EMPTY_UUID

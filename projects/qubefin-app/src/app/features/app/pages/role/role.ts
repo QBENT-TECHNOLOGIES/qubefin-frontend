@@ -41,6 +41,7 @@ export class RolePage {
 	}
 
 	onSort(sort: Sort) {
+		this.roleStore.setSort(sort.active, sort.direction);
 	}
 
 	onPageChange(event: PageEvent) {
