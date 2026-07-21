@@ -1,7 +1,7 @@
 import { httpResource } from "@angular/common/http";
 import { computed, Injectable, signal } from "@angular/core";
 import { ApiPaths, EMPTY_UUID } from "qubefin-core";
-import { IEmployeePersonalInfo, IEmployeesBySearchResult, Utility } from "../models/employee-detail";
+import { IEmployeePersonalInfo, IEmployeesBySearchResult, KycDocument, Utility } from "../models/employee-detail";
 
 @Injectable({
   providedIn: 'root'
@@ -132,5 +132,17 @@ readonly utilityComponent = computed<Utility[]>(() =>
 
   readonly utilityComponentLoading = computed(() => this.utilityResource.isLoading());
   readonly utilityComponentError = computed(() => this.utilityResource.error());
+
+  // --- KYC DOCUMENT TYPE SERVICE ---
+  private readonly KycResource = httpResource< KycDocument[]>(() => {
+  return `${ApiPaths.GLOBAL}/kyc-documents`;
+});
+
+readonly kycComponent = computed<KycDocument[]>(() =>
+  this.KycResource.value() ?? []
+);
+
+  readonly kycComponentLoading = computed(() => this.KycResource.isLoading());
+  readonly kycComponentError = computed(() => this.KycResource.error());
   
 }
