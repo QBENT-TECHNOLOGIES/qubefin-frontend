@@ -288,7 +288,7 @@ export class SurveyUnitDetail {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: 'Please select at least two members.',
+        text: 'Please select at least one members.',
       });
       return;
     }
@@ -325,7 +325,7 @@ export class SurveyUnitDetail {
 
         if (!this.isEditMode()) {
           this.surveyService.create(payload).subscribe({
-            next: () => {
+            next: (resp: any) => {
               this.surveyStore.refreshList();
               this.save.emit();
             },
@@ -334,17 +334,17 @@ export class SurveyUnitDetail {
         }
 
         this.surveyService.update(payload).subscribe({
-          next: () => {
-            this.surveyStore.refreshList();
-            this.surveyStore.refreshDetail();
-            this.save.emit();
+          next: (resp: any) => {
+            Swal.fire({
+              title: 'Success!',
+              text: resp.value.message,
+              icon: 'success',
+            }).then(() => {
+              this.surveyStore.refreshList();
+              this.surveyStore.refreshDetail();
+              this.save.emit();
+            });
           },
-        });
-
-        Swal.fire({
-          title: 'Success!',
-          text: `The survey is successfully ${this.isEditMode() ? 'update' : 'create'}`,
-          icon: 'success',
         });
       }
     });
