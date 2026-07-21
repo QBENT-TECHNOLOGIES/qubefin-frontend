@@ -477,3 +477,7 @@ a:focus-visible, button:focus-visible {
 .mat-mdc-paginator-container .mat-mdc-form-field-infix {
   padding-left: 10px;
 }
+
+.dark .mat-sort-header-arrow > svg {
+  fill: #e2e2e2;
+}
