@@ -34,4 +34,9 @@ export class OrganizationUnitStore {
         if (this.organizationUnitId() === organizationUnitId) return;
         this.organizationUnitId.set(organizationUnitId);
     }
+
+    // Manual Refresh
+    refreshTree() {
+        this.organizationUnitTreeResource.reload();
+    }
 }

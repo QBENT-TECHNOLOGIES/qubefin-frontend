@@ -31,11 +31,11 @@
 
         <!-- Header -->
         <header class="shrink-0 sticky top-0 z-50">
-            <qfin-header [(isExpanded)]="isExpanded"></qfin-header>
+            <qfin-header [(isExpanded)]="isExpanded" [pageData]="pageData()"></qfin-header>
         </header>
 
         <!-- Scroll Area -->
-        <main class="flex-1 overflow-y-auto overflow-x-hidden px-4 pb-4 pt-3">
+        <main class="flex-1 overflow-y-auto overflow-x-hidden px-4 pb-4 pt-2">
             <router-outlet></router-outlet>
         </main>
 

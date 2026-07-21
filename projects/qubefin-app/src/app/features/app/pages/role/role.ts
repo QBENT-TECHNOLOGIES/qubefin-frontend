@@ -1,43 +1,58 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { RoleListComponent } from '../../components/role-list/role-list';
-import { ActivatedRoute } from '@angular/router';
-import { EMPTY_UUID, RouteDataService, RouteMeta } from 'qubefin-core';
+import { EMPTY_UUID } from 'qubefin-core';
 import { RoleStore } from '../../stores/role-store';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
+import { CommonModule } from '@angular/common';
+import { LucideDynamicIcon } from '@lucide/angular';
+import { RoleSearchParam } from '../../models/role';
+import { form } from '@angular/forms/signals';
+import { Sort } from '@angular/material/sort';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
 	selector: 'qfin-role-page',
-	imports: [Breadcrumb, RoleListComponent],
+	imports: [CommonModule, RoleListComponent, LucideDynamicIcon],
 	templateUrl: './role.html'
 })
 export class RolePage {
-	private readonly route = inject(ActivatedRoute);
-	private readonly routeDataService = inject(RouteDataService);
+	public readonly EMPTY_UUID = EMPTY_UUID;
 
 	roleStore = inject(RoleStore);
 
 	isViewMode = signal<boolean>(true);
-	selectedMenuId = signal<string>(EMPTY_UUID);
-	roles = this.roleStore.roles;
+	showFilterArea = signal<boolean>(false);
+	selectedRoleId = signal<string>(EMPTY_UUID);
+	searchedRoles = this.roleStore.searchedRoles;
 
-	private routeData = toSignal(this.route.data as Observable<RouteMeta>, {
-		initialValue: { title: '', icon: '' }
+	protected readonly roleSearchFields = signal<RoleSearchParam>({
+		searchText: '',
+		sortOn: '',
+		sortDirection: 'ASC',
+		pageIndex: 0,
+		pageSize: 10
 	});
+
+	protected readonly roleSearchForm = form(this.roleSearchFields);
 
 	constructor() {
 		effect(() => {
-			this.routeDataService.setRouteData(this.routeData());
+			console.log(this.searchedRoles());
 		});
+	}
+
+	onSort(sort: Sort) {
+	}
+
+	onPageChange(event: PageEvent) {
+		this.roleStore.setPagination(event.pageIndex, event.pageSize);
 	}
 
 	protected onAdd() {
 		this.isViewMode.set(false);
-		this.selectedMenuId.set(EMPTY_UUID);
+		this.selectedRoleId.set(EMPTY_UUID);
 	}
 
 	protected viewDetail(id: string) {
-		this.selectedMenuId.set(id);
+		this.selectedRoleId.set(id);
 	}
 }

@@ -33,8 +33,17 @@ export const GlobalRoutes: Routes = [
             (m) => m.SurveyCommitteeUnit,
           ),
         data: {
-          title: 'Survey Committee Units',
-          subTitle: 'Manage and organize survey committee units within your organization.',
+          title: 'Survey Committees',
+          subTitle: 'Manage and organize surveys within your organization.',
+          icon: 'apartment',
+        },
+      },
+      {
+        path: 'surveys',
+        loadComponent: () => import('./pages/survey-unit/survey-unit').then((m) => m.SurveyUnit),
+        data: {
+          title: 'Surveys',
+          subTitle: 'Manage and organize surveys within your organization.',
           icon: 'apartment',
         },
       },
