@@ -7,7 +7,7 @@
         <div class="w-12 flex justify-center" matPrefix>
             <svg [lucideIcon]="iconMap['Earth']" class="w-5 h-5"></svg>
         </div>
-        <mat-select [value]="selectedCountry()" (selectionChange)="onCountryChange($event.value)">
+        <mat-select [value]="selectedCountry()" (selectionChange)="onCountryChange($event.value)" required>
             @for(item of countryList(); track item.id){
             <mat-option [value]="item.id">{{ item.name }}</mat-option>
             }
