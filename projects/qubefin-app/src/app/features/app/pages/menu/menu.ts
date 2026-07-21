@@ -3,10 +3,12 @@ import { EMPTY_UUID } from 'qubefin-core';
 import { MenuStore } from '../../stores/menu-store';
 import { MenuTreeComponent } from '../../components/menu-tree/menu-tree';
 import { MenuViewComponent } from '../../components/menu-view/menu-view';
+import { APP_ICONS_MAP } from '../../../../lucide-icons';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'qfin-menu-page',
-  imports: [MenuTreeComponent, MenuViewComponent],
+  imports: [MenuTreeComponent, MenuViewComponent, LucideDynamicIcon],
   templateUrl: './menu.html'
 })
 export class MenuPage {
@@ -15,7 +17,7 @@ export class MenuPage {
 	isViewMode = signal<boolean>(true);
 	selectedMenuId = signal<string>(EMPTY_UUID);
 	menuTreeNodes = this.menuStore.menuTree;
-
+	readonly iconMap = APP_ICONS_MAP;
 	constructor() {
 		effect(() => {
 			if (this.menuTreeNodes().length > 0) {
