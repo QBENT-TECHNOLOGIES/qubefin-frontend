@@ -1,0 +1,94 @@
+<div class="space-y-4 animate-fade-in">
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
+            Contact Info
+        </h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Mobile No</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="phone" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="contactForm.mobileNo" placeholder="Enter Mobile No">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Personal Email</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="mail" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="email" autocomplete="off" [formField]="contactForm.personalEmail" placeholder="Enter Personal Email">
+        </mat-form-field>
+    </div>
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
+            Primary Emergency Contact Info
+        </h3>
+        <div class="w-10 h-1 rounded-full bg-secondary-500 mt-1 mb-5"></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Emergency Contact Person</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user-round" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="contactForm.primaryEmergencyName" placeholder="Enter Name">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Relation</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="notebook-tabs" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="contactForm.primaryEmergencyRelation" placeholder="Enter Relation">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Emergency Contact Mobile</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="headset" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="contactForm.primaryEmergencyMobile" placeholder="Enter Mobile No">
+        </mat-form-field>
+    </div>
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
+            Secondary Emergency Contact Info
+        </h3>
+        <div class="w-10 h-1 rounded-full bg-secondary-500 mt-1 mb-5"></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Emergency Contact Person</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user-round" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="contactForm.secondaryEmergencyName" placeholder="Enter Name">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Relation</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="notebook-tabs" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="contactForm.secondaryEmergencyRelation" placeholder="Enter Relation">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Emergency Contact Mobile</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="headset" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="contactForm.secondaryEmergencyMobile" placeholder="Enter Mobile No">
+        </mat-form-field>
+    </div>
+
+    <div
+        class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
+        <div class="flex flex-1 justify-end items-center gap-3">
+            <button type="button" (click)="onSubmit()"
+                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                Save
+                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+            </button>
+        </div>
+    </div>
+</div>

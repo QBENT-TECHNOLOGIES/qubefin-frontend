@@ -351,71 +351,94 @@ export class EmployeeOfficialInfo {
 
 // --- Contact ---
 
-export interface IEmergencyContact {
-  relation?: string | null;
-  name?: string | null;
-  mobile?: string | null;
-}
+// export interface IEmergencyContact {
+//   relation: string | null;
+//   name: string | null;
+//   mobile: string | null;
+// }
+
+
+// export class EmergencyContact {
+//   relation: string  = '';
+//   name: string  = '';
+//   mobile: string  = '';
+
+//   constructor(init?: Partial<IEmergencyContact>) {
+//     if (!init) return;
+
+//     Object.assign(
+//       this,
+//       Object.fromEntries(
+//         Object.entries(init).map(([k, v]) => [k, v ?? this[k as keyof IEmergencyContact]]),
+//       ),
+//     );
+//   }
+// }
 
 export interface IEmployeeContactInfo {
   mobileNo: string;                           // maps to non-nullable string
-  personalEmail?: string | null;               // maps to nullable string
-  primaryContact: IEmergencyContact;           // nested instance object
-  secondaryContact: IEmergencyContact;         // nested instance object
+  personalEmail: string;               // maps to nullable string
+  primaryEmergencyRelation: string;           // nested instance object
+  primaryEmergencyName: string;         // nested instance object
+  primaryEmergencyMobile: string;          // maps to nullable string
+  secondaryEmergencyRelation: string;           // nested instance object
+  secondaryEmergencyName: string;         // nested instance object
+  secondaryEmergencyMobile: string;        // nested instance object
 }
-
-export class EmergencyContact {
-  relation?: string | null = '';
-  name?: string | null = '';
-  mobile?: string | null = '';
-
-  constructor(init?: Partial<EmergencyContact>) {
-    Object.assign(this, init);
-  }
-}
-
 export class EmployeeContactInfo {
-  mobileNo: string = '';
-  personalEmail?: string | null = '';
-  primaryContact: EmergencyContact = new EmergencyContact();
-  secondaryContact: EmergencyContact = new EmergencyContact();
+  mobileNo ="";                          // maps to non-nullable string
+  personalEmail  = "";            // maps to nullable string
+  primaryEmergencyRelation   = "";       // nested instance object
+  primaryEmergencyName     = "";   // nested instance object
+  primaryEmergencyMobile    = "";     // maps to nullable string
+  secondaryEmergencyRelation   = "";       // nested instance object
+  secondaryEmergencyName    = "";    // nested instance object
+  secondaryEmergencyMobile = "";
 
-  constructor(init?: Partial<EmployeeContactInfo>) {
-    this.primaryContact = init?.primaryContact ? new EmergencyContact(init.primaryContact) : new EmergencyContact();
-    this.secondaryContact = init?.secondaryContact ? new EmergencyContact(init.secondaryContact) : new EmergencyContact();
-    
-    if (init) {
-      const { primaryContact, secondaryContact, ...rest } = init;
-      Object.assign(this, rest);
-    }
+  constructor(init?: Partial<IEmployeeContactInfo>) {
+    if (!init) return;
+
+    Object.assign(
+      this,
+      Object.fromEntries(
+        Object.entries(init).map(([k, v]) => [k, v ?? this[k as keyof IEmployeeContactInfo]]),
+      ),
+    );
   }
 }
 // --- AddressInfo ---
 
 export interface IEmployeeAddressInfo {
-  houseNo?: string | null;
-  roadName?: string | null;
-  landMark?: string | null;
-  administrativeUnitId?: string | null; // Guid? maps to nullable string
-  policeStationId?: string | null;       // Guid? maps to nullable string
-  postOfficeId?: string | null;          // Guid? maps to nullable string
-  pinCode?: string | null;
-  ownerShipOfHouse?: string | null;
-  durationOfStayInMonths?: number | null; // int? maps to nullable number
+  houseNo: string ;
+  roadName: string ;
+  landMark: string ;
+  administrativeUnitId: string ; // Guid? maps to nullable string
+  policeStationId: string ;       // Guid? maps to nullable string
+  postOfficeId: string ;          // Guid? maps to nullable string
+  pinCode: string ;
+  ownerShipOfHouse: string ;
+  durationOfStayInMonths: number ; // int? maps to nullable number
 }
 export class EmployeeAddressInfo {
-  houseNo?: string | null = '';
-  roadName?: string | null = '';
-  landMark?: string | null = '';
-  administrativeUnitId?: string | null = '';
-  policeStationId?: string | null = '';
-  postOfficeId?: string | null = '';
-  pinCode?: string | null = '';
-  ownerShipOfHouse?: string | null = '';
-  durationOfStayInMonths?: number | null = 0;
+  houseNo  = '';
+  roadName  = '';
+  landMark = '';
+  administrativeUnitId ='';
+  policeStationId = '';
+  postOfficeId = '';
+  pinCode  = '';
+  ownerShipOfHouse  = '';
+  durationOfStayInMonths  = 0;
 
-  constructor(init?: Partial<EmployeeAddressInfo>) {
-    Object.assign(this, init);
+  constructor(init?: Partial<IEmployeeAddressInfo>) {
+    if (!init) return;
+
+    Object.assign(
+      this,
+      Object.fromEntries(
+        Object.entries(init).map(([k, v]) => [k, v ?? this[k as keyof EmployeeAddressInfo]]),
+      ),
+    );
   }
 }
 
@@ -555,6 +578,11 @@ export interface IEmployeesBySearchResult {
   joiningDate?: Date;        // DateOnly? maps to ISO date string (YYYY-MM-DD)
   separationDate?: Date;     // DateOnly? maps to ISO date string (YYYY-MM-DD)
   isActive: boolean;                  // bool maps to required boolean
+}
+
+export class Utility {
+  sysKey: string="";                         
+  sysVal?: string ="";                     
 }
 
 

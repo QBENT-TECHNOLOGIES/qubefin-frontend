@@ -24,4 +24,3 @@ export * from './lib/stores/login-state-store';
 export * from './lib/stores/permission-store';
 
 // Services
-export * from './lib/services/route-data-service';

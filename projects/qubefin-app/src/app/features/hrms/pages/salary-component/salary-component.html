@@ -1,12 +1,54 @@
-<div class="flex flex-col gap-2">
-    <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
-        <qfin-breadcrumb></qfin-breadcrumb>
+<div class="flex flex-col">
+    <!-- Breadcrumb Section -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-2 z-10">
+        <div class="flex gap-3 items-center flex-wrap">
+            <p class="text-sm text-secondary-600 dark:text-slate-300 font-medium ">Filter By Category:</p>
+            @for (category of categories(); track category.id) {
+                <div (click)="selectCategory(category)" class="p-2 rounded-lg border
+                            flex justify-start items-center gap-2
+                            cursor-pointer lift
+                            transition-all duration-300" 
+                            [ngClass]="{
+                            'bg-white/60 border-slate-200 text-slate-700 hover:bg-slate-100 dark:bg-slate-800/60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/70':
+                                selectedCategory() !== category.id,
+                            'bg-secondary-600 border-secondary-600 text-white shadow-lg dark:bg-primary-600/30 dark:border-primary-500/30 dark:text-white dark:shadow-primary-900/30':
+                                selectedCategory() === category.id
+                        }">
+
+                    <svg [lucideIcon]="getCategoryIcon(category.name)" class="w-5 h-5">
+                    </svg>
+
+                    <p class="font-medium">
+                        {{ category.name }}
+                    </p>
+                </div>
+            }
+            @if (selectedCategory()) {
+                <div
+                    (click)="resetCategoryFilter()"
+                    class="p-2 rounded-full w-10 h-10
+                        flex justify-center items-center
+                        cursor-pointer lift
+                        transition-all duration-300
+                        bg-danger/5 text-danger
+                        hover:bg-danger/10
+                        dark:bg-danger/10 dark:hover:bg-danger/20"
+                    matTooltip="Reset">
+                    <svg
+                        lucideIcon="x"
+                        class="w-5 h-5">
+                    </svg>
+                </div>
+            }
+        </div>
         <div class="flex items-center gap-3">
+            @if (selectedSalaryComponentId() === EMPTY_UUID && isViewMode()) {
             <button type="button" (click)="toggleFilterArea()"
                 class="glass-input dark:text-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
                 <svg lucideIcon="funnel" class="w-4 h-4"></svg>
                 Filter
             </button>
+            } @else {}
             <button
                 class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
                 (click)="onAdd()">
@@ -15,50 +57,57 @@
             </button>
         </div>
     </div>
+    <!-- Content Section -->
+    <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
+        <div class="glass rounded-xl shadow-glass dark:shadow
+           overflow-hidden min-w-0 shrink-0
+           transition-[width,max-width,opacity,transform] 
+           duration-500 ease-in-out"
+            [ngClass]="{
+                'w-full max-w-full opacity-100 translate-x-0':
+                    selectedSalaryComponentId() === EMPTY_UUID && isViewMode(),
 
-    <div class="flex gap-4 items-start">
-        <div class="glass rounded-xl shadow-glass dark:shadow transition-all duration-300 overflow-hidden"
-            [class.w-full]="selectedSalaryComponentId() === EMPTY_UUID && isViewMode()"
-            [class.w-1/4]="selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()" [ngClass]="{
-                'sticky top-0 h-[calc(100vh-170px)]': selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()
+                'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]':
+                    isViewMode() && selectedSalaryComponentId() !== EMPTY_UUID,
+
+                'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
+                    !isViewMode()
             }">
-            
-            
+            <!-- COLLAPSED SEARCH -->
             @if (selectedSalaryComponentId() === EMPTY_UUID && isViewMode()) {
-                <!-- Filter Area -->
-                @if (showFilterArea()) {
-                <div class="p-3 transition-all duration-300">
-                    <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
-                        <!-- Search By Name/Code -->
-                        <div class="flex-1 min-w-[200px]">
-                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                <mat-label>Search By Name/Code</mat-label>
-                                <div class="w-12 flex justify-center" matPrefix>
-                                    <svg lucideIcon="search" class="w-5 h-5"></svg>
-                                </div>
-                                <input matInput autocomplete="off" placeholder="Enter name or code"
-                                    [(ngModel)]="tempSearch">
-                            </mat-form-field>
-                        </div>
+            @if (showFilterArea()) {
+            <div class="p-3 transition-all duration-300">
+                <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
+                    <!-- Search By Name/Code -->
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Search By Name/Code</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="search" class="w-5 h-5"></svg>
+                            </div>
+                            <input matInput autocomplete="off" placeholder="Enter name or code"
+                                [(ngModel)]="tempSearch">
+                        </mat-form-field>
+                    </div>
 
-                        <!-- Category -->
-                        <div class="flex-1 min-w-[200px]">
-                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                <mat-label>Category</mat-label>
-                                <div class="w-12 flex justify-center" matPrefix>
-                                    <svg lucideIcon="tag" class="w-5 h-5"></svg>
-                                </div>
-                                <mat-select placeholder="Select category" [(ngModel)]="tempCategory">
-                                    <mat-option value="">All Categories</mat-option>
-                                    @for (category of categories(); track category.id) {
-                                    <mat-option [value]="category.id">{{ category.name }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
+                    <!-- Category -->
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Category</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select placeholder="Select category" [(ngModel)]="tempCategory">
+                                <mat-option value="">All Categories</mat-option>
+                                @for (category of categories(); track category.id) {
+                                <mat-option [value]="category.id">{{ category.name }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
 
-                        <!-- Taxable Toggle -->
-                        <!-- <div class="flex flex-col select-none">
+                    <!-- Taxable Toggle -->
+                    <!-- <div class="flex flex-col select-none">
                             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Taxable</span>
                             <div
                                 class="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl w-30 border border-slate-200/50 dark:border-white/5 items-center h-10 shrink-0">
@@ -77,36 +126,38 @@
                             </div>
                         </div> -->
 
-                        <!-- Actions -->
-                        <div class="flex items-center gap-2.5 shrink-0">
-                            <button type="button" (click)="resetFilters()"
-                                class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
-                                <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
-                                Reset
-                            </button>
-                            <button type="button" (click)="applyFilters()"
-                                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                                <svg lucideIcon="search" class="w-4 h-4"></svg>
-                                Search
-                            </button>
-                        </div>
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <button type="button" (click)="resetFilters()"
+                            class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
+                            <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                            Reset
+                        </button>
+                        <button type="button" (click)="applyFilters()"
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            <svg lucideIcon="search" class="w-4 h-4"></svg>
+                            Search
+                        </button>
                     </div>
                 </div>
-                }
+            </div>
+            }
             } @else {
-                <div class="flex items-center gap-2 px-4 py-3">
-                    <div
-                        class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
-                        <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
-                        <input type="text" [(ngModel)]="tempSearch" placeholder="Search by Name" class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
-                    </div>
-                    <button (click)="applyFilters()"
-                        class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
-                        <svg lucideIcon="search" class="w-4 h-4"></svg>
-                    </button>
+            <div class="flex items-center gap-2 px-4 py-3">
+                <div
+                    class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
+                    <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
+                    <input type="text" [(ngModel)]="tempSearch" placeholder="Search by Name"
+                        class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
                 </div>
+                <button (click)="applyFilters()"
+                    class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
+                    <svg lucideIcon="search" class="w-4 h-4"></svg>
+                </button>
+            </div>
             }
 
+            <!-- LIST -->
             <qfin-salary-component-list [data]="filteredSalaryComponents()"
                 [isCollapsed]="selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()"
                 (onViewDetail)="onView($event)">
@@ -114,23 +165,16 @@
         </div>
 
         @if (selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()) {
-        <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 flex-1 transition-all">
-            <!-- <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
-                    <h3 class="font-bold text-lg text-gray-700 dark:text-slate-200">
-                        @if (selectedSalaryComponentId() === EMPTY_UUID) {
-                        Add Salary Component
-                        } @else if (isViewMode()) {
-                        Component Details
-                        } @else {
-                        Edit Component
-                        }
-                    </h3>
-                    <button aria-label="Close"
-                        class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
-                        (click)="closePanel()">
-                        <svg lucideIcon="x" class="w-4 h-4"></svg>
-                    </button>
-                </div> -->
+        <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
+            [ngClass]="{
+                'w-3/4':
+                    isViewMode() &&
+                    selectedSalaryComponentId() !== EMPTY_UUID,
+
+                'w-full':
+                    !isViewMode()
+            }">
+            <!-- HEADER -->
             <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
@@ -189,16 +233,16 @@
                 </button>
             </div>
 
-            <div>
-                @if (isViewMode() && selectedSalaryComponentId() !== EMPTY_UUID) {
-                <qfin-salary-component-view [(salaryId)]="selectedSalaryComponentId" (showEdit)="onEdit()">
-                </qfin-salary-component-view>
-                } @else {
-                <qfin-salary-component-detail [salaryId]="selectedSalaryComponentId()" (onCancel)="closePanel()"
-                    (onSave)="closePanel()">
-                </qfin-salary-component-detail>
-                }
-            </div>
+            <!-- <div> -->
+            @if (isViewMode() && selectedSalaryComponentId() !== EMPTY_UUID) {
+            <qfin-salary-component-view [(salaryId)]="selectedSalaryComponentId" (showEdit)="onEdit()">
+            </qfin-salary-component-view>
+            } @else {
+            <qfin-salary-component-detail [salaryId]="selectedSalaryComponentId()" (onCancel)="closePanel()"
+                (onSave)="closePanel()">
+            </qfin-salary-component-detail>
+            }
+            <!-- </div> -->
         </div>
         }
     </div>

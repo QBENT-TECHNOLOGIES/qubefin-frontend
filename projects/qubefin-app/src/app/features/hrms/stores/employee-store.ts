@@ -1,7 +1,7 @@
 import { httpResource } from "@angular/common/http";
 import { computed, Injectable, signal } from "@angular/core";
 import { ApiPaths, EMPTY_UUID } from "qubefin-core";
-import { Employee, IEmployee, IEmployeePersonalInfo, IEmployeesBySearchResult } from "../models/employee-detail";
+import { IEmployeePersonalInfo, IEmployeesBySearchResult, Utility } from "../models/employee-detail";
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +9,7 @@ import { Employee, IEmployee, IEmployeePersonalInfo, IEmployeesBySearchResult } 
 export class EmployeeStore {
   // --- Detail State ---
   private readonly employeeComponentId = signal<string | undefined>(undefined);
+  // 1. Keep track of the active step index
 
   // --- Pagination & Filtering State ---
   readonly searchQuery = signal<string>('');
@@ -45,8 +46,7 @@ export class EmployeeStore {
 
   readonly loading = computed(() => this.employeeListComponentsResource.isLoading());
   readonly error = computed(() => this.employeeListComponentsResource.error());
-
-  // --- Detail Resource ---
+// --- View Resource ---
   private readonly employeeInfoComponentResource = httpResource<{ personalInfo: IEmployeePersonalInfo }>(() => {
     const id = this.employeeComponentId();
     console.log(id);
@@ -57,6 +57,30 @@ export class EmployeeStore {
   readonly employeeInfoComponent = computed(() => this.employeeInfoComponentResource.value()?.personalInfo ?? undefined);
   readonly employeeInfoComponentLoading = computed(() => this.employeeInfoComponentResource.isLoading());
   readonly employeeInfoComponentError = computed(() => this.employeeInfoComponentResource.error());
+
+  // // --- Personal Resource ---
+  // private readonly personalInfoComponentResource = httpResource<{ personalInfo: IEmployeePersonalInfo }>(() => {
+  //   const id = this.employeeComponentId();
+  //   console.log(id);
+  //   if (!id || id === EMPTY_UUID) return undefined;
+  //   return `${ApiPaths.HRMS}/employees/personal-details/${id}`;
+  // });
+
+  // readonly personalInfoComponent = computed(() => this.personalInfoComponentResource.value()?.personalInfo ?? undefined);
+  // readonly personalInfoComponentLoading = computed(() => this.personalInfoComponentResource.isLoading());
+  // readonly personalInfoComponentError = computed(() => this.personalInfoComponentResource.error());
+
+  // // --- Address Resource ---
+  // private readonly addressInfoComponentResource = httpResource<{ addressInfo: IEmployeeAddressInfo }>(() => {
+  //   const id = this.employeeComponentId();
+  //   console.log(id);
+  //   if (!id || id === EMPTY_UUID) return undefined;
+  //   return `${ApiPaths.HRMS}/employees/address-details/${id}`;
+  // });
+
+  // readonly addressInfoComponent = computed(() => this.addressInfoComponentResource.value()?.addressInfo ?? undefined);
+  // readonly addressInfoComponentLoading = computed(() => this.addressInfoComponentResource.isLoading());
+  // readonly addressInfoComponentError = computed(() => this.addressInfoComponentResource.error());
 
   // --- State Setters ---
   setSearchQuery(query: string) {
@@ -86,8 +110,27 @@ export class EmployeeStore {
   refreshList() {
     this.employeeListComponentsResource.reload();
   }
-
   refreshDetail() {
     this.employeeInfoComponentResource.reload();
   }
+  // refreshPersonalInfoDetail() {
+  //   this.personalInfoComponentResource.reload();
+  // }
+  // refreshAddressInfoDetail() {
+  //   this.personalInfoComponentResource.reload();
+  // }
+
+
+  // --- UTILITY SERVICE ---
+  private readonly utilityResource = httpResource< Utility[]>(() => {
+  return `${ApiPaths.GLOBAL}/utilities`;
+});
+
+readonly utilityComponent = computed<Utility[]>(() =>
+  this.utilityResource.value() ?? []
+);
+
+  readonly utilityComponentLoading = computed(() => this.utilityResource.isLoading());
+  readonly utilityComponentError = computed(() => this.utilityResource.error());
+  
 }

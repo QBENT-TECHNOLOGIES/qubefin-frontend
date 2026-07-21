@@ -1,12 +1,17 @@
-import { Component } from '@angular/core';
+import { Component,computed, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { LucideHouse, LucideChevronRight } from '@lucide/angular';
+import { LucideDynamicIcon } from '@lucide/angular';
+import { APP_ICONS_MAP } from '../../../lucide-icons';
+import { MenuHierarchyItem } from '../../../features/app/models/menu-hierarchy-item';
 
 @Component({
   selector: 'qfin-breadcrumb',
-  imports: [MatIconModule, LucideHouse,LucideChevronRight ],
+  imports: [MatIconModule, LucideDynamicIcon ],
   templateUrl: './breadcrumb.html'
 })
 export class Breadcrumb {
 
+  readonly iconMap = APP_ICONS_MAP;
+
+  data = input<MenuHierarchyItem[]>();
 }
