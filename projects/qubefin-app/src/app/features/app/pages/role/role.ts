@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { RoleListComponent } from '../../components/role-list/role-list';
 import { EMPTY_UUID } from 'qubefin-core';
 import { RoleStore } from '../../stores/role-store';
@@ -34,11 +34,17 @@ export class RolePage {
 
 	protected readonly roleSearchForm = form(this.roleSearchFields);
 
+	constructor() {
+		effect(() => {
+			console.log(this.searchedRoles());
+		});
+	}
+
 	onSort(sort: Sort) {
 	}
 
 	onPageChange(event: PageEvent) {
-
+		this.roleStore.setPagination(event.pageIndex, event.pageSize);
 	}
 
 	protected onAdd() {

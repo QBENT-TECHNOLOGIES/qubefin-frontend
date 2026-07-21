@@ -1,6 +1,6 @@
 import { Component, input, output, signal } from '@angular/core';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
-import { Role, RoleSearch } from '../../models/role';
+import { Role, RoleSearch, RoleSearchResult } from '../../models/role';
 import { CommonModule } from '@angular/common';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
@@ -13,24 +13,25 @@ import { LucideDynamicIcon } from '@lucide/angular';
 	templateUrl: './role-list.html'
 })
 export class RoleListComponent {
-	onViewDetail = output<string>();
+	
 
 	selectedId = signal<string>('');
 	readonly iconMap = APP_ICONS_MAP;
 
 	isCollapsed = signal<boolean>(false);
 
-	data = input<RoleSearch[]>([]);
-	sortChange = output<Sort>();
-	pageChange = output<PageEvent>();
+	readonly data = input.required<RoleSearchResult>();
+    readonly pageIndex = input(0);
+    readonly pageSize = input(1);
 
-	displayedColumns: string[] = ['index', 'name', 'status', 'actions'];
+	readonly sortChange = output<Sort>();
+	readonly pageChange = output<PageEvent>();
+	readonly showDetail = output<string>();
 
-	constructor() {
-	}
+	readonly displayedColumns: string[] = ['index', 'name', 'status', 'actions'];
 
-	onDetailView(id: string) {
+	onDhowDetail(id: string) {
 		this.selectedId.set(id);
-		this.onViewDetail.emit(id);
+		this.showDetail.emit(id);
 	}
 }

@@ -139,6 +139,11 @@
     container-shape: 12px,
   ));
 
+  @include mat.paginator-overrides((
+    container-background-color: transparent,
+    form-field-container-height: 25px,
+    form-field-container-vertical-padding: 8px,
+  ));
 }
 
 .dark {
@@ -161,8 +166,13 @@
     outlined-container-shape: 6px,
   ));
 
-   @include mat.select-overrides((
+  @include mat.select-overrides((
     placeholder-text-color: #ffffff,
+  ));
+  @include mat.paginator-overrides((
+    container-text-color: #eeeeee,
+    disabled-icon-color: #a3a3a3,
+    enabled-icon-color: #ffffff
   ));
 }
 

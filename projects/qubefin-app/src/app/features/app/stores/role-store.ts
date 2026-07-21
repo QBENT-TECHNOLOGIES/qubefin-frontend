@@ -10,9 +10,9 @@ export class RoleStore {
     // Internal State
     private roleState = signal({
         searchText: '',
-        currentPage: 0,
-        itemsPerPage: 20,
-        sortOn: '',
+        pageIndex: 0,
+        pageSize: 1,
+        sortOn: 'name',
         sortDirection: 'asc',
         roleId: EMPTY_UUID
     });
@@ -22,8 +22,8 @@ export class RoleStore {
         const searchState = this.roleState();
         return {
             searchText: searchState.searchText,
-            currentPage: searchState.currentPage,
-            itemsPerPage: searchState.itemsPerPage,
+            pageIndex: searchState.pageIndex,
+            pageSize: searchState.pageSize,
             sortOn: searchState.sortOn,
             sortDirection: searchState.sortDirection
         };
@@ -71,6 +71,12 @@ export class RoleStore {
     setSort(sortOn: string, sortDirection: string) {
         this.updateStateParams({ sortOn, sortDirection });
     }
+
+    setPagination = (page: number, count: number): void => this.updateStateParams({ pageIndex: page, pageSize: count });
+
+    setPageIndex = (page: number): void => this.updateStateParams({ pageIndex: page });
+
+    setPageSize = (itemCount: number): void => this.updateStateParams({ pageSize: itemCount });
 
     setRoleId(id: string | undefined) {
         this.updateStateParams({ roleId: id });

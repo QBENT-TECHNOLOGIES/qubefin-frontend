@@ -473,3 +473,7 @@ a:focus-visible, button:focus-visible {
   backdrop-filter: blur(18px) saturate(160%);
   border: 2px solid rgba(255,255,255,0.15);
 }
+
+.mat-mdc-paginator-container .mat-mdc-form-field-infix {
+  padding-left: 10px;
+}

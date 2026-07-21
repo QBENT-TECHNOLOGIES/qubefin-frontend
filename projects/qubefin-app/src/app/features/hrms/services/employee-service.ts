@@ -1,11 +1,10 @@
-
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ApiPaths } from 'qubefin-core';
 import { EmployeeAddressInfo, EmployeeContactInfo, EmployeeDocument, EmployeeOfficialInfo, EmployeePersonalInfo } from '../models/employee-detail';
 
 @Injectable({
-    providedIn: 'root',
+  providedIn: 'root',
 })
 export class EmployeeService {
     httpClient = inject(HttpClient);
@@ -46,11 +45,13 @@ export class EmployeeService {
     updateContactInfo(employeeId: string,contact: EmployeeContactInfo) {
         return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/contact/` + employeeId, contact);
     }
-    updateOfficialInfo(employeeId: string,contact: EmployeeOfficialInfo) {
+     getEmployeesBySearchText(searchText: any) {
+        return this.httpClient.post(`${ApiPaths.HRMS}/employees/search-by-text`, searchText);
+    }
+     updateOfficialInfo(employeeId: string,contact: EmployeeOfficialInfo) {
         return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/official/` + employeeId, contact);
     }
     updateKycInfo(employeeId: string,contact: EmployeeDocument) {
         return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/kyc/` + employeeId, contact);
     }
-    
 }
