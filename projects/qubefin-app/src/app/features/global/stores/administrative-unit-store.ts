@@ -34,4 +34,9 @@ export class AdministrativeUnitStore {
         if (this.administrativeUnitId() === administrativeUnitId) return;
         this.administrativeUnitId.set(administrativeUnitId);
     }
+
+    // Manual Refresh
+    refreshTree() {
+        this.administrativeUnitTreeResource.reload();
+    }
 }

@@ -16,6 +16,9 @@ body {
   /* background-attachment: fixed; */
   background-position: top right;
 }
+a:focus-visible, button:focus-visible {
+  outline: none !important;
+}
  /* .bg-set {
   background: url("../../public/assets/images/main-bg.png");
   background-size: cover;
@@ -184,10 +187,10 @@ body {
   @apply p-3 text-sm font-semibold text-secondary-600 dark:text-slate-200;
 }
 .table tbody tr {
-  @apply border-b border-gray-100 dark:border-slate-700 hover:bg-primary-500/5 dark:hover:bg-slate-200/5 transition-colors;
+  @apply border-b border-gray-100 dark:border-slate-700/50 hover:bg-primary-500/5 dark:hover:bg-slate-200/5 transition-colors;
 }
 .table tbody tr td {
-  @apply px-3 py-1.5 text-[13px] text-gray-600 dark:text-slate-300;
+  @apply px-3 py-0.5 text-[13px] text-gray-600 dark:text-slate-300;
 }
 .table.mat-mdc-table .mat-mdc-header-cell {
   @apply border-b border-gray-100 bg-secondary-500/1 dark:bg-slate-500/10 dark:border-slate-700;
@@ -465,3 +468,12 @@ body {
 }
 
 
+/* For modal */
+.glass-modal .mat-mdc-dialog-surface {
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 2px solid rgba(255,255,255,0.15);
+}
+
+.mat-mdc-paginator-container .mat-mdc-form-field-infix {
+  padding-left: 10px;
+}

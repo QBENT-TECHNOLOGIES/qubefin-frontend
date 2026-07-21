@@ -58,6 +58,8 @@
   container-text-line-height: 22px,
   container-text-tracking: 0.2px,
 
+  filled-input-text-color: #2d2c7c,
+
   // ==========================
   // Placeholder
   // ==========================
@@ -101,12 +103,14 @@
   @include mat.tooltip-overrides((
     container-color: #16C784,
     supporting-text-color: #fff,
+    container-shape: 6px,
   ));
 
   @include mat.table-overrides((
     background-color: transparent,
     row-item-outline-width: 0px,
     header-container-height: 38px,
+    row-item-container-height: 42px,
   ));
 
   @include mat.slide-toggle-overrides((
@@ -130,6 +134,16 @@
     
   ));
 
+  @include mat.dialog-overrides((
+    container-color: rgba(255,255,255,0.55),
+    container-shape: 12px,
+  ));
+
+  @include mat.paginator-overrides((
+    container-background-color: transparent,
+    form-field-container-height: 25px,
+    form-field-container-vertical-padding: 8px,
+  ));
 }
 
 .dark {
@@ -152,8 +166,13 @@
     outlined-container-shape: 6px,
   ));
 
-   @include mat.select-overrides((
+  @include mat.select-overrides((
     placeholder-text-color: #ffffff,
+  ));
+  @include mat.paginator-overrides((
+    container-text-color: #eeeeee,
+    disabled-icon-color: #a3a3a3,
+    enabled-icon-color: #ffffff
   ));
 }
 

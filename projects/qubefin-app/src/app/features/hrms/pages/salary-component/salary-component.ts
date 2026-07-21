@@ -1,17 +1,13 @@
 import { SalaryStore } from './../../stores/salary-store';
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { SalaryComponentList } from "../../components/salary-components/salary-component-list/salary-component-list";
 import { SalaryComponentView } from "../../components/salary-components/salary-component-view/salary-component-view";
 import { SalaryComponentDetail } from "../../components/salary-components/salary-component-detail/salary-component-detail";
-import { EMPTY_UUID, RouteDataService, RouteMeta } from 'qubefin-core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
+import { EMPTY_UUID } from 'qubefin-core';
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -19,7 +15,6 @@ import { FormsModule } from '@angular/forms';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { CommonModule } from '@angular/common';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-
 @Component({
   selector: 'qfin-salary-component',
   imports: [
@@ -34,16 +29,13 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
     MatButtonModule,
     MatTooltipModule,
     LucideDynamicIcon,
-    Breadcrumb,
     CommonModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
   ],
   templateUrl: './salary-component.html',
 })
 export class SalaryComponent {
   public readonly EMPTY_UUID = EMPTY_UUID;
-  private readonly route = inject(ActivatedRoute);
-  private readonly routeDataService = inject(RouteDataService);
   readonly iconMap = APP_ICONS_MAP;
   salaryStore = inject(SalaryStore);
   isViewMode = signal<boolean>(true);
@@ -84,15 +76,8 @@ export class SalaryComponent {
     return list;
   });
 
-  private routeData = toSignal(this.route.data as Observable<RouteMeta>, {
-    initialValue: { title: '', icon: '' }
-  });
-
   constructor() {
     this.salaryStore.loadCategories();
-    effect(() => {
-      this.routeDataService.setRouteData(this.routeData());
-    });
   }
 
   protected onView(id: string) {
@@ -137,6 +122,39 @@ export class SalaryComponent {
     this.tempCategory = '';
     // this.tempTaxable = null;
     this.applyFilters();
+  }
+
+  getCategoryIcon(categoryName: string): any {
+    switch (categoryName?.toLowerCase().trim()) {
+      case 'deduction':
+        return this.iconMap['BanknoteX'];
+
+      case 'employer contribution':
+        return this.iconMap['HandCoins'];
+
+      case 'earning':
+        return this.iconMap['BanknoteArrowUp'];
+
+      default:
+        return this.iconMap['Coins'];
+    }
+  }
+
+  protected selectCategory(category: { id: string; name: string }) {
+    if (this.selectedCategory() === category.id) {
+      // Same category clicked → remove category filter
+      this.selectedCategory.set('');
+      this.tempCategory = '';
+    } else {
+      // New category clicked → apply filter
+      this.selectedCategory.set(category.id);
+      this.tempCategory = category.id;
+    }
+  }
+
+  protected resetCategoryFilter() {
+    this.selectedCategory.set('');
+    this.tempCategory = '';
   }
 }
 

@@ -1,52 +1,59 @@
 <div class="flex border-l-0">
     <div class="flex flex-col items-center justify-between grow lg:flex-row lg:px-4">
-        <div class="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
+        <div
+            class="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
             @if (isExpanded()) {
-                <button (click)="onHandleToggleDrawer()" matTooltip="Drawer Close"
-                    class="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-secondary-600 bg-white/80 dark:bg-white shadow-glass dark:shadow rounded-lg p-2 cursor-pointer z-99999">
-                    <svg lucideIcon="panel-left-close" class="w-5 h-5"></svg>
-                </button>
-            } @else {
-                <button (click)="onHandleToggleDrawer()" matTooltip="Drawer Open"
+            <button (click)="onHandleToggleDrawer()" matTooltip="Drawer Close"
                 class="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-secondary-600 bg-white/80 dark:bg-white shadow-glass dark:shadow rounded-lg p-2 cursor-pointer z-99999">
-                    <svg lucideIcon="panel-left-open" class="w-5 h-5"></svg>
-                </button>
+                <svg lucideIcon="panel-left-close" class="w-5 h-5"></svg>
+            </button>
+            } @else {
+            <button (click)="onHandleToggleDrawer()" matTooltip="Drawer Open"
+                class="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-secondary-600 bg-white/80 dark:bg-white shadow-glass dark:shadow rounded-lg p-2 cursor-pointer z-99999">
+                <svg lucideIcon="panel-left-open" class="w-5 h-5"></svg>
+            </button>
             }
 
-            <div class="flex flex-col justify-center min-w-0 py-0.5">
-                <h1 class="text-2xl font-bold text-black dark:text-white leading-tight">
-                    {{pageTitle()}}
+            <div class="flex flex-col gap-0.5 justify-center min-w-0 py-0.5">
+                <h1 class="text-xl font-bold text-black dark:text-white leading-tight">
+                    {{pageData()?.name}}
+                    <!-- <span
+                        class="text-[12px] font-medium text-slate-500 dark:text-slate-400 leading-normal truncate mt-0.5">
+                        (Manage and organize roles of the system)
+                    </span> -->
                 </h1>
-                <p
+                <!-- <p
                     class="text-[12px] font-medium text-slate-500 dark:text-slate-400 leading-normal sm:block truncate mt-0.5">
                     {{pageSubTitle()}}
-                </p>
+                </p> -->
+                <qfin-breadcrumb [data]="pageData()?.hierarchy"></qfin-breadcrumb>
             </div>
         </div>
         <div
             class="items-center justify-between w-full gap-4 px-5 py-4 shadow-theme-md lg:flex lg:justify-end lg:px-0 lg:shadow-none">
             <div class="flex items-center gap-2 sm:gap-3">
-                <button (click)="theme.toggle()" [attr.aria-checked]="theme.isDark()" matTooltip="Toggle Dark Mode" role="switch"
-                    class="w-11 h-11 rounded-4xl bg-white/80 backdrop-blur-2xl dark:bg-slate-50/10 flex items-center justify-center hover:shadow-glow transition cursor-pointer hover:translate-y-[-3px] shrink-0">
+                <button (click)="theme.toggle()" [attr.aria-checked]="theme.isDark()" matTooltip="Toggle Dark Mode"
+                    role="switch"
+                    class="w-11 h-11 rounded-4xl bg-white/80 backdrop-blur-2xl dark:bg-slate-50/10 flex items-center justify-center hover:shadow-glow transition cursor-pointer hover:-translate-y-0.75 shrink-0">
                     @if(theme.isDark()) {
                     <svg lucideIcon="moon" class="w-5 h-5 dark:text-white"></svg>
                     } @else {
                     <svg lucideIcon="sun" class="w-5 h-5 dark:text-white"></svg>
                     }
                 </button>
-                <button matTooltip="Notification" 
-                    class="relative w-11 h-11 rounded-4xl bg-white/80 backdrop-blur-2xl dark:bg-slate-50/10 flex items-center justify-center hover:shadow-glow transition cursor-pointer hover:translate-y-[-3px] shrink-0">
+                <button matTooltip="Notification"
+                    class="relative w-11 h-11 rounded-4xl bg-white/80 backdrop-blur-2xl dark:bg-slate-50/10 flex items-center justify-center hover:shadow-glow transition cursor-pointer hover:-translate-y-0.75 shrink-0">
                     <svg lucideIcon="bell" class="w-5 h-5 dark:text-white"></svg>
                     <span
                         class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-danger text-white text-[10px] font-bold flex items-center justify-center border-2 border-white dark:border-slate-300">3</span>
                 </button>
                 <div [matMenuTriggerFor]="profileMenu"
-                    class="w-11 h-11 rounded-full bg-gradient-to-br from-secondary-500 to-accent-500 flex items-center justify-center cursor-pointer text-white font-semibold text-sm relative shrink-0 lift">
+                    class="w-11 h-11 rounded-full bg-linear-to-br from-secondary-500 to-accent-500 flex items-center justify-center cursor-pointer text-white font-semibold text-sm relative shrink-0 lift">
                     SA
                     <span
                         class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-white dark:border-slate-900"></span>
                 </div>
-                
+
 
                 <mat-menu #profileMenu="matMenu" class="profile-menu">
                     <!-- Header -->
@@ -63,11 +70,11 @@
                     </button>
                     <button mat-menu-item (click)="theme.toggle()" [attr.aria-checked]="theme.isDark()">
                         @if(theme.isDark()) {
-                            <svg lucideIcon="moon" class="w-5 h-5 dark:text-white"></svg>
-                            <span class="dark:text-slate-300">Light Mode</span>
+                        <svg lucideIcon="moon" class="w-5 h-5 dark:text-white"></svg>
+                        <span class="dark:text-slate-300">Light Mode</span>
                         } @else {
-                            <svg lucideIcon="sun" class="w-5 h-5 dark:text-white"></svg>
-                            <span class="dark:text-slate-300">Dark Mode</span>
+                        <svg lucideIcon="sun" class="w-5 h-5 dark:text-white"></svg>
+                        <span class="dark:text-slate-300">Dark Mode</span>
                         }
                     </button>
                     <div class="menu-divider"></div>

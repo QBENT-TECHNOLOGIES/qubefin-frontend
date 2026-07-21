@@ -1,8 +1,5 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { EMPTY_UUID, RouteDataService, RouteMeta } from 'qubefin-core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
+import { EMPTY_UUID } from 'qubefin-core';
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -11,7 +8,6 @@ import { EmployeeComponentList } from '../../components/employee-components/empl
 import { EmployeeComponentView } from '../../components/employee-components/employee-component-view/employee-component-view';
 import { EmployeeComponentDetail } from '../../components/employee-components/employee-component-detail/employee-component-detail';
 import { EmployeeStore } from '../../stores/employee-store';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -22,15 +18,13 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'qfin-employee-component',
   imports: [
-    EmployeeComponentList,CommonModule, MatFormFieldModule, MatInputModule, FormsModule, Breadcrumb, EmployeeComponentView, EmployeeComponentDetail, MatIconModule, MatButtonModule, LucideDynamicIcon,
+    EmployeeComponentList,CommonModule, MatFormFieldModule, MatInputModule, FormsModule, EmployeeComponentView, EmployeeComponentDetail, MatIconModule, MatButtonModule, LucideDynamicIcon,
     MatTooltipModule,
   ],
   templateUrl: './employee-component.html',
 })
 export class EmployeeComponent {
   public readonly EMPTY_UUID = EMPTY_UUID;
-  private readonly route = inject(ActivatedRoute);
-  private readonly routeDataService = inject(RouteDataService);
   readonly iconMap = APP_ICONS_MAP;
   // Filter properties
   showFilterArea = signal<boolean>(false);
@@ -41,16 +35,6 @@ export class EmployeeComponent {
   selectedEmployeeComponentId = signal<string>(EMPTY_UUID);
   employeeComponents = this.employeeStore.employeeListComponents;
   
-  private routeData = toSignal(this.route.data as Observable<RouteMeta>, {
-    initialValue: { title: '', icon: '' }
-  });
-  
-  constructor() {
-    effect(() => {
-      this.routeDataService.setRouteData(this.routeData());
-    });
-  }
-
   protected onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.employeeStore.setSearchQuery(input.value);
@@ -93,6 +77,9 @@ export class EmployeeComponent {
   protected handleSave() {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
+  }
+  protected handleUpdate(event: any) {
+    console.log(event);
   }
 
   protected toggleFilterArea() {

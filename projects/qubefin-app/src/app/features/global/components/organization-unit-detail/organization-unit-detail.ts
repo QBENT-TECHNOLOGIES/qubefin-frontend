@@ -142,13 +142,10 @@ export class OrganizationUnitDetailComponent {
 
 		const dataToSave = this.organizationUnitForm().value();
 		dataToSave.parentId = this.parentTypes().at(-1)?.value()!;
-
-		console.log(dataToSave);
-		return;
 		if (this.organizationUnitId() === EMPTY_UUID) {
 			this.organizationUnitService.create(dataToSave).subscribe({
 				next: (resp: any) => {
-
+					this.organizationUnitStore.refreshTree();
 				},
 				error: (err: any) => {
 					if (err.error.isError) {
@@ -158,6 +155,7 @@ export class OrganizationUnitDetailComponent {
 		} else {
 			this.organizationUnitService.update(this.organizationUnitId(), dataToSave).subscribe({
 				next: (resp: any) => {
+					this.organizationUnitStore.refreshTree();
 				},
 				error: (err: any) => {
 					if (err.error.isError) {
@@ -187,7 +185,7 @@ export class OrganizationUnitDetailComponent {
 
 	private getParents(selected: OrganizationUnitType): OrganizationUnitType[] {
 		return this.organizationUnitTypes()
-		.filter(x => {
+			.filter(x => {
 				return x.levelNo < selected.levelNo;
 			})
 			.sort((a, b) => a.levelNo - b.levelNo);
