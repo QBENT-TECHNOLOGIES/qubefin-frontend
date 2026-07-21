@@ -134,11 +134,18 @@
             </div>
           </div>
         </div>
-        <button aria-label="Close" matTooltip="Close"
-          class="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
-          (click)="closePanel()">
-          <svg lucideIcon="x" class="w-4 h-4"></svg>
-        </button>
+        <div class="flex items-center gap-2">
+          <button type="button"
+            class="rounded-lg px-4 py-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+            (click)="goToCompleteSurvey()">
+            Complete Survey
+          </button>
+          <button aria-label="Close" matTooltip="Close"
+            class="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
+            (click)="closePanel()">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+          </button>
+        </div>
       </div>
 
       <div>

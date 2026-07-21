@@ -1,0 +1,130 @@
+<mat-stepper linear #stepper class="branch-survey-stepper" [class.dark-stepper]="true">
+  @for (step of steps; track step.label) {
+    <mat-step [label]="step.label">
+      <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
+        <div class="p-5">
+
+          <div class="flex items-center gap-2">
+            <svg [lucideIcon]="step.icon" class="w-5 h-5 text-primary-600"></svg>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">
+              {{ step.label }}
+            </h3>
+          </div>
+          <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            @for (field of step.fields; track field.key) {
+
+              @switch (field.type) {
+
+                @case ('cascade') {
+                  <qfin-administrative-unit-cascade
+                    [columns]="3"
+                    [administrativeUnitId]="getValue(field.key)"
+                    (selectedIdChanged)="onCascadeChanged($event)">
+                  </qfin-administrative-unit-cascade>
+                }
+
+                @case ('date') {
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                      <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
+                    </div>
+                    <input
+                      matInput
+                      [matDatepicker]="picker"
+                      [value]="getValue(field.key)"
+                      (dateChange)="updateField(field.key, $event.value)" />
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                  </mat-form-field>
+                }
+
+                @case ('select') {
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                      <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select
+                      [value]="getValue(field.key)"
+                      (valueChange)="updateField(field.key, $event)">
+                      @for (option of field.options; track option) {
+                        <mat-option [value]="option">{{ option }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                }
+
+                @case ('number') {
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                      @if (field.prefix) {
+                        <span class="text-sm">{{ field.prefix }}</span>
+                      } @else {
+                        <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
+                      }
+                    </div>
+                    <input
+                      matInput
+                      type="number"
+                      [value]="getValue(field.key)"
+                      (input)="onNumberInput(field.key, $any($event.target).value)" />
+                  </mat-form-field>
+                }
+
+                @default {
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                      <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
+                    </div>
+                    <input
+                      matInput
+                      [value]="getValue(field.key)"
+                      (input)="onTextInput(field.key, $any($event.target).value)" />
+                  </mat-form-field>
+                }
+
+              }
+
+            }
+          </div>
+
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 mt-4">
+        @if (!$first) {
+          <button
+            matStepperPrevious
+            type="button"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
+            Back
+          </button>
+        }
+
+        @if (!$last) {
+          <button
+            matStepperNext
+            type="button"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            Next
+            <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
+          </button>
+        } @else {
+          <button
+            type="button"
+            (click)="onSubmit()"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
+            {{ isEditMode() ? 'Update' : 'Submit' }}
+          </button>
+        }
+      </div>
+    </mat-step>
+  }
+</mat-stepper>

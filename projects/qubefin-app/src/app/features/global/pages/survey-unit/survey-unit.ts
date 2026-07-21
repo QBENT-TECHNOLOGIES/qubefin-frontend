@@ -12,7 +12,7 @@ import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { SurveyStore } from '../../stores/survey-store';
 import { SurveyUnitList } from '../../components/survey-unit/survey-unit-list/survey-unit-list';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
@@ -30,6 +30,7 @@ import { SurveyUnitDetail } from '../../components/survey-unit/survey-unit-detai
     LucideDynamicIcon,
     Breadcrumb,
     CommonModule,
+    RouterLink,
     SurveyUnitList,
     SurveyUnitView,
     SurveyUnitDetail,
@@ -47,6 +48,7 @@ export class SurveyUnit {
   // Dependency Injection
   // ===========================
   readonly surveyStore = inject(SurveyStore);
+  private readonly router = inject(Router);
   // ===========================
   // Component State
   // ===========================
@@ -82,6 +84,10 @@ export class SurveyUnit {
   protected closePanel() {
     this.selectedsurveyStoreId.set(EMPTY_UUID);
     this.isViewMode.set(true);
+  }
+
+  protected goToCompleteSurvey() {
+    this.router.navigate(['/branch-survey']);
   }
 
   // ===========================
