@@ -2,6 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import { ISurveyDetail, ISurveySearchResult } from '../models/survey';
+import { Utility } from '../../hrms/models/employee-detail';
 
 @Injectable({
   providedIn: 'root',
@@ -148,4 +149,14 @@ export class SurveyStore {
       })),
     };
   }
+
+  // --- UTILITY SERVICE ---
+  private readonly utilityResource = httpResource<Utility[]>(() => {
+    return `${ApiPaths.GLOBAL}/utilities`;
+  });
+
+  readonly utilityComponent = computed<Utility[]>(() => this.utilityResource.value() ?? []);
+
+  readonly utilityComponentLoading = computed(() => this.utilityResource.isLoading());
+  readonly utilityComponentError = computed(() => this.utilityResource.error());
 }

@@ -25,7 +25,7 @@
                         </div>
                         <mat-select [value]="formModel().surveyType" (valueChange)="updateField('surveyType',$event)">
                             @for(type of surveyTypes(); track type){
-                            <mat-option [value]="type"> {{type}}
+                            <mat-option [value]="type.sysVal"> {{type.sysVal}}
                             </mat-option>
                             }
                         </mat-select>
