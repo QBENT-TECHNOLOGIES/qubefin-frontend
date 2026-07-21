@@ -1,0 +1,85 @@
+<div class="animate-fade-in">
+  <div class="flex items-center gap-2">
+    <svg lucideIcon="landmark" class="w-5 h-5 text-primary-600"></svg>
+    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+      Financial Inclusion Status
+    </h3>
+  </div>
+  <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Number of Banks</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="landmark" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('numberOfBanks')"
+        (input)="onNumberInput('numberOfBanks', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Number of Regional Rural Banks</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="landmark" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('numberOfRegionalRuralBanks')"
+        (input)="onNumberInput('numberOfRegionalRuralBanks', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Number of Cooperative Banks</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="landmark" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('numberOfCooperativeBanks')"
+        (input)="onNumberInput('numberOfCooperativeBanks', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Banking Correspondents</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="user-check" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('bankingCorrespondents')"
+        (input)="onNumberInput('bankingCorrespondents', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>ATMs</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="credit-card" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('aTMs')"
+        (input)="onNumberInput('aTMs', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Digital Payment Acceptance</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="smartphone" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('digitalPaymentAcceptance')"
+        (valueChange)="onFieldUpdate('digitalPaymentAcceptance', $event)">
+        @for (option of yesNoOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>

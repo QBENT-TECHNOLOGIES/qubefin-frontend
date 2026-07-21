@@ -1,0 +1,25 @@
+<div class="animate-fade-in">
+  <div class="flex items-center gap-2">
+    <svg lucideIcon="thumbs-up" class="w-5 h-5 text-primary-600"></svg>
+    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+      Recommendation
+    </h3>
+  </div>
+  <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Recommendation</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="thumbs-up" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('recommendation')"
+        (valueChange)="onFieldUpdate('recommendation', $event)">
+        @for (option of recommendationOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>

@@ -30,7 +30,6 @@ import { SurveyUnitDetail } from '../../components/survey-unit/survey-unit-detai
     LucideDynamicIcon,
     Breadcrumb,
     CommonModule,
-    RouterLink,
     SurveyUnitList,
     SurveyUnitView,
     SurveyUnitDetail,
@@ -87,7 +86,7 @@ export class SurveyUnit {
   }
 
   protected goToCompleteSurvey() {
-    this.router.navigate(['/branch-survey']);
+    this.router.navigate(['/secure/global/branch-survey']);
   }
 
   // ===========================

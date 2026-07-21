@@ -1,0 +1,178 @@
+<div class="animate-fade-in">
+  <div class="flex items-center gap-2">
+    <svg lucideIcon="briefcase" class="w-5 h-5 text-primary-600"></svg>
+    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+      Economic Profile
+    </h3>
+  </div>
+  <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Agriculture (%)</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="wheat" class="w-4 h-4"></svg>
+        <span class="text-sm font-semibold">%</span>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('agriculturePercent')"
+        (input)="onNumberInput('agriculturePercent', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Agricultural Labour</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="wheat" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('agriculturalLabour')"
+        (input)="onNumberInput('agriculturalLabour', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Dairy / Livestock</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="beef" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('dairyLivestock')"
+        (input)="onNumberInput('dairyLivestock', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Small Business</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="store" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('smallBusiness')"
+        (input)="onNumberInput('smallBusiness', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Petty Trade</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="shopping-bag" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('pettyTrade')"
+        (input)="onNumberInput('pettyTrade', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Cottage / Small Industries</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="factory" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('cottageSmallIndustries')"
+        (input)="onNumberInput('cottageSmallIndustries', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Transport Activities</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="truck" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('transportActivities')"
+        (input)="onNumberInput('transportActivities', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Service Holders</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="briefcase" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('serviceHolders')"
+        (input)="onNumberInput('serviceHolders', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Daily Wage Earners</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="hard-hat" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('dailyWageEarners')"
+        (input)="onNumberInput('dailyWageEarners', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Other Income Generating Activities</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="plus-circle" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        [value]="getValue('otherIncomeGeneratingActivities')"
+        (input)="onTextInput('otherIncomeGeneratingActivities', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Main Crop</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="wheat" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        [value]="getValue('mainCrop')"
+        (input)="onTextInput('mainCrop', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Peak Business Season</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="trending-up" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        [value]="getValue('peakBusinessSeason')"
+        (input)="onTextInput('peakBusinessSeason', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Lean Season</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="trending-down" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        [value]="getValue('leanSeason')"
+        (input)="onTextInput('leanSeason', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Overall Economic Condition</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="gauge" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('overallEconomicCondition')"
+        (valueChange)="onFieldUpdate('overallEconomicCondition', $event)">
+        @for (option of conditionOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>

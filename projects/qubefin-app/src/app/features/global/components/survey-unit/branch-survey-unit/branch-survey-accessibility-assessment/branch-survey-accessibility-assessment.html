@@ -1,0 +1,137 @@
+<div class="animate-fade-in">
+  <div class="flex items-center gap-2">
+    <svg lucideIcon="signpost" class="w-5 h-5 text-primary-600"></svg>
+    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+      Accessibility Assessment
+    </h3>
+  </div>
+  <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Road Condition</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="road" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('roadCondition')"
+        (valueChange)="onFieldUpdate('roadCondition', $event)">
+        @for (option of ratingOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Public Transport Availability</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="bus" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('publicTransportAvailability')"
+        (valueChange)="onFieldUpdate('publicTransportAvailability', $event)">
+        @for (option of ratingOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Railway Connectivity</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="train-front" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('railwayConnectivity')"
+        (valueChange)="onFieldUpdate('railwayConnectivity', $event)">
+        @for (option of ratingOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Bus Connectivity</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="bus" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('busConnectivity')"
+        (valueChange)="onFieldUpdate('busConnectivity', $event)">
+        @for (option of ratingOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Mobile Network Coverage</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="signal" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('mobileNetworkCoverage')"
+        (valueChange)="onFieldUpdate('mobileNetworkCoverage', $event)">
+        @for (option of ratingOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Internet Availability</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="wifi" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('internetAvailability')"
+        (valueChange)="onFieldUpdate('internetAvailability', $event)">
+        @for (option of ratingOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Electricity Supply</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="zap" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('electricitySupply')"
+        (valueChange)="onFieldUpdate('electricitySupply', $event)">
+        @for (option of ratingOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Drinking Water Availability</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="droplets" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('drinkingWaterAvailability')"
+        (valueChange)="onFieldUpdate('drinkingWaterAvailability', $event)">
+        @for (option of ratingOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Safety of Area</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="shield-check" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('safetyOfArea')"
+        (valueChange)="onFieldUpdate('safetyOfArea', $event)">
+        @for (option of ratingOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>

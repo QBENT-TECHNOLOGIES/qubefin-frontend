@@ -1,0 +1,81 @@
+<div class="animate-fade-in">
+  <div class="flex items-center gap-2">
+    <svg lucideIcon="bus" class="w-5 h-5 text-primary-600"></svg>
+    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+      Transportation Facilities
+    </h3>
+  </div>
+  <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Rail Connectivity</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="train-front" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('railConnectivity')"
+        (valueChange)="onFieldUpdate('railConnectivity', $event)">
+        @for (option of yesNoOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Bus Connectivity</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="bus" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('busConnectivityAvailable')"
+        (valueChange)="onFieldUpdate('busConnectivityAvailable', $event)">
+        @for (option of yesNoOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Auto / Toto Availability</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="car-front" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('autoTotoAvailability')"
+        (valueChange)="onFieldUpdate('autoTotoAvailability', $event)">
+        @for (option of yesNoOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Road Accessibility</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="road" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('roadAccessibility')"
+        (valueChange)="onFieldUpdate('roadAccessibility', $event)">
+        @for (option of yesNoOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Accessibility by Motorcycle (Throughout Year)</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="bike" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('accessibilityByMotorCycle')"
+        (valueChange)="onFieldUpdate('accessibilityByMotorCycle', $event)">
+        @for (option of yesNoOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>

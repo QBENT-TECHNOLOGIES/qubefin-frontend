@@ -1,0 +1,137 @@
+<div class="animate-fade-in">
+  <div class="flex items-center gap-2">
+    <svg lucideIcon="map-pinned" class="w-5 h-5 text-primary-600"></svg>
+    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+      Geographic Information
+    </h3>
+  </div>
+  <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Date of Survey</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        [matDatepicker]="picker"
+        [value]="getValue('surveyDate')"
+        (dateChange)="onDateChanged('surveyDate', $event.value)" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Proposed Operational Area</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="map" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        [value]="getValue('proposedOperationalArea')"
+        (input)="onTextInput('proposedOperationalArea', $any($event.target).value)" />
+    </mat-form-field>
+
+    <qfin-administrative-unit-cascade
+      [columns]="3"
+      [administrativeUnitId]="getValue('administrativeUnitId')"
+      (selectedIdChanged)="onCascadeChanged($event)">
+    </qfin-administrative-unit-cascade>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>PIN Code</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="hash" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        [value]="getValue('pinCode')"
+        (input)="onTextInput('pinCode', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Latitude</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="locate-fixed" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('latitude')"
+        (input)="onNumberInput('latitude', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Longitude</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="locate-fixed" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('longitude')"
+        (input)="onNumberInput('longitude', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Geo Tag</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="map-pinned" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        [value]="getValue('geoTag')"
+        (input)="onTextInput('geoTag', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Nearest Landmark</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="landmark" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        [value]="getValue('nearestLandmark')"
+        (input)="onTextInput('nearestLandmark', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Administrative Status</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('administrativeStatus')"
+        (valueChange)="onFieldUpdate('administrativeStatus', $event)">
+        @for (option of adminStatusOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Distance from Existing WeGrow Branch (km)</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="route" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('distanceFromExistingWeGrowBranch')"
+        (input)="onNumberInput('distanceFromExistingWeGrowBranch', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Distance from District Headquarters (km)</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="route" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('distanceFromDistrictHeadquarters')"
+        (input)="onNumberInput('distanceFromDistrictHeadquarters', $any($event.target).value)" />
+    </mat-form-field>
+  </div>
+</div>

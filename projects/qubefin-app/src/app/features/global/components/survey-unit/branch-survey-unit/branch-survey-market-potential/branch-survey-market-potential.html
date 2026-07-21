@@ -1,0 +1,98 @@
+<div class="animate-fade-in">
+  <div class="flex items-center gap-2">
+    <svg lucideIcon="target" class="w-5 h-5 text-primary-600"></svg>
+    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+      Market Potential Assessment
+    </h3>
+  </div>
+  <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Eligible Households</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="home" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('eligibleHouseholds')"
+        (input)="onNumberInput('eligibleHouseholds', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Potential Women Borrowers</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="users" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('potentialWomenBorrowers')"
+        (input)="onNumberInput('potentialWomenBorrowers', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>JLG Potential</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="users-round" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('jLGPotential')"
+        (input)="onNumberInput('jLGPotential', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Individual Business Loans Expected</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="wallet" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('individualBusinessLoansExpected')"
+        (input)="onNumberInput('individualBusinessLoansExpected', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Expected Portfolio — Year 1</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="indian-rupee" class="w-4 h-4"></svg>
+        <span class="text-sm font-semibold">₹</span>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('portfolioYear1')"
+        (input)="onNumberInput('portfolioYear1', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Expected Portfolio — Year 2</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="indian-rupee" class="w-4 h-4"></svg>
+        <span class="text-sm font-semibold">₹</span>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('portfolioYear2')"
+        (input)="onNumberInput('portfolioYear2', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Expected Portfolio — Year 3</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="indian-rupee" class="w-4 h-4"></svg>
+        <span class="text-sm font-semibold">₹</span>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('portfolioYear3')"
+        (input)="onNumberInput('portfolioYear3', $any($event.target).value)" />
+    </mat-form-field>
+  </div>
+</div>

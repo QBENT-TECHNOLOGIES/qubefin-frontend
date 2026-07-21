@@ -1,0 +1,86 @@
+<div class="animate-fade-in">
+  <div class="flex items-center gap-2">
+    <svg lucideIcon="trending-up" class="w-5 h-5 text-primary-600"></svg>
+    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+      Business Potential Assessment
+    </h3>
+  </div>
+  <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Estimated Eligible Households</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="home" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('estimatedEligibleHouseholds')"
+        (input)="onNumberInput('estimatedEligibleHouseholds', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Estimated Women Borrowers</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="users" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('estimatedWomenBorrowers')"
+        (input)="onNumberInput('estimatedWomenBorrowers', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Estimated Number of JLGs / Centres</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="users-round" class="w-5 h-5"></svg>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('estimatedNumberOfJLGsCentres')"
+        (input)="onNumberInput('estimatedNumberOfJLGsCentres', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Estimated Loan Portfolio Potential</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="indian-rupee" class="w-4 h-4"></svg>
+        <span class="text-sm font-semibold">₹</span>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('estimatedLoanPortfolioPotential')"
+        (input)="onNumberInput('estimatedLoanPortfolioPotential', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Expected Monthly Disbursement</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="indian-rupee" class="w-4 h-4"></svg>
+        <span class="text-sm font-semibold">₹</span>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('expectedMonthlyDisbursement')"
+        (input)="onNumberInput('expectedMonthlyDisbursement', $any($event.target).value)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Estimated Collection Efficiency (%)</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="percent" class="w-4 h-4"></svg>
+        <span class="text-sm font-semibold">%</span>
+      </div>
+      <input
+        matInput
+        type="number"
+        [value]="getValue('estimatedCollectionEfficiency')"
+        (input)="onNumberInput('estimatedCollectionEfficiency', $any($event.target).value)" />
+    </mat-form-field>
+  </div>
+</div>

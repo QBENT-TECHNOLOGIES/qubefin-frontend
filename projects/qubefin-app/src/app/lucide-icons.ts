@@ -141,6 +141,9 @@ import {
   LucideSearchCheck,
   LucideCamera,
   LucideThumbsUp,
+  LucidePercent,
+  LucideBookOpen,
+  LucideIndianRupee,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -286,6 +289,9 @@ export const APP_ICONS = [
   LucideSearchCheck,
   LucideCamera,
   LucideThumbsUp,
+  LucidePercent,
+  LucideBookOpen,
+  LucideIndianRupee,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -430,4 +436,7 @@ export const APP_ICONS_MAP: Record<string, any> = {
   SearchCheck: LucideSearchCheck,
   Camera: LucideCamera,
   ThumbsUp: LucideThumbsUp,
+  Percent: LucidePercent,
+  BookOpen: LucideBookOpen,
+  IndianRupee: LucideIndianRupee,
 };

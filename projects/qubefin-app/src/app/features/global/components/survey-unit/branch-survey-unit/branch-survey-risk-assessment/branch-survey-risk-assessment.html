@@ -1,0 +1,179 @@
+<div class="animate-fade-in">
+  <div class="flex items-center gap-2">
+    <svg lucideIcon="shield-alert" class="w-5 h-5 text-primary-600"></svg>
+    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+      Risk Assessment
+    </h3>
+  </div>
+  <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Flood</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="cloud-rain" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('floodRisk')"
+        (valueChange)="onFieldUpdate('floodRisk', $event)">
+        @for (option of riskLevelOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Cyclone</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="wind" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('cycloneRisk')"
+        (valueChange)="onFieldUpdate('cycloneRisk', $event)">
+        @for (option of riskLevelOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Landslide</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="mountain" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('landslideRisk')"
+        (valueChange)="onFieldUpdate('landslideRisk', $event)">
+        @for (option of riskLevelOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Drought</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="sun" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('droughtRisk')"
+        (valueChange)="onFieldUpdate('droughtRisk', $event)">
+        @for (option of riskLevelOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Political Disturbance</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="flag" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('politicalDisturbanceRisk')"
+        (valueChange)="onFieldUpdate('politicalDisturbanceRisk', $event)">
+        @for (option of riskLevelOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Communal Issues</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="users-round" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('communalIssuesRisk')"
+        (valueChange)="onFieldUpdate('communalIssuesRisk', $event)">
+        @for (option of riskLevelOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Migration</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="trending-up" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('migrationRisk')"
+        (valueChange)="onFieldUpdate('migrationRisk', $event)">
+        @for (option of riskLevelOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Overall Business Risk</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="briefcase" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('businessRisk')"
+        (valueChange)="onFieldUpdate('businessRisk', $event)">
+        @for (option of riskLevelOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Multiple Lending</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="repeat" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('multipleLendingRisk')"
+        (valueChange)="onFieldUpdate('multipleLendingRisk', $event)">
+        @for (option of riskLevelOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Collection Risk</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="wallet" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('collectionRisk')"
+        (valueChange)="onFieldUpdate('collectionRisk', $event)">
+        @for (option of riskLevelOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Fraud Risk</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="shield-alert" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('fraudRisk')"
+        (valueChange)="onFieldUpdate('fraudRisk', $event)">
+        @for (option of riskLevelOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Competition Risk</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="swords" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('competitionRisk')"
+        (valueChange)="onFieldUpdate('competitionRisk', $event)">
+        @for (option of riskLevelOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>

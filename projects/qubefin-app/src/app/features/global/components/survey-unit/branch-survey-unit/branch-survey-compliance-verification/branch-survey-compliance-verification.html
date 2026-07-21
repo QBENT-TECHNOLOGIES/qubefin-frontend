@@ -1,0 +1,95 @@
+<div class="animate-fade-in">
+  <div class="flex items-center gap-2">
+    <svg lucideIcon="clipboard-check" class="w-5 h-5 text-primary-600"></svg>
+    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+      Compliance Verification
+    </h3>
+  </div>
+  <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Area Visited Physically</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('areaVisitedPhysically')"
+        (valueChange)="onFieldUpdate('areaVisitedPhysically', $event)">
+        @for (option of yesNoOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>GPS Verified</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="locate-fixed" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('gPSVerified')"
+        (valueChange)="onFieldUpdate('gPSVerified', $event)">
+        @for (option of yesNoOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Local References Verified</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="user-check" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('localReferencesVerified')"
+        (valueChange)="onFieldUpdate('localReferencesVerified', $event)">
+        @for (option of yesNoOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Existing Customers Contacted</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="phone" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('existingCustomersContacted')"
+        (valueChange)="onFieldUpdate('existingCustomersContacted', $event)">
+        @for (option of yesNoOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Competitor Verification Completed</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="search-check" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('competitorVerificationCompleted')"
+        (valueChange)="onFieldUpdate('competitorVerificationCompleted', $event)">
+        @for (option of yesNoOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Photographs Attached</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="camera" class="w-5 h-5"></svg>
+      </div>
+      <mat-select
+        [value]="getValue('photographsAttached')"
+        (valueChange)="onFieldUpdate('photographsAttached', $event)">
+        @for (option of yesNoOptions; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>
