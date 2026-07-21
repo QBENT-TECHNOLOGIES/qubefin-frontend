@@ -12,6 +12,8 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { PersonalComponentDetail } from './personal-component/personal-component';
 import { AddressComponentDetail } from './address-component/address-component';
 import { ContactComponentDetail } from './contact-component/contact-component';
+import { OfficialComponentDetail } from './official-component/official-component';
+import { KycDocumentComponentDetail } from './kyc-document-component/kyc-document-component';
 
 
 @Component({
@@ -27,7 +29,9 @@ import { ContactComponentDetail } from './contact-component/contact-component';
     LucideDynamicIcon,
     PersonalComponentDetail,
     AddressComponentDetail,
-    ContactComponentDetail
+    ContactComponentDetail,
+    OfficialComponentDetail,
+    KycDocumentComponentDetail
   ],
   templateUrl: './employee-component-detail.html',
 })
@@ -40,6 +44,7 @@ export class EmployeeComponentDetail {
 readonly activeStepIndex = signal(0);
   private readonly employeeStore = inject(EmployeeStore);
   utilityComponents = this.employeeStore.utilityComponent;
+  kycComponents = this.employeeStore.kycComponent;
   
 
   @ViewChild('stepper', { read: ElementRef })
@@ -48,22 +53,29 @@ readonly activeStepIndex = signal(0);
   constructor() {
   effect(() => {
     console.log('Utilities:', this.utilityComponents());
+    console.log('KYC DOCUMENTS:', this.kycComponents());
   });
 }
   onStepChange(index: number) {
     this.activeStepIndex.set(index);
   }
   handlePersonal(){
-    this.onStepChange(1)
+    this.onStepChange(1);
   }
   handleAddress(){
-    this.onStepChange(2)
+    this.onStepChange(2);
   }
   handleContact(){
-    this.onStepChange(0)
+    this.onStepChange(3);
 
   }
-  
+  handleOfficial(){
+    this.onStepChange(4);
+
+  }
+  handleKyc(){
+    this.onStepChange(0);
+  }
   handleSave(){
     this.onChildSave.emit();
   }

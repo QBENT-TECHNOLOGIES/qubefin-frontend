@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ApiPaths } from 'qubefin-core';
-import { EmployeeAddressInfo, EmployeeContactInfo, EmployeePersonalInfo } from '../models/employee-detail';
+import { EmployeeAddressInfo, EmployeeContactInfo, EmployeeDocument, EmployeeOfficialInfo, EmployeePersonalInfo } from '../models/employee-detail';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +23,12 @@ export class EmployeeService {
     getContactData(id: string) {
         return this.httpClient.get(`${ApiPaths.HRMS}/employees/contact-details/${id}`);
     }
+    getOfficialData(id: string) {
+        return this.httpClient.get(`${ApiPaths.HRMS}/employees/official-details/${id}`);
+    }
+    getKycData(id: string) {
+        return this.httpClient.get(`${ApiPaths.HRMS}/employees/kyc-details/${id}`);
+    }
 
     create(personalInfo: any) {
         return this.httpClient.post(`${ApiPaths.HRMS}/employees`, personalInfo);
@@ -39,7 +45,13 @@ export class EmployeeService {
     updateContactInfo(employeeId: string,contact: EmployeeContactInfo) {
         return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/contact/` + employeeId, contact);
     }
-    getEmployeesBySearchText(searchText: any) {
+     getEmployeesBySearchText(searchText: any) {
         return this.httpClient.post(`${ApiPaths.HRMS}/employees/search-by-text`, searchText);
+    }
+     updateOfficialInfo(employeeId: string,contact: EmployeeOfficialInfo) {
+        return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/official/` + employeeId, contact);
+    }
+    updateKycInfo(employeeId: string,contact: EmployeeDocument) {
+        return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/kyc/` + employeeId, contact);
     }
 }
