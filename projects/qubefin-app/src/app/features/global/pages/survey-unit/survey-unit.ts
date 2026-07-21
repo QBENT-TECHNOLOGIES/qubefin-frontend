@@ -8,7 +8,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EMPTY_UUID, RouteMeta } from 'qubefin-core';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { SurveyStore } from '../../stores/survey-store';
 import { SurveyUnitList } from '../../components/survey-unit/survey-unit-list/survey-unit-list';
@@ -28,7 +27,6 @@ import { SurveyUnitDetail } from '../../components/survey-unit/survey-unit-detai
     MatIconModule,
     MatTooltipModule,
     LucideDynamicIcon,
-    Breadcrumb,
     CommonModule,
     SurveyUnitList,
     SurveyUnitView,

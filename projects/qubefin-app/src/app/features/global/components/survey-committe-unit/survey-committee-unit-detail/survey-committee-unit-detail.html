@@ -4,7 +4,7 @@
     Loading survey committee member details...
   </div>
   } @else {
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
       <mat-label>Employee</mat-label>
       <div class="w-12 flex justify-center" matPrefix>
@@ -39,7 +39,7 @@
     }
     <div>
       <div
-        class="gap-2 bg-slate-100/50 dark:bg-white/5 dark:text-white rounded-xl p-2 border border-slate-200/20 dark:border-white/5">
+        class="flex gap-2 bg-slate-100/50 dark:bg-white/5 dark:text-white rounded-xl p-2 border border-slate-200/20 dark:border-white/5">
         @if (isEditMode()) {
         <mat-checkbox [formField]="surveyCommitteeForm.isActive" color="primary">Is Active?</mat-checkbox>
         }

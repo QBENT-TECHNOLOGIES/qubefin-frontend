@@ -6,7 +6,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
@@ -30,7 +29,6 @@ import { form, FormField } from '@angular/forms/signals';
     MatIconModule,
     MatTooltipModule,
     LucideDynamicIcon,
-    Breadcrumb,
     CommonModule,
     SurveyCommitteeUnitList,
     SurveyCommitteeUnitView,
