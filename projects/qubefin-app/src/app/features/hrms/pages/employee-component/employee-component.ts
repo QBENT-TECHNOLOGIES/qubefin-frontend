@@ -31,6 +31,7 @@ export class EmployeeComponent {
   // Injecting the store that manages pagination and filtering states
   readonly employeeStore = inject(EmployeeStore);
   
+  tempSearch = '';
   isViewMode = signal<boolean>(true);
   selectedEmployeeComponentId = signal<string>(EMPTY_UUID);
   employeeComponents = this.employeeStore.employeeListComponents;
@@ -87,6 +88,8 @@ export class EmployeeComponent {
   }
 
   protected applyFilters() {
+    this.employeeStore.setSearchQuery(this.tempSearch);
+
   }
 
   protected resetFilters() {

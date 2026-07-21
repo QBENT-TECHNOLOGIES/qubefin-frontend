@@ -1,0 +1,157 @@
+<div class="flex flex-col gap-2">
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+    <qfin-breadcrumb></qfin-breadcrumb>
+    <div class="flex items-center gap-3">
+      <button type="button" (click)="toggleFilterArea()"
+        class="glass-input dark:text-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+        <svg lucideIcon="funnel" class="w-4 h-4"></svg>
+        Filter
+      </button>
+      <button
+        class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+        (click)="onAdd()">
+        <svg lucideIcon="plus" class="w-4 h-4"></svg>
+        Add Survey
+      </button>
+    </div>
+  </div>
+
+  <div class="flex gap-4 items-start">
+    <div class="glass rounded-xl shadow-glass dark:shadow transition-all duration-300 overflow-hidden"
+      [class.w-full]="selectedsurveyStoreId() === EMPTY_UUID && isViewMode()"
+      [class.w-1/4]="selectedsurveyStoreId() !== EMPTY_UUID || !isViewMode()" [ngClass]="{
+        'sticky top-0 h-[calc(100vh-170px)]': selectedsurveyStoreId() !== EMPTY_UUID || !isViewMode(),
+      }">
+      @if (selectedsurveyStoreId() === EMPTY_UUID && isViewMode()) {
+      @if (showFilterArea()) {
+      <div class="p-3 transition-all duration-300">
+        <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
+          <div class="flex-1 min-w-[200px]">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+              <mat-label>Search By Assignment No</mat-label>
+              <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="search" class="w-5 h-5"></svg>
+              </div>
+              <input matInput autocomplete="off" placeholder="Enter assignment no" [(ngModel)]="searchText" />
+            </mat-form-field>
+          </div>
+
+          <div class="flex items-center gap-2.5 shrink-0">
+            <button type="button" (click)="resetFilters()"
+              class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
+              <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+              Reset
+            </button>
+            <button type="button" (click)="applyFilters()"
+              class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+              <svg lucideIcon="search" class="w-4 h-4"></svg>
+              Search
+            </button>
+          </div>
+        </div>
+      </div>
+      }
+      } @else {
+      <div class="flex items-center gap-2 px-4 py-3">
+        <div
+          class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
+          <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
+          <input type="text" [(ngModel)]="searchText" placeholder="Search by employee ID"
+            class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
+        </div>
+        <button (click)="applyFilters()"
+          class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
+          <svg lucideIcon="search" class="w-4 h-4"></svg>
+        </button>
+      </div>
+      }
+
+      @if (surveyStore.loading()) {
+      <div class="px-4 py-10 text-sm text-slate-500">Loading survey...</div>
+      } @else if (surveyStore.error()) {
+      <div class="px-4 py-10 text-sm text-red-500">Unable to load survey.</div>
+      } @else {
+      <qfin-survey-unit-list 
+        [data]="surveys()" 
+        [totalRecords]="surveyStore.totalRecords()"
+        [pageIndex]="surveyStore.pageIndex()" [pageSize]="surveyStore.pageSize()"
+        [selectedId]="selectedsurveyStoreId()"
+        [isCollapsed]="selectedsurveyStoreId() !== EMPTY_UUID || !isViewMode()" (pageChanged)="pageChanged($event)"
+        (onViewDetail)="onView($event)" (sortChanged)="onSortChanged($event)">
+      </qfin-survey-unit-list>
+      }
+    </div>
+
+    @if (hasSelectedsurveyStore()) {
+    <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 flex-1 transition-all">
+      <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div
+              class="w-14 h-14 rounded-xl shadow-md bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center dark:shadow-none">
+              @if (selectedsurveyStoreId() === EMPTY_UUID) {
+              <svg lucideIcon="plus" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+              } @else if (isViewMode()) {
+              <svg lucideIcon="eye" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+              } @else {
+              <svg lucideIcon="square-pen" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+              }
+            </div>
+            <div>
+              <div class="flex justify-start gap-2">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
+                  @if (selectedsurveyStoreId() === EMPTY_UUID) {
+                  Add Survey
+                  } @else if (isViewMode()) {
+                  Survey Details
+                  } @else {
+                  Edit Survey
+                  }
+                </h2>
+                <div
+                  class="flex items-center gap-1.5 px-3 pt-1 pb-0 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
+                  <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+                  <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                    @if (selectedsurveyStoreId() === EMPTY_UUID) {
+                    New Mode
+                    } @else if (isViewMode()) {
+                    View Mode
+                    } @else {
+                    Edit Mode
+                    }
+                  </span>
+                </div>
+              </div>
+              <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                @if (selectedsurveyStoreId() === EMPTY_UUID) {
+                Add a survey for branch or group.
+                } @else if (isViewMode()) {
+                Review survey details, and status.
+                } @else {
+                Update the selected survey.
+                }
+              </p>
+            </div>
+          </div>
+        </div>
+        <button aria-label="Close" matTooltip="Close"
+          class="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
+          (click)="closePanel()">
+          <svg lucideIcon="x" class="w-4 h-4"></svg>
+        </button>
+      </div>
+
+      <div>
+        @if (isViewMode() && selectedsurveyStoreId() !== EMPTY_UUID) {
+        <qfin-survey-unit-view [surveyId]="selectedsurveyStoreId()" (showEdit)="onEdit()">
+        </qfin-survey-unit-view>
+        } @else {
+        <qfin-survey-unit-detail [surveyId]="selectedsurveyStoreId()" (cancel)="closePanel()"
+          (save)="onSurvey()">
+        </qfin-survey-unit-detail>
+        }
+      </div>
+    </div>
+    }
+  </div>
+</div>
