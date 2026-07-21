@@ -21,6 +21,7 @@ export interface ISurveyDetail {
 }
 
 export interface ISurveyMembers {
+  id: string;
   employeeId: string;
   employeeName: string | null;
   isLead: boolean;

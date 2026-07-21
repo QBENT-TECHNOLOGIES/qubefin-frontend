@@ -1,4 +1,4 @@
-import { EMPTY_UUID, RouteDataService, RouteMeta } from 'qubefin-core';
+import { EMPTY_UUID, RouteMeta } from 'qubefin-core';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -48,8 +48,6 @@ export class SurveyCommitteeUnit {
   // ===========================
   // Dependency Injection
   // ===========================
-  private readonly route = inject(ActivatedRoute);
-  private readonly routeDataService = inject(RouteDataService);
   readonly surveyCommitteeStore = inject(SurveyCommitteeStore);
   // ===========================
   // Component State
@@ -69,17 +67,6 @@ export class SurveyCommitteeUnit {
   readonly hasSelectedSurveyCommittee = computed(
     () => this.selectedSurveyCommitteeId() !== EMPTY_UUID || !this.isViewMode(),
   );
-  // ===========================
-  // Route Data
-  // ===========================
-  private readonly routeData = toSignal(this.route.data as Observable<RouteMeta>, {
-    initialValue: { title: '', icon: '' },
-  });
-  constructor() {
-    effect(() => {
-      this.routeDataService.setRouteData(this.routeData());
-    });
-  }
   // ===========================
   // Panel Actions
   // ===========================
