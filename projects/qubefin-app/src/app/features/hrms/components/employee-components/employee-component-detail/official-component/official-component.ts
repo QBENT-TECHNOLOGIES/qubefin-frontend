@@ -56,9 +56,7 @@ export class OfficialComponentDetail {
    private officialResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
-      if (params.editMode && params.id !== EMPTY_UUID) {
-        this.employeeStore.setEmployeeComponentId(params.id);
-        
+      if (params.editMode && params.id !== EMPTY_UUID) {        
         return this.employeeService.getOfficialData(params.id).pipe(
           tap((resp: any) => {
             this.employeeStore.setEmployeeComponentId(resp.id);
@@ -66,7 +64,6 @@ export class OfficialComponentDetail {
           })
         );
       } else {
-        this.officialModel.set(new EmployeeOfficialInfo());
         this.officialModel.set(new EmployeeOfficialInfo());
         return of(null); // Safely stream an empty observable
       }
