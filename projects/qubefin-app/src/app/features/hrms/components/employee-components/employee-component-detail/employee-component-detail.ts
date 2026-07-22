@@ -14,6 +14,7 @@ import { AddressComponentDetail } from './address-component/address-component';
 import { ContactComponentDetail } from './contact-component/contact-component';
 import { OfficialComponentDetail } from './official-component/official-component';
 import { KycDocumentComponentDetail } from './kyc-document-component/kyc-document-component';
+import { ReferenceComponentDetail } from './reference-component/reference-component';
 
 
 @Component({
@@ -31,7 +32,8 @@ import { KycDocumentComponentDetail } from './kyc-document-component/kyc-documen
     AddressComponentDetail,
     ContactComponentDetail,
     OfficialComponentDetail,
-    KycDocumentComponentDetail
+    KycDocumentComponentDetail,
+    ReferenceComponentDetail
   ],
   templateUrl: './employee-component-detail.html',
 })
@@ -74,6 +76,9 @@ readonly activeStepIndex = signal(0);
 
   }
   handleKyc(){
+    this.onStepChange(5);
+  }
+  handleReference(){
     this.onStepChange(0);
   }
   handleSave(){

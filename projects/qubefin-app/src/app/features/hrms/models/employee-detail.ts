@@ -205,8 +205,8 @@ export class EmployeeDocument {
 export interface IEmployeeReference {
    id: string;                           // Guid maps to required string
   employeeId: string;                   // Guid maps to required string
-  personName: string;                 // Required non-nullable string
-  mobile: string | null;            // Nullable string
+  personName: string ;                // Required non-nullable string
+  mobile: string| null;            // Nullable string
   email: string | null;            // DateOnly? maps to string (YYYY-MM-DD)
   address: string | null;            // DateOnly? maps to string (YYYY-MM-DD)
   occupation: string | null;             // Nullable string
@@ -216,9 +216,9 @@ export interface IEmployeeReference {
 
 export class EmployeeReference {
   id: string = '00000000-0000-0000-0000-000000000000';
-  employeeId: string = '';
-  personName: string = '';
-  mobile: string | null = null;
+  employeeId: string = '00000000-0000-0000-0000-000000000000';
+  personName: string ="";
+  mobile: string  | null = null;
   email: string  | null = null;
   address: string | null = null;
   occupation: string  | null = null;
