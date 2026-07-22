@@ -98,6 +98,7 @@
 
   @include mat.menu-overrides((
     container-color: rgba(255, 255, 255, 1),
+    container-shape: 12px,
   ));
 
   @include mat.tooltip-overrides((
@@ -169,10 +170,15 @@
   @include mat.select-overrides((
     placeholder-text-color: #ffffff,
   ));
+
   @include mat.paginator-overrides((
     container-text-color: #eeeeee,
     disabled-icon-color: #a3a3a3,
     enabled-icon-color: #ffffff
+  ));
+  @include mat.menu-overrides((
+    container-color: rgba(15, 20, 32, 0.7),
+    item-label-text-color: #e1e1e1,
   ));
 }
 

@@ -1,22 +1,142 @@
-<div
-  class="grid grid-cols-1 gap-4"
-  [class.md:grid-cols-1]="columns() === 1"
-  [class.md:grid-cols-2]="columns() === 2"
-  [class.md:grid-cols-3]="columns() === 3"
-  [class.md:grid-cols-4]="columns() === 4">
-    @for(level of levels(); track level.level){
-    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-        <mat-label>{{ level.label }}</mat-label>
-        <div class="w-12 flex justify-center" matPrefix>
-            <svg [lucideIcon]="iconMap[level.icon]" class="w-5 h-5"></svg>
-        </div>
-        <mat-select [value]="level.selectedId" (valueChange)="select(level.level,$event)">
-            @for(option of level.options; track option.id){
-            <mat-option [value]="option.id">
-                {{ option.name }}
-            </mat-option>
-            }
-        </mat-select>
-    </mat-form-field>
-    }
+<div class="flex flex-col gap-4">
+    <div class="grid grid-cols-1 gap-4" [class.md:grid-cols-1]="columns() === 1"
+        [class.md:grid-cols-2]="columns() === 2" [class.md:grid-cols-3]="columns() === 3"
+        [class.md:grid-cols-4]="columns() === 4">
+
+        <!-- Country -->
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Country</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg [lucideIcon]="iconMap['Earth']" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [value]="selectedCountry()" (selectionChange)="onCountryChange($event.value)" required>
+                @for(item of countryList(); track item.id){
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <!-- State -->
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>State</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg [lucideIcon]="iconMap['Map']" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [value]="selectedState()" (selectionChange)="onStateChange($event.value)">
+                @for(item of stateList(); track item.id){
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <!-- District -->
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>District</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg [lucideIcon]="iconMap['MapPin']" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [value]="selectedDistrict()" (selectionChange)="onDistrictChange($event.value)">
+                @for(item of districtList(); track item.id){
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <!-- Resident Type -->
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Resident Type</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg [lucideIcon]="iconMap['Map']" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [value]="mode()" (selectionChange)="changeMode($event.value)">
+                <mat-option value="Rural">Rural</mat-option>
+                <mat-option value="Urban">Urban</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+    </div>
+
+    <!-- Rural / Urban toggle -->
+    <!-- <div class="my-4">
+        <mat-button-toggle-group [value]="mode()" (change)="changeMode($event.value)">
+            <mat-button-toggle value="Rural">Rural</mat-button-toggle>
+            <mat-button-toggle value="Urban">Urban</mat-button-toggle>
+        </mat-button-toggle-group>
+    </div> -->
+
+    <div class="grid grid-cols-1 gap-4" [class.md:grid-cols-3]="mode() === 'Rural'"
+    [class.md:grid-cols-2]="mode() === 'Urban'">
+
+        @if(mode()==='Rural'){
+
+        <!-- Block -->
+        <mat-form-field appearance="outline">
+            <mat-label>Block</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg [lucideIcon]="iconMap['SignpostBig']" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [value]="selectedBlock()" (selectionChange)="onBlockChange($event.value)">
+                @for(item of blockList(); track item.id){
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <!-- Gram Panchayat -->
+        <mat-form-field appearance="outline">
+            <mat-label>Gram Panchayat</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg [lucideIcon]="iconMap['MapPinned']" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [value]="selectedGramPanchayat()" (selectionChange)="onGramPanchayatChange($event.value)">
+                @for(item of gramPanchayatList(); track item.id){
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <!-- Village -->
+        <mat-form-field appearance="outline">
+            <mat-label>Village</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg [lucideIcon]="iconMap['LandPlot']" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [value]="selectedVillage()" (selectionChange)="onVillageChange($event.value)">
+                @for(item of villageList(); track item.id){
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        } @else {
+
+        <!-- Municipality -->
+        <mat-form-field appearance="outline">
+            <mat-label>Municipality</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg [lucideIcon]="iconMap['MapPinHouse']" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [value]="selectedMunicipality()" (selectionChange)="onMunicipalityChange($event.value)">
+                @for(item of municipalityList(); track item.id){
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <!-- Ward -->
+        <mat-form-field appearance="outline">
+            <mat-label>Ward</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg [lucideIcon]="iconMap['Signpost']" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [value]="selectedWard()" (selectionChange)="onWardChange($event.value)">
+                @for(item of wardList(); track item.id){
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        }
+
+    </div>
 </div>

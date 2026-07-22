@@ -7,8 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { EMPTY_UUID, RouteDataService, RouteMeta } from 'qubefin-core';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
+import { EMPTY_UUID, RouteMeta } from 'qubefin-core';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { SurveyStore } from '../../stores/survey-store';
 import { SurveyUnitList } from '../../components/survey-unit/survey-unit-list/survey-unit-list';
@@ -28,7 +27,6 @@ import { SurveyUnitDetail } from '../../components/survey-unit/survey-unit-detai
     MatIconModule,
     MatTooltipModule,
     LucideDynamicIcon,
-    Breadcrumb,
     CommonModule,
     SurveyUnitList,
     SurveyUnitView,
@@ -46,8 +44,6 @@ export class SurveyUnit {
   // ===========================
   // Dependency Injection
   // ===========================
-  private readonly route = inject(ActivatedRoute);
-  private readonly routeDataService = inject(RouteDataService);
   readonly surveyStore = inject(SurveyStore);
   // ===========================
   // Component State
@@ -66,17 +62,7 @@ export class SurveyUnit {
   // Search State
   // ===========================
   readonly searchText = signal<string>('');
-  // ===========================
-  // Route Data
-  // ===========================
-  private readonly routeData = toSignal(this.route.data as Observable<RouteMeta>, {
-    initialValue: { title: '', icon: '' },
-  });
-  constructor() {
-    effect(() => {
-      this.routeDataService.setRouteData(this.routeData());
-    });
-  }
+
   // ===========================
   // Panel Actions
   // ===========================

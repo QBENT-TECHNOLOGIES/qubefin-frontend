@@ -1,12 +1,13 @@
-<div class="flex flex-col gap-2">
-  <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
-    <qfin-breadcrumb></qfin-breadcrumb>
+<div class="flex flex-col">
+  <div class="flex flex-wrap items-center justify-end gap-4 mb-2">
     <div class="flex items-center gap-3">
+      @if (selectedSurveyCommitteeId() === EMPTY_UUID && isViewMode()) {
       <button type="button" (click)="toggleFilterArea()"
         class="glass-input dark:text-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
         <svg lucideIcon="funnel" class="w-4 h-4"></svg>
         Filter
       </button>
+      } @else{}
       <button
         class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
         (click)="onAdd()">
@@ -16,11 +17,19 @@
     </div>
   </div>
 
-  <div class="flex gap-4 items-start">
-    <div class="glass rounded-xl shadow-glass dark:shadow transition-all duration-300 overflow-hidden"
-      [class.w-full]="selectedSurveyCommitteeId() === EMPTY_UUID && isViewMode()"
-      [class.w-1/4]="selectedSurveyCommitteeId() !== EMPTY_UUID || !isViewMode()" [ngClass]="{
-        'sticky top-0 h-[calc(100vh-170px)]': selectedSurveyCommitteeId() !== EMPTY_UUID || !isViewMode(),
+  <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
+    <div class="glass rounded-xl shadow-glass dark:shadow
+      overflow-hidden min-w-0 shrink-0
+      transition-[width,max-width,opacity,transform] 
+      duration-500 ease-in-out" [ngClass]="{
+          'w-full max-w-full opacity-100 translate-x-0':
+              selectedSurveyCommitteeId() === EMPTY_UUID && isViewMode(),
+
+          'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]':
+              isViewMode() && selectedSurveyCommitteeId() !== EMPTY_UUID,
+
+          'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
+              !isViewMode()
       }">
       @if (selectedSurveyCommitteeId() === EMPTY_UUID && isViewMode()) {
       @if (showFilterArea()) {
@@ -32,7 +41,8 @@
               <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="search" class="w-5 h-5"></svg>
               </div>
-              <input matInput autocomplete="off" placeholder="Enter employee name" [formField]="searchForm.tempSearch" class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400"/>
+              <input matInput autocomplete="off" placeholder="Enter employee name" [formField]="searchForm.tempSearch"
+                class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
             </mat-form-field>
           </div>
 
@@ -67,13 +77,17 @@
       }
 
       @if (surveyCommitteeStore.loading()) {
-      <div class="px-4 py-10 text-sm text-slate-500">Loading survey committee members...</div>
+      <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="loader" class="w-5 h-5"></svg>
+        Loading survey committee members...
+      </div>
       } @else if (surveyCommitteeStore.error()) {
-      <div class="px-4 py-10 text-sm text-red-500">Unable to load survey committee members.</div>
+      <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
+        Unable to load survey committee members.
+      </div>
       } @else {
-      <qfin-survey-committee-unit-list 
-        [data]="surveyCommittees()" 
-        [totalRecords]="surveyCommitteeStore.totalRecords()"
+      <qfin-survey-committee-unit-list [data]="surveyCommittees()" [totalRecords]="surveyCommitteeStore.totalRecords()"
         [pageIndex]="surveyCommitteeStore.pageIndex()" [pageSize]="surveyCommitteeStore.pageSize()"
         [selectedId]="selectedSurveyCommitteeId()"
         [isCollapsed]="selectedSurveyCommitteeId() !== EMPTY_UUID || !isViewMode()" (pageChanged)="pageChanged($event)"
@@ -83,11 +97,15 @@
     </div>
 
     @if (hasSelectedSurveyCommittee()) {
-    <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 flex-1 transition-all">
+    <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
+      [ngClass]="{
+        'w-3/4': isViewMode() && selectedSurveyCommitteeId() !== EMPTY_UUID,
+        'w-full': !isViewMode()
+      }">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">
-            <div
+            <!-- <div
               class="w-14 h-14 rounded-xl shadow-md bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center dark:shadow-none">
               @if (selectedSurveyCommitteeId() === EMPTY_UUID) {
               <svg lucideIcon="plus" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
@@ -96,7 +114,7 @@
               } @else {
               <svg lucideIcon="square-pen" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
               }
-            </div>
+            </div> -->
             <div>
               <div class="flex justify-start gap-2">
                 <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">

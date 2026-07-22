@@ -22,7 +22,7 @@ export class RoleListComponent {
 
 	readonly data = input.required<RoleSearchResult>();
     readonly pageIndex = input(0);
-    readonly pageSize = input(1);
+    readonly pageSize = input(10);
 
 	readonly sortChange = output<Sort>();
 	readonly pageChange = output<PageEvent>();
