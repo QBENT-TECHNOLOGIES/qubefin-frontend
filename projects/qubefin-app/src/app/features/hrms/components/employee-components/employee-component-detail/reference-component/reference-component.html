@@ -1,156 +1,92 @@
-<div class="space-y-6 animate-fade-in pt-4">
-
+<div class="space-y-4 animate-fade-in">
     <div>
-        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
             Reference Information
         </h3>
-
-        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1"></div>
     </div>
-
     @for (ref of referenceModel().references; track $index) {
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-        <!-- Person Name -->
-
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Person Name</mat-label>
-
-            <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
-
-            <input
-                matInput
-                autocomplete="off"
-                placeholder="Enter Person Name"
-                [formField]="referenceForm.references[$index].personName">
-        </mat-form-field>
-
-        <!-- Mobile -->
-
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Mobile</mat-label>
-
-            <mat-icon class="material-symbols-outlined" matPrefix>call</mat-icon>
-
-            <input
-                matInput
-                autocomplete="off"
-                placeholder="Enter Mobile Number"
-                [formField]="referenceForm.references[$index].mobile">
-        </mat-form-field>
-
-        <!-- Email -->
-
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Email</mat-label>
-
-            <mat-icon class="material-symbols-outlined" matPrefix>mail</mat-icon>
-
-            <input
-                matInput
-                type="email"
-                autocomplete="off"
-                placeholder="Enter Email"
-                [formField]="referenceForm.references[$index].email">
-        </mat-form-field>
-
-        <!-- Address -->
-
-        <mat-form-field appearance="outline"
-            subscriptSizing="dynamic"
-            class="md:col-span-3">
-
-            <mat-label>Address</mat-label>
-
-            <mat-icon class="material-symbols-outlined" matPrefix>home</mat-icon>
-
-            <textarea
-                matInput
-                rows="2"
-                placeholder="Enter Address"
-                [formField]="referenceForm.references[$index].address">
-            </textarea>
-
-        </mat-form-field>
-
-        <!-- Occupation -->
-
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Occupation</mat-label>
-
-            <mat-icon class="material-symbols-outlined" matPrefix>work</mat-icon>
-
-            <input
-                matInput
-                autocomplete="off"
-                placeholder="Enter Occupation"
-                [formField]="referenceForm.references[$index].occupation">
-        </mat-form-field>
-
-        <!-- Relationship -->
-
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>How Do You Know</mat-label>
-
-            <mat-icon class="material-symbols-outlined" matPrefix>groups</mat-icon>
-
-            <input
-                matInput
-                autocomplete="off"
-                placeholder="Relationship"
-                [formField]="referenceForm.references[$index].howDoYouKnow">
-        </mat-form-field>
-
-        <!-- Delete -->
-
-        <div class="flex items-center">
-
-            <button
-                type="button"
-                (click)="removeReference($index)"
-                class="text-red-500 hover:text-red-700">
-
-                <mat-icon>delete</mat-icon>
-
-            </button>
-
+        <div class="flex items-start gap-3 border-b border-slate-200 pb-3">
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Person Name -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>Person Name</mat-label>
+                     <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="user" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput autocomplete="off" placeholder="Enter Person Name"
+                        [formField]="referenceForm.references[$index].personName">
+                </mat-form-field>
+                <!-- Mobile -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>Mobile</mat-label>
+                     <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="phone" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput autocomplete="off" placeholder="Enter Mobile Number"
+                        [formField]="referenceForm.references[$index].mobile">
+                </mat-form-field>
+                <!-- Email -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>Email</mat-label>
+                     <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="mail" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput type="email" autocomplete="off" placeholder="Enter Email"
+                        [formField]="referenceForm.references[$index].email">
+                </mat-form-field>
+                <!-- Address -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
+                    <mat-label>Address</mat-label>
+                     <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput rows="2" placeholder="Enter Address" [formField]="referenceForm.references[$index].address">
+                </mat-form-field>
+                <!-- Occupation -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>Occupation</mat-label>
+                     <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="contact" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput autocomplete="off" placeholder="Enter Occupation"
+                        [formField]="referenceForm.references[$index].occupation">
+                </mat-form-field>
+                <!-- Relationship -->
+        
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>How Do You Know</mat-label>
+                     <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="user-lock" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput autocomplete="off" placeholder="Relationship"
+                        [formField]="referenceForm.references[$index].howDoYouKnow">
+                </mat-form-field>
+            </div>
+            <!-- Delete -->
+            <div (click)="removeReference($index)" matTooltip="Delete" 
+                class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 text-red-500 hover:text-red-700 cursor-pointer">
+                <svg lucideIcon="trash-2" class="w-5 h-5"></svg>
+            </div>
         </div>
-
-    </div>
-
     }
 
     <!-- Add Reference -->
-
-    <button
-        type="button"
-        (click)="addReference()"
-        class="rounded-lg px-4 py-2 bg-primary-500 text-white">
-
-        Add Reference
-
-    </button>
-
+    <div class="flex justify-end items-center">
+        <button type="button" (click)="addReference()" 
+            class="cursor-pointer ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r to-primary-500 from-secondary-500">
+            <svg lucideIcon="plus" class="w-5 h-5"></svg>
+            Add Reference
+        </button>
+    </div>
     <!-- Save -->
 
-    <div
-        class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-end">
-
-        <button
-            type="button"
-            (click)="onSubmit()"
+    <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-end">
+        <button type="button" (click)="onSubmit()"
             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500">
-
             Save
-
-            <svg
-                lucideIcon="chevron-right"
-                class="w-5 h-5">
+            <svg lucideIcon="chevron-right" class="w-5 h-5">
             </svg>
-
         </button>
-
     </div>
-
 </div>
