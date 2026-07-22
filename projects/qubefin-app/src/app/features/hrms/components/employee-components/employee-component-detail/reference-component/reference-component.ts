@@ -19,7 +19,7 @@ import Swal from 'sweetalert2';
 
 
 interface ReferenceFormModel {
-  references: EmployeeReference[];
+  references: IEmployeeReference[];
 }
 
 
@@ -79,10 +79,10 @@ export class ReferenceComponentDetail {
             model.id = EMPTY_UUID;
             model.personName = "";
             model.mobile = "";
-            model.email = null;
-            model.address = null;
-            model.occupation = null;
-            model.howDoYouKnow = null;
+            model.email = "";
+            model.address = "";
+            model.occupation = "";
+            model.howDoYouKnow = "";
             model.employeeId = this.empId();
 
 
@@ -148,7 +148,7 @@ export class ReferenceComponentDetail {
           tap((resp: any) => {
             this.referenceModel.update(state => ({
               references: (resp.references ?? []).map(
-                (doc: EmployeeReference) =>
+                (doc: IEmployeeReference) =>
                   new EmployeeReference({
                     ...doc
                   })

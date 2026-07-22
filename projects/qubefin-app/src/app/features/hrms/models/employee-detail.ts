@@ -206,11 +206,11 @@ export interface IEmployeeReference {
    id: string;                           // Guid maps to required string
   employeeId: string;                   // Guid maps to required string
   personName: string ;                // Required non-nullable string
-  mobile: string| null;            // Nullable string
-  email: string | null;            // DateOnly? maps to string (YYYY-MM-DD)
-  address: string | null;            // DateOnly? maps to string (YYYY-MM-DD)
-  occupation: string | null;             // Nullable string
-  howDoYouKnow: string | null;              // Nullable string 
+  mobile: string;            // Nullable string
+  email: string;            // DateOnly? maps to string (YYYY-MM-DD)
+  address: string;            // DateOnly? maps to string (YYYY-MM-DD)
+  occupation: string;             // Nullable string
+  howDoYouKnow: string;              // Nullable string 
 }
 
 
@@ -218,11 +218,11 @@ export class EmployeeReference {
   id: string = '00000000-0000-0000-0000-000000000000';
   employeeId: string = '00000000-0000-0000-0000-000000000000';
   personName: string ="";
-  mobile: string  | null = null;
-  email: string  | null = null;
-  address: string | null = null;
-  occupation: string  | null = null;
-  howDoYouKnow: string | null = null;
+  mobile: string ="";
+  email: string ="";
+  address: string ="";
+  occupation: string ="";
+  howDoYouKnow: string ="";
 
   constructor(init?: Partial<IEmployeeReference>) {
     if (!init) return;
