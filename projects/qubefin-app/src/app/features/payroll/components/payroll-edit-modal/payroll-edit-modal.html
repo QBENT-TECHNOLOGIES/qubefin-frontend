@@ -156,7 +156,7 @@
 @else if (payrollStore.payroll(); as payroll) {
   <div class="flex items-center justify-between px-5 py-3 bg-white/60 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
     <div class="flex items-center gap-4">
-      <div class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
+      <div class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50 dark:bg-secondary-600/50 text-indigo-600 dark:text-indigo-500 border border-indigo-100 dark:border-0">
         <svg lucideIcon="banknote" class="w-6 h-6"></svg>
       </div>
       <div>
@@ -232,7 +232,7 @@
                   <td class="px-5 py-2 text-right">
                     @if (isEditMode()) {
                     <input type="number" [(ngModel)]="item.amount" (ngModelChange)="onEarningAmountChange(item, $event)"
-                      class="glass-input w-full px-3 py-1.5 rounded-lg text-right font-semibold text-slate-700 focus:outline-none transition-all">
+                      class="glass-input w-full px-3 py-1.5 rounded-lg text-right font-semibold text-slate-700 dark:text-slate-200! focus:outline-none transition-all">
                     } @else {
                     <span class="text-slate-800 dark:text-slate-200 font-semibold">{{ item.amount }}</span>
                     }
@@ -276,7 +276,7 @@
                   <td class="px-5 py-2 text-right">
                     @if (isEditMode()) {
                     <input type="number" [(ngModel)]="item.amount" (ngModelChange)="onDeductionAmountChange(item, $event)"
-                      class="glass-input w-full px-3 py-1.5 rounded-lg text-right font-semibold text-slate-700 focus:outline-none transition-all">
+                      class="glass-input w-full px-3 py-1.5 rounded-lg text-right font-semibold text-slate-700 dark:text-slate-200! focus:outline-none transition-all">
                     } @else {
                     <span class="text-slate-800 dark:text-slate-200 font-semibold">{{ item.amount }}</span>
                     }
