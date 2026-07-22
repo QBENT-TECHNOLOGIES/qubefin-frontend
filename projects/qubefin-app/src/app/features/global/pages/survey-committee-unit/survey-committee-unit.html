@@ -77,9 +77,15 @@
       }
 
       @if (surveyCommitteeStore.loading()) {
-      <div class="px-4 py-10 text-sm text-slate-500">Loading survey committee members...</div>
+      <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="loader" class="w-5 h-5"></svg>
+        Loading survey committee members...
+      </div>
       } @else if (surveyCommitteeStore.error()) {
-      <div class="px-4 py-10 text-sm text-red-500">Unable to load survey committee members.</div>
+      <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
+        Unable to load survey committee members.
+      </div>
       } @else {
       <qfin-survey-committee-unit-list [data]="surveyCommittees()" [totalRecords]="surveyCommitteeStore.totalRecords()"
         [pageIndex]="surveyCommitteeStore.pageIndex()" [pageSize]="surveyCommitteeStore.pageSize()"

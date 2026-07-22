@@ -1,47 +1,58 @@
 <div class="space-y-4 animate-fade-in">
     <div>
         <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
-            Contact Info
+            Official Info
         </h3>
         <div class="w-10 h-1 rounded-full bg-primary-500 mt-1"></div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Official Email</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>mail</mat-icon>
-                        <input matInput type="email" autocomplete="off"  [formField]="officialForm.officialEmail" placeholder="Enter Official Email">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Employment Type</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>work</mat-icon>
-                        <mat-select placeholder="Select Type" [formField]="officialForm.employementType">
-                            <mat-option value="Permanent">Permanent</mat-option>
-                            <mat-option value="Contractual">Contractual</mat-option>
-                            <mat-option value="Probation">Probation</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Joining Date</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
-                        <input matInput type="date" autocomplete="off" [formField]="officialForm.joiningDate">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Confirmation Date</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
-                        <input matInput type="date" autocomplete="off" [formField]="officialForm.confirmationDate">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Separation Date</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
-                        <input matInput type="date" autocomplete="off" [formField]="officialForm.separationDate">
-                    </mat-form-field>
-                    <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Official Email</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="mail" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="email" autocomplete="off" [formField]="officialForm.officialEmail"
+                placeholder="Enter Official Email">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Employment Type</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user-cog" class="w-5 h-5"></svg>
+            </div>
+            <mat-select placeholder="Select Type" [formField]="officialForm.employementType">
+                <mat-option value="Permanent">Permanent</mat-option>
+                <mat-option value="Contractual">Contractual</mat-option>
+                <mat-option value="Probation">Probation</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Joining Date</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="date" autocomplete="off" [formField]="officialForm.joiningDate">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Confirmation Date</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="date" autocomplete="off" [formField]="officialForm.confirmationDate">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Separation Date</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-sync" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="date" autocomplete="off" [formField]="officialForm.separationDate">
+        </mat-form-field>
+        <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Referred By</mat-label>
                         <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
                         <input matInput autocomplete="off" placeholder="Enter Referrer Name" [formField]="officialForm.officialEmail">
                     </mat-form-field> -->
-                </div>
+    </div>
 
     <div
         class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">

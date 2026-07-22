@@ -7,7 +7,7 @@
         <svg lucideIcon="funnel" class="w-4 h-4"></svg>
         Filter
       </button>
-    } @else{}
+      } @else{}
       <button
         class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
         (click)="onAdd()">
@@ -33,52 +33,58 @@
       }">
       @if (selectedsurveyStoreId() === EMPTY_UUID && isViewMode()) {
       @if (showFilterArea()) {
-        <div class="p-3 transition-all duration-300">
-          <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
-            <div class="flex-1 min-w-[200px]">
-              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                <mat-label>Search By Assignment No</mat-label>
-                <div class="w-12 flex justify-center" matPrefix>
-                  <svg lucideIcon="search" class="w-5 h-5"></svg>
-                </div>
-                <input matInput autocomplete="off" placeholder="Enter assignment no" [(ngModel)]="searchText" />
-              </mat-form-field>
-            </div>
+      <div class="p-3 transition-all duration-300">
+        <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
+          <div class="flex-1 min-w-[200px]">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+              <mat-label>Search By Assignment No</mat-label>
+              <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="search" class="w-5 h-5"></svg>
+              </div>
+              <input matInput autocomplete="off" placeholder="Enter assignment no" [(ngModel)]="searchText" />
+            </mat-form-field>
+          </div>
 
-            <div class="flex items-center gap-2.5 shrink-0">
-              <button type="button" (click)="resetFilters()"
-                class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
-                <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
-                Reset
-              </button>
-              <button type="button" (click)="applyFilters()"
-                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                <svg lucideIcon="search" class="w-4 h-4"></svg>
-                Search
-              </button>
-            </div>
+          <div class="flex items-center gap-2.5 shrink-0">
+            <button type="button" (click)="resetFilters()"
+              class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
+              <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+              Reset
+            </button>
+            <button type="button" (click)="applyFilters()"
+              class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+              <svg lucideIcon="search" class="w-4 h-4"></svg>
+              Search
+            </button>
           </div>
         </div>
+      </div>
       }
       } @else {
-        <div class="flex items-center gap-2 px-4 py-3">
-          <div
-            class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
-            <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
-            <input type="text" [(ngModel)]="searchText" placeholder="Search by employee ID"
-              class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
-          </div>
-          <button (click)="applyFilters()"
-            class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
-            <svg lucideIcon="search" class="w-4 h-4"></svg>
-          </button>
+      <div class="flex items-center gap-2 px-4 py-3">
+        <div
+          class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
+          <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
+          <input type="text" [(ngModel)]="searchText" placeholder="Search by employee ID"
+            class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
         </div>
+        <button (click)="applyFilters()"
+          class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
+          <svg lucideIcon="search" class="w-4 h-4"></svg>
+        </button>
+      </div>
       }
 
       @if (surveyStore.loading()) {
-      <div class="px-4 py-10 text-sm text-slate-500">Loading survey...</div>
+      <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="loader" class="w-5 h-5"></svg>
+        Loading survey...
+      </div>
       } @else if (surveyStore.error()) {
-      <div class="px-4 py-10 text-sm text-red-500">Unable to load survey.</div>
+      <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
+        Unable to load survey.
+      </div>
       } @else {
       <qfin-survey-unit-list [data]="surveys()" [totalRecords]="surveyStore.totalRecords()"
         [pageIndex]="surveyStore.pageIndex()" [pageSize]="surveyStore.pageSize()" [selectedId]="selectedsurveyStoreId()"
@@ -89,8 +95,9 @@
     </div>
 
     @if (hasSelectedsurveyStore()) {
-    <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
-    [ngClass]="{
+    <div
+      class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
+      [ngClass]="{
         'w-3/4': isViewMode() && selectedsurveyStoreId() !== EMPTY_UUID,
         'w-full': !isViewMode()
       }">

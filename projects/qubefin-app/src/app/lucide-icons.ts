@@ -1,4 +1,4 @@
-import { LucideArrowLeft, LucideBadgeCheck, LucideBadgeIndianRupee, LucideBanknoteCheck, LucideBanknoteX, LucideBell, LucideBuilding, LucideBuilding2, LucideCalendarClock, LucideCalendarPlus, LucideChevronDown, LucideChevronRight, LucideCircleQuestionMark, LucideCombine, LucideEarth, LucideEye, LucideEyeOff, LucideFactory, LucideFileUser, LucideGlobe, LucideHandCoins, LucideHouse, LucideIconData, LucideKeyRound, LucideLandmark, LucideLandPlot, LucideLayers, LucideLayoutDashboard, LucideLock, LucideLockOpen, LucideLogIn, LucideLogOut, LucideMap, LucideMapPin, LucideMapPinHouse, LucideMapPinned, LucideMoon, LucidePanelLeftClose, LucidePanelLeftOpen, LucidePencil, LucidePlus, LucideSave, LucideShieldCheck, LucideShieldEllipsis, LucideShieldQuestionMark, LucideSignpost, LucideSignpostBig, LucideSplit, LucideSquareMenu, LucideSquarePen, LucideSquareUserRound, LucideSummary, LucideSun, LucideTrendingDown, LucideTrendingUp, LucideUser, LucideUserCheck, LucideUserCog, LucideUserKey, LucideUsers, LucideWallet, LucideX, LucideSearch, LucideFunnel, LucideReceiptText, LucideCheck, LucidePiggyBank, LucideShieldPlus, LucideTag, LucideLayoutGrid, LucideListOrdered, LucideArrowRight, LucideCode, LucideSettings, LucideCalendarCheck, LucideCalendar1, LucideBanknoteArrowUp, LucideBanknoteArrowDown, LucideRotateCcw, LucideFileDown, LucideEllipsisVertical, LucideHeart, LucideDroplet, LucideVenus, LucideFlag, LucideChessBishop, LucideMars, LucideStickyNote, LucideChevronLeft, LucideIdCardLanyard, LucideSwatchBook, LucideClipboardCheck, LucideAccessibility, LucideRoad, LucideMapPinSearch, LucideHousePlus, LucideSiren, LucideLampDesk, LucideDownload, LucideNotebookText, LucideCoins, LucideTriangleAlert, LucidePhone, LucideMail, LucideUserRound, LucideNotebookTabs, LucideHeadset, LucideTrash2, LucideWarehouse, LucideUserSearch } from "@lucide/angular";
+import { LucideArrowLeft, LucideBadgeCheck, LucideBadgeIndianRupee, LucideBanknoteCheck, LucideBanknoteX, LucideBell, LucideBuilding, LucideBuilding2, LucideCalendarClock, LucideCalendarPlus, LucideChevronDown, LucideChevronRight, LucideCircleQuestionMark, LucideCombine, LucideEarth, LucideEye, LucideEyeOff, LucideFactory, LucideFileUser, LucideGlobe, LucideHandCoins, LucideHouse, LucideIconData, LucideKeyRound, LucideLandmark, LucideLandPlot, LucideLayers, LucideLayoutDashboard, LucideLock, LucideLockOpen, LucideLogIn, LucideLogOut, LucideMap, LucideMapPin, LucideMapPinHouse, LucideMapPinned, LucideMoon, LucidePanelLeftClose, LucidePanelLeftOpen, LucidePencil, LucidePlus, LucideSave, LucideShieldCheck, LucideShieldEllipsis, LucideShieldQuestionMark, LucideSignpost, LucideSignpostBig, LucideSplit, LucideSquareMenu, LucideSquarePen, LucideSquareUserRound, LucideSummary, LucideSun, LucideTrendingDown, LucideTrendingUp, LucideUser, LucideUserCheck, LucideUserCog, LucideUserKey, LucideUsers, LucideWallet, LucideX, LucideSearch, LucideFunnel, LucideReceiptText, LucideCheck, LucidePiggyBank, LucideShieldPlus, LucideTag, LucideLayoutGrid, LucideListOrdered, LucideArrowRight, LucideCode, LucideSettings, LucideCalendarCheck, LucideCalendar1, LucideBanknoteArrowUp, LucideBanknoteArrowDown, LucideRotateCcw, LucideFileDown, LucideEllipsisVertical, LucideHeart, LucideDroplet, LucideVenus, LucideFlag, LucideChessBishop, LucideMars, LucideStickyNote, LucideChevronLeft, LucideIdCardLanyard, LucideSwatchBook, LucideClipboardCheck, LucideAccessibility, LucideRoad, LucideMapPinSearch, LucideHousePlus, LucideSiren, LucideLampDesk, LucideDownload, LucideNotebookText, LucideCoins, LucideTriangleAlert, LucidePhone, LucideMail, LucideUserRound, LucideNotebookTabs, LucideHeadset, LucideTrash2, LucideWarehouse, LucideUserSearch, LucideLoader, LucideOctagonAlert, LucideCalendarSync, LucideFileText } from "@lucide/angular";
 
 export const APP_ICONS = [
     LucideArrowLeft,
@@ -110,7 +110,11 @@ export const APP_ICONS = [
     LucideHeadset,
     LucideWarehouse,
     LucideTrash2,
-    LucideUserSearch
+    LucideUserSearch,
+    LucideLoader,
+    LucideOctagonAlert,
+    LucideCalendarSync,
+    LucideFileText,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -223,4 +227,8 @@ export const APP_ICONS_MAP: Record<string, any> = {
     WareHouse: LucideWarehouse,
     Trash2: LucideTrash2,
     UserSearch: LucideUserSearch,
+    loader: LucideLoader,
+    OctagonAlert: LucideOctagonAlert,
+    CalendarSync: LucideCalendarSync,
+    FileText: LucideFileText,
 };
