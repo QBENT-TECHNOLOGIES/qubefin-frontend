@@ -16,6 +16,9 @@ body {
   /* background-attachment: fixed; */
   background-position: top right;
 }
+a:focus-visible, button:focus-visible {
+  outline: none !important;
+}
  /* .bg-set {
   background: url("../../public/assets/images/main-bg.png");
   background-size: cover;
@@ -465,3 +468,16 @@ body {
 }
 
 
+/* For modal */
+.glass-modal .mat-mdc-dialog-surface {
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 2px solid rgba(255,255,255,0.15);
+}
+
+.mat-mdc-paginator-container .mat-mdc-form-field-infix {
+  padding-left: 10px;
+}
+
+.dark .mat-sort-header-arrow > svg {
+  fill: #e2e2e2;
+}

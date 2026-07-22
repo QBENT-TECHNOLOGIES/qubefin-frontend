@@ -1,44 +1,122 @@
-<div class="flex flex-wrap items-center justify-between gap-4 mb-4">
-    <qfin-breadcrumb></qfin-breadcrumb>
-    <div class="flex items-center gap-3">
-        <button
-            class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
-            (click)="onAdd()">
-            <svg lucidePlus class="w-4 h-4"></svg>
-            New Unit
-        </button>
-    </div>
-</div>
-<div class="flex gap-4 items-stretch">
-    <aside class="w-80 md:w-80 shrink-0 sticky top-0 self-start">
-        <div class="glass rounded-xl h-[calc(100vh-170px)] shadow-glass dark:shadow flex flex-col overflow-hidden">
-            <div class="flex items-center gap-2 px-4 py-3">
-                <div
-                    class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
-                    <svg lucideSearch class="w-4 h-4 text-slate-400 shrink-0"></svg>
-                    <input type="text" placeholder="Search units..." aria-label="Search administrative units"
-                        class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
-                </div>
-                <button aria-label="Filter"
-                    class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
-                    <svg lucideFunnel class="w-4 h-4"></svg>
+<div class="flex flex-col">
+    <div class="flex flex-wrap items-center justify-end gap-4 mb-2 z-10">
+        <div class="flex gap-3 items-center flex-wrap">
+            <div class="flex items-center gap-3">
+                @if (isViewMode()) {
+                <button type="button"
+                    class="glass-input dark:text-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                    <svg lucideIcon="funnel" class="w-4 h-4"></svg>
+                    Filter
+                </button>
+                } @else {}
+                <button
+                    class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+                    (click)="onAdd()">
+                    <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                    Add New
                 </button>
             </div>
-            <div class="flex-1 overflow-y-auto min-h-0 scroll-thin">
-                <qfin-role-list-component [roles]="roles()"
-                    (onViewDetail)="viewDetail($event)">
-                </qfin-role-list-component>
-            </div>
         </div>
-    </aside>
-    <section class="flex-1">
-        @if (isViewMode()) {
-        <!-- <qfin-menu-view-component [menuId]="selectedMenuId()" (showEdit)="onEdit()">
-        </qfin-menu-view-component> -->
-        } @else {
-        <!-- <qfin-menu-detail-component [administrativeUnitId]="selectedAdministrativeUnitId()"
-            (cancel)="isViewMode.set(true)">
-        </qfin-menu-detail-component> -->
+    </div>
+    <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
+        <div class="glass rounded-xl shadow-glass dark:shadow
+           overflow-hidden min-w-0 shrink-0
+           transition-[width,max-width,opacity,transform] 
+           duration-500 ease-in-out" 
+            [ngClass]="{
+                'w-full max-w-full opacity-100 translate-x-0':
+                    isViewMode(),
+
+                'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0':
+                    isViewMode(),
+
+                'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
+                    !isViewMode()
+            }">
+            <!-- COLLAPSED SEARCH -->
+            @if (isViewMode()) {
+            @if (showFilterArea()) {
+            <div class="p-3 transition-all duration-300">
+                <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
+                </div>
+            </div>
+            }
+            } @else {
+            <div class="flex items-center gap-2 px-4 py-3">
+            </div>
+            }
+            <qfin-role-list-component [data]="searchedRoles()" (sortChange)="onSort($event)" (pageChange)="onPageChange($event)">
+            </qfin-role-list-component>
+        </div>
+
+        @if (!isViewMode()) {
+        <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
+            [ngClass]="{
+                'w-3/4':
+                    isViewMode(),
+
+                'w-full':
+                    !isViewMode()
+            }">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <div class="flex justify-start gap-2">
+                                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
+                                    @if (selectedRoleId() === EMPTY_UUID) {
+                                    Add Salary
+                                    } @else if (isViewMode()) {
+                                    Details
+                                    } @else {
+                                    Edit Salary
+                                    }
+                                </h2>
+                                <div
+                                    class="flex items-center gap-1.5 px-3 pt-1 pb-0 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+                                    <span
+                                        class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                                        @if (selectedRoleId() === EMPTY_UUID) {
+                                        New Mode
+                                        } @else if (isViewMode()) {
+                                        View Mode
+                                        } @else {
+                                        Edit Mode
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                                @if (selectedRoleId() === EMPTY_UUID) {
+                                Create a new salary component and configure its applicability.
+                                } @else if (isViewMode()) {
+                                View the salary component details and configuration.
+                                } @else {
+                                Update the salary component and its applicability rules.
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- <button aria-label="Close" matTooltip="Close"
+                    class="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
+                    (click)="closePanel()">
+                    <svg lucideIcon="x" class="w-4 h-4"></svg>
+                </button> -->
+            </div>
+
+            <!-- <div> -->
+            <!-- @if (isViewMode() && selectedRoleId() !== EMPTY_UUID) {
+            <qfin-salary-component-view [(salaryId)]="selectedSalaryComponentId" (showEdit)="onEdit()">
+            </qfin-salary-component-view>
+            } @else {
+            <qfin-salary-component-detail [salaryId]="selectedSalaryComponentId()" (onCancel)="closePanel()"
+                (onSave)="closePanel()">
+            </qfin-salary-component-detail>
+            } -->
+            <!-- </div> -->
+        </div>
         }
-    </section>
+    </div>
 </div>

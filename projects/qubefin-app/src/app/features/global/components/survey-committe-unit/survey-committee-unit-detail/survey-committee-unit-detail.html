@@ -1,0 +1,67 @@
+<div class="space-y-6">
+  @if (isEditMode() && loading()) {
+  <div class="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-sm text-slate-500">
+    Loading survey committee member details...
+  </div>
+  } @else {
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Employee</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="user" class="w-5 h-5"></svg>
+      </div>
+      <input matInput [value]="employeeSearchText()" (input)="searchEmployees($any($event.target).value)"
+        [matAutocomplete]="employeeAuto" [readonly]="isEditMode()" autocomplete="off"
+        [placeholder]="isEditMode() ? 'Employee' : 'Search employee'" />
+      <mat-autocomplete #employeeAuto="matAutocomplete" [displayWith]="displayEmployeeName"
+        (optionSelected)="selectEmployee($event)">
+        @for (employee of employeeOptions(); track employee.id) {
+        <mat-option [value]="employee">
+          {{ employee.employeeName }}
+        </mat-option>
+        } @empty {
+        @if (employeeSearchText().trim()) {
+        <mat-option disabled>No employees found</mat-option>
+        }
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+    @if (isEditMode() && !surveyCommitteeForm.isActive().value()) {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Date Of Separation</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
+      </div>
+      <input matInput [matDatepicker]="picker" [formField]="surveyCommitteeForm.assignedTo" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+    }
+    <div>
+      <div
+        class="flex gap-2 bg-slate-100/50 dark:bg-white/5 dark:text-white rounded-xl p-2 border border-slate-200/20 dark:border-white/5">
+        @if (isEditMode()) {
+        <mat-checkbox [formField]="surveyCommitteeForm.isActive" color="primary">Is Active?</mat-checkbox>
+        }
+        @if (!isEditMode() || (isEditMode() && surveyCommitteeForm.isActive().value())) {
+        <mat-checkbox [formField]="surveyCommitteeForm.isLead" color="primary">Is Lead?</mat-checkbox>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Button -->
+  <div class="border-t border-slate-200 dark:border-slate-400/10 py-2 flex justify-end gap-3">
+    <button type="button" (click)="onCancelClicked()"
+      class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+      <svg lucideIcon="x" class="w-4 h-4"></svg>
+      Cancel
+    </button>
+    <button type="button" (click)="onSubmit()"
+      class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+      <svg lucideIcon="save" class="w-4 h-4"></svg>
+      {{ isEditMode() ? 'Update' : 'Save' }}
+    </button>
+  </div>
+  }
+</div>

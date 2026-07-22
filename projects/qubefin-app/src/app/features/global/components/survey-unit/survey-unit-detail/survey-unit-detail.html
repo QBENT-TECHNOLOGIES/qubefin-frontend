@@ -1,0 +1,205 @@
+<div class="space-y-4">
+    <div class="grid grid-cols-1 lg:grid-cols-1 gap-4">
+        <!-- General Information -->
+        <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                General Information
+            </h3>
+            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                @if (isEditMode()) {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Assignment No</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [value]="formModel().assignmentNo" readonly />
+                </mat-form-field>
+                }
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Survey Type</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [value]="formModel().surveyType" (valueChange)="updateField('surveyType',$event)">
+                        @for(type of surveyTypes(); track type){
+                        <mat-option [value]="type"> {{type}}
+                        </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Assignment Date</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [matDatepicker]="assignmentPicker" [value]="formModel().assignmentDate"
+                        (dateChange)="updateField('assignmentDate',$event.value)" />
+                    <mat-datepicker-toggle matIconSuffix [for]="assignmentPicker">
+                    </mat-datepicker-toggle>
+                    <mat-datepicker #assignmentPicker>
+                    </mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Tentative Submission Date</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [matDatepicker]="tentativePicker" [value]="formModel().tentativeSubmissionDate"
+                        (dateChange)="updateField('tentativeSubmissionDate',$event.value)" [min]="formModel().assignmentDate"/>
+                    <mat-datepicker-toggle matIconSuffix [for]="tentativePicker">
+                    </mat-datepicker-toggle>
+                    <mat-datepicker #tentativePicker>
+                    </mat-datepicker>
+                    @if(!isTentativeDateValid()){
+                    <mat-error>
+                        Tentative Submission Date must be greater than Assignment Date.
+                    </mat-error>
+                    }
+                </mat-form-field>
+
+                <qfin-administrative-unit-cascade [columns]="4" [administrativeUnitId]="formModel().administrativeUnitId"
+                    (selectedIdChanged)="updateField('administrativeUnitId', $event)">
+                </qfin-administrative-unit-cascade>
+                
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class=" w-full">
+                    <mat-label>Proposed Area</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="map-pinned" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [value]="formModel().proposedArea"
+                        (input)="updateField('proposedArea', $any($event.target).value)"
+                        placeholder="Enter proposed survey area" />
+                </mat-form-field>
+
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Employee</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="user-search" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [value]="employeeSearchText()"
+                        (input)="searchEmployees($any($event.target).value)" [matAutocomplete]="employeeAuto"
+                        autocomplete="off" [placeholder]="isEditMode() ? 'Employee' : 'Search employee'" />
+                    <mat-autocomplete #employeeAuto="matAutocomplete" [displayWith]="displayEmployeeName"
+                        (optionSelected)="selectEmployee($event)">
+                        @for (employee of employeeOptions(); track employee.id) {
+                        <mat-option [value]="employee">
+                            {{ employee.employeeName }}
+                        </mat-option>
+                        } @empty {
+                        @if (employeeSearchText().trim()) {
+                        <mat-option disabled>No employees found</mat-option>
+                        }
+                        }
+                    </mat-autocomplete>
+                    <div matTooltip="Add Surveyor" (click)="addMember()" 
+                        [class.pointer-events-none]="!isMemberSelected()"
+                        [class.opacity-50]="!isMemberSelected()"
+                        [class.cursor-not-allowed]="!isMemberSelected()"
+                        class="w-10 h-11.5 mr-0.5 flex justify-center items-center bg-primary-500 cursor-pointer rounded-r-sm" 
+                        matSuffix>
+                        <svg lucideIcon="plus" class="w-5 h-5 text-white"></svg>
+                    </div>
+                </mat-form-field>
+
+                <!-- <button
+                    class="ripple-btn shine-sweep rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+                    (click)="addMember()" style="width: 152px;" [disabled]="!isMemberSelected()">
+                    <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                    Add Surveyor
+                </button> -->
+            </div>
+        </div>
+
+        <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                Surveyors
+            </h3>
+            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+            <div class="py-0 px-3 border border-slate-200 rounded-lg">
+                <div class="flex flex-col divide-y divide-slate-200/20 dark:divide-white/10">
+                    @for(member of formModel().surveyAssigneds; track member.employeeId) {
+                    <div class="flex items-center justify-between py-3">
+
+                        <!-- Left -->
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+                                <svg lucideIcon="user" class="w-5 h-5 text-primary-600"></svg>
+                            </div>
+
+                            <div>
+                                <p class="text-sm font-semibold text-slate-800 dark:text-white">
+                                    {{ member.employeeName }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Right -->
+                        <div class="flex items-center gap-6">
+
+                            <!-- Lead Toggle -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-slate-500 dark:text-slate-400">
+                                    Lead
+                                </span>
+
+                                <button type="button" (click)="setLead(member.employeeId, !member.isLead)"
+                                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200"
+                                    [class.bg-primary-600]="member.isLead" [class.bg-slate-300]="!member.isLead"
+                                    matTooltip='Set as {{member.isLead ? "member" : "lead"}}'>
+
+                                    <span class="inline-block h-4 w-4 transform rounded-full bg-white transition"
+                                        [class.translate-x-6]="member.isLead" [class.translate-x-1]="!member.isLead">
+                                    </span>
+                                </button>
+                            </div>
+
+                            <!-- Status Badge -->
+                            @if(member.isLead){
+                            <span
+                                class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                <svg class="w-4 h-4" lucideIcon="badge-check"></svg>
+                                Lead
+                            </span>
+                            } @else {
+                            <span
+                                class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                                Member
+                            </span>
+                            }
+
+                            <!-- Delete -->
+                            <button type="button" (click)="removeMember(member.employeeId)"
+                                class="flex h-9 w-9 items-center justify-center rounded-lg text-red-500 transition hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30"
+                                title="Remove Member" matTooltip="Remove member">
+                                <svg lucideIcon="trash-2" class="w-4 h-4"></svg>
+                            </button>
+
+                        </div>
+
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+
+    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3">
+        <button type="button" (click)="onCancelClicked()"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+            Cancel
+        </button>
+        <button type="button" (click)="onSubmit()"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
+            {{ isEditMode() ? 'Update' : 'Save' }}
+        </button>
+    </div>
+</div>

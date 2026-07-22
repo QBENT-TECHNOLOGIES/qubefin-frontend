@@ -1,8 +1,8 @@
-import { Component,computed, inject } from '@angular/core';
+import { Component,computed, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { RouteDataService } from 'qubefin-core';
 import { APP_ICONS_MAP } from '../../../lucide-icons';
+import { MenuHierarchyItem } from '../../../features/app/models/menu-hierarchy-item';
 
 @Component({
   selector: 'qfin-breadcrumb',
@@ -10,7 +10,8 @@ import { APP_ICONS_MAP } from '../../../lucide-icons';
   templateUrl: './breadcrumb.html'
 })
 export class Breadcrumb {
-  routeDataService = inject(RouteDataService);
+
   readonly iconMap = APP_ICONS_MAP;
-  pageTitle = computed(() => this.routeDataService.routeData().title);
+
+  data = input<MenuHierarchyItem[]>();
 }

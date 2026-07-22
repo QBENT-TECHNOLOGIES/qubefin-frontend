@@ -22,7 +22,13 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import { EmployeeService } from '../../../../services/employee-service';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
-import { EmployeeAddressInfo, IEmployeeAddressInfo } from '../../../../models/employee-detail';
+import {
+  EmployeeAddressInfo,
+  IEmployeeAddressInfo,
+  Utility,
+} from '../../../../models/employee-detail';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { of, tap } from 'rxjs';
 
 @Component({
   selector: 'qfin-address-component',
@@ -41,14 +47,10 @@ import { EmployeeAddressInfo, IEmployeeAddressInfo } from '../../../../models/em
 })
 export class AddressComponentDetail {
   empId = input<string>(EMPTY_UUID);
-  //   onCancel = output<void>();
-  onSave = output<void>();
-  genders = [
-    { id: 'M', name: 'Male' },
-    { id: 'F', name: 'Female' },
-    { id: 'O', name: 'Others' },
-  ];
-  maritalStatusList = ['Single', 'Married', 'Separated', 'Divorced', 'Widowed'];
+  utilities = input<Utility[]>([]);
+  onAddressUpdate = output<void>();
+  policeStations = [];
+  postOffices = [];
 
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
@@ -72,39 +74,85 @@ export class AddressComponentDetail {
     this.permanentAddressModel,
     this.employeeAddressSchema,
   );
-
+  readonly sameAsPresentAddress = signal(false);
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
+  onSameAddressChange(checked: boolean): void {
+    this.sameAsPresentAddress.set(checked);
 
+    if (checked) {
+      this.permanentAddressModel.set(
+        new EmployeeAddressInfo({
+          ...this.presentAddressForm().value(),
+        }),
+      );
+
+      // this.permanentAddressForm.disable();
+    } else {
+      // this.permanentAddressForm.enable();
+    }
+  }
   constructor() {
-    // this.employeeStore.loadCategories();
     effect(() => {
-      const id = this.empId();
-      if (id && id !== EMPTY_UUID) {
-        this.employeeStore.setEmployeeComponentId(id);
-      }
+      if (!this.sameAsPresentAddress()) return;
+
+      this.permanentAddressModel.set(
+        new EmployeeAddressInfo({
+          ...this.presentAddressModel(),
+        }),
+      );
     });
-    effect(() => {
-      if (this.isEditMode() && this.empId() !== EMPTY_UUID) {
-        this.employeeService.getAddressData(this.empId()).subscribe((resp: any) => {
-          this.employeeStore.setEmployeeComponentId(resp.id);
-          console.log(resp.presentAddressInfo.houseNo);
-          console.log(typeof resp.presentAddressInfo.houseNo);
+  }
+  // constructor() {
+  //   // this.employeeStore.loadCategories();
+  //   effect(() => {
+  //     const id = this.empId();
+  //     if (id && id !== EMPTY_UUID) {
+  //       this.employeeStore.setEmployeeComponentId(id);
+  //     }
+  //   });
+  //   effect(() => {
+  //     if (this.isEditMode() && this.empId() !== EMPTY_UUID) {
+  //       this.employeeService.getAddressData(this.empId()).subscribe((resp: any) => {
+  //       this.employeeStore.setEmployeeComponentId(resp.id);
+  //         this.presentAddressModel.set(new EmployeeAddressInfo(resp.presentAddressInfo));
 
-          this.presentAddressModel.set(new EmployeeAddressInfo(resp.presentAddressInfo));
+  //         this.permanentAddressModel.set(new EmployeeAddressInfo(resp.permanentAddressInfo));
+  //       })
+  //      } else {
+  //       this.presentAddressModel.set(new EmployeeAddressInfo());
+  //       this.permanentAddressModel.set(new EmployeeAddressInfo());
+  //     }
+  //   });
+  // }
+  // 🚀 Replaces both effects! Safely streams, cancels stale requests, and maps components
+  // 🚀 Fixed signature for rxResource compatibility
+  // 🚀 Updated config naming convention for Angular 20+
+  private addressResource = rxResource({
+    params: () => ({ id: this.empId(), editMode: this.isEditMode() }), // 👈 "request" becomes "params"
+    stream: ({ params }) => {
+      // 👈 "loader" becomes "stream"
+      if (params.editMode && params.id !== EMPTY_UUID) {
+        this.employeeStore.setEmployeeComponentId(params.id);
 
-          this.permanentAddressModel.set(new EmployeeAddressInfo(resp.permanentAddressInfo));
-        });
+        return this.employeeService.getAddressData(params.id).pipe(
+          tap((resp: any) => {
+            this.employeeStore.setEmployeeComponentId(resp.id);
+            this.presentAddressModel.set(new EmployeeAddressInfo(resp.presentAddressInfo));
+            this.permanentAddressModel.set(new EmployeeAddressInfo(resp.permanentAddressInfo));
+          }),
+        );
       } else {
         this.presentAddressModel.set(new EmployeeAddressInfo());
         this.permanentAddressModel.set(new EmployeeAddressInfo());
+        return of(null); // Ensure "of" is imported from 'rxjs'
       }
-    });
-  }
+    },
+  });
 
   onSubmit() {
-    console.log(this.presentAddressForm().value());
-    console.log(this.permanentAddressForm().value());
+    // console.log(this.presentAddressForm().value());
+    // console.log(this.permanentAddressForm().value());
 
     if (!this.presentAddressForm().valid() || !this.permanentAddressForm().valid()) {
       return;
@@ -114,12 +162,33 @@ export class AddressComponentDetail {
       presentAddress: this.presentAddressForm().value(),
       permanentAddress: this.permanentAddressForm().value(),
     };
+    dataToSave.presentAddress.administrativeUnitId =
+      dataToSave.presentAddress.administrativeUnitId == ''
+        ? null
+        : dataToSave.presentAddress.administrativeUnitId;
+    dataToSave.presentAddress.policeStationId =
+      dataToSave.presentAddress.policeStationId == ''
+        ? null
+        : dataToSave.presentAddress.policeStationId;
+    dataToSave.presentAddress.postOfficeId =
+      dataToSave.presentAddress.postOfficeId == '' ? null : dataToSave.presentAddress.postOfficeId;
+
+    dataToSave.permanentAddress.administrativeUnitId =
+      dataToSave.presentAddress.administrativeUnitId == ''
+        ? null
+        : dataToSave.presentAddress.administrativeUnitId;
+    dataToSave.permanentAddress.policeStationId =
+      dataToSave.presentAddress.policeStationId == ''
+        ? null
+        : dataToSave.presentAddress.policeStationId;
+    dataToSave.permanentAddress.postOfficeId =
+      dataToSave.presentAddress.postOfficeId == '' ? null : dataToSave.presentAddress.postOfficeId;
     if (this.isEditMode()) {
       this.employeeService.updateAddresslInfo(this.empId(), dataToSave).subscribe({
         next: () => {
           this.employeeStore.refreshList();
           this.employeeStore.refreshDetail();
-          this.onSave.emit();
+          this.onAddressUpdate.emit();
         },
         error: (err: any) => {
           if (err.error?.isError) {

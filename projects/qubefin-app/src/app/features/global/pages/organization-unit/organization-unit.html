@@ -1,45 +1,49 @@
-<div class="flex flex-wrap items-center justify-between gap-4 mb-4">
-    <qfin-breadcrumb></qfin-breadcrumb>
-    <div class="flex items-center gap-3">
-        <button
-            class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
-            (click)="onAdd()">
-            <svg lucideIcon="plus" class="w-4 h-4"></svg>
-            New Unit
-        </button>
-    </div>
-</div>
-<div class="flex gap-4 items-stretch">
-    <aside class="w-80 md:w-80 shrink-0 sticky top-0 self-start">
-        <div class="glass rounded-xl h-[calc(100vh-170px)] shadow-glass dark:shadow flex flex-col overflow-hidden">
-            <div class="flex items-center gap-2 px-4 py-3">
-                <div
-                    class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
-                    <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
-                    <input type="text" placeholder="Search units..." aria-label="Search organization units"
-                        class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
-                </div>
-                <button aria-label="Filter"
-                    class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
-                    <svg lucideIcon="funnel" class="w-4 h-4"></svg>
-                </button>
-            </div>
-            <div class="flex-1 overflow-y-auto min-h-0 scroll-thin">
-                <qfin-organization-unit-tree-component [organizationUnitTreeNodes]="organizationUnitTreeNodes()"
-                    (onViewDetail)="viewDetail($event)">
-                </qfin-organization-unit-tree-component>
-            </div>
+<div class="flex flex-col">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-2 z-10">
+        <div class="flex items-center gap-3"></div>
+        <div class="flex gap-3 items-center flex-wrap">
+            <button
+                class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+                (click)="onAdd()">
+                <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                New Unit
+            </button>
         </div>
-    </aside>
-    <section class="flex-1">
+    </div>
+    <div class="flex gap-4 items-stretch">
         @if (isViewMode()) {
-        <qfin-organization-unit-view-component [organizationUnitId]="selectedOrganizationUnitId()"
-            (showEdit)="onEdit()">
-        </qfin-organization-unit-view-component>
-        } @else {
-        <qfin-organization-unit-detail-component [organizationUnitId]="selectedOrganizationUnitId()"
-            (cancel)="isViewMode.set(true)">
-        </qfin-organization-unit-detail-component>
+        <aside class="w-80 md:w-80 shrink-0 sticky top-0 self-start">
+            <div class="glass rounded-xl h-[calc(100vh-170px)] shadow-glass dark:shadow flex flex-col overflow-hidden">
+                <div class="flex items-center gap-2 px-4 py-3">
+                    <div
+                        class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
+                        <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
+                        <input type="text" placeholder="Search units..." aria-label="Search organization units"
+                            class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
+                    </div>
+                    <button aria-label="Filter"
+                        class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
+                        <svg lucideIcon="funnel" class="w-4 h-4"></svg>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto min-h-0 scroll-thin">
+                    <qfin-organization-unit-tree-component [organizationUnitTreeNodes]="organizationUnitTreeNodes()"
+                        (onViewDetail)="viewDetail($event)">
+                    </qfin-organization-unit-tree-component>
+                </div>
+            </div>
+        </aside>
         }
-    </section>
+        <section class="flex-1">
+            @if (isViewMode()) {
+            <qfin-organization-unit-view-component [organizationUnitId]="selectedOrganizationUnitId()"
+                (showEdit)="onEdit()">
+            </qfin-organization-unit-view-component>
+            } @else {
+            <qfin-organization-unit-detail-component [organizationUnitId]="selectedOrganizationUnitId()"
+                (cancel)="isViewMode.set(true)">
+            </qfin-organization-unit-detail-component>
+            }
+        </section>
+    </div>
 </div>

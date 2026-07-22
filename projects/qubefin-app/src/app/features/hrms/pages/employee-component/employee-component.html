@@ -38,7 +38,7 @@
                                     <div class="w-12 flex justify-center" matPrefix>
                                         <svg lucideIcon="search" class="w-5 h-5"></svg>
                                     </div>
-                                    <input matInput autocomplete="off" placeholder="Enter name or code">
+                                    <input matInput autocomplete="off" placeholder="Enter name or code" [(ngModel)]="tempSearch">
                                 </mat-form-field>
                             </div>
                             <div class="flex-1 min-w-[200px]">
@@ -125,7 +125,7 @@
                     !isViewMode()
             }">
             <div
-                class="flex justify-between items-center border-b border-slate-200/70 dark:border-slate-400/10 pb-3 mb-4">
+                class="flex justify-between items-center border-b border-slate-200/70 dark:border-slate-400/10 pb-3 mb-2">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <div>
@@ -180,7 +180,7 @@
                 </qfin-employee-component-view>
                 } @else {
                 <qfin-employee-component-detail [employeeId]="selectedEmployeeComponentId()" (onCancel)="handleCancel()"
-                    (onChildSave)="handleSave()">
+                    (onChildSave)="handleSave()" >
                 </qfin-employee-component-detail>
                 }
             </div>

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { APP_ICONS_MAP } from '../../lucide-icons';
+import { APP_ICONS_MAP } from '../../../lucide-icons';
 
 
 @Component({

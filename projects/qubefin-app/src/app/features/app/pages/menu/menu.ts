@@ -1,35 +1,25 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { EMPTY_UUID, RouteDataService, RouteMeta } from 'qubefin-core';
+import { EMPTY_UUID } from 'qubefin-core';
 import { MenuStore } from '../../stores/menu-store';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
 import { MenuTreeComponent } from '../../components/menu-tree/menu-tree';
 import { MenuViewComponent } from '../../components/menu-view/menu-view';
-import { Breadcrumb } from '../../../../layouts/secure/breadcrumb/breadcrumb';
+import { APP_ICONS_MAP } from '../../../../lucide-icons';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'qfin-menu-page',
-  imports: [Breadcrumb, MenuTreeComponent, MenuViewComponent],
+  imports: [MenuTreeComponent, MenuViewComponent, LucideDynamicIcon],
   templateUrl: './menu.html'
 })
 export class MenuPage {
-	private readonly route = inject(ActivatedRoute);
-	private readonly routeDataService = inject(RouteDataService);
-
 	menuStore = inject(MenuStore);
 
 	isViewMode = signal<boolean>(true);
 	selectedMenuId = signal<string>(EMPTY_UUID);
 	menuTreeNodes = this.menuStore.menuTree;
-
-	private routeData = toSignal(this.route.data as Observable<RouteMeta>, {
-		initialValue: { title: '', icon: '' }
-	});
-
+	readonly iconMap = APP_ICONS_MAP;
 	constructor() {
 		effect(() => {
-			this.routeDataService.setRouteData(this.routeData());
 			if (this.menuTreeNodes().length > 0) {
 				this.selectedMenuId.set(this.menuTreeNodes()[0].id);
 			}

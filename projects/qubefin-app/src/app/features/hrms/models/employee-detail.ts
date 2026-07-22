@@ -126,17 +126,17 @@ export interface IEmployeeEmployment {
   fromDate: Date; // DateOnly maps to string (YYYY-MM-DD)
   toDate: Date; // DateOnly maps to string (YYYY-MM-DD)
   lastDrawnSalary: number; // decimal maps to required number
-  jobTitle?: string | null; // Nullable string
-  nocFileName?: string | null; // Nullable string
-  nocFileNo?: string | null; // Nullable string
-  expCertFileName?: string | null; // Nullable string
-  expCertFileNo?: string | null; // Nullable string
+  jobTitle: string; // Nullable string
+  nocFileName: string; // Nullable string
+  nocFileNo: string; // Nullable string
+  expCertFileName: string; // Nullable string
+  expCertFileNo: string; // Nullable string
   employeeId: string; // Guid maps to required string
   sequence: number; // int maps to required number
-  createdOn?: Date; // DateTime? maps to ISO timestamp string
-  createdBy?: string | null; // Guid? maps to nullable string
-  lastModifiedBy?: string | null; // Guid? maps to nullable string
-  lastModifiedOn?: Date; // DateTime? maps to ISO timestamp string
+  createdOn: Date; // DateTime? maps to ISO timestamp string
+  createdBy: string; // Guid? maps to nullable string
+  lastModifiedBy: string; // Guid? maps to nullable string
+  lastModifiedOn: Date; // DateTime? maps to ISO timestamp string
 }
 
 export class EmployeeEmployment {
@@ -146,16 +146,16 @@ export class EmployeeEmployment {
   fromDate: Date = defaultDate();
   toDate: Date = defaultDate();
   lastDrawnSalary: number = 0;
-  jobTitle?: string | null = '';
-  nocFileName?: string | null = '';
-  nocFileNo?: string | null = '';
-  expCertFileName?: string | null = '';
-  expCertFileNo?: string | null = '';
+  jobTitle?: string = '';
+  nocFileName?: string = '';
+  nocFileNo?: string = '';
+  expCertFileName?: string = '';
+  expCertFileNo?: string = '';
   employeeId: string = '';
   sequence: number = 0;
   createdOn?: Date;
-  createdBy?: string | null = '';
-  lastModifiedBy?: string | null = '';
+  createdBy?: string = '';
+  lastModifiedBy?: string = '';
   lastModifiedOn?: Date;
 
   constructor(init?: Partial<EmployeeEmployment>) {
@@ -169,80 +169,69 @@ export interface IEmployeeDocument {
   id: string; // Guid maps to required string
   documentCategory: string; // Required non-nullable string
   documentName: string; // Required non-nullable string
-  documentNo?: string | null; // Nullable string
-  validFrom?: Date; // DateOnly? maps to string (YYYY-MM-DD)
-  validTill?: Date; // DateOnly? maps to string (YYYY-MM-DD)
-  fileName?: string | null; // Nullable string
-  fileNo?: string | null; // Nullable string
-  employeeId: string; // Guid maps to required string
-  uploadedOn?: string | null; // DateTime? maps to ISO timestamp string
-  uploadedBy?: string | null; // Guid? maps to nullable string
-  createdOn?: Date; // DateTime? maps to ISO timestamp string
-  createdBy?: string | null; // Guid? maps to nullable string
-  lastModifiedBy?: string | null; // Guid? maps to nullable string
-  lastModifiedOn?: Date; // DateTime? maps to ISO timestamp string
+  documentNo: string; // Nullable string
+  validFrom: Date | null; // DateOnly? maps to string (YYYY-MM-DD)
+  validTill: Date | null; // DateOnly? maps to string (YYYY-MM-DD)
+  fileName: string | null; // Nullable string
+  fileNo: string | null; // DateTime? maps to ISO timestamp string
+  employeeId: string; // DateTime? maps to ISO timestamp string
 }
 
 export class EmployeeDocument {
-  id: string = '';
+  id: string = '00000000-0000-0000-0000-000000000000';
   documentCategory: string = '';
   documentName: string = '';
-  documentNo?: string | null = '';
-  validFrom?: Date;
-  validTill?: Date;
-  fileName?: string | null = '';
-  fileNo?: string | null = '';
-  employeeId: string = '';
-  uploadedOn?: string | null = '';
-  uploadedBy?: string | null = '';
-  createdOn?: Date;
-  createdBy?: string | null = '';
-  lastModifiedBy?: string | null = '';
-  lastModifiedOn?: Date;
+  documentNo: string = '';
+  validFrom: Date | null = null;
+  validTill: Date | null = null;
 
-  constructor(init?: Partial<EmployeeDocument>) {
-    Object.assign(this, init);
+  fileName: string | null = null;
+  fileNo: string | null = null;
+  employeeId: string = '';
+
+  constructor(init?: Partial<IEmployeeDocument>) {
+    if (!init) return;
+
+    Object.assign(
+      this,
+      Object.fromEntries(
+        Object.entries(init).map(([k, v]) => [k, v ?? this[k as keyof IEmployeeDocument]]),
+      ),
+    );
   }
 }
 // --- Reference ---
 
 export interface IEmployeeReference {
   id: string; // Guid maps to required string
-  documentCategory: string; // Required non-nullable string
-  documentName: string; // Required non-nullable string
-  documentNo?: string | null; // Nullable string
-  validFrom?: Date; // DateOnly? maps to string (YYYY-MM-DD)
-  validTill?: Date; // DateOnly? maps to string (YYYY-MM-DD)
-  fileName?: string | null; // Nullable string
-  fileNo?: string | null; // Nullable string
   employeeId: string; // Guid maps to required string
   personName: string; // Required non-nullable string
-  mobile: string; // Required non-nullable string
-  email: string; // Required non-nullable string
-  address: string; // Required non-nullable string
-  occupation?: string | null; // Nullable string
-  howDoYouKnow?: string | null;
+  mobile: string; // Nullable string
+  email: string; // DateOnly? maps to string (YYYY-MM-DD)
+  address: string; // DateOnly? maps to string (YYYY-MM-DD)
+  occupation: string; // Nullable string
+  howDoYouKnow: string; // Nullable string
 }
 
 export class EmployeeReference {
-  id: string = '';
-  documentCategory: string = '';
-  documentName: string = '';
-  documentNo?: string | null = '';
-  validFrom?: Date;
-  validTill?: Date;
-  fileName?: string | null = '';
-  fileNo?: string | null = '';
-  employeeId: string = '';
+  id: string = '00000000-0000-0000-0000-000000000000';
+  employeeId: string = '00000000-0000-0000-0000-000000000000';
   personName: string = '';
   mobile: string = '';
   email: string = '';
   address: string = '';
-  occupation?: string | null = '';
-  howDoYouKnow?: string | null = '';
+  occupation: string = '';
+  howDoYouKnow: string = '';
 
-  constructor(init?: Partial<EmployeeReference>) {
-    Object.assign(this, init);
+  constructor(init?: Partial<IEmployeeReference>) {
+    if (!init) return;
+
+    Object.assign(
+      this,
+      Object.fromEntries(
+        Object.entries(init).map(([k, v]) => [k, v ?? this[k as keyof IEmployeeReference]]),
+      ),
+    );
   }
 }
 
@@ -316,79 +305,97 @@ export class EmployeePersonalInfo implements IEmployeePersonalInfo {
 // --- OfficialInfo ---
 
 export interface IEmployeeOfficialInfo {
-  companyId?: string | null; // Guid? maps to string
-  organizationUnitId?: string | null; // Guid? maps to string
-  departmentId?: string | null; // Guid? maps to string
-  employementType?: string | null; // string? maps to optional string
-  joiningDate?: Date; // DateOnly? maps to ISO date string (YYYY-MM-DD)
-  confirmationDate?: Date; // DateOnly? maps to ISO date string (YYYY-MM-DD)
-  separationDate?: Date; // DateOnly? maps to ISO date string (YYYY-MM-DD)
-  referedBy?: string | null; // Guid? maps to string
-  howYouKnow?: string | null;
-  officialEmail?: string | null;
+  companyId: string; // Guid? maps to string
+  organizationUnitId: string; // Guid? maps to string
+  departmentId: string; // Guid? maps to string
+  employementType: string; // string? maps to optional string
+  joiningDate: Date; // DateOnly? maps to ISO date string (YYYY-MM-DD)
+  confirmationDate: Date; // DateOnly? maps to ISO date string (YYYY-MM-DD)
+  separationDate: Date; // DateOnly? maps to ISO date string (YYYY-MM-DD)
+  referedBy: string; // Guid? maps to string
+  howYouKnow: string;
+  officialEmail: string;
   isActive: boolean; // bool maps to required boolean
 }
 export class EmployeeOfficialInfo {
-  companyId?: string | null = '';
-  organizationUnitId?: string | null = '';
-  departmentId?: string | null = '';
-  employementType?: string | null = '';
-  joiningDate?: Date = defaultDate();
-  confirmationDate?: Date;
-  separationDate?: Date;
-  referedBy?: string | null = '';
-  howYouKnow?: string | null = '';
-  officialEmail?: string | null = '';
+  companyId: string = '';
+  organizationUnitId: string = '';
+  departmentId: string = '';
+  employementType: string = '';
+  joiningDate: Date = defaultDate();
+  confirmationDate: Date = defaultDate();
+  separationDate: Date = defaultDate();
+  referedBy: string = '';
+  howYouKnow: string = '';
+  officialEmail: string = '';
   isActive: boolean = true;
 
-  constructor(init?: Partial<EmployeeOfficialInfo>) {
-    Object.assign(this, init);
+  constructor(init?: Partial<IEmployeeOfficialInfo>) {
+    if (!init) return;
+
+    Object.assign(
+      this,
+      Object.fromEntries(
+        Object.entries(init).map(([k, v]) => [k, v ?? this[k as keyof IEmployeeOfficialInfo]]),
+      ),
+    );
   }
 }
 
 // --- Contact ---
 
-export interface IEmergencyContact {
-  relation?: string | null;
-  name?: string | null;
-  mobile?: string | null;
-}
+// export interface IEmergencyContact {
+//   relation: string | null;
+//   name: string | null;
+//   mobile: string | null;
+// }
+
+// export class EmergencyContact {
+//   relation: string  = '';
+//   name: string  = '';
+//   mobile: string  = '';
+
+//   constructor(init?: Partial<IEmergencyContact>) {
+//     if (!init) return;
+
+//     Object.assign(
+//       this,
+//       Object.fromEntries(
+//         Object.entries(init).map(([k, v]) => [k, v ?? this[k as keyof IEmergencyContact]]),
+//       ),
+//     );
+//   }
+// }
 
 export interface IEmployeeContactInfo {
   mobileNo: string; // maps to non-nullable string
-  personalEmail?: string | null; // maps to nullable string
-  primaryContact: IEmergencyContact; // nested instance object
-  secondaryContact: IEmergencyContact; // nested instance object
+  personalEmail: string; // maps to nullable string
+  primaryEmergencyRelation: string; // nested instance object
+  primaryEmergencyName: string; // nested instance object
+  primaryEmergencyMobile: string; // maps to nullable string
+  secondaryEmergencyRelation: string; // nested instance object
+  secondaryEmergencyName: string; // nested instance object
+  secondaryEmergencyMobile: string; // nested instance object
 }
-
-export class EmergencyContact {
-  relation?: string | null = '';
-  name?: string | null = '';
-  mobile?: string | null = '';
-
-  constructor(init?: Partial<EmergencyContact>) {
-    Object.assign(this, init);
-  }
-}
-
 export class EmployeeContactInfo {
-  mobileNo: string = '';
-  personalEmail?: string | null = '';
-  primaryContact: EmergencyContact = new EmergencyContact();
-  secondaryContact: EmergencyContact = new EmergencyContact();
+  mobileNo = ''; // maps to non-nullable string
+  personalEmail = ''; // maps to nullable string
+  primaryEmergencyRelation = ''; // nested instance object
+  primaryEmergencyName = ''; // nested instance object
+  primaryEmergencyMobile = ''; // maps to nullable string
+  secondaryEmergencyRelation = ''; // nested instance object
+  secondaryEmergencyName = ''; // nested instance object
+  secondaryEmergencyMobile = '';
 
-  constructor(init?: Partial<EmployeeContactInfo>) {
-    this.primaryContact = init?.primaryContact
-      ? new EmergencyContact(init.primaryContact)
-      : new EmergencyContact();
-    this.secondaryContact = init?.secondaryContact
-      ? new EmergencyContact(init.secondaryContact)
-      : new EmergencyContact();
+  constructor(init?: Partial<IEmployeeContactInfo>) {
+    if (!init) return;
 
-    if (init) {
-      const { primaryContact, secondaryContact, ...rest } = init;
-      Object.assign(this, rest);
-    }
+    Object.assign(
+      this,
+      Object.fromEntries(
+        Object.entries(init).map(([k, v]) => [k, v ?? this[k as keyof IEmployeeContactInfo]]),
+      ),
+    );
   }
 }
 // --- AddressInfo ---
@@ -563,4 +570,18 @@ export interface IEmployeesBySearchResult {
   joiningDate?: Date; // DateOnly? maps to ISO date string (YYYY-MM-DD)
   separationDate?: Date; // DateOnly? maps to ISO date string (YYYY-MM-DD)
   isActive: boolean; // bool maps to required boolean
+}
+
+export class Utility {
+  sysKey: string = '';
+  sysVal?: string = '';
+}
+export class KycDocument {
+  id: string = '';
+  name: string = '';
+  isMandatory: boolean = false;
+  isIdentityProof: boolean = false;
+  isAddressProof: boolean = false;
+  isDateValidate: boolean = false;
+  sequence: number = 0;
 }

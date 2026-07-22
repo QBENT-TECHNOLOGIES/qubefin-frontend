@@ -1,20 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, input, output, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, input, output, signal, ViewChild, ElementRef, effect } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { EMPTY_UUID } from 'qubefin-core';
-import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EmployeeStore } from '../../../stores/employee-store';
-import { EmployeeService } from '../../../services/employee-service';
-import { EmployeePersonalInfo, IEmployeePersonalInfo } from '../../../models/employee-detail';
 import { MatStepperModule } from '@angular/material/stepper';
-import { APP_ICONS_MAP } from '../../../../../lucide-icons';
 import { PersonalComponentDetail } from './personal-component/personal-component';
 import { AddressComponentDetail } from './address-component/address-component';
+import { ContactComponentDetail } from './contact-component/contact-component';
+import { OfficialComponentDetail } from './official-component/official-component';
+import { KycDocumentComponentDetail } from './kyc-document-component/kyc-document-component';
+import { ReferenceComponentDetail } from './reference-component/reference-component';
 
 
 @Component({
@@ -30,6 +30,10 @@ import { AddressComponentDetail } from './address-component/address-component';
     LucideDynamicIcon,
     PersonalComponentDetail,
     AddressComponentDetail,
+    ContactComponentDetail,
+    OfficialComponentDetail,
+    KycDocumentComponentDetail,
+    ReferenceComponentDetail
   ],
   templateUrl: './employee-component-detail.html',
 })
@@ -41,17 +45,41 @@ export class EmployeeComponentDetail {
   
 readonly activeStepIndex = signal(0);
   private readonly employeeStore = inject(EmployeeStore);
-
+  utilityComponents = this.employeeStore.utilityComponent;
+  kycComponents = this.employeeStore.kycComponent;
+  
 
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
 
   constructor() {
-    
-    
-  }
+  effect(() => {
+    console.log('Utilities:', this.utilityComponents());
+    console.log('KYC DOCUMENTS:', this.kycComponents());
+  });
+}
   onStepChange(index: number) {
     this.activeStepIndex.set(index);
+  }
+  handlePersonal(){
+    this.onStepChange(1);
+  }
+  handleAddress(){
+    this.onStepChange(2);
+  }
+  handleContact(){
+    this.onStepChange(3);
+
+  }
+  handleOfficial(){
+    this.onStepChange(4);
+
+  }
+  handleKyc(){
+    this.onStepChange(5);
+  }
+  handleReference(){
+    this.onStepChange(0);
   }
   handleSave(){
     this.onChildSave.emit();

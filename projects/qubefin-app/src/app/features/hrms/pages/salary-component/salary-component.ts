@@ -1,12 +1,9 @@
 import { SalaryStore } from './../../stores/salary-store';
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { SalaryComponentList } from "../../components/salary-components/salary-component-list/salary-component-list";
 import { SalaryComponentView } from "../../components/salary-components/salary-component-view/salary-component-view";
 import { SalaryComponentDetail } from "../../components/salary-components/salary-component-detail/salary-component-detail";
-import { EMPTY_UUID, RouteDataService, RouteMeta } from 'qubefin-core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
+import { EMPTY_UUID } from 'qubefin-core';
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -18,7 +15,6 @@ import { FormsModule } from '@angular/forms';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { CommonModule } from '@angular/common';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import { ISalaryModel } from '../../models/salary';
 @Component({
   selector: 'qfin-salary-component',
   imports: [
@@ -40,8 +36,6 @@ import { ISalaryModel } from '../../models/salary';
 })
 export class SalaryComponent {
   public readonly EMPTY_UUID = EMPTY_UUID;
-  private readonly route = inject(ActivatedRoute);
-  private readonly routeDataService = inject(RouteDataService);
   readonly iconMap = APP_ICONS_MAP;
   salaryStore = inject(SalaryStore);
   isViewMode = signal<boolean>(true);
@@ -82,15 +76,8 @@ export class SalaryComponent {
     return list;
   });
 
-  private routeData = toSignal(this.route.data as Observable<RouteMeta>, {
-    initialValue: { title: '', icon: '' }
-  });
-
   constructor() {
     this.salaryStore.loadCategories();
-    effect(() => {
-      this.routeDataService.setRouteData(this.routeData());
-    });
   }
 
   protected onView(id: string) {

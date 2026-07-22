@@ -22,9 +22,10 @@
             <mat-step>
                 <ng-template matStepLabel>Personal Info</ng-template>
                 @if (activeStepIndex() == 0) {
-                    <qfin-personal-component 
+                    <qfin-personal-component [utilities]="utilityComponents()"
                         [empId]="employeeId()"
                         (onSave)="handleSave()"
+                        (onUpdate)="handlePersonal()"
                         [activeIndex]="activeStepIndex()">
                     </qfin-personal-component>
                 }
@@ -37,7 +38,7 @@
                  @if (activeStepIndex() == 1) {
                 <qfin-address-component 
                     [empId]="employeeId()"
-                    (onSave)="handleSave()">
+                    (onAddressUpdate)="handleAddress()">
                 </qfin-address-component>
                 }
             </mat-step>
@@ -45,137 +46,27 @@
         <!-- Step 3: Contact Info -->
         <mat-step>
             <ng-template matStepLabel>Contact Info</ng-template>
-            <div class="space-y-6 animate-fade-in pt-4">
-                <div>
-                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                        Contact Info
-                    </h3>
-                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Mobile No</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>call</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Mobile No">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Personal Email</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>mail</mat-icon>
-                        <input matInput type="email" autocomplete="off" placeholder="Enter Personal Email">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Emergency Contact Person</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Name">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Relation</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>family_history</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Relation">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Emergency Contact Mobile</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>call</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Mobile No">
-                    </mat-form-field>
-                </div>
-
-                <div
-                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                    <div>
-                        <button type="button"
-                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                            Save as Draft
-                        </button>
-                    </div>
-                    <div class="flex flex-1 justify-end items-center gap-3">
-                        <button type="button" matStepperPrevious
-                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                            Previous
-                        </button>
-                        <button type="button" matStepperNext
-                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                            Save
-                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+             @if (activeStepIndex() == 2) {
+                <qfin-contact-component 
+                    [empId]="employeeId()"
+                    (onContactUpdate)="handleContact()">
+                </qfin-contact-component>
+                }
         </mat-step>
 
         <!-- Step 4: Official Info -->
         <mat-step>
             <ng-template matStepLabel>Official Info</ng-template>
-            <div class="space-y-6 animate-fade-in pt-4">
-                <div>
-                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                        Official Info
-                    </h3>
-                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Official Email</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>mail</mat-icon>
-                        <input matInput type="email" autocomplete="off" placeholder="Enter Official Email">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Employment Type</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>work</mat-icon>
-                        <mat-select placeholder="Select Type">
-                            <mat-option value="Permanent">Permanent</mat-option>
-                            <mat-option value="Contractual">Contractual</mat-option>
-                            <mat-option value="Probation">Probation</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Joining Date</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
-                        <input matInput type="date" autocomplete="off">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Confirmation Date</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
-                        <input matInput type="date" autocomplete="off">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Referred By</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Referrer Name">
-                    </mat-form-field>
-                </div>
-
-                <div
-                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                    <div>
-                        <button type="button"
-                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                            Save as Draft
-                        </button>
-                    </div>
-                    <div class="flex flex-1 justify-end items-center gap-3">
-                        <button type="button" matStepperPrevious
-                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                            Previous
-                        </button>
-                        <button type="button" matStepperNext
-                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                            Save
-                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            @if (activeStepIndex() == 3) {
+                <qfin-official-component 
+                    [empId]="employeeId()"
+                    (onOfficialUpdate)="handleOfficial()">
+                </qfin-official-component>
+                }
         </mat-step>
 
         <!-- Step 5: KYC Info -->
-        <mat-step>
+        <!-- <mat-step>
             <ng-template matStepLabel>KYC Info</ng-template>
             <div class="space-y-6 animate-fade-in pt-4">
                 <div>
@@ -226,128 +117,31 @@
                     </div>
                 </div>
             </div>
-        </mat-step>
+        </mat-step> -->
 
         <!-- Step 6: Documents Info -->
+        <!-- Step 6: KYC Info -->
         <mat-step>
-            <ng-template matStepLabel>Documents Info</ng-template>
-            <div class="space-y-6 animate-fade-in pt-4">
-                <div>
-                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                        Documents Info
-                    </h3>
-                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Document Category</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>folder</mat-icon>
-                        <mat-select placeholder="Select Category">
-                            <mat-option value="Identity">Identity Proof</mat-option>
-                            <mat-option value="Address">Address Proof</mat-option>
-                            <mat-option value="Academic">Academic Certificate</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Document Name</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>description</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Document Name">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Document Number</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>tag</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Document Number">
-                    </mat-form-field>
-                </div>
-
-                <div
-                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                    <div>
-                        <button type="button"
-                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                            Save as Draft
-                        </button>
-                    </div>
-                    <div class="flex flex-1 justify-end items-center gap-3">
-                        <button type="button" matStepperPrevious
-                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                            Previous
-                        </button>
-                        <button type="button" matStepperNext
-                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                            Save
-                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <!-- <ng-template matStepLabel>Documents Info</ng-template> -->
+            <ng-template matStepLabel>KYC</ng-template>
+             @if (activeStepIndex() == 4) {
+                <qfin-kyc-document-component [kycDocs]="kycComponents()"
+                    [empId]="employeeId()"
+                    (onKycUpdate)="handleKyc()">
+                </qfin-kyc-document-component>
+                }
+            
         </mat-step>
 
         <!-- Step 7: Reference Info -->
         <mat-step>
             <ng-template matStepLabel>Reference Info</ng-template>
-            <div class="space-y-6 animate-fade-in pt-4">
-                <div>
-                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                        Reference Info
-                    </h3>
-                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Person Name</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Name">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Mobile No</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>call</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Mobile No">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Email ID</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>mail</mat-icon>
-                        <input matInput type="email" autocomplete="off" placeholder="Enter Email ID">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Address</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>home</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Address">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Relation/How Do You Know</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>handshake</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Description">
-                    </mat-form-field>
-                </div>
-
-                <div
-                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                    <div>
-                        <button type="button"
-                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                            Save as Draft
-                        </button>
-                    </div>
-                    <div class="flex flex-1 justify-end items-center gap-3">
-                        <button type="button" matStepperPrevious
-                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                            Previous
-                        </button>
-                        <button type="button" matStepperNext
-                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                            Save
-                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            @if (activeStepIndex() == 5) {
+                <qfin-reference-component 
+                    [empId]="employeeId()"
+                    (onRefUpdate)="handleReference()">
+                </qfin-reference-component>
+                }
         </mat-step>
 
         <!-- Step 8: Previous Employement -->

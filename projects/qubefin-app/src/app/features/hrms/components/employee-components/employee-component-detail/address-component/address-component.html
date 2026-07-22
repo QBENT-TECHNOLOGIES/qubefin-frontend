@@ -1,13 +1,13 @@
 <ng-template matStepLabel>Address Info</ng-template>
 <div class="animate-fade-in">
     <div>
-        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-            Address Info
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
+            Permanent Address
         </h3>
         <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>House/Plot No</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -27,28 +27,28 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="map-pin-house" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="$any(presentAddressForm)['landMark']" placeholder="Enter Landmark">
+            <input matInput autocomplete="off" [formField]="presentAddressForm.landMark" placeholder="Enter Landmark">
         </mat-form-field>
         <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>AdministrativeUnitId</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="map-pin-house" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="$any(presentAddressForm)['administrativeUnitId']" placeholder="Enter Landmark">
+            <input matInput autocomplete="off" [formField]="presentAddressForm.administrativeUnitId" placeholder="Enter Landmark">
         </mat-form-field> -->
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Pin Code</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="$any(presentAddressForm)['pinCode']" placeholder="Enter Pin Code">
+            <input matInput autocomplete="off" [formField]="presentAddressForm.pinCode" placeholder="Enter Pin Code">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Ownership of House</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="house-plus" class="w-5 h-5"></svg>
             </div>
-            <mat-select placeholder="Select Ownership" [formField]="$any(presentAddressForm)['ownerShipOfHouse']">
+            <mat-select placeholder="Select Ownership" [formField]="presentAddressForm.ownerShipOfHouse">
                 <mat-option value="Owned">Owned</mat-option>
                 <mat-option value="Rented">Rented</mat-option>
                 <mat-option value="Leased">Leased</mat-option>
@@ -60,21 +60,120 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="number" autocomplete="off" [formField]="$any(presentAddressForm)['durationOfStayInMonths']" placeholder="Enter duration in months">
+            <input matInput type="number" autocomplete="off" [formField]="presentAddressForm.durationOfStayInMonths" placeholder="Enter duration in months">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Police Station</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="siren" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="$any(presentAddressForm)['policeStationId']" placeholder="Enter Police Station">
+            <!-- <input matInput autocomplete="off" [formField]="presentAddressForm.policeStationId" placeholder="Enter Police Station"> -->
+            <mat-select [formField]="presentAddressForm.policeStationId" placeholder="Select Police Station">
+                @for (police of policeStations; track police) {
+                <mat-option [value]="police">
+                    {{ police }}
+                </mat-option>
+                }
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Post Office</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="$any(presentAddressForm)['postOfficeId']" placeholder="Enter Post Office">
+            <!-- <input matInput autocomplete="off" [formField]="presentAddressForm.postOfficeId" placeholder="Enter Post Office"> -->
+             <mat-select [formField]="presentAddressForm.policeStationId" placeholder="Select Post Office">
+                @for (post of postOffices; track post) {
+                <mat-option [value]="post">
+                    {{ post }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <!-- Same Address Checkbox -->
+    <div class="my-4 flex items-center">
+        <mat-checkbox
+            [checked]="sameAsPresentAddress()"
+            (change)="onSameAddressChange($event.checked)">
+            Permanent Address is same as Present Address
+        </mat-checkbox>
+    </div>
+
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
+            Present Address
+        </h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>House/Plot No</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="house" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="permanentAddressForm.houseNo"  placeholder="Enter House/Plot No">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Road/Street Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="road" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="permanentAddressForm.roadName" placeholder="Enter Road/Street Name">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Landmark</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="map-pin-house" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="permanentAddressForm.landMark" placeholder="Enter Landmark">
+        </mat-form-field>
+        <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>AdministrativeUnitId</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="map-pin-house" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="permanentAddressForm.administrativeUnitId" placeholder="Enter Landmark">
+        </mat-form-field> -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Pin Code</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="permanentAddressForm.pinCode" placeholder="Enter Pin Code">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Ownership of House</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="house-plus" class="w-5 h-5"></svg>
+            </div>
+            <mat-select placeholder="Select Ownership" [formField]="permanentAddressForm.ownerShipOfHouse">
+                <mat-option value="Owned">Owned</mat-option>
+                <mat-option value="Rented">Rented</mat-option>
+                <mat-option value="Leased">Leased</mat-option>
+                <mat-option value="Other">Other</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Duration of Stay (Months)</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="number" autocomplete="off" [formField]="permanentAddressForm.durationOfStayInMonths" placeholder="Enter duration in months">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Police Station</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="siren" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="permanentAddressForm.policeStationId" placeholder="Enter Police Station">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Post Office</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="permanentAddressForm.postOfficeId" placeholder="Enter Post Office">
         </mat-form-field>
     </div>
     

@@ -48,7 +48,7 @@ export class MonthlyPayrollDetail {
   onViewEmployeePayroll(payrollId: string) {
     this.dialog.open(PayrollEditModal, {
       data: { id: payrollId },
-      width: '1000px',
+      // width: '1000px',
       maxWidth: '95vw',
       panelClass: 'glass-modal'
     });

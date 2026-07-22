@@ -1,8 +1,5 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { EMPTY_UUID, RouteDataService, RouteMeta } from 'qubefin-core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
+import { EMPTY_UUID } from 'qubefin-core';
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -28,28 +25,17 @@ import { CommonModule } from '@angular/common';
 })
 export class EmployeeComponent {
   public readonly EMPTY_UUID = EMPTY_UUID;
-  private readonly route = inject(ActivatedRoute);
-  private readonly routeDataService = inject(RouteDataService);
   readonly iconMap = APP_ICONS_MAP;
   // Filter properties
   showFilterArea = signal<boolean>(false);
   // Injecting the store that manages pagination and filtering states
   readonly employeeStore = inject(EmployeeStore);
   
+  tempSearch = '';
   isViewMode = signal<boolean>(true);
   selectedEmployeeComponentId = signal<string>(EMPTY_UUID);
   employeeComponents = this.employeeStore.employeeListComponents;
   
-  private routeData = toSignal(this.route.data as Observable<RouteMeta>, {
-    initialValue: { title: '', icon: '' }
-  });
-  
-  constructor() {
-    effect(() => {
-      this.routeDataService.setRouteData(this.routeData());
-    });
-  }
-
   protected onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.employeeStore.setSearchQuery(input.value);
@@ -93,12 +79,17 @@ export class EmployeeComponent {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
   }
+  protected handleUpdate(event: any) {
+    console.log(event);
+  }
 
   protected toggleFilterArea() {
     this.showFilterArea.update(v => !v);
   }
 
   protected applyFilters() {
+    this.employeeStore.setSearchQuery(this.tempSearch);
+
   }
 
   protected resetFilters() {

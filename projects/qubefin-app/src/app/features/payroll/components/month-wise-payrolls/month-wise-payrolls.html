@@ -50,7 +50,7 @@
                 <div class="w-full flex justify-center">
                     <div matTooltip="Download" [matMenuTriggerFor]="repotsList"
                         class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-gray-500/8">
-                        <svg lucideIcon="download" class="w-5 h-5 text-secondary-600/80"></svg>
+                        <svg lucideIcon="download" class="w-5 h-5 text-secondary-600/80 dark:text-primary-600"></svg>
                     </div>
                 </div>
                 <mat-menu #repotsList="matMenu" class="menus-area">
@@ -100,11 +100,17 @@
             class="transition-colors">
         </tr>
         <tr class="mat-row" *matNoDataRow colspan="8">
-            <td class="mat-cell p-8 text-center text-slate-400 border-b-0" [attr.colspan]="displayedColumns().length">
+            <td class="mat-cell px-8 !text-center text-slate-400 border-b-0" [attr.colspan]="displayedColumns().length">
                 @if (loading()) {
-                    Loading...
+                    <div class="flex justify-center items-center gap-2">
+                        <svg lucideIcon="loader" class="w-5 h-5 text-slate-400"></svg>
+                        Loading...
+                    </div>
                 } @else {
-                    No payroll data found.
+                    <div class="flex justify-center items-center gap-2">
+                        <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>
+                        No payroll data found.
+                    </div>
                 }
             </td>
         </tr>

@@ -143,13 +143,10 @@ export class AdministrativeUnitDetailComponent {
 
 		const dataToSave = this.administrativeUnitForm().value();
 		dataToSave.parentId = this.parentTypes().at(-1)?.value()!;
-
-		console.log(dataToSave);
-		return;
 		if (this.administrativeUnitId() === EMPTY_UUID) {
 			this.administrativeUnitService.create(dataToSave).subscribe({
 				next: (resp: any) => {
-
+					this.administrativeUnitStore.refreshTree();
 				},
 				error: (err: any) => {
 					if (err.error.isError) {
@@ -159,6 +156,7 @@ export class AdministrativeUnitDetailComponent {
 		} else {
 			this.administrativeUnitService.update(this.administrativeUnitId(), dataToSave).subscribe({
 				next: (resp: any) => {
+					this.administrativeUnitStore.refreshTree();
 				},
 				error: (err: any) => {
 					if (err.error.isError) {

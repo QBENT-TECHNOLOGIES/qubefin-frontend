@@ -1,12 +1,12 @@
 <div class="animate-fade-in">
     <div>
-        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
             Personal Info
         </h3>
         <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Code</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -19,7 +19,14 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="swatch-book" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="$any(employeeForm)['salutation']" autocomplete="off" placeholder="Enter Salutation">
+            <!-- <input matInput [formField]="$any(employeeForm)['salutation']" autocomplete="off" placeholder="Enter Salutation"> -->
+            <mat-select [formField]="employeeForm.salutation" placeholder="Select Salutation">
+                @for (sal of loadSalutation(); track sal) {
+                <mat-option [value]="sal.sysVal">
+                    {{ sal.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>First Name</mat-label>
@@ -57,9 +64,9 @@
                 <svg lucideIcon="tag" class="w-5 h-5"></svg>
             </div>
             <mat-select [formField]="employeeForm.gender" placeholder="Select Gender">
-                @for (gen of genders; track gen.id) {
-                <mat-option [value]="gen.id">
-                    {{ gen.name }}
+                @for (gen of genders(); track gen) {
+                <mat-option [value]="gen.sysVal">
+                    {{ gen.sysVal }}
                 </mat-option>
                 }
             </mat-select>
@@ -83,14 +90,28 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="chess-bishop" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="$any(employeeForm)['religion']" autocomplete="off" placeholder="Enter Religion">
+            <!-- <input matInput [formField]="$any(employeeForm)['religion']" autocomplete="off" placeholder="Enter Religion"> -->
+            <mat-select [formField]="employeeForm.religion" placeholder="Select Religion">
+                @for (rel of religions(); track rel) {
+                <mat-option [value]="rel.sysVal">
+                    {{ rel.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Caste</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="clipboard-check" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="$any(employeeForm)['caste']" autocomplete="off" placeholder="Enter Caste">
+            <!-- <input matInput [formField]="$any(employeeForm)['caste']" autocomplete="off" placeholder="Enter Caste"> -->
+            <mat-select [formField]="employeeForm.caste" placeholder="Select Caste">
+                @for (cst of castes(); track cst) {
+                <mat-option [value]="cst.sysVal">
+                    {{ cst.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Nationality</mat-label>
@@ -101,10 +122,17 @@
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Blood Group</mat-label>
+            
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="droplet" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="$any(employeeForm)['bloodGroup']" autocomplete="off" placeholder="Enter Blood Group">
+            <mat-select [formField]="employeeForm.bloodGroup" placeholder="Select Blood Group">
+                @for (blood of bloodGroups(); track blood) {
+                <mat-option [value]="blood.sysVal">
+                    {{ blood.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Disablity Type</mat-label>
@@ -119,9 +147,9 @@
                 <svg lucideIcon="tag" class="w-5 h-5"></svg>
             </div>
             <mat-select [formField]="employeeForm.maritalStatus" placeholder="Select Marital">
-                @for (mrst of maritalStatusList; track mrst) {
-                <mat-option [value]="mrst">
-                    {{ mrst }}
+                @for (mrst of maritalStatuses(); track mrst) {
+                <mat-option [value]="mrst.sysVal">
+                    {{ mrst.sysVal }}
                 </mat-option>
                 }
             </mat-select>
