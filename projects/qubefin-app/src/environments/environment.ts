@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    gatewayPath: 'https://api.example.com',
+    gatewayPath: 'http://65.2.146.91/services/',
 };

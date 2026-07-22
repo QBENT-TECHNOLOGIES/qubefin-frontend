@@ -235,7 +235,7 @@
 
             <!-- <div> -->
             @if (isViewMode() && selectedSalaryComponentId() !== EMPTY_UUID) {
-            <qfin-salary-component-view [(salaryId)]="selectedSalaryComponentId" (showEdit)="onEdit()">
+            <qfin-salary-component-view [salaryId]="selectedSalaryComponentId()" (showEdit)="onEdit()">
             </qfin-salary-component-view>
             } @else {
             <qfin-salary-component-detail [salaryId]="selectedSalaryComponentId()" (onCancel)="closePanel()"

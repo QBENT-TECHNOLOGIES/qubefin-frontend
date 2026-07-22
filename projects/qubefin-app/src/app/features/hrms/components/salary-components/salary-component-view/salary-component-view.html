@@ -1,4 +1,4 @@
-@if (salaryDetail(); as detail) {
+<!-- @if (salaryDetail(); as detail) { -->
 <div class="flex flex-col gap-4">
     <div class="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 items-stretch">
         <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
@@ -11,11 +11,11 @@
                     <div>
                         <div class="flex items-center gap-2">
                             <h1 class="text-lg font-bold text-slate-800 dark:text-slate-100">
-                                {{ detail.name }}
+                                {{ salaryDetail()?.name }}
                             </h1>
                             <span
                                 class="px-2 py-0.5 rounded-md bg-slate-500/10 dark:bg-white/10 text-[11px] font-mono font-semibold text-slate-600 dark:text-slate-300">
-                                {{ detail.code }}
+                                {{ salaryDetail()?.code }}
                             </span>
                             <div class="p-2 rounded-4xl cursor-pointer hover:bg-secondary-500/10" matTooltip="Edit"
                                 (click)="onShowEdit()">
@@ -31,17 +31,17 @@
                     <div
                         class="flex items-center gap-2 px-3.5 py-1 rounded-4xl bg-white/45 dark:bg-white/5 border border-slate-200/20 dark:border-white/5 shadow-md">
                         <span class="flex items-center gap-1.5 text-[12px] font-semibold"
-                            [class.text-emerald-600]="detail.isActive" [class.dark:text-emerald-400]="detail.isActive"
-                            [class.text-rose-600]="!detail.isActive" [class.dark:text-rose-400]="!detail.isActive">
+                            [class.text-emerald-600]="salaryDetail()?.isActive" [class.dark:text-emerald-400]="salaryDetail()?.isActive"
+                            [class.text-rose-600]="!salaryDetail()?.isActive" [class.dark:text-rose-400]="!salaryDetail()?.isActive">
                             <span class="w-2 h-2 rounded-full relative flex">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                                    [class.bg-emerald-400]="detail.isActive"
-                                    [class.bg-rose-400]="!detail.isActive"></span>
+                                    [class.bg-emerald-400]="salaryDetail()?.isActive"
+                                    [class.bg-rose-400]="!salaryDetail()?.isActive"></span>
                                 <span class="relative inline-flex rounded-full h-2 w-2"
-                                    [class.bg-emerald-500]="detail.isActive"
-                                    [class.bg-rose-500]="!detail.isActive"></span>
+                                    [class.bg-emerald-500]="salaryDetail()?.isActive"
+                                    [class.bg-rose-500]="!salaryDetail()?.isActive"></span>
                             </span>
-                            {{ detail.isActive ? 'Active' : 'Inactive' }}
+                            {{ salaryDetail()?.isActive ? 'Active' : 'Inactive' }}
                         </span>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                         </div>
                         <div>
                             <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Code</label>
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ detail.code }}</p>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ salaryDetail()?.code }}</p>
                         </div>
                     </div>
                     <div class="gen-info">
@@ -70,7 +70,7 @@
                         <div>
                             <label
                                 class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Category</label>
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ detail.categoryId }}</p>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ salaryDetail()?.categoryId }}</p>
                         </div>
                     </div>
                     <div class="gen-info">
@@ -80,7 +80,7 @@
                         <div>
                             <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Display
                                 Order</label>
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ detail.displayOrder }}
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ salaryDetail()?.displayOrder }}
                             </p>
                         </div>
                     </div>
@@ -101,7 +101,7 @@
                             <svg lucideIcon="receipt-text" class="w-4 h-4 text-slate-400"></svg>
                             <span class="text-sm text-slate-600 dark:text-slate-300">Taxable</span>
                         </div>
-                        @if (detail.isTaxable) {
+                        @if (salaryDetail()?.isTaxable) {
                         <span
                             class="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                             <svg lucideIcon="check" class="w-3.5 h-3.5"></svg> 
@@ -117,7 +117,7 @@
                             <svg lucideIcon="piggy-bank" class="w-4 h-4 text-slate-400"></svg>
                             <span class="text-sm text-slate-600 dark:text-slate-300">PF Applicable</span>
                         </div>
-                        @if (detail.isPfapplicable) {
+                        @if (salaryDetail()?.isPfapplicable) {
                         <span
                             class="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                             <svg lucideIcon="check" class="w-3.5 h-3.5"></svg>
@@ -133,7 +133,7 @@
                             <svg lucideIcon="shield-plus" class="w-4 h-4 text-slate-400"></svg>
                             <span class="text-sm text-slate-600 dark:text-slate-300">ESI Applicable</span>
                         </div>
-                        @if (detail.isEsiapplicable) {
+                        @if (salaryDetail()?.isEsiapplicable) {
                         <span
                             class="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                             <svg lucideIcon="check" class="w-3.5 h-3.5"></svg>
@@ -149,7 +149,7 @@
                             <svg lucideIcon="wallet" class="w-4 h-4 text-slate-400"></svg>
                             <span class="text-sm text-slate-600 dark:text-slate-300">Part of CTC</span>
                         </div>
-                        @if (detail.isCtccomponent) {
+                        @if (salaryDetail()?.isCtccomponent) {
                         <span
                             class="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                             <svg lucideIcon="check" class="w-3.5 h-3.5"></svg>
@@ -184,7 +184,7 @@
                     <div>
                         <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
                             Created By</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ detail.createdBy }}</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ salaryDetail()?.createdBy }}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -195,7 +195,7 @@
                     <div>
                         <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
                             Created On</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ detail.createdOn |
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ salaryDetail()?.createdOn |
                             date:'dd-MM-yyyy hh:mm a' }}</p>
                     </div>
                 </div>
@@ -207,7 +207,7 @@
                     <div>
                         <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
                             Last Modified By</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ detail.lastModifiedBy ??
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ salaryDetail()?.lastModifiedBy ??
                             '-' }}</p>
                     </div>
                 </div>
@@ -219,16 +219,16 @@
                     <div>
                         <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
                             Last Modified On</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ detail.lastModifiedOn ?
-                            (detail.lastModifiedOn | date:'dd-MM-yyyy hh:mm a') : '-' }}</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ salaryDetail()?.lastModifiedOn ?
+                            (salaryDetail()?.lastModifiedOn | date:'dd-MM-yyyy hh:mm a') : '-' }}</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-} @else {
+<!-- } @else {
 <div class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400">
     Loading details...
 </div>
-}
+} -->
