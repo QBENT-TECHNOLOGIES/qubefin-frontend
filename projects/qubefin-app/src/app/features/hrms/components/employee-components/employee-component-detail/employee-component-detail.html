@@ -136,65 +136,12 @@
         <!-- Step 7: Reference Info -->
         <mat-step>
             <ng-template matStepLabel>Reference Info</ng-template>
-            <div class="space-y-6 animate-fade-in pt-4">
-                <div>
-                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                        Reference Info
-                    </h3>
-                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Person Name</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Name">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Mobile No</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>call</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Mobile No">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Email ID</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>mail</mat-icon>
-                        <input matInput type="email" autocomplete="off" placeholder="Enter Email ID">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Address</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>home</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Address">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Relation/How Do You Know</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>handshake</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Description">
-                    </mat-form-field>
-                </div>
-
-                <div
-                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                    <div>
-                        <button type="button"
-                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                            Save as Draft
-                        </button>
-                    </div>
-                    <div class="flex flex-1 justify-end items-center gap-3">
-                        <button type="button" matStepperPrevious
-                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                            Previous
-                        </button>
-                        <button type="button" matStepperNext
-                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                            Save
-                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            @if (activeStepIndex() == 5) {
+                <qfin-reference-component 
+                    [empId]="employeeId()"
+                    (onRefUpdate)="handleReference()">
+                </qfin-reference-component>
+                }
         </mat-step>
 
         <!-- Step 8: Previous Employement -->

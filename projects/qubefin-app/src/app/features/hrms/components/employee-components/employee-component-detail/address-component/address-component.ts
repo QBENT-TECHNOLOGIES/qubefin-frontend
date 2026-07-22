@@ -1,5 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, input, output, signal, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -12,10 +22,13 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import { EmployeeService } from '../../../../services/employee-service';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
-import { EmployeeAddressInfo, IEmployeeAddressInfo, Utility } from '../../../../models/employee-detail';
+import {
+  EmployeeAddressInfo,
+  IEmployeeAddressInfo,
+  Utility,
+} from '../../../../models/employee-detail';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
-
 
 @Component({
   selector: 'qfin-address-component',
@@ -28,7 +41,7 @@ import { of, tap } from 'rxjs';
     MatCheckboxModule,
     FormField,
     MatStepperModule,
-    LucideDynamicIcon
+    LucideDynamicIcon,
   ],
   templateUrl: './address-component.html',
 })
@@ -45,14 +58,22 @@ export class AddressComponentDetail {
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
   protected readonly presentAddressModel = signal<IEmployeeAddressInfo>(new EmployeeAddressInfo());
-  protected readonly permanentAddressModel = signal<IEmployeeAddressInfo>(new EmployeeAddressInfo());
+  protected readonly permanentAddressModel = signal<IEmployeeAddressInfo>(
+    new EmployeeAddressInfo(),
+  );
 
   protected readonly employeeAddressSchema: Schema<IEmployeeAddressInfo> = schema((path) => {
     required(path.houseNo, { message: 'house No is required' });
   });
 
-  protected readonly presentAddressForm = form(this.presentAddressModel, this.employeeAddressSchema);
-  protected readonly permanentAddressForm = form(this.permanentAddressModel, this.employeeAddressSchema);
+  protected readonly presentAddressForm = form(
+    this.presentAddressModel,
+    this.employeeAddressSchema,
+  );
+  protected readonly permanentAddressForm = form(
+    this.permanentAddressModel,
+    this.employeeAddressSchema,
+  );
   readonly sameAsPresentAddress = signal(false);
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
@@ -62,8 +83,8 @@ export class AddressComponentDetail {
     if (checked) {
       this.permanentAddressModel.set(
         new EmployeeAddressInfo({
-          ...this.presentAddressForm().value()
-        })
+          ...this.presentAddressForm().value(),
+        }),
       );
 
       // this.permanentAddressForm.disable();
@@ -77,8 +98,8 @@ export class AddressComponentDetail {
 
       this.permanentAddressModel.set(
         new EmployeeAddressInfo({
-          ...this.presentAddressModel()
-        })
+          ...this.presentAddressModel(),
+        }),
       );
     });
   }
@@ -95,7 +116,6 @@ export class AddressComponentDetail {
   //       this.employeeService.getAddressData(this.empId()).subscribe((resp: any) => {
   //       this.employeeStore.setEmployeeComponentId(resp.id);
   //         this.presentAddressModel.set(new EmployeeAddressInfo(resp.presentAddressInfo));
-          
 
   //         this.permanentAddressModel.set(new EmployeeAddressInfo(resp.permanentAddressInfo));
   //       })
@@ -105,50 +125,66 @@ export class AddressComponentDetail {
   //     }
   //   });
   // }
-   // 🚀 Replaces both effects! Safely streams, cancels stale requests, and maps components
-    // 🚀 Fixed signature for rxResource compatibility
-    // 🚀 Updated config naming convention for Angular 20+
+  // 🚀 Replaces both effects! Safely streams, cancels stale requests, and maps components
+  // 🚀 Fixed signature for rxResource compatibility
+  // 🚀 Updated config naming convention for Angular 20+
   private addressResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }), // 👈 "request" becomes "params"
-    stream: ({ params }) => {                                         // 👈 "loader" becomes "stream"
+    stream: ({ params }) => {
+      // 👈 "loader" becomes "stream"
       if (params.editMode && params.id !== EMPTY_UUID) {
         this.employeeStore.setEmployeeComponentId(params.id);
-        
+
         return this.employeeService.getAddressData(params.id).pipe(
           tap((resp: any) => {
             this.employeeStore.setEmployeeComponentId(resp.id);
             this.presentAddressModel.set(new EmployeeAddressInfo(resp.presentAddressInfo));
             this.permanentAddressModel.set(new EmployeeAddressInfo(resp.permanentAddressInfo));
-          })
+          }),
         );
       } else {
         this.presentAddressModel.set(new EmployeeAddressInfo());
         this.permanentAddressModel.set(new EmployeeAddressInfo());
         return of(null); // Ensure "of" is imported from 'rxjs'
       }
-    }
+    },
   });
-
-
 
   onSubmit() {
     // console.log(this.presentAddressForm().value());
     // console.log(this.permanentAddressForm().value());
-    
+
     if (!this.presentAddressForm().valid() || !this.permanentAddressForm().valid()) {
       return;
     }
 
-    const dataToSave :  any= {presentAddress :this.presentAddressForm().value(), permanentAddress :this.permanentAddressForm().value()};
-    dataToSave.presentAddress.administrativeUnitId = dataToSave.presentAddress.administrativeUnitId == "" ? null : dataToSave.presentAddress.administrativeUnitId;
-    dataToSave.presentAddress.policeStationId = dataToSave.presentAddress.policeStationId == "" ? null : dataToSave.presentAddress.policeStationId;
-    dataToSave.presentAddress.postOfficeId = dataToSave.presentAddress.postOfficeId == "" ? null : dataToSave.presentAddress.postOfficeId;
-    
-    dataToSave.permanentAddress.administrativeUnitId = dataToSave.presentAddress.administrativeUnitId == "" ? null : dataToSave.presentAddress.administrativeUnitId;
-    dataToSave.permanentAddress.policeStationId = dataToSave.presentAddress.policeStationId == "" ? null : dataToSave.presentAddress.policeStationId;
-    dataToSave.permanentAddress.postOfficeId = dataToSave.presentAddress.postOfficeId == "" ? null : dataToSave.presentAddress.postOfficeId;
+    const dataToSave: any = {
+      presentAddress: this.presentAddressForm().value(),
+      permanentAddress: this.permanentAddressForm().value(),
+    };
+    dataToSave.presentAddress.administrativeUnitId =
+      dataToSave.presentAddress.administrativeUnitId == ''
+        ? null
+        : dataToSave.presentAddress.administrativeUnitId;
+    dataToSave.presentAddress.policeStationId =
+      dataToSave.presentAddress.policeStationId == ''
+        ? null
+        : dataToSave.presentAddress.policeStationId;
+    dataToSave.presentAddress.postOfficeId =
+      dataToSave.presentAddress.postOfficeId == '' ? null : dataToSave.presentAddress.postOfficeId;
+
+    dataToSave.permanentAddress.administrativeUnitId =
+      dataToSave.presentAddress.administrativeUnitId == ''
+        ? null
+        : dataToSave.presentAddress.administrativeUnitId;
+    dataToSave.permanentAddress.policeStationId =
+      dataToSave.presentAddress.policeStationId == ''
+        ? null
+        : dataToSave.presentAddress.policeStationId;
+    dataToSave.permanentAddress.postOfficeId =
+      dataToSave.presentAddress.postOfficeId == '' ? null : dataToSave.presentAddress.postOfficeId;
     if (this.isEditMode()) {
-      this.employeeService.updateAddresslInfo( this.empId(),dataToSave).subscribe({
+      this.employeeService.updateAddresslInfo(this.empId(), dataToSave).subscribe({
         next: () => {
           this.employeeStore.refreshList();
           this.employeeStore.refreshDetail();
@@ -157,7 +193,7 @@ export class AddressComponentDetail {
         error: (err: any) => {
           if (err.error?.isError) {
           }
-        }
+        },
       });
     }
   }

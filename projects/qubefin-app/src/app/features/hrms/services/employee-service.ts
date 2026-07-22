@@ -29,6 +29,9 @@ export class EmployeeService {
     getKycData(id: string) {
         return this.httpClient.get(`${ApiPaths.HRMS}/employees/kyc-details/${id}`);
     }
+    getReferenceData(id: string) {
+        return this.httpClient.get(`${ApiPaths.HRMS}/employees/references/${id}`);
+    }
 
     create(personalInfo: any) {
         return this.httpClient.post(`${ApiPaths.HRMS}/employees`, personalInfo);
@@ -45,10 +48,13 @@ export class EmployeeService {
      getEmployeesBySearchText(searchText: any) {
         return this.httpClient.post(`${ApiPaths.HRMS}/employees/search-by-text`, searchText);
     }
-     updateOfficialInfo(employeeId: string,contact: EmployeeOfficialInfo) {
-        return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/official/` + employeeId, contact);
+     updateOfficialInfo(employeeId: string,model: EmployeeOfficialInfo) {
+        return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/official/` + employeeId, model);
     }
-    updateKycInfo(employeeId: string,contact: any) {
-        return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/kyc/` + employeeId, contact);
+    updateKycInfo(employeeId: string,model: any) {
+        return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/kyc/` + employeeId, model);
+    }
+    updateReferenceInfo(employeeId: string,model: any) {
+        return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/references/` + employeeId, model);
     }
 }
