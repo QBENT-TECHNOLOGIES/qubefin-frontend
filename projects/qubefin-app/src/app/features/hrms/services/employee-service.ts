@@ -36,9 +36,6 @@ export class EmployeeService {
     updatePersonalInfo(employeeId: string,personalInfo: EmployeePersonalInfo) {
         return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/personal/` + employeeId, personalInfo);
     }
-    updateDocuments(docs: any) {
-        return this.httpClient.put(`${ApiPaths.HRMS}/employees/update-document`, docs);
-    }
     updateAddresslInfo(employeeId: string,addressInfo: EmployeeAddressInfo) {
         return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/address/` + employeeId, addressInfo);
     }
@@ -51,7 +48,7 @@ export class EmployeeService {
      updateOfficialInfo(employeeId: string,contact: EmployeeOfficialInfo) {
         return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/official/` + employeeId, contact);
     }
-    updateKycInfo(employeeId: string,contact: EmployeeDocument) {
+    updateKycInfo(employeeId: string,contact: any) {
         return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/kyc/` + employeeId, contact);
     }
 }

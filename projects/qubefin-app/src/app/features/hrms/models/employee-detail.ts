@@ -169,24 +169,25 @@ export interface IEmployeeDocument {
   id: string;                           // Guid maps to required string
   documentCategory: string;             // Required non-nullable string
   documentName: string;                 // Required non-nullable string
-  documentNo: string ;           // Nullable string
+  documentNo: string;            // Nullable string
   validFrom: Date | null;            // DateOnly? maps to string (YYYY-MM-DD)
   validTill: Date | null;          // DateOnly? maps to string (YYYY-MM-DD)
-  fileName: string ;             // Nullable string
-  fileNo: string ;               // Nullable string
-  employeeId: string;              // DateTime? maps to ISO timestamp string
+  fileName: string | null;             // Nullable string
+  fileNo: string | null;               // DateTime? maps to ISO timestamp string
+  employeeId: string;               // DateTime? maps to ISO timestamp string
 }
 
 export class EmployeeDocument {
-  id: string = '';
+  id: string = '00000000-0000-0000-0000-000000000000';
   documentCategory: string = '';
   documentName: string = '';
   documentNo: string  = '';
-  validFrom: Date = defaultDate();
-  validTill: Date= defaultDate();
-  fileName: string  = '';
-  fileNo: string  = '';
-  employeeId: string = '';
+  validFrom: Date | null = null;
+  validTill: Date | null = null;
+
+  fileName: string | null = null;
+  fileNo: string | null = null;             
+  employeeId: string = "";  
 
   constructor(init?: Partial<IEmployeeDocument>) {
     if (!init) return;
@@ -203,42 +204,35 @@ export class EmployeeDocument {
 
 export interface IEmployeeReference {
    id: string;                           // Guid maps to required string
-  documentCategory: string;             // Required non-nullable string
-  documentName: string;                 // Required non-nullable string
-  documentNo?: string ;           // Nullable string
-  validFrom?: Date;            // DateOnly? maps to string (YYYY-MM-DD)
-  validTill?: Date;            // DateOnly? maps to string (YYYY-MM-DD)
-  fileName?: string ;             // Nullable string
-  fileNo?: string ;               // Nullable string
   employeeId: string;                   // Guid maps to required string
-  personName: string;                   // Required non-nullable string
-  mobile: string;                       // Required non-nullable string
-  email: string;                        // Required non-nullable string
-  address: string;                      // Required non-nullable string
-  occupation?: string ;           // Nullable string
-  howDoYouKnow?: string ;  
+  personName: string;                 // Required non-nullable string
+  mobile: string | null;            // Nullable string
+  email: string | null;            // DateOnly? maps to string (YYYY-MM-DD)
+  address: string | null;            // DateOnly? maps to string (YYYY-MM-DD)
+  occupation: string | null;             // Nullable string
+  howDoYouKnow: string | null;              // Nullable string 
 }
 
 
 export class EmployeeReference {
-  id: string = '';
-  documentCategory: string = '';
-  documentName: string = '';
-  documentNo?: string  = '';
-  validFrom?: Date;
-  validTill?: Date;
-  fileName?: string  = '';
-  fileNo?: string  = '';
+  id: string = '00000000-0000-0000-0000-000000000000';
   employeeId: string = '';
   personName: string = '';
-  mobile: string = '';
-  email: string = '';
-  address: string = '';
-  occupation?: string  = '';
-  howDoYouKnow?: string  = '';
+  mobile: string | null = null;
+  email: string  | null = null;
+  address: string | null = null;
+  occupation: string  | null = null;
+  howDoYouKnow: string | null = null;
 
-  constructor(init?: Partial<EmployeeReference>) {
-    Object.assign(this, init);
+  constructor(init?: Partial<IEmployeeReference>) {
+    if (!init) return;
+
+    Object.assign(
+      this,
+      Object.fromEntries(
+        Object.entries(init).map(([k, v]) => [k, v ?? this[k as keyof IEmployeeReference]]),
+      ),
+    );
   }
 }
 
