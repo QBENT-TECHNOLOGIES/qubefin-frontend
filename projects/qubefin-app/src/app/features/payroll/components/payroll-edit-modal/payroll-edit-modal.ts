@@ -6,6 +6,7 @@ import { PayrollStore } from '../../stores/payroll-store';
 import { PayrollComponent, UpdatePayrollCommand } from '../../models/payroll-model';
 import { CreatePayrollModal } from '../create-payroll-modal/create-payroll-modal';
 import { FormsModule } from '@angular/forms';
+import { APP_ICONS_MAP } from '../../../../lucide-icons';
 
 @Component({
   selector: 'qfin-payroll-edit-modal',
@@ -17,7 +18,7 @@ export class PayrollEditModal {
   public readonly dialogRef = inject(MatDialogRef<CreatePayrollModal>);
   private readonly data = inject(MAT_DIALOG_DATA);
   public readonly payrollStore = inject(PayrollStore);
-
+  readonly iconMap = APP_ICONS_MAP;
   public isEditMode = signal(false);
 
   private editableEarnings = signal<PayrollComponent[]>([]);
