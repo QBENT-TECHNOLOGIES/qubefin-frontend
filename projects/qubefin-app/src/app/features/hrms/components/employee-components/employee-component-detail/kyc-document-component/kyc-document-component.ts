@@ -16,6 +16,7 @@ import { EmployeeDocument, IEmployeeDocument, KycDocument } from '../../../../mo
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import Swal from 'sweetalert2';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 interface KycFormModel {
@@ -34,7 +35,8 @@ interface KycFormModel {
     MatCheckboxModule,
     FormField,
     MatStepperModule,
-    LucideDynamicIcon
+    LucideDynamicIcon,
+    MatTooltipModule
   ],
   templateUrl: './kyc-document-component.html',
 })
