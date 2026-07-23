@@ -71,11 +71,8 @@
       } @else if (surveyStore.error()) {
       <div class="px-4 py-10 text-sm text-red-500">Unable to load survey.</div>
       } @else {
-      <qfin-survey-unit-list 
-        [data]="surveys()" 
-        [totalRecords]="surveyStore.totalRecords()"
-        [pageIndex]="surveyStore.pageIndex()" [pageSize]="surveyStore.pageSize()"
-        [selectedId]="selectedsurveyStoreId()"
+      <qfin-survey-unit-list [data]="surveys()" [totalRecords]="surveyStore.totalRecords()"
+        [pageIndex]="surveyStore.pageIndex()" [pageSize]="surveyStore.pageSize()" [selectedId]="selectedsurveyStoreId()"
         [isCollapsed]="selectedsurveyStoreId() !== EMPTY_UUID || !isViewMode()" (pageChanged)="pageChanged($event)"
         (onViewDetail)="onView($event)" (sortChanged)="onSortChanged($event)">
       </qfin-survey-unit-list>
@@ -135,11 +132,13 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
+          @if (hasBranchSurveyCompleteAccess() && isViewMode()){
           <button type="button"
             class="rounded-lg px-4 py-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
             (click)="goToCompleteSurvey()">
             Complete Survey
           </button>
+          }
           <button aria-label="Close" matTooltip="Close"
             class="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
             (click)="closePanel()">
@@ -150,11 +149,11 @@
 
       <div>
         @if (isViewMode() && selectedsurveyStoreId() !== EMPTY_UUID) {
-        <qfin-survey-unit-view [surveyId]="selectedsurveyStoreId()" (showEdit)="onEdit()">
+        <qfin-survey-unit-view [surveyId]="selectedsurveyStoreId()"
+          (onShowBranchSurveyComplete)="updateBranchSurveyAccess($event)" (showEdit)="onEdit()">
         </qfin-survey-unit-view>
         } @else {
-        <qfin-survey-unit-detail [surveyId]="selectedsurveyStoreId()" (cancel)="closePanel()"
-          (save)="onSurvey()">
+        <qfin-survey-unit-detail [surveyId]="selectedsurveyStoreId()" (cancel)="closePanel()" (save)="onSurvey()">
         </qfin-survey-unit-detail>
         }
       </div>

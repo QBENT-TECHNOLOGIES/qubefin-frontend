@@ -48,7 +48,7 @@ export const GlobalRoutes: Routes = [
         },
       },
       {
-        path: 'branch-survey',
+        path: 'branch-survey/:id',
         loadComponent: () =>
           import('./components/survey-unit/branch-survey-unit/branch-survey-unit').then(
             (m) => m.BranchSurveyUnit,

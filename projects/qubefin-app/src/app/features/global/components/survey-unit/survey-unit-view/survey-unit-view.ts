@@ -26,6 +26,8 @@ export class SurveyUnitView {
   readonly loading = this.surveyStore.surveyUnitLoading;
   readonly error = this.surveyStore.surveyUnitError;
 
+  readonly onShowBranchSurveyComplete = output<boolean>();
+
   constructor() {
     effect(() => {
       this.surveyStore.setSurveyId(this.surveyId());
@@ -38,13 +40,8 @@ export class SurveyUnitView {
 
     effect(() => {
       const survey = this.surveyStore.surveyUnit();
-
       if (!survey) return;
-
-      console.log(survey.surveyAssigneds);
-
-      // Assign to your local array or FormArray here
-      // this.members = survey.surveyAssigneds;
+      this.onShowBranchSurveyComplete.emit(survey.isSurveyAccessed && survey.surveyType.toLowerCase() === 'branch');
     });
   }
 

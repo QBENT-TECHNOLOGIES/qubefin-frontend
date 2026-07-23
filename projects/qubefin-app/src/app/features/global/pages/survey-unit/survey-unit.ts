@@ -52,6 +52,7 @@ export class SurveyUnit {
   // Component State
   // ===========================
   readonly isViewMode = signal<boolean>(true);
+  readonly hasBranchSurveyCompleteAccess = signal<boolean>(false);
   readonly showFilterArea = signal<boolean>(false);
   readonly selectedsurveyStoreId = signal<string>(EMPTY_UUID);
   // ===========================
@@ -86,7 +87,7 @@ export class SurveyUnit {
   }
 
   protected goToCompleteSurvey() {
-    this.router.navigate(['/secure/global/branch-survey']);
+    this.router.navigate(['/secure/global/branch-survey', this.selectedsurveyStoreId()]);
   }
 
   // ===========================
@@ -129,5 +130,9 @@ export class SurveyUnit {
   // ===========================
   protected onSurvey() {
     this.closePanel();
+  }
+
+  updateBranchSurveyAccess(isAccess: boolean) {
+    this.hasBranchSurveyCompleteAccess.set(isAccess);
   }
 }

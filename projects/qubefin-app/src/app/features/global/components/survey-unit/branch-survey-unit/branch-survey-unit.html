@@ -62,7 +62,7 @@
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
-                        <button matStepperNext type="button"
+                        <button type="button" (click)="saveStep('GeographicInformation', stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -85,7 +85,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button matStepperNext type="button"
+                        <button type="button" (click)="saveStep('AccessibilityAssessment', stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -108,7 +108,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button matStepperNext type="button"
+                        <button type="button" (click)="saveStep('DemographicProfile', stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -131,7 +131,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button matStepperNext type="button"
+                        <button type="button" (click)="saveStep('EconomicProfile', stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -154,7 +154,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button matStepperNext type="button"
+                        <button type="button" (click)="saveStep('MarketPotential', stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -177,7 +177,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button matStepperNext type="button"
+                        <button type="button" (click)="saveStep('TransportationFacilities', stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -200,7 +200,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button matStepperNext type="button"
+                        <button type="button" (click)="saveStep('FinancialInclusion', stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -223,7 +223,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button matStepperNext type="button"
+                        <button type="button" (click)="saveStep('CompetitionAnalysis', stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -246,7 +246,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button matStepperNext type="button"
+                        <button type="button" (click)="saveStep('BusinessPotential', stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -269,7 +269,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button matStepperNext type="button"
+                        <button type="button" (click)="saveStep('RiskAssessment', stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -292,7 +292,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button matStepperNext type="button"
+                        <button type="button" (click)="saveStep('ComplianceVerification', stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -315,7 +315,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button type="button" (click)="onSubmit()"
+                        <button type="button" (click)="saveStep('Recommendation', null)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             <svg lucideIcon="save" class="w-4 h-4"></svg>
                             {{ isEditMode() ? 'Update' : 'Submit' }}

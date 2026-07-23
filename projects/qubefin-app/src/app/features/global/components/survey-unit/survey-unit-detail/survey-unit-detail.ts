@@ -6,7 +6,7 @@ import { AdministrativeUnitService } from '../../../services/administrative-unit
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { EMPTY_UUID } from 'qubefin-core';
-import { ISurveyDetail } from '../../../models/survey';
+import { ISurveyDetail, SurveyCreateDetail } from '../../../models/survey';
 import {
   EmployeeSearchByText,
   EmployeeSearchResponse,
@@ -63,9 +63,9 @@ export class SurveyUnitDetail {
 
   readonly isEditMode = computed(() => this.surveyId() !== EMPTY_UUID);
 
-  protected readonly formModel = signal<ISurveyDetail>(this.createEmptyModel());
+  protected readonly formModel = signal<SurveyCreateDetail>(this.createEmptyModel());
   readonly isMemberSelected = signal<boolean>(false);
-  private createEmptyModel(): ISurveyDetail {
+  private createEmptyModel(): SurveyCreateDetail {
     return {
       id: EMPTY_UUID,
       sequence: 0,
@@ -87,7 +87,7 @@ export class SurveyUnitDetail {
       [field]: value,
     }));
   }
-  protected readonly surveySchema: Schema<ISurveyDetail> = schema((path) => {
+  protected readonly surveySchema: Schema<SurveyCreateDetail> = schema((path) => {
     required(path.surveyType, {
       message: 'Survey Type is required',
     });
@@ -323,7 +323,7 @@ export class SurveyUnitDetail {
       confirmButtonText: 'Yes',
     }).then((result) => {
       if (result.isConfirmed) {
-        const payload: ISurveyDetail = {
+        const payload: SurveyCreateDetail = {
           ...this.formModel(),
           assignmentDate:
             this.datePipe.transform(this.formModel().assignmentDate, 'yyyy-MM-dd') || '',
