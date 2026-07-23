@@ -14,10 +14,10 @@ import { EmployeeService } from '../../../../services/employee-service';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
-import { EmployeeOfficialInfo, IEmployeeOfficialInfo } from '../../../../models/employee-detail';
+import { EmployeeOfficialInfo, EmployeePayrollInfo, IEmployeeOfficialInfo, IEmployeePayrollInfo } from '../../../../models/employee-detail';
 
 @Component({
-  selector: 'qfin-official-component',
+  selector: 'qfin-banking-component',
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -29,47 +29,44 @@ import { EmployeeOfficialInfo, IEmployeeOfficialInfo } from '../../../../models/
     MatStepperModule,
     LucideDynamicIcon
   ],
-  templateUrl: './official-component.html',
+  templateUrl: './banking-component.html',
 })
-export class OfficialComponentDetail {
+export class BankingComponentDetail {
   empId = input<string>(EMPTY_UUID);
 //   onCancel = output<void>();
-  onOfficialUpdate = output<void>();
+  onBankingUpdate = output<void>();
 
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   readonly iconMap = APP_ICONS_MAP;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
-  protected readonly officialModel = signal<IEmployeeOfficialInfo>(new EmployeeOfficialInfo());
+  protected readonly bankingModel = signal<IEmployeePayrollInfo>(new EmployeePayrollInfo());
 
-  protected readonly officialSchema: Schema<IEmployeeOfficialInfo> = schema((path) => {
-    required(path.officialEmail, { message: 'Official Email is required' });
-    required(path.joiningDate, { message: 'Joining Date is required' });
+  protected readonly officialSchema: Schema<IEmployeePayrollInfo> = schema((path) => {
   });
 
-  protected readonly officialForm = form(this.officialModel, this.officialSchema);
+  protected readonly bankingForm = form(this.bankingModel, this.officialSchema);
 
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
 
   
-   private officialResource = rxResource({
+   private bankingResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
       if (params.editMode && params.id !== EMPTY_UUID) {        
-        return this.employeeService.getOfficialData(params.id).pipe(
+        return this.employeeService.getBankingInfoData(params.id).pipe(
           tap((resp: any) => {
             this.employeeStore.setEmployeeComponentId(resp.id);
-            this.officialModel.set(new EmployeeOfficialInfo(resp));
-            this.officialModel.update(state => ({ 
-              ...state, 
-              joiningDate:resp.joiningDate == null ? null : new Date(resp.joiningDate) 
+            this.bankingModel.set(new EmployeePayrollInfo(resp));
+            this.bankingModel.update(state => ({ 
+              ...state
             }));
           })
         );
       } else {
-        this.officialModel.set(new EmployeeOfficialInfo());
+        this.bankingModel.set(new EmployeePayrollInfo());
         return of(null); // Safely stream an empty observable
       }
     }
@@ -79,30 +76,28 @@ export class OfficialComponentDetail {
     // console.log(this.presentAddressForm().value());
     // console.log(this.permanentAddressForm().value());
     
-    if (!this.officialForm().valid()) {
+    if (!this.bankingForm().valid()) {
       return;
     }
 
-    const data = this.officialForm().value();
-    const dataToSave: any = this.officialForm().value();
-    dataToSave.companyId = dataToSave.companyId == "" ? null : dataToSave.companyId;
-    dataToSave.organizationUnitId = dataToSave.organizationUnitId == "" ? null : dataToSave.organizationUnitId;
-    dataToSave.departmentId = dataToSave.departmentId == "" ? null : dataToSave.departmentId;
-    dataToSave.employementType = dataToSave.employementType == "" ? null : dataToSave.employementType;
-    dataToSave.joiningDate = dataToSave.joiningDate == "" ? null : new Date(dataToSave.joiningDate);
-    dataToSave.confirmationDate = dataToSave.confirmationDate == "" ? null : new Date(dataToSave.confirmationDate);
-    dataToSave.separationDate = dataToSave.separationDate == "" ? null : new Date(dataToSave.separationDate);
-    dataToSave.referedBy = dataToSave.referedBy == "" ? null : dataToSave.referedBy;
-    dataToSave.howYouKnow = dataToSave.howYouKnow == "" ? null : dataToSave.howYouKnow;
-    dataToSave.officialEmail = dataToSave.officialEmail == "" ? null : dataToSave.officialEmail;
-    dataToSave.isActive = dataToSave.isActive == "" ? false : dataToSave.isActive;
+    const data = this.bankingForm().value();
+    const dataToSave: any = this.bankingForm().value();
+    dataToSave.bankId = dataToSave.bankId == "" ? null : dataToSave.bankId;
+    dataToSave.bankAccountNo = dataToSave.bankAccountNo ?  dataToSave.bankAccountNo : null;
+    dataToSave.bankHolderName = dataToSave.bankHolderName == "" ? null : dataToSave.bankHolderName;
+    dataToSave.bankBranch = dataToSave.bankBranch == "" ? null : dataToSave.bankBranch;
+    dataToSave.bankAccountType = dataToSave.bankAccountType == "" ? null : dataToSave.bankAccountType;
+    dataToSave.hasEsiEligible = dataToSave.hasEsiEligible == "" ? null : dataToSave.hasEsiEligible;
+    dataToSave.esiIpNumber = dataToSave.esiIpNumber == "" ? null : dataToSave.esiIpNumber;
+    dataToSave.universalAccountNumber = dataToSave.universalAccountNumber == "" ? null : dataToSave.universalAccountNumber;
+    dataToSave.isPayrollActive = dataToSave.isPayrollActive == "" ? false : dataToSave.isPayrollActive;
     
     if (this.isEditMode()) {
-      this.employeeService.updateOfficialInfo( this.empId(),dataToSave).subscribe({
+      this.employeeService.updateBankingInfo( this.empId(),dataToSave).subscribe({
         next: () => {
           this.employeeStore.refreshList();
           this.employeeStore.refreshDetail();
-          this.onOfficialUpdate.emit();
+          this.onBankingUpdate.emit();
         },
         error: (err: any) => {
           if (err.error?.isError) {

@@ -12,19 +12,19 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeService } from '../../../../services/employee-service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
-import { EmployeeReference, IEmployeeReference} from '../../../../models/employee-detail';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import Swal from 'sweetalert2';
+import { EmployeeEmployment, IEmployeeEmployment } from '../../../../models/employee-detail';
 
 
-interface ReferenceFormModel {
-  references: IEmployeeReference[];
+interface EmploymentFormModel {
+  employments: EmployeeEmployment[];
 }
 
 
 @Component({
-  selector: 'qfin-reference-component',
+  selector: 'qfin-employment-component',
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -36,13 +36,13 @@ interface ReferenceFormModel {
     MatStepperModule,
     LucideDynamicIcon
   ],
-  templateUrl: './reference-component.html',
+  templateUrl: './employment-component.html',
 })
-export class ReferenceComponentDetail {
+export class EmploymentComponentDetail {
 
   empId = input<string>(EMPTY_UUID);
 
-  onRefUpdate = output<void>();
+  onEmpUpdate = output<void>();
 
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
@@ -50,62 +50,63 @@ export class ReferenceComponentDetail {
   private readonly employeeService = inject(EmployeeService);
   readonly iconMap = APP_ICONS_MAP;
 
-  protected readonly referenceModel = signal<ReferenceFormModel>({
-    references: []
+  protected readonly employmentModel = signal<EmploymentFormModel>({
+    employments: []
   });
 
     // 2. Refactor your schema block using applyEach
-  protected readonly referenceSchema = schema<ReferenceFormModel>((path) => {
+  protected readonly employmentschema = schema<EmploymentFormModel>((path) => {
     // Ensures the array itself is present
-    required(path.references);
+    required(path.employments);
 
     // Iterates cleanly through each item in the array with correct type safety
-    applyEach(path.references, (refPath) => {
-      required(refPath.personName);
-      required(refPath.mobile);
-      required(refPath.email);
-      required(refPath.address);
+    applyEach(path.employments, (refPath) => {
+      required(refPath.employerName);
+      required(refPath.designation);
+      required(refPath.fromDate);
+      required(refPath.toDate);
+      required(refPath.lastDrawnSalary);
     });
   });
 
 
-  protected readonly referenceForm = form(
-    this.referenceModel,
-    this.referenceSchema
+  protected readonly employmentForm = form(
+    this.employmentModel,
+    this.employmentschema
   );
 
   constructor(){
     effect(() => {
       if(
-        this.referenceModel().references.length === 0
+        this.employmentModel().employments.length === 0
       ){
-        // this.addReference();
-        const model = new EmployeeReference();
+        // this.addEmployment();
+        const model = new EmployeeEmployment();
             model.id = EMPTY_UUID;
             model.employeeId = this.empId();
 
-        this.referenceModel.set({references :[model]});
+        this.employmentModel.set({employments :[model]});
       }
     })
 
 
   }
 
-  addReference(){
-    const model = new EmployeeReference();
+  addEmployment(){
+    const model = new EmployeeEmployment();
     model.employeeId = this.empId();
-    this.referenceModel.update(state => ({
-      references:[
-        ...state.references,
+    this.employmentModel.update(state => ({
+      employments:[
+        ...state.employments,
         model
       ]
     }));
   }
 
-  removeReference(index:number){
-    this.referenceModel.update(state => ({
-      references:
-        state.references.filter((_,i)=>i !== index)
+  removeEmployment(index:number){
+    this.employmentModel.update(state => ({
+      employments:
+        state.employments.filter((_,i)=>i !== index)
     }));
   }
 
@@ -115,26 +116,15 @@ export class ReferenceComponentDetail {
   onSubmit(){
  
     
-    if(!this.referenceForm().valid()){
+    if(!this.employmentForm().valid()){
           return;
         }
-    const dataToSave = [...this.referenceForm().value().references].map(ref => {
-      const cleanedRef = { ...ref };
-      
-      // Cast keys to keyof typeof cleanedRef to fix the TypeScript error
-      (Object.keys(cleanedRef) as Array<keyof typeof cleanedRef>).forEach(key => {
-        if (cleanedRef[key] === "") {
-          cleanedRef[key] = null as any; // Cast to any to allow null on string fields
-        }
-      });
-      
-      return cleanedRef;
-    });
-    this.employeeService.updateReferenceInfo(this.empId(),dataToSave).subscribe({
+    const dataToSave = [...this.employmentForm().value().employments];
+    this.employeeService.updateEmploymentInfo(this.empId(),dataToSave).subscribe({
         next: () => {
           this.employeeStore.refreshList();
           this.employeeStore.refreshDetail();
-          this.onRefUpdate.emit();
+          this.onEmpUpdate.emit();
         },
         error: (err: any) => {
           if (err.error?.isError) {
@@ -149,22 +139,24 @@ export class ReferenceComponentDetail {
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
       if (params.editMode && params.id !== EMPTY_UUID) {        
-        return this.employeeService.getReferenceData(params.id).pipe(
+        return this.employeeService.getEmploymentData(params.id).pipe(
           tap((resp: any) => {
-            this.referenceModel.update(state => ({
-              references: (resp.references ?? []).map(
-                (doc: IEmployeeReference) =>
-                  new EmployeeReference({
-                    ...doc
+            this.employmentModel.update(state => ({
+              employments: (resp.employments ?? []).map(
+                (doc: IEmployeeEmployment) =>
+                  new EmployeeEmployment({
+                    ...doc,
+                  fromDate: doc.fromDate ? new Date(doc.fromDate) : undefined,
+                  toDate: doc.toDate ? new Date(doc.toDate) : undefined,
                   })
               ),
             }));
           })
         );
       } else {
-        this.referenceModel.set({
+        this.employmentModel.set({
 
-          references:[]
+          employments:[]
 
         });
         return of(null); // Safely stream an empty observable

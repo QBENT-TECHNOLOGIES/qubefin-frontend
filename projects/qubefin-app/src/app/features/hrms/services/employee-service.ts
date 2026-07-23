@@ -32,6 +32,15 @@ export class EmployeeService {
     getReferenceData(id: string) {
         return this.httpClient.get(`${ApiPaths.HRMS}/employees/references/${id}`);
     }
+    getEmploymentData(id: string) {
+        return this.httpClient.get(`${ApiPaths.HRMS}/employees/employments/${id}`);
+    }
+    getQualificationData(id: string) {
+        return this.httpClient.get(`${ApiPaths.HRMS}/employees/qualifications/${id}`);
+    }
+    getBankingInfoData(id: string) {
+        return this.httpClient.get(`${ApiPaths.HRMS}/employees/banking/${id}`);
+    }
 
     create(personalInfo: any) {
         return this.httpClient.post(`${ApiPaths.HRMS}/employees`, personalInfo);
@@ -56,5 +65,14 @@ export class EmployeeService {
     }
     updateReferenceInfo(employeeId: string,model: any) {
         return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/references/` + employeeId, model);
+    }
+    updateEmploymentInfo(employeeId: string,model: any) {
+        return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/employments/` + employeeId, model);
+    }
+    updateQualificationsInfo(employeeId: string,model: any) {
+        return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/qualifications/` + employeeId, model);
+    }
+    updateBankingInfo(employeeId: string,model: any) {
+        return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/banking-info/` + employeeId, model);
     }
 }

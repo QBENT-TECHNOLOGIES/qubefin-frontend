@@ -1,86 +1,86 @@
-<div class="space-y-4 animate-fade-in">
+<div class="space-y-6 animate-fade-in pt-4">
     <div>
-        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
-            Reference Information
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+            Previous Employment
         </h3>
-        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1"></div>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
     </div>
-    @for (ref of referenceModel().references; track $index) {
+
+    @for (ref of employmentModel().employments; track $index) {
         <div class="flex items-start gap-3 border-b border-slate-200 pb-3">
             <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-                <!-- Person Name -->
+                <!-- Employer Name -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Person Name</mat-label>
+                    <mat-label>Employer Name</mat-label>
                      <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="user" class="w-5 h-5"></svg>
                     </div>
-                    <input matInput autocomplete="off" placeholder="Enter Person Name"
-                        [formField]="referenceForm.references[$index].personName">
+                    <input matInput autocomplete="off" placeholder="Enter Employer Name"
+                        [formField]="employmentForm.employments[$index].employerName">
                 </mat-form-field>
-                <!-- Mobile -->
+                <!-- Designation -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Mobile</mat-label>
+                    <mat-label>Designation</mat-label>
                      <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="phone" class="w-5 h-5"></svg>
                     </div>
-                    <input matInput type="text" autocomplete="off" placeholder="Enter Mobile Number"
-                        [formField]="referenceForm.references[$index].mobile">
+                    <input matInput type="text" autocomplete="off" placeholder="Enter Designation"
+                        [formField]="employmentForm.employments[$index].designation">
                 </mat-form-field>
-                <!-- Email -->
+                <!-- From Date -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Email</mat-label>
+                    <mat-label>From Date</mat-label>
                      <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="mail" class="w-5 h-5"></svg>
                     </div>
-                    <input matInput type="email" autocomplete="off" placeholder="Enter Email"
-                        [formField]="referenceForm.references[$index].email">
+                    <input matInput type="date" autocomplete="off" placeholder="Enter From Date"
+                        [formField]="employmentForm.employments[$index].fromDate">
                 </mat-form-field>
-                <!-- Address -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
-                    <mat-label>Address</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput rows="2" placeholder="Enter Address" [formField]="referenceForm.references[$index].address">
-                </mat-form-field>
-                <!-- Occupation -->
+                <!-- To Date -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Occupation</mat-label>
+                    <mat-label>To Date</mat-label>
+                     <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="mail" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput type="date" autocomplete="off" placeholder="Enter To Date"
+                        [formField]="employmentForm.employments[$index].toDate">
+                </mat-form-field>
+                <!-- lastDrawnSalary -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>Last Drawn Salary</mat-label>
                      <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="contact" class="w-5 h-5"></svg>
                     </div>
-                    <input matInput autocomplete="off" placeholder="Enter Occupation"
-                        [formField]="referenceForm.references[$index].occupation">
+                    <input matInput type="number" autocomplete="off" placeholder="Enter Last Drawn Salary"
+                        [formField]="employmentForm.employments[$index].lastDrawnSalary">
                 </mat-form-field>
                 <!-- Relationship -->
         
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>How Do You Know</mat-label>
+                    <mat-label>Job Title</mat-label>
                      <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="user-lock" class="w-5 h-5"></svg>
                     </div>
                     <input matInput autocomplete="off" placeholder="Relationship"
-                        [formField]="referenceForm.references[$index].howDoYouKnow">
+                        [formField]="employmentForm.employments[$index].jobTitle">
                 </mat-form-field>
             </div>
             <!-- Delete -->
-            <div (click)="removeReference($index)" matTooltip="Delete" 
+            <div (click)="removeEmployment($index)" matTooltip="Delete" 
                 class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 text-red-500 hover:text-red-700 cursor-pointer">
                 <svg lucideIcon="trash-2" class="w-5 h-5"></svg>
             </div>
         </div>
     }
-
-    <!-- Add Reference -->
+    <!-- Add Employment -->
     <div class="flex justify-end items-center">
-        <button type="button" (click)="addReference()" 
+        <button type="button" (click)="addEmployment()" 
             class="cursor-pointer ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r to-primary-500 from-secondary-500">
             <svg lucideIcon="plus" class="w-5 h-5"></svg>
             Add Reference
         </button>
     </div>
     <!-- Save -->
-
     <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-end">
         <button type="button" (click)="onSubmit()"
             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500">

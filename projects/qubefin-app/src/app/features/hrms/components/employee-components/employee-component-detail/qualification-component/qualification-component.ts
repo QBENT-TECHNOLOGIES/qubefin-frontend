@@ -12,19 +12,19 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeService } from '../../../../services/employee-service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
-import { EmployeeReference, IEmployeeReference} from '../../../../models/employee-detail';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import Swal from 'sweetalert2';
+import { EmployeeQualification, IEmployeeQualification } from '../../../../models/employee-detail';
 
 
-interface ReferenceFormModel {
-  references: IEmployeeReference[];
+interface QualificationFormModel {
+  qualifications: IEmployeeQualification[];
 }
 
 
 @Component({
-  selector: 'qfin-reference-component',
+  selector: 'qfin-qualification-component',
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -36,13 +36,13 @@ interface ReferenceFormModel {
     MatStepperModule,
     LucideDynamicIcon
   ],
-  templateUrl: './reference-component.html',
+  templateUrl: './qualification-component.html',
 })
-export class ReferenceComponentDetail {
+export class QualificationComponentDetail {
 
   empId = input<string>(EMPTY_UUID);
 
-  onRefUpdate = output<void>();
+  onQualifyUpdate = output<void>();
 
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
@@ -50,62 +50,64 @@ export class ReferenceComponentDetail {
   private readonly employeeService = inject(EmployeeService);
   readonly iconMap = APP_ICONS_MAP;
 
-  protected readonly referenceModel = signal<ReferenceFormModel>({
-    references: []
+  protected readonly qualificationModel = signal<QualificationFormModel>({
+    qualifications: []
   });
 
     // 2. Refactor your schema block using applyEach
-  protected readonly referenceSchema = schema<ReferenceFormModel>((path) => {
+  protected readonly qualificationschema = schema<QualificationFormModel>((path) => {
     // Ensures the array itself is present
-    required(path.references);
+    required(path.qualifications);
 
     // Iterates cleanly through each item in the array with correct type safety
-    applyEach(path.references, (refPath) => {
-      required(refPath.personName);
-      required(refPath.mobile);
-      required(refPath.email);
-      required(refPath.address);
+    applyEach(path.qualifications, (refPath) => {
+      required(refPath.academicStream);
+      // required(refPath.specialization);
+      required(refPath.yearOfPassing);
+      required(refPath.universityOrBoard);
+      required(refPath.schoolOrCollege);
+      required(refPath.gradeOrMarks);
     });
   });
 
 
-  protected readonly referenceForm = form(
-    this.referenceModel,
-    this.referenceSchema
+  protected readonly qualificationForm = form(
+    this.qualificationModel,
+    this.qualificationschema
   );
 
   constructor(){
     effect(() => {
       if(
-        this.referenceModel().references.length === 0
+        this.qualificationModel().qualifications.length === 0
       ){
-        // this.addReference();
-        const model = new EmployeeReference();
+        // this.addQualification();
+        const model = new EmployeeQualification();
             model.id = EMPTY_UUID;
             model.employeeId = this.empId();
 
-        this.referenceModel.set({references :[model]});
+        this.qualificationModel.set({qualifications :[model]});
       }
     })
 
 
   }
 
-  addReference(){
-    const model = new EmployeeReference();
+  addQualification(){
+    const model = new EmployeeQualification();
     model.employeeId = this.empId();
-    this.referenceModel.update(state => ({
-      references:[
-        ...state.references,
+    this.qualificationModel.update(state => ({
+      qualifications:[
+        ...state.qualifications,
         model
       ]
     }));
   }
 
-  removeReference(index:number){
-    this.referenceModel.update(state => ({
-      references:
-        state.references.filter((_,i)=>i !== index)
+  removeQualification(index:number){
+    this.qualificationModel.update(state => ({
+      qualifications:
+        state.qualifications.filter((_,i)=>i !== index)
     }));
   }
 
@@ -115,26 +117,15 @@ export class ReferenceComponentDetail {
   onSubmit(){
  
     
-    if(!this.referenceForm().valid()){
+    if(!this.qualificationForm().valid()){
           return;
         }
-    const dataToSave = [...this.referenceForm().value().references].map(ref => {
-      const cleanedRef = { ...ref };
-      
-      // Cast keys to keyof typeof cleanedRef to fix the TypeScript error
-      (Object.keys(cleanedRef) as Array<keyof typeof cleanedRef>).forEach(key => {
-        if (cleanedRef[key] === "") {
-          cleanedRef[key] = null as any; // Cast to any to allow null on string fields
-        }
-      });
-      
-      return cleanedRef;
-    });
-    this.employeeService.updateReferenceInfo(this.empId(),dataToSave).subscribe({
+    const dataToSave = [...this.qualificationForm().value().qualifications];
+    this.employeeService.updateQualificationsInfo(this.empId(),dataToSave).subscribe({
         next: () => {
           this.employeeStore.refreshList();
           this.employeeStore.refreshDetail();
-          this.onRefUpdate.emit();
+          this.onQualifyUpdate.emit();
         },
         error: (err: any) => {
           if (err.error?.isError) {
@@ -149,12 +140,12 @@ export class ReferenceComponentDetail {
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
       if (params.editMode && params.id !== EMPTY_UUID) {        
-        return this.employeeService.getReferenceData(params.id).pipe(
+        return this.employeeService.getQualificationData(params.id).pipe(
           tap((resp: any) => {
-            this.referenceModel.update(state => ({
-              references: (resp.references ?? []).map(
-                (doc: IEmployeeReference) =>
-                  new EmployeeReference({
+            this.qualificationModel.update(state => ({
+              qualifications: (resp.qualifications ?? []).map(
+                (doc: IEmployeeQualification) =>
+                  new EmployeeQualification({
                     ...doc
                   })
               ),
@@ -162,9 +153,9 @@ export class ReferenceComponentDetail {
           })
         );
       } else {
-        this.referenceModel.set({
+        this.qualificationModel.set({
 
-          references:[]
+          qualifications:[]
 
         });
         return of(null); // Safely stream an empty observable

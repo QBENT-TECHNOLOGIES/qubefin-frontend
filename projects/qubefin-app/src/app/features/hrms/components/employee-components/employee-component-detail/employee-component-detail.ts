@@ -15,6 +15,9 @@ import { ContactComponentDetail } from './contact-component/contact-component';
 import { OfficialComponentDetail } from './official-component/official-component';
 import { KycDocumentComponentDetail } from './kyc-document-component/kyc-document-component';
 import { ReferenceComponentDetail } from './reference-component/reference-component';
+import { EmploymentComponentDetail } from './employment-component/employment-component';
+import { QualificationComponentDetail } from './qualification-component/qualification-component';
+import { BankingComponentDetail } from './banking-component/banking-component';
 
 
 @Component({
@@ -33,7 +36,10 @@ import { ReferenceComponentDetail } from './reference-component/reference-compon
     ContactComponentDetail,
     OfficialComponentDetail,
     KycDocumentComponentDetail,
-    ReferenceComponentDetail
+    ReferenceComponentDetail,
+    EmploymentComponentDetail,
+    QualificationComponentDetail,
+    BankingComponentDetail
   ],
   templateUrl: './employee-component-detail.html',
 })
@@ -79,7 +85,19 @@ readonly activeStepIndex = signal(0);
     this.onStepChange(5);
   }
   handleReference(){
+    this.onStepChange(6);
+  }
+  handleEmployment(){
+    this.onStepChange(7);
+
+  }
+  handleQualification(){
+    this.onStepChange(8);
+
+  }
+  handlePayroll(){
     this.onStepChange(0);
+
   }
   handleSave(){
     this.onChildSave.emit();
