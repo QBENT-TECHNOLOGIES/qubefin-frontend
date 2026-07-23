@@ -2,7 +2,7 @@ import { Component,computed, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { APP_ICONS_MAP } from '../../../lucide-icons';
-import { MenuHierarchyItem } from '../../../features/app/models/menu-hierarchy-item';
+import { MenuHierarchyItem } from '../../../features/app/models/menu';
 
 @Component({
   selector: 'qfin-breadcrumb',

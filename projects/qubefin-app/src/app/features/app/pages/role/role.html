@@ -45,11 +45,11 @@
             <div class="flex items-center gap-2 px-4 py-3">
             </div>
             }
-            <qfin-role-list-component [data]="searchedRoles()" (sortChange)="onSort($event)" (pageChange)="onPageChange($event)">
+            <qfin-role-list-component [data]="searchedRoles()" (showDetail)="onView($event)" (sortChange)="onSort($event)" (pageChange)="onPageChange($event)">
             </qfin-role-list-component>
         </div>
 
-        @if (!isViewMode()) {
+        <!-- @if (!isViewMode()) { -->
         <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
             [ngClass]="{
                 'w-3/4':
@@ -107,16 +107,16 @@
             </div>
 
             <!-- <div> -->
-            <!-- @if (isViewMode() && selectedRoleId() !== EMPTY_UUID) {
-            <qfin-salary-component-view [(salaryId)]="selectedSalaryComponentId" (showEdit)="onEdit()">
-            </qfin-salary-component-view>
-            } @else {
+            <!-- @if (isViewMode() && selectedRoleId() !== EMPTY_UUID) { -->
+            <qfin-role-view-component [roleId]="selectedRoleId()" (showEdit)="onEdit()">
+            </qfin-role-view-component>
+            <!-- } @else {
             <qfin-salary-component-detail [salaryId]="selectedSalaryComponentId()" (onCancel)="closePanel()"
                 (onSave)="closePanel()">
             </qfin-salary-component-detail>
             } -->
             <!-- </div> -->
         </div>
-        }
+        <!-- } -->
     </div>
 </div>

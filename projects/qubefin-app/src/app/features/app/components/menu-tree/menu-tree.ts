@@ -1,10 +1,11 @@
 import { Component, effect, input, output, signal } from '@angular/core';
-import { MenuTreeNode } from '../../models/menu-tree-node';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatIconModule } from '@angular/material/icon';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MenuTreeNode } from '../../models/menu';
+
 @Component({
 	selector: 'qfin-menu-tree-component',
 	imports: [MatIconModule, MatTreeModule, MatTooltipModule, LucideDynamicIcon],

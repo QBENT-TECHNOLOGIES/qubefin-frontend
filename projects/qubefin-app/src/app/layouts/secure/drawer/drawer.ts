@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, model } from '@angular/core';
-import { MenuTreeNode } from '../../../features/app/models/menu-tree-node';
+import { MenuTreeNode } from '../../../features/app/models/menu';
 import { Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatTooltipModule } from '@angular/material/tooltip';

@@ -8,10 +8,11 @@ import { RoleSearchParam } from '../../models/role';
 import { form } from '@angular/forms/signals';
 import { Sort } from '@angular/material/sort';
 import { PageEvent } from '@angular/material/paginator';
+import { RoleViewyComponent } from '../../components/role-view/role-view';
 
 @Component({
 	selector: 'qfin-role-page',
-	imports: [CommonModule, RoleListComponent, LucideDynamicIcon],
+	imports: [CommonModule, RoleListComponent, RoleViewyComponent, LucideDynamicIcon],
 	templateUrl: './role.html'
 })
 export class RolePage {
@@ -48,9 +49,18 @@ export class RolePage {
 		this.roleStore.setPagination(event.pageIndex, event.pageSize);
 	}
 
+	protected onView(id: string) {
+		this.selectedRoleId.set(id);
+		this.isViewMode.set(true);
+	}
+
 	protected onAdd() {
 		this.isViewMode.set(false);
 		this.selectedRoleId.set(EMPTY_UUID);
+	}
+
+	protected onEdit() {
+		this.isViewMode.set(false);
 	}
 
 	protected viewDetail(id: string) {
