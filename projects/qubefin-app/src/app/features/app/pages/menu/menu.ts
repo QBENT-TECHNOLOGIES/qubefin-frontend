@@ -5,10 +5,11 @@ import { MenuTreeComponent } from '../../components/menu-tree/menu-tree';
 import { MenuViewComponent } from '../../components/menu-view/menu-view';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { MenuDetailComponent } from '../../components/menu-detail/menu-detail';
 
 @Component({
   selector: 'qfin-menu-page',
-  imports: [MenuTreeComponent, MenuViewComponent, LucideDynamicIcon],
+  imports: [MenuTreeComponent, MenuViewComponent, MenuDetailComponent, LucideDynamicIcon],
   templateUrl: './menu.html'
 })
 export class MenuPage {

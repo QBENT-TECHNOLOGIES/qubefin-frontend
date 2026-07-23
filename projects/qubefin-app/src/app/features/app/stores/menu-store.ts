@@ -1,7 +1,7 @@
 import { httpResource } from "@angular/common/http";
 import { computed, Injectable, signal } from "@angular/core";
 import { ApiPaths, EMPTY_UUID } from "qubefin-core";
-import { MenuTreeNode } from "../models/menu-tree-node";
+import { MenuTreeNode, ParentMenu } from "../models/menu";
 import { Menu } from "../models/menu";
 
 @Injectable({
@@ -17,6 +17,13 @@ export class MenuStore {
     readonly menuTree = computed(() => this.menuTreeResource.value() ?? []);
     readonly loading = computed(() => this.menuTreeResource.isLoading());
     readonly error = computed(() => this.menuTreeResource.error());
+
+    // All Parent Menus
+    parentMenusResource = httpResource<ParentMenu[]>(() => `${ApiPaths.APP}/menus/parent-only`);
+
+    readonly parentMenus = computed(() => this.parentMenusResource.value() ?? []);
+    readonly parentMenusLoading = computed(() => this.parentMenusResource.isLoading());
+    readonly parentMenusError = computed(() => this.parentMenusResource.error());
 
     // Single Menu
     private readonly menuResource = httpResource<Menu>(() => {

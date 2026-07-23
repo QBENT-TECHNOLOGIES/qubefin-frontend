@@ -30,7 +30,7 @@ export class RoleListComponent {
 
 	readonly displayedColumns: string[] = ['index', 'name', 'status', 'actions'];
 
-	onDhowDetail(id: string) {
+	onDetailView(id: string) {
 		this.selectedId.set(id);
 		this.showDetail.emit(id);
 	}

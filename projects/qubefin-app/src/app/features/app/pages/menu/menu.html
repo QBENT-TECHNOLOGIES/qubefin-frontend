@@ -36,9 +36,8 @@
             <qfin-menu-view-component [menuId]="selectedMenuId()" (showEdit)="onEdit()">
             </qfin-menu-view-component>
             } @else {
-            <!-- <qfin-menu-detail-component [administrativeUnitId]="selectedAdministrativeUnitId()"
-            (cancel)="isViewMode.set(true)">
-        </qfin-menu-detail-component> -->
+            <qfin-menu-detail-component [menuId]="selectedMenuId()" (cancel)="isViewMode.set(true)">
+            </qfin-menu-detail-component>
             }
         </section>
     </div>

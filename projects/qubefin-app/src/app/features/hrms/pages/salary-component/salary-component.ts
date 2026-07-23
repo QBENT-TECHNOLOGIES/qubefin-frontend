@@ -14,147 +14,147 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { CommonModule } from '@angular/common';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 @Component({
-  selector: 'qfin-salary-component',
-  imports: [
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    FormsModule,
-    SalaryComponentList,
-    SalaryComponentView,
-    SalaryComponentDetail,
-    MatIconModule,
-    MatButtonModule,
-    MatTooltipModule,
-    LucideDynamicIcon,
-    CommonModule,
-    MatSlideToggleModule,
-  ],
-  templateUrl: './salary-component.html',
+	selector: 'qfin-salary-component',
+	imports: [
+		MatFormFieldModule,
+		MatInputModule,
+		MatSelectModule,
+		FormsModule,
+		SalaryComponentList,
+		SalaryComponentView,
+		SalaryComponentDetail,
+		MatIconModule,
+		MatButtonModule,
+		MatTooltipModule,
+		LucideDynamicIcon,
+		CommonModule,
+		MatSlideToggleModule,
+	],
+	templateUrl: './salary-component.html',
 })
 export class SalaryComponent {
-  public readonly EMPTY_UUID = EMPTY_UUID;
-  readonly iconMap = APP_ICONS_MAP;
-  salaryStore = inject(SalaryStore);
-  isViewMode = signal<boolean>(true);
-  selectedSalaryComponentId = signal<string>(EMPTY_UUID);
-  categories = this.salaryStore.categories;
+	public readonly EMPTY_UUID = EMPTY_UUID;
+	readonly iconMap = APP_ICONS_MAP;
+	salaryStore = inject(SalaryStore);
+	isViewMode = signal<boolean>(true);
+	selectedSalaryComponentId = signal<string>(EMPTY_UUID);
+	categories = this.salaryStore.categories;
 
-  // Filter properties
-  showFilterArea = signal<boolean>(false);
-  
-  // Applied filters
-  searchQuery = signal<string>('');
-  selectedCategory = signal<string>('');
-  taxableFilter = signal<boolean | null>(null);
+	// Filter properties
+	showFilterArea = signal<boolean>(false);
 
-  // Form bindings
-  tempSearch = '';
-  tempCategory = '';
-  tempTaxable: boolean | null = null;
+	// Applied filters
+	searchQuery = signal<string>('');
+	selectedCategory = signal<string>('');
+	taxableFilter = signal<boolean | null>(null);
 
-  filteredSalaryComponents = computed(() => {
-    let list = this.salaryStore.salaryComponents();
-    const query = this.searchQuery().trim().toLowerCase();
-    const cat = this.selectedCategory();
-    const tax = this.taxableFilter();
+	// Form bindings
+	tempSearch = '';
+	tempCategory = '';
+	tempTaxable: boolean | null = null;
 
-    if (query) {
-      list = list.filter(item =>
-        (item.name && item.name.toLowerCase().includes(query)) ||
-        (item.code && item.code.toLowerCase().includes(query))
-      );
-    }
-    if (cat) {
-      list = list.filter(item => item.categoryId === cat);
-    }
-    if (tax !== null) {
-      list = list.filter(item => item.isTaxable === tax);
-    }
-    return list;
-  });
+	filteredSalaryComponents = computed(() => {
+		let list = this.salaryStore.salaryComponents();
+		const query = this.searchQuery().trim().toLowerCase();
+		const cat = this.selectedCategory();
+		const tax = this.taxableFilter();
 
-  constructor() {
-    this.salaryStore.loadCategories();
-  }
+		if (query) {
+			list = list.filter(item =>
+				(item.name && item.name.toLowerCase().includes(query)) ||
+				(item.code && item.code.toLowerCase().includes(query))
+			);
+		}
+		if (cat) {
+			list = list.filter(item => item.categoryId === cat);
+		}
+		if (tax !== null) {
+			list = list.filter(item => item.isTaxable === tax);
+		}
+		return list;
+	});
 
-  protected onView(id: string) {
-    this.selectedSalaryComponentId.set(id);
-    this.isViewMode.set(true);
-  }
+	constructor() {
+		this.salaryStore.loadCategories();
+	}
 
-  protected onEdit() {
-    this.isViewMode.set(false);
-  }
+	protected onView(id: string) {
+		this.selectedSalaryComponentId.set(id);
+		this.isViewMode.set(true);
+	}
 
-  protected onAdd() {
-    this.isViewMode.set(false);
-    this.selectedSalaryComponentId.set(EMPTY_UUID);
-  }
+	protected onEdit() {
+		this.isViewMode.set(false);
+	}
 
-  protected closePanel() {
-    this.selectedSalaryComponentId.set(EMPTY_UUID);
-    this.isViewMode.set(true);
-  }
+	protected onAdd() {
+		this.isViewMode.set(false);
+		this.selectedSalaryComponentId.set(EMPTY_UUID);
+	}
 
-  protected toggleFilterArea() {
-    this.showFilterArea.update(v => !v);
-  }
+	protected closePanel() {
+		this.selectedSalaryComponentId.set(EMPTY_UUID);
+		this.isViewMode.set(true);
+	}
 
-  protected toggleTempTaxable(val: boolean) {
-    if (this.tempTaxable === val) {
-      this.tempTaxable = null;
-    } else {
-      this.tempTaxable = val;
-    }
-  }
+	protected toggleFilterArea() {
+		this.showFilterArea.update(v => !v);
+	}
 
-  protected applyFilters() {
-    this.searchQuery.set(this.tempSearch);
-    this.selectedCategory.set(this.tempCategory);
-    // this.taxableFilter.set(this.tempTaxable);
-  }
+	protected toggleTempTaxable(val: boolean) {
+		if (this.tempTaxable === val) {
+			this.tempTaxable = null;
+		} else {
+			this.tempTaxable = val;
+		}
+	}
 
-  protected resetFilters() {
-    this.tempSearch = '';
-    this.tempCategory = '';
-    // this.tempTaxable = null;
-    this.applyFilters();
-  }
+	protected applyFilters() {
+		this.searchQuery.set(this.tempSearch);
+		this.selectedCategory.set(this.tempCategory);
+		// this.taxableFilter.set(this.tempTaxable);
+	}
 
-  getCategoryIcon(categoryName: string): any {
-    switch (categoryName?.toLowerCase().trim()) {
-      case 'deduction':
-        return this.iconMap['BanknoteX'];
+	protected resetFilters() {
+		this.tempSearch = '';
+		this.tempCategory = '';
+		// this.tempTaxable = null;
+		this.applyFilters();
+	}
 
-      case 'employer contribution':
-        return this.iconMap['HandCoins'];
+	getCategoryIcon(categoryName: string): any {
+		switch (categoryName?.toLowerCase().trim()) {
+			case 'deduction':
+				return this.iconMap['BanknoteX'];
 
-      case 'earning':
-        return this.iconMap['BanknoteArrowUp'];
+			case 'employer contribution':
+				return this.iconMap['HandCoins'];
 
-      default:
-        return this.iconMap['Coins'];
-    }
-  }
+			case 'earning':
+				return this.iconMap['BanknoteArrowUp'];
 
-  protected selectCategory(category: { id: string; name: string }) {
-    if (this.selectedCategory() === category.id) {
-      // Same category clicked → remove category filter
-      this.selectedCategory.set('');
-      this.tempCategory = '';
-    } else {
-      // New category clicked → apply filter
-      this.selectedCategory.set(category.id);
-      this.tempCategory = category.id;
-    }
-  }
+			default:
+				return this.iconMap['Coins'];
+		}
+	}
 
-  protected resetCategoryFilter() {
-    this.selectedCategory.set('');
-    this.tempCategory = '';
-  }
+	protected selectCategory(category: { id: string; name: string }) {
+		if (this.selectedCategory() === category.id) {
+			// Same category clicked → remove category filter
+			this.selectedCategory.set('');
+			this.tempCategory = '';
+		} else {
+			// New category clicked → apply filter
+			this.selectedCategory.set(category.id);
+			this.tempCategory = category.id;
+		}
+	}
+
+	protected resetCategoryFilter() {
+		this.selectedCategory.set('');
+		this.tempCategory = '';
+	}
 }
 
