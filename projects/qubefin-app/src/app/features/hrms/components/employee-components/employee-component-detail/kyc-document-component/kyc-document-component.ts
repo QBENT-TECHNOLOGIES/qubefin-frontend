@@ -139,8 +139,7 @@ export class KycDocumentComponentDetail {
         ...current,
         documentNo: "",
         validFrom: null,
-        validTill: null,
-        fileName: null
+        validTill: null
       };
 
       return {

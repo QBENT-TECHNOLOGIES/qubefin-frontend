@@ -1,86 +1,85 @@
-<div class="space-y-4 animate-fade-in">
+<div class="space-y-6 animate-fade-in pt-4">
     <div>
-        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
-            Reference Information
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+            Previous Employment
         </h3>
-        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1"></div>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
     </div>
-    @for (ref of referenceModel().references; track $index) {
+
+    @for (ref of qualificationModel().qualifications; track $index) {
         <div class="flex items-start gap-3 border-b border-slate-200 pb-3">
             <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-                <!-- Person Name -->
+                <!-- Academic Stream -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Person Name</mat-label>
+                    <mat-label>Academic Stream</mat-label>
                      <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="user" class="w-5 h-5"></svg>
                     </div>
-                    <input matInput autocomplete="off" placeholder="Enter Person Name"
-                        [formField]="referenceForm.references[$index].personName">
+                    <input matInput autocomplete="off" placeholder="Enter Academic Stream"
+                        [formField]="qualificationForm.qualifications[$index].academicStream">
                 </mat-form-field>
-                <!-- Mobile -->
+                <!-- Specialization -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Mobile</mat-label>
+                    <mat-label>Specialization</mat-label>
                      <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="phone" class="w-5 h-5"></svg>
                     </div>
-                    <input matInput type="text" autocomplete="off" placeholder="Enter Mobile Number"
-                        [formField]="referenceForm.references[$index].mobile">
+                    <input matInput type="text" autocomplete="off" placeholder="Enter Specialization"
+                        [formField]="qualificationForm.qualifications[$index].specialization">
                 </mat-form-field>
-                <!-- Email -->
+                <!-- Year of Passing -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Email</mat-label>
+                    <mat-label>Year of Passing</mat-label>
                      <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="mail" class="w-5 h-5"></svg>
                     </div>
-                    <input matInput type="email" autocomplete="off" placeholder="Enter Email"
-                        [formField]="referenceForm.references[$index].email">
+                    <input matInput type="number" autocomplete="off" placeholder="Enter Year of Passing"
+                        [formField]="qualificationForm.qualifications[$index].yearOfPassing">
                 </mat-form-field>
-                <!-- Address -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
-                    <mat-label>Address</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput rows="2" placeholder="Enter Address" [formField]="referenceForm.references[$index].address">
-                </mat-form-field>
-                <!-- Occupation -->
+                <!-- University / Board -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Occupation</mat-label>
+                    <mat-label>University / Board</mat-label>
+                     <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="mail" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput type="text" autocomplete="off" placeholder="Enter University / Board"
+                        [formField]="qualificationForm.qualifications[$index].universityOrBoard">
+                </mat-form-field>
+                <!-- School / College-->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>School / College</mat-label>
+                     <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="mail" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput type="text" autocomplete="off" placeholder="School / College"
+                        [formField]="qualificationForm.qualifications[$index].schoolOrCollege">
+                </mat-form-field>
+                <!-- Grade / Percentage / CGPA -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>Grade / Percentage / CGPA</mat-label>
                      <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="contact" class="w-5 h-5"></svg>
                     </div>
-                    <input matInput autocomplete="off" placeholder="Enter Occupation"
-                        [formField]="referenceForm.references[$index].occupation">
-                </mat-form-field>
-                <!-- Relationship -->
-        
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>How Do You Know</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="user-lock" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput autocomplete="off" placeholder="Relationship"
-                        [formField]="referenceForm.references[$index].howDoYouKnow">
+                    <input matInput type="text" autocomplete="off" placeholder="Enter Grade / Percentage / CGPA"
+                        [formField]="qualificationForm.qualifications[$index].gradeOrMarks">
                 </mat-form-field>
             </div>
             <!-- Delete -->
-            <div (click)="removeReference($index)" matTooltip="Delete" 
+            <div (click)="removeQualification($index)" matTooltip="Delete" 
                 class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 text-red-500 hover:text-red-700 cursor-pointer">
                 <svg lucideIcon="trash-2" class="w-5 h-5"></svg>
             </div>
         </div>
     }
-
-    <!-- Add Reference -->
+    <!-- Add Employment -->
     <div class="flex justify-end items-center">
-        <button type="button" (click)="addReference()" 
+        <button type="button" (click)="addQualification()" 
             class="cursor-pointer ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r to-primary-500 from-secondary-500">
             <svg lucideIcon="plus" class="w-5 h-5"></svg>
             Add Reference
         </button>
     </div>
     <!-- Save -->
-
     <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-end">
         <button type="button" (click)="onSubmit()"
             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500">

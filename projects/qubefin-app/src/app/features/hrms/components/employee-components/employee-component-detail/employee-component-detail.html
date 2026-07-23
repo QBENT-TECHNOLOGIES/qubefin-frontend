@@ -147,198 +147,34 @@
         <!-- Step 8: Previous Employement -->
         <mat-step>
             <ng-template matStepLabel>Previous Employment</ng-template>
-            <div class="space-y-6 animate-fade-in pt-4">
-                <div>
-                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                        Previous Employment
-                    </h3>
-                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Employer Name</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>corporate_fare</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Company Name">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Designation</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>work_outline</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Designation">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>From Date</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
-                        <input matInput type="date" autocomplete="off">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>To Date</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
-                        <input matInput type="date" autocomplete="off">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Last Drawn Salary</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>payments</mat-icon>
-                        <input matInput type="number" autocomplete="off" placeholder="Enter Annual CTC">
-                    </mat-form-field>
-                </div>
-
-                <div
-                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                    <div>
-                        <button type="button"
-                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                            Save as Draft
-                        </button>
-                    </div>
-                    <div class="flex flex-1 justify-end items-center gap-3">
-                        <button type="button" matStepperPrevious
-                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                            Previous
-                        </button>
-                        <button type="button" matStepperNext
-                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                            Save
-                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            @if (activeStepIndex() == 6) {
+                <qfin-employment-component 
+                    [empId]="employeeId()"
+                    (onEmpUpdate)="handleEmployment()">
+                </qfin-employment-component>
+                }
         </mat-step>
 
         <!-- Step 9: Qualification Info -->
         <mat-step>
             <ng-template matStepLabel>Qualification Info</ng-template>
-            <div class="space-y-6 animate-fade-in pt-4">
-                <div>
-                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                        Qualification Info
-                    </h3>
-                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Academic Stream</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>school</mat-icon>
-                        <input matInput autocomplete="off" placeholder="e.g. B.Tech / MBA / HSC">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Specialization</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>biotech</mat-icon>
-                        <input matInput autocomplete="off" placeholder="e.g. Computer Science">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Year of Passing</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>calendar_today</mat-icon>
-                        <input matInput type="number" autocomplete="off" placeholder="Enter Year">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>University / Board</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>account_balance</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter University/Board">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Grade / Percentage / CGPA</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>grade</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter grade or percentage">
-                    </mat-form-field>
-                </div>
-
-                <div
-                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                    <div>
-                        <button type="button"
-                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                            Save as Draft
-                        </button>
-                    </div>
-                    <div class="flex flex-1 justify-end items-center gap-3">
-                        <button type="button" matStepperPrevious
-                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                            Previous
-                        </button>
-                        <button type="button" matStepperNext
-                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                            Save
-                            <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            @if (activeStepIndex() == 7) {
+                <qfin-qualification-component 
+                    [empId]="employeeId()"
+                    (onQualifyUpdate)="handleQualification()">
+                </qfin-qualification-component>
+                }
         </mat-step>
 
         <!-- Step 10: Bank Details Info -->
         <mat-step>
             <ng-template matStepLabel>Bank Details Info</ng-template>
-            <div class="space-y-6 animate-fade-in pt-4">
-                <div>
-                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                        Bank Details Info
-                    </h3>
-                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Bank Holder Name</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>person</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Holder Name">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Bank Name</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>account_balance</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Bank Name">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Account Number</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>credit_card</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Account Number">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>IFSC Code</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>key</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter IFSC Code">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Branch Name</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>location_on</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter Branch Name">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Universal Account Number (UAN)</mat-label>
-                        <mat-icon class="material-symbols-outlined" matPrefix>badge</mat-icon>
-                        <input matInput autocomplete="off" placeholder="Enter UAN No">
-                    </mat-form-field>
-                </div>
-
-                <div
-                    class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
-                    <div>
-                        <button type="button"
-                            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-                            <svg lucideIcon="sticky-note" class="w-4 h-4"></svg>
-                            Save as Draft
-                        </button>
-                    </div>
-                    <div class="flex flex-1 justify-end items-center gap-3">
-                        <button type="button" matStepperPrevious
-                            class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass text-slate-700 dark:text-slate-300 transition lift cursor-pointer">
-                            <svg lucideIcon="chevron-left" class="w-5 h-5"></svg>
-                            Previous
-                        </button>
-                        <button type="button" matStepperNext
-                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                            Submit &amp; Preview
-                            <svg lucideIcon="save" class="w-5 h-5"></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            @if (activeStepIndex() == 8) {
+                <qfin-banking-component 
+                    [empId]="employeeId()"
+                    (onBankingUpdate)="handlePayroll()">
+                </qfin-banking-component>
+                }
         </mat-step>
             
             
