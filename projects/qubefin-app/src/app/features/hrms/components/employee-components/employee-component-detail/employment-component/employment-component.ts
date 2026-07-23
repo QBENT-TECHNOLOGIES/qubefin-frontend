@@ -16,6 +16,8 @@ import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import Swal from 'sweetalert2';
 import { EmployeeEmployment, IEmployeeEmployment } from '../../../../models/employee-detail';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
 
 
 interface EmploymentFormModel {
@@ -34,7 +36,9 @@ interface EmploymentFormModel {
     MatCheckboxModule,
     FormField,
     MatStepperModule,
-    LucideDynamicIcon
+    LucideDynamicIcon,
+    MatDatepickerModule,
+    MatNativeDateModule   
   ],
   templateUrl: './employment-component.html',
 })
@@ -75,7 +79,9 @@ export class EmploymentComponentDetail {
     this.employmentschema
   );
 
+  private dateAdapter= inject(DateAdapter<Date>);
   constructor(){
+    this.dateAdapter.setLocale('en-GB');
     effect(() => {
       if(
         this.employmentModel().employments.length === 0

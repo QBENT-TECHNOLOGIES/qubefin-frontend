@@ -52,10 +52,24 @@
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Date of Birth</mat-label>
+
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="date" [formField]="employeeForm.dateOfBirth" autocomplete="off" placeholder="Select Date Of Birth">
+
+            <input
+                matInput
+                [matDatepicker]="dobPicker"
+                [formField]="employeeForm.dateOfBirth"
+                placeholder="Select Date of Birth"
+                autocomplete="off">
+
+            <mat-datepicker-toggle
+                matIconSuffix
+                [for]="dobPicker">
+            </mat-datepicker-toggle>
+
+            <mat-datepicker #dobPicker></mat-datepicker>
         </mat-form-field>
         
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">

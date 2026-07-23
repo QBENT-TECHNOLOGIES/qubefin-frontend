@@ -11,9 +11,9 @@
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Bank Holder Name</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="mail" class="w-5 h-5">person</svg>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="email" autocomplete="off" [formField]="bankingForm.bankHolderName"
+            <input matInput type="text" autocomplete="off" [formField]="bankingForm.bankHolderName"
                 placeholder="Enter Bank Holder Name">
         </mat-form-field>
         
@@ -21,9 +21,9 @@
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Branch Name</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="mail" class="w-5 h-5">location_on</svg>
+                <svg lucideIcon="map-pinned" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="email" autocomplete="off" [formField]="bankingForm.bankBranch"
+            <input matInput type="text" autocomplete="off" [formField]="bankingForm.bankBranch"
                 placeholder="Enter Branch Name">
         </mat-form-field>
 
@@ -31,31 +31,37 @@
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Account Number</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="mail" class="w-5 h-5">credit_card</svg>
+                <svg lucideIcon="wallet" class="w-5 h-5"></svg>
             </div>
             <input matInput type="number" autocomplete="off" [formField]="bankingForm.bankAccountNo"
                 placeholder="Enter Account Number">
         </mat-form-field>
 
+        <mat-checkbox [formField]="bankingForm.hasEsiEligible" color="primary">Is Esi Eligible?</mat-checkbox>
+
         <!-- -----------ESI IP NUMBER--------- -->
+        @if(bankingModel().hasEsiEligible === true){
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>ESI IP NUMBER</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="mail" class="w-5 h-5">key</svg>
+                <svg lucideIcon="shield-check" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="email" autocomplete="off" [formField]="bankingForm.esiIpNumber"
+            <input matInput  autocomplete="off" [formField]="bankingForm.esiIpNumber"
                 placeholder="Enter ESI IP NUMBER">
         </mat-form-field>
+        }
+        
 
         <!-- -----------Universal Account Number (UAN)--------- -->
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Universal Account Number (UAN)</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="mail" class="w-5 h-5">badge</svg>
+                <svg lucideIcon="badge-check" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="email" autocomplete="off" [formField]="bankingForm.universalAccountNumber"
+            <input matInput type="text" autocomplete="off" [formField]="bankingForm.universalAccountNumber"
                 placeholder="Enter UAN No">
         </mat-form-field>
+        <mat-checkbox [formField]="bankingForm.isPayrollActive" color="primary">Is Payroll Active?</mat-checkbox>
     </div>
 
     <div

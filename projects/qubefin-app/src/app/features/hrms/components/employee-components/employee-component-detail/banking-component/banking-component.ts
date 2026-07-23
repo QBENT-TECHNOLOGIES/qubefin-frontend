@@ -87,10 +87,10 @@ export class BankingComponentDetail {
     dataToSave.bankHolderName = dataToSave.bankHolderName == "" ? null : dataToSave.bankHolderName;
     dataToSave.bankBranch = dataToSave.bankBranch == "" ? null : dataToSave.bankBranch;
     dataToSave.bankAccountType = dataToSave.bankAccountType == "" ? null : dataToSave.bankAccountType;
-    dataToSave.hasEsiEligible = dataToSave.hasEsiEligible == "" ? null : dataToSave.hasEsiEligible;
+    dataToSave.hasEsiEligible =  dataToSave.hasEsiEligible;
     dataToSave.esiIpNumber = dataToSave.esiIpNumber == "" ? null : dataToSave.esiIpNumber;
     dataToSave.universalAccountNumber = dataToSave.universalAccountNumber == "" ? null : dataToSave.universalAccountNumber;
-    dataToSave.isPayrollActive = dataToSave.isPayrollActive == "" ? false : dataToSave.isPayrollActive;
+    dataToSave.isPayrollActive = dataToSave.isPayrollActive;
     
     if (this.isEditMode()) {
       this.employeeService.updateBankingInfo( this.empId(),dataToSave).subscribe({

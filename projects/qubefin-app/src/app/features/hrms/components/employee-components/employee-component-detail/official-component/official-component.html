@@ -31,21 +31,39 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="date" autocomplete="off" [formField]="officialForm.joiningDate">
+            <input matInput [matDatepicker]="joiningDate" autocomplete="off" [formField]="officialForm.joiningDate">
+            <mat-datepicker-toggle
+                                matIconSuffix
+                                [for]="joiningDate">
+                            </mat-datepicker-toggle>
+
+                        <mat-datepicker #joiningDate></mat-datepicker>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Confirmation Date</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="date" autocomplete="off" [formField]="officialForm.confirmationDate">
+            <input matInput  [matDatepicker]="confirmationDate" autocomplete="off" [formField]="officialForm.confirmationDate">
+            <mat-datepicker-toggle
+                                matIconSuffix
+                                [for]="confirmationDate">
+                            </mat-datepicker-toggle>
+
+                        <mat-datepicker #confirmationDate></mat-datepicker>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Separation Date</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-sync" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="date" autocomplete="off" [formField]="officialForm.separationDate">
+            <input matInput  [matDatepicker]="separationDate" autocomplete="off" [formField]="officialForm.separationDate">
+                        <mat-datepicker-toggle
+                                matIconSuffix
+                                [for]="separationDate">
+                            </mat-datepicker-toggle>
+
+                        <mat-datepicker #separationDate></mat-datepicker>
         </mat-form-field>
         <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Referred By</mat-label>

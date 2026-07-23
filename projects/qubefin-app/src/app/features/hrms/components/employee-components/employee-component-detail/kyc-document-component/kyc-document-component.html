@@ -45,7 +45,15 @@
                         <div matPrefix class="w-12 flex justify-center">
                             <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
                         </div>
-                        <input matInput type="date" autocomplete="off" [formField]="kycForm.documents[$index].validFrom">
+                        <input matInput  [matDatepicker]="validFrom" autocomplete="off" [formField]="kycForm.documents[$index].validFrom">
+                        
+                            <mat-datepicker-toggle
+                                matIconSuffix
+                                [for]="validFrom">
+                            </mat-datepicker-toggle>
+
+                            <mat-datepicker #validFrom></mat-datepicker>
+                        <mat-error> Valid From is invalid.</mat-error>
                     </mat-form-field>
                     <!-- Valid Till -->
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -56,8 +64,16 @@
                             <svg lucideIcon="calendar-clock" class="w-5 h-5">
                             </svg>
                         </div>
-                        <input matInput type="date" autocomplete="off" [min]="doc.validFrom"
+                        <input matInput 
+                            [matDatepicker]="validTill"
+                            autocomplete="off" [min]="doc.validFrom"
                             [formField]="kycForm.documents[$index].validTill">
+                            <mat-datepicker-toggle
+                                matIconSuffix
+                                [for]="validTill">
+                            </mat-datepicker-toggle>
+
+                            <mat-datepicker #validTill></mat-datepicker>
                         <mat-error> Valid Till is invalid.</mat-error>
                     </mat-form-field>
                     <!-- @if (isValidTillInvalid($index)) {

@@ -15,6 +15,8 @@ import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
 import { EmployeeOfficialInfo, IEmployeeOfficialInfo } from '../../../../models/employee-detail';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
 
 @Component({
   selector: 'qfin-official-component',
@@ -27,7 +29,9 @@ import { EmployeeOfficialInfo, IEmployeeOfficialInfo } from '../../../../models/
     MatCheckboxModule,
     FormField,
     MatStepperModule,
-    LucideDynamicIcon
+    LucideDynamicIcon,
+    MatDatepickerModule,
+    MatNativeDateModule   
   ],
   templateUrl: './official-component.html',
 })
@@ -35,6 +39,7 @@ export class OfficialComponentDetail {
   empId = input<string>(EMPTY_UUID);
 //   onCancel = output<void>();
   onOfficialUpdate = output<void>();
+  private dateAdapter= inject(DateAdapter<Date>);
 
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
@@ -52,7 +57,10 @@ export class OfficialComponentDetail {
 
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
-
+  constructor(){
+    
+    this.dateAdapter.setLocale('en-GB');
+  }
   
    private officialResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
@@ -64,7 +72,9 @@ export class OfficialComponentDetail {
             this.officialModel.set(new EmployeeOfficialInfo(resp));
             this.officialModel.update(state => ({ 
               ...state, 
-              joiningDate:resp.joiningDate == null ? null : new Date(resp.joiningDate) 
+              joiningDate:resp.joiningDate == null ? null : new Date(resp.joiningDate),
+              confirmationDate:resp.confirmationDate == null ? null : new Date(resp.confirmationDate),
+              separationDate:resp.separationDate == null ? null : new Date(resp.separationDate)
             }));
           })
         );
@@ -74,6 +84,8 @@ export class OfficialComponentDetail {
       }
     }
   });
+  
+  
 
   onSubmit() {
     // console.log(this.presentAddressForm().value());

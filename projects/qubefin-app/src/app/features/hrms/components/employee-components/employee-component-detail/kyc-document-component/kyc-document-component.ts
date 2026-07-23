@@ -17,6 +17,8 @@ import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import Swal from 'sweetalert2';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 
 interface KycFormModel {
@@ -36,7 +38,9 @@ interface KycFormModel {
     FormField,
     MatStepperModule,
     LucideDynamicIcon,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDatepickerModule,
+    MatNativeDateModule   
   ],
   templateUrl: './kyc-document-component.html',
 })
@@ -76,33 +80,23 @@ export class KycDocumentComponentDetail {
   );
 
 
+  private dateAdapter= inject(DateAdapter<Date>);
 
   constructor(){
-
-
+    this.dateAdapter.setLocale('en-GB');
     effect(() => {
 
       const docs = this.kycDocs();
-
-
       if(
         docs.length &&
         this.kycModel().documents.length === 0
       ){
-
-
         const mandatoryDocs =
           docs.filter(x => x.isMandatory);
 
-
-
         this.kycModel.set({
-
           documents: mandatoryDocs.map(doc => {
-
-
             const model = new EmployeeDocument();
-
 
             model.documentName = doc.name;
             model.documentNo = "";
@@ -110,21 +104,11 @@ export class KycDocumentComponentDetail {
             model.validTill = null;
             model.documentCategory = "KYC";
             model.employeeId = this.empId();
-
-
             return model;
-
           })
-
         });
-
-
       }
-
-
     });
-
-
   }
 
   onDocumentChange(index: number) {
@@ -145,11 +129,8 @@ export class KycDocumentComponentDetail {
       return {
         documents
       };
-
     });
-
   }
-
 
   private getSelectedDocument(name:string){
 
@@ -157,30 +138,15 @@ export class KycDocumentComponentDetail {
       .find(x => x.name === name);
 
   }
-
-
-
-
-
   selectedDocument(index:number){
-
 
     const name =
       this.kycModel()
         .documents[index]
         ?.documentName;
 
-
-
     return this.getSelectedDocument(name);
-
-
   }
-
-
-
-
-
   addDocument(){
     const model = new EmployeeDocument();
     model.documentCategory = "KYC";

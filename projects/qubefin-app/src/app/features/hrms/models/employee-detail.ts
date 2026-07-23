@@ -316,8 +316,8 @@ export interface IEmployeeOfficialInfo {
   departmentId: string; // Guid? maps to string
   employementType: string; // string? maps to optional string
   joiningDate: Date | null; // DateOnly? maps to ISO date string (YYYY-MM-DD)
-  confirmationDate: Date; // DateOnly? maps to ISO date string (YYYY-MM-DD)
-  separationDate: Date; // DateOnly? maps to ISO date string (YYYY-MM-DD)
+  confirmationDate: Date | null; // DateOnly? maps to ISO date string (YYYY-MM-DD)
+  separationDate: Date | null; // DateOnly? maps to ISO date string (YYYY-MM-DD)
   referedBy: string; // Guid? maps to string
   howYouKnow: string;
   officialEmail: string;
@@ -329,8 +329,8 @@ export class EmployeeOfficialInfo {
   departmentId: string = '';
   employementType: string = '';
   joiningDate: Date | null = null;
-  confirmationDate: Date = defaultDate();
-  separationDate: Date = defaultDate();
+  confirmationDate: Date | null = null;
+  separationDate: Date | null = null;
   referedBy: string = '';
   howYouKnow: string = '';
   officialEmail: string = '';

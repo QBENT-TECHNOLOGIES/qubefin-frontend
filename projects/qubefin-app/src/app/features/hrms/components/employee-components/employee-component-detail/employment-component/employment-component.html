@@ -33,8 +33,15 @@
                      <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="mail" class="w-5 h-5"></svg>
                     </div>
-                    <input matInput type="date" autocomplete="off" placeholder="Enter From Date"
+                    <input matInput 
+                        [matDatepicker]="fromDate" autocomplete="off" placeholder="Enter From Date"
                         [formField]="employmentForm.employments[$index].fromDate">
+                        <mat-datepicker-toggle
+                                matIconSuffix
+                                [for]="fromDate">
+                            </mat-datepicker-toggle>
+
+                        <mat-datepicker #fromDate></mat-datepicker>
                 </mat-form-field>
                 <!-- To Date -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -42,8 +49,15 @@
                      <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="mail" class="w-5 h-5"></svg>
                     </div>
-                    <input matInput type="date" autocomplete="off" placeholder="Enter To Date"
+                    <input matInput 
+                        [matDatepicker]="toDate" autocomplete="off" placeholder="Enter To Date"
                         [formField]="employmentForm.employments[$index].toDate">
+                        <mat-datepicker-toggle
+                                matIconSuffix
+                                [for]="toDate">
+                            </mat-datepicker-toggle>
+
+                        <mat-datepicker #toDate></mat-datepicker>
                 </mat-form-field>
                 <!-- lastDrawnSalary -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -77,7 +91,7 @@
         <button type="button" (click)="addEmployment()" 
             class="cursor-pointer ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r to-primary-500 from-secondary-500">
             <svg lucideIcon="plus" class="w-5 h-5"></svg>
-            Add Reference
+            Add Previous Employment
         </button>
     </div>
     <!-- Save -->

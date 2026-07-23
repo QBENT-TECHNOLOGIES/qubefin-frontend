@@ -15,6 +15,8 @@ import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeePersonalInfo, IEmployeePersonalInfo, Utility } from '../../../../models/employee-detail';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
+import {  MatDatepickerModule } from '@angular/material/datepicker';
+import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
 
 
 @Component({
@@ -28,7 +30,9 @@ import { of, tap } from 'rxjs';
     MatCheckboxModule,
     FormField,
     MatStepperModule,
-    LucideDynamicIcon
+    LucideDynamicIcon,
+    MatDatepickerModule,
+    MatNativeDateModule   
   ],
   templateUrl: './personal-component.html',
 })
@@ -39,7 +43,9 @@ export class PersonalComponentDetail {
 //   onCancel = output<void>();
   onSave = output<void>();
   onUpdate = output<void>();
-
+  
+  private dateAdapter= inject(DateAdapter<Date>);
+  readonly maxDate = new Date();
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   readonly iconMap = APP_ICONS_MAP;
@@ -110,6 +116,10 @@ export class PersonalComponentDetail {
       }
     }
   });
+  constructor(){
+    
+    this.dateAdapter.setLocale('en-GB');
+  }
   loadBloodGroups(){
     return this.utilities().length > 0 ? this.utilities().filter((m: any) => m.sysKey == "BLOODGROUP") : [];
   }
