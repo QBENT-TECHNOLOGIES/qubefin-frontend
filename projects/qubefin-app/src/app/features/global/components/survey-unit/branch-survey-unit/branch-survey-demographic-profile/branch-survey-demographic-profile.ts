@@ -36,16 +36,16 @@ export class BranchSurveyDemographicProfile {
     });
 
   readonly branchSurveyDemographicProfileSchema: Schema<BranchSurveyDemographicProfileRequest> = schema((path) => ({
-      estimatedPopulation: path.estimatedPopulation!(),
-      numberOfHouseholds: path.numberOfHouseholds!(),
-      averageFamilySize: path.averageFamilySize!(),
-      femalePopulationPercent: path.femalePopulationPercent!(),
-      literacyRate: path.literacyRate!(),
-      workingPopulation: path.workingPopulation!(),
-      minorityPopulationPercent: path.minorityPopulationPercent!(),
-      scheduledCastePercent: path.scheduledCastePercent!(),
-      scheduledTribePercent: path.scheduledTribePercent!(),
-      migrationTrend: path.migrationTrend!(),
+      estimatedPopulation: path.estimatedPopulation,
+      numberOfHouseholds: path.numberOfHouseholds,
+      averageFamilySize: path.averageFamilySize,
+      femalePopulationPercent: path.femalePopulationPercent,
+      literacyRate: path.literacyRate,
+      workingPopulation: path.workingPopulation,
+      minorityPopulationPercent: path.minorityPopulationPercent,
+      scheduledCastePercent: path.scheduledCastePercent,
+      scheduledTribePercent: path.scheduledTribePercent,
+      migrationTrend: path.migrationTrend,
     }));
 
   readonly branchSurveyDemographicProfileForm: any = form(

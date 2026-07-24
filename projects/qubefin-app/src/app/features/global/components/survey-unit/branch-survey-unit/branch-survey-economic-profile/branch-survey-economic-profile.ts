@@ -48,20 +48,20 @@ export class BranchSurveyEconomicProfile {
     });
 
   readonly branchSurveyEconomicProfileSchema: Schema<BranchSurveyEconomicProfileRequest> = schema((path) => ({
-      agriculturePercent: path.agriculturePercent!(),
-      agriculturalLabour: path.agriculturalLabour!(),
-      dairyLivestock: path.dairyLivestock!(),
-      smallBusiness: path.smallBusiness!(),
-      pettyTrade: path.pettyTrade!(),
-      cottageSmallIndustries: path.cottageSmallIndustries!(),
-      transportActivities: path.transportActivities!(),
-      serviceHolders: path.serviceHolders!(),
-      dailyWageEarners: path.dailyWageEarners!(),
-      otherIncomeGeneratingActivities: path.otherIncomeGeneratingActivities!(),
-      mainCrop: path.mainCrop!(),
-      peakBusinessSeason: path.peakBusinessSeason!(),
-      leanSeason: path.leanSeason!(),
-      overallEconomicCondition: path.overallEconomicCondition!(),
+      agriculturePercent: path.agriculturePercent,
+      agriculturalLabour: path.agriculturalLabour,
+      dairyLivestock: path.dairyLivestock,
+      smallBusiness: path.smallBusiness,
+      pettyTrade: path.pettyTrade,
+      cottageSmallIndustries: path.cottageSmallIndustries,
+      transportActivities: path.transportActivities,
+      serviceHolders: path.serviceHolders,
+      dailyWageEarners: path.dailyWageEarners,
+      otherIncomeGeneratingActivities: path.otherIncomeGeneratingActivities,
+      mainCrop: path.mainCrop,
+      peakBusinessSeason: path.peakBusinessSeason,
+      leanSeason: path.leanSeason,
+      overallEconomicCondition: path.overallEconomicCondition,
     }));
 
   readonly branchSurveyEconomicProfileForm: any = form(

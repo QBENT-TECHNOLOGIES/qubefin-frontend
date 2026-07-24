@@ -49,17 +49,17 @@ export class BranchSurveyGeographicInfo {
     });
 
   readonly branchSurveyGeographicInfoSchema: Schema<BranchSurveyGeographicInformationRequest> = schema((path) => ({
-      surveyDate: path.surveyDate!(),
-      proposedOperationalArea: path.proposedOperationalArea!(),
-      administrativeUnitId: path.administrativeUnitId!(),
-      pinCode: path.pinCode!(),
-      latitude: path.latitude!(),
-      longitude: path.longitude!(),
-      geoTag: path.geoTag!(),
-      nearestLandmark: path.nearestLandmark!(),
-      administrativeStatus: path.administrativeStatus!(),
-      distanceFromExistingWeGrowBranch: path.distanceFromExistingWeGrowBranch!(),
-      distanceFromDistrictHeadquarters: path.distanceFromDistrictHeadquarters!(),
+      surveyDate: path.surveyDate,
+      proposedOperationalArea: path.proposedOperationalArea,
+      administrativeUnitId: path.administrativeUnitId,
+      pinCode: path.pinCode,
+      latitude: path.latitude,
+      longitude: path.longitude,
+      geoTag: path.geoTag,
+      nearestLandmark: path.nearestLandmark,
+      administrativeStatus: path.administrativeStatus,
+      distanceFromExistingWeGrowBranch: path.distanceFromExistingWeGrowBranch,
+      distanceFromDistrictHeadquarters: path.distanceFromDistrictHeadquarters,
     }));
 
   readonly branchSurveyGeographicInfoForm: any = form(

@@ -33,7 +33,7 @@ export class BranchSurveyRecommendation {
     });
 
   readonly branchSurveyRecommendationSchema: Schema<BranchSurveyRecommendationRequest> = schema((path) => ({
-      recommendation: path.recommendation!(),
+      recommendation: path.recommendation,
     }));
 
   readonly branchSurveyRecommendationForm: any = form(

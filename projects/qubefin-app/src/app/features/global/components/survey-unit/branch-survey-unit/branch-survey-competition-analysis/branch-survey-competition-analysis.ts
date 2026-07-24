@@ -30,10 +30,10 @@ export class BranchSurveyCompetitionAnalysis {
     });
 
   readonly branchSurveyMicrofinanceCompetitionSchema: Schema<BranchSurveyMicrofinanceCompetitionRequest> = schema((path) => ({
-      nameOfInstitution: path.nameOfInstitution!(),
-      approxClients: path.approxClients!(),
-      approxPortfolio: path.approxPortfolio!(),
-      parpercent: path.parpercent!(),
+      nameOfInstitution: path.nameOfInstitution,
+      approxClients: path.approxClients,
+      approxPortfolio: path.approxPortfolio,
+      parpercent: path.parpercent,
     }));
 
   readonly branchSurveyMicrofinanceCompetitionForm: any = form(

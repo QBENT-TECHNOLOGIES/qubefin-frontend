@@ -40,12 +40,12 @@ export class BranchSurveyFinancialInclusion {
     });
 
   readonly branchSurveyFinancialInclusionStatusSchema: Schema<BranchSurveyFinancialInclusionStatusRequest> = schema((path) => ({
-      numberOfBanks: path.numberOfBanks!(),
-      numberOfRegionalRuralBanks: path.numberOfRegionalRuralBanks!(),
-      numberOfCooperativeBanks: path.numberOfCooperativeBanks!(),
-      bankingCorrespondents: path.bankingCorrespondents!(),
-      atms: path.atms!(),
-      digitalPaymentAcceptance: path.digitalPaymentAcceptance!(),
+      numberOfBanks: path.numberOfBanks,
+      numberOfRegionalRuralBanks: path.numberOfRegionalRuralBanks,
+      numberOfCooperativeBanks: path.numberOfCooperativeBanks,
+      bankingCorrespondents: path.bankingCorrespondents,
+      atms: path.atms,
+      digitalPaymentAcceptance: path.digitalPaymentAcceptance,
     }));
 
   readonly branchSurveyFinancialInclusionStatusForm: any = form(

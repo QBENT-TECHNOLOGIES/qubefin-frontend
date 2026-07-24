@@ -37,12 +37,12 @@ export class BranchSurveyComplianceVerification {
     });
 
   readonly branchSurveyComplianceVerificationSchema: Schema<BranchSurveyComplianceVerificationRequest> = schema((path) => ({
-      areaVisitedPhysically: path.areaVisitedPhysically!(),
-      gpsverified: path.gpsverified!(),
-      localReferencesVerified: path.localReferencesVerified!(),
-      existingCustomersContacted: path.existingCustomersContacted!(),
-      competitorVerificationCompleted: path.competitorVerificationCompleted!(),
-      photographsAttached: path.photographsAttached!(),
+      areaVisitedPhysically: path.areaVisitedPhysically,
+      gpsverified: path.gpsverified,
+      localReferencesVerified: path.localReferencesVerified,
+      existingCustomersContacted: path.existingCustomersContacted,
+      competitorVerificationCompleted: path.competitorVerificationCompleted,
+      photographsAttached: path.photographsAttached,
     }));
 
   readonly branchSurveyComplianceVerificationForm: any = form(

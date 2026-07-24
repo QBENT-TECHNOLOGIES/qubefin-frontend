@@ -32,12 +32,12 @@ export class BranchSurveyBusinessPotential {
     });
 
   readonly branchSurveyBusinessPotentialSchema: Schema<BranchSurveyBusinessPotentialRequest> = schema((path) => ({
-      estimatedEligibleHouseholds: path.estimatedEligibleHouseholds!(),
-      estimatedWomenBorrowers: path.estimatedWomenBorrowers!(),
-      estimatedNumberOfJlgsCentres: path.estimatedNumberOfJlgsCentres!(),
-      estimatedLoanPortfolioPotential: path.estimatedLoanPortfolioPotential!(),
-      expectedMonthlyDisbursement: path.expectedMonthlyDisbursement!(),
-      estimatedCollectionEfficiency: path.estimatedCollectionEfficiency!(),
+      estimatedEligibleHouseholds: path.estimatedEligibleHouseholds,
+      estimatedWomenBorrowers: path.estimatedWomenBorrowers,
+      estimatedNumberOfJlgsCentres: path.estimatedNumberOfJlgsCentres,
+      estimatedLoanPortfolioPotential: path.estimatedLoanPortfolioPotential,
+      expectedMonthlyDisbursement: path.expectedMonthlyDisbursement,
+      estimatedCollectionEfficiency: path.estimatedCollectionEfficiency,
     }));
 
   readonly branchSurveyBusinessPotentialForm: any = form(

@@ -44,18 +44,18 @@ export class BranchSurveyRiskAssessment {
     });
 
   readonly branchSurveyRiskAssessmentSchema: Schema<BranchSurveyRiskAssessmentRequest> = schema((path) => ({
-      floodRisk: path.floodRisk!(),
-      cycloneRisk: path.cycloneRisk!(),
-      landslideRisk: path.landslideRisk!(),
-      droughtRisk: path.droughtRisk!(),
-      politicalDisturbanceRisk: path.politicalDisturbanceRisk!(),
-      communalIssuesRisk: path.communalIssuesRisk!(),
-      migrationRisk: path.migrationRisk!(),
-      businessRisk: path.businessRisk!(),
-      multipleLendingRisk: path.multipleLendingRisk!(),
-      collectionRisk: path.collectionRisk!(),
-      fraudRisk: path.fraudRisk!(),
-      competitionRisk: path.competitionRisk!(),
+      floodRisk: path.floodRisk,
+      cycloneRisk: path.cycloneRisk,
+      landslideRisk: path.landslideRisk,
+      droughtRisk: path.droughtRisk,
+      politicalDisturbanceRisk: path.politicalDisturbanceRisk,
+      communalIssuesRisk: path.communalIssuesRisk,
+      migrationRisk: path.migrationRisk,
+      businessRisk: path.businessRisk,
+      multipleLendingRisk: path.multipleLendingRisk,
+      collectionRisk: path.collectionRisk,
+      fraudRisk: path.fraudRisk,
+      competitionRisk: path.competitionRisk,
     }));
 
   readonly branchSurveyRiskAssessmentForm: any = form(

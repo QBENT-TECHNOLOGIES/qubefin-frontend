@@ -36,11 +36,11 @@ export class BranchSurveyTransportationFacilities {
     });
 
   readonly branchSurveyTransportationFacilitiesSchema: Schema<BranchSurveyTransportationFacilitiesRequest> = schema((path) => ({
-      railConnectivity: path.railConnectivity!(),
-      busConnectivityAvailable: path.busConnectivityAvailable!(),
-      autoTotoAvailability: path.autoTotoAvailability!(),
-      roadAccessibility: path.roadAccessibility!(),
-      accessibilityByMotorCycle: path.accessibilityByMotorCycle!(),
+      railConnectivity: path.railConnectivity,
+      busConnectivityAvailable: path.busConnectivityAvailable,
+      autoTotoAvailability: path.autoTotoAvailability,
+      roadAccessibility: path.roadAccessibility,
+      accessibilityByMotorCycle: path.accessibilityByMotorCycle,
     }));
 
   readonly branchSurveyTransportationFacilitiesForm: any = form(
