@@ -1,7 +1,7 @@
 <div class="flex border-l-0">
     <div class="flex flex-col items-center justify-between grow lg:flex-row lg:px-4">
         <div
-            class="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
+            class="flex items-center justify-between w-full gap-2 px-3 py-2 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-2">
             @if (isExpanded()) {
             <button (click)="onHandleToggleDrawer()" matTooltip="Drawer Close"
                 class="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-secondary-600 bg-white/80 dark:bg-white shadow-glass dark:shadow rounded-lg p-2 cursor-pointer z-99999">
@@ -30,7 +30,7 @@
             </div>
         </div>
         <div
-            class="items-center justify-between w-full gap-4 px-5 py-4 shadow-theme-md lg:flex lg:justify-end lg:px-0 lg:shadow-none">
+            class="items-center justify-between w-full gap-4 px-4 py-2 shadow-theme-md lg:flex lg:justify-end lg:px-0 lg:shadow-none">
             <div class="flex items-center gap-2 sm:gap-3">
                 <button (click)="theme.toggle()" [attr.aria-checked]="theme.isDark()" matTooltip="Toggle Dark Mode"
                     role="switch"

@@ -83,7 +83,43 @@
   ));
 
   @include mat.stepper-overrides((header-height: 48px));
-  @include mat.slide-toggle-overrides((track-height: 32px, handle-width: 16px, handle-height: 16px));
+  @include mat.slide-toggle-overrides(( 
+    handle-width: 25px, 
+    handle-height: 16px,
+    disabled-label-text-color: orange,
+    handle-shape: 15px,
+    unselected-track-color: #f1f0f0,
+    unselected-icon-color: #2d2c7c,
+    unselected-hover-track-color: #f1f0f0,
+    unselected-handle-color: #cccccc,
+    unselected-hover-handle-color: #f1f0f0,
+    track-outline-color: transparent,
+    selected-track-color: #10b981,
+    selected-hover-track-color: #10b981,
+    selected-focus-track-color: #10b981,
+    selected-icon-color: #059669,
+    selected-handle-color: #ffffff,
+    unselected-focus-handle-color: #f1f0f0,
+    unselected-pressed-track-color: #f1f0f0,
+    selected-pressed-track-color: #10b981,
+    handle-elevation-shadow: none,
+    disabled-handle-elevation-shadow: none,
+    hidden-track-opacity: 1,
+    hidden-track-transition: 0.75ms,
+    pressed-handle-size: 20px,
+    selected-handle-horizontal-margin: 20px,
+    selected-handle-size: 20px,
+    selected-icon-size: 17px,
+    selected-pressed-handle-horizontal-margin: 00px,
+    selected-track-outline-color: none,
+    selected-track-outline-width: 0,
+    selected-with-icon-handle-horizontal-margin: 0px,
+    state-layer-size: 30px,
+    track-height: 25px,
+    track-shape: 15px,
+    with-icon-handle-size: 23px,
+    handle-surface-color: transparent,
+  ));
   @include mat.tree-overrides((node-min-height: 24px,
       container-background-color: white,
   ));
@@ -114,27 +150,6 @@
     row-item-container-height: 42px,
   ));
 
-  @include mat.slide-toggle-overrides((
-    handle-shape: 15px,
-    hidden-track-opacity: 1,
-    hidden-track-transition: 0.75ms,
-    pressed-handle-size: 20px,
-    selected-handle-horizontal-margin: 20px,
-    selected-handle-size: 20px,
-    selected-icon-size: 17px,
-    selected-pressed-handle-horizontal-margin: 00px,
-    selected-track-outline-color: red,
-    selected-track-outline-width: 1px,
-    selected-with-icon-handle-horizontal-margin: 0px,
-    state-layer-size: 30px,
-    track-height: 25px,
-    track-shape: 15px,
-    with-icon-handle-size: 23px,
-    handle-elevation-shadow: none,
-    handle-surface-color: transparent,
-    
-  ));
-
   @include mat.dialog-overrides((
     container-color: rgba(255,255,255,0.75),
     container-shape: 12px,
@@ -144,6 +159,25 @@
     container-background-color: transparent,
     form-field-container-height: 25px,
     form-field-container-vertical-padding: 8px,
+  ));
+
+  @include mat.datepicker-overrides((
+    toggle-icon-color: #60a5fa,
+    calendar-container-shape: 12px,
+    calendar-container-background-color: #f4f4f4,
+    calendar-date-hover-state-background-color: rgba(96, 165, 250, 0.25),
+    calendar-header-divider-color: #ededed,
+    calendar-header-text-color: #1A2B6D,
+    calendar-navigation-button-icon-color: #1A2B6D,
+    calendar-period-button-icon-color: #1A2B6D,
+    calendar-period-button-text-color: #1A2B6D,
+    calendar-header-text-size: 12px,
+    calendar-header-text-weight: 600,
+    calendar-text-size: 13px,
+  ));
+  @include mat.autocomplete-overrides((
+    background-color: #ffffff,
+    container-shape: 12px,
   ));
 }
 
@@ -176,12 +210,24 @@
     disabled-icon-color: #a3a3a3,
     enabled-icon-color: #ffffff
   ));
+
   @include mat.menu-overrides((
     container-color: rgba(15, 20, 32, 0.7),
     item-label-text-color: #e1e1e1,
   ));
+
   @include mat.dialog-overrides((
     container-color: rgba(18, 24, 38, 0.35),
+  ));
+
+  @include mat.autocomplete-overrides((
+    background-color: rgba(18, 24, 38, 1),
+  ));
+  @include mat.slide-toggle-overrides((
+    unselected-pressed-track-color: #1c1b1b,
+    unselected-track-color: rgba(28, 27, 27, 0.7),
+    unselected-hover-track-color: #1c1b1b,
+    unselected-focus-track-color: #1c1b1b
   ));
 }
 

@@ -35,15 +35,7 @@
                     <input matInput type="email" autocomplete="off" placeholder="Enter Email"
                         [formField]="referenceForm.references[$index].email">
                 </mat-form-field>
-                <!-- Address -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
-                    <mat-label>Address</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput rows="2" placeholder="Enter Address" [formField]="referenceForm.references[$index].address">
-                </mat-form-field>
-                <!-- Occupation -->
+                 <!-- Occupation -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
                     <mat-label>Occupation</mat-label>
                      <div class="w-12 flex justify-center" matPrefix>
@@ -51,6 +43,14 @@
                     </div>
                     <input matInput autocomplete="off" placeholder="Enter Occupation"
                         [formField]="referenceForm.references[$index].occupation">
+                </mat-form-field>
+                <!-- Address -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
+                    <mat-label>Address</mat-label>
+                     <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput rows="2" placeholder="Enter Address" [formField]="referenceForm.references[$index].address">
                 </mat-form-field>
                 <!-- Relationship -->
         

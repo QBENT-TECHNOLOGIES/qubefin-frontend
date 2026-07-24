@@ -1,11 +1,11 @@
 <div class="glass shadow-glass dark:shadow-md rounded-lg flex flex-col overflow-hidden">
     <!-- Header -->
-    <div class="px-6 py-5 border-b border-slate-200/20 dark:border-white/10 flex items-center justify-between">
+    <div class="px-6 py-4 border-b border-slate-200/20 dark:border-white/10 flex items-center justify-between">
         <div class="flex items-center gap-4">
-            <div
+            <!-- <div
                 class="w-14 h-14 rounded-2xl bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] dark:shadow-none">
                 <svg lucideIcon="square-pen" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
-            </div>
+            </div> -->
             <div>
                 <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
                     {{ mode() }} Menu
@@ -27,10 +27,10 @@
     </div>
 
     <!-- Scrollable content -->
-    <div class="flex-1 overflow-y-auto scroll-thin p-4 space-y-6 min-h-0">
-        <div class="space-y-6">
+    <div class="flex-1 overflow-y-auto scroll-thin p-4 py-2 space-y-4 min-h-0">
+        <div class="space-y-4">
             <div>
-                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
                     <!-- <span class="material-symbols-outlined text-slate-400">tune</span> -->
                     Configuration Details
                 </h3>
@@ -62,10 +62,9 @@
                 </mat-form-field>
             </div>
         </div>
-        <div class="space-y-6">
+        <!-- <div class="space-y-6">
             <div>
                 <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                    <!-- <span class="material-symbols-outlined text-slate-400">tune</span> -->
                     Permission Details
                 </h3>
                 <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
@@ -76,6 +75,58 @@
                     (change)="onPermissionChanged(permission.permissionToken, $event.checked)">{{permission.permissionToken}}</mat-slide-toggle>
                 }
             </div>
+        </div> -->
+        
+
+        <div class="space-y-4">
+            <div>
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
+                    Permission Details
+                </h3>
+                <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+            </div>
+        
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                @for (permission of menuModel().permissions; track permission.permissionToken) {
+                    @let meta = getPermissionMeta(permission.permissionToken);
+                    <div class="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                                [ngClass]="meta.bgClass">
+                                <svg [lucideIcon]="meta.icon" class="w-5 h-5" [ngClass]="meta.iconClass"></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ meta.label }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">{{ meta.description }}</p>
+                            </div>
+                        </div>
+                        <mat-slide-toggle class="perm-toggle" [checked]="permission.checked"
+                            (change)="onPermissionChanged(permission.permissionToken, $event.checked)">
+                        </mat-slide-toggle>
+                    </div>
+                    }
+            </div>
+        
+            @if (menuModel().permissions.length) {
+            <div
+                class="flex items-center justify-between gap-3 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-800/40 flex items-center justify-center shrink-0">
+                        <svg lucideIcon="circle-check" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                            {{ enabledPermissionsCount() }} permissions enabled
+                        </p>
+                        <p class="text-xs text-emerald-600/80 dark:text-emerald-400/70">
+                            {{ enabledPermissionsLabel() }} permissions are currently active.
+                        </p>
+                    </div>
+                </div>
+                <svg lucideIcon="shield-check" class="w-6 h-6 text-emerald-500 hidden sm:block"></svg>
+            </div>
+            }
         </div>
     </div>
 

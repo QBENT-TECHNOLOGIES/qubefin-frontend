@@ -481,3 +481,17 @@ a:focus-visible, button:focus-visible {
 .dark .mat-sort-header-arrow > svg {
   fill: #e2e2e2;
 }
+
+.dark .autoList .mat-mdc-option {color: #e2e2e2;border-bottom: 1px solid #1f2937;}
+
+/* .perm-toggle {
+  --mdc-switch-selected-track-color: #10b981;
+  --mdc-switch-selected-handle-color: #059669;
+  --mdc-switch-selected-hover-track-color: #10b981;
+  --mdc-switch-selected-focus-track-color: #10b981;
+} */
+ /* .perm-toggle .mdc-switch--selected .mdc-switch__track::before, 
+ .perm-toggle .mdc-switch--selected .mdc-switch__track::after {
+  border-width: 0 !important;
+  border-color: transparent !important;
+ } */

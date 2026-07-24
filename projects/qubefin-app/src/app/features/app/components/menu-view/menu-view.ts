@@ -1,7 +1,11 @@
 import { Component, effect, inject, model, output } from '@angular/core';
 import { MenuStore } from '../../stores/menu-store';
 import { EMPTY_UUID } from 'qubefin-core';
-import { LucideDynamicIcon } from '@lucide/angular';
+import { LucideDynamicIcon, LucideEye,
+  LucidePlus,
+  LucidePencil,
+  LucideTrash2,
+  LucideDownload} from '@lucide/angular';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { DatePipe } from '@angular/common';
 
@@ -19,6 +23,14 @@ export class MenuViewComponent {
 	showEdit = output<boolean>();
 
 	menu = this.menuStore.menu;
+
+	readonly permissionIconMap: Record<string, any> = {
+		VIEW: LucideEye,
+		ADD: LucidePlus,
+		EDIT: LucidePencil,
+		DELETE: LucideTrash2,
+		EXPORT: LucideDownload,
+	};
 
 	constructor() {
 		effect(() => {
