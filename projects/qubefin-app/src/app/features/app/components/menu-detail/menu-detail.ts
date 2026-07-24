@@ -8,16 +8,17 @@ import { EMPTY_UUID } from 'qubefin-core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { LucideDynamicIcon, LucideIcon} from '@lucide/angular';
+import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 import { PermissionStore } from '../../stores/permission-store';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Permission, PermissionField } from '../../models/permission';
+import { MenuService } from '../../services/menu-service';
 
 @Component({
   selector: 'qfin-menu-detail-component',
   imports: [
     FormField,
-	CommonModule,
+    CommonModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -29,6 +30,7 @@ import { Permission, PermissionField } from '../../models/permission';
 export class MenuDetailComponent {
   permissionStore = inject(PermissionStore);
   menuStore = inject(MenuStore);
+  menuService = inject(MenuService);
 
   menuId = model<string>('');
   cancel = output<void>();
@@ -39,68 +41,68 @@ export class MenuDetailComponent {
   menu = this.menuStore.menu;
   mode = computed(() => (this.menuId() === EMPTY_UUID ? 'Add' : 'Edit'));
 
- private readonly permissionMeta: Record<
-  string,
-  {
-    label: string;
-    description: string;
-    icon: LucideIcon;
-    bgClass: string;
-    iconClass: string;
-  }
-> = {
-  view: {
-    label: 'View',
-    description: 'View menu and data',
-    icon: this.iconMap['Eye'],
-    bgClass: 'bg-emerald-100 dark:bg-emerald-900/30',
-    iconClass: 'text-emerald-600 dark:text-emerald-400',
-  },
-
-  add: {
-    label: 'Add',
-    description: 'Add new records',
-    icon: this.iconMap['FilePlus'],
-    bgClass: 'bg-blue-100 dark:bg-blue-900/30',
-    iconClass: 'text-blue-600 dark:text-blue-400',
-  },
-
-  edit: {
-    label: 'Edit',
-    description: 'Edit existing records',
-    icon: this.iconMap['FilePenLine'],
-    bgClass: 'bg-amber-100 dark:bg-amber-900/30',
-    iconClass: 'text-amber-600 dark:text-amber-400',
-  },
-
-  delete: {
-    label: 'Delete',
-    description: 'Delete records',
-    icon: this.iconMap['Trash2'],
-    bgClass: 'bg-red-100 dark:bg-red-900/30',
-    iconClass: 'text-red-600 dark:text-red-400',
-  },
-
-  export: {
-    label: 'Export',
-    description: 'Export data',
-    icon: this.iconMap['FileDown'],
-    bgClass: 'bg-violet-100 dark:bg-violet-900/30',
-    iconClass: 'text-violet-600 dark:text-violet-400',
-  },
-};
-
-getPermissionMeta(token: string) {
-  return (
-    this.permissionMeta[token.toLowerCase()] ?? {
-      label: token,
-      description: '',
-      icon: this.iconMap['ShieldCheck'],
-      bgClass: 'bg-slate-100 dark:bg-slate-800',
-      iconClass: 'text-slate-500',
+  private readonly permissionMeta: Record<
+    string,
+    {
+      label: string;
+      description: string;
+      icon: LucideIcon;
+      bgClass: string;
+      iconClass: string;
     }
-  );
-}
+  > = {
+      view: {
+        label: 'View',
+        description: 'View menu and data',
+        icon: this.iconMap['Eye'],
+        bgClass: 'bg-emerald-100 dark:bg-emerald-900/30',
+        iconClass: 'text-emerald-600 dark:text-emerald-400',
+      },
+
+      add: {
+        label: 'Add',
+        description: 'Add new records',
+        icon: this.iconMap['FilePlus'],
+        bgClass: 'bg-blue-100 dark:bg-blue-900/30',
+        iconClass: 'text-blue-600 dark:text-blue-400',
+      },
+
+      edit: {
+        label: 'Edit',
+        description: 'Edit existing records',
+        icon: this.iconMap['FilePenLine'],
+        bgClass: 'bg-amber-100 dark:bg-amber-900/30',
+        iconClass: 'text-amber-600 dark:text-amber-400',
+      },
+
+      delete: {
+        label: 'Delete',
+        description: 'Delete records',
+        icon: this.iconMap['Trash2'],
+        bgClass: 'bg-red-100 dark:bg-red-900/30',
+        iconClass: 'text-red-600 dark:text-red-400',
+      },
+
+      export: {
+        label: 'Export',
+        description: 'Export data',
+        icon: this.iconMap['FileDown'],
+        bgClass: 'bg-violet-100 dark:bg-violet-900/30',
+        iconClass: 'text-violet-600 dark:text-violet-400',
+      },
+    };
+
+  getPermissionMeta(token: string) {
+    return (
+      this.permissionMeta[token.toLowerCase()] ?? {
+        label: token,
+        description: '',
+        icon: this.iconMap['ShieldCheck'],
+        bgClass: 'bg-slate-100 dark:bg-slate-800',
+        iconClass: 'text-slate-500',
+      }
+    );
+  }
 
   enabledPermissionsCount = computed(
     () => this.menuModel().permissions.filter((p) => p.checked).length,
@@ -169,27 +171,33 @@ getPermissionMeta(token: string) {
       return;
     }
 
-    const dataToSave = this.menuForm().value();
+    const dataToSave = {
+      ...this.menuForm().value(),
+      permissions: this.menuForm()
+        .value()
+        .permissions.filter(p => p.checked)
+    };
+
     if (this.menuId() === EMPTY_UUID) {
-      // this.administrativeUnitService.create(dataToSave).subscribe({
-      // 	next: (resp: any) => {
-      // 		this.administrativeUnitStore.refreshTree();
-      // 	},
-      // 	error: (err: any) => {
-      // 		if (err.error.isError) {
-      // 		}
-      // 	}
-      // });
+      this.menuService.create(dataToSave).subscribe({
+        next: (resp: any) => {
+          //this.administrativeUnitStore.refreshTree();
+        },
+        error: (err: any) => {
+          if (err.error.isError) {
+          }
+        }
+      });
     } else {
-      // this.administrativeUnitService.update(this.administrativeUnitId(), dataToSave).subscribe({
-      // 	next: (resp: any) => {
-      // 		this.administrativeUnitStore.refreshTree();
-      // 	},
-      // 	error: (err: any) => {
-      // 		if (err.error.isError) {
-      // 		}
-      // 	}
-      // });
+      this.menuService.update(this.menuId(), dataToSave).subscribe({
+        next: (resp: any) => {
+          //this.menuStore.refreshTree();
+        },
+        error: (err: any) => {
+          if (err.error.isError) {
+          }
+        }
+      });
     }
   }
 
