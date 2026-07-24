@@ -56,13 +56,15 @@
                 <mat-step label="Geographic Information">
                     <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
                         <div class="p-5">
-                            <qfin-branch-survey-geographic-info [model]="formModel()"
-                                (fieldUpdated)="onChildFieldUpdated($event)">
-                            </qfin-branch-survey-geographic-info>
+                            <fieldset [disabled]="!formModel().isSubmitButtonVisible" class="border-0 p-0 m-0 min-w-0">
+                                <qfin-branch-survey-geographic-info [model]="formModel()"
+                                    (fieldUpdated)="onChildFieldUpdated($event)">
+                                </qfin-branch-survey-geographic-info>
+                            </fieldset>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
-                        <button type="button" (click)="saveStep('GeographicInformation', stepper)"
+                        <button type="button" (click)="saveCurrentStep(stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -74,9 +76,11 @@
                 <mat-step label="Accessibility Assessment">
                     <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
                         <div class="p-5">
-                            <qfin-branch-survey-accessibility-assessment [model]="formModel()"
-                                (fieldUpdated)="onChildFieldUpdated($event)">
-                            </qfin-branch-survey-accessibility-assessment>
+                            <fieldset [disabled]="!formModel().isSubmitButtonVisible" class="border-0 p-0 m-0 min-w-0">
+                                <qfin-branch-survey-accessibility-assessment [model]="formModel()"
+                                    (fieldUpdated)="onChildFieldUpdated($event)">
+                                </qfin-branch-survey-accessibility-assessment>
+                            </fieldset>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
@@ -85,7 +89,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button type="button" (click)="saveStep('AccessibilityAssessment', stepper)"
+                        <button type="button" (click)="saveCurrentStep(stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -97,9 +101,11 @@
                 <mat-step label="Demographic Profile">
                     <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
                         <div class="p-5">
-                            <qfin-branch-survey-demographic-profile [model]="formModel()"
-                                (fieldUpdated)="onChildFieldUpdated($event)">
-                            </qfin-branch-survey-demographic-profile>
+                            <fieldset [disabled]="!formModel().isSubmitButtonVisible" class="border-0 p-0 m-0 min-w-0">
+                                <qfin-branch-survey-demographic-profile [model]="formModel()"
+                                    (fieldUpdated)="onChildFieldUpdated($event)">
+                                </qfin-branch-survey-demographic-profile>
+                            </fieldset>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
@@ -108,7 +114,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button type="button" (click)="saveStep('DemographicProfile', stepper)"
+                        <button type="button" (click)="saveCurrentStep(stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -120,9 +126,11 @@
                 <mat-step label="Economic Profile">
                     <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
                         <div class="p-5">
-                            <qfin-branch-survey-economic-profile [model]="formModel()"
-                                (fieldUpdated)="onChildFieldUpdated($event)">
-                            </qfin-branch-survey-economic-profile>
+                            <fieldset [disabled]="!formModel().isSubmitButtonVisible" class="border-0 p-0 m-0 min-w-0">
+                                <qfin-branch-survey-economic-profile [model]="formModel()"
+                                    (fieldUpdated)="onChildFieldUpdated($event)">
+                                </qfin-branch-survey-economic-profile>
+                            </fieldset>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
@@ -131,7 +139,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button type="button" (click)="saveStep('EconomicProfile', stepper)"
+                        <button type="button" (click)="saveCurrentStep(stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -143,9 +151,11 @@
                 <mat-step label="Market Potential Assessment">
                     <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
                         <div class="p-5">
-                            <qfin-branch-survey-market-potential [model]="formModel()"
-                                (fieldUpdated)="onChildFieldUpdated($event)">
-                            </qfin-branch-survey-market-potential>
+                            <fieldset [disabled]="!formModel().isSubmitButtonVisible" class="border-0 p-0 m-0 min-w-0">
+                                <qfin-branch-survey-market-potential [model]="formModel()"
+                                    (fieldUpdated)="onChildFieldUpdated($event)">
+                                </qfin-branch-survey-market-potential>
+                            </fieldset>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
@@ -154,7 +164,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button type="button" (click)="saveStep('MarketPotential', stepper)"
+                        <button type="button" (click)="saveCurrentStep(stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -166,9 +176,11 @@
                 <mat-step label="Transportation Facilities">
                     <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
                         <div class="p-5">
-                            <qfin-branch-survey-transportation-facilities [model]="formModel()"
-                                (fieldUpdated)="onChildFieldUpdated($event)">
-                            </qfin-branch-survey-transportation-facilities>
+                            <fieldset [disabled]="!formModel().isSubmitButtonVisible" class="border-0 p-0 m-0 min-w-0">
+                                <qfin-branch-survey-transportation-facilities [model]="formModel()"
+                                    (fieldUpdated)="onChildFieldUpdated($event)">
+                                </qfin-branch-survey-transportation-facilities>
+                            </fieldset>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
@@ -177,7 +189,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button type="button" (click)="saveStep('TransportationFacilities', stepper)"
+                        <button type="button" (click)="saveCurrentStep(stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -189,9 +201,11 @@
                 <mat-step label="Financial Inclusion Status">
                     <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
                         <div class="p-5">
-                            <qfin-branch-survey-financial-inclusion [model]="formModel()"
-                                (fieldUpdated)="onChildFieldUpdated($event)">
-                            </qfin-branch-survey-financial-inclusion>
+                            <fieldset [disabled]="!formModel().isSubmitButtonVisible" class="border-0 p-0 m-0 min-w-0">
+                                <qfin-branch-survey-financial-inclusion [model]="formModel()"
+                                    (fieldUpdated)="onChildFieldUpdated($event)">
+                                </qfin-branch-survey-financial-inclusion>
+                            </fieldset>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
@@ -200,7 +214,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button type="button" (click)="saveStep('FinancialInclusion', stepper)"
+                        <button type="button" (click)="saveCurrentStep(stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -212,9 +226,11 @@
                 <mat-step label="Microfinance Competition Analysis">
                     <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
                         <div class="p-5">
-                            <qfin-branch-survey-competition-analysis [model]="formModel()"
-                                (fieldUpdated)="onChildFieldUpdated($event)">
-                            </qfin-branch-survey-competition-analysis>
+                            <fieldset [disabled]="!formModel().isSubmitButtonVisible" class="border-0 p-0 m-0 min-w-0">
+                                <qfin-branch-survey-competition-analysis [model]="formModel()"
+                                    (fieldUpdated)="onChildFieldUpdated($event)">
+                                </qfin-branch-survey-competition-analysis>
+                            </fieldset>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
@@ -223,7 +239,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button type="button" (click)="saveStep('CompetitionAnalysis', stepper)"
+                        <button type="button" (click)="saveCurrentStep(stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -235,9 +251,11 @@
                 <mat-step label="Business Potential Assessment">
                     <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
                         <div class="p-5">
-                            <qfin-branch-survey-business-potential [model]="formModel()"
-                                (fieldUpdated)="onChildFieldUpdated($event)">
-                            </qfin-branch-survey-business-potential>
+                            <fieldset [disabled]="!formModel().isSubmitButtonVisible" class="border-0 p-0 m-0 min-w-0">
+                                <qfin-branch-survey-business-potential [model]="formModel()"
+                                    (fieldUpdated)="onChildFieldUpdated($event)">
+                                </qfin-branch-survey-business-potential>
+                            </fieldset>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
@@ -246,7 +264,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button type="button" (click)="saveStep('BusinessPotential', stepper)"
+                        <button type="button" (click)="saveCurrentStep(stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -258,9 +276,11 @@
                 <mat-step label="Risk Assessment">
                     <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
                         <div class="p-5">
-                            <qfin-branch-survey-risk-assessment [model]="formModel()"
-                                (fieldUpdated)="onChildFieldUpdated($event)">
-                            </qfin-branch-survey-risk-assessment>
+                            <fieldset [disabled]="!formModel().isSubmitButtonVisible" class="border-0 p-0 m-0 min-w-0">
+                                <qfin-branch-survey-risk-assessment [model]="formModel()"
+                                    (fieldUpdated)="onChildFieldUpdated($event)">
+                                </qfin-branch-survey-risk-assessment>
+                            </fieldset>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
@@ -269,7 +289,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button type="button" (click)="saveStep('RiskAssessment', stepper)"
+                        <button type="button" (click)="saveCurrentStep(stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -281,9 +301,11 @@
                 <mat-step label="Compliance Verification">
                     <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
                         <div class="p-5">
-                            <qfin-branch-survey-compliance-verification [model]="formModel()"
-                                (fieldUpdated)="onChildFieldUpdated($event)">
-                            </qfin-branch-survey-compliance-verification>
+                            <fieldset [disabled]="!formModel().isSubmitButtonVisible" class="border-0 p-0 m-0 min-w-0">
+                                <qfin-branch-survey-compliance-verification [model]="formModel()"
+                                    (fieldUpdated)="onChildFieldUpdated($event)">
+                                </qfin-branch-survey-compliance-verification>
+                            </fieldset>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
@@ -292,7 +314,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button type="button" (click)="saveStep('ComplianceVerification', stepper)"
+                        <button type="button" (click)="saveCurrentStep(stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             Next
                             <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
@@ -304,9 +326,11 @@
                 <mat-step label="Recommendation">
                     <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
                         <div class="p-5">
-                            <qfin-branch-survey-recommendation [model]="formModel()"
-                                (fieldUpdated)="onChildFieldUpdated($event)">
-                            </qfin-branch-survey-recommendation>
+                            <fieldset [disabled]="!formModel().isSubmitButtonVisible" class="border-0 p-0 m-0 min-w-0">
+                                <qfin-branch-survey-recommendation [model]="formModel()"
+                                    (fieldUpdated)="onChildFieldUpdated($event)">
+                                </qfin-branch-survey-recommendation>
+                            </fieldset>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
@@ -315,7 +339,7 @@
                             <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
                             Back
                         </button>
-                        <button type="button" (click)="saveStep('Recommendation', null)"
+                        <button type="button" (click)="saveCurrentStep(stepper)"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             <svg lucideIcon="save" class="w-4 h-4"></svg>
                             {{ isEditMode() ? 'Update' : 'Submit' }}

@@ -26,7 +26,7 @@ export class SurveyUnitView {
   readonly loading = this.surveyStore.surveyUnitLoading;
   readonly error = this.surveyStore.surveyUnitError;
 
-  readonly onShowBranchSurveyComplete = output<boolean>();
+  readonly onShowSurveyComplete = output<{ hasAccess: boolean, type: string }>();
 
   constructor() {
     effect(() => {
@@ -41,7 +41,7 @@ export class SurveyUnitView {
     effect(() => {
       const survey = this.surveyStore.surveyUnit();
       if (!survey) return;
-      this.onShowBranchSurveyComplete.emit(survey.isSurveyAccessed && survey.surveyType.toLowerCase() === 'branch');
+      this.onShowSurveyComplete.emit({ hasAccess: survey.isSurveyAccessed, type: survey.surveyType });
     });
   }
 

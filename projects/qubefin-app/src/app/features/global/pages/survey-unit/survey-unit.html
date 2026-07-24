@@ -1,4 +1,5 @@
 <div class="flex flex-col gap-2">
+  @if (!isCompleteSurveyMode()) {
   <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
     <qfin-breadcrumb></qfin-breadcrumb>
     <div class="flex items-center gap-3">
@@ -15,7 +16,8 @@
       </button>
     </div>
   </div>
-
+  }
+  @if (!isCompleteSurveyMode()) {
   <div class="flex gap-4 items-start">
     <div class="glass rounded-xl shadow-glass dark:shadow transition-all duration-300 overflow-hidden"
       [class.w-full]="selectedsurveyStoreId() === EMPTY_UUID && isViewMode()"
@@ -65,7 +67,6 @@
         </button>
       </div>
       }
-
       @if (surveyStore.loading()) {
       <div class="px-4 py-10 text-sm text-slate-500">Loading survey...</div>
       } @else if (surveyStore.error()) {
@@ -80,6 +81,7 @@
     </div>
 
     @if (hasSelectedsurveyStore()) {
+    @if (!isCompleteSurveyMode()) {
     <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 flex-1 transition-all">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
         <div class="flex items-center justify-between">
@@ -132,7 +134,7 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
-          @if (hasBranchSurveyCompleteAccess() && isViewMode()){
+          @if (hasSurveyCompleteAccess().hasAccess&& isViewMode()){
           <button type="button"
             class="rounded-lg px-4 py-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
             (click)="goToCompleteSurvey()">
@@ -150,7 +152,7 @@
       <div>
         @if (isViewMode() && selectedsurveyStoreId() !== EMPTY_UUID) {
         <qfin-survey-unit-view [surveyId]="selectedsurveyStoreId()"
-          (onShowBranchSurveyComplete)="updateBranchSurveyAccess($event)" (showEdit)="onEdit()">
+          (onShowSurveyComplete)="updateSurveyAccess($event.hasAccess, $event.type)" (showEdit)="onEdit()">
         </qfin-survey-unit-view>
         } @else {
         <qfin-survey-unit-detail [surveyId]="selectedsurveyStoreId()" (cancel)="closePanel()" (save)="onSurvey()">
@@ -159,5 +161,18 @@
       </div>
     </div>
     }
+
+    }
   </div>
+  }
+  @if (isCompleteSurveyMode()) {
+  <div class="glass rounded-xl shadow-glass dark:shadow p-4 w-full">
+    @if (hasSurveyCompleteAccess().type === 'branch') {
+    <qfin-branch-survey-unit [surveyIdInput]="selectedsurveyStoreId()" (cancel)="onView($event)" class="block w-full">
+    </qfin-branch-survey-unit>
+    } @else {
+    <p> Group Survey </p>
+    }
+  </div>
+  }
 </div>

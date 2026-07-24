@@ -18,6 +18,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { SurveyUnitView } from '../../components/survey-unit/survey-unit-view/survey-unit-view';
 import { SurveyUnitDetail } from '../../components/survey-unit/survey-unit-detail/survey-unit-detail';
+import { BranchSurveyUnit } from '../../components/survey-unit/branch-survey-unit/branch-survey-unit';
 
 @Component({
   selector: 'qfin-survey-unit',
@@ -33,6 +34,7 @@ import { SurveyUnitDetail } from '../../components/survey-unit/survey-unit-detai
     SurveyUnitList,
     SurveyUnitView,
     SurveyUnitDetail,
+    BranchSurveyUnit,
   ],
   templateUrl: './survey-unit.html',
   styles: ``,
@@ -52,7 +54,8 @@ export class SurveyUnit {
   // Component State
   // ===========================
   readonly isViewMode = signal<boolean>(true);
-  readonly hasBranchSurveyCompleteAccess = signal<boolean>(false);
+  readonly isCompleteSurveyMode = signal<boolean>(false);
+  readonly hasSurveyCompleteAccess = signal<{ hasAccess: boolean, type: string }>({ hasAccess: false, type: '' });
   readonly showFilterArea = signal<boolean>(false);
   readonly selectedsurveyStoreId = signal<string>(EMPTY_UUID);
   // ===========================
@@ -60,7 +63,7 @@ export class SurveyUnit {
   // ===========================
   readonly surveys = this.surveyStore.surveyUnits;
   readonly hasSelectedsurveyStore = computed(
-    () => this.selectedsurveyStoreId() !== EMPTY_UUID || !this.isViewMode(),
+    () => this.selectedsurveyStoreId() !== EMPTY_UUID || (!this.isViewMode() && !this.isCompleteSurveyMode()),
   );
   // ===========================
   // Search State
@@ -73,21 +76,26 @@ export class SurveyUnit {
   protected onView(id: string) {
     this.selectedsurveyStoreId.set(id);
     this.isViewMode.set(true);
+    this.isCompleteSurveyMode.set(false);
   }
   protected onEdit() {
     this.isViewMode.set(false);
+    this.isCompleteSurveyMode.set(false);
   }
   protected onAdd() {
     this.isViewMode.set(false);
     this.selectedsurveyStoreId.set(EMPTY_UUID);
+    this.isCompleteSurveyMode.set(false);
   }
   protected closePanel() {
     this.selectedsurveyStoreId.set(EMPTY_UUID);
     this.isViewMode.set(true);
+    this.isCompleteSurveyMode.set(false);
   }
 
   protected goToCompleteSurvey() {
-    this.router.navigate(['/secure/global/branch-survey', this.selectedsurveyStoreId()]);
+    this.isCompleteSurveyMode.set(true);
+    this.isViewMode.set(false);
   }
 
   // ===========================
@@ -132,7 +140,8 @@ export class SurveyUnit {
     this.closePanel();
   }
 
-  updateBranchSurveyAccess(isAccess: boolean) {
-    this.hasBranchSurveyCompleteAccess.set(isAccess);
+  updateSurveyAccess(isAccess: boolean, type: string) {
+    this.hasSurveyCompleteAccess.set({ hasAccess: isAccess, type: type.toLowerCase() });
+    console.log(this.hasSurveyCompleteAccess());
   }
 }

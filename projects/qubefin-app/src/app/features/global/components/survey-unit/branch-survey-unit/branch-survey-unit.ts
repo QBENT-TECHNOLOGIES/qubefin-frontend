@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatStepperModule, MatStepper } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
@@ -59,6 +59,19 @@ export class BranchSurveyUnit {
   // ────────────────────────────────────────────────
   // Component State & Model
   // ────────────────────────────────────────────────
+  @Input() set surveyIdInput(id: string | undefined) {
+    if (id && id !== EMPTY_UUID) {
+      this.surveyId.set(id);
+      this.store.setSurveyId(id);
+      this.store.fetchBranchSurvey(id);
+    } else {
+      this.store.clearBranchSurvey();
+      this.formModel.set(this.createEmptyModel());
+    }
+  }
+
+  @Output() cancel = new EventEmitter<string>();
+
   protected readonly formModel = signal<BranchSurveyDetailModel>(this.createEmptyModel());  
   readonly surveyId = signal<string>(EMPTY_UUID);
   readonly isEditMode = computed(() => this.formModel().id !== EMPTY_UUID);
@@ -71,7 +84,6 @@ export class BranchSurveyUnit {
       if (id) {
         this.surveyId.set(id);
         this.store.setSurveyId(id);
-        console.log(id);
       }
     });
 
@@ -94,6 +106,7 @@ export class BranchSurveyUnit {
       isApproved: false,
       isRejected: false,
       isBranchCreate: false,
+      isSubmitButtonVisible: false
     };
   }
 
@@ -117,6 +130,32 @@ export class BranchSurveyUnit {
   // ────────────────────────────────────────────────
   // Submit / Confirmation
   // ────────────────────────────────────────────────
+  private readonly stepKeyMap: Record<string, string> = {
+    'Geographic Information': 'GeographicInformation',
+    'Accessibility Assessment': 'AccessibilityAssessment',
+    'Demographic Profile': 'DemographicProfile',
+    'Economic Profile': 'EconomicProfile',
+    'Market Potential Assessment': 'MarketPotential',
+    'Transportation Facilities': 'TransportationFacilities',
+    'Financial Inclusion Status': 'FinancialInclusion',
+    'Microfinance Competition Analysis': 'CompetitionAnalysis',
+    'Business Potential Assessment': 'BusinessPotential',
+    'Risk Assessment': 'RiskAssessment',
+    'Compliance Verification': 'ComplianceVerification',
+    'Recommendation': 'Recommendation'
+  };
+
+  protected async saveCurrentStep(stepper: MatStepper) {
+    const currentLabel = stepper.selected?.label;
+    if (currentLabel && this.stepKeyMap[currentLabel]) {
+      const stepKey = this.stepKeyMap[currentLabel];
+      const isLastStep = stepper.selectedIndex === stepper.steps.length - 1;
+      await this.saveStep(stepKey, isLastStep ? null : stepper);
+    } else {
+      console.error('Unknown step label:', currentLabel);
+    }
+  }
+
   protected async saveStep(stepName: string, stepper: MatStepper | null) {
     if (!this.formModel().administrativeUnitId && stepName === 'GeographicInformation') {
       Swal.fire({
@@ -136,7 +175,7 @@ export class BranchSurveyUnit {
     switch (stepName) {
       case 'GeographicInformation':
         payload.geographicInformation = {
-          surveyDate: currentModel.surveyDate,
+          surveyDate: this.datePipe.transform(currentModel.surveyDate, 'yyyy-MM-dd') || '',
           proposedOperationalArea: currentModel.proposedOperationalArea,
           administrativeUnitId: currentModel.administrativeUnitId,
           pinCode: currentModel.pinCode,
@@ -276,7 +315,12 @@ export class BranchSurveyUnit {
     }
 
     try {
-      await this.store.saveBranchSurveyStep(payload);
+      if(this.formModel().isSubmitButtonVisible){
+        const response = payload.id === null || payload.id === EMPTY_UUID ? await this.store.CreateBranchSurveyStep(payload) : await this.store.UpdateBranchSurveyStep(payload);
+        if (response?.value?.id) {
+          this.formModel().id = response.value.id;
+        }
+      }
       if (stepper) {
         stepper.next();
       } else {
@@ -295,7 +339,9 @@ export class BranchSurveyUnit {
     }
   }
 
-  closePanel() {}
+  closePanel() {
+    this.cancel.emit(this.surveyId());
+  }
 }
 
 // Local alias so the file compiles standalone against your imported model.

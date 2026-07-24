@@ -4,11 +4,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { BranchSurveyDetail } from '../../../../models/branch-survey-detail';
+import { BranchSurveyConstants_RECOMMENDATION_OPTIONS } from 'qubefin-core';
 
 // ────────────────────────────────────────────────
 // Static Option Lists
 // ────────────────────────────────────────────────
-const RECOMMENDATION_OPTIONS = ['Highly Recommended', 'Recommended', 'Not Recommended'];
+const RECOMMENDATION_OPTIONS = BranchSurveyConstants_RECOMMENDATION_OPTIONS;
 
 @Component({
   selector: 'qfin-branch-survey-recommendation',

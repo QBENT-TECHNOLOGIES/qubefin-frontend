@@ -5,11 +5,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { BranchSurveyDetail } from '../../../../models/branch-survey-detail';
+import { BranchSurveyConstants_YES_NO_OPTIONS } from 'qubefin-core';
 
 // ────────────────────────────────────────────────
 // Static Option Lists
 // ────────────────────────────────────────────────
-const YES_NO_OPTIONS = ['Yes', 'No'];
+const YES_NO_OPTIONS = BranchSurveyConstants_YES_NO_OPTIONS;
 
 @Component({
   selector: 'qfin-branch-survey-financial-inclusion',

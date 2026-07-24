@@ -1,4 +1,3 @@
-import { httpResource } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import { BranchSurveyDetail, BranchSurveyRequest } from '../models/branch-survey-detail';
@@ -19,31 +18,23 @@ export class BranchSurveyStore {
   // Detail State
   // ===========================
   private readonly surveyId = signal<string | undefined>(undefined);
+  private readonly branchSurveyId = signal<string | undefined>(undefined);
 
   // ===========================
   // Detail Api Call And Response
   // ===========================
-  readonly branchSurveyResource = httpResource<BranchSurveyDetail>(() => {
-    const id = this.surveyId();
-    // Assuming backend returns BranchSurveyDetail at /surveys/branch-survey/{id} or similar
-    // The user didn't specify the exact GET endpoint, assuming /surveys/{id}/branch-survey or similar.
-    // Given the prompt "when i save first stap ...", let's assume standard GET.
-    return id && id !== EMPTY_UUID ? `${this.basePath}/branch/${id}` : undefined;
-  });
-
-  // ===========================
-  // Preparing Data
-  // ===========================
+  private readonly _branchSurvey = signal<BranchSurveyDetail | undefined>(undefined);
+  
   readonly branchSurvey = computed(() => {
-    const item = this.branchSurveyResource.value();
+    const item = this._branchSurvey();
     return item ? this.normalizeItem(item) : undefined;
   });
 
-  // ===========================
-  // Loading And Error of the Detail Api
-  // ===========================
-  readonly loading = computed(() => this.branchSurveyResource.isLoading());
-  readonly error = computed(() => this.branchSurveyResource.error());
+  private readonly _loading = signal<boolean>(false);
+  readonly loading = this._loading.asReadonly();
+  
+  private readonly _error = signal<any>(null);
+  readonly error = this._error.asReadonly();
 
   // ===========================
   // Detail Actions
@@ -54,16 +45,60 @@ export class BranchSurveyStore {
     }
   }
 
-  refreshDetail() {
-    this.branchSurveyResource.reload();
+  clearBranchSurvey() {
+    this._branchSurvey.set(undefined);
   }
 
-  async saveBranchSurveyStep(payload: BranchSurveyRequest) {
+  async fetchBranchSurvey(id: string) {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      const url = `${this.basePath}/branch/${id}`;
+      const response = await lastValueFrom(this.httpClient.get<{ branchSurveyResponse: BranchSurveyDetail }>(url));
+      this._branchSurvey.set(response.branchSurveyResponse);
+    } catch (err) {
+      this._error.set(err);
+      this._branchSurvey.set(undefined);
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  refreshDetail() {
+    const id = this.surveyId();
+    if (id && id !== EMPTY_UUID) {
+      this.fetchBranchSurvey(id);
+    }
+  }
+
+  async CreateBranchSurveyStep(payload: BranchSurveyRequest) {
     // Call the API to save the branch survey step
     const url = `${this.basePath}/branch`;
-    const response = await lastValueFrom(this.httpClient.post(url, payload));
+    const response = await lastValueFrom(this.httpClient.post<any>(url, payload));
+    
+    if (response?.value?.id) {
+      this.branchSurveyId.set(response.value.id);
+    }
+    
     this.refreshDetail();
     return response;
+  }
+
+  async UpdateBranchSurveyStep(payload: BranchSurveyRequest) {
+    // Call the API to save the branch survey step
+    const url = `${this.basePath}/branch`;
+    const response = await lastValueFrom(this.httpClient.put<any>(url, payload));
+    
+    if (response?.value?.id) {
+      this.branchSurveyId.set(response.value.id);
+    }
+    
+    this.refreshDetail();
+    return response;
+  }
+
+  getBranchSurveyId(){
+    return this.branchSurveyId();
   }
 
   private normalizeItem(item: BranchSurveyDetail): BranchSurveyDetail {

@@ -5,11 +5,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { BranchSurveyDetail } from '../../../../models/branch-survey-detail';
+import { BranchSurveyConstants_RATING_OPTIONS } from 'qubefin-core';
 
 // ────────────────────────────────────────────────
 // Static Option Lists
 // ────────────────────────────────────────────────
-const RATING_OPTIONS = ['Excellent', 'Good', 'Average', 'Poor'];
+const RATING_OPTIONS = BranchSurveyConstants_RATING_OPTIONS;
 
 @Component({
   selector: 'qfin-branch-survey-accessibility-assessment',

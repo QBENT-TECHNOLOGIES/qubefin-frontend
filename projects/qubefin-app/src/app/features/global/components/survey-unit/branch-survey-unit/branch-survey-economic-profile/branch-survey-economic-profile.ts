@@ -5,11 +5,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { BranchSurveyDetail } from '../../../../models/branch-survey-detail';
+import { BranchSurveyConstants_CONDITION_OPTIONS } from 'qubefin-core';
 
 // ────────────────────────────────────────────────
 // Static Option Lists
 // ────────────────────────────────────────────────
-const CONDITION_OPTIONS = ['Good', 'Average', 'Poor'];
+const CONDITION_OPTIONS = BranchSurveyConstants_CONDITION_OPTIONS;
 
 @Component({
   selector: 'qfin-branch-survey-economic-profile',

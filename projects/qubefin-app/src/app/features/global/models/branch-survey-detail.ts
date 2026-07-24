@@ -97,6 +97,7 @@ export interface BranchSurveyDetail {
   isApproved: boolean;
   isRejected: boolean;
   isBranchCreate: boolean;
+  isSubmitButtonVisible: boolean;
 }
 
 export interface BranchSurveyGeographicInformationRequest {
