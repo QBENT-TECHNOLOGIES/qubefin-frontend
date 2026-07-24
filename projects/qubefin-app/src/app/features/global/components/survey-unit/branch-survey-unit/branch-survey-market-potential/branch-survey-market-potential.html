@@ -16,8 +16,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('eligibleHouseholds')"
-        (input)="onNumberInput('eligibleHouseholds', $any($event.target).value)" />
+        [formField]="branchSurveyMarketPotentialForm.eligibleHouseholds" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -28,8 +27,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('potentialWomenBorrowers')"
-        (input)="onNumberInput('potentialWomenBorrowers', $any($event.target).value)" />
+        [formField]="branchSurveyMarketPotentialForm.potentialWomenBorrowers" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -40,8 +38,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('jLGPotential')"
-        (input)="onNumberInput('jLGPotential', $any($event.target).value)" />
+        [formField]="branchSurveyMarketPotentialForm.jLGPotential" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -52,8 +49,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('individualBusinessLoansExpected')"
-        (input)="onNumberInput('individualBusinessLoansExpected', $any($event.target).value)" />
+        [formField]="branchSurveyMarketPotentialForm.individualBusinessLoansExpected" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -65,8 +61,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('portfolioYear1')"
-        (input)="onNumberInput('portfolioYear1', $any($event.target).value)" />
+        [formField]="branchSurveyMarketPotentialForm.portfolioYear1" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -78,8 +73,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('portfolioYear2')"
-        (input)="onNumberInput('portfolioYear2', $any($event.target).value)" />
+        [formField]="branchSurveyMarketPotentialForm.portfolioYear2" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -91,8 +85,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('portfolioYear3')"
-        (input)="onNumberInput('portfolioYear3', $any($event.target).value)" />
+        [formField]="branchSurveyMarketPotentialForm.portfolioYear3" />
     </mat-form-field>
   </div>
 </div>

@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { form, FormField, schema, Schema } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { BranchSurveyDetail } from '../../../../models/branch-survey-detail';
+import { BranchSurveyRecommendationRequest } from '../../../../models/branch-survey-detail';
 import { BranchSurveyConstants_RECOMMENDATION_OPTIONS } from 'qubefin-core';
 
 // ────────────────────────────────────────────────
@@ -15,6 +16,7 @@ const RECOMMENDATION_OPTIONS = BranchSurveyConstants_RECOMMENDATION_OPTIONS;
   selector: 'qfin-branch-survey-recommendation',
   imports: [
     CommonModule,
+    FormField,
     MatFormFieldModule,
     MatSelectModule,
     LucideDynamicIcon,
@@ -24,24 +26,28 @@ const RECOMMENDATION_OPTIONS = BranchSurveyConstants_RECOMMENDATION_OPTIONS;
 })
 export class BranchSurveyRecommendation {
   // ────────────────────────────────────────────────
+  // Form State
+  // ────────────────────────────────────────────────
+  readonly branchSurveyRecommendation = signal<BranchSurveyRecommendationRequest>({
+      recommendation: '',
+    });
+
+  readonly branchSurveyRecommendationSchema: Schema<BranchSurveyRecommendationRequest> = schema((path) => ({
+      recommendation: path.recommendation!(),
+    }));
+
+  readonly branchSurveyRecommendationForm: any = form(
+    this.branchSurveyRecommendation,
+    this.branchSurveyRecommendationSchema
+  );
+
+  // ────────────────────────────────────────────────
   // Inputs & Outputs
   // ────────────────────────────────────────────────
-  model = input.required<BranchSurveyDetail>();
-  fieldUpdated = output<{ field: keyof BranchSurveyDetail; value: any }>();
 
   readonly recommendationOptions = RECOMMENDATION_OPTIONS;
 
   // ────────────────────────────────────────────────
   // Field Value & Update Methods
   // ────────────────────────────────────────────────
-  protected getValue(key: keyof BranchSurveyDetail): any {
-    return (this.model() as any)[key];
-  }
-
-  protected onFieldUpdate<K extends keyof BranchSurveyDetail>(
-    field: K,
-    value: BranchSurveyDetail[K],
-  ) {
-    this.fieldUpdated.emit({ field, value });
-  }
 }

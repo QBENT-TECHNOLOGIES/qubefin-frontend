@@ -16,8 +16,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('estimatedEligibleHouseholds')"
-        (input)="onNumberInput('estimatedEligibleHouseholds', $any($event.target).value)" />
+        [formField]="branchSurveyBusinessPotentialForm.estimatedEligibleHouseholds" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -28,8 +27,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('estimatedWomenBorrowers')"
-        (input)="onNumberInput('estimatedWomenBorrowers', $any($event.target).value)" />
+        [formField]="branchSurveyBusinessPotentialForm.estimatedWomenBorrowers" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -40,8 +38,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('estimatedNumberOfJLGsCentres')"
-        (input)="onNumberInput('estimatedNumberOfJLGsCentres', $any($event.target).value)" />
+        [formField]="branchSurveyBusinessPotentialForm.estimatedNumberOfJLGsCentres" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -53,8 +50,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('estimatedLoanPortfolioPotential')"
-        (input)="onNumberInput('estimatedLoanPortfolioPotential', $any($event.target).value)" />
+        [formField]="branchSurveyBusinessPotentialForm.estimatedLoanPortfolioPotential" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -66,8 +62,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('expectedMonthlyDisbursement')"
-        (input)="onNumberInput('expectedMonthlyDisbursement', $any($event.target).value)" />
+        [formField]="branchSurveyBusinessPotentialForm.expectedMonthlyDisbursement" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -79,8 +74,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('estimatedCollectionEfficiency')"
-        (input)="onNumberInput('estimatedCollectionEfficiency', $any($event.target).value)" />
+        [formField]="branchSurveyBusinessPotentialForm.estimatedCollectionEfficiency" />
     </mat-form-field>
   </div>
 </div>

@@ -14,8 +14,7 @@
         <svg lucideIcon="thumbs-up" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('recommendation')"
-        (valueChange)="onFieldUpdate('recommendation', $event)">
+        [formField]="branchSurveyRecommendationForm.recommendation">
         @for (option of recommendationOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }

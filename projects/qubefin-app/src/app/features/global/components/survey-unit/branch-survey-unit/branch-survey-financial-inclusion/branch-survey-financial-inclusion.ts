@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { form, FormField, schema, Schema } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { BranchSurveyDetail } from '../../../../models/branch-survey-detail';
+import { BranchSurveyFinancialInclusionStatusRequest } from '../../../../models/branch-survey-detail';
 import { BranchSurveyConstants_YES_NO_OPTIONS } from 'qubefin-core';
 
 // ────────────────────────────────────────────────
@@ -16,6 +17,7 @@ const YES_NO_OPTIONS = BranchSurveyConstants_YES_NO_OPTIONS;
   selector: 'qfin-branch-survey-financial-inclusion',
   imports: [
     CommonModule,
+    FormField,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -26,28 +28,38 @@ const YES_NO_OPTIONS = BranchSurveyConstants_YES_NO_OPTIONS;
 })
 export class BranchSurveyFinancialInclusion {
   // ────────────────────────────────────────────────
+  // Form State
+  // ────────────────────────────────────────────────
+  readonly branchSurveyFinancialInclusionStatus = signal<BranchSurveyFinancialInclusionStatusRequest>({
+      numberOfBanks: 0,
+      numberOfRegionalRuralBanks: 0,
+      numberOfCooperativeBanks: 0,
+      bankingCorrespondents: 0,
+      atms: 0,
+      digitalPaymentAcceptance: '',
+    });
+
+  readonly branchSurveyFinancialInclusionStatusSchema: Schema<BranchSurveyFinancialInclusionStatusRequest> = schema((path) => ({
+      numberOfBanks: path.numberOfBanks!(),
+      numberOfRegionalRuralBanks: path.numberOfRegionalRuralBanks!(),
+      numberOfCooperativeBanks: path.numberOfCooperativeBanks!(),
+      bankingCorrespondents: path.bankingCorrespondents!(),
+      atms: path.atms!(),
+      digitalPaymentAcceptance: path.digitalPaymentAcceptance!(),
+    }));
+
+  readonly branchSurveyFinancialInclusionStatusForm: any = form(
+    this.branchSurveyFinancialInclusionStatus,
+    this.branchSurveyFinancialInclusionStatusSchema
+  );
+
+  // ────────────────────────────────────────────────
   // Inputs & Outputs
   // ────────────────────────────────────────────────
-  model = input.required<BranchSurveyDetail>();
-  fieldUpdated = output<{ field: keyof BranchSurveyDetail; value: any }>();
 
   readonly yesNoOptions = YES_NO_OPTIONS;
 
   // ────────────────────────────────────────────────
   // Field Value & Update Methods
   // ────────────────────────────────────────────────
-  protected getValue(key: keyof BranchSurveyDetail): any {
-    return (this.model() as any)[key];
-  }
-
-  protected onFieldUpdate<K extends keyof BranchSurveyDetail>(
-    field: K,
-    value: BranchSurveyDetail[K],
-  ) {
-    this.fieldUpdated.emit({ field, value });
-  }
-
-  protected onNumberInput(field: keyof BranchSurveyDetail, raw: string) {
-    this.onFieldUpdate(field, (raw === '' ? undefined : Number(raw)) as any);
-  }
 }

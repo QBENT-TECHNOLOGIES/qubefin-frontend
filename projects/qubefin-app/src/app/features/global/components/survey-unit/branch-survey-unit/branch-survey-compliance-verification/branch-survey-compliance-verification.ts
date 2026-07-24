@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { form, FormField, schema, Schema } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { BranchSurveyDetail } from '../../../../models/branch-survey-detail';
+import { BranchSurveyComplianceVerificationRequest } from '../../../../models/branch-survey-detail';
 
 // ────────────────────────────────────────────────
 // Static Option Lists
@@ -14,6 +15,7 @@ const YES_NO_OPTIONS = ['Yes', 'No'];
   selector: 'qfin-branch-survey-compliance-verification',
   imports: [
     CommonModule,
+    FormField,
     MatFormFieldModule,
     MatSelectModule,
     LucideDynamicIcon,
@@ -23,24 +25,38 @@ const YES_NO_OPTIONS = ['Yes', 'No'];
 })
 export class BranchSurveyComplianceVerification {
   // ────────────────────────────────────────────────
+  // Form State
+  // ────────────────────────────────────────────────
+  readonly branchSurveyComplianceVerification = signal<BranchSurveyComplianceVerificationRequest>({
+      areaVisitedPhysically: '',
+      gpsverified: '',
+      localReferencesVerified: '',
+      existingCustomersContacted: '',
+      competitorVerificationCompleted: '',
+      photographsAttached: '',
+    });
+
+  readonly branchSurveyComplianceVerificationSchema: Schema<BranchSurveyComplianceVerificationRequest> = schema((path) => ({
+      areaVisitedPhysically: path.areaVisitedPhysically!(),
+      gpsverified: path.gpsverified!(),
+      localReferencesVerified: path.localReferencesVerified!(),
+      existingCustomersContacted: path.existingCustomersContacted!(),
+      competitorVerificationCompleted: path.competitorVerificationCompleted!(),
+      photographsAttached: path.photographsAttached!(),
+    }));
+
+  readonly branchSurveyComplianceVerificationForm: any = form(
+    this.branchSurveyComplianceVerification,
+    this.branchSurveyComplianceVerificationSchema
+  );
+
+  // ────────────────────────────────────────────────
   // Inputs & Outputs
   // ────────────────────────────────────────────────
-  model = input.required<BranchSurveyDetail>();
-  fieldUpdated = output<{ field: keyof BranchSurveyDetail; value: any }>();
 
   readonly yesNoOptions = YES_NO_OPTIONS;
 
   // ────────────────────────────────────────────────
   // Field Value & Update Methods
   // ────────────────────────────────────────────────
-  protected getValue(key: keyof BranchSurveyDetail): any {
-    return (this.model() as any)[key];
-  }
-
-  protected onFieldUpdate<K extends keyof BranchSurveyDetail>(
-    field: K,
-    value: BranchSurveyDetail[K],
-  ) {
-    this.fieldUpdated.emit({ field, value });
-  }
 }

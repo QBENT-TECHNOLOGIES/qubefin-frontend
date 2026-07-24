@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { form, FormField, schema, Schema } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { BranchSurveyDetail } from '../../../../models/branch-survey-detail';
+import { BranchSurveyEconomicProfileRequest } from '../../../../models/branch-survey-detail';
 import { BranchSurveyConstants_CONDITION_OPTIONS } from 'qubefin-core';
 
 // ────────────────────────────────────────────────
@@ -16,6 +17,7 @@ const CONDITION_OPTIONS = BranchSurveyConstants_CONDITION_OPTIONS;
   selector: 'qfin-branch-survey-economic-profile',
   imports: [
     CommonModule,
+    FormField,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -26,32 +28,54 @@ const CONDITION_OPTIONS = BranchSurveyConstants_CONDITION_OPTIONS;
 })
 export class BranchSurveyEconomicProfile {
   // ────────────────────────────────────────────────
+  // Form State
+  // ────────────────────────────────────────────────
+  readonly branchSurveyEconomicProfile = signal<BranchSurveyEconomicProfileRequest>({
+      agriculturePercent: 0,
+      agriculturalLabour: 0,
+      dairyLivestock: 0,
+      smallBusiness: 0,
+      pettyTrade: 0,
+      cottageSmallIndustries: 0,
+      transportActivities: 0,
+      serviceHolders: 0,
+      dailyWageEarners: 0,
+      otherIncomeGeneratingActivities: '',
+      mainCrop: '',
+      peakBusinessSeason: '',
+      leanSeason: '',
+      overallEconomicCondition: '',
+    });
+
+  readonly branchSurveyEconomicProfileSchema: Schema<BranchSurveyEconomicProfileRequest> = schema((path) => ({
+      agriculturePercent: path.agriculturePercent!(),
+      agriculturalLabour: path.agriculturalLabour!(),
+      dairyLivestock: path.dairyLivestock!(),
+      smallBusiness: path.smallBusiness!(),
+      pettyTrade: path.pettyTrade!(),
+      cottageSmallIndustries: path.cottageSmallIndustries!(),
+      transportActivities: path.transportActivities!(),
+      serviceHolders: path.serviceHolders!(),
+      dailyWageEarners: path.dailyWageEarners!(),
+      otherIncomeGeneratingActivities: path.otherIncomeGeneratingActivities!(),
+      mainCrop: path.mainCrop!(),
+      peakBusinessSeason: path.peakBusinessSeason!(),
+      leanSeason: path.leanSeason!(),
+      overallEconomicCondition: path.overallEconomicCondition!(),
+    }));
+
+  readonly branchSurveyEconomicProfileForm: any = form(
+    this.branchSurveyEconomicProfile,
+    this.branchSurveyEconomicProfileSchema
+  );
+
+  // ────────────────────────────────────────────────
   // Inputs & Outputs
   // ────────────────────────────────────────────────
-  model = input.required<BranchSurveyDetail>();
-  fieldUpdated = output<{ field: keyof BranchSurveyDetail; value: any }>();
 
   readonly conditionOptions = CONDITION_OPTIONS;
 
   // ────────────────────────────────────────────────
   // Field Value & Update Methods
   // ────────────────────────────────────────────────
-  protected getValue(key: keyof BranchSurveyDetail): any {
-    return (this.model() as any)[key];
-  }
-
-  protected onFieldUpdate<K extends keyof BranchSurveyDetail>(
-    field: K,
-    value: BranchSurveyDetail[K],
-  ) {
-    this.fieldUpdated.emit({ field, value });
-  }
-
-  protected onTextInput(field: keyof BranchSurveyDetail, raw: string) {
-    this.onFieldUpdate(field, raw as any);
-  }
-
-  protected onNumberInput(field: keyof BranchSurveyDetail, raw: string) {
-    this.onFieldUpdate(field, (raw === '' ? undefined : Number(raw)) as any);
-  }
 }

@@ -17,8 +17,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('agriculturePercent')"
-        (input)="onNumberInput('agriculturePercent', $any($event.target).value)" />
+        [formField]="branchSurveyEconomicProfileForm.agriculturePercent" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -29,8 +28,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('agriculturalLabour')"
-        (input)="onNumberInput('agriculturalLabour', $any($event.target).value)" />
+        [formField]="branchSurveyEconomicProfileForm.agriculturalLabour" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -41,8 +39,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('dairyLivestock')"
-        (input)="onNumberInput('dairyLivestock', $any($event.target).value)" />
+        [formField]="branchSurveyEconomicProfileForm.dairyLivestock" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -53,8 +50,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('smallBusiness')"
-        (input)="onNumberInput('smallBusiness', $any($event.target).value)" />
+        [formField]="branchSurveyEconomicProfileForm.smallBusiness" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -65,8 +61,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('pettyTrade')"
-        (input)="onNumberInput('pettyTrade', $any($event.target).value)" />
+        [formField]="branchSurveyEconomicProfileForm.pettyTrade" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -77,8 +72,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('cottageSmallIndustries')"
-        (input)="onNumberInput('cottageSmallIndustries', $any($event.target).value)" />
+        [formField]="branchSurveyEconomicProfileForm.cottageSmallIndustries" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -89,8 +83,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('transportActivities')"
-        (input)="onNumberInput('transportActivities', $any($event.target).value)" />
+        [formField]="branchSurveyEconomicProfileForm.transportActivities" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -101,8 +94,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('serviceHolders')"
-        (input)="onNumberInput('serviceHolders', $any($event.target).value)" />
+        [formField]="branchSurveyEconomicProfileForm.serviceHolders" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -113,8 +105,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('dailyWageEarners')"
-        (input)="onNumberInput('dailyWageEarners', $any($event.target).value)" />
+        [formField]="branchSurveyEconomicProfileForm.dailyWageEarners" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -124,8 +115,7 @@
       </div>
       <input
         matInput
-        [value]="getValue('otherIncomeGeneratingActivities')"
-        (input)="onTextInput('otherIncomeGeneratingActivities', $any($event.target).value)" />
+        [formField]="branchSurveyEconomicProfileForm.otherIncomeGeneratingActivities" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -135,8 +125,7 @@
       </div>
       <input
         matInput
-        [value]="getValue('mainCrop')"
-        (input)="onTextInput('mainCrop', $any($event.target).value)" />
+        [formField]="branchSurveyEconomicProfileForm.mainCrop" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -146,8 +135,7 @@
       </div>
       <input
         matInput
-        [value]="getValue('peakBusinessSeason')"
-        (input)="onTextInput('peakBusinessSeason', $any($event.target).value)" />
+        [formField]="branchSurveyEconomicProfileForm.peakBusinessSeason" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -157,8 +145,7 @@
       </div>
       <input
         matInput
-        [value]="getValue('leanSeason')"
-        (input)="onTextInput('leanSeason', $any($event.target).value)" />
+        [formField]="branchSurveyEconomicProfileForm.leanSeason" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -167,8 +154,7 @@
         <svg lucideIcon="gauge" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('overallEconomicCondition')"
-        (valueChange)="onFieldUpdate('overallEconomicCondition', $event)">
+        [formField]="branchSurveyEconomicProfileForm.overallEconomicCondition">
         @for (option of conditionOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }

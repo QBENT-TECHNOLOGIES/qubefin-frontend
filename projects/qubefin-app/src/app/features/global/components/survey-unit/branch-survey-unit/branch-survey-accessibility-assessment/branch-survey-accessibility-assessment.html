@@ -14,8 +14,7 @@
         <svg lucideIcon="road" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('roadCondition')"
-        (valueChange)="onFieldUpdate('roadCondition', $event)">
+        [formField]="branchSurveyAccessibilityAssessmentForm.roadCondition">
         @for (option of ratingOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -28,8 +27,7 @@
         <svg lucideIcon="bus" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('publicTransportAvailability')"
-        (valueChange)="onFieldUpdate('publicTransportAvailability', $event)">
+        [formField]="branchSurveyAccessibilityAssessmentForm.publicTransportAvailability">
         @for (option of ratingOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -42,8 +40,7 @@
         <svg lucideIcon="train-front" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('railwayConnectivity')"
-        (valueChange)="onFieldUpdate('railwayConnectivity', $event)">
+        [formField]="branchSurveyAccessibilityAssessmentForm.railwayConnectivity">
         @for (option of ratingOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -56,8 +53,7 @@
         <svg lucideIcon="bus" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('busConnectivity')"
-        (valueChange)="onFieldUpdate('busConnectivity', $event)">
+        [formField]="branchSurveyAccessibilityAssessmentForm.busConnectivity">
         @for (option of ratingOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -70,8 +66,7 @@
         <svg lucideIcon="signal" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('mobileNetworkCoverage')"
-        (valueChange)="onFieldUpdate('mobileNetworkCoverage', $event)">
+        [formField]="branchSurveyAccessibilityAssessmentForm.mobileNetworkCoverage">
         @for (option of ratingOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -84,8 +79,7 @@
         <svg lucideIcon="wifi" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('internetAvailability')"
-        (valueChange)="onFieldUpdate('internetAvailability', $event)">
+        [formField]="branchSurveyAccessibilityAssessmentForm.internetAvailability">
         @for (option of ratingOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -98,8 +92,7 @@
         <svg lucideIcon="zap" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('electricitySupply')"
-        (valueChange)="onFieldUpdate('electricitySupply', $event)">
+        [formField]="branchSurveyAccessibilityAssessmentForm.electricitySupply">
         @for (option of ratingOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -112,8 +105,7 @@
         <svg lucideIcon="droplets" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('drinkingWaterAvailability')"
-        (valueChange)="onFieldUpdate('drinkingWaterAvailability', $event)">
+        [formField]="branchSurveyAccessibilityAssessmentForm.drinkingWaterAvailability">
         @for (option of ratingOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -126,8 +118,7 @@
         <svg lucideIcon="shield-check" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('safetyOfArea')"
-        (valueChange)="onFieldUpdate('safetyOfArea', $event)">
+        [formField]="branchSurveyAccessibilityAssessmentForm.safetyOfArea">
         @for (option of ratingOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }

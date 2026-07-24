@@ -13,8 +13,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="users" class="w-5 h-5"></svg>
       </div>
-      <input matInput type="number" [value]="getValue('estimatedPopulation')"
-        (input)="onNumberInput('estimatedPopulation', $any($event.target).value)" />
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.estimatedPopulation" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -22,8 +21,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="home" class="w-5 h-5"></svg>
       </div>
-      <input matInput type="number" [value]="getValue('numberOfHouseholds')"
-        (input)="onNumberInput('numberOfHouseholds', $any($event.target).value)" />
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.numberOfHouseholds" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -31,8 +29,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="user-round" class="w-5 h-5"></svg>
       </div>
-      <input matInput type="number" [value]="getValue('averageFamilySize')"
-        (input)="onNumberInput('averageFamilySize', $any($event.target).value)" />
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.averageFamilySize" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -40,8 +37,7 @@
       <div class="w-12 flex items-center justify-center gap-1" matPrefix>
         <svg lucideIcon="percent" class="w-4 h-4"></svg>
       </div>
-      <input matInput type="number" [value]="getValue('femalePopulationPercent')"
-        (input)="onNumberInput('femalePopulationPercent', $any($event.target).value)" />
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.femalePopulationPercent" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -49,8 +45,7 @@
       <div class="w-12 flex items-center justify-center gap-1" matPrefix>
         <svg lucideIcon="book-open" class="w-4 h-4"></svg>
       </div>
-      <input matInput type="number" [value]="getValue('literacyRate')"
-        (input)="onNumberInput('literacyRate', $any($event.target).value)" />
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.literacyRate" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -58,8 +53,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="briefcase" class="w-5 h-5"></svg>
       </div>
-      <input matInput type="number" [value]="getValue('workingPopulation')"
-        (input)="onNumberInput('workingPopulation', $any($event.target).value)" />
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.workingPopulation" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -67,8 +61,7 @@
       <div class="w-12 flex items-center justify-center gap-1" matPrefix>
         <svg lucideIcon="percent" class="w-4 h-4"></svg>
       </div>
-      <input matInput type="number" [value]="getValue('minorityPopulationPercent')"
-        (input)="onNumberInput('minorityPopulationPercent', $any($event.target).value)" />
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.minorityPopulationPercent" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -76,8 +69,7 @@
       <div class="w-12 flex items-center justify-center gap-1" matPrefix>
         <svg lucideIcon="percent" class="w-4 h-4"></svg>
       </div>
-      <input matInput type="number" [value]="getValue('scheduledCastePercent')"
-        (input)="onNumberInput('scheduledCastePercent', $any($event.target).value)" />
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.scheduledCastePercent" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -85,8 +77,7 @@
       <div class="w-12 flex items-center justify-center gap-1" matPrefix>
         <svg lucideIcon="percent" class="w-4 h-4"></svg>
       </div>
-      <input matInput type="number" [value]="getValue('scheduledTribePercent')"
-        (input)="onNumberInput('scheduledTribePercent', $any($event.target).value)" />
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.scheduledTribePercent" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -94,8 +85,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="trending-up" class="w-5 h-5"></svg>
       </div>
-      <input matInput [value]="getValue('migrationTrend')"
-        (input)="onTextInput('migrationTrend', $any($event.target).value)" />
+      <input matInput [formField]="branchSurveyDemographicProfileForm.migrationTrend" />
     </mat-form-field>
   </div>
 </div>

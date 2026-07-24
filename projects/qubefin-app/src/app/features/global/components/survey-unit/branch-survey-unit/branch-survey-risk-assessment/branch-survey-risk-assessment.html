@@ -14,8 +14,7 @@
         <svg lucideIcon="cloud-rain" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('floodRisk')"
-        (valueChange)="onFieldUpdate('floodRisk', $event)">
+        [formField]="branchSurveyRiskAssessmentForm.floodRisk">
         @for (option of riskLevelOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -28,8 +27,7 @@
         <svg lucideIcon="wind" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('cycloneRisk')"
-        (valueChange)="onFieldUpdate('cycloneRisk', $event)">
+        [formField]="branchSurveyRiskAssessmentForm.cycloneRisk">
         @for (option of riskLevelOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -42,8 +40,7 @@
         <svg lucideIcon="mountain" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('landslideRisk')"
-        (valueChange)="onFieldUpdate('landslideRisk', $event)">
+        [formField]="branchSurveyRiskAssessmentForm.landslideRisk">
         @for (option of riskLevelOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -56,8 +53,7 @@
         <svg lucideIcon="sun" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('droughtRisk')"
-        (valueChange)="onFieldUpdate('droughtRisk', $event)">
+        [formField]="branchSurveyRiskAssessmentForm.droughtRisk">
         @for (option of riskLevelOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -70,8 +66,7 @@
         <svg lucideIcon="flag" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('politicalDisturbanceRisk')"
-        (valueChange)="onFieldUpdate('politicalDisturbanceRisk', $event)">
+        [formField]="branchSurveyRiskAssessmentForm.politicalDisturbanceRisk">
         @for (option of riskLevelOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -84,8 +79,7 @@
         <svg lucideIcon="users-round" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('communalIssuesRisk')"
-        (valueChange)="onFieldUpdate('communalIssuesRisk', $event)">
+        [formField]="branchSurveyRiskAssessmentForm.communalIssuesRisk">
         @for (option of riskLevelOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -98,8 +92,7 @@
         <svg lucideIcon="trending-up" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('migrationRisk')"
-        (valueChange)="onFieldUpdate('migrationRisk', $event)">
+        [formField]="branchSurveyRiskAssessmentForm.migrationRisk">
         @for (option of riskLevelOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -112,8 +105,7 @@
         <svg lucideIcon="briefcase" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('businessRisk')"
-        (valueChange)="onFieldUpdate('businessRisk', $event)">
+        [formField]="branchSurveyRiskAssessmentForm.businessRisk">
         @for (option of riskLevelOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -126,8 +118,7 @@
         <svg lucideIcon="repeat" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('multipleLendingRisk')"
-        (valueChange)="onFieldUpdate('multipleLendingRisk', $event)">
+        [formField]="branchSurveyRiskAssessmentForm.multipleLendingRisk">
         @for (option of riskLevelOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -140,8 +131,7 @@
         <svg lucideIcon="wallet" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('collectionRisk')"
-        (valueChange)="onFieldUpdate('collectionRisk', $event)">
+        [formField]="branchSurveyRiskAssessmentForm.collectionRisk">
         @for (option of riskLevelOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -154,8 +144,7 @@
         <svg lucideIcon="shield-alert" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('fraudRisk')"
-        (valueChange)="onFieldUpdate('fraudRisk', $event)">
+        [formField]="branchSurveyRiskAssessmentForm.fraudRisk">
         @for (option of riskLevelOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -168,8 +157,7 @@
         <svg lucideIcon="swords" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('competitionRisk')"
-        (valueChange)="onFieldUpdate('competitionRisk', $event)">
+        [formField]="branchSurveyRiskAssessmentForm.competitionRisk">
         @for (option of riskLevelOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }

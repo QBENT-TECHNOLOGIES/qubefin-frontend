@@ -14,8 +14,7 @@
         <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('areaVisitedPhysically')"
-        (valueChange)="onFieldUpdate('areaVisitedPhysically', $event)">
+        [formField]="branchSurveyComplianceVerificationForm.areaVisitedPhysically">
         @for (option of yesNoOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -28,8 +27,7 @@
         <svg lucideIcon="locate-fixed" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('gPSVerified')"
-        (valueChange)="onFieldUpdate('gPSVerified', $event)">
+        [formField]="branchSurveyComplianceVerificationForm.gPSVerified">
         @for (option of yesNoOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -42,8 +40,7 @@
         <svg lucideIcon="user-check" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('localReferencesVerified')"
-        (valueChange)="onFieldUpdate('localReferencesVerified', $event)">
+        [formField]="branchSurveyComplianceVerificationForm.localReferencesVerified">
         @for (option of yesNoOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -56,8 +53,7 @@
         <svg lucideIcon="phone" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('existingCustomersContacted')"
-        (valueChange)="onFieldUpdate('existingCustomersContacted', $event)">
+        [formField]="branchSurveyComplianceVerificationForm.existingCustomersContacted">
         @for (option of yesNoOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -70,8 +66,7 @@
         <svg lucideIcon="search-check" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('competitorVerificationCompleted')"
-        (valueChange)="onFieldUpdate('competitorVerificationCompleted', $event)">
+        [formField]="branchSurveyComplianceVerificationForm.competitorVerificationCompleted">
         @for (option of yesNoOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -84,8 +79,7 @@
         <svg lucideIcon="camera" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('photographsAttached')"
-        (valueChange)="onFieldUpdate('photographsAttached', $event)">
+        [formField]="branchSurveyComplianceVerificationForm.photographsAttached">
         @for (option of yesNoOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }

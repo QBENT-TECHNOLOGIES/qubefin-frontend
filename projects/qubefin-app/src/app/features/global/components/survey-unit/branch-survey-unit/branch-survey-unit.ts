@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal, Input, Output, EventEmitter } from '@angular/core';
+import { Component, computed, effect, inject, signal, Input, Output, EventEmitter, viewChild } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatStepperModule, MatStepper } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
@@ -72,11 +72,171 @@ export class BranchSurveyUnit {
 
   @Output() cancel = new EventEmitter<string>();
 
-  protected readonly formModel = signal<BranchSurveyDetailModel>(this.createEmptyModel());  
+  protected readonly formModel = signal<BranchSurveyDetailModel>(this.createEmptyModel());
+
+  readonly geographicInfoComp = viewChild(BranchSurveyGeographicInfo);
+  readonly accessibilityAssessmentComp = viewChild(BranchSurveyAccessibilityAssessment);
+  readonly demographicProfileComp = viewChild(BranchSurveyDemographicProfile);
+  readonly economicProfileComp = viewChild(BranchSurveyEconomicProfile);
+  readonly marketPotentialComp = viewChild(BranchSurveyMarketPotential);
+  readonly transportationFacilitiesComp = viewChild(BranchSurveyTransportationFacilities);
+  readonly financialInclusionComp = viewChild(BranchSurveyFinancialInclusion);
+  readonly competitionAnalysisComp = viewChild(BranchSurveyCompetitionAnalysis);
+  readonly businessPotentialComp = viewChild(BranchSurveyBusinessPotential);
+  readonly riskAssessmentComp = viewChild(BranchSurveyRiskAssessment);
+  readonly complianceVerificationComp = viewChild(BranchSurveyComplianceVerification);
+  readonly recommendationComp = viewChild(BranchSurveyRecommendation);
+  
   readonly surveyId = signal<string>(EMPTY_UUID);
   readonly isEditMode = computed(() => this.formModel().id !== EMPTY_UUID);
 
   constructor() {
+    effect(() => {
+      const data = this.formModel();
+      if (data) {
+        const geo = this.geographicInfoComp();
+        if (geo) geo.branchSurveyGeographicInfo.set({
+          surveyDate: data.surveyDate || '',
+          proposedOperationalArea: data.proposedOperationalArea || '',
+          administrativeUnitId: data.administrativeUnitId || '',
+          pinCode: data.pinCode || '',
+          latitude: data.latitude || 0,
+          longitude: data.longitude || 0,
+          geoTag: data.geoTag || '',
+          nearestLandmark: data.nearestLandmark || '',
+          administrativeStatus: data.administrativeStatus || '',
+          distanceFromExistingWeGrowBranch: data.distanceFromExistingWeGrowBranch || 0,
+          distanceFromDistrictHeadquarters: data.distanceFromDistrictHeadquarters || 0
+        });
+
+        const acc = this.accessibilityAssessmentComp();
+        if (acc) acc.branchSurveyAccessibilityAssessment.set({
+          roadCondition: data.roadCondition,
+          publicTransportAvailability: data.publicTransportAvailability,
+          railwayConnectivity: data.railwayConnectivity,
+          busConnectivity: data.busConnectivity,
+          mobileNetworkCoverage: data.mobileNetworkCoverage,
+          internetAvailability: data.internetAvailability,
+          electricitySupply: data.electricitySupply,
+          drinkingWaterAvailability: data.drinkingWaterAvailability,
+          safetyOfArea: data.safetyOfArea
+        });
+
+        const dem = this.demographicProfileComp();
+        if (dem) dem.branchSurveyDemographicProfile.set({
+          estimatedPopulation: data.estimatedPopulation,
+          numberOfHouseholds: data.numberOfHouseholds,
+          averageFamilySize: data.averageFamilySize,
+          femalePopulationPercent: data.femalePopulationPercent,
+          literacyRate: data.literacyRate,
+          workingPopulation: data.workingPopulation,
+          minorityPopulationPercent: data.minorityPopulationPercent,
+          scheduledCastePercent: data.scheduledCastePercent,
+          scheduledTribePercent: data.scheduledTribePercent,
+          migrationTrend: data.migrationTrend
+        });
+
+        const eco = this.economicProfileComp();
+        if (eco) eco.branchSurveyEconomicProfile.set({
+          agriculturePercent: data.agriculturePercent,
+          agriculturalLabour: data.agriculturalLabour,
+          dairyLivestock: data.dairyLivestock,
+          smallBusiness: data.smallBusiness,
+          pettyTrade: data.pettyTrade,
+          cottageSmallIndustries: data.cottageSmallIndustries,
+          transportActivities: data.transportActivities,
+          serviceHolders: data.serviceHolders,
+          dailyWageEarners: data.dailyWageEarners,
+          otherIncomeGeneratingActivities: data.otherIncomeGeneratingActivities,
+          mainCrop: data.mainCrop,
+          peakBusinessSeason: data.peakBusinessSeason,
+          leanSeason: data.leanSeason,
+          overallEconomicCondition: data.overallEconomicCondition
+        });
+
+        const mar = this.marketPotentialComp();
+        if (mar) mar.branchSurveyMarketPotential.set({
+          eligibleHouseholds: data.eligibleHouseholds,
+          potentialWomenBorrowers: data.potentialWomenBorrowers,
+          jlgpotential: data.jLGPotential,
+          individualBusinessLoansExpected: data.individualBusinessLoansExpected,
+          portfolioYear1: data.portfolioYear1,
+          portfolioYear2: data.portfolioYear2,
+          portfolioYear3: data.portfolioYear3
+        });
+
+        const tra = this.transportationFacilitiesComp();
+        if (tra) tra.branchSurveyTransportationFacilities.set({
+          railConnectivity: data.railConnectivity,
+          busConnectivityAvailable: data.busConnectivityAvailable,
+          autoTotoAvailability: data.autoTotoAvailability,
+          roadAccessibility: data.roadAccessibility,
+          accessibilityByMotorCycle: data.accessibilityByMotorCycle
+        });
+
+        const fin = this.financialInclusionComp();
+        if (fin) fin.branchSurveyFinancialInclusionStatus.set({
+          numberOfBanks: data.numberOfBanks,
+          numberOfRegionalRuralBanks: data.numberOfRegionalRuralBanks,
+          numberOfCooperativeBanks: data.numberOfCooperativeBanks,
+          bankingCorrespondents: data.bankingCorrespondents,
+          atms: data.aTMs,
+          digitalPaymentAcceptance: data.digitalPaymentAcceptance
+        });
+
+        const com = this.competitionAnalysisComp();
+        if (com) com.branchSurveyMicrofinanceCompetition.set({
+          nameOfInstitution: data.nameOfInstitution,
+          approxClients: data.approxClients,
+          approxPortfolio: data.approxPortfolio,
+          parpercent: data.pARPercent
+        });
+
+        const bus = this.businessPotentialComp();
+        if (bus) bus.branchSurveyBusinessPotential.set({
+          estimatedEligibleHouseholds: data.estimatedEligibleHouseholds,
+          estimatedWomenBorrowers: data.estimatedWomenBorrowers,
+          estimatedNumberOfJlgsCentres: data.estimatedNumberOfJLGsCentres,
+          estimatedLoanPortfolioPotential: data.estimatedLoanPortfolioPotential,
+          expectedMonthlyDisbursement: data.expectedMonthlyDisbursement,
+          estimatedCollectionEfficiency: data.estimatedCollectionEfficiency
+        });
+
+        const ris = this.riskAssessmentComp();
+        if (ris) ris.branchSurveyRiskAssessment.set({
+          floodRisk: data.floodRisk,
+          cycloneRisk: data.cycloneRisk,
+          landslideRisk: data.landslideRisk,
+          droughtRisk: data.droughtRisk,
+          politicalDisturbanceRisk: data.politicalDisturbanceRisk,
+          communalIssuesRisk: data.communalIssuesRisk,
+          migrationRisk: data.migrationRisk,
+          businessRisk: data.businessRisk,
+          multipleLendingRisk: data.multipleLendingRisk,
+          collectionRisk: data.collectionRisk,
+          fraudRisk: data.fraudRisk,
+          competitionRisk: data.competitionRisk
+        });
+
+        const cv = this.complianceVerificationComp();
+        if (cv) cv.branchSurveyComplianceVerification.set({
+          areaVisitedPhysically: data.areaVisitedPhysically,
+          gpsverified: data.gPSVerified,
+          localReferencesVerified: data.localReferencesVerified,
+          existingCustomersContacted: data.existingCustomersContacted,
+          competitorVerificationCompleted: data.competitorVerificationCompleted,
+          photographsAttached: data.photographsAttached
+        });
+
+        const rec = this.recommendationComp();
+        if (rec) rec.branchSurveyRecommendation.set({
+          recommendation: data.recommendation
+        });
+      }
+    }, { allowSignalWrites: true });
+    
+    
+
     this.dateAdapter.setLocale('en-GB');
 
     this.route.paramMap.subscribe(params => {
@@ -87,12 +247,7 @@ export class BranchSurveyUnit {
       }
     });
 
-    effect(() => {
-      const detail = this.store.branchSurvey();
-      if (detail) {
-        this.formModel.set({ ...detail });
-      }
-    }, { allowSignalWrites: true });
+    
   }
 
   private createEmptyModel(): BranchSurveyDetailModel {
@@ -166,6 +321,7 @@ export class BranchSurveyUnit {
       return;
     }
 
+    
     const currentModel = this.formModel();
     const payload: BranchSurveyRequest = {
       id: currentModel.id,
@@ -173,148 +329,84 @@ export class BranchSurveyUnit {
     };
 
     switch (stepName) {
-      case 'GeographicInformation':
-        payload.geographicInformation = {
-          surveyDate: this.datePipe.transform(currentModel.surveyDate, 'yyyy-MM-dd') || '',
-          proposedOperationalArea: currentModel.proposedOperationalArea,
-          administrativeUnitId: currentModel.administrativeUnitId,
-          pinCode: currentModel.pinCode,
-          latitude: currentModel.latitude,
-          longitude: currentModel.longitude,
-          geoTag: currentModel.geoTag,
-          nearestLandmark: currentModel.nearestLandmark,
-          administrativeStatus: currentModel.administrativeStatus,
-          distanceFromExistingWeGrowBranch: currentModel.distanceFromExistingWeGrowBranch,
-          distanceFromDistrictHeadquarters: currentModel.distanceFromDistrictHeadquarters,
-        };
+      case 'GeographicInformation': {
+        const d = this.geographicInfoComp()?.branchSurveyGeographicInfo();
+        if (d) {
+            payload.geographicInformation = {
+            surveyDate: this.datePipe.transform(d.surveyDate, 'yyyy-MM-dd') || '',
+            proposedOperationalArea: d.proposedOperationalArea,
+            administrativeUnitId: d.administrativeUnitId,
+            pinCode: d.pinCode,
+            latitude: d.latitude,
+            longitude: d.longitude,
+            geoTag: d.geoTag,
+            nearestLandmark: d.nearestLandmark,
+            administrativeStatus: d.administrativeStatus,
+            distanceFromExistingWeGrowBranch: d.distanceFromExistingWeGrowBranch,
+            distanceFromDistrictHeadquarters: d.distanceFromDistrictHeadquarters,
+            };
+        }
         break;
-      case 'AccessibilityAssessment':
-        payload.accessibilityAssessment = {
-          roadCondition: currentModel.roadCondition,
-          publicTransportAvailability: currentModel.publicTransportAvailability,
-          railwayConnectivity: currentModel.railwayConnectivity,
-          busConnectivity: currentModel.busConnectivity,
-          mobileNetworkCoverage: currentModel.mobileNetworkCoverage,
-          internetAvailability: currentModel.internetAvailability,
-          electricitySupply: currentModel.electricitySupply,
-          drinkingWaterAvailability: currentModel.drinkingWaterAvailability,
-          safetyOfArea: currentModel.safetyOfArea,
-        };
+      }
+      case 'AccessibilityAssessment': {
+        const d = this.accessibilityAssessmentComp()?.branchSurveyAccessibilityAssessment();
+        if(d) {
+            payload.accessibilityAssessment = { ...d };
+        }
         break;
-      case 'DemographicProfile':
-        payload.demographicProfile = {
-          estimatedPopulation: currentModel.estimatedPopulation,
-          numberOfHouseholds: currentModel.numberOfHouseholds,
-          averageFamilySize: currentModel.averageFamilySize,
-          femalePopulationPercent: currentModel.femalePopulationPercent,
-          literacyRate: currentModel.literacyRate,
-          workingPopulation: currentModel.workingPopulation,
-          minorityPopulationPercent: currentModel.minorityPopulationPercent,
-          scheduledCastePercent: currentModel.scheduledCastePercent,
-          scheduledTribePercent: currentModel.scheduledTribePercent,
-          migrationTrend: currentModel.migrationTrend,
-        };
+      }
+      case 'DemographicProfile': {
+        const d = this.demographicProfileComp()?.branchSurveyDemographicProfile();
+        if(d) payload.demographicProfile = { ...d };
         break;
-      case 'EconomicProfile':
-        payload.economicProfile = {
-          agriculturePercent: currentModel.agriculturePercent,
-          agriculturalLabour: currentModel.agriculturalLabour,
-          dairyLivestock: currentModel.dairyLivestock,
-          smallBusiness: currentModel.smallBusiness,
-          pettyTrade: currentModel.pettyTrade,
-          cottageSmallIndustries: currentModel.cottageSmallIndustries,
-          transportActivities: currentModel.transportActivities,
-          serviceHolders: currentModel.serviceHolders,
-          dailyWageEarners: currentModel.dailyWageEarners,
-          otherIncomeGeneratingActivities: currentModel.otherIncomeGeneratingActivities,
-          mainCrop: currentModel.mainCrop,
-          peakBusinessSeason: currentModel.peakBusinessSeason,
-          leanSeason: currentModel.leanSeason,
-          overallEconomicCondition: currentModel.overallEconomicCondition,
-        };
+      }
+      case 'EconomicProfile': {
+        const d = this.economicProfileComp()?.branchSurveyEconomicProfile();
+        if(d) payload.economicProfile = { ...d };
         break;
-      case 'MarketPotential':
-        payload.marketPotential = {
-          eligibleHouseholds: currentModel.eligibleHouseholds,
-          potentialWomenBorrowers: currentModel.potentialWomenBorrowers,
-          jlgpotential: currentModel.jLGPotential,
-          individualBusinessLoansExpected: currentModel.individualBusinessLoansExpected,
-          portfolioYear1: currentModel.portfolioYear1,
-          portfolioYear2: currentModel.portfolioYear2,
-          portfolioYear3: currentModel.portfolioYear3,
-        };
+      }
+      case 'MarketPotential': {
+        const d = this.marketPotentialComp()?.branchSurveyMarketPotential();
+        if(d) payload.marketPotential = { ...d };
         break;
-      case 'TransportationFacilities':
-        payload.transportationFacilities = {
-          railConnectivity: currentModel.railConnectivity,
-          busConnectivityAvailable: currentModel.busConnectivityAvailable,
-          autoTotoAvailability: currentModel.autoTotoAvailability,
-          roadAccessibility: currentModel.roadAccessibility,
-          accessibilityByMotorCycle: currentModel.accessibilityByMotorCycle,
-        };
+      }
+      case 'TransportationFacilities': {
+        const d = this.transportationFacilitiesComp()?.branchSurveyTransportationFacilities();
+        if(d) payload.transportationFacilities = { ...d };
         break;
-      case 'FinancialInclusion':
-        payload.financialInclusionStatus = {
-          numberOfBanks: currentModel.numberOfBanks,
-          numberOfRegionalRuralBanks: currentModel.numberOfRegionalRuralBanks,
-          numberOfCooperativeBanks: currentModel.numberOfCooperativeBanks,
-          bankingCorrespondents: currentModel.bankingCorrespondents,
-          atms: currentModel.aTMs,
-          digitalPaymentAcceptance: currentModel.digitalPaymentAcceptance,
-        };
+      }
+      case 'FinancialInclusion': {
+        const d = this.financialInclusionComp()?.branchSurveyFinancialInclusionStatus();
+        if(d) payload.financialInclusionStatus = { ...d };
         break;
-      case 'CompetitionAnalysis':
-        payload.microfinanceCompetition = {
-          nameOfInstitution: currentModel.nameOfInstitution,
-          approxClients: currentModel.approxClients,
-          approxPortfolio: currentModel.approxPortfolio,
-          parpercent: currentModel.pARPercent,
-        };
+      }
+      case 'CompetitionAnalysis': {
+        const d = this.competitionAnalysisComp()?.branchSurveyMicrofinanceCompetition();
+        if(d) payload.microfinanceCompetition = { ...d };
         break;
-      case 'BusinessPotential':
-        payload.businessPotential = {
-          estimatedEligibleHouseholds: currentModel.estimatedEligibleHouseholds,
-          estimatedWomenBorrowers: currentModel.estimatedWomenBorrowers,
-          estimatedNumberOfJlgsCentres: currentModel.estimatedNumberOfJLGsCentres,
-          estimatedLoanPortfolioPotential: currentModel.estimatedLoanPortfolioPotential,
-          expectedMonthlyDisbursement: currentModel.expectedMonthlyDisbursement,
-          estimatedCollectionEfficiency: currentModel.estimatedCollectionEfficiency,
-        };
+      }
+      case 'BusinessPotential': {
+        const d = this.businessPotentialComp()?.branchSurveyBusinessPotential();
+        if(d) payload.businessPotential = { ...d };
         break;
-      case 'RiskAssessment':
-        payload.riskAssessment = {
-          floodRisk: currentModel.floodRisk,
-          cycloneRisk: currentModel.cycloneRisk,
-          landslideRisk: currentModel.landslideRisk,
-          droughtRisk: currentModel.droughtRisk,
-          politicalDisturbanceRisk: currentModel.politicalDisturbanceRisk,
-          communalIssuesRisk: currentModel.communalIssuesRisk,
-          migrationRisk: currentModel.migrationRisk,
-          businessRisk: currentModel.businessRisk,
-          multipleLendingRisk: currentModel.multipleLendingRisk,
-          collectionRisk: currentModel.collectionRisk,
-          fraudRisk: currentModel.fraudRisk,
-          competitionRisk: currentModel.competitionRisk,
-        };
+      }
+      case 'RiskAssessment': {
+        const d = this.riskAssessmentComp()?.branchSurveyRiskAssessment();
+        if(d) payload.riskAssessment = { ...d };
         break;
-      case 'ComplianceVerification':
-        payload.complianceVerification = {
-          areaVisitedPhysically: currentModel.areaVisitedPhysically,
-          gpsverified: currentModel.gPSVerified,
-          localReferencesVerified: currentModel.localReferencesVerified,
-          existingCustomersContacted: currentModel.existingCustomersContacted,
-          competitorVerificationCompleted: currentModel.competitorVerificationCompleted,
-          photographsAttached: currentModel.photographsAttached,
-        };
+      }
+      case 'ComplianceVerification': {
+        const d = this.complianceVerificationComp()?.branchSurveyComplianceVerification();
+        if(d) payload.complianceVerification = { ...d };
         break;
-      case 'Recommendation':
-        payload.recommendation = {
-          recommendation: currentModel.recommendation,
-        };
+      }
+      case 'Recommendation': {
+        const d = this.recommendationComp()?.branchSurveyRecommendation();
+        if(d) payload.recommendation = { ...d };
         break;
+      }
     }
-
-    try {
+try {
       if(this.formModel().isSubmitButtonVisible){
         const response = payload.id === null || payload.id === EMPTY_UUID ? await this.store.CreateBranchSurveyStep(payload) : await this.store.UpdateBranchSurveyStep(payload);
         if (response?.value?.id) {

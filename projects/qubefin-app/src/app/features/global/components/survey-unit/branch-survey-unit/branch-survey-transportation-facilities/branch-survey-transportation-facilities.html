@@ -14,8 +14,7 @@
         <svg lucideIcon="train-front" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('railConnectivity')"
-        (valueChange)="onFieldUpdate('railConnectivity', $event)">
+        [formField]="branchSurveyTransportationFacilitiesForm.railConnectivity">
         @for (option of yesNoOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -28,8 +27,7 @@
         <svg lucideIcon="bus" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('busConnectivityAvailable')"
-        (valueChange)="onFieldUpdate('busConnectivityAvailable', $event)">
+        [formField]="branchSurveyTransportationFacilitiesForm.busConnectivityAvailable">
         @for (option of yesNoOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -42,8 +40,7 @@
         <svg lucideIcon="car-front" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('autoTotoAvailability')"
-        (valueChange)="onFieldUpdate('autoTotoAvailability', $event)">
+        [formField]="branchSurveyTransportationFacilitiesForm.autoTotoAvailability">
         @for (option of yesNoOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -56,8 +53,7 @@
         <svg lucideIcon="road" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('roadAccessibility')"
-        (valueChange)="onFieldUpdate('roadAccessibility', $event)">
+        [formField]="branchSurveyTransportationFacilitiesForm.roadAccessibility">
         @for (option of yesNoOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -70,8 +66,7 @@
         <svg lucideIcon="bike" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('accessibilityByMotorCycle')"
-        (valueChange)="onFieldUpdate('accessibilityByMotorCycle', $event)">
+        [formField]="branchSurveyTransportationFacilitiesForm.accessibilityByMotorCycle">
         @for (option of yesNoOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }

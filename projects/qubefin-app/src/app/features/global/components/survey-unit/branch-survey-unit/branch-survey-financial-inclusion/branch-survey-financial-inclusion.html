@@ -16,8 +16,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('numberOfBanks')"
-        (input)="onNumberInput('numberOfBanks', $any($event.target).value)" />
+        [formField]="branchSurveyFinancialInclusionStatusForm.numberOfBanks" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -28,8 +27,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('numberOfRegionalRuralBanks')"
-        (input)="onNumberInput('numberOfRegionalRuralBanks', $any($event.target).value)" />
+        [formField]="branchSurveyFinancialInclusionStatusForm.numberOfRegionalRuralBanks" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -40,8 +38,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('numberOfCooperativeBanks')"
-        (input)="onNumberInput('numberOfCooperativeBanks', $any($event.target).value)" />
+        [formField]="branchSurveyFinancialInclusionStatusForm.numberOfCooperativeBanks" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -52,8 +49,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('bankingCorrespondents')"
-        (input)="onNumberInput('bankingCorrespondents', $any($event.target).value)" />
+        [formField]="branchSurveyFinancialInclusionStatusForm.bankingCorrespondents" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -64,8 +60,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('aTMs')"
-        (input)="onNumberInput('aTMs', $any($event.target).value)" />
+        [formField]="branchSurveyFinancialInclusionStatusForm.aTMs" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -74,8 +69,7 @@
         <svg lucideIcon="smartphone" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('digitalPaymentAcceptance')"
-        (valueChange)="onFieldUpdate('digitalPaymentAcceptance', $event)">
+        [formField]="branchSurveyFinancialInclusionStatusForm.digitalPaymentAcceptance">
         @for (option of yesNoOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }

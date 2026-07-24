@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { form, FormField, schema, Schema } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { BranchSurveyDetail } from '../../../../models/branch-survey-detail';
+import { BranchSurveyRiskAssessmentRequest } from '../../../../models/branch-survey-detail';
 import { BranchSurveyConstants_RISK_LEVEL_OPTIONS } from 'qubefin-core';
 
 // ────────────────────────────────────────────────
@@ -15,6 +16,7 @@ const RISK_LEVEL_OPTIONS = BranchSurveyConstants_RISK_LEVEL_OPTIONS;
   selector: 'qfin-branch-survey-risk-assessment',
   imports: [
     CommonModule,
+    FormField,
     MatFormFieldModule,
     MatSelectModule,
     LucideDynamicIcon,
@@ -24,24 +26,50 @@ const RISK_LEVEL_OPTIONS = BranchSurveyConstants_RISK_LEVEL_OPTIONS;
 })
 export class BranchSurveyRiskAssessment {
   // ────────────────────────────────────────────────
+  // Form State
+  // ────────────────────────────────────────────────
+  readonly branchSurveyRiskAssessment = signal<BranchSurveyRiskAssessmentRequest>({
+      floodRisk: '',
+      cycloneRisk: '',
+      landslideRisk: '',
+      droughtRisk: '',
+      politicalDisturbanceRisk: '',
+      communalIssuesRisk: '',
+      migrationRisk: '',
+      businessRisk: '',
+      multipleLendingRisk: '',
+      collectionRisk: '',
+      fraudRisk: '',
+      competitionRisk: '',
+    });
+
+  readonly branchSurveyRiskAssessmentSchema: Schema<BranchSurveyRiskAssessmentRequest> = schema((path) => ({
+      floodRisk: path.floodRisk!(),
+      cycloneRisk: path.cycloneRisk!(),
+      landslideRisk: path.landslideRisk!(),
+      droughtRisk: path.droughtRisk!(),
+      politicalDisturbanceRisk: path.politicalDisturbanceRisk!(),
+      communalIssuesRisk: path.communalIssuesRisk!(),
+      migrationRisk: path.migrationRisk!(),
+      businessRisk: path.businessRisk!(),
+      multipleLendingRisk: path.multipleLendingRisk!(),
+      collectionRisk: path.collectionRisk!(),
+      fraudRisk: path.fraudRisk!(),
+      competitionRisk: path.competitionRisk!(),
+    }));
+
+  readonly branchSurveyRiskAssessmentForm: any = form(
+    this.branchSurveyRiskAssessment,
+    this.branchSurveyRiskAssessmentSchema
+  );
+
+  // ────────────────────────────────────────────────
   // Inputs & Outputs
   // ────────────────────────────────────────────────
-  model = input.required<BranchSurveyDetail>();
-  fieldUpdated = output<{ field: keyof BranchSurveyDetail; value: any }>();
 
   readonly riskLevelOptions = RISK_LEVEL_OPTIONS;
 
   // ────────────────────────────────────────────────
   // Field Value & Update Methods
   // ────────────────────────────────────────────────
-  protected getValue(key: keyof BranchSurveyDetail): any {
-    return (this.model() as any)[key];
-  }
-
-  protected onFieldUpdate<K extends keyof BranchSurveyDetail>(
-    field: K,
-    value: BranchSurveyDetail[K],
-  ) {
-    this.fieldUpdated.emit({ field, value });
-  }
 }

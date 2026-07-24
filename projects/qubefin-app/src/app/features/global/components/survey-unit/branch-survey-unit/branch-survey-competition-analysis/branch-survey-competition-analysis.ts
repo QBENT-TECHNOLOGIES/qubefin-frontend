@@ -1,14 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { form, FormField, schema, Schema } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { BranchSurveyDetail } from '../../../../models/branch-survey-detail';
+import { BranchSurveyMicrofinanceCompetitionRequest } from '../../../../models/branch-survey-detail';
 
 @Component({
   selector: 'qfin-branch-survey-competition-analysis',
   imports: [
     CommonModule,
+    FormField,
     MatFormFieldModule,
     MatInputModule,
     LucideDynamicIcon,
@@ -18,30 +20,32 @@ import { BranchSurveyDetail } from '../../../../models/branch-survey-detail';
 })
 export class BranchSurveyCompetitionAnalysis {
   // ────────────────────────────────────────────────
+  // Form State
+  // ────────────────────────────────────────────────
+  readonly branchSurveyMicrofinanceCompetition = signal<BranchSurveyMicrofinanceCompetitionRequest>({
+      nameOfInstitution: '',
+      approxClients: 0,
+      approxPortfolio: 0,
+      parpercent: 0,
+    });
+
+  readonly branchSurveyMicrofinanceCompetitionSchema: Schema<BranchSurveyMicrofinanceCompetitionRequest> = schema((path) => ({
+      nameOfInstitution: path.nameOfInstitution!(),
+      approxClients: path.approxClients!(),
+      approxPortfolio: path.approxPortfolio!(),
+      parpercent: path.parpercent!(),
+    }));
+
+  readonly branchSurveyMicrofinanceCompetitionForm: any = form(
+    this.branchSurveyMicrofinanceCompetition,
+    this.branchSurveyMicrofinanceCompetitionSchema
+  );
+
+  // ────────────────────────────────────────────────
   // Inputs & Outputs
   // ────────────────────────────────────────────────
-  model = input.required<BranchSurveyDetail>();
-  fieldUpdated = output<{ field: keyof BranchSurveyDetail; value: any }>();
 
   // ────────────────────────────────────────────────
   // Field Value & Update Methods
   // ────────────────────────────────────────────────
-  protected getValue(key: keyof BranchSurveyDetail): any {
-    return (this.model() as any)[key];
-  }
-
-  protected onFieldUpdate<K extends keyof BranchSurveyDetail>(
-    field: K,
-    value: BranchSurveyDetail[K],
-  ) {
-    this.fieldUpdated.emit({ field, value });
-  }
-
-  protected onTextInput(field: keyof BranchSurveyDetail, raw: string) {
-    this.onFieldUpdate(field, raw as any);
-  }
-
-  protected onNumberInput(field: keyof BranchSurveyDetail, raw: string) {
-    this.onFieldUpdate(field, (raw === '' ? undefined : Number(raw)) as any);
-  }
 }

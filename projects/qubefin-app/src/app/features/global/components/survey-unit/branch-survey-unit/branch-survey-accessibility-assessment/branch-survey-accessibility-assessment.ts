@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { form, FormField, schema, Schema } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { BranchSurveyDetail } from '../../../../models/branch-survey-detail';
+import { BranchSurveyAccessibilityAssessmentRequest } from '../../../../models/branch-survey-detail';
 import { BranchSurveyConstants_RATING_OPTIONS } from 'qubefin-core';
 
 // ────────────────────────────────────────────────
@@ -16,6 +17,7 @@ const RATING_OPTIONS = BranchSurveyConstants_RATING_OPTIONS;
   selector: 'qfin-branch-survey-accessibility-assessment',
   imports: [
     CommonModule,
+    FormField,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -26,24 +28,44 @@ const RATING_OPTIONS = BranchSurveyConstants_RATING_OPTIONS;
 })
 export class BranchSurveyAccessibilityAssessment {
   // ────────────────────────────────────────────────
+  // Form State
+  // ────────────────────────────────────────────────
+  readonly branchSurveyAccessibilityAssessment = signal<BranchSurveyAccessibilityAssessmentRequest>({
+      roadCondition: '',
+      publicTransportAvailability: '',
+      railwayConnectivity: '',
+      busConnectivity: '',
+      mobileNetworkCoverage: '',
+      internetAvailability: '',
+      electricitySupply: '',
+      drinkingWaterAvailability: '',
+      safetyOfArea: '',
+    });
+
+  readonly branchSurveyAccessibilityAssessmentSchema: Schema<BranchSurveyAccessibilityAssessmentRequest> = schema((path) => ({
+      roadCondition: path.roadCondition,
+      publicTransportAvailability: path.publicTransportAvailability,
+      railwayConnectivity: path.railwayConnectivity,
+      busConnectivity: path.busConnectivity,
+      mobileNetworkCoverage: path.mobileNetworkCoverage,
+      internetAvailability: path.internetAvailability,
+      electricitySupply: path.electricitySupply,
+      drinkingWaterAvailability: path.drinkingWaterAvailability,
+      safetyOfArea: path.safetyOfArea,
+    }));
+
+  readonly branchSurveyAccessibilityAssessmentForm: any = form(
+    this.branchSurveyAccessibilityAssessment,
+    this.branchSurveyAccessibilityAssessmentSchema
+  );
+
+  // ────────────────────────────────────────────────
   // Inputs & Outputs
   // ────────────────────────────────────────────────
-  model = input.required<BranchSurveyDetail>();
-  fieldUpdated = output<{ field: keyof BranchSurveyDetail; value: any }>();
 
   readonly ratingOptions = RATING_OPTIONS;
 
   // ────────────────────────────────────────────────
   // Field Value & Update Methods
   // ────────────────────────────────────────────────
-  protected getValue(key: keyof BranchSurveyDetail): any {
-    return (this.model() as any)[key];
-  }
-
-  protected onFieldUpdate<K extends keyof BranchSurveyDetail>(
-    field: K,
-    value: BranchSurveyDetail[K],
-  ) {
-    this.fieldUpdated.emit({ field, value });
-  }
 }

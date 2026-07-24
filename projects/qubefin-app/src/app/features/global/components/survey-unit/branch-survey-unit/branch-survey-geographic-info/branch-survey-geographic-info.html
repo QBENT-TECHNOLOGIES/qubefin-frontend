@@ -16,8 +16,7 @@
       <input
         matInput
         [matDatepicker]="picker"
-        [value]="getValue('surveyDate')"
-        (dateChange)="onDateChanged('surveyDate', $event.value)" />
+        [formField]="branchSurveyGeographicInfoForm.surveyDate" />
       <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
@@ -29,13 +28,12 @@
       </div>
       <input
         matInput
-        [value]="getValue('proposedOperationalArea')"
-        (input)="onTextInput('proposedOperationalArea', $any($event.target).value)" />
+        [formField]="branchSurveyGeographicInfoForm.proposedOperationalArea" />
     </mat-form-field>
 
     <qfin-administrative-unit-cascade
       [columns]="3"
-      [administrativeUnitId]="getValue('administrativeUnitId')"
+      [administrativeUnitId]="branchSurveyGeographicInfo().administrativeUnitId"
       (selectedIdChanged)="onCascadeChanged($event)">
     </qfin-administrative-unit-cascade>
 
@@ -46,8 +44,7 @@
       </div>
       <input
         matInput
-        [value]="getValue('pinCode')"
-        (input)="onTextInput('pinCode', $any($event.target).value)" />
+        [formField]="branchSurveyGeographicInfoForm.pinCode" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -58,8 +55,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('latitude')"
-        (input)="onNumberInput('latitude', $any($event.target).value)" />
+        [formField]="branchSurveyGeographicInfoForm.latitude" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -70,8 +66,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('longitude')"
-        (input)="onNumberInput('longitude', $any($event.target).value)" />
+        [formField]="branchSurveyGeographicInfoForm.longitude" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -81,8 +76,7 @@
       </div>
       <input
         matInput
-        [value]="getValue('geoTag')"
-        (input)="onTextInput('geoTag', $any($event.target).value)" />
+        [formField]="branchSurveyGeographicInfoForm.geoTag" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -92,8 +86,7 @@
       </div>
       <input
         matInput
-        [value]="getValue('nearestLandmark')"
-        (input)="onTextInput('nearestLandmark', $any($event.target).value)" />
+        [formField]="branchSurveyGeographicInfoForm.nearestLandmark" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -102,8 +95,7 @@
         <svg lucideIcon="building-2" class="w-5 h-5"></svg>
       </div>
       <mat-select
-        [value]="getValue('administrativeStatus')"
-        (valueChange)="onFieldUpdate('administrativeStatus', $event)">
+        [formField]="branchSurveyGeographicInfoForm.administrativeStatus">
         @for (option of adminStatusOptions; track option) {
           <mat-option [value]="option">{{ option }}</mat-option>
         }
@@ -118,8 +110,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('distanceFromExistingWeGrowBranch')"
-        (input)="onNumberInput('distanceFromExistingWeGrowBranch', $any($event.target).value)" />
+        [formField]="branchSurveyGeographicInfoForm.distanceFromExistingWeGrowBranch" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -130,8 +121,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('distanceFromDistrictHeadquarters')"
-        (input)="onNumberInput('distanceFromDistrictHeadquarters', $any($event.target).value)" />
+        [formField]="branchSurveyGeographicInfoForm.distanceFromDistrictHeadquarters" />
     </mat-form-field>
   </div>
 </div>

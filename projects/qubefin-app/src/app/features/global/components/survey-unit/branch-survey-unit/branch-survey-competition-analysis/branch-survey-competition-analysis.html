@@ -15,8 +15,7 @@
       </div>
       <input
         matInput
-        [value]="getValue('nameOfInstitution')"
-        (input)="onTextInput('nameOfInstitution', $any($event.target).value)" />
+        [formField]="branchSurveyMicrofinanceCompetitionForm.nameOfInstitution" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -27,8 +26,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('approxClients')"
-        (input)="onNumberInput('approxClients', $any($event.target).value)" />
+        [formField]="branchSurveyMicrofinanceCompetitionForm.approxClients" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -40,8 +38,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('approxPortfolio')"
-        (input)="onNumberInput('approxPortfolio', $any($event.target).value)" />
+        [formField]="branchSurveyMicrofinanceCompetitionForm.approxPortfolio" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -53,8 +50,7 @@
       <input
         matInput
         type="number"
-        [value]="getValue('pARPercent')"
-        (input)="onNumberInput('pARPercent', $any($event.target).value)" />
+        [formField]="branchSurveyMicrofinanceCompetitionForm.pARPercent" />
     </mat-form-field>
   </div>
 </div>
