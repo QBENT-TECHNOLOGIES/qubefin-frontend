@@ -39,7 +39,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Parent Menu select -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Unit Type</mat-label>
+                    <mat-label>Parent Menu</mat-label>
                     <mat-select [formField]="menuForm.parentId" placeholder="Select Parent">
                         @for (parentMenu of parentMenus(); track parentMenu) {
                         <mat-option [value]="parentMenu.id">
@@ -60,24 +60,24 @@
                     </div>
                     <input matInput [formField]="menuForm.name" autocomplete="name" placeholder="Enter name">
                 </mat-form-field>
+                <!-- Icon field -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Icon</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="pencil" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [formField]="menuForm.icon" autocomplete="name" placeholder="Enter name">
+                </mat-form-field>
+                <!-- Target field -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Target Path</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="pencil" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [formField]="menuForm.target" autocomplete="name" placeholder="Enter name">
+                </mat-form-field>
             </div>
         </div>
-        <!-- <div class="space-y-6">
-            <div>
-                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
-                    Permission Details
-                </h3>
-                <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                @for (permission of menuModel().permissions; track permission.permissionToken) {
-                <mat-slide-toggle [checked]="permission.checked"
-                    (change)="onPermissionChanged(permission.permissionToken, $event.checked)">{{permission.permissionToken}}</mat-slide-toggle>
-                }
-            </div>
-        </div> -->
-        
-
         <div class="space-y-4">
             <div>
                 <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
@@ -88,16 +88,16 @@
         
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 @for (permission of menuModel().permissions; track permission.permissionToken) {
-                    @let meta = getPermissionMeta(permission.permissionToken);
+                    <!-- @let meta = getPermissionMeta(permission.permissionToken); -->
                     <div class="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                                [ngClass]="meta.bgClass">
-                                <svg [lucideIcon]="meta.icon" class="w-5 h-5" [ngClass]="meta.iconClass"></svg>
+                                [ngClass]="permission.backgroundClass">
+                                <svg [lucideIcon]="iconMap[permission.icon]" class="w-5 h-5" [ngClass]="permission.iconClass"></svg>
                             </div>
                             <div>
-                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ meta.label }}</p>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">{{ meta.description }}</p>
+                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ permission.permissionToken }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">{{ permission.description }}</p>
                             </div>
                         </div>
                         <mat-slide-toggle class="perm-toggle" [checked]="permission.checked"

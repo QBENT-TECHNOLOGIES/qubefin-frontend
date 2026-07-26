@@ -1,48 +1,8 @@
 <div class="flex flex-col">
     <!-- Breadcrumb Section -->
     <div class="flex flex-wrap items-center justify-between gap-4 mb-2 z-10">
-        <div class="flex gap-3 items-center flex-wrap">
-            <p class="text-sm text-secondary-600 dark:text-slate-300 font-medium ">Filter By Category:</p>
-            @for (category of categories(); track category.id) {
-                <div (click)="selectCategory(category)" class="p-2 rounded-lg border
-                            flex justify-start items-center gap-2
-                            cursor-pointer lift
-                            transition-all duration-300" 
-                            [ngClass]="{
-                            'bg-white/60 border-slate-200 text-slate-700 hover:bg-slate-100 dark:bg-slate-800/60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/70':
-                                selectedCategory() !== category.id,
-                            'bg-secondary-600 border-secondary-600 text-white shadow-lg dark:bg-primary-600/30 dark:border-primary-500/30 dark:text-white dark:shadow-primary-900/30':
-                                selectedCategory() === category.id
-                        }">
-
-                    <svg [lucideIcon]="getCategoryIcon(category.name)" class="w-5 h-5">
-                    </svg>
-
-                    <p class="font-medium">
-                        {{ category.name }}
-                    </p>
-                </div>
-            }
-            @if (selectedCategory()) {
-                <div
-                    (click)="resetCategoryFilter()"
-                    class="p-2 rounded-full w-10 h-10
-                        flex justify-center items-center
-                        cursor-pointer lift
-                        transition-all duration-300
-                        bg-danger/5 text-danger
-                        hover:bg-danger/10
-                        dark:bg-danger/10 dark:hover:bg-danger/20"
-                    matTooltip="Reset">
-                    <svg
-                        lucideIcon="x"
-                        class="w-5 h-5">
-                    </svg>
-                </div>
-            }
-        </div>
         <div class="flex items-center gap-3">
-            @if (selectedSalaryComponentId() === EMPTY_UUID && isViewMode()) {
+            @if (selectedUserId() === EMPTY_UUID && isViewMode()) {
             <button type="button" (click)="toggleFilterArea()"
                 class="glass-input dark:text-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
                 <svg lucideIcon="funnel" class="w-4 h-4"></svg>
@@ -65,21 +25,20 @@
            duration-500 ease-in-out"
             [ngClass]="{
                 'w-full max-w-full opacity-100 translate-x-0':
-                    selectedSalaryComponentId() === EMPTY_UUID && isViewMode(),
+                    selectedUserId() === EMPTY_UUID && isViewMode(),
 
                 'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]':
-                    isViewMode() && selectedSalaryComponentId() !== EMPTY_UUID,
+                    isViewMode() && selectedUserId() !== EMPTY_UUID,
 
                 'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
                     !isViewMode()
             }">
             <!-- COLLAPSED SEARCH -->
-            @if (selectedSalaryComponentId() === EMPTY_UUID && isViewMode()) {
+            <!-- @if (selectedUserId() === EMPTY_UUID && isViewMode()) {
             @if (showFilterArea()) {
             <div class="p-3 transition-all duration-300">
                 <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
-                    <!-- Search By Name/Code -->
-                    <div class="flex-1 min-w-50">
+                    <div class="flex-1 min-w-[200px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                             <mat-label>Search By Name/Code</mat-label>
                             <div class="w-12 flex justify-center" matPrefix>
@@ -90,8 +49,7 @@
                         </mat-form-field>
                     </div>
 
-                    <!-- Category -->
-                    <div class="flex-1 min-w-50">
+                    <div class="flex-1 min-w-[200px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                             <mat-label>Category</mat-label>
                             <div class="w-12 flex justify-center" matPrefix>
@@ -106,27 +64,7 @@
                         </mat-form-field>
                     </div>
 
-                    <!-- Taxable Toggle -->
-                    <!-- <div class="flex flex-col select-none">
-                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Taxable</span>
-                            <div
-                                class="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl w-30 border border-slate-200/50 dark:border-white/5 items-center h-10 shrink-0">
-                                <button type="button"
-                                    class="flex-1 text-center py-1.5 px-1 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer h-full flex items-center justify-center"
-                                    [ngClass]="tempTaxable === false ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200/10' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200'"
-                                    (click)="toggleTempTaxable(false)">
-                                    <svg lucideIcon="x" class="w-5 h-5"></svg>
-                                </button>
-                                <button type="button"
-                                    class="flex-1 text-center py-1.5 px-1 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer h-full flex items-center justify-center"
-                                    [ngClass]="tempTaxable === true ? 'bg-primary-500 text-white shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200'"
-                                    (click)="toggleTempTaxable(true)">
-                                    <svg lucideIcon="check" class="w-5 h-5"></svg>
-                                </button>
-                            </div>
-                        </div> -->
 
-                    <!-- Actions -->
                     <div class="flex items-center gap-2.5 shrink-0">
                         <button type="button" (click)="resetFilters()"
                             class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
@@ -155,21 +93,21 @@
                     <svg lucideIcon="search" class="w-4 h-4"></svg>
                 </button>
             </div>
-            }
+            } -->
 
             <!-- LIST -->
-            <qfin-salary-component-list [data]="filteredSalaryComponents()"
-                [isCollapsed]="selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()"
-                (onViewDetail)="onView($event)">
-            </qfin-salary-component-list>
+            <qfin-user-list-component [data]="searchedUsers()"
+                [isCollapsed]="selectedUserId() !== EMPTY_UUID || !isViewMode()"
+                (showDetail)="onView($event)">
+            </qfin-user-list-component>
         </div>
 
-        @if (selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()) {
+        @if (selectedUserId() !== EMPTY_UUID) {
         <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
             [ngClass]="{
                 'w-3/4':
                     isViewMode() &&
-                    selectedSalaryComponentId() !== EMPTY_UUID,
+                    selectedUserId() !== EMPTY_UUID,
 
                 'w-full':
                     !isViewMode()
@@ -180,7 +118,7 @@
                     <div class="flex items-center gap-4">
                         <!-- <div
                             class="w-14 h-14 rounded-xl shadow-md bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center dark:shadow-none">
-                            @if (selectedSalaryComponentId() === EMPTY_UUID) {
+                            @if (selectedUserId() === EMPTY_UUID) {
                             <svg lucideIcon="plus" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
                             } @else if (isViewMode()) {
                             <svg lucideIcon="eye" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
@@ -191,7 +129,7 @@
                         <div>
                             <div class="flex justify-start gap-2">
                                 <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
-                                    @if (selectedSalaryComponentId() === EMPTY_UUID) {
+                                    @if (selectedUserId() === EMPTY_UUID) {
                                     Add Salary
                                     } @else if (isViewMode()) {
                                     Details
@@ -204,7 +142,7 @@
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                                     <span
                                         class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                                        @if (selectedSalaryComponentId() === EMPTY_UUID) {
+                                        @if (selectedUserId() === EMPTY_UUID) {
                                         New Mode
                                         } @else if (isViewMode()) {
                                         View Mode
@@ -215,12 +153,12 @@
                                 </div>
                             </div>
                             <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                                @if (selectedSalaryComponentId() === EMPTY_UUID) {
+                                @if (selectedUserId() === EMPTY_UUID) {
                                 Create a new salary component and configure its applicability.
                                 } @else if (isViewMode()) {
-                                View the salary component details and configuration.
+                                View the user details and configuration.
                                 } @else {
-                                Update the salary component and its applicability rules.
+                                Update the user and its applicability rules.
                                 }
                             </p>
                         </div>
@@ -234,13 +172,13 @@
             </div>
 
             <!-- <div> -->
-            @if (isViewMode() && selectedSalaryComponentId() !== EMPTY_UUID) {
-            <qfin-salary-component-view [salaryId]="selectedSalaryComponentId()" (showEdit)="onEdit()">
-            </qfin-salary-component-view>
+            @if (isViewMode() && selectedUserId() !== EMPTY_UUID) {
+            <qfin-user-view [userId]="selectedUserId()" (showEdit)="onEdit()">
+            </qfin-user-view>
             } @else {
-            <qfin-salary-component-detail [salaryId]="selectedSalaryComponentId()" (onCancel)="closePanel()"
+            <!-- <qfin-salary-component-detail [salaryId]="selectedUserId()" (onCancel)="closePanel()"
                 (onSave)="closePanel()">
-            </qfin-salary-component-detail>
+            </qfin-salary-component-detail> -->
             }
             <!-- </div> -->
         </div>

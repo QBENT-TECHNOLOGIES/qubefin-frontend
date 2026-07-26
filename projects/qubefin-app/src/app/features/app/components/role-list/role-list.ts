@@ -14,7 +14,6 @@ import { LucideDynamicIcon } from '@lucide/angular';
 })
 export class RoleListComponent {
 	
-
 	selectedId = signal<string>('');
 	readonly iconMap = APP_ICONS_MAP;
 

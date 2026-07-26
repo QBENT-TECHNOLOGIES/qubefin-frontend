@@ -2,206 +2,169 @@ import { Component, computed, effect, inject, model, output, signal } from '@ang
 import { CommonModule } from '@angular/common';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { MenuStore } from '../../stores/menu-store';
-import { Menu, MenuField } from '../../models/menu';
+import { MenuField } from '../../models/menu';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 import { PermissionStore } from '../../stores/permission-store';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { Permission, PermissionField } from '../../models/permission';
+import { PermissionField } from '../../models/permission';
 import { MenuService } from '../../services/menu-service';
 
 @Component({
-  selector: 'qfin-menu-detail-component',
-  imports: [
-    FormField,
-    CommonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatSlideToggleModule,
-    LucideDynamicIcon,
-  ],
-  templateUrl: './menu-detail.html',
+	selector: 'qfin-menu-detail-component',
+	imports: [
+		FormField,
+		CommonModule,
+		MatFormFieldModule,
+		MatInputModule,
+		MatSelectModule,
+		MatSlideToggleModule,
+		LucideDynamicIcon,
+	],
+	templateUrl: './menu-detail.html',
 })
 export class MenuDetailComponent {
-  permissionStore = inject(PermissionStore);
-  menuStore = inject(MenuStore);
-  menuService = inject(MenuService);
+	permissionStore = inject(PermissionStore);
+	menuStore = inject(MenuStore);
+	menuService = inject(MenuService);
+	alertService = inject(AlertService);
 
-  menuId = model<string>('');
-  cancel = output<void>();
-  readonly iconMap = APP_ICONS_MAP;
+	menuId = model<string>('');
+	cancel = output<void>();
+	readonly iconMap = APP_ICONS_MAP;
 
-  parentMenus = this.menuStore.parentMenus;
-  permissions = signal<PermissionField[]>([]); //this.permissionStore.permissions;
-  menu = this.menuStore.menu;
-  mode = computed(() => (this.menuId() === EMPTY_UUID ? 'Add' : 'Edit'));
+	parentMenus = this.menuStore.parentMenus;
+	permissions = signal<PermissionField[]>([]); //this.permissionStore.permissions;
+	menu = this.menuStore.menu;
+	mode = computed(() => (this.menuId() === EMPTY_UUID ? 'Add' : 'Edit'));
 
-  private readonly permissionMeta: Record<
-    string,
-    {
-      label: string;
-      description: string;
-      icon: LucideIcon;
-      bgClass: string;
-      iconClass: string;
-    }
-  > = {
-      view: {
-        label: 'View',
-        description: 'View menu and data',
-        icon: this.iconMap['Eye'],
-        bgClass: 'bg-emerald-100 dark:bg-emerald-900/30',
-        iconClass: 'text-emerald-600 dark:text-emerald-400',
-      },
+	enabledPermissionsCount = computed(
+		() => this.menuModel().permissions.filter((p) => p.checked).length,
+	);
 
-      add: {
-        label: 'Add',
-        description: 'Add new records',
-        icon: this.iconMap['FilePlus'],
-        bgClass: 'bg-blue-100 dark:bg-blue-900/30',
-        iconClass: 'text-blue-600 dark:text-blue-400',
-      },
+	enabledPermissionsLabel = computed(() => {
+		const names = this.menuModel()
+			.permissions.filter((p) => p.checked)
+			.map((p) => p.permissionToken);
+		if (!names.length) return 'No';
+		if (names.length === 1) return names[0];
+		return names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+	});
 
-      edit: {
-        label: 'Edit',
-        description: 'Edit existing records',
-        icon: this.iconMap['FilePenLine'],
-        bgClass: 'bg-amber-100 dark:bg-amber-900/30',
-        iconClass: 'text-amber-600 dark:text-amber-400',
-      },
+	constructor() {
+		effect(() => {
+			const id = this.menuId();
+			this.menuStore.setMenuId(id);
+		});
 
-      delete: {
-        label: 'Delete',
-        description: 'Delete records',
-        icon: this.iconMap['Trash2'],
-        bgClass: 'bg-red-100 dark:bg-red-900/30',
-        iconClass: 'text-red-600 dark:text-red-400',
-      },
+		effect(() => {
+			const menu = this.menu();
+			const allPermissions = this.permissionStore.permissions();
 
-      export: {
-        label: 'Export',
-        description: 'Export data',
-        icon: this.iconMap['FileDown'],
-        bgClass: 'bg-violet-100 dark:bg-violet-900/30',
-        iconClass: 'text-violet-600 dark:text-violet-400',
-      },
-    };
+			if (!allPermissions) return;
 
-  getPermissionMeta(token: string) {
-    return (
-      this.permissionMeta[token.toLowerCase()] ?? {
-        label: token,
-        description: '',
-        icon: this.iconMap['ShieldCheck'],
-        bgClass: 'bg-slate-100 dark:bg-slate-800',
-        iconClass: 'text-slate-500',
-      }
-    );
-  }
+			if (this.menuId() === EMPTY_UUID) {
+				this.menuModel.set({
+					id: EMPTY_UUID,
+					name: '',
+					icon: '',
+					target: '',
+					parentId: '',
+					displayPosition: 0,
+					isActive: true,
+					permissions: allPermissions.map(p => ({
+						...p,
+						checked: false
+					}))
+				});
 
-  enabledPermissionsCount = computed(
-    () => this.menuModel().permissions.filter((p) => p.checked).length,
-  );
+				return;
+			}
 
-  enabledPermissionsLabel = computed(() => {
-    const names = this.menuModel()
-      .permissions.filter((p) => p.checked)
-      .map((p) => this.getPermissionMeta(p.permissionToken).label);
-    if (!names.length) return 'No';
-    if (names.length === 1) return names[0];
-    return names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
-  });
 
-  constructor() {
-    effect(() => {
-      const id = this.menuId();
-      this.menuStore.setMenuId(id);
-    });
+			if (!menu) return;
 
-    effect(() => {
-      const menu = this.menu();
-      const allPermissions = this.permissionStore.permissions();
+			const selectedTokens = new Set(menu.permissions.map((p) => p.permissionToken));
 
-      if (!menu || !allPermissions) return;
+			this.menuModel.set({
+				...menu,
+				target: menu.target ?? '',
+				permissions: allPermissions.map((permission) => ({
+					...permission,
+					checked: selectedTokens.has(permission.permissionToken),
+				})),
+			});
+		});
+	}
 
-      const selectedTokens = new Set(menu.permissions.map((p) => p.permissionToken));
+	protected readonly menuModel = signal<MenuField>({
+		id: '',
+		name: '',
+		icon: '',
+		target: '',
+		parentId: '',
+		displayPosition: 0,
+		isActive: true,
+		permissions: [],
+	});
+	protected readonly menuSchema: Schema<MenuField> = schema((path) => {
+		required(path.name, { message: 'Menu Name is required' });
+		required(path.icon, { message: 'Menu Icon is required' });
+	});
+	protected readonly menuForm = form(this.menuModel, this.menuSchema);
 
-      this.menuModel.set({
-        ...menu,
-        permissions: allPermissions.map((permission) => ({
-          ...permission,
-          checked: selectedTokens.has(permission.permissionToken),
-        })),
-      });
-    });
-  }
+	onPermissionChanged(token: string, checked: boolean): void {
+		this.menuModel.update((menu) => ({
+			...menu,
+			permissions: menu.permissions.map((permission) =>
+				permission.permissionToken === token ? { ...permission, checked } : permission,
+			),
+		}));
+	}
 
-  protected readonly menuModel = signal<MenuField>({
-    id: '',
-    name: '',
-    icon: '',
-    target: '',
-    parentId: '',
-    displayPosition: 0,
-    isActive: true,
-    permissions: [],
-  });
-  protected readonly menuSchema: Schema<MenuField> = schema((path) => {
-    required(path.name, { message: 'Menu Name is required' });
-    required(path.icon, { message: 'Menu Icon is required' });
-  });
-  protected readonly menuForm = form(this.menuModel, this.menuSchema);
+	onSubmit() {
+		if (!this.menuForm().valid()) {
+			return;
+		}
 
-  onPermissionChanged(token: string, checked: boolean): void {
-    this.menuModel.update((menu) => ({
-      ...menu,
-      permissions: menu.permissions.map((permission) =>
-        permission.permissionToken === token ? { ...permission, checked } : permission,
-      ),
-    }));
-  }
+		const dataToSave = {
+			...this.menuForm().value(),
+			//target: this.menuForm().value().target || null,
+			permissions: this.menuForm()
+				.value()
+				.permissions.filter(p => p.checked)
+		};
 
-  onSubmit() {
-    if (!this.menuForm().valid()) {
-      return;
-    }
+		if (this.menuId() === EMPTY_UUID) {
+			this.menuService.create(dataToSave).subscribe({
+				next: (resp: any) => {
+					this.alertService.success("Success", "Menu saved successfully !")
+					//this.administrativeUnitStore.refreshTree();
+				},
+				error: (err: any) => {
+					if (err.error.isError) {
+					}
+				}
+			});
+		} else {
+			this.menuService.update(this.menuId(), dataToSave).subscribe({
+				next: (resp: any) => {
+					this.alertService.success("Success", "Menu updated successfully !")
+					//this.menuStore.refreshTree();
+				},
+				error: (err: any) => {
+					if (err.error.isError) {
+					}
+				}
+			});
+		}
+	}
 
-    const dataToSave = {
-      ...this.menuForm().value(),
-      permissions: this.menuForm()
-        .value()
-        .permissions.filter(p => p.checked)
-    };
-
-    if (this.menuId() === EMPTY_UUID) {
-      this.menuService.create(dataToSave).subscribe({
-        next: (resp: any) => {
-          //this.administrativeUnitStore.refreshTree();
-        },
-        error: (err: any) => {
-          if (err.error.isError) {
-          }
-        }
-      });
-    } else {
-      this.menuService.update(this.menuId(), dataToSave).subscribe({
-        next: (resp: any) => {
-          //this.menuStore.refreshTree();
-        },
-        error: (err: any) => {
-          if (err.error.isError) {
-          }
-        }
-      });
-    }
-  }
-
-  onCancel() {
-    this.cancel.emit();
-  }
+	onCancel() {
+		this.cancel.emit();
+	}
 }
