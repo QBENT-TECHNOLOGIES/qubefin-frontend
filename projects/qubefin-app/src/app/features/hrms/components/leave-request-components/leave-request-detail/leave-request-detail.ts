@@ -12,7 +12,7 @@ import { LeaveRequestStore } from '../../../stores/leave-request-store';
 import { LeaveRequestService } from '../../../services/leave-request-service';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
-import { ILeaveRequestItem } from '../../../models/leave-request';
+import { ILeaveRequestDetailItem, ILeaveRequestItem } from '../../../models/leave-request';
 
 @Component({
   selector: 'qfin-leave-request-detail',
@@ -53,16 +53,25 @@ export class LeaveRequestDetail {
   
   protected readonly selectedFile = signal<File | null>(null);
 
-  protected readonly formModel = signal<ILeaveRequestItem>(this.createEmptyModel());
+  public readonly documentUrl = signal<string>('');
+
+  protected readonly leaveRequestModel = signal<ILeaveRequestDetailItem>({
+      id:EMPTY_UUID,
+      leaveType: '',
+      fromDate: '',
+      toDate: '',
+      reason: '',
+      address: '',
+    });
   
-  protected readonly leaveRequestSchema: Schema<ILeaveRequestItem> = schema((path) => {
+  protected readonly leaveRequestSchema: Schema<ILeaveRequestDetailItem> = schema((path) => {
     required(path.leaveType, { message: 'Leave Type is required' });
     required(path.fromDate, { message: 'From Date is required' });
     required(path.toDate, { message: 'To Date is required' });
     required(path.reason, { message: 'Reason is required' });
   });
   
-  protected readonly leaveRequestForm = form(this.formModel, this.leaveRequestSchema);
+  protected readonly leaveRequestForm = form(this.leaveRequestModel, this.leaveRequestSchema);
 
   constructor() {
     this.dateAdapter.setLocale('en-GB');
@@ -71,8 +80,16 @@ export class LeaveRequestDetail {
       this.leaveRequestStore.setLeaveRequestId(this.leaveRequestId());
 
       if (!this.isEditMode()) {
-        this.formModel.set(this.createEmptyModel());
+        this.leaveRequestModel.set({
+          id:EMPTY_UUID,
+          leaveType: '',
+          fromDate: '',
+          toDate: '',
+          reason: '',
+          address: '',
+        });
         this.selectedFile.set(null);
+        this.documentUrl.set('');
         return;
       }
     });
@@ -80,20 +97,21 @@ export class LeaveRequestDetail {
     effect(() => {
       const request = this.leaveRequest();
       if (request) {
-        this.formModel.set({
+        this.leaveRequestModel.set({
           ...request,
           fromDate: request.fromDate ? new Date(request.fromDate) : null,
           toDate: request.toDate ? new Date(request.toDate) : null,
         });
+        this.documentUrl.set(request.documentUrl || '');
       }
     });
   }
 
-  protected updateField<K extends keyof ILeaveRequestItem>(
+  protected updateField<K extends keyof ILeaveRequestDetailItem>(
     field: K,
-    value: ILeaveRequestItem[K],
+    value: ILeaveRequestDetailItem[K],
   ) {
-    this.formModel.update((current) => ({
+    this.leaveRequestModel.update((current) => ({
       ...current,
       [field]: value,
     }));
@@ -103,11 +121,16 @@ export class LeaveRequestDetail {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
       this.selectedFile.set(file);
+      this.documentUrl.set(URL.createObjectURL(file));
     }
   }
   
   removeFile() {
     this.selectedFile.set(null);
+    if (this.documentUrl().startsWith('blob:')) {
+      URL.revokeObjectURL(this.documentUrl());
+    }
+    this.documentUrl.set(this.leaveRequest()?.documentUrl || '');
   }
 
   protected onCancelClicked() {
@@ -145,21 +168,5 @@ export class LeaveRequestDetail {
       });
       return;
     }
-  }
-
-  private createEmptyModel(): ILeaveRequestItem {
-    return {
-      id: EMPTY_UUID,
-      leaveType: '',
-      fromDate: null,
-      toDate: null,
-      days: 0,
-      status: 'Pending',
-      reason: '',
-      address: '',
-      documentUrl: '',
-      auditInfo: null,
-      history: []
-    };
   }
 }

@@ -1,3 +1,11 @@
+export interface ILeaveRequestDetailItem {
+  id: string;
+  leaveType: string;
+  fromDate: string | Date | null;
+  toDate: string | Date | null;
+  reason: string;
+  address: string;
+}
 export interface ILeaveRequestItem {
   id: string;
   leaveType: string;
@@ -7,7 +15,7 @@ export interface ILeaveRequestItem {
   status: string;
   reason: string;
   address: string;
-  documentUrl?: string;
+  documentUrl?: string | null;
   document?: File;
   auditInfo: IAuditInfo | null;
   history?: ILeaveRequestHistory[];

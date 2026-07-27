@@ -185,7 +185,7 @@ public leaveRequestDemoItem: ILeaveRequestItem = {
   status: 'Pending',
   reason: 'Family function outside the city.',
   address: 'Kolkata, West Bengal',
-  documentUrl: 'https://example.com/documents/leave-application.pdf',
+  documentUrl: null,
   auditInfo: {
     createdBy: 'John Doe',
     createdOn: '2026-07-25T10:30:00',

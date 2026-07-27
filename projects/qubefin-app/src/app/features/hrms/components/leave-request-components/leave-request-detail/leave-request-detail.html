@@ -4,7 +4,7 @@
     Loading leave request details...
   </div>
   } @else {
-  
+
   <div class="flex items-center gap-2">
     <svg lucideIcon="calendar-days" class="w-5 h-5 text-primary-600"></svg>
     <h3 class="text-base font-bold text-slate-800 dark:text-white">
@@ -22,7 +22,7 @@
       </div>
       <mat-select [formField]="leaveRequestForm.leaveType">
         @for (option of leaveTypeOptions; track option) {
-          <mat-option [value]="option">{{ option }}</mat-option>
+        <mat-option [value]="option">{{ option }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
@@ -31,7 +31,7 @@
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
       <mat-label>From Date</mat-label>
       <div class="w-12 flex justify-center" matPrefix>
-        <svg lucideIcon="calendar-arrow-right" class="w-5 h-5"></svg>
+        <svg lucideIcon="calendar-arrow-down" class="w-5 h-5"></svg>
       </div>
       <input matInput [matDatepicker]="fromPicker" [formField]="leaveRequestForm.fromDate" />
       <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
@@ -42,7 +42,7 @@
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
       <mat-label>To Date</mat-label>
       <div class="w-12 flex justify-center" matPrefix>
-        <svg lucideIcon="calendar-arrow-left" class="w-5 h-5"></svg>
+        <svg lucideIcon="calendar-arrow-up" class="w-5 h-5"></svg>
       </div>
       <input matInput [matDatepicker]="toPicker" [formField]="leaveRequestForm.toDate" />
       <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
@@ -55,9 +55,9 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="file-text" class="w-5 h-5"></svg>
       </div>
-      <textarea matInput [formField]="leaveRequestForm.reason" rows="3"></textarea>
+      <input matInput [formField]="leaveRequestForm.reason" rows="3" />
     </mat-form-field>
-    
+
     <!-- Address -->
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-3">
       <mat-label>Address (While on leave)</mat-label>
@@ -66,42 +66,39 @@
       </div>
       <input matInput [formField]="leaveRequestForm.address" />
     </mat-form-field>
-  </div>
-  
-  <div class="mt-4">
-    <div class="flex items-center gap-2">
-      <svg lucideIcon="paperclip" class="w-5 h-5 text-primary-600"></svg>
-      <h3 class="text-base font-bold text-slate-800 dark:text-white">
-        Document Upload
-      </h3>
-    </div>
-    <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
-    
-    <div class="flex items-center gap-4">
-      <button type="button" mat-stroked-button (click)="fileInput.click()">
-        <div class="flex items-center gap-2">
-           <svg lucideIcon="upload" class="w-4 h-4"></svg>
-           Choose File
-        </div>
-      </button>
+    <!-- Document Upload -->
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-3">
+      <mat-label>Document Upload</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="paperclip" class="w-5 h-5 text-slate-500"></svg>
+      </div>
+      <input matInput [value]="selectedFile()?.name || (documentUrl() ? 'Current document available' : '')" readonly
+        placeholder="No file chosen" />
       <input hidden (change)="onFileSelected($event)" #fileInput type="file">
-      
-      @if (selectedFile()) {
-        <div class="flex items-center gap-2 text-sm text-slate-600 bg-slate-100 px-3 py-1.5 rounded-md">
-          <svg lucideIcon="file" class="w-4 h-4 text-primary-500"></svg>
-          <span class="truncate max-w-xs">{{ selectedFile()?.name }}</span>
-          <button type="button" (click)="removeFile()" class="text-rose-500 hover:text-rose-700 ml-2">
-            <svg lucideIcon="x" class="w-4 h-4"></svg>
-          </button>
-        </div>
-      } @else if (formModel().documentUrl) {
-        <div class="flex items-center gap-2 text-sm text-slate-600">
-          <a [href]="formModel().documentUrl" target="_blank" class="text-primary-600 hover:underline flex items-center gap-1">
-            <svg lucideIcon="external-link" class="w-4 h-4"></svg> View Current Document
-          </a>
-        </div>
-      }
-    </div>
+
+      <div matSuffix class="flex items-center gap-2 pr-1.5 py-1">
+        @if (selectedFile()) {
+        <button type="button" mat-icon-button (click)="removeFile()" class="text-rose-500">
+          <svg lucideIcon="x" class="w-4 h-4"></svg>
+        </button>
+        }
+
+        <button type="button"
+          class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
+          (click)="fileInput.click()">
+          <svg lucideIcon="upload" class="w-3.5 h-3.5"></svg>
+          Choose File
+        </button>
+
+        @if (documentUrl()) {
+        <a [href]="documentUrl()" target="_blank"
+          class="bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-primary-200 dark:border-primary-800/30 cursor-pointer">
+          <svg lucideIcon="eye" class="w-3.5 h-3.5"></svg>
+          View
+        </a>
+        }
+      </div>
+    </mat-form-field>
   </div>
 
   <!-- Footer Button -->
