@@ -144,6 +144,7 @@ import {
   LucidePercent,
   LucideBookOpen,
   LucideIndianRupee,
+  LucideSend,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -292,6 +293,7 @@ export const APP_ICONS = [
   LucidePercent,
   LucideBookOpen,
   LucideIndianRupee,
+  LucideSend,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -439,4 +441,5 @@ export const APP_ICONS_MAP: Record<string, any> = {
   Percent: LucidePercent,
   BookOpen: LucideBookOpen,
   IndianRupee: LucideIndianRupee,
+  Send: LucideSend,
 };

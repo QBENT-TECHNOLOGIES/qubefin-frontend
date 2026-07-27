@@ -284,22 +284,7 @@ export class BranchSurveyUnit {
     };
   }
 
-  // ────────────────────────────────────────────────
-  // Field Updates from Child Steps
-  // ────────────────────────────────────────────────
-  protected updateField<K extends keyof BranchSurveyDetailModel>(
-    field: K,
-    value: BranchSurveyDetailModel[K],
-  ) {
-    this.formModel.update((current) => ({
-      ...current,
-      [field]: value,
-    }));
-  }
 
-  protected onChildFieldUpdated(event: { field: keyof BranchSurveyDetailModel; value: any }) {
-    this.updateField(event.field, event.value);
-  }
 
   // ────────────────────────────────────────────────
   // Submit / Confirmation
@@ -319,18 +304,18 @@ export class BranchSurveyUnit {
     'Recommendation': 'Recommendation'
   };
 
-  protected async saveCurrentStep(stepper: MatStepper) {
+  protected async saveCurrentStep(stepper: MatStepper, isSubmit: boolean = false) {
     const currentLabel = stepper.selected?.label;
     if (currentLabel && this.stepKeyMap[currentLabel]) {
       const stepKey = this.stepKeyMap[currentLabel];
       const isLastStep = stepper.selectedIndex === stepper.steps.length - 1;
-      await this.saveStep(stepKey, isLastStep ? null : stepper);
+      await this.saveStep(stepKey, isLastStep ? null : stepper, isSubmit);
     } else {
       console.error('Unknown step label:', currentLabel);
     }
   }
 
-  protected async saveStep(stepName: string, stepper: MatStepper | null) {
+  protected async saveStep(stepName: string, stepper: MatStepper | null, isSubmit: boolean = false) {
     if (!this.formModel().administrativeUnitId && stepName === 'GeographicInformation') {
       Swal.fire({
         icon: 'error',
@@ -435,29 +420,42 @@ try {
       if (stepper) {
         stepper.next();
       } else {
-        const result = await Swal.fire({
-          title: 'Submit Survey?',
-          text: 'Are you sure you want to submit the survey?',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Yes, Submit',
-        });
+        if (!this.formModel().isSubmitButtonVisible) {
+          this.closePanel();
+          return;
+        }
         
-        if (result.isConfirmed) {
-          if (this.formModel().isSubmitButtonVisible) {
+        if (isSubmit) {
+          const result = await Swal.fire({
+            title: 'Submit Survey?',
+            text: 'Are you sure you want to submit the survey?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Submit',
+          });
+          
+          if (result.isConfirmed) {
             await this.store.SubmitBranchSurvey({ id: this.formModel().id });
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: 'Survey submitted successfully',
+            });
+            this.closePanel();
           }
+        } else {
           Swal.fire({
             icon: 'success',
             title: 'Success',
-            text: 'Survey submitted successfully',
+            text: 'Survey saved successfully',
           });
           this.closePanel();
         }
       }
     } catch (error) {
+      console.error(error);
       Swal.fire({
         icon: 'error',
         title: 'Error',

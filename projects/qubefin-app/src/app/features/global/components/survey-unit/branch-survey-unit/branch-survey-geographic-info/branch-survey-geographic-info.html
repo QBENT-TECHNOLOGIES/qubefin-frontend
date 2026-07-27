@@ -13,10 +13,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
       </div>
-      <input
-        matInput
-        [matDatepicker]="picker"
-        [formField]="branchSurveyGeographicInfoForm.surveyDate" />
+      <input matInput [matDatepicker]="picker" [formField]="branchSurveyGeographicInfoForm.surveyDate" />
       <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
@@ -26,13 +23,10 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="map" class="w-5 h-5"></svg>
       </div>
-      <input
-        matInput
-        [formField]="branchSurveyGeographicInfoForm.proposedOperationalArea" />
+      <input matInput [formField]="branchSurveyGeographicInfoForm.proposedOperationalArea" />
     </mat-form-field>
 
-    <qfin-administrative-unit-cascade
-      [columns]="3"
+    <qfin-administrative-unit-cascade [columns]="3"
       [administrativeUnitId]="branchSurveyGeographicInfo().administrativeUnitId"
       (selectedIdChanged)="onCascadeChanged($event)">
     </qfin-administrative-unit-cascade>
@@ -42,9 +36,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="hash" class="w-5 h-5"></svg>
       </div>
-      <input
-        matInput
-        [formField]="branchSurveyGeographicInfoForm.pinCode" />
+      <input matInput [formField]="branchSurveyGeographicInfoForm.pinCode" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -52,10 +44,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="locate-fixed" class="w-5 h-5"></svg>
       </div>
-      <input
-        matInput
-        type="number"
-        [formField]="branchSurveyGeographicInfoForm.latitude" />
+      <input matInput type="number" [formField]="branchSurveyGeographicInfoForm.latitude" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -63,10 +52,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="locate-fixed" class="w-5 h-5"></svg>
       </div>
-      <input
-        matInput
-        type="number"
-        [formField]="branchSurveyGeographicInfoForm.longitude" />
+      <input matInput type="number" [formField]="branchSurveyGeographicInfoForm.longitude" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -74,9 +60,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="map-pinned" class="w-5 h-5"></svg>
       </div>
-      <input
-        matInput
-        [formField]="branchSurveyGeographicInfoForm.geoTag" />
+      <input matInput [formField]="branchSurveyGeographicInfoForm.geoTag" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -84,9 +68,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="landmark" class="w-5 h-5"></svg>
       </div>
-      <input
-        matInput
-        [formField]="branchSurveyGeographicInfoForm.nearestLandmark" />
+      <input matInput [formField]="branchSurveyGeographicInfoForm.nearestLandmark" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -94,10 +76,9 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="building-2" class="w-5 h-5"></svg>
       </div>
-      <mat-select
-        [formField]="branchSurveyGeographicInfoForm.administrativeStatus">
+      <mat-select [formField]="branchSurveyGeographicInfoForm.administrativeStatus">
         @for (option of adminStatusOptions; track option) {
-          <mat-option [value]="option">{{ option }}</mat-option>
+        <mat-option [value]="option">{{ option }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
@@ -107,10 +88,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="route" class="w-5 h-5"></svg>
       </div>
-      <input
-        matInput
-        type="number"
-        [formField]="branchSurveyGeographicInfoForm.distanceFromExistingWeGrowBranch" />
+      <input matInput type="number" [formField]="branchSurveyGeographicInfoForm.distanceFromExistingWeGrowBranch" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -118,10 +96,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="route" class="w-5 h-5"></svg>
       </div>
-      <input
-        matInput
-        type="number"
-        [formField]="branchSurveyGeographicInfoForm.distanceFromDistrictHeadquarters" />
+      <input matInput type="number" [formField]="branchSurveyGeographicInfoForm.distanceFromDistrictHeadquarters" />
     </mat-form-field>
   </div>
 </div>
