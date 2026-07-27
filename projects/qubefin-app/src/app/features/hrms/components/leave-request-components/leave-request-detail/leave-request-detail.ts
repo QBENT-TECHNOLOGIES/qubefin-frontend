@@ -144,7 +144,7 @@ openDocument() {
   if(!this.documentUrl() || !this.documentName()) {
     return;
   }
-  console.log(this.documentUrl(), this.documentName(), this.documentName().split('.').pop()?.toLowerCase() || '');
+  
   this.documentModal.open({
     url: this.documentUrl(),
     documentName: this.documentName(),

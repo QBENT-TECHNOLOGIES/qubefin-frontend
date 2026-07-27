@@ -1,4 +1,4 @@
-@if (leaveRequest(); as request) {
+@if (leaveApproval(); as request) {
 <div class="flex flex-col gap-4">
   <div class="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 items-stretch">
 
@@ -13,12 +13,9 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-lg font-bold text-slate-800 dark:text-slate-100">
-                Leave Request
+                Leave Approval
               </h1>
 
-              <div class="p-2 rounded-4xl cursor-pointer hover:bg-rose-500/10" matTooltip="Delete" (click)="onDelete()">
-                <svg lucideIcon="trash-2" class="w-4 h-4 text-rose-500 dark:text-rose-400"></svg>
-              </div>
             </div>
             <p class="text-xs text-primary-700 dark:text-primary-400 font-medium">Details</p>
           </div>
@@ -53,10 +50,21 @@
       </div>
       <div class="pt-0 p-4">
         <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
-          Leave Information
+          Approval Information
         </h3>
         <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="gen-info md:col-span-2">
+            <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+              <svg lucideIcon="user" class="w-5 h-5 text-primary-700"></svg>
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Employee Name</label>
+              <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                {{ request.employeeName }}
+              </p>
+            </div>
+          </div>
           <div class="gen-info">
             <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
               <svg lucideIcon="tag" class="w-5 h-5 text-primary-700"></svg>
@@ -65,6 +73,17 @@
               <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Leave Type</label>
               <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
                 {{ request.leaveType }}
+              </p>
+            </div>
+          </div>
+          <div class="gen-info">
+            <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+              <svg lucideIcon="clock" class="w-5 h-5 text-primary-700"></svg>
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Days</label>
+              <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                {{ request.days }}
               </p>
             </div>
           </div>
@@ -90,17 +109,7 @@
               </p>
             </div>
           </div>
-          <div class="gen-info">
-            <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
-              <svg lucideIcon="clock" class="w-5 h-5 text-primary-700"></svg>
-            </div>
-            <div>
-              <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Days</label>
-              <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
-                {{ request.days }}
-              </p>
-            </div>
-          </div>
+
           <div class="gen-info md:col-span-2">
             <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
               <svg lucideIcon="file-text" class="w-5 h-5 text-primary-700"></svg>
@@ -176,6 +185,7 @@
       </div>
     </div>
   </div>
+
   <!-- Audit Information -->
   <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow p-4 pb-6 mt-2">
     <div class="flex flex-col gap-3">
@@ -245,6 +255,6 @@
 <div
   class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400 flex flex-col items-center justify-center gap-3 min-h-[300px]">
   <div class="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-  <p class="text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400">Loading leave request details...</p>
+  <p class="text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400">Loading leave approval details...</p>
 </div>
 }

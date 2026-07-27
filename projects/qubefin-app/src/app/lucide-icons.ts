@@ -1,4 +1,4 @@
-import { LucideAlertCircle, LucideArrowLeft, LucideBadgeCheck, LucideBadgeIndianRupee, LucideBanknoteCheck, LucideBanknoteX, LucideBell, LucideBuilding, LucideBuilding2, LucideCalendarClock, LucideCalendarPlus, LucideChevronDown, LucideChevronRight, LucideCircleQuestionMark, LucideCombine, LucideCopy, LucideEarth, LucideEye, LucideEyeOff, LucideFactory, LucideFileUser, LucideGlobe, LucideHandCoins, LucideHouse, LucideIconData, LucideImage, LucideKeyRound, LucideLandmark, LucideLandPlot, LucideLayers, LucideLayoutDashboard, LucideLock, LucideLockOpen, LucideLogIn, LucideLogOut, LucideMap, LucideMapPin, LucideMapPinHouse, LucideMapPinned, LucideMaximize2, LucideMinimize2, LucideMoon, LucideMusic, LucidePanelLeftClose, LucidePanelLeftOpen, LucidePencil, LucidePlus, LucidePrinter, LucideRefreshCw, LucideRotateCcw, LucideRotateCcwKey, LucideRotateCw, LucideSave, LucideShieldCheck, LucideShieldEllipsis, LucideShieldQuestionMark, LucideSignpost, LucideSignpostBig, LucideSplit, LucideSquareMenu, LucideSquarePen, LucideSquareUserRound, LucideSummary, LucideSun, LucideTrendingDown, LucideTrendingUp, LucideUser, LucideUserCheck, LucideUserCog, LucideUserKey, LucideUsers, LucideVideo, LucideWallet, LucideX, LucideSearch, LucideFunnel, LucideReceiptText, LucideCheck, LucidePiggyBank, LucideShieldPlus, LucideTag, LucideLayoutGrid, LucideListOrdered, LucideArrowRight, LucideCode, LucideSettings, LucideCalendarCheck, LucideCalendar1, LucideBanknoteArrowUp, LucideBanknoteArrowDown, LucideFileDown, LucideEllipsisVertical, LucideHeart, LucideDroplet, LucideVenus, LucideFlag, LucideChessBishop, LucideMars, LucideStickyNote, LucideChevronLeft, LucideIdCardLanyard, LucideSwatchBook, LucideClipboardCheck, LucideAccessibility, LucideRoad, LucideMapPinSearch, LucideHousePlus, LucideSiren, LucideLampDesk, LucideDownload, LucideNotebookText, LucideCoins, LucideTriangleAlert, LucidePhone, LucideMail, LucideUserRound, LucideNotebookTabs, LucideHeadset, LucideTrash2, LucideWarehouse, LucideUserSearch, LucideLoader, LucideOctagonAlert, LucideCalendarSync, LucideFileText, LucideBanknote, LucideBriefcase, LucideAward, LucideTrash, LucideContact, LucideUserLock, LucideCloudUpload, LucideCircleCheck, LucideFilePenLine, LucideFilePlus, LucideCalendarRange, LucideCalendarArrowUp, LucideCalendarDays, LucideCalendarArrowDown, LucideClock, LucidePaperclip, LucideExternalLink, LucideUpload, LucideZoomIn, LucideZoomOut } from "@lucide/angular";
+import { LucideAlertCircle, LucideArrowLeft, LucideBadgeCheck, LucideBadgeIndianRupee, LucideBanknoteCheck, LucideBanknoteX, LucideBell, LucideBuilding, LucideBuilding2, LucideCalendarClock, LucideCalendarPlus, LucideChevronDown, LucideChevronRight, LucideCircleQuestionMark, LucideCombine, LucideCopy, LucideEarth, LucideEye, LucideEyeOff, LucideFactory, LucideFileUser, LucideGlobe, LucideHandCoins, LucideHouse, LucideIconData, LucideImage, LucideKeyRound, LucideLandmark, LucideLandPlot, LucideLayers, LucideLayoutDashboard, LucideLock, LucideLockOpen, LucideLogIn, LucideLogOut, LucideMap, LucideMapPin, LucideMapPinHouse, LucideMapPinned, LucideMaximize2, LucideMinimize2, LucideMoon, LucideMusic, LucidePanelLeftClose, LucidePanelLeftOpen, LucidePencil, LucidePlus, LucidePrinter, LucideRefreshCw, LucideRotateCcw, LucideRotateCcwKey, LucideRotateCw, LucideSave, LucideShieldCheck, LucideShieldEllipsis, LucideShieldQuestionMark, LucideSignpost, LucideSignpostBig, LucideSplit, LucideSquareMenu, LucideSquarePen, LucideSquareUserRound, LucideSummary, LucideSun, LucideTrendingDown, LucideTrendingUp, LucideUser, LucideUserCheck, LucideUserCog, LucideUserKey, LucideUsers, LucideVideo, LucideWallet, LucideX, LucideSearch, LucideFunnel, LucideReceiptText, LucideCheck, LucidePiggyBank, LucideShieldPlus, LucideTag, LucideLayoutGrid, LucideListOrdered, LucideArrowRight, LucideCode, LucideSettings, LucideCalendarCheck, LucideCalendar1, LucideBanknoteArrowUp, LucideBanknoteArrowDown, LucideFileDown, LucideEllipsisVertical, LucideHeart, LucideDroplet, LucideVenus, LucideFlag, LucideChessBishop, LucideMars, LucideStickyNote, LucideChevronLeft, LucideIdCardLanyard, LucideSwatchBook, LucideClipboardCheck, LucideAccessibility, LucideRoad, LucideMapPinSearch, LucideHousePlus, LucideSiren, LucideLampDesk, LucideDownload, LucideNotebookText, LucideCoins, LucideTriangleAlert, LucidePhone, LucideMail, LucideUserRound, LucideNotebookTabs, LucideHeadset, LucideTrash2, LucideWarehouse, LucideUserSearch, LucideLoader, LucideOctagonAlert, LucideCalendarSync, LucideFileText, LucideBanknote, LucideBriefcase, LucideAward, LucideTrash, LucideContact, LucideUserLock, LucideCloudUpload, LucideCircleCheck, LucideFilePenLine, LucideFilePlus, LucideCalendarRange, LucideCalendarArrowUp, LucideCalendarDays, LucideCalendarArrowDown, LucideClock, LucidePaperclip, LucideExternalLink, LucideUpload, LucideZoomIn, LucideZoomOut, LucideCheckSquare, LucideMessageSquarePlus, LucideXCircle, LucideArrowUpRight, LucideCheckCircle } from "@lucide/angular";
 
 export const APP_ICONS = [
     LucideArrowLeft,
@@ -144,7 +144,12 @@ export const APP_ICONS = [
     LucideClock,
     LucidePaperclip,
     LucideExternalLink,
-    LucideUpload
+    LucideUpload,
+    LucideCheckSquare,
+    LucideMessageSquarePlus,
+    LucideXCircle,
+    LucideArrowUpRight,
+    LucideCheckCircle
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -235,7 +240,7 @@ export const APP_ICONS_MAP: Record<string, any> = {
     Venus: LucideVenus,
     Flag: LucideFlag,
     ChessBishop: LucideChessBishop,
-    Mars : LucideMars,
+    Mars: LucideMars,
     StickyNote: LucideStickyNote,
     ChevronLeft: LucideChevronLeft,
     IdCardLanyard: LucideIdCardLanyard,
@@ -265,7 +270,7 @@ export const APP_ICONS_MAP: Record<string, any> = {
     TriangleAlert: LucideTriangleAlert,
     Phone: LucidePhone,
     Email: LucideMail,
-    UserRound :LucideUserRound,
+    UserRound: LucideUserRound,
     NotebookTabs: LucideNotebookTabs,
     Headset: LucideHeadset,
     WareHouse: LucideWarehouse,
@@ -289,6 +294,11 @@ export const APP_ICONS_MAP: Record<string, any> = {
     CalendarDays: LucideCalendarDays,
     Clock: LucideClock,
     PaperClip: LucidePaperclip,
-    ExternalLink:LucideExternalLink,
-    upload: LucideUpload
+    ExternalLink: LucideExternalLink,
+    upload: LucideUpload,
+    CheckSquare: LucideCheckSquare,
+    MessageSquarePlus: LucideMessageSquarePlus,
+    XCircle: LucideXCircle,
+    ArrowUpRight: LucideArrowUpRight,
+    CheckCircle: LucideCheckCircle
 };
