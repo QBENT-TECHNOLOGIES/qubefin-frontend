@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -24,6 +24,7 @@ const RATING_OPTIONS = BranchSurveyConstants_RATING_OPTIONS;
   styles: ``,
 })
 export class BranchSurveyAccessibilityAssessment {
+  readonly disabled = input(false);
   
   protected readonly branchSurveyAccessibilityAssessment = signal<BranchSurveyAccessibilityAssessmentRequest>({
       roadCondition: '',

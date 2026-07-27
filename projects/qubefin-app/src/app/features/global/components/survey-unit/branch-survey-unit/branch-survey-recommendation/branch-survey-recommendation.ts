@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
+import { Component, input, signal } from '@angular/core';
+import { disabled as disableField, form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -22,11 +22,14 @@ const RECOMMENDATION_OPTIONS = BranchSurveyConstants_RECOMMENDATION_OPTIONS;
   styles: ``,
 })
 export class BranchSurveyRecommendation {
+  readonly disabled = input(false);
+
   protected readonly branchSurveyRecommendation = signal<BranchSurveyRecommendationRequest>({
       recommendation: '',
     });
 
   protected readonly branchSurveyRecommendationSchema: Schema<BranchSurveyRecommendationRequest> = schema((path) => {
+    disableField(path, { when: () => this.disabled() });
     required(path.recommendation, {
       message: 'Recommendation is required',
     });

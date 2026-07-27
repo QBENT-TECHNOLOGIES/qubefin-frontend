@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
+import { Component, input, signal } from '@angular/core';
+import { disabled as disableField, form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -28,6 +28,8 @@ const ADMIN_STATUS_OPTIONS = BranchSurveyConstants_ADMIN_STATUS_OPTIONS;
   styles: ``,
 })
 export class BranchSurveyGeographicInfo {
+  readonly disabled = input(false);
+
   protected readonly branchSurveyGeographicInfo = 
   signal<BranchSurveyGeographicInformationRequest>({
       surveyDate: '',
@@ -48,7 +50,7 @@ export class BranchSurveyGeographicInfo {
   // ────────────────────────────────────────────────
 
   protected readonly branchSurveyGeographicInfoSchema: Schema<BranchSurveyGeographicInformationRequest> = schema((path) => {
-      
+      disableField(path, { when: () => this.disabled() });
     });
 
   protected readonly branchSurveyGeographicInfoForm: any = form(

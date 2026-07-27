@@ -45,7 +45,8 @@ import { BranchSurveyRecommendation } from './branch-survey-recommendation/branc
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './branch-survey-unit.html',
-  styles: ``,
+  styles: `
+  `,
 })
 export class BranchSurveyUnit {
   // ────────────────────────────────────────────────

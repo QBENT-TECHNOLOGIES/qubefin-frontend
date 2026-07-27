@@ -28,6 +28,7 @@
 
     <qfin-administrative-unit-cascade [columns]="3"
       [administrativeUnitId]="branchSurveyGeographicInfo().administrativeUnitId"
+      [disabled]="disabled()"
       (selectedIdChanged)="onCascadeChanged($event)">
     </qfin-administrative-unit-cascade>
 

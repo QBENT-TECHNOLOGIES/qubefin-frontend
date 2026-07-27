@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
+import { Component, input, signal } from '@angular/core';
+import { disabled as disableField, form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -22,6 +22,8 @@ const RISK_LEVEL_OPTIONS = BranchSurveyConstants_RISK_LEVEL_OPTIONS;
   styles: ``,
 })
 export class BranchSurveyRiskAssessment {
+  readonly disabled = input(false);
+
   protected readonly branchSurveyRiskAssessment = signal<BranchSurveyRiskAssessmentRequest>({
       floodRisk: '',
       cycloneRisk: '',
@@ -42,7 +44,7 @@ export class BranchSurveyRiskAssessment {
   // ────────────────────────────────────────────────
 
   protected readonly branchSurveyRiskAssessmentSchema: Schema<BranchSurveyRiskAssessmentRequest> = schema((path) => {
-      
+      disableField(path, { when: () => this.disabled() });
     });
 
   protected readonly branchSurveyRiskAssessmentForm: any = form(

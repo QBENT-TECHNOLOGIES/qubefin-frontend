@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
+import { Component, input, signal } from '@angular/core';
+import { disabled as disableField, form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -27,6 +27,8 @@ const CONDITION_OPTIONS = BranchSurveyConstants_CONDITION_OPTIONS;
   styles: ``,
 })
 export class BranchSurveyEconomicProfile {
+  readonly disabled = input(false);
+
   protected readonly branchSurveyEconomicProfile = signal<BranchSurveyEconomicProfileRequest>({
       agriculturePercent: 0,
       agriculturalLabour: 0,
@@ -49,7 +51,7 @@ export class BranchSurveyEconomicProfile {
   // ────────────────────────────────────────────────
 
   protected readonly branchSurveyEconomicProfileSchema: Schema<BranchSurveyEconomicProfileRequest> = schema((path) => {
-     
+      disableField(path, { when: () => this.disabled() });
     });
 
   protected readonly branchSurveyEconomicProfileForm: any = form(

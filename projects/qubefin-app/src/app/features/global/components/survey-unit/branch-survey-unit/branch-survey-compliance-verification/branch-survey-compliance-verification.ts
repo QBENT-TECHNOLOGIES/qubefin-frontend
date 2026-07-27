@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
+import { Component, input, signal } from '@angular/core';
+import { disabled as disableField, form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -24,6 +24,8 @@ const YES_NO_OPTIONS = ['Yes', 'No'];
   styles: ``,
 })
 export class BranchSurveyComplianceVerification {
+  readonly disabled = input(false);
+
   // ────────────────────────────────────────────────
   // State
   // ────────────────────────────────────────────────
@@ -41,7 +43,7 @@ export class BranchSurveyComplianceVerification {
   // ────────────────────────────────────────────────
 
   protected readonly branchSurveyComplianceVerificationSchema: Schema<BranchSurveyComplianceVerificationRequest> = schema((path) => {
-      
+      disableField(path, { when: () => this.disabled() });
     });
 
   protected readonly branchSurveyComplianceVerificationForm: any = form(

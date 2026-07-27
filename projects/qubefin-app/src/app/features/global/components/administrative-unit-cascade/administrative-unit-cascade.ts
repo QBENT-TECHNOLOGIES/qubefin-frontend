@@ -27,6 +27,7 @@ export class AdministrativeUnitCascade {
 
   columns = input<1 | 2 | 3 | 4>(3);
   administrativeUnitId = input<string>('');
+  disabled = input<boolean>(false);
   selectedIdChanged = output<string>();
 
   // ────────────────────────────────────────────────
