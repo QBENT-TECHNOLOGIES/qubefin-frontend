@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -20,32 +20,47 @@ import { BranchSurveyMicrofinanceCompetitionRequest } from '../../../../models/b
 })
 export class BranchSurveyCompetitionAnalysis {
   // ────────────────────────────────────────────────
-  // Form State
+  // State
   // ────────────────────────────────────────────────
-  readonly branchSurveyMicrofinanceCompetition = signal<BranchSurveyMicrofinanceCompetitionRequest>({
+  protected readonly branchSurveyMicrofinanceCompetition = signal<BranchSurveyMicrofinanceCompetitionRequest>({
       nameOfInstitution: '',
       approxClients: 0,
       approxPortfolio: 0,
       parpercent: 0,
     });
 
-  readonly branchSurveyMicrofinanceCompetitionSchema: Schema<BranchSurveyMicrofinanceCompetitionRequest> = schema((path) => ({
-      nameOfInstitution: path.nameOfInstitution,
-      approxClients: path.approxClients,
-      approxPortfolio: path.approxPortfolio,
-      parpercent: path.parpercent,
-    }));
+  // ────────────────────────────────────────────────
+  // Validation
+  // ────────────────────────────────────────────────
 
-  readonly branchSurveyMicrofinanceCompetitionForm: any = form(
+  protected readonly branchSurveyMicrofinanceCompetitionSchema: Schema<BranchSurveyMicrofinanceCompetitionRequest> = schema((path) => {
+      
+    });
+
+  // ────────────────────────────────────────────────
+  // Form
+  // ────────────────────────────────────────────────
+
+  protected readonly branchSurveyMicrofinanceCompetitionForm: any = form(
     this.branchSurveyMicrofinanceCompetition,
     this.branchSurveyMicrofinanceCompetitionSchema
   );
+  // ────────────────────────────────────────────────
+  // Options
+  // ────────────────────────────────────────────────
+  // ────────────────────────────────────────────────
+  // Events
+  // ────────────────────────────────────────────────
 
   // ────────────────────────────────────────────────
-  // Inputs & Outputs
+  // Data
   // ────────────────────────────────────────────────
 
-  // ────────────────────────────────────────────────
-  // Field Value & Update Methods
-  // ────────────────────────────────────────────────
+  get data(): BranchSurveyMicrofinanceCompetitionRequest {
+    return this.branchSurveyMicrofinanceCompetition();
+  }
+
+  set data(value: BranchSurveyMicrofinanceCompetitionRequest) {
+    this.branchSurveyMicrofinanceCompetition.set(value);
+  }
 }

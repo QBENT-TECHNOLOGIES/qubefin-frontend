@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -28,9 +28,9 @@ const YES_NO_OPTIONS = BranchSurveyConstants_YES_NO_OPTIONS;
 })
 export class BranchSurveyFinancialInclusion {
   // ────────────────────────────────────────────────
-  // Form State
+  // State
   // ────────────────────────────────────────────────
-  readonly branchSurveyFinancialInclusionStatus = signal<BranchSurveyFinancialInclusionStatusRequest>({
+  protected readonly branchSurveyFinancialInclusionStatus = signal<BranchSurveyFinancialInclusionStatusRequest>({
       numberOfBanks: 0,
       numberOfRegionalRuralBanks: 0,
       numberOfCooperativeBanks: 0,
@@ -39,27 +39,40 @@ export class BranchSurveyFinancialInclusion {
       digitalPaymentAcceptance: '',
     });
 
-  readonly branchSurveyFinancialInclusionStatusSchema: Schema<BranchSurveyFinancialInclusionStatusRequest> = schema((path) => ({
-      numberOfBanks: path.numberOfBanks,
-      numberOfRegionalRuralBanks: path.numberOfRegionalRuralBanks,
-      numberOfCooperativeBanks: path.numberOfCooperativeBanks,
-      bankingCorrespondents: path.bankingCorrespondents,
-      atms: path.atms,
-      digitalPaymentAcceptance: path.digitalPaymentAcceptance,
-    }));
+  // ────────────────────────────────────────────────
+  // Validation
+  // ────────────────────────────────────────────────
 
-  readonly branchSurveyFinancialInclusionStatusForm: any = form(
+  protected readonly branchSurveyFinancialInclusionStatusSchema: Schema<BranchSurveyFinancialInclusionStatusRequest> = schema((path) => {
+      
+    });
+
+  // ────────────────────────────────────────────────
+  // Form
+  // ────────────────────────────────────────────────
+
+  protected readonly branchSurveyFinancialInclusionStatusForm: any = form(
     this.branchSurveyFinancialInclusionStatus,
     this.branchSurveyFinancialInclusionStatusSchema
   );
-
   // ────────────────────────────────────────────────
-  // Inputs & Outputs
+  // Options
   // ────────────────────────────────────────────────
 
   readonly yesNoOptions = YES_NO_OPTIONS;
+  // ────────────────────────────────────────────────
+  // Events
+  // ────────────────────────────────────────────────
 
   // ────────────────────────────────────────────────
-  // Field Value & Update Methods
+  // Data
   // ────────────────────────────────────────────────
+
+  get data(): BranchSurveyFinancialInclusionStatusRequest {
+    return this.branchSurveyFinancialInclusionStatus();
+  }
+
+  set data(value: BranchSurveyFinancialInclusionStatusRequest) {
+    this.branchSurveyFinancialInclusionStatus.set(value);
+  }
 }

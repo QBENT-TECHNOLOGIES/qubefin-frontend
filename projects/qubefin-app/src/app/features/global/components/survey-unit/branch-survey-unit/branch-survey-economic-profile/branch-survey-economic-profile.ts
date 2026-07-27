@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -28,9 +28,9 @@ const CONDITION_OPTIONS = BranchSurveyConstants_CONDITION_OPTIONS;
 })
 export class BranchSurveyEconomicProfile {
   // ────────────────────────────────────────────────
-  // Form State
+  // State
   // ────────────────────────────────────────────────
-  readonly branchSurveyEconomicProfile = signal<BranchSurveyEconomicProfileRequest>({
+  protected readonly branchSurveyEconomicProfile = signal<BranchSurveyEconomicProfileRequest>({
       agriculturePercent: 0,
       agriculturalLabour: 0,
       dairyLivestock: 0,
@@ -47,35 +47,40 @@ export class BranchSurveyEconomicProfile {
       overallEconomicCondition: '',
     });
 
-  readonly branchSurveyEconomicProfileSchema: Schema<BranchSurveyEconomicProfileRequest> = schema((path) => ({
-      agriculturePercent: path.agriculturePercent,
-      agriculturalLabour: path.agriculturalLabour,
-      dairyLivestock: path.dairyLivestock,
-      smallBusiness: path.smallBusiness,
-      pettyTrade: path.pettyTrade,
-      cottageSmallIndustries: path.cottageSmallIndustries,
-      transportActivities: path.transportActivities,
-      serviceHolders: path.serviceHolders,
-      dailyWageEarners: path.dailyWageEarners,
-      otherIncomeGeneratingActivities: path.otherIncomeGeneratingActivities,
-      mainCrop: path.mainCrop,
-      peakBusinessSeason: path.peakBusinessSeason,
-      leanSeason: path.leanSeason,
-      overallEconomicCondition: path.overallEconomicCondition,
-    }));
+  // ────────────────────────────────────────────────
+  // Validation
+  // ────────────────────────────────────────────────
 
-  readonly branchSurveyEconomicProfileForm: any = form(
+  protected readonly branchSurveyEconomicProfileSchema: Schema<BranchSurveyEconomicProfileRequest> = schema((path) => {
+     
+    });
+
+  // ────────────────────────────────────────────────
+  // Form
+  // ────────────────────────────────────────────────
+
+  protected readonly branchSurveyEconomicProfileForm: any = form(
     this.branchSurveyEconomicProfile,
     this.branchSurveyEconomicProfileSchema
   );
-
   // ────────────────────────────────────────────────
-  // Inputs & Outputs
+  // Options
   // ────────────────────────────────────────────────
 
   readonly conditionOptions = CONDITION_OPTIONS;
+  // ────────────────────────────────────────────────
+  // Events
+  // ────────────────────────────────────────────────
 
   // ────────────────────────────────────────────────
-  // Field Value & Update Methods
+  // Data
   // ────────────────────────────────────────────────
+
+  get data(): BranchSurveyEconomicProfileRequest {
+    return this.branchSurveyEconomicProfile();
+  }
+
+  set data(value: BranchSurveyEconomicProfileRequest) {
+    this.branchSurveyEconomicProfile.set(value);
+  }
 }

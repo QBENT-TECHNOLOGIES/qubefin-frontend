@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -20,9 +20,9 @@ import { BranchSurveyDemographicProfileRequest } from '../../../../models/branch
 })
 export class BranchSurveyDemographicProfile {
   // ────────────────────────────────────────────────
-  // Form State
+  // State
   // ────────────────────────────────────────────────
-  readonly branchSurveyDemographicProfile = signal<BranchSurveyDemographicProfileRequest>({
+  protected readonly branchSurveyDemographicProfile = signal<BranchSurveyDemographicProfileRequest>({
       estimatedPopulation: 0,
       numberOfHouseholds: 0,
       averageFamilySize: 0,
@@ -35,29 +35,38 @@ export class BranchSurveyDemographicProfile {
       migrationTrend: '',
     });
 
-  readonly branchSurveyDemographicProfileSchema: Schema<BranchSurveyDemographicProfileRequest> = schema((path) => ({
-      estimatedPopulation: path.estimatedPopulation,
-      numberOfHouseholds: path.numberOfHouseholds,
-      averageFamilySize: path.averageFamilySize,
-      femalePopulationPercent: path.femalePopulationPercent,
-      literacyRate: path.literacyRate,
-      workingPopulation: path.workingPopulation,
-      minorityPopulationPercent: path.minorityPopulationPercent,
-      scheduledCastePercent: path.scheduledCastePercent,
-      scheduledTribePercent: path.scheduledTribePercent,
-      migrationTrend: path.migrationTrend,
-    }));
+  // ────────────────────────────────────────────────
+  // Validation
+  // ────────────────────────────────────────────────
 
-  readonly branchSurveyDemographicProfileForm: any = form(
+  protected readonly branchSurveyDemographicProfileSchema: Schema<BranchSurveyDemographicProfileRequest> = schema((path) => {
+      
+    });
+
+  // ────────────────────────────────────────────────
+  // Form
+  // ────────────────────────────────────────────────
+
+  protected readonly branchSurveyDemographicProfileForm: any = form(
     this.branchSurveyDemographicProfile,
     this.branchSurveyDemographicProfileSchema
   );
+  // ────────────────────────────────────────────────
+  // Options
+  // ────────────────────────────────────────────────
+  // ────────────────────────────────────────────────
+  // Events
+  // ────────────────────────────────────────────────
 
   // ────────────────────────────────────────────────
-  // Inputs & Outputs
+  // Data
   // ────────────────────────────────────────────────
 
-  // ────────────────────────────────────────────────
-  // Field Value & Update Methods
-  // ────────────────────────────────────────────────
+  get data(): BranchSurveyDemographicProfileRequest {
+    return this.branchSurveyDemographicProfile();
+  }
+
+  set data(value: BranchSurveyDemographicProfileRequest) {
+    this.branchSurveyDemographicProfile.set(value);
+  }
 }

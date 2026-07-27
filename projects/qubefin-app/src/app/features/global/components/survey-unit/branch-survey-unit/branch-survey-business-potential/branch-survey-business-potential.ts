@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -20,9 +20,9 @@ import { BranchSurveyBusinessPotentialRequest } from '../../../../models/branch-
 })
 export class BranchSurveyBusinessPotential {
   // ────────────────────────────────────────────────
-  // Form State
+  // State
   // ────────────────────────────────────────────────
-  readonly branchSurveyBusinessPotential = signal<BranchSurveyBusinessPotentialRequest>({
+  protected readonly branchSurveyBusinessPotential = signal<BranchSurveyBusinessPotentialRequest>({
       estimatedEligibleHouseholds: 0,
       estimatedWomenBorrowers: 0,
       estimatedNumberOfJlgsCentres: 0,
@@ -31,25 +31,38 @@ export class BranchSurveyBusinessPotential {
       estimatedCollectionEfficiency: 0,
     });
 
-  readonly branchSurveyBusinessPotentialSchema: Schema<BranchSurveyBusinessPotentialRequest> = schema((path) => ({
-      estimatedEligibleHouseholds: path.estimatedEligibleHouseholds,
-      estimatedWomenBorrowers: path.estimatedWomenBorrowers,
-      estimatedNumberOfJlgsCentres: path.estimatedNumberOfJlgsCentres,
-      estimatedLoanPortfolioPotential: path.estimatedLoanPortfolioPotential,
-      expectedMonthlyDisbursement: path.expectedMonthlyDisbursement,
-      estimatedCollectionEfficiency: path.estimatedCollectionEfficiency,
-    }));
+  // ────────────────────────────────────────────────
+  // Validation
+  // ────────────────────────────────────────────────
 
-  readonly branchSurveyBusinessPotentialForm: any = form(
+  protected readonly branchSurveyBusinessPotentialSchema: Schema<BranchSurveyBusinessPotentialRequest> = schema((path) => {
+     
+    });
+
+  // ────────────────────────────────────────────────
+  // Form
+  // ────────────────────────────────────────────────
+
+  protected readonly branchSurveyBusinessPotentialForm: any = form(
     this.branchSurveyBusinessPotential,
     this.branchSurveyBusinessPotentialSchema
   );
+  // ────────────────────────────────────────────────
+  // Options
+  // ────────────────────────────────────────────────
+  // ────────────────────────────────────────────────
+  // Events
+  // ────────────────────────────────────────────────
 
   // ────────────────────────────────────────────────
-  // Inputs & Outputs
+  // Data
   // ────────────────────────────────────────────────
 
-  // ────────────────────────────────────────────────
-  // Field Value & Update Methods
-  // ────────────────────────────────────────────────
+  get data(): BranchSurveyBusinessPotentialRequest {
+    return this.branchSurveyBusinessPotential();
+  }
+
+  set data(value: BranchSurveyBusinessPotentialRequest) {
+    this.branchSurveyBusinessPotential.set(value);
+  }
 }

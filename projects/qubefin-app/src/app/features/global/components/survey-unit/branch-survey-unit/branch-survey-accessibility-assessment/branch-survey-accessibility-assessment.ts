@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -28,9 +28,9 @@ const RATING_OPTIONS = BranchSurveyConstants_RATING_OPTIONS;
 })
 export class BranchSurveyAccessibilityAssessment {
   // ────────────────────────────────────────────────
-  // Form State
+  // State
   // ────────────────────────────────────────────────
-  readonly branchSurveyAccessibilityAssessment = signal<BranchSurveyAccessibilityAssessmentRequest>({
+  protected readonly branchSurveyAccessibilityAssessment = signal<BranchSurveyAccessibilityAssessmentRequest>({
       roadCondition: '',
       publicTransportAvailability: '',
       railwayConnectivity: '',
@@ -42,30 +42,40 @@ export class BranchSurveyAccessibilityAssessment {
       safetyOfArea: '',
     });
 
-  readonly branchSurveyAccessibilityAssessmentSchema: Schema<BranchSurveyAccessibilityAssessmentRequest> = schema((path) => ({
-      roadCondition: path.roadCondition,
-      publicTransportAvailability: path.publicTransportAvailability,
-      railwayConnectivity: path.railwayConnectivity,
-      busConnectivity: path.busConnectivity,
-      mobileNetworkCoverage: path.mobileNetworkCoverage,
-      internetAvailability: path.internetAvailability,
-      electricitySupply: path.electricitySupply,
-      drinkingWaterAvailability: path.drinkingWaterAvailability,
-      safetyOfArea: path.safetyOfArea,
-    }));
+  // ────────────────────────────────────────────────
+  // Validation
+  // ────────────────────────────────────────────────
 
-  readonly branchSurveyAccessibilityAssessmentForm: any = form(
+  protected readonly branchSurveyAccessibilityAssessmentSchema: Schema<BranchSurveyAccessibilityAssessmentRequest> = schema((path) => {
+      
+    });
+
+  // ────────────────────────────────────────────────
+  // Form
+  // ────────────────────────────────────────────────
+
+  protected readonly branchSurveyAccessibilityAssessmentForm: any = form(
     this.branchSurveyAccessibilityAssessment,
     this.branchSurveyAccessibilityAssessmentSchema
   );
-
   // ────────────────────────────────────────────────
-  // Inputs & Outputs
+  // Options
   // ────────────────────────────────────────────────
 
   readonly ratingOptions = RATING_OPTIONS;
+  // ────────────────────────────────────────────────
+  // Events
+  // ────────────────────────────────────────────────
 
   // ────────────────────────────────────────────────
-  // Field Value & Update Methods
+  // Data
   // ────────────────────────────────────────────────
+
+  get data(): BranchSurveyAccessibilityAssessmentRequest {
+    return this.branchSurveyAccessibilityAssessment();
+  }
+
+  set data(value: BranchSurveyAccessibilityAssessmentRequest) {
+    this.branchSurveyAccessibilityAssessment.set(value);
+  }
 }

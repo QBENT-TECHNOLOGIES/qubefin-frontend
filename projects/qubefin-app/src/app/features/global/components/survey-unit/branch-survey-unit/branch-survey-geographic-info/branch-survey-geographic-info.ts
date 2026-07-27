@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -31,9 +31,9 @@ const ADMIN_STATUS_OPTIONS = ['Rural', 'Semi Urban', 'Urban'];
 })
 export class BranchSurveyGeographicInfo {
   // ────────────────────────────────────────────────
-  // Form State
+  // State
   // ────────────────────────────────────────────────
-  readonly branchSurveyGeographicInfo = 
+  protected readonly branchSurveyGeographicInfo = 
   signal<BranchSurveyGeographicInformationRequest>({
       surveyDate: '',
       proposedOperationalArea: '',
@@ -48,34 +48,42 @@ export class BranchSurveyGeographicInfo {
       distanceFromDistrictHeadquarters: 0,
     });
 
-  readonly branchSurveyGeographicInfoSchema: Schema<BranchSurveyGeographicInformationRequest> = schema((path) => ({
-      surveyDate: path.surveyDate,
-      proposedOperationalArea: path.proposedOperationalArea,
-      administrativeUnitId: path.administrativeUnitId,
-      pinCode: path.pinCode,
-      latitude: path.latitude,
-      longitude: path.longitude,
-      geoTag: path.geoTag,
-      nearestLandmark: path.nearestLandmark,
-      administrativeStatus: path.administrativeStatus,
-      distanceFromExistingWeGrowBranch: path.distanceFromExistingWeGrowBranch,
-      distanceFromDistrictHeadquarters: path.distanceFromDistrictHeadquarters,
-    }));
+  // ────────────────────────────────────────────────
+  // Validation
+  // ────────────────────────────────────────────────
 
-  readonly branchSurveyGeographicInfoForm: any = form(
+  protected readonly branchSurveyGeographicInfoSchema: Schema<BranchSurveyGeographicInformationRequest> = schema((path) => {
+      
+    });
+
+  // ────────────────────────────────────────────────
+  // Form
+  // ────────────────────────────────────────────────
+
+  protected readonly branchSurveyGeographicInfoForm: any = form(
     this.branchSurveyGeographicInfo,
     this.branchSurveyGeographicInfoSchema
   );
-
   // ────────────────────────────────────────────────
-  // Inputs & Outputs
+  // Options
   // ────────────────────────────────────────────────
 
   readonly adminStatusOptions = ADMIN_STATUS_OPTIONS;
+  // ────────────────────────────────────────────────
+  // Events
+  // ────────────────────────────────────────────────
 
   // ────────────────────────────────────────────────
-  // Field Value & Update Methods
+  // Data
   // ────────────────────────────────────────────────
+
+  get data(): BranchSurveyGeographicInformationRequest {
+    return this.branchSurveyGeographicInfo();
+  }
+
+  set data(value: BranchSurveyGeographicInformationRequest) {
+    this.branchSurveyGeographicInfo.set(value);
+  }
   protected onCascadeChanged(id: string) {
     this.branchSurveyGeographicInfoForm().controls.administrativeUnitId.value.set(id);
   }

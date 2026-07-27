@@ -92,10 +92,26 @@ export class BranchSurveyUnit {
 
   constructor() {
     effect(() => {
+      const survey = this.store.branchSurvey();
+      if (survey) {
+        this.formModel.set({
+          ...survey,
+          surveyDate: survey.surveyDate ? new Date(survey.surveyDate) : new Date(),
+          isSurveyorSubmit: survey.isSurveyorSubmit ?? false,
+          isCommiteeSubmit: survey.isCommiteeSubmit ?? false,
+          isApproved: survey.isApproved ?? false,
+          isRejected: survey.isRejected ?? false,
+          isBranchCreate: survey.isBranchCreate ?? false,
+          isSubmitButtonVisible: survey.isSubmitButtonVisible ?? false
+        });
+      }
+    }, { allowSignalWrites: true });
+
+    effect(() => {
       const data = this.formModel();
       if (data) {
         const geo = this.geographicInfoComp();
-        if (geo) geo.branchSurveyGeographicInfo.set({
+        if (geo) geo.data = {
           surveyDate: data.surveyDate || '',
           proposedOperationalArea: data.proposedOperationalArea || '',
           administrativeUnitId: data.administrativeUnitId || '',
@@ -107,131 +123,131 @@ export class BranchSurveyUnit {
           administrativeStatus: data.administrativeStatus || '',
           distanceFromExistingWeGrowBranch: data.distanceFromExistingWeGrowBranch || 0,
           distanceFromDistrictHeadquarters: data.distanceFromDistrictHeadquarters || 0
-        });
+        };
 
         const acc = this.accessibilityAssessmentComp();
-        if (acc) acc.branchSurveyAccessibilityAssessment.set({
-          roadCondition: data.roadCondition,
-          publicTransportAvailability: data.publicTransportAvailability,
-          railwayConnectivity: data.railwayConnectivity,
-          busConnectivity: data.busConnectivity,
-          mobileNetworkCoverage: data.mobileNetworkCoverage,
-          internetAvailability: data.internetAvailability,
-          electricitySupply: data.electricitySupply,
-          drinkingWaterAvailability: data.drinkingWaterAvailability,
-          safetyOfArea: data.safetyOfArea
-        });
+        if (acc) acc.data = {
+          roadCondition: data.roadCondition || '',
+          publicTransportAvailability: data.publicTransportAvailability || '',
+          railwayConnectivity: data.railwayConnectivity || '',
+          busConnectivity: data.busConnectivity || '',
+          mobileNetworkCoverage: data.mobileNetworkCoverage || '',
+          internetAvailability: data.internetAvailability || '',
+          electricitySupply: data.electricitySupply || '',
+          drinkingWaterAvailability: data.drinkingWaterAvailability || '',
+          safetyOfArea: data.safetyOfArea || ''
+        };
 
         const dem = this.demographicProfileComp();
-        if (dem) dem.branchSurveyDemographicProfile.set({
-          estimatedPopulation: data.estimatedPopulation,
-          numberOfHouseholds: data.numberOfHouseholds,
-          averageFamilySize: data.averageFamilySize,
-          femalePopulationPercent: data.femalePopulationPercent,
-          literacyRate: data.literacyRate,
-          workingPopulation: data.workingPopulation,
-          minorityPopulationPercent: data.minorityPopulationPercent,
-          scheduledCastePercent: data.scheduledCastePercent,
-          scheduledTribePercent: data.scheduledTribePercent,
-          migrationTrend: data.migrationTrend
-        });
+        if (dem) dem.data = {
+          estimatedPopulation: data.estimatedPopulation || 0,
+          numberOfHouseholds: data.numberOfHouseholds || 0,
+          averageFamilySize: data.averageFamilySize || 0,
+          femalePopulationPercent: data.femalePopulationPercent || 0,
+          literacyRate: data.literacyRate || 0,
+          workingPopulation: data.workingPopulation || 0,
+          minorityPopulationPercent: data.minorityPopulationPercent || 0,
+          scheduledCastePercent: data.scheduledCastePercent || 0,
+          scheduledTribePercent: data.scheduledTribePercent || 0,
+          migrationTrend: data.migrationTrend || ''
+        };
 
         const eco = this.economicProfileComp();
-        if (eco) eco.branchSurveyEconomicProfile.set({
-          agriculturePercent: data.agriculturePercent,
-          agriculturalLabour: data.agriculturalLabour,
-          dairyLivestock: data.dairyLivestock,
-          smallBusiness: data.smallBusiness,
-          pettyTrade: data.pettyTrade,
-          cottageSmallIndustries: data.cottageSmallIndustries,
-          transportActivities: data.transportActivities,
-          serviceHolders: data.serviceHolders,
-          dailyWageEarners: data.dailyWageEarners,
-          otherIncomeGeneratingActivities: data.otherIncomeGeneratingActivities,
-          mainCrop: data.mainCrop,
-          peakBusinessSeason: data.peakBusinessSeason,
-          leanSeason: data.leanSeason,
-          overallEconomicCondition: data.overallEconomicCondition
-        });
+        if (eco) eco.data = {
+          agriculturePercent: data.agriculturePercent || 0,
+          agriculturalLabour: data.agriculturalLabour || 0,
+          dairyLivestock: data.dairyLivestock || 0,
+          smallBusiness: data.smallBusiness || 0,
+          pettyTrade: data.pettyTrade || 0,
+          cottageSmallIndustries: data.cottageSmallIndustries || 0,
+          transportActivities: data.transportActivities || 0,
+          serviceHolders: data.serviceHolders || 0,
+          dailyWageEarners: data.dailyWageEarners || 0,
+          otherIncomeGeneratingActivities: data.otherIncomeGeneratingActivities || '',
+          mainCrop: data.mainCrop || '',
+          peakBusinessSeason: data.peakBusinessSeason || '',
+          leanSeason: data.leanSeason || '',
+          overallEconomicCondition: data.overallEconomicCondition || ''
+        };
 
         const mar = this.marketPotentialComp();
-        if (mar) mar.branchSurveyMarketPotential.set({
-          eligibleHouseholds: data.eligibleHouseholds,
-          potentialWomenBorrowers: data.potentialWomenBorrowers,
-          jlgpotential: data.jLGPotential,
-          individualBusinessLoansExpected: data.individualBusinessLoansExpected,
-          portfolioYear1: data.portfolioYear1,
-          portfolioYear2: data.portfolioYear2,
-          portfolioYear3: data.portfolioYear3
-        });
+        if (mar) mar.data = {
+          eligibleHouseholds: data.eligibleHouseholds || 0,
+          potentialWomenBorrowers: data.potentialWomenBorrowers || 0,
+          jlgpotential: data.jLGPotential || 0,
+          individualBusinessLoansExpected: data.individualBusinessLoansExpected || 0,
+          portfolioYear1: data.portfolioYear1 || 0,
+          portfolioYear2: data.portfolioYear2 || 0,
+          portfolioYear3: data.portfolioYear3 || 0
+        };
 
         const tra = this.transportationFacilitiesComp();
-        if (tra) tra.branchSurveyTransportationFacilities.set({
-          railConnectivity: data.railConnectivity,
-          busConnectivityAvailable: data.busConnectivityAvailable,
-          autoTotoAvailability: data.autoTotoAvailability,
-          roadAccessibility: data.roadAccessibility,
-          accessibilityByMotorCycle: data.accessibilityByMotorCycle
-        });
+        if (tra) tra.data = {
+          railConnectivity: data.railConnectivity || '',
+          busConnectivityAvailable: data.busConnectivityAvailable || '',
+          autoTotoAvailability: data.autoTotoAvailability || '',
+          roadAccessibility: data.roadAccessibility || '',
+          accessibilityByMotorCycle: data.accessibilityByMotorCycle || ''
+        };
 
         const fin = this.financialInclusionComp();
-        if (fin) fin.branchSurveyFinancialInclusionStatus.set({
-          numberOfBanks: data.numberOfBanks,
-          numberOfRegionalRuralBanks: data.numberOfRegionalRuralBanks,
-          numberOfCooperativeBanks: data.numberOfCooperativeBanks,
-          bankingCorrespondents: data.bankingCorrespondents,
-          atms: data.aTMs,
-          digitalPaymentAcceptance: data.digitalPaymentAcceptance
-        });
+        if (fin) fin.data = {
+          numberOfBanks: data.numberOfBanks || 0,
+          numberOfRegionalRuralBanks: data.numberOfRegionalRuralBanks || 0,
+          numberOfCooperativeBanks: data.numberOfCooperativeBanks || 0,
+          bankingCorrespondents: data.bankingCorrespondents || 0,
+          atms: data.aTMs || 0,
+          digitalPaymentAcceptance: data.digitalPaymentAcceptance || ''
+        };
 
         const com = this.competitionAnalysisComp();
-        if (com) com.branchSurveyMicrofinanceCompetition.set({
-          nameOfInstitution: data.nameOfInstitution,
-          approxClients: data.approxClients,
-          approxPortfolio: data.approxPortfolio,
-          parpercent: data.pARPercent
-        });
+        if (com) com.data = {
+          nameOfInstitution: data.nameOfInstitution || '',
+          approxClients: data.approxClients || 0,
+          approxPortfolio: data.approxPortfolio || 0,
+          parpercent: data.pARPercent || 0
+        };
 
         const bus = this.businessPotentialComp();
-        if (bus) bus.branchSurveyBusinessPotential.set({
-          estimatedEligibleHouseholds: data.estimatedEligibleHouseholds,
-          estimatedWomenBorrowers: data.estimatedWomenBorrowers,
-          estimatedNumberOfJlgsCentres: data.estimatedNumberOfJLGsCentres,
-          estimatedLoanPortfolioPotential: data.estimatedLoanPortfolioPotential,
-          expectedMonthlyDisbursement: data.expectedMonthlyDisbursement,
-          estimatedCollectionEfficiency: data.estimatedCollectionEfficiency
-        });
+        if (bus) bus.data = {
+          estimatedEligibleHouseholds: data.estimatedEligibleHouseholds || 0,
+          estimatedWomenBorrowers: data.estimatedWomenBorrowers || 0,
+          estimatedNumberOfJlgsCentres: data.estimatedNumberOfJLGsCentres || 0,
+          estimatedLoanPortfolioPotential: data.estimatedLoanPortfolioPotential || 0,
+          expectedMonthlyDisbursement: data.expectedMonthlyDisbursement || 0,
+          estimatedCollectionEfficiency: data.estimatedCollectionEfficiency || 0
+        };
 
         const ris = this.riskAssessmentComp();
-        if (ris) ris.branchSurveyRiskAssessment.set({
-          floodRisk: data.floodRisk,
-          cycloneRisk: data.cycloneRisk,
-          landslideRisk: data.landslideRisk,
-          droughtRisk: data.droughtRisk,
-          politicalDisturbanceRisk: data.politicalDisturbanceRisk,
-          communalIssuesRisk: data.communalIssuesRisk,
-          migrationRisk: data.migrationRisk,
-          businessRisk: data.businessRisk,
-          multipleLendingRisk: data.multipleLendingRisk,
-          collectionRisk: data.collectionRisk,
-          fraudRisk: data.fraudRisk,
-          competitionRisk: data.competitionRisk
-        });
+        if (ris) ris.data = {
+          floodRisk: data.floodRisk || '',
+          cycloneRisk: data.cycloneRisk || '',
+          landslideRisk: data.landslideRisk || '',
+          droughtRisk: data.droughtRisk || '',
+          politicalDisturbanceRisk: data.politicalDisturbanceRisk || '',
+          communalIssuesRisk: data.communalIssuesRisk || '',
+          migrationRisk: data.migrationRisk || '',
+          businessRisk: data.businessRisk || '',
+          multipleLendingRisk: data.multipleLendingRisk || '',
+          collectionRisk: data.collectionRisk || '',
+          fraudRisk: data.fraudRisk || '',
+          competitionRisk: data.competitionRisk || ''
+        };
 
         const cv = this.complianceVerificationComp();
-        if (cv) cv.branchSurveyComplianceVerification.set({
-          areaVisitedPhysically: data.areaVisitedPhysically,
-          gpsverified: data.gPSVerified,
-          localReferencesVerified: data.localReferencesVerified,
-          existingCustomersContacted: data.existingCustomersContacted,
-          competitorVerificationCompleted: data.competitorVerificationCompleted,
-          photographsAttached: data.photographsAttached
-        });
+        if (cv) cv.data = {
+          areaVisitedPhysically: data.areaVisitedPhysically || '',
+          gpsverified: data.gPSVerified || '',
+          localReferencesVerified: data.localReferencesVerified || '',
+          existingCustomersContacted: data.existingCustomersContacted || '',
+          competitorVerificationCompleted: data.competitorVerificationCompleted || '',
+          photographsAttached: data.photographsAttached || ''
+        };
 
         const rec = this.recommendationComp();
-        if (rec) rec.branchSurveyRecommendation.set({
-          recommendation: data.recommendation
-        });
+        if (rec) rec.data = {
+          recommendation: data.recommendation || ''
+        };
       }
     }, { allowSignalWrites: true });
     
@@ -330,7 +346,7 @@ export class BranchSurveyUnit {
 
     switch (stepName) {
       case 'GeographicInformation': {
-        const d = this.geographicInfoComp()?.branchSurveyGeographicInfo();
+        const d = this.geographicInfoComp()?.data;
         if (d) {
             payload.geographicInformation = {
             surveyDate: this.datePipe.transform(d.surveyDate, 'yyyy-MM-dd') || '',
@@ -349,59 +365,59 @@ export class BranchSurveyUnit {
         break;
       }
       case 'AccessibilityAssessment': {
-        const d = this.accessibilityAssessmentComp()?.branchSurveyAccessibilityAssessment();
+        const d = this.accessibilityAssessmentComp()?.data;
         if(d) {
             payload.accessibilityAssessment = { ...d };
         }
         break;
       }
       case 'DemographicProfile': {
-        const d = this.demographicProfileComp()?.branchSurveyDemographicProfile();
+        const d = this.demographicProfileComp()?.data;
         if(d) payload.demographicProfile = { ...d };
         break;
       }
       case 'EconomicProfile': {
-        const d = this.economicProfileComp()?.branchSurveyEconomicProfile();
+        const d = this.economicProfileComp()?.data;
         if(d) payload.economicProfile = { ...d };
         break;
       }
       case 'MarketPotential': {
-        const d = this.marketPotentialComp()?.branchSurveyMarketPotential();
+        const d = this.marketPotentialComp()?.data;
         if(d) payload.marketPotential = { ...d };
         break;
       }
       case 'TransportationFacilities': {
-        const d = this.transportationFacilitiesComp()?.branchSurveyTransportationFacilities();
+        const d = this.transportationFacilitiesComp()?.data;
         if(d) payload.transportationFacilities = { ...d };
         break;
       }
       case 'FinancialInclusion': {
-        const d = this.financialInclusionComp()?.branchSurveyFinancialInclusionStatus();
+        const d = this.financialInclusionComp()?.data;
         if(d) payload.financialInclusionStatus = { ...d };
         break;
       }
       case 'CompetitionAnalysis': {
-        const d = this.competitionAnalysisComp()?.branchSurveyMicrofinanceCompetition();
+        const d = this.competitionAnalysisComp()?.data;
         if(d) payload.microfinanceCompetition = { ...d };
         break;
       }
       case 'BusinessPotential': {
-        const d = this.businessPotentialComp()?.branchSurveyBusinessPotential();
+        const d = this.businessPotentialComp()?.data;
         if(d) payload.businessPotential = { ...d };
         break;
       }
       case 'RiskAssessment': {
-        const d = this.riskAssessmentComp()?.branchSurveyRiskAssessment();
+        const d = this.riskAssessmentComp()?.data;
         if(d) payload.riskAssessment = { ...d };
         break;
       }
       case 'ComplianceVerification': {
-        const d = this.complianceVerificationComp()?.branchSurveyComplianceVerification();
+        const d = this.complianceVerificationComp()?.data;
         if(d) payload.complianceVerification = { ...d };
         break;
       }
       case 'Recommendation': {
-        const d = this.recommendationComp()?.branchSurveyRecommendation();
+        const d = this.recommendationComp()?.data;
         if(d) payload.recommendation = { ...d };
         break;
       }

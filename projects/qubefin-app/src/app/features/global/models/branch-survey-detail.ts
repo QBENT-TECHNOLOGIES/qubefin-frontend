@@ -224,7 +224,7 @@ export interface BranchSurveyComplianceVerificationRequest {
 }
 
 export interface BranchSurveyRecommendationRequest {
-  recommendation?: string;
+  recommendation: string;
 }
 
 export interface BranchSurveyRequest {

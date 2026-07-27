@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -25,9 +25,9 @@ const YES_NO_OPTIONS = ['Yes', 'No'];
 })
 export class BranchSurveyTransportationFacilities {
   // ────────────────────────────────────────────────
-  // Form State
+  // State
   // ────────────────────────────────────────────────
-  readonly branchSurveyTransportationFacilities = signal<BranchSurveyTransportationFacilitiesRequest>({
+  protected readonly branchSurveyTransportationFacilities = signal<BranchSurveyTransportationFacilitiesRequest>({
       railConnectivity: '',
       busConnectivityAvailable: '',
       autoTotoAvailability: '',
@@ -35,26 +35,40 @@ export class BranchSurveyTransportationFacilities {
       accessibilityByMotorCycle: '',
     });
 
-  readonly branchSurveyTransportationFacilitiesSchema: Schema<BranchSurveyTransportationFacilitiesRequest> = schema((path) => ({
-      railConnectivity: path.railConnectivity,
-      busConnectivityAvailable: path.busConnectivityAvailable,
-      autoTotoAvailability: path.autoTotoAvailability,
-      roadAccessibility: path.roadAccessibility,
-      accessibilityByMotorCycle: path.accessibilityByMotorCycle,
-    }));
+  // ────────────────────────────────────────────────
+  // Validation
+  // ────────────────────────────────────────────────
 
-  readonly branchSurveyTransportationFacilitiesForm: any = form(
+  protected readonly branchSurveyTransportationFacilitiesSchema: Schema<BranchSurveyTransportationFacilitiesRequest> = schema((path) => {
+     
+    });
+
+  // ────────────────────────────────────────────────
+  // Form
+  // ────────────────────────────────────────────────
+
+  protected readonly branchSurveyTransportationFacilitiesForm: any = form(
     this.branchSurveyTransportationFacilities,
     this.branchSurveyTransportationFacilitiesSchema
   );
-
   // ────────────────────────────────────────────────
-  // Inputs & Outputs
+  // Options
   // ────────────────────────────────────────────────
 
   readonly yesNoOptions = YES_NO_OPTIONS;
+  // ────────────────────────────────────────────────
+  // Events
+  // ────────────────────────────────────────────────
 
   // ────────────────────────────────────────────────
-  // Field Value & Update Methods
+  // Data
   // ────────────────────────────────────────────────
+
+  get data(): BranchSurveyTransportationFacilitiesRequest {
+    return this.branchSurveyTransportationFacilities();
+  }
+
+  set data(value: BranchSurveyTransportationFacilitiesRequest) {
+    this.branchSurveyTransportationFacilities.set(value);
+  }
 }

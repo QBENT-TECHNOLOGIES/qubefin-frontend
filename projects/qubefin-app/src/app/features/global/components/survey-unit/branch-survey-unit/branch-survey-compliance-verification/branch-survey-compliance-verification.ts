@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -25,9 +25,9 @@ const YES_NO_OPTIONS = ['Yes', 'No'];
 })
 export class BranchSurveyComplianceVerification {
   // ────────────────────────────────────────────────
-  // Form State
+  // State
   // ────────────────────────────────────────────────
-  readonly branchSurveyComplianceVerification = signal<BranchSurveyComplianceVerificationRequest>({
+  protected readonly branchSurveyComplianceVerification = signal<BranchSurveyComplianceVerificationRequest>({
       areaVisitedPhysically: '',
       gpsverified: '',
       localReferencesVerified: '',
@@ -36,27 +36,40 @@ export class BranchSurveyComplianceVerification {
       photographsAttached: '',
     });
 
-  readonly branchSurveyComplianceVerificationSchema: Schema<BranchSurveyComplianceVerificationRequest> = schema((path) => ({
-      areaVisitedPhysically: path.areaVisitedPhysically,
-      gpsverified: path.gpsverified,
-      localReferencesVerified: path.localReferencesVerified,
-      existingCustomersContacted: path.existingCustomersContacted,
-      competitorVerificationCompleted: path.competitorVerificationCompleted,
-      photographsAttached: path.photographsAttached,
-    }));
+  // ────────────────────────────────────────────────
+  // Validation
+  // ────────────────────────────────────────────────
 
-  readonly branchSurveyComplianceVerificationForm: any = form(
+  protected readonly branchSurveyComplianceVerificationSchema: Schema<BranchSurveyComplianceVerificationRequest> = schema((path) => {
+      
+    });
+
+  // ────────────────────────────────────────────────
+  // Form
+  // ────────────────────────────────────────────────
+
+  protected readonly branchSurveyComplianceVerificationForm: any = form(
     this.branchSurveyComplianceVerification,
     this.branchSurveyComplianceVerificationSchema
   );
-
   // ────────────────────────────────────────────────
-  // Inputs & Outputs
+  // Options
   // ────────────────────────────────────────────────
 
   readonly yesNoOptions = YES_NO_OPTIONS;
+  // ────────────────────────────────────────────────
+  // Events
+  // ────────────────────────────────────────────────
 
   // ────────────────────────────────────────────────
-  // Field Value & Update Methods
+  // Data
   // ────────────────────────────────────────────────
+
+  get data(): BranchSurveyComplianceVerificationRequest {
+    return this.branchSurveyComplianceVerification();
+  }
+
+  set data(value: BranchSurveyComplianceVerificationRequest) {
+    this.branchSurveyComplianceVerification.set(value);
+  }
 }

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { form, FormField, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, schema, Schema, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -26,28 +26,48 @@ const RECOMMENDATION_OPTIONS = BranchSurveyConstants_RECOMMENDATION_OPTIONS;
 })
 export class BranchSurveyRecommendation {
   // ────────────────────────────────────────────────
-  // Form State
+  // State
   // ────────────────────────────────────────────────
-  readonly branchSurveyRecommendation = signal<BranchSurveyRecommendationRequest>({
+  protected readonly branchSurveyRecommendation = signal<BranchSurveyRecommendationRequest>({
       recommendation: '',
     });
 
-  readonly branchSurveyRecommendationSchema: Schema<BranchSurveyRecommendationRequest> = schema((path) => ({
-      recommendation: path.recommendation,
-    }));
+  // ────────────────────────────────────────────────
+  // Validation
+  // ────────────────────────────────────────────────
 
-  readonly branchSurveyRecommendationForm: any = form(
+  protected readonly branchSurveyRecommendationSchema: Schema<BranchSurveyRecommendationRequest> = schema((path) => {
+    required(path.recommendation, {
+      message: 'Recommendation is required',
+    });
+  });
+
+  // ────────────────────────────────────────────────
+  // Form
+  // ────────────────────────────────────────────────
+
+  protected readonly branchSurveyRecommendationForm: any = form(
     this.branchSurveyRecommendation,
     this.branchSurveyRecommendationSchema
   );
-
   // ────────────────────────────────────────────────
-  // Inputs & Outputs
+  // Options
   // ────────────────────────────────────────────────
 
   readonly recommendationOptions = RECOMMENDATION_OPTIONS;
+  // ────────────────────────────────────────────────
+  // Events
+  // ────────────────────────────────────────────────
 
   // ────────────────────────────────────────────────
-  // Field Value & Update Methods
+  // Data
   // ────────────────────────────────────────────────
+
+  get data(): BranchSurveyRecommendationRequest {
+    return this.branchSurveyRecommendation();
+  }
+
+  set data(value: BranchSurveyRecommendationRequest) {
+    this.branchSurveyRecommendation.set(value);
+  }
 }
