@@ -1,4 +1,4 @@
-import { LucideArrowLeft, LucideBadgeCheck, LucideBadgeIndianRupee, LucideBanknoteCheck, LucideBanknoteX, LucideBell, LucideBuilding, LucideBuilding2, LucideCalendarClock, LucideCalendarPlus, LucideChevronDown, LucideChevronRight, LucideCircleQuestionMark, LucideCombine, LucideEarth, LucideEye, LucideEyeOff, LucideFactory, LucideFileUser, LucideGlobe, LucideHandCoins, LucideHouse, LucideIconData, LucideKeyRound, LucideLandmark, LucideLandPlot, LucideLayers, LucideLayoutDashboard, LucideLock, LucideLockOpen, LucideLogIn, LucideLogOut, LucideMap, LucideMapPin, LucideMapPinHouse, LucideMapPinned, LucideMoon, LucidePanelLeftClose, LucidePanelLeftOpen, LucidePencil, LucidePlus, LucideSave, LucideShieldCheck, LucideShieldEllipsis, LucideShieldQuestionMark, LucideSignpost, LucideSignpostBig, LucideSplit, LucideSquareMenu, LucideSquarePen, LucideSquareUserRound, LucideSummary, LucideSun, LucideTrendingDown, LucideTrendingUp, LucideUser, LucideUserCheck, LucideUserCog, LucideUserKey, LucideUsers, LucideWallet, LucideX, LucideSearch, LucideFunnel, LucideReceiptText, LucideCheck, LucidePiggyBank, LucideShieldPlus, LucideTag, LucideLayoutGrid, LucideListOrdered, LucideArrowRight, LucideCode, LucideSettings, LucideCalendarCheck, LucideCalendar1, LucideBanknoteArrowUp, LucideBanknoteArrowDown, LucideRotateCcw, LucideFileDown, LucideEllipsisVertical, LucideHeart, LucideDroplet, LucideVenus, LucideFlag, LucideChessBishop, LucideMars, LucideStickyNote, LucideChevronLeft, LucideIdCardLanyard, LucideSwatchBook, LucideClipboardCheck, LucideAccessibility, LucideRoad, LucideMapPinSearch, LucideHousePlus, LucideSiren, LucideLampDesk, LucideDownload, LucideNotebookText, LucideCoins, LucideTriangleAlert, LucidePhone, LucideMail, LucideUserRound, LucideNotebookTabs, LucideHeadset, LucideTrash2, LucideWarehouse, LucideUserSearch, LucideLoader, LucideOctagonAlert, LucideCalendarSync, LucideFileText, LucideBanknote, LucideBriefcase, LucideAward, LucideTrash, LucideContact, LucideUserLock, LucideCloudUpload, LucideCircleCheck, LucideFilePenLine, LucideFilePlus } from "@lucide/angular";
+import { LucideArrowLeft, LucideBadgeCheck, LucideBadgeIndianRupee, LucideBanknoteCheck, LucideBanknoteX, LucideBell, LucideBuilding, LucideBuilding2, LucideCalendarClock, LucideCalendarPlus, LucideChevronDown, LucideChevronRight, LucideCircleQuestionMark, LucideCombine, LucideEarth, LucideEye, LucideEyeOff, LucideFactory, LucideFileUser, LucideGlobe, LucideHandCoins, LucideHouse, LucideIconData, LucideKeyRound, LucideLandmark, LucideLandPlot, LucideLayers, LucideLayoutDashboard, LucideLock, LucideLockOpen, LucideLogIn, LucideLogOut, LucideMap, LucideMapPin, LucideMapPinHouse, LucideMapPinned, LucideMoon, LucidePanelLeftClose, LucidePanelLeftOpen, LucidePencil, LucidePlus, LucideSave, LucideShieldCheck, LucideShieldEllipsis, LucideShieldQuestionMark, LucideSignpost, LucideSignpostBig, LucideSplit, LucideSquareMenu, LucideSquarePen, LucideSquareUserRound, LucideSummary, LucideSun, LucideTrendingDown, LucideTrendingUp, LucideUser, LucideUserCheck, LucideUserCog, LucideUserKey, LucideUsers, LucideWallet, LucideX, LucideSearch, LucideFunnel, LucideReceiptText, LucideCheck, LucidePiggyBank, LucideShieldPlus, LucideTag, LucideLayoutGrid, LucideListOrdered, LucideArrowRight, LucideCode, LucideSettings, LucideCalendarCheck, LucideCalendar1, LucideBanknoteArrowUp, LucideBanknoteArrowDown, LucideRotateCcw, LucideFileDown, LucideEllipsisVertical, LucideHeart, LucideDroplet, LucideVenus, LucideFlag, LucideChessBishop, LucideMars, LucideStickyNote, LucideChevronLeft, LucideIdCardLanyard, LucideSwatchBook, LucideClipboardCheck, LucideAccessibility, LucideRoad, LucideMapPinSearch, LucideHousePlus, LucideSiren, LucideLampDesk, LucideDownload, LucideNotebookText, LucideCoins, LucideTriangleAlert, LucidePhone, LucideMail, LucideUserRound, LucideNotebookTabs, LucideHeadset, LucideTrash2, LucideWarehouse, LucideUserSearch, LucideLoader, LucideOctagonAlert, LucideCalendarSync, LucideFileText, LucideBanknote, LucideBriefcase, LucideAward, LucideTrash, LucideContact, LucideUserLock, LucideCloudUpload, LucideCircleCheck, LucideFilePenLine, LucideFilePlus, LucideCalendarRange, LucideCalendarArrowUp, LucideCalendarDays, LucideCalendarArrowDown, LucideClock, LucidePaperclip, LucideExternalLink } from "@lucide/angular";
 
 export const APP_ICONS = [
     LucideArrowLeft,
@@ -124,6 +124,13 @@ export const APP_ICONS = [
     LucideCircleCheck,
     LucideFilePenLine,
     LucideFilePlus,
+    LucideCalendarRange,
+    LucideCalendarArrowUp,
+    LucideCalendarArrowDown,
+    LucideCalendarDays,
+    LucideClock,
+    LucidePaperclip,
+    LucideExternalLink
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -248,5 +255,12 @@ export const APP_ICONS_MAP: Record<string, any> = {
     CloudUpload: LucideCloudUpload,
     CircleCheck: LucideCircleCheck,
     FilePenLine: LucideFilePenLine,
-    FilePlus: LucideFilePlus
+    FilePlus: LucideFilePlus,
+    CalendarRange: LucideCalendarRange,
+    CalendarArrowUp: LucideCalendarArrowUp,
+    CalendarArrowDown: LucideCalendarArrowDown,
+    CalendarDays: LucideCalendarDays,
+    Clock: LucideClock,
+    PaperClip: LucidePaperclip,
+    ExternalLink:LucideExternalLink,
 };
