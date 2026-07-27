@@ -10,10 +10,10 @@ export interface DocumentModalData {
 }
 
 const TYPE_EXTENSIONS: Record<DocumentModalType, string[]> = {
-  image: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'avif'],
+  image: ['jpg', 'jpeg', 'png'],
   pdf: ['pdf'],
-  video: ['mp4', 'webm', 'mov', 'mkv', 'avi', 'm4v'],
-  audio: ['mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac'],
+  video: ['mp4'],
+  audio: ['mp3'],
   unknown: [],
 };
 
