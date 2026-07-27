@@ -7,9 +7,6 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { BranchSurveyRecommendationRequest } from '../../../../models/branch-survey-detail';
 import { BranchSurveyConstants_RECOMMENDATION_OPTIONS } from 'qubefin-core';
 
-// ────────────────────────────────────────────────
-// Static Option Lists
-// ────────────────────────────────────────────────
 const RECOMMENDATION_OPTIONS = BranchSurveyConstants_RECOMMENDATION_OPTIONS;
 
 @Component({
@@ -25,16 +22,9 @@ const RECOMMENDATION_OPTIONS = BranchSurveyConstants_RECOMMENDATION_OPTIONS;
   styles: ``,
 })
 export class BranchSurveyRecommendation {
-  // ────────────────────────────────────────────────
-  // State
-  // ────────────────────────────────────────────────
   protected readonly branchSurveyRecommendation = signal<BranchSurveyRecommendationRequest>({
       recommendation: '',
     });
-
-  // ────────────────────────────────────────────────
-  // Validation
-  // ────────────────────────────────────────────────
 
   protected readonly branchSurveyRecommendationSchema: Schema<BranchSurveyRecommendationRequest> = schema((path) => {
     required(path.recommendation, {
@@ -42,26 +32,12 @@ export class BranchSurveyRecommendation {
     });
   });
 
-  // ────────────────────────────────────────────────
-  // Form
-  // ────────────────────────────────────────────────
-
   protected readonly branchSurveyRecommendationForm: any = form(
     this.branchSurveyRecommendation,
     this.branchSurveyRecommendationSchema
   );
-  // ────────────────────────────────────────────────
-  // Options
-  // ────────────────────────────────────────────────
 
   readonly recommendationOptions = RECOMMENDATION_OPTIONS;
-  // ────────────────────────────────────────────────
-  // Events
-  // ────────────────────────────────────────────────
-
-  // ────────────────────────────────────────────────
-  // Data
-  // ────────────────────────────────────────────────
 
   get data(): BranchSurveyRecommendationRequest {
     return this.branchSurveyRecommendation();

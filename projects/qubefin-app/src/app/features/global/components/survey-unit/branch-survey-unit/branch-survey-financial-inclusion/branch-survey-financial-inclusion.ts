@@ -8,9 +8,6 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { BranchSurveyFinancialInclusionStatusRequest } from '../../../../models/branch-survey-detail';
 import { BranchSurveyConstants_YES_NO_OPTIONS } from 'qubefin-core';
 
-// ────────────────────────────────────────────────
-// Static Option Lists
-// ────────────────────────────────────────────────
 const YES_NO_OPTIONS = BranchSurveyConstants_YES_NO_OPTIONS;
 
 @Component({
@@ -27,9 +24,6 @@ const YES_NO_OPTIONS = BranchSurveyConstants_YES_NO_OPTIONS;
   styles: ``,
 })
 export class BranchSurveyFinancialInclusion {
-  // ────────────────────────────────────────────────
-  // State
-  // ────────────────────────────────────────────────
   protected readonly branchSurveyFinancialInclusionStatus = signal<BranchSurveyFinancialInclusionStatusRequest>({
       numberOfBanks: 0,
       numberOfRegionalRuralBanks: 0,
@@ -47,26 +41,12 @@ export class BranchSurveyFinancialInclusion {
       
     });
 
-  // ────────────────────────────────────────────────
-  // Form
-  // ────────────────────────────────────────────────
-
   protected readonly branchSurveyFinancialInclusionStatusForm: any = form(
     this.branchSurveyFinancialInclusionStatus,
     this.branchSurveyFinancialInclusionStatusSchema
   );
-  // ────────────────────────────────────────────────
-  // Options
-  // ────────────────────────────────────────────────
 
   readonly yesNoOptions = YES_NO_OPTIONS;
-  // ────────────────────────────────────────────────
-  // Events
-  // ────────────────────────────────────────────────
-
-  // ────────────────────────────────────────────────
-  // Data
-  // ────────────────────────────────────────────────
 
   get data(): BranchSurveyFinancialInclusionStatusRequest {
     return this.branchSurveyFinancialInclusionStatus();

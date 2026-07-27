@@ -7,9 +7,6 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { BranchSurveyRiskAssessmentRequest } from '../../../../models/branch-survey-detail';
 import { BranchSurveyConstants_RISK_LEVEL_OPTIONS } from 'qubefin-core';
 
-// ────────────────────────────────────────────────
-// Static Option Lists
-// ────────────────────────────────────────────────
 const RISK_LEVEL_OPTIONS = BranchSurveyConstants_RISK_LEVEL_OPTIONS;
 
 @Component({
@@ -25,9 +22,6 @@ const RISK_LEVEL_OPTIONS = BranchSurveyConstants_RISK_LEVEL_OPTIONS;
   styles: ``,
 })
 export class BranchSurveyRiskAssessment {
-  // ────────────────────────────────────────────────
-  // State
-  // ────────────────────────────────────────────────
   protected readonly branchSurveyRiskAssessment = signal<BranchSurveyRiskAssessmentRequest>({
       floodRisk: '',
       cycloneRisk: '',
@@ -51,26 +45,12 @@ export class BranchSurveyRiskAssessment {
       
     });
 
-  // ────────────────────────────────────────────────
-  // Form
-  // ────────────────────────────────────────────────
-
   protected readonly branchSurveyRiskAssessmentForm: any = form(
     this.branchSurveyRiskAssessment,
     this.branchSurveyRiskAssessmentSchema
   );
-  // ────────────────────────────────────────────────
-  // Options
-  // ────────────────────────────────────────────────
 
   readonly riskLevelOptions = RISK_LEVEL_OPTIONS;
-  // ────────────────────────────────────────────────
-  // Events
-  // ────────────────────────────────────────────────
-
-  // ────────────────────────────────────────────────
-  // Data
-  // ────────────────────────────────────────────────
 
   get data(): BranchSurveyRiskAssessmentRequest {
     return this.branchSurveyRiskAssessment();

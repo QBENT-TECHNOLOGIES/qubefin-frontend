@@ -19,9 +19,6 @@ import { BranchSurveyBusinessPotentialRequest } from '../../../../models/branch-
   styles: ``,
 })
 export class BranchSurveyBusinessPotential {
-  // ────────────────────────────────────────────────
-  // State
-  // ────────────────────────────────────────────────
   protected readonly branchSurveyBusinessPotential = signal<BranchSurveyBusinessPotentialRequest>({
       estimatedEligibleHouseholds: 0,
       estimatedWomenBorrowers: 0,
@@ -31,9 +28,6 @@ export class BranchSurveyBusinessPotential {
       estimatedCollectionEfficiency: 0,
     });
 
-  // ────────────────────────────────────────────────
-  // Validation
-  // ────────────────────────────────────────────────
 
   protected readonly branchSurveyBusinessPotentialSchema: Schema<BranchSurveyBusinessPotentialRequest> = schema((path) => {
      
@@ -47,16 +41,6 @@ export class BranchSurveyBusinessPotential {
     this.branchSurveyBusinessPotential,
     this.branchSurveyBusinessPotentialSchema
   );
-  // ────────────────────────────────────────────────
-  // Options
-  // ────────────────────────────────────────────────
-  // ────────────────────────────────────────────────
-  // Events
-  // ────────────────────────────────────────────────
-
-  // ────────────────────────────────────────────────
-  // Data
-  // ────────────────────────────────────────────────
 
   get data(): BranchSurveyBusinessPotentialRequest {
     return this.branchSurveyBusinessPotential();

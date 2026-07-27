@@ -19,9 +19,6 @@ import { BranchSurveyMarketPotentialRequest } from '../../../../models/branch-su
   styles: ``,
 })
 export class BranchSurveyMarketPotential {
-  // ────────────────────────────────────────────────
-  // State
-  // ────────────────────────────────────────────────
   protected readonly branchSurveyMarketPotential = signal<BranchSurveyMarketPotentialRequest>({
       eligibleHouseholds: 0,
       potentialWomenBorrowers: 0,
@@ -42,24 +39,11 @@ export class BranchSurveyMarketPotential {
       // });
     });
 
-  // ────────────────────────────────────────────────
-  // Form
-  // ────────────────────────────────────────────────
 
   protected readonly branchSurveyMarketPotentialForm: any = form(
     this.branchSurveyMarketPotential,
     this.branchSurveyMarketPotentialSchema
   );
-  // ────────────────────────────────────────────────
-  // Options
-  // ────────────────────────────────────────────────
-  // ────────────────────────────────────────────────
-  // Events
-  // ────────────────────────────────────────────────
-
-  // ────────────────────────────────────────────────
-  // Data
-  // ────────────────────────────────────────────────
 
   get data(): BranchSurveyMarketPotentialRequest {
     return this.branchSurveyMarketPotential();

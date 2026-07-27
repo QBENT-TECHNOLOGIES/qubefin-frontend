@@ -19,9 +19,6 @@ import { BranchSurveyMicrofinanceCompetitionRequest } from '../../../../models/b
   styles: ``,
 })
 export class BranchSurveyCompetitionAnalysis {
-  // ────────────────────────────────────────────────
-  // State
-  // ────────────────────────────────────────────────
   protected readonly branchSurveyMicrofinanceCompetition = signal<BranchSurveyMicrofinanceCompetitionRequest>({
       nameOfInstitution: '',
       approxClients: 0,
@@ -37,24 +34,10 @@ export class BranchSurveyCompetitionAnalysis {
       
     });
 
-  // ────────────────────────────────────────────────
-  // Form
-  // ────────────────────────────────────────────────
-
   protected readonly branchSurveyMicrofinanceCompetitionForm: any = form(
     this.branchSurveyMicrofinanceCompetition,
     this.branchSurveyMicrofinanceCompetitionSchema
   );
-  // ────────────────────────────────────────────────
-  // Options
-  // ────────────────────────────────────────────────
-  // ────────────────────────────────────────────────
-  // Events
-  // ────────────────────────────────────────────────
-
-  // ────────────────────────────────────────────────
-  // Data
-  // ────────────────────────────────────────────────
 
   get data(): BranchSurveyMicrofinanceCompetitionRequest {
     return this.branchSurveyMicrofinanceCompetition();

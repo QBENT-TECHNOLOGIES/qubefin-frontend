@@ -44,26 +44,12 @@ export class BranchSurveyComplianceVerification {
       
     });
 
-  // ────────────────────────────────────────────────
-  // Form
-  // ────────────────────────────────────────────────
-
   protected readonly branchSurveyComplianceVerificationForm: any = form(
     this.branchSurveyComplianceVerification,
     this.branchSurveyComplianceVerificationSchema
   );
-  // ────────────────────────────────────────────────
-  // Options
-  // ────────────────────────────────────────────────
 
   readonly yesNoOptions = YES_NO_OPTIONS;
-  // ────────────────────────────────────────────────
-  // Events
-  // ────────────────────────────────────────────────
-
-  // ────────────────────────────────────────────────
-  // Data
-  // ────────────────────────────────────────────────
 
   get data(): BranchSurveyComplianceVerificationRequest {
     return this.branchSurveyComplianceVerification();

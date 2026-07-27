@@ -432,17 +432,33 @@ try {
       if (stepper) {
         stepper.next();
       } else {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Survey submitted successfully',
+        const result = await Swal.fire({
+          title: 'Submit Survey?',
+          text: 'Are you sure you want to submit the survey?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, Submit',
         });
+        
+        if (result.isConfirmed) {
+          if (this.formModel().isSubmitButtonVisible) {
+            await this.store.SubmitBranchSurvey({ id: this.formModel().id });
+          }
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Survey submitted successfully',
+          });
+          this.closePanel();
+        }
       }
     } catch (error) {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to save step',
+        text: 'Failed to save or submit survey',
       });
     }
   }

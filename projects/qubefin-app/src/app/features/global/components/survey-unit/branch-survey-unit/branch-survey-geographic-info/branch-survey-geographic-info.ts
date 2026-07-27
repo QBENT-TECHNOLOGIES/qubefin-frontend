@@ -8,11 +8,9 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { AdministrativeUnitCascade } from '../../../administrative-unit-cascade/administrative-unit-cascade';
 import { BranchSurveyGeographicInformationRequest } from '../../../../models/branch-survey-detail';
+import { BranchSurveyConstants_ADMIN_STATUS_OPTIONS } from 'qubefin-core';
 
-// ────────────────────────────────────────────────
-// Static Option Lists
-// ────────────────────────────────────────────────
-const ADMIN_STATUS_OPTIONS = ['Rural', 'Semi Urban', 'Urban'];
+const ADMIN_STATUS_OPTIONS = BranchSurveyConstants_ADMIN_STATUS_OPTIONS;
 
 @Component({
   selector: 'qfin-branch-survey-geographic-info',
@@ -30,9 +28,6 @@ const ADMIN_STATUS_OPTIONS = ['Rural', 'Semi Urban', 'Urban'];
   styles: ``,
 })
 export class BranchSurveyGeographicInfo {
-  // ────────────────────────────────────────────────
-  // State
-  // ────────────────────────────────────────────────
   protected readonly branchSurveyGeographicInfo = 
   signal<BranchSurveyGeographicInformationRequest>({
       surveyDate: '',
@@ -56,26 +51,12 @@ export class BranchSurveyGeographicInfo {
       
     });
 
-  // ────────────────────────────────────────────────
-  // Form
-  // ────────────────────────────────────────────────
-
   protected readonly branchSurveyGeographicInfoForm: any = form(
     this.branchSurveyGeographicInfo,
     this.branchSurveyGeographicInfoSchema
   );
-  // ────────────────────────────────────────────────
-  // Options
-  // ────────────────────────────────────────────────
 
   readonly adminStatusOptions = ADMIN_STATUS_OPTIONS;
-  // ────────────────────────────────────────────────
-  // Events
-  // ────────────────────────────────────────────────
-
-  // ────────────────────────────────────────────────
-  // Data
-  // ────────────────────────────────────────────────
 
   get data(): BranchSurveyGeographicInformationRequest {
     return this.branchSurveyGeographicInfo();

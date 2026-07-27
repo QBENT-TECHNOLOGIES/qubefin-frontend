@@ -19,9 +19,6 @@ import { BranchSurveyDemographicProfileRequest } from '../../../../models/branch
   styles: ``,
 })
 export class BranchSurveyDemographicProfile {
-  // ────────────────────────────────────────────────
-  // State
-  // ────────────────────────────────────────────────
   protected readonly branchSurveyDemographicProfile = signal<BranchSurveyDemographicProfileRequest>({
       estimatedPopulation: 0,
       numberOfHouseholds: 0,
@@ -43,24 +40,10 @@ export class BranchSurveyDemographicProfile {
       
     });
 
-  // ────────────────────────────────────────────────
-  // Form
-  // ────────────────────────────────────────────────
-
   protected readonly branchSurveyDemographicProfileForm: any = form(
     this.branchSurveyDemographicProfile,
     this.branchSurveyDemographicProfileSchema
   );
-  // ────────────────────────────────────────────────
-  // Options
-  // ────────────────────────────────────────────────
-  // ────────────────────────────────────────────────
-  // Events
-  // ────────────────────────────────────────────────
-
-  // ────────────────────────────────────────────────
-  // Data
-  // ────────────────────────────────────────────────
 
   get data(): BranchSurveyDemographicProfileRequest {
     return this.branchSurveyDemographicProfile();

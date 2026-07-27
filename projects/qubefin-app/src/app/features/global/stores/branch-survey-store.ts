@@ -97,6 +97,13 @@ export class BranchSurveyStore {
     return response;
   }
 
+  async SubmitBranchSurvey(payload: { id: string }) {
+    const url = `${this.basePath}/branch/submit`;
+    const response = await lastValueFrom(this.httpClient.post<any>(url, payload));
+    this.refreshDetail();
+    return response;
+  }
+
   getBranchSurveyId(){
     return this.branchSurveyId();
   }

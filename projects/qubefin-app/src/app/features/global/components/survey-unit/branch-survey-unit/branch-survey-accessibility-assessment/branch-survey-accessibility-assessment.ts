@@ -8,9 +8,6 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { BranchSurveyAccessibilityAssessmentRequest } from '../../../../models/branch-survey-detail';
 import { BranchSurveyConstants_RATING_OPTIONS } from 'qubefin-core';
 
-// ────────────────────────────────────────────────
-// Static Option Lists
-// ────────────────────────────────────────────────
 const RATING_OPTIONS = BranchSurveyConstants_RATING_OPTIONS;
 
 @Component({
@@ -27,9 +24,7 @@ const RATING_OPTIONS = BranchSurveyConstants_RATING_OPTIONS;
   styles: ``,
 })
 export class BranchSurveyAccessibilityAssessment {
-  // ────────────────────────────────────────────────
-  // State
-  // ────────────────────────────────────────────────
+  
   protected readonly branchSurveyAccessibilityAssessment = signal<BranchSurveyAccessibilityAssessmentRequest>({
       roadCondition: '',
       publicTransportAvailability: '',
@@ -58,18 +53,8 @@ export class BranchSurveyAccessibilityAssessment {
     this.branchSurveyAccessibilityAssessment,
     this.branchSurveyAccessibilityAssessmentSchema
   );
-  // ────────────────────────────────────────────────
-  // Options
-  // ────────────────────────────────────────────────
 
   readonly ratingOptions = RATING_OPTIONS;
-  // ────────────────────────────────────────────────
-  // Events
-  // ────────────────────────────────────────────────
-
-  // ────────────────────────────────────────────────
-  // Data
-  // ────────────────────────────────────────────────
 
   get data(): BranchSurveyAccessibilityAssessmentRequest {
     return this.branchSurveyAccessibilityAssessment();

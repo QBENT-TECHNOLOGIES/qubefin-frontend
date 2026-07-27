@@ -24,9 +24,6 @@ const YES_NO_OPTIONS = ['Yes', 'No'];
   styles: ``,
 })
 export class BranchSurveyTransportationFacilities {
-  // ────────────────────────────────────────────────
-  // State
-  // ────────────────────────────────────────────────
   protected readonly branchSurveyTransportationFacilities = signal<BranchSurveyTransportationFacilitiesRequest>({
       railConnectivity: '',
       busConnectivityAvailable: '',
@@ -43,26 +40,12 @@ export class BranchSurveyTransportationFacilities {
      
     });
 
-  // ────────────────────────────────────────────────
-  // Form
-  // ────────────────────────────────────────────────
-
   protected readonly branchSurveyTransportationFacilitiesForm: any = form(
     this.branchSurveyTransportationFacilities,
     this.branchSurveyTransportationFacilitiesSchema
   );
-  // ────────────────────────────────────────────────
-  // Options
-  // ────────────────────────────────────────────────
 
   readonly yesNoOptions = YES_NO_OPTIONS;
-  // ────────────────────────────────────────────────
-  // Events
-  // ────────────────────────────────────────────────
-
-  // ────────────────────────────────────────────────
-  // Data
-  // ────────────────────────────────────────────────
 
   get data(): BranchSurveyTransportationFacilitiesRequest {
     return this.branchSurveyTransportationFacilities();

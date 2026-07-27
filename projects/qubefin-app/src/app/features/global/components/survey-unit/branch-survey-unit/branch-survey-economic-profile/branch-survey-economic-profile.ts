@@ -27,9 +27,6 @@ const CONDITION_OPTIONS = BranchSurveyConstants_CONDITION_OPTIONS;
   styles: ``,
 })
 export class BranchSurveyEconomicProfile {
-  // ────────────────────────────────────────────────
-  // State
-  // ────────────────────────────────────────────────
   protected readonly branchSurveyEconomicProfile = signal<BranchSurveyEconomicProfileRequest>({
       agriculturePercent: 0,
       agriculturalLabour: 0,
@@ -55,26 +52,12 @@ export class BranchSurveyEconomicProfile {
      
     });
 
-  // ────────────────────────────────────────────────
-  // Form
-  // ────────────────────────────────────────────────
-
   protected readonly branchSurveyEconomicProfileForm: any = form(
     this.branchSurveyEconomicProfile,
     this.branchSurveyEconomicProfileSchema
   );
-  // ────────────────────────────────────────────────
-  // Options
-  // ────────────────────────────────────────────────
 
   readonly conditionOptions = CONDITION_OPTIONS;
-  // ────────────────────────────────────────────────
-  // Events
-  // ────────────────────────────────────────────────
-
-  // ────────────────────────────────────────────────
-  // Data
-  // ────────────────────────────────────────────────
 
   get data(): BranchSurveyEconomicProfileRequest {
     return this.branchSurveyEconomicProfile();
