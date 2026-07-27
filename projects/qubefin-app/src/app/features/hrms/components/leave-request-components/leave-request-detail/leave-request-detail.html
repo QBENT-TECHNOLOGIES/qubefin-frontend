@@ -91,11 +91,11 @@
         </button>
 
         @if (documentUrl()) {
-        <a [href]="documentUrl()" target="_blank"
+        <button type="button" (click)="openDocument()"
           class="bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-primary-200 dark:border-primary-800/30 cursor-pointer">
           <svg lucideIcon="eye" class="w-3.5 h-3.5"></svg>
           View
-        </a>
+        </button>
         }
       </div>
     </mat-form-field>

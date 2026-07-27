@@ -13,6 +13,7 @@ import { LeaveRequestService } from '../../../services/leave-request-service';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { ILeaveRequestDetailItem, ILeaveRequestItem } from '../../../models/leave-request';
+import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
 
 @Component({
   selector: 'qfin-leave-request-detail',
@@ -35,6 +36,7 @@ export class LeaveRequestDetail {
   private readonly leaveRequestStore = inject(LeaveRequestStore);
   private readonly leaveRequestService = inject(LeaveRequestService);
   private readonly dateAdapter = inject(DateAdapter<Date>);
+  readonly documentModal = inject(DocumentModalService);
   private readonly datePipe = inject(DatePipe);
 
   readonly leaveRequestId = input<string>(EMPTY_UUID);
@@ -54,6 +56,7 @@ export class LeaveRequestDetail {
   protected readonly selectedFile = signal<File | null>(null);
 
   public readonly documentUrl = signal<string>('');
+  public readonly documentName = signal<string>('');
 
   protected readonly leaveRequestModel = signal<ILeaveRequestDetailItem>({
       id:EMPTY_UUID,
@@ -90,6 +93,7 @@ export class LeaveRequestDetail {
         });
         this.selectedFile.set(null);
         this.documentUrl.set('');
+        this.documentName.set('');
         return;
       }
     });
@@ -103,6 +107,7 @@ export class LeaveRequestDetail {
           toDate: request.toDate ? new Date(request.toDate) : null,
         });
         this.documentUrl.set(request.documentUrl || '');
+        this.documentName.set(request.document?.name || '');
       }
     });
   }
@@ -122,6 +127,7 @@ export class LeaveRequestDetail {
     if (file) {
       this.selectedFile.set(file);
       this.documentUrl.set(URL.createObjectURL(file));
+      this.documentName.set(file.name);
     }
   }
   
@@ -131,7 +137,21 @@ export class LeaveRequestDetail {
       URL.revokeObjectURL(this.documentUrl());
     }
     this.documentUrl.set(this.leaveRequest()?.documentUrl || '');
+    this.documentName.set(this.leaveRequest()?.document?.name || '');
   }
+
+openDocument() {
+  if(!this.documentUrl() || !this.documentName()) {
+    return;
+  }
+  console.log(this.documentUrl(), this.documentName(), this.documentName().split('.').pop()?.toLowerCase() || '');
+  this.documentModal.open({
+    url: this.documentUrl(),
+    documentName: this.documentName(),
+    extension: this.documentName().split('.').pop()?.toLowerCase() || '',
+    downloadAccess: true,
+  });
+}
 
   protected onCancelClicked() {
     this.cancel.emit();

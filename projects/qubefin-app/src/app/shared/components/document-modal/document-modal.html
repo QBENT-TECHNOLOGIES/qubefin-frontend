@@ -1,0 +1,174 @@
+@if (currentDocument(); as doc) {
+<div
+  class="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(8,9,12,0.88)] p-6 backdrop-blur-md animate-in fade-in duration-200"
+  role="dialog" aria-modal="true" [attr.aria-label]="doc.documentName || 'Document preview'">
+  <div #modalContainer
+    class="flex h-[88vh] w-full max-w-[1080px] flex-col overflow-hidden rounded-2xl border border-[#2A2E38] bg-[#15171D] shadow-[0_24px_64px_rgba(0,0,0,0.5)]">
+    <div
+      class="flex flex-wrap items-center justify-between gap-3 border-b border-[#2A2E38] bg-[#1D2028] px-[18px] py-[14px] max-sm:px-3 max-sm:py-2.5">
+      <div class="flex min-w-0 items-center gap-3">
+        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]"
+          [style.backgroundColor]="fileMeta().color + '22'" [style.color]="fileMeta().color">
+          <svg [lucideIcon]="iconMap[fileMeta().icon]" class="h-[18px] w-[18px]"></svg>
+        </span>
+
+        <div class="flex min-w-0 flex-col">
+          <span class="max-w-[46vw] truncate text-[14.5px] font-semibold text-[#F2F3F6] max-sm:max-w-[34vw]">
+            {{ doc.documentName || 'Untitled' }}
+          </span>
+          <span class="text-xs tracking-[0.02em] text-[#8B8FA3]">
+            .{{ doc.extension }} · {{ fileMeta().label }}
+          </span>
+        </div>
+      </div>
+
+      <div class="flex shrink-0 items-center gap-1.5">
+        <button type="button"
+          class="flex h-[34px] w-[34px] items-center justify-center rounded-[9px] border border-transparent text-[#C7CAD6] transition hover:border-[#333844] hover:bg-[#262A34] hover:text-[#F2F3F6]"
+          title="Open in new tab" (click)="openInNewTab()">
+          <svg [lucideIcon]="iconMap['ExternalLink']" class="h-[17px] w-[17px]"></svg>
+        </button>
+
+        <button type="button"
+          class="flex h-[34px] w-[34px] items-center justify-center rounded-[9px] border border-transparent text-[#C7CAD6] transition hover:border-[#333844] hover:bg-[#262A34] hover:text-[#F2F3F6]"
+          title="Fullscreen" (click)="toggleFullscreen(modalContainer)">
+          @if (isFullscreen()) {
+          <svg [lucideIcon]="iconMap['Minimize2']" class="h-[17px] w-[17px]"></svg>
+          } @else {
+          <svg [lucideIcon]="iconMap['Maximize2']" class="h-[17px] w-[17px]"></svg>
+          }
+        </button>
+
+        @if (doc.downloadAccess) {
+        <button type="button"
+          class="flex h-[34px] w-[34px] items-center justify-center rounded-[9px] border border-transparent text-[#C7CAD6] transition hover:border-[rgba(63,182,168,0.3)] hover:bg-[rgba(63,182,168,0.14)] hover:text-[#3FB6A8]"
+          title="Download" (click)="download()">
+          <svg [lucideIcon]="iconMap['Download']" class="h-[17px] w-[17px]"></svg>
+        </button>
+        }
+
+        <button type="button"
+          class="flex h-[34px] w-[34px] items-center justify-center rounded-[9px] border border-transparent text-[#C7CAD6] transition hover:border-[rgba(229,72,77,0.3)] hover:bg-[rgba(229,72,77,0.14)] hover:text-[#E5484D]"
+          title="Close (Esc)" (click)="close()">
+          <svg [lucideIcon]="iconMap['X']" class="h-[18px] w-[18px]"></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="relative flex flex-1 items-center justify-center overflow-hidden bg-[#17191F]" (wheel)="onWheel($event)"
+      (mousemove)="onMouseMove($event)" (mouseup)="stopDrag()" (mouseleave)="stopDrag()">
+      @if (loading() && !error()) {
+      <div class="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-[13.5px] text-[#8B8FA3]">
+        <svg [lucideIcon]="iconMap['RefreshCw']" class="h-[26px] w-[26px] animate-spin text-[#6D5EF5]"></svg>
+        <span>Loading {{ fileMeta().label.toLowerCase() }}...</span>
+      </div>
+      }
+
+      @if (error()) {
+      <div class="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-[13.5px] text-[#E5A0A2]">
+        <svg [lucideIcon]="iconMap['AlertCircle']" class="h-[26px] w-[26px]"></svg>
+        <span>Couldn't load this file.</span>
+        <button type="button"
+          class="mt-1 rounded-lg border border-[#333844] bg-[#262A34] px-3.5 py-[7px] text-[12.5px] text-[#F2F3F6] transition hover:bg-[#2E323D]"
+          (click)="retry(); reloadViewer()">
+          Retry
+        </button>
+      </div>
+      }
+
+      @if (!error() && documentType() === 'image') {
+      <img [src]="mediaUrl()" [alt]="doc.documentName"
+        class="max-h-[92%] max-w-[92%] select-none rounded shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
+        [ngStyle]="transformStyle()" [class.hidden]="loading()" draggable="false" (mousedown)="onMouseDown($event)"
+        (load)="markLoaded()" (error)="markError()" />
+      }
+
+      @if (!error() && documentType() === 'pdf') {
+      <div
+        class="h-[90%] w-[88%] overflow-hidden rounded-md bg-white shadow-[0_12px_40px_rgba(0,0,0,0.45)] max-sm:w-[94%]"
+        [ngStyle]="transformStyle()" [class.hidden]="loading()" (mousedown)="onMouseDown($event)">
+        <iframe class="h-full w-full border-none" [title]="doc.documentName" [src]="pdfUrl()"
+          (load)="markLoaded()"></iframe>
+      </div>
+      }
+
+      @if (!error() && documentType() === 'video') {
+      <video class="max-h-[94%] max-w-[94%] rounded-lg bg-black shadow-[0_12px_40px_rgba(0,0,0,0.45)]"
+        [class.hidden]="loading()" [src]="mediaUrl()" controls (loadeddata)="markLoaded()"
+        (error)="markError()"></video>
+      }
+
+      @if (!error() && documentType() === 'audio') {
+      <div class="flex flex-col items-center gap-[18px] p-10" [class.hidden]="loading()">
+        <span class="flex h-[84px] w-[84px] items-center justify-center rounded-[22px]"
+          [style.backgroundColor]="fileMeta().color + '22'" [style.color]="fileMeta().color">
+          <svg [lucideIcon]="iconMap['Music']" class="h-[38px] w-[38px]"></svg>
+        </span>
+        <span class="max-w-[60vw] text-center text-[15px] font-semibold text-[#F2F3F6] break-all">
+          {{ doc.documentName }}
+        </span>
+        <audio class="w-[min(420px,70vw)]" [src]="mediaUrl()" controls (loadeddata)="markLoaded()"
+          (error)="markError()"></audio>
+      </div>
+      }
+
+      @if (!error() && documentType() === 'unknown') {
+      <div class="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-[13.5px] text-[#8B8FA3]">
+        <svg [lucideIcon]="iconMap['AlertCircle']" class="h-[26px] w-[26px]"></svg>
+        <span>Preview not supported for .{{ doc.extension }} files.</span>
+        @if (doc.downloadAccess) {
+        <button type="button"
+          class="mt-1 rounded-lg border border-[#333844] bg-[#262A34] px-3.5 py-[7px] text-[12.5px] text-[#F2F3F6] transition hover:bg-[#2E323D]"
+          (click)="download()">
+          Download instead
+        </button>
+        }
+      </div>
+      }
+
+      @if (canZoomRotate() && !error()) {
+      <div
+        class="absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-[#333844] bg-[rgba(29,32,40,0.78)] px-2 py-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-[10px]">
+        <button type="button"
+          class="flex h-8 w-8 items-center justify-center rounded-full text-[#C7CAD6] transition hover:bg-[#33384A] hover:text-white"
+          title="Zoom out (-)" (click)="zoomOut()">
+          <svg [lucideIcon]="iconMap['ZoomOut']" class="h-4 w-4"></svg>
+        </button>
+
+        <span class="min-w-[46px] text-center text-xs text-[#F2F3F6]">
+          {{ zoomPercent() }}%
+        </span>
+
+        <button type="button"
+          class="flex h-8 w-8 items-center justify-center rounded-full text-[#C7CAD6] transition hover:bg-[#33384A] hover:text-white"
+          title="Zoom in (+)" (click)="zoomIn()">
+          <svg [lucideIcon]="iconMap['ZoomIn']" class="h-4 w-4"></svg>
+        </button>
+
+        <span class="mx-1 h-[18px] w-px bg-[#3A3F4C]"></span>
+
+        <button type="button"
+          class="flex h-8 w-8 items-center justify-center rounded-full text-[#C7CAD6] transition hover:bg-[#33384A] hover:text-white"
+          title="Rotate left" (click)="rotateCounterClockwise()">
+          <svg [lucideIcon]="iconMap['RotateCcw2']" class="h-4 w-4"></svg>
+        </button>
+
+        <button type="button"
+          class="flex h-8 w-8 items-center justify-center rounded-full text-[#C7CAD6] transition hover:bg-[#33384A] hover:text-white"
+          title="Rotate right (R)" (click)="rotateClockwise()">
+          <svg [lucideIcon]="iconMap['RotateCw']" class="h-4 w-4"></svg>
+        </button>
+
+        <span class="mx-1 h-[18px] w-px bg-[#3A3F4C]"></span>
+
+        <button type="button"
+          class="flex h-8 items-center justify-center rounded-full px-3 text-xs font-semibold text-[#C7CAD6] transition hover:bg-[#33384A] hover:text-white"
+          title="Reset (0)" (click)="resetView()">
+          Reset
+        </button>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+}
