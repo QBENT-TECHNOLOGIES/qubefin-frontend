@@ -52,6 +52,7 @@ export class BranchSurveyStore {
   async fetchBranchSurvey(id: string) {
     this._loading.set(true);
     this._error.set(null);
+    this.clearBranchSurvey();
     try {
       const url = `${this.basePath}/branch/${id}`;
       const response = await lastValueFrom(this.httpClient.get<{ branchSurveyResponse: BranchSurveyDetail }>(url));

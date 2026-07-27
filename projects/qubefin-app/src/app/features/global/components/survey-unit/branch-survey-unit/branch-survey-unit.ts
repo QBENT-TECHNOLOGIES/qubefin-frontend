@@ -104,6 +104,8 @@ export class BranchSurveyUnit {
           isBranchCreate: survey.isBranchCreate ?? false,
           isSubmitButtonVisible: survey.isSubmitButtonVisible ?? false
         });
+      } else {
+        this.formModel.set(this.createEmptyModel());
       }
     }, { allowSignalWrites: true });
 
@@ -260,6 +262,7 @@ export class BranchSurveyUnit {
       if (id) {
         this.surveyId.set(id);
         this.store.setSurveyId(id);
+        this.store.fetchBranchSurvey(id);
       }
     });
 
