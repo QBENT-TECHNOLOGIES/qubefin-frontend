@@ -6,8 +6,8 @@ import { form } from '@angular/forms/signals';
 import { Sort } from '@angular/material/sort';
 import { PageEvent } from '@angular/material/paginator';
 import { CommonModule } from '@angular/common';
-import { UserListComponent } from '../../components/user/user-list/user-list';
-import { UserView } from '../../components/user/user-view/user-view';
+import { UserListComponent } from '../../components/users/user-list/user-list';
+import { UserView } from '../../components/users/user-view/user-view';
 import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
