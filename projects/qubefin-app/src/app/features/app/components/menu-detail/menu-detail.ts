@@ -142,7 +142,7 @@ export class MenuDetailComponent {
 		if (this.menuId() === EMPTY_UUID) {
 			this.menuService.create(dataToSave).subscribe({
 				next: (resp: any) => {
-					this.alertService.success("Success", "Menu saved successfully !")
+					this.alertService.success("Success!", "Menu saved successfully !")
 					//this.administrativeUnitStore.refreshTree();
 				},
 				error: (err: any) => {
@@ -153,7 +153,7 @@ export class MenuDetailComponent {
 		} else {
 			this.menuService.update(this.menuId(), dataToSave).subscribe({
 				next: (resp: any) => {
-					this.alertService.success("Success", "Menu updated successfully !")
+					this.alertService.success("Success!", "Menu updated successfully !")
 					//this.menuStore.refreshTree();
 				},
 				error: (err: any) => {
