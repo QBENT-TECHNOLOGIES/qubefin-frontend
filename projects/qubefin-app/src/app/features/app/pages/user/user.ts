@@ -67,7 +67,10 @@ export class UserPage {
 		this.selectedUserId.set(id);
 	}
 
-	protected closePanel() {}
+	protected closePanel() {
+		this.selectedUserId.set(EMPTY_UUID);
+		this.isViewMode.set(true);
+	}
 
 	protected toggleFilterArea() {}
 }
