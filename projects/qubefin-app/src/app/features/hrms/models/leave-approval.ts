@@ -20,7 +20,7 @@ export interface ILeaveApprovalItem {
   reason: string;
   address: string;
   documentUrl?: string | null;
-  document?: File;
+  document?: string | null;
   auditInfo: IAuditInfo | null;
   history?: ILeaveApprovalHistory[];
 }

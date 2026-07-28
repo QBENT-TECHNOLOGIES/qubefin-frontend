@@ -26,7 +26,7 @@ import { DocumentModalService } from '../../../../../shared/services/document-mo
     MatInputModule,
     LucideDynamicIcon,
     MatDatepickerModule,
-    MatButtonModule
+    MatButtonModule,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './leave-request-detail.html',
@@ -51,29 +51,35 @@ export class LeaveRequestDetail {
   readonly leaveRequest = this.leaveRequestStore.leaveRequest;
   readonly loading = this.leaveRequestStore.leaveRequestLoading;
 
-  readonly leaveTypeOptions = ['Sick Leave', 'Casual Leave', 'Earned Leave', 'Maternity Leave', 'Paternity Leave'];
-  
+  readonly leaveTypeOptions = [
+    'Sick Leave',
+    'Casual Leave',
+    'Earned Leave',
+    'Maternity Leave',
+    'Paternity Leave',
+  ];
+
   protected readonly selectedFile = signal<File | null>(null);
 
   public readonly documentUrl = signal<string>('');
   public readonly documentName = signal<string>('');
 
   protected readonly leaveRequestModel = signal<ILeaveRequestDetailItem>({
-      id:EMPTY_UUID,
-      leaveType: '',
-      fromDate: '',
-      toDate: '',
-      reason: '',
-      address: '',
-    });
-  
+    id: EMPTY_UUID,
+    leaveType: '',
+    fromDate: '',
+    toDate: '',
+    reason: '',
+    address: '',
+  });
+
   protected readonly leaveRequestSchema: Schema<ILeaveRequestDetailItem> = schema((path) => {
     required(path.leaveType, { message: 'Leave Type is required' });
     required(path.fromDate, { message: 'From Date is required' });
     required(path.toDate, { message: 'To Date is required' });
     required(path.reason, { message: 'Reason is required' });
   });
-  
+
   protected readonly leaveRequestForm = form(this.leaveRequestModel, this.leaveRequestSchema);
 
   constructor() {
@@ -84,7 +90,7 @@ export class LeaveRequestDetail {
 
       if (!this.isEditMode()) {
         this.leaveRequestModel.set({
-          id:EMPTY_UUID,
+          id: EMPTY_UUID,
           leaveType: '',
           fromDate: '',
           toDate: '',
@@ -107,7 +113,7 @@ export class LeaveRequestDetail {
           toDate: request.toDate ? new Date(request.toDate) : null,
         });
         this.documentUrl.set(request.documentUrl || '');
-        this.documentName.set(request.document?.name || '');
+        this.documentName.set(request.documentName || '');
       }
     });
   }
@@ -130,28 +136,28 @@ export class LeaveRequestDetail {
       this.documentName.set(file.name);
     }
   }
-  
+
   removeFile() {
     this.selectedFile.set(null);
     if (this.documentUrl().startsWith('blob:')) {
       URL.revokeObjectURL(this.documentUrl());
     }
     this.documentUrl.set(this.leaveRequest()?.documentUrl || '');
-    this.documentName.set(this.leaveRequest()?.document?.name || '');
+    this.documentName.set(this.leaveRequest()?.documentName || '');
   }
 
-openDocument() {
-  if(!this.documentUrl() || !this.documentName()) {
-    return;
+  openDocument() {
+    if (!this.documentUrl() || !this.documentName()) {
+      return;
+    }
+
+    this.documentModal.open({
+      url: this.documentUrl(),
+      documentName: this.documentName(),
+      extension: this.documentName().split('.').pop()?.toLowerCase() || '',
+      downloadAccess: true,
+    });
   }
-  
-  this.documentModal.open({
-    url: this.documentUrl(),
-    documentName: this.documentName(),
-    extension: this.documentName().split('.').pop()?.toLowerCase() || '',
-    downloadAccess: true,
-  });
-}
 
   protected onCancelClicked() {
     this.cancel.emit();
@@ -163,18 +169,18 @@ openDocument() {
     }
 
     const dataToSave = this.leaveRequestForm().value();
-    
+
     const formData = new FormData();
     formData.append('leaveType', dataToSave.leaveType);
-    
+
     const fromDateStr = this.datePipe.transform(dataToSave.fromDate, 'yyyy-MM-dd');
     const toDateStr = this.datePipe.transform(dataToSave.toDate, 'yyyy-MM-dd');
     if (fromDateStr) formData.append('fromDate', fromDateStr);
     if (toDateStr) formData.append('toDate', toDateStr);
-    
+
     formData.append('reason', dataToSave.reason || '');
     formData.append('address', dataToSave.address || '');
-    
+
     if (this.selectedFile()) {
       formData.append('document', this.selectedFile() as Blob);
     }

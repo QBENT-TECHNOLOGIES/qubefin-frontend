@@ -16,7 +16,7 @@ export interface ILeaveRequestItem {
   reason: string;
   address: string;
   documentUrl?: string | null;
-  document?: File;
+  documentName?: string | null;
   auditInfo: IAuditInfo | null;
   history?: ILeaveRequestHistory[];
 }
