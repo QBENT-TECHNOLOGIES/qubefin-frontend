@@ -1,6 +1,6 @@
 @if (currentDocument(); as doc) {
 <div
-  class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 dark:bg-[rgba(8,9,12,0.88)] p-6 backdrop-blur-md animate-in fade-in duration-200"
+  class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 p-6 backdrop-blur-sm animate-in fade-in duration-200"
   role="dialog" aria-modal="true" [attr.aria-label]="doc.documentName || 'Document preview'">
   <div #modalContainer
     class="flex h-[88vh] w-full max-w-[1080px] flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-[#2A2E38] bg-white dark:bg-[#15171D] shadow-2xl dark:shadow-[0_24px_64px_rgba(0,0,0,0.5)]">
@@ -85,9 +85,9 @@
 
       @if (!error() && documentType() === 'pdf') {
       <div
-        class="h-[90%] w-[88%] overflow-hidden rounded-md bg-white shadow-[0_12px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.45)] max-sm:w-[94%]"
+        class="h-[90%] w-[95%] overflow-hidden rounded-md bg-white shadow-[0_12px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.45)] max-sm:w-[94%] scroll-thin"
         [ngStyle]="transformStyle()" [class.hidden]="loading()" (mousedown)="onMouseDown($event)">
-        <iframe class="h-full w-full border-none" [title]="doc.documentName" [src]="pdfUrl()"
+        <iframe class="h-full w-full border-none scroll-thin" [title]="doc.documentName" [src]="pdfUrl()"
           (load)="markLoaded()"></iframe>
       </div>
       }
