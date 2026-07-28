@@ -5,15 +5,14 @@
   <p class="text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400">Loading leave approval details...</p>
 </div>
 } @else {
-<div
-  class="glass dark:bg-glass-dark rounded-xl shadow-glass dark:shadow border border-slate-200 dark:border-white/10 p-5 mt-4">
+<!-- <div
+  class="glass dark:bg-glass-dark rounded-xl shadow-glass dark:shadow border border-slate-200 dark:border-white/10 p-5 mt-4"> -->
   <form class="flex flex-col gap-5">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-4">
-
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <!-- Employee Name -->
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
         <mat-label>Employee Name</mat-label>
-        <div class="w-10 flex justify-center items-start text-slate-400 dark:text-slate-300" matPrefix>
+        <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="user" class="w-5 h-5"></svg>
         </div>
         <input matInput [formField]="leaveApprovalForm.employeeName" rows="3" placeholder="Enter Employee Name" />
@@ -22,7 +21,7 @@
       <!-- Leave Type -->
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>Leave Type</mat-label>
-        <div class="w-10 flex justify-center text-slate-400 dark:text-slate-300" matPrefix>
+        <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="tag" class="w-5 h-5"></svg>
         </div>
         <mat-select [formField]="leaveApprovalForm.leaveType">
@@ -39,7 +38,7 @@
       <!-- From Date -->
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>From Date</mat-label>
-        <div class="w-10 flex justify-center text-slate-400 dark:text-slate-300" matPrefix>
+        <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="calendar-arrow-up" class="w-5 h-5"></svg>
         </div>
         <input matInput [matDatepicker]="fromPicker" placeholder="DD/MM/YYYY"
@@ -51,7 +50,7 @@
       <!-- To Date -->
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>To Date</mat-label>
-        <div class="w-10 flex justify-center text-slate-400 dark:text-slate-300" matPrefix>
+        <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="calendar-arrow-down" class="w-5 h-5"></svg>
         </div>
         <input matInput [matDatepicker]="toPicker" placeholder="DD/MM/YYYY" [formField]="leaveApprovalForm.toDate" />
@@ -60,26 +59,26 @@
       </mat-form-field>
 
       <!-- Reason -->
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-4">
         <mat-label>Reason</mat-label>
-        <div class="w-10 flex justify-center items-start text-slate-400 dark:text-slate-300" matPrefix>
+        <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="file-text" class="w-5 h-5"></svg>
         </div>
         <input matInput [formField]="leaveApprovalForm.reason" rows="3" placeholder="Enter reason" />
       </mat-form-field>
 
       <!-- Address -->
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-4">
         <mat-label>Address</mat-label>
-        <div class="w-10 flex justify-center items-start text-slate-400 dark:text-slate-300" matPrefix>
+        <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
         </div>
         <input matInput [formField]="leaveApprovalForm.address" rows="2" placeholder="Enter address while on leave" />
       </mat-form-field>
 
       <!-- Document View -->
-      <div class="md:col-span-2">
-        <label class="block text-[13px] font-medium text-slate-700 dark:text-slate-300 mb-2">Document View</label>
+      <div class="md:col-span-4">
+        <label class="block text-[13px] font-medium text-slate-700 dark:text-slate-300 mb-1">Document View</label>
         @if (documentUrl()) {
         <div
           class="flex items-center justify-between p-3 border border-slate-200 dark:border-white/10 rounded-xl bg-slate-50 dark:bg-white/5">
@@ -106,39 +105,39 @@
       </div>
 
       <!-- Remarks (Editable) -->
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2 mt-4">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-4">
         <mat-label>Remarks (Required for action)</mat-label>
-        <div class="w-10 flex justify-center items-start text-slate-400 dark:text-slate-300" matPrefix>
+        <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="message-square-plus" class="w-5 h-5"></svg>
         </div>
         <input matInput [formField]="leaveApprovalForm.remarks" rows="2" placeholder="Enter your remarks..." />
       </mat-form-field>
     </div>
 
-    <div class="flex items-center justify-end gap-3 pt-5 border-t border-slate-200 dark:border-white/10">
+    <div class="flex items-center justify-end gap-3 pt-4 pb-3 border-t border-slate-200 dark:border-white/10">
       <button type="button" (click)="onCancelClicked()"
-        class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift dark:text-slate-200 border border-slate-200 dark:border-transparent">
+        class="cursor-pointer bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift dark:text-slate-200 border border-slate-200 dark:border-transparent">
         Cancel
       </button>
 
       <button type="button" (click)="onAction('reject')"
-        class="bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-rose-100 dark:hover:bg-rose-500/20 transition lift">
+        class="cursor-pointer bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-rose-100 dark:hover:bg-rose-500/20 transition lift">
         <svg lucideIcon="x-circle" class="w-4 h-4"></svg>
         Reject
       </button>
 
       <button type="button" (click)="onAction('recommend')"
-        class="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-500/20 transition lift">
+        class="cursor-pointer bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-500/20 transition lift">
         <svg lucideIcon="arrow-up-right" class="w-4 h-4"></svg>
         Recommend
       </button>
 
       <button type="button" (click)="onAction('approve')"
-        class="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition lift">
+        class="cursor-pointer bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition lift">
         <svg lucideIcon="check-circle" class="w-4 h-4"></svg>
         Approve
       </button>
     </div>
   </form>
-</div>
+<!-- </div> -->
 }

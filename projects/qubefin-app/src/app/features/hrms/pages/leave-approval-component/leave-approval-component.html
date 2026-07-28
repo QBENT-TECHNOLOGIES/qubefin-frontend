@@ -99,7 +99,8 @@
     </div>
 
     @if (hasSelectedLeaveApproval()) {
-    <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
+    <div
+      class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
       [ngClass]="{
         'w-3/4': isViewMode() && selectedLeaveApprovalId() !== EMPTY_UUID,
         'w-full': !isViewMode()
