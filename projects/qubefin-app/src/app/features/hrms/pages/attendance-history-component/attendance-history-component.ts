@@ -16,6 +16,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
 import { AttendanceHistoryComponentList } from '../../components/attendance-history-components/attendance-history-component-list/attendance-history-component-list';
 import { EMPTY_UUID } from 'qubefin-core';
+import { AttendanceHistoryComponentView } from '../../components/attendance-history-components/attendance-history-component-view/attendance-history-component-view';
+import { IAttendanceHistory } from '../../models/attendance-history';
 @Component({
   selector: 'qfin-attendance-history-component',
   imports: [
@@ -28,6 +30,7 @@ import { EMPTY_UUID } from 'qubefin-core';
     LucideDynamicIcon,
     CommonModule,
     AttendanceHistoryComponentList,
+    AttendanceHistoryComponentView,
     MatDatepickerModule,
     MatSelectModule,
   ],
@@ -44,6 +47,8 @@ export class AttendanceHistoryComponent {
   readonly isViewMode = signal<boolean>(true);
   readonly showFilterArea = signal<boolean>(false);
   readonly attendanceId = signal<string>(EMPTY_UUID);
+
+  readonly selectedAttendance = signal<IAttendanceHistory | null>(null);
 
   readonly statuses = signal<string[]>([
     'On Time',
@@ -64,9 +69,9 @@ export class AttendanceHistoryComponent {
   constructor() {
     this.dateAdapter.setLocale('en-GB');
   }
-  protected onView(id: string) {
-    // this.selectedSurveyCommitteeId.set(id);
-    // this.isViewMode.set(true);
+  protected onView(item: IAttendanceHistory) {
+    this.selectedAttendance.set(item);
+    this.isViewMode.set(true);
   }
   protected onEdit() {
     // this.isViewMode.set(false);
@@ -76,8 +81,8 @@ export class AttendanceHistoryComponent {
     // this.selectedSurveyCommitteeId.set(EMPTY_UUID);
   }
   protected closePanel() {
-    // this.selectedSurveyCommitteeId.set(EMPTY_UUID);
-    // this.isViewMode.set(true);
+    this.selectedAttendance.set(null);
+    this.isViewMode.set(true);
   }
 
   protected toggleFilterArea() {

@@ -23,14 +23,19 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
   styles: ``,
 })
 export class AttendanceHistoryComponentList {
-  // isCollapsed = input<boolean>(false);
+  isCollapsed = input<boolean>(false);
+  selectedRow = input<IAttendanceHistory | null>(null);
   data = input<IAttendanceHistory[]>([]);
   pageChanged = output<PageEvent>();
   readonly totalRecords = input(0);
   readonly pageIndex = input(0);
   readonly pageSize = input(10);
   readonly iconMap = APP_ICONS_MAP;
+  onViewDetail = output<IAttendanceHistory>();
   displayedColumns = computed(() => {
+    if (this.isCollapsed()) {
+      return ['attendanceDate', 'status', 'action'];
+    }
     return [
       'sl',
       'attendanceDate',
@@ -41,7 +46,9 @@ export class AttendanceHistoryComponentList {
       'action',
     ];
   });
-
+  onDetailView(item: IAttendanceHistory) {
+    this.onViewDetail.emit(item);
+  }
   onPage(event: PageEvent) {
     this.pageChanged.emit(event);
   }
