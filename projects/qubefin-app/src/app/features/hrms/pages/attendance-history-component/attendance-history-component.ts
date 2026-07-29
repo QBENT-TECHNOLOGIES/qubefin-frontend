@@ -45,7 +45,12 @@ export class AttendanceHistoryComponent {
   readonly showFilterArea = signal<boolean>(false);
   readonly attendanceId = signal<string>(EMPTY_UUID);
 
-  readonly statuses = ['On Time', 'Late Entry', 'Early Exit', 'Late Entry & Early Exit'];
+  readonly statuses = signal<string[]>([
+    'On Time',
+    'Late Entry',
+    'Early Exit',
+    'Late Entry & Early Exit',
+  ]);
   readonly searchModel = signal({
     tempSearch: '',
     fromDate: '',

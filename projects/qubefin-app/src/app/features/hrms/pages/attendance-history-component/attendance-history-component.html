@@ -64,7 +64,7 @@
                             </div>
                             <mat-select [formField]="searchForm.status" placeholder="Select Status">
                                 <mat-option value="">All Statuses</mat-option>
-                                @for (status of statuses; track status) {
+                                @for (status of statuses(); track status) {
                                 <mat-option [value]="status">{{ status }}</mat-option>
                                 }
                             </mat-select>
