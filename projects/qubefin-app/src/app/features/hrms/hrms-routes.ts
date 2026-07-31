@@ -26,6 +26,13 @@ export const HrmsRoutes: Routes = [
             (m) => m.AttendanceRegularizations,
           ),
       },
+      {
+        path: 'approval-regularization',
+        loadComponent: () =>
+          import('./pages/approval-regularizations/approval-regularizations').then(
+            (m) => m.ApprovalRegularizations,
+          ),
+      },
     ],
   },
 ];

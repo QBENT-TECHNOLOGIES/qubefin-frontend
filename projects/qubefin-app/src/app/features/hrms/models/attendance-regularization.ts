@@ -42,3 +42,13 @@ export interface IRegularizationForm {
 export interface IAttendanceRegularizationDetailResponse {
   response: IAttendanceRegularizationDetail;
 }
+export interface IApprovalRegularization {
+  id: string;
+  employeeName: string | null;
+  organizationUnit: string | null;
+  regularizationType: string | null;
+  regularizationDate: string | null;
+  reason: string;
+  status: string | null;
+  attachment: string | null;
+}

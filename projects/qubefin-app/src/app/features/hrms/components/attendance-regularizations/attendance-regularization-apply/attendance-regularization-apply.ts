@@ -64,7 +64,7 @@ export class AttendanceRegularizationApply {
     required(path.reason, { message: 'Reason is required' });
     required(path.regularizationDates, { message: 'At least one date is required' });
   });
-
+  readonly maxDate = new Date();
   protected readonly applyForm = form(this.formModel, this.formSchema);
 
   protected readonly selectedFile = signal<File | null>(null);

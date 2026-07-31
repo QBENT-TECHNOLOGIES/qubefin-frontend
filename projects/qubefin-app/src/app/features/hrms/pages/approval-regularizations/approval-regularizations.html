@@ -7,12 +7,6 @@
                 <svg lucideIcon="funnel" class="w-4 h-4"></svg>
                 Filter
             </button>
-            <button
-                class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
-                (click)="onAdd()">
-                <svg lucideIcon="plus" class="w-4 h-4"></svg>
-                Apply Regularization
-            </button>
             }
         </div>
     </div>
@@ -38,7 +32,7 @@
                                 <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
                             </div>
                             <input matInput [matDatepicker]="fromDatePicker" [formField]="searchForm.fromDate"
-                                placeholder="Select From Date" autocomplete="off" readonly>
+                                placeholder="Select From Date" autocomplete="off" [readonly]="true">
                             <mat-datepicker-toggle matIconSuffix [for]="fromDatePicker">
                             </mat-datepicker-toggle>
                             <mat-datepicker #fromDatePicker></mat-datepicker>
@@ -51,25 +45,13 @@
                                 <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
                             </div>
                             <input matInput [matDatepicker]="toDatePicker" [formField]="searchForm.toDate"
-                                placeholder="Select To Date" autocomplete="off" readonly>
+                                placeholder="Select To Date" autocomplete="off" [readonly]="true">
                             <mat-datepicker-toggle matIconSuffix [for]="toDatePicker">
                             </mat-datepicker-toggle>
                             <mat-datepicker #toDatePicker></mat-datepicker>
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 min-w-[200px]">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Status</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                            </div>
-                            <mat-select [formField]="searchForm.status" placeholder="Select Status">
-                                <mat-option value="">All Statuses</mat-option>
-                                @for (status of statuses(); track status) {
-                                <mat-option [value]="status">{{ status }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
+
 
                     <div class="flex items-center gap-2.5 shrink-0">
                         <button type="button" (click)="resetFilters()"
@@ -87,43 +69,26 @@
             </div>
             }
             } @else {
-            <div class="flex items-center gap-2 px-4 py-3">
-                <div
-                    class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
-                    <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
-                    <mat-select [formField]="searchForm.status" placeholder="Select Status"
-                        class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400">
-                        <mat-option value="">All Statuses</mat-option>
-                        @for (status of statuses(); track status) {
-                        <mat-option [value]="status">{{ status }}</mat-option>
-                        }
-                    </mat-select>
-                </div>
-                <button (click)="applyFilters()"
-                    class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
-                    <svg lucideIcon="search" class="w-4 h-4"></svg>
-                </button>
-            </div>
+
             }
 
-            @if (attendanceRegularizationsStore.loading()) {
+            @if (approvalRegularizationsStore.loading()) {
             <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
                 <svg lucideIcon="loader" class="w-5 h-5"></svg>
-                Loading Attendance Regularizations...
+                Loading Approval Regularizations...
             </div>
-            } @else if (attendanceRegularizationsStore.error()) {
+            } @else if (approvalRegularizationsStore.error()) {
             <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
                 <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
-                Unable to load attendance regularizations.
+                Unable to load approval regularizations.
             </div>
             } @else {
-            <qfin-attendance-regularizations-list [data]="attendanceRegularizations()"
-                [isCollapsed]="hasSelectedRegularization()"
-                [totalRecords]="attendanceRegularizationsStore.totalRecords()"
-                [pageIndex]="attendanceRegularizationsStore.pageIndex()"
-                [pageSize]="attendanceRegularizationsStore.pageSize()" (pageChanged)="pageChanged($event)"
+            <qfin-approval-regulariztion-list [data]="attendanceRegularizations()"
+                [isCollapsed]="hasSelectedRegularization()" [totalRecords]="approvalRegularizationsStore.totalRecords()"
+                [pageIndex]="approvalRegularizationsStore.pageIndex()"
+                [pageSize]="approvalRegularizationsStore.pageSize()" (pageChanged)="pageChanged($event)"
                 (onViewDetail)="onView($event)">
-            </qfin-attendance-regularizations-list>
+            </qfin-approval-regulariztion-list>
             }
         </div>
 
@@ -140,31 +105,25 @@
                         <div>
                             <div class="flex justify-start gap-2">
                                 <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
-                                    @if (selectedAttendanceRegularizationId() === EMPTY_UUID) {
-                                    Apply Regularization
-                                    } @else {
+
                                     Regularization Details
-                                    }
+
                                 </h2>
                                 <div
                                     class="flex items-center gap-1.5 px-3 pt-1 pb-0 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                                     <span
                                         class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                                        @if (selectedAttendanceRegularizationId() === EMPTY_UUID) {
-                                        New Mode
-                                        } @else {
+
                                         View Mode
-                                        }
+
                                     </span>
                                 </div>
                             </div>
                             <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                                @if (selectedAttendanceRegularizationId() === EMPTY_UUID) {
-                                Apply a new attendance regularization.
-                                } @else {
-                                Review attendance regularization information.
-                                }
+
+                                Review regularization information.
+
                             </p>
                         </div>
                     </div>
@@ -181,11 +140,6 @@
                 @if (isViewMode() && selectedAttendanceRegularizationId() !== EMPTY_UUID) {
                 <qfin-attendance-regularization-view [regularizationId]="selectedAttendanceRegularizationId()">
                 </qfin-attendance-regularization-view>
-                } @else {
-                <qfin-attendance-regularization-apply (cancel)="closePanel()" (save)="onSaveSuccess()">
-
-
-                </qfin-attendance-regularization-apply>
                 }
             </div>
         </div>

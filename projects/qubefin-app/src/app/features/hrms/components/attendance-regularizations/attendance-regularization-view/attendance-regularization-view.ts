@@ -3,10 +3,11 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 import { EMPTY_UUID } from 'qubefin-core';
 import { AttendanceRegularizationsStore } from '../../../stores/attendance-regularizations-store';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'qfin-attendance-regularization-view',
-  imports: [CommonModule, DatePipe, LucideDynamicIcon],
+  imports: [CommonModule, DatePipe, LucideDynamicIcon, MatFormFieldModule],
   templateUrl: './attendance-regularization-view.html',
   styles: ``,
 })

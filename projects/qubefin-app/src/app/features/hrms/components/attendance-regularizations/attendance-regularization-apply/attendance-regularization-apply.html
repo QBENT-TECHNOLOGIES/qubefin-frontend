@@ -43,11 +43,10 @@
                         </div>
                         <input matInput [matDatepicker]="datePicker" (dateChange)="onDateSelected($event, dateInput)"
                             [disabled]="!formModel().regularizationType" readonly placeholder="Pick date from calendar"
-                            #dateInput />
+                            #dateInput [max]="maxDate" />
                         <mat-datepicker-toggle matIconSuffix [for]="datePicker"></mat-datepicker-toggle>
                         <mat-datepicker #datePicker></mat-datepicker>
-                    </mat-form-field>
-
+                    </mat-form-field>Ks
                     <!-- Selected Dates Chips -->
                     @if (formModel().regularizationDates.length > 0) {
                     <div
