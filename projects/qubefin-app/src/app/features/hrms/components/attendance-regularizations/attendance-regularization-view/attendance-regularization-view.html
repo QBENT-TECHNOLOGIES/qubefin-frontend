@@ -271,6 +271,51 @@
 
     </div>
 
+    @if (data.isRecommendVisible || data.isApprovalVisible) {
+
+
+    <div class="glass rounded-xl shadow-glass dark:shadow p-5 mt-2">
+        <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 pb-3">
+            Decision Action
+        </h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Remarks</mat-label>
+            <textarea matInput rows="3" [(ngModel)]="remarks" placeholder="Add your reasoning..."></textarea>
+            <div class="w-12 flex justify-center pt-2" matPrefix>
+
+            </div>
+        </mat-form-field>
+
+        <div class="flex justify-end gap-3 mt-5">
+
+            @if (data.isRecommendVisible) {
+            <button type="button" (click)="onSubmitDecision('Recommended')"
+                class="ripple-btn shadow shine-sweep rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:shadow-glow transition lift cursor-pointer">
+
+                Recommend
+            </button>
+            }
+
+
+            @if (data.isApprovalVisible) {
+            <button type="button" (click)="onSubmitDecision('Rejected')"
+                class="bg-white dark:bg-slate-800 border border-red-200 dark:border-red-900 shadow rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-red-600 dark:text-red-400 hover:shadow-glass hover:bg-red-50 dark:hover:bg-red-900/30 transition lift cursor-pointer">
+
+                Reject
+            </button>
+            <button type="button" (click)="onSubmitDecision('Approved')"
+                class="ripple-btn shadow shine-sweep rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:shadow-glow transition lift cursor-pointer">
+
+                Approve
+            </button>
+            }
+        </div>
+    </div>
+
+    }
+    <!-- Audit -->
 </div>
 
 

@@ -10,4 +10,7 @@ export class AttendanceService {
   applyRegularization(data: any) {
     return this.httpClient.post(`${ApiPaths.HRMS}/attendances/regularizations`, data);
   }
+  submitRegularization(data: any) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/attendances/regularizations/submit`, data);
+  }
 }
