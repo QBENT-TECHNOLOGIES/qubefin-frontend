@@ -148,7 +148,7 @@ export class AdministrativeUnitDetailComponent {
 			this.administrativeUnitService.create(dataToSave).subscribe({
 				next: (resp: any) => {
 					this.alertService.success("Success!", "Administrative Unit created successfully !")
-					this.administrativeUnitStore.refreshTree();
+					this.administrativeUnitStore.refreshAll();
 				},
 				error: (err: any) => {
 					if (err.error.isError) {
@@ -159,7 +159,7 @@ export class AdministrativeUnitDetailComponent {
 			this.administrativeUnitService.update(this.administrativeUnitId(), dataToSave).subscribe({
 				next: (resp: any) => {
 					this.alertService.success("Success!", "Administrative Unit updated successfully !");
-					this.administrativeUnitStore.refreshTree();
+					this.administrativeUnitStore.refreshAll();
 				},
 				error: (err: any) => {
 					if (err.error.isError) {
