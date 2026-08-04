@@ -29,6 +29,7 @@
                 <div class="tree-view scroll-thin">
                     <qfin-administrative-unit-tree-component
                         [administrativeUnitTreeNodes]="administrativeUnitTreeNodes()"
+                        [selectedId]="selectedAdministrativeUnitId()"
                         (onViewDetail)="viewDetail($event)">
                     </qfin-administrative-unit-tree-component>
                 </div>
