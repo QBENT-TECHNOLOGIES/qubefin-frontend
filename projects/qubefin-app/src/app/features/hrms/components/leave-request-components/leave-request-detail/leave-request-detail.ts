@@ -12,7 +12,7 @@ import { LeaveRequestStore } from '../../../stores/leave-request-store';
 import { LeaveRequestService } from '../../../services/leave-request-service';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
-import { ILeaveRequestDetailItem, ILeaveRequestItem } from '../../../models/leave-request';
+import { ILeaveRequestDetailItem } from '../../../models/leave-request';
 import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
 
 @Component({
@@ -42,7 +42,7 @@ export class LeaveRequestDetail {
   readonly leaveRequestId = input<string>(EMPTY_UUID);
 
   readonly cancel = output<void>();
-  readonly save = output<void>();
+  readonly save = output<string | void>();
 
   readonly isEditMode = computed(
     () => !!this.leaveRequestId() && this.leaveRequestId() !== EMPTY_UUID,
@@ -51,22 +51,18 @@ export class LeaveRequestDetail {
   readonly leaveRequest = this.leaveRequestStore.leaveRequest;
   readonly loading = this.leaveRequestStore.leaveRequestLoading;
 
-  readonly leaveTypeOptions = [
-    'Sick Leave',
-    'Casual Leave',
-    'Earned Leave',
-    'Maternity Leave',
-    'Paternity Leave',
-  ];
+  readonly leaveTypeBalances = this.leaveRequestStore.leaveTypeBalances;
+  readonly leaveTypeBalancesLoading = this.leaveRequestStore.leaveTypeBalancesLoading;
 
   protected readonly selectedFile = signal<File | null>(null);
-
+  private previousFromDate: Date | null = null;
   public readonly documentUrl = signal<string>('');
   public readonly documentName = signal<string>('');
+  public readonly minDate = signal<Date>(new Date());
 
   protected readonly leaveRequestModel = signal<ILeaveRequestDetailItem>({
     id: EMPTY_UUID,
-    leaveType: '',
+    leaveTypeId: '',
     fromDate: '',
     toDate: '',
     reason: '',
@@ -74,7 +70,7 @@ export class LeaveRequestDetail {
   });
 
   protected readonly leaveRequestSchema: Schema<ILeaveRequestDetailItem> = schema((path) => {
-    required(path.leaveType, { message: 'Leave Type is required' });
+    required(path.leaveTypeId, { message: 'Leave Type is required' });
     required(path.fromDate, { message: 'From Date is required' });
     required(path.toDate, { message: 'To Date is required' });
     required(path.reason, { message: 'Reason is required' });
@@ -91,7 +87,7 @@ export class LeaveRequestDetail {
       if (!this.isEditMode()) {
         this.leaveRequestModel.set({
           id: EMPTY_UUID,
-          leaveType: '',
+          leaveTypeId: '',
           fromDate: '',
           toDate: '',
           reason: '',
@@ -112,9 +108,33 @@ export class LeaveRequestDetail {
           fromDate: request.fromDate ? new Date(request.fromDate) : null,
           toDate: request.toDate ? new Date(request.toDate) : null,
         });
-        this.documentUrl.set(request.documentUrl || '');
-        this.documentName.set(request.documentName || '');
+        this.documentUrl.set(request.enclosedDocUrl || '');
+        this.documentName.set(request.enclosedDocName || '');
       }
+    });
+
+    effect(() => {
+      const value = this.leaveRequestForm.fromDate().value();
+
+      if (!value) {
+        this.previousFromDate = null;
+        return;
+      }
+
+      const fromDate = value instanceof Date ? value : new Date(value);
+
+      // Skip initial load (Create/Edit)
+      if (this.previousFromDate === null) {
+        this.previousFromDate = fromDate;
+        return;
+      }
+
+      // Clear To Date only when From Date actually changes
+      if (this.previousFromDate.getTime() !== fromDate.getTime()) {
+        this.updateField('toDate', null);
+      }
+
+      this.previousFromDate = fromDate;
     });
   }
 
@@ -142,8 +162,8 @@ export class LeaveRequestDetail {
     if (this.documentUrl().startsWith('blob:')) {
       URL.revokeObjectURL(this.documentUrl());
     }
-    this.documentUrl.set(this.leaveRequest()?.documentUrl || '');
-    this.documentName.set(this.leaveRequest()?.documentName || '');
+    this.documentUrl.set(this.leaveRequest()?.enclosedDocUrl || '');
+    this.documentName.set(this.leaveRequest()?.enclosedDocName || '');
   }
 
   openDocument() {
@@ -163,15 +183,10 @@ export class LeaveRequestDetail {
     this.cancel.emit();
   }
 
-  protected onSubmit() {
-    if (!this.leaveRequestForm().valid()) {
-      return;
-    }
-
+  private buildFormData(): FormData {
     const dataToSave = this.leaveRequestForm().value();
-
     const formData = new FormData();
-    formData.append('leaveType', dataToSave.leaveType);
+    formData.append('leaveTypeId', dataToSave.leaveTypeId);
 
     const fromDateStr = this.datePipe.transform(dataToSave.fromDate, 'yyyy-MM-dd');
     const toDateStr = this.datePipe.transform(dataToSave.toDate, 'yyyy-MM-dd');
@@ -182,17 +197,27 @@ export class LeaveRequestDetail {
     formData.append('address', dataToSave.address || '');
 
     if (this.selectedFile()) {
-      formData.append('document', this.selectedFile() as Blob);
+      formData.append('enclosedFileName', this.selectedFile()?.name || '');
+      formData.append('enclosedFile', this.selectedFile() as Blob);
     }
+    return formData;
+  }
 
-    if (!this.isEditMode()) {
-      this.leaveRequestService.create(formData).subscribe({
-        next: () => {
-          this.leaveRequestStore.refreshList();
-          this.save.emit();
-        },
-      });
+  protected onSaveAsDraft() {
+    if (!this.leaveRequestForm().valid()) {
       return;
     }
+
+    const formData = this.buildFormData();
+
+    this.leaveRequestService.create(formData).subscribe({
+      next: (resp: any) => {
+        console.log(resp);
+        this.leaveRequestStore.refreshList();
+        this.save.emit();
+      },
+    });
   }
+
+
 }

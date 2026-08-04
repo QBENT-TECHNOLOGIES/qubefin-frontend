@@ -19,9 +19,9 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="tag" class="w-5 h-5"></svg>
       </div>
-      <mat-select [formField]="leaveRequestForm.leaveType">
-        @for (option of leaveTypeOptions; track option) {
-        <mat-option [value]="option">{{ option }}</mat-option>
+      <mat-select [formField]="leaveRequestForm.leaveTypeId">
+        @for (balance of leaveTypeBalances(); track balance.leaveTypeId) {
+        <mat-option [value]="balance.leaveTypeId">{{ balance.title }} (Balance: {{ balance.leaveBalance }})</mat-option>
         }
       </mat-select>
     </mat-form-field>
@@ -32,7 +32,8 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="calendar-arrow-down" class="w-5 h-5"></svg>
       </div>
-      <input matInput [matDatepicker]="fromPicker" [formField]="leaveRequestForm.fromDate" />
+      <input matInput [matDatepicker]="fromPicker" [min]="minDate()" [formField]="leaveRequestForm.fromDate"
+        [readonly]="true" />
       <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
       <mat-datepicker #fromPicker></mat-datepicker>
     </mat-form-field>
@@ -43,7 +44,8 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="calendar-arrow-up" class="w-5 h-5"></svg>
       </div>
-      <input matInput [matDatepicker]="toPicker" [formField]="leaveRequestForm.toDate" />
+      <input matInput [matDatepicker]="toPicker" [min]="leaveRequestForm.fromDate().value()"
+        [formField]="leaveRequestForm.toDate" readonly />
       <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
       <mat-datepicker #toPicker></mat-datepicker>
     </mat-form-field>
@@ -100,17 +102,16 @@
     </mat-form-field>
   </div>
 
-  <!-- Footer Button -->
   <div class="border-t border-slate-200 dark:border-slate-400/10 py-2 flex justify-end gap-3 mt-6">
     <button type="button" (click)="onCancelClicked()"
       class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
       <svg lucideIcon="x" class="w-4 h-4"></svg>
       Cancel
     </button>
-    <button type="button" (click)="onSubmit()"
-      class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+    <button type="button" (click)="onSaveAsDraft()"
+      class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-primary-700 bg-primary-100 hover:bg-primary-200 transition lift cursor-pointer">
       <svg lucideIcon="save" class="w-4 h-4"></svg>
-      Apply
+      Save as draft
     </button>
   </div>
   }

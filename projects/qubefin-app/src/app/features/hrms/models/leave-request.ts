@@ -1,6 +1,6 @@
 export interface ILeaveRequestDetailItem {
   id: string;
-  leaveType: string;
+  leaveTypeId: string;
   fromDate: string | Date | null;
   toDate: string | Date | null;
   reason: string;
@@ -9,16 +9,20 @@ export interface ILeaveRequestDetailItem {
 export interface ILeaveRequestItem {
   id: string;
   leaveType: string;
+  leaveTypeId: string;
   fromDate: string | Date | null;
   toDate: string | Date | null;
-  days: number;
-  status: string;
+  totalDays: number;
+  currentStatus: string;
   reason: string;
   address: string;
-  documentUrl?: string | null;
-  documentName?: string | null;
-  auditInfo: IAuditInfo | null;
-  history?: ILeaveRequestHistory[];
+  enclosedDocUrl?: string | null;
+  enclosedDocName?: string | null;
+  enclosedDocNo?: string | null;
+  isSubmitted: boolean;
+  isCancellable: boolean;
+  rejectedReason: string;
+  events?: ILeaveRequestHistory[];
 }
 
 export interface ILeaveRequestListItem {
@@ -26,14 +30,17 @@ export interface ILeaveRequestListItem {
   leaveType: string;
   fromDate: string | Date | null;
   toDate: string | Date | null;
-  days: number;
-  status: string;
+  totaldays: number;
+  currentStatus: string;
 }
 
 export interface ILeaveRequestHistory {
   event: string;
-  eventBy: string;
-  date: string | Date;
+  eventBy: string | null;
+  eventOn: string | Date;
+  eventRemarks: string;
+  senderDesignation?: string | null;
+  receiverDesignation?: string | null;
 }
 
 export interface IAuditInfo {
@@ -41,4 +48,13 @@ export interface IAuditInfo {
   createdOn: string;
   lastModifiedBy?: string;
   lastModifiedOn?: string;
+}
+
+export interface ILeaveTypeBalance {
+  leaveTypeId: string;
+  title: string;
+  alias: string;
+  leaveEntitled: number;
+  leaveTaken: number;
+  leaveBalance: number;
 }

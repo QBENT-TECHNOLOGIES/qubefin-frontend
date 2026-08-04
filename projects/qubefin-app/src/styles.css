@@ -16,7 +16,41 @@
     display: none !important;
 }
 
-.mat-mdc-form-field.mat-form-field-invalid
-.mat-mdc-form-field-subscript-wrapper {
+.mat-mdc-form-field.mat-form-field-invalid .mat-mdc-form-field-subscript-wrapper {
     display: block !important;
+}
+
+::ng-deep .pill-select {
+    margin: 0 !important;
+}
+
+::ng-deep .pill-select .mdc-notched-outline {
+    display: none !important;
+}
+
+::ng-deep .pill-select .mat-mdc-text-field-wrapper {
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+::ng-deep .pill-select .mat-mdc-form-field-infix {
+    min-height: 32px !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+}
+
+::ng-deep .pill-select .mat-mdc-select-trigger {
+    height: 32px;
+    display: flex;
+    align-items: center;
+}
+
+::ng-deep .pill-select .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}
+
+.year-select {
+    width: 90px !important;
 }
