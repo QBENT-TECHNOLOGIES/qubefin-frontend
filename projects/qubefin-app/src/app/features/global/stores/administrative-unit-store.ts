@@ -21,7 +21,7 @@ export class AdministrativeUnitStore {
     // Single Administrative Unit
     private readonly administrativeUnitResource = httpResource<AdministrativeUnit>(() => {
         const id = this.administrativeUnitId();
-        if (!id || id === EMPTY_UUID) return undefined;
+        //if (!id || id === EMPTY_UUID) return undefined;
         return `${ApiPaths.GLOBAL}/administrative-units/${id}`;
     });
 
@@ -31,12 +31,19 @@ export class AdministrativeUnitStore {
 
     // Actions
     setAdministrativeUnitId(administrativeUnitId: string | undefined) {
-        if (this.administrativeUnitId() === administrativeUnitId) return;
+        //if (this.administrativeUnitId() === administrativeUnitId) return;
         this.administrativeUnitId.set(administrativeUnitId);
     }
 
     // Manual Refresh
     refreshTree() {
         this.administrativeUnitTreeResource.reload();
+    }
+    refreshAdministrativeUnit() {
+        this.administrativeUnitResource.reload();
+    }
+    refreshAll() {
+        this.administrativeUnitTreeResource.reload();
+        this.administrativeUnitResource.reload();
     }
 }

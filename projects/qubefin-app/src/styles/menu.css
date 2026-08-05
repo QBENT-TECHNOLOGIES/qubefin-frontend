@@ -97,3 +97,7 @@
 .dropdown-icon {
 	@apply text-[18px] shrink-0 transition-colors duration-200;
 }
+
+.parent-menu::before {
+	@apply hidden!;
+}

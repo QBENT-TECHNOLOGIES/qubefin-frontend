@@ -1,18 +1,18 @@
 import { Component, computed, effect, inject, model, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { APP_ICONS_MAP } from '../../../../lucide-icons';
-import { MenuStore } from '../../stores/menu-store';
-import { MenuField } from '../../models/menu';
+import { APP_ICONS_MAP } from '../../../../../lucide-icons';
+import { MenuStore } from '../../../stores/menu-store';
+import { MenuField } from '../../../models/menu';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
-import { PermissionStore } from '../../stores/permission-store';
+import { PermissionStore } from '../../../stores/permission-store';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { PermissionField } from '../../models/permission';
-import { MenuService } from '../../services/menu-service';
+import { PermissionField } from '../../../models/permission';
+import { MenuService } from '../../../services/menu-service';
 
 @Component({
 	selector: 'qfin-menu-detail-component',
@@ -142,7 +142,7 @@ export class MenuDetailComponent {
 		if (this.menuId() === EMPTY_UUID) {
 			this.menuService.create(dataToSave).subscribe({
 				next: (resp: any) => {
-					this.alertService.success("Success", "Menu saved successfully !")
+					this.alertService.success("Success!", "Menu saved successfully !")
 					//this.administrativeUnitStore.refreshTree();
 				},
 				error: (err: any) => {
@@ -153,7 +153,7 @@ export class MenuDetailComponent {
 		} else {
 			this.menuService.update(this.menuId(), dataToSave).subscribe({
 				next: (resp: any) => {
-					this.alertService.success("Success", "Menu updated successfully !")
+					this.alertService.success("Success!", "Menu updated successfully !")
 					//this.menuStore.refreshTree();
 				},
 				error: (err: any) => {

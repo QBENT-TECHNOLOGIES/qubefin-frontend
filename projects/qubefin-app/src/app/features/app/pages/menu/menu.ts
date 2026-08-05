@@ -1,11 +1,11 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { EMPTY_UUID } from 'qubefin-core';
 import { MenuStore } from '../../stores/menu-store';
-import { MenuTreeComponent } from '../../components/menu-tree/menu-tree';
-import { MenuViewComponent } from '../../components/menu-view/menu-view';
+import { MenuTreeComponent } from '../../components/menus/menu-tree/menu-tree';
+import { MenuViewComponent } from '../../components/menus/menu-view/menu-view';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { MenuDetailComponent } from '../../components/menu-detail/menu-detail';
+import { MenuDetailComponent } from '../../components/menus/menu-detail/menu-detail';
 
 @Component({
   selector: 'qfin-menu-page',

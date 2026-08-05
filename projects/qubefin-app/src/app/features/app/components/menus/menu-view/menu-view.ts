@@ -1,12 +1,12 @@
 import { Component, effect, inject, model, output } from '@angular/core';
-import { MenuStore } from '../../stores/menu-store';
+import { MenuStore } from '../../../stores/menu-store';
 import { EMPTY_UUID } from 'qubefin-core';
 import { LucideDynamicIcon, LucideEye,
   LucidePlus,
   LucidePencil,
   LucideTrash2,
   LucideDownload} from '@lucide/angular';
-import { APP_ICONS_MAP } from '../../../../lucide-icons';
+import { APP_ICONS_MAP } from '../../../../../lucide-icons';
 import { DatePipe } from '@angular/common';
 
 @Component({
