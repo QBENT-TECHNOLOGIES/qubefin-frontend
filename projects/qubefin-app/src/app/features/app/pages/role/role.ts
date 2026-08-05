@@ -1,5 +1,5 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { RoleListComponent } from '../../components/role-list/role-list';
+import { RoleListComponent } from '../../components/roles/role-list/role-list';
 import { EMPTY_UUID } from 'qubefin-core';
 import { RoleStore } from '../../stores/role-store';
 import { CommonModule } from '@angular/common';
@@ -8,7 +8,7 @@ import { RoleSearchParam } from '../../models/role';
 import { form } from '@angular/forms/signals';
 import { Sort } from '@angular/material/sort';
 import { PageEvent } from '@angular/material/paginator';
-import { RoleViewyComponent } from '../../components/role-view/role-view';
+import { RoleViewyComponent } from '../../components/roles/role-view/role-view';
 
 @Component({
 	selector: 'qfin-role-page',

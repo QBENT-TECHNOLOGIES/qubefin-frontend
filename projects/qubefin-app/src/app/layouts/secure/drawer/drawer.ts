@@ -18,6 +18,9 @@ export class Drawer {
 	readonly iconMap = APP_ICONS_MAP;
 	openSubmenu: string | null = null;
 
+	// NEW:
+	openCategoryIndex: number | null = null;
+
 	userMenus = input<MenuTreeNode[]>();
 
 	constructor(private router: Router) {
@@ -37,6 +40,16 @@ export class Drawer {
 	toggleSubmenu(groupIndex: number, itemIndex: number): void {
 		const key = `${groupIndex}-${itemIndex}`;
 		this.openSubmenu = this.openSubmenu === key ? null : key;
+	}
+
+	// NEW: accordion behavior category header
+	toggleCategory(groupIndex: number): void {
+		this.openCategoryIndex = this.openCategoryIndex === groupIndex ? null : groupIndex;
+	}
+
+	// NEW: Checked when category open
+	isCategoryOpen(groupIndex: number): boolean {
+		return this.openCategoryIndex === groupIndex;
 	}
 
 	isActive(path: string): boolean {
