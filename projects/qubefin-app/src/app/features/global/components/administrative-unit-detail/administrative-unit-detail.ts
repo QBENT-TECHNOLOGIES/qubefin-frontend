@@ -10,7 +10,7 @@ import { AdministrativeUnitTypeStore } from '../../stores/administrative-unit-ty
 import { AdministrativeUnitType } from '../../models/administrative-unit-type';
 import { AdministrativeUnitBasic } from '../../models/administrative-unit-tree-node';
 import { AdministrativeUnitService } from '../../services/administrative-unit-service';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 
@@ -33,6 +33,7 @@ export class AdministrativeUnitDetailComponent {
 	administrativeUnitStore = inject(AdministrativeUnitStore);
 	administrativeUnitTypeStore = inject(AdministrativeUnitTypeStore);
 	administrativeUnitService = inject(AdministrativeUnitService);
+	alertService = inject(AlertService);
 
 	administrativeUnitId = model<string>('');
 	cancel = output<void>();
@@ -146,7 +147,8 @@ export class AdministrativeUnitDetailComponent {
 		if (this.administrativeUnitId() === EMPTY_UUID) {
 			this.administrativeUnitService.create(dataToSave).subscribe({
 				next: (resp: any) => {
-					this.administrativeUnitStore.refreshTree();
+					this.alertService.success("Success!", "Administrative Unit created successfully !")
+					this.administrativeUnitStore.refreshAll();
 				},
 				error: (err: any) => {
 					if (err.error.isError) {
@@ -156,7 +158,8 @@ export class AdministrativeUnitDetailComponent {
 		} else {
 			this.administrativeUnitService.update(this.administrativeUnitId(), dataToSave).subscribe({
 				next: (resp: any) => {
-					this.administrativeUnitStore.refreshTree();
+					this.alertService.success("Success!", "Administrative Unit updated successfully !");
+					this.administrativeUnitStore.refreshAll();
 				},
 				error: (err: any) => {
 					if (err.error.isError) {

@@ -34,7 +34,7 @@
         </nav>
     </div> -->
     <div class="flex flex-col overflow-y-auto duration-300 ease-linear scroll-thin no-scrollbar px-2 flex-1 space-y-1.5">
-        <nav class="mb-6">
+        <!-- <nav class="mb-6">
             <div class="flex flex-col">
                 @for (menuNode of userMenus(); track menuNode.id; let groupIndex = $index) {
                 <div>
@@ -83,10 +83,10 @@
                                 <li class="relative">
                                     <a routerLink="{{ subItem.target }}"
                                         [ngClass]="['menu-dropdown-item group', isActive(subItem.target!) ? 'menu-dropdown-item-active' : 'menu-dropdown-item-inactive']">
-                                        <!-- <span class="material-symbols-outlined dropdown-icon"
+                                        <span class="material-symbols-outlined dropdown-icon"
                                             [ngClass]="[isActive(subItem.target!) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
                                             {{ subItem.icon }}
-                                        </span> -->
+                                        </span>
                                         <svg [lucideIcon]="iconMap[subItem.icon]" class="w-4 h-4 shrink-0 transition-colors duration-200"
                                             [ngClass]="[isActive(subItem.target!) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
                                         </svg>
@@ -99,6 +99,88 @@
                         </li>
                         }
                     </ul>
+                </div>
+                }
+            </div>
+        </nav> -->
+
+        <nav class="mb-6">
+            <div class="flex flex-col gap-2">
+                @for (menuNode of userMenus(); track menuNode.id; let groupIndex = $index) {
+                <div>
+                    <!-- Parent (Category) Header  -->
+                    <button type="button" class="menu-item group w-full cursor-pointer parent-menu" [ngClass]="[
+                            !isExpanded() ? 'justify-center px-2 py-3' : 'justify-start px-3.5 py-3 gap-2',
+                            isCategoryOpen(groupIndex) ? 'menu-item-active' : 'menu-item-inactive'
+                        ]" (click)="toggleCategory(groupIndex)">
+        
+                        <svg [lucideIcon]="iconMap[menuNode.icon] ?? iconMap['folder']"
+                            class="w-4 h-4 shrink-0 transition-colors duration-200"
+                            [ngClass]="[isCategoryOpen(groupIndex) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
+                        </svg>
+        
+                        @if (isExpanded()) {
+                        <span class="menu-item-text font-semibold flex-1 text-left">{{ menuNode.name }}</span>
+                        <svg lucideIcon="chevron-down" class="w-4 h-4 shrink-0 transition-transform duration-200" [ngClass]="{
+                                    'rotate-180 text-primary-500': isCategoryOpen(groupIndex),
+                                    'text-slate-400 dark:text-slate-500': !isCategoryOpen(groupIndex)
+                                }">
+                        </svg>
+                        }
+                    </button>
+        
+                    <!-- Sidebar collapsed children -->
+                    @if (!isExpanded() || isCategoryOpen(groupIndex)) {
+                    <ul
+                        class="flex flex-col gap-1 overflow-hidden pl-2 mt-1 border-l border-slate-100 dark:border-white/10 ml-1">
+                        @for (item of menuNode.children; track item.name; let itemIndex = $index) {
+                        <li class="relative">
+                            @if (item.children && item.children?.length > 0) {
+                            <button class="menu-item group w-full"
+                                [ngClass]="[!isExpanded() ? 'justify-center px-2 py-3' : 'justify-start px-3.5 py-3', isSubMenuOpen(groupIndex, itemIndex) ? 'menu-item-active' : 'menu-item-inactive']"
+                                (click)="toggleSubmenu(groupIndex, itemIndex)">
+                                <svg [lucideIcon]="iconMap[item.icon]" class="w-3 h-3 shrink-0 transition-colors duration-200"
+                                    [ngClass]="[isSubMenuOpen(groupIndex, itemIndex) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
+                                </svg>
+                                @if (isExpanded()) {
+                                <span class="menu-item-text">{{ item.name }}</span>
+                                <svg lucideIcon="chevron-down" class="ml-auto w-4 h-4 transition-transform duration-200"
+                                    [ngClass]="{'rotate-180 text-primary-500': isSubMenuOpen(groupIndex, itemIndex), 'text-slate-400 dark:text-slate-500': !isSubMenuOpen(groupIndex, itemIndex)}">
+                                </svg>
+                                }
+                            </button>
+                            } @else {
+                            <a routerLink="{{ item.target }}" [matTooltip]="item.name" [matTooltipDisabled]="isExpanded()"
+                                matTooltipPosition="right"
+                                [ngClass]="['menu-item group', !isExpanded() ? 'justify-center px-2 py-3 gap-2' : 'justify-start px-3.5 py-3 gap-2', isActive(item.target!) ? 'menu-item-active' : 'menu-item-inactive']">
+                                <svg [lucideIcon]="iconMap[item.icon]" class="w-4 h-4 shrink-0 transition-colors duration-200"
+                                    [ngClass]="[isActive(item.target!) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
+                                </svg>
+                                @if (isExpanded()) {
+                                <span class="menu-item-text">{{ item.name }}</span>
+                                }
+                            </a>
+                            }
+                            @if (isSubMenuOpen(groupIndex, itemIndex) && (isExpanded())) {
+                            <ul class="menu-dropdown-list">
+                                @for (subItem of item.children; track subItem.name) {
+                                <li class="relative">
+                                    <a routerLink="{{ subItem.target }}"
+                                        [ngClass]="['menu-dropdown-item group', isActive(subItem.target!) ? 'menu-dropdown-item-active' : 'menu-dropdown-item-inactive']">
+                                        <svg [lucideIcon]="iconMap[subItem.icon]"
+                                            class="w-4 h-4 shrink-0 transition-colors duration-200"
+                                            [ngClass]="[isActive(subItem.target!) ? 'menu-item-icon-active' : 'menu-item-icon-inactive']">
+                                        </svg>
+                                        <span class="menu-dropdown-text">{{ subItem.name }}</span>
+                                    </a>
+                                </li>
+                                }
+                            </ul>
+                            }
+                        </li>
+                        }
+                    </ul>
+                    }
                 </div>
                 }
             </div>
