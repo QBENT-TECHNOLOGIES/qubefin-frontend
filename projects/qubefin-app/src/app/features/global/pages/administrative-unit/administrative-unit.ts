@@ -7,6 +7,7 @@ import { AdministrativeUnitViewComponent } from '../../components/administrative
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { AdministrativeUnitTreeNode } from '../../models/administrative-unit-tree-node';
 
 @Component({
 	selector: 'qfin-administrative-unit-page',
@@ -25,8 +26,17 @@ export class AdministrativeUnitPage {
 
 	constructor() {
 		effect(() => {
-			if (this.administrativeUnitTreeNodes().length > 0) {
-				this.selectedAdministrativeUnitId.set(this.administrativeUnitTreeNodes()[0].id);
+			const nodes = this.administrativeUnitTreeNodes();
+			if (!nodes.length) return;
+
+			const selectedId = this.selectedAdministrativeUnitId();
+
+			if (this.containsNode(nodes, selectedId)) {
+				queueMicrotask(() => {
+					this.selectedAdministrativeUnitId.set(selectedId);
+				});
+			} else {
+				this.selectedAdministrativeUnitId.set(nodes[0].id);
 			}
 		});
 	}
@@ -42,5 +52,11 @@ export class AdministrativeUnitPage {
 
 	protected onEdit() {
 		this.isViewMode.set(false);
+	}
+
+	private containsNode(nodes: AdministrativeUnitTreeNode[], id: string): boolean {
+		return nodes.some(node =>
+			node.id === id || this.containsNode(node.children ?? [], id)
+		);
 	}
 }
