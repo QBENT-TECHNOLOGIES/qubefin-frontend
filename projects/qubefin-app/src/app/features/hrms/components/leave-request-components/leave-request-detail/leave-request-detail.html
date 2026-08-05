@@ -32,8 +32,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="calendar-arrow-down" class="w-5 h-5"></svg>
       </div>
-      <input matInput [matDatepicker]="fromPicker" [min]="minDate()" [formField]="leaveRequestForm.fromDate"
-        [readonly]="true" />
+      <input matInput [matDatepicker]="fromPicker" [min]="minDate()" [formField]="leaveRequestForm.fromDate" readonly/>
       <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
       <mat-datepicker #fromPicker></mat-datepicker>
     </mat-form-field>

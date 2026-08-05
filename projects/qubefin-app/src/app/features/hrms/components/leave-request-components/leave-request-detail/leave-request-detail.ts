@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { LeaveRequestStore } from '../../../stores/leave-request-store';
 import { LeaveRequestService } from '../../../services/leave-request-service';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -35,6 +35,7 @@ import { DocumentModalService } from '../../../../../shared/services/document-mo
 export class LeaveRequestDetail {
   private readonly leaveRequestStore = inject(LeaveRequestStore);
   private readonly leaveRequestService = inject(LeaveRequestService);
+  private readonly alertService = inject(AlertService);
   private readonly dateAdapter = inject(DateAdapter<Date>);
   readonly documentModal = inject(DocumentModalService);
   private readonly datePipe = inject(DatePipe);
@@ -208,16 +209,26 @@ export class LeaveRequestDetail {
       return;
     }
 
-    const formData = this.buildFormData();
+    this.alertService
+      .confirm('Confirmation', 'Do you want to submit your leave request?', 'Yes', 'No')
+      .then((result: any) => {
+        if (result.isConfirmed) {
+          const formData = this.buildFormData();
 
-    this.leaveRequestService.create(formData).subscribe({
-      next: (resp: any) => {
-        console.log(resp);
-        this.leaveRequestStore.refreshList();
-        this.save.emit();
-      },
-    });
+          this.leaveRequestService.create(formData).subscribe({
+            next: (resp: any) => {
+              this.alertService.success('Success', resp.value.message).then(() => {
+                this.leaveRequestStore.refreshList();
+                this.save.emit();
+              });
+            },
+            error: (err: any) => {
+              this.alertService.error('Failed', err.error.message);
+              // surface this via a toast/snackbar rather than alert() — plug in whatever
+              // notification service the rest of the app uses
+            },
+          });
+        }
+      });
   }
-
-
 }
