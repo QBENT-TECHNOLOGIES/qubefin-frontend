@@ -28,8 +28,8 @@ export interface IAttendanceRegularizationDetail {
   createdBy: string;
   createdOn: string;
   currentStatus: string | null;
-  isRecommendVisible?: boolean;
-  isApprovalVisible?: boolean;
+  isRecommendEvent?: boolean;
+  isApprovalEvent?: boolean;
   events?: IAttendanceRegularizationEvent[];
 }
 

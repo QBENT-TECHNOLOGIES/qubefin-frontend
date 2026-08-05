@@ -54,6 +54,44 @@
                     </div>
 
                 </div>
+                <div class="flex items-center gap-4">
+                    <!-- Status Badge -->
+                    <div
+                        class="flex items-center gap-2 px-3.5 py-1 rounded-4xl bg-white/45 dark:bg-white/5 border border-slate-200/20 dark:border-white/5 shadow-md">
+                        <span class="flex items-center gap-1.5 text-[12px] font-semibold"
+                            [class.text-emerald-600]="data.currentStatus === 'Approved'"
+                            [class.dark:text-emerald-400]="data.currentStatus === 'Approved'"
+                            [class.text-rose-600]="data.currentStatus === 'Rejected'"
+                            [class.dark:text-rose-400]="data.currentStatus === 'Rejected'"
+                            [class.text-slate-600]="data.currentStatus === 'Cancelled'"
+                            [class.dark:text-slate-400]="data.currentStatus === 'Cancelled'"
+                            [class.text-yellow-600]="data.currentStatus === 'Pending'"
+                            [class.dark:text-yellow-400]="data.currentStatus === 'Pending'"
+                            [class.text-blue-600]="data.currentStatus === 'Draft' || !data.currentStatus"
+                            [class.dark:text-blue-400]="data.currentStatus === 'Draft' || !data.currentStatus">
+
+                            <span class="w-2 h-2 rounded-full relative flex">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                                    [class.bg-emerald-400]="data.currentStatus === 'Approved'"
+                                    [class.bg-rose-400]="data.currentStatus === 'Rejected'"
+                                    [class.bg-slate-400]="data.currentStatus === 'Cancelled'"
+                                    [class.bg-yellow-400]="data.currentStatus === 'Pending'"
+                                    [class.bg-blue-400]="data.currentStatus === 'Draft' || !data.currentStatus">
+                                </span>
+
+                                <span class="relative inline-flex rounded-full h-2 w-2"
+                                    [class.bg-emerald-500]="data.currentStatus === 'Approved'"
+                                    [class.bg-rose-500]="data.currentStatus === 'Rejected'"
+                                    [class.bg-slate-500]="data.currentStatus === 'Cancelled'"
+                                    [class.bg-yellow-500]="data.currentStatus === 'Pending'"
+                                    [class.bg-blue-500]="data.currentStatus === 'Draft' || !data.currentStatus">
+                                </span>
+                            </span>
+
+                            {{ data.currentStatus || 'Draft' }}
+                        </span>
+                    </div>
+                </div>
 
             </div>
 
@@ -154,33 +192,6 @@
 
                         <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
 
-                            <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700">
-                            </svg>
-
-                        </div>
-
-                        <div>
-
-                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">
-
-                                Regularization Status
-
-                            </label>
-
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
-
-                                {{ data.currentStatus || 'N/A' }}
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                    <div class="gen-info">
-
-                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
-
                             <svg lucideIcon="file-text" class="w-5 h-5 text-primary-700">
                             </svg>
 
@@ -209,69 +220,67 @@
             </div>
 
         </div>
+        <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow p-4">
 
-        <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
-            <div class="p-4 flex flex-col">
-                <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 pb-3">
+            <div class="mb-4">
+                <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
                     Approval History
                 </h3>
-                <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
-                <div class="flex flex-col divide-y divide-slate-200/20 dark:divide-white/10">
-                    @for (event of data.events; track $index) {
-                    <div class="flex items-center justify-between py-3">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
-                                <svg lucideIcon="user" class="w-5 h-5 text-primary-600"></svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-semibold text-slate-800 dark:text-white">
-                                    Sender Designation
-                                </p>
-                            </div>
-                        </div>
+                <div class="w-10 h-1 mt-2 rounded-full bg-primary-500"></div>
+            </div>
 
-                        <span
-                            class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-                            <div>
-                                <p class="text-sm font-semibold text-slate-800 dark:text-white">
-                                    {{ event.senderDesignation }}
-                                </p>
-                            </div>
-                        </span>
+            <div class="relative mt-2">
 
+                <div
+                    class="absolute left-4 top-3 bottom-3 w-0.5 bg-gradient-to-b from-primary-500 via-primary-400 to-primary-300">
+                </div>
+
+                @for (event of data.events; track $index) {
+                <div class="relative flex gap-4 mb-5">
+
+                    <div
+                        class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-primary-500 text-white shadow shrink-0">
+                        <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
                     </div>
-                    <div class="flex items-center justify-between py-3">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
-                                <svg lucideIcon="user" class="w-5 h-5 text-primary-600"></svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-semibold text-slate-800 dark:text-white">
-                                    Event Status
-                                </p>
-                            </div>
-                        </div>
 
-                        <span
-                            class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+
+                    <div
+                        class="flex-1 rounded-2xl border border-slate-200/50 dark:border-slate-700 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md p-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                        <div class="flex justify-between items-start gap-3">
                             <div>
-                                <p class="text-sm font-semibold text-slate-800 dark:text-white">
+
+                                <span
+                                    class="px-3 py-1 rounded-full text-[11px] font-semibold bg-primary-100 text-primary-700 dark:bg-slate-300 dark:text-black">
                                     {{ event.eventStatus }}
-                                </p>
-                            </div>
-                        </span>
+                                </span>
 
+
+                                <div
+                                    class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                    <div class="flex items-center gap-2">
+                                        <svg lucideIcon="user-round" class="w-4 h-4"></svg>
+                                        {{ event.senderDesignation }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    }
+                </div>
+                }
+
+
+                <div class="relative flex gap-4 mb-2">
+                    <div
+                        class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-500 text-slate-500 dark:text-white shadow-md dark:ring-0 shrink-0">
+                        <svg lucideIcon="circle-dot" class="w-4 h-4"></svg>
+                    </div>
                 </div>
             </div>
         </div>
 
     </div>
 
-    @if (data.isRecommendVisible || data.isApprovalVisible) {
+    @if (data.isRecommendEvent || data.isApprovalEvent) {
 
 
     <div class="glass rounded-xl shadow-glass dark:shadow p-5 mt-2">
@@ -282,15 +291,20 @@
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Remarks</mat-label>
-            <textarea matInput rows="3" [(ngModel)]="remarks" placeholder="Add your reasoning..."></textarea>
+            <textarea matInput rows="3" [(ngModel)]="remarks" placeholder="Add your remarks..."></textarea>
             <div class="w-12 flex justify-center pt-2" matPrefix>
 
             </div>
         </mat-form-field>
 
         <div class="flex justify-end gap-3 mt-5">
+            <button type="button" (click)="onSubmitDecision('Rejected')"
+                class="bg-white dark:bg-slate-800 border border-red-200 dark:border-red-900 shadow rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-red-600 dark:text-red-400 hover:shadow-glass hover:bg-red-50 dark:hover:bg-red-900/30 transition lift cursor-pointer">
 
-            @if (data.isRecommendVisible) {
+                Reject
+            </button>
+            @if (data.isRecommendEvent) {
+
             <button type="button" (click)="onSubmitDecision('Recommend')"
                 class="ripple-btn shadow shine-sweep rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:shadow-glow transition lift cursor-pointer">
 
@@ -299,15 +313,10 @@
             }
 
 
-            @if (data.isApprovalVisible) {
-            <button type="button" (click)="onSubmitDecision('Rejected')"
-                class="bg-white dark:bg-slate-800 border border-red-200 dark:border-red-900 shadow rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-red-600 dark:text-red-400 hover:shadow-glass hover:bg-red-50 dark:hover:bg-red-900/30 transition lift cursor-pointer">
+            @if (data.isApprovalEvent) {
 
-                Reject
-            </button>
             <button type="button" (click)="onSubmitDecision('Approved')"
                 class="ripple-btn shadow shine-sweep rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:shadow-glow transition lift cursor-pointer">
-
                 Approve
             </button>
             }
@@ -315,7 +324,7 @@
     </div>
 
     }
-    <!-- Audit -->
+
 </div>
 
 
@@ -324,7 +333,7 @@
 
 <div class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400">
 
-    No approval history available
+    No Regularization History available
 
 </div>
 

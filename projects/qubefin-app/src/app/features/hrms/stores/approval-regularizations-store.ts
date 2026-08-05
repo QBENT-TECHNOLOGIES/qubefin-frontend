@@ -99,7 +99,9 @@ export class ApprovalRegularizationStore {
   refreshList() {
     this.approvalReguralizationsResource.reload();
   }
-
+  refreshDetail() {
+    this.regularizationResource.reload();
+  }
   setRegularizationId(id: string | undefined) {
     if (this.regularizationId() !== id) {
       this.regularizationId.set(id);

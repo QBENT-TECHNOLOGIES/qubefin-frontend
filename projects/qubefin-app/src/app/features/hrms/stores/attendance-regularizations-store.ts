@@ -8,6 +8,7 @@ import {
   IAttendanceRegularizationDetailResponse,
   IAttendanceRegularizationEvent,
 } from '../models/attendance-regularization';
+import { Utility } from '../models/employee-detail';
 
 @Injectable({
   providedIn: 'root',
@@ -68,6 +69,7 @@ export class AttendanceRegularizationsStore {
 
   readonly regularizationUnitLoading = computed(() => this.regularizationResource.isLoading());
   readonly regularizationUnitError = computed(() => this.regularizationResource.error());
+
   setFromDate(date: string | null) {
     this.fromDate.set(date);
   }
@@ -128,7 +130,10 @@ export class AttendanceRegularizationsStore {
       ),
     };
   }
-
+  readonly utilityResource = httpResource<Utility[]>(() => {
+    return `${ApiPaths.GLOBAL}/utilities`;
+  });
+  readonly utilities = computed(() => this.utilityResource.value() ?? []);
   private normalizeRegularizationDates(dates: string | null): string | null {
     if (!dates) {
       return null;
