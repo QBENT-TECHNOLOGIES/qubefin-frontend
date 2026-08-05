@@ -8,6 +8,7 @@ export interface ILeaveRequestDetailItem {
 }
 export interface ILeaveRequestItem {
   id: string;
+  employeeName: string;
   leaveType: string;
   leaveTypeId: string;
   fromDate: string | Date | null;
@@ -22,6 +23,10 @@ export interface ILeaveRequestItem {
   isSubmitted: boolean;
   isCancellable: boolean;
   rejectedReason: string;
+  approvalCategory: string;
+  eventButtonText: string;
+  isRecommendEvent: boolean;
+  isApprovalEvent: boolean;
   events?: ILeaveRequestHistory[];
 }
 

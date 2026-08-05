@@ -3,7 +3,7 @@ import { Component, effect, inject, model, output } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EMPTY_UUID } from 'qubefin-core';
 import { APP_ICONS_MAP } from '../../../../../lucide-icons';
-import { LeaveApprovalStore } from '../../../stores/leave-approval-store';
+import { LeaveRequestStore } from '../../../stores/leave-request-store';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
@@ -14,26 +14,18 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 })
 export class LeaveApprovalView {
   readonly iconMap = APP_ICONS_MAP;
-  private readonly leaveApprovalStore = inject(LeaveApprovalStore);
+  private readonly leaveRequestStore = inject(LeaveRequestStore);
 
   readonly leaveApprovalId = model<string>(EMPTY_UUID);
   readonly delete = output<void>();
 
-  readonly leaveApproval = this.leaveApprovalStore.leaveApproval;
-  readonly loading = this.leaveApprovalStore.leaveApprovalLoading;
-  readonly error = this.leaveApprovalStore.leaveApprovalError;
+  readonly leaveApproval = this.leaveRequestStore.leaveRequest;
+  readonly loading = this.leaveRequestStore.leaveRequestLoading;
+  readonly error = this.leaveRequestStore.leaveRequestError;
 
   constructor() {
     effect(() => {
-      this.leaveApprovalStore.setLeaveApprovalId(this.leaveApprovalId());
+      this.leaveRequestStore.setLeaveRequestId(this.leaveApprovalId());
     });
-  }
-
-  onDelete() {
-    if (confirm('Are you sure you want to delete this leave approval record?')) {
-      // Mock delete
-      this.leaveApprovalStore.refreshList();
-      this.delete.emit();
-    }
   }
 }

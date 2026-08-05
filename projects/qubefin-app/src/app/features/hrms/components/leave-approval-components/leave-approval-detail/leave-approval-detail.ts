@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, effect, inject, input, output, signal } from '@angular/core';
-import { disabled, form, FormField, required, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +13,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { ILeaveApprovalDetailItem } from '../../../models/leave-approval';
 import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
+import { LeaveRequestStore } from '../../../stores/leave-request-store';
 
 @Component({
   selector: 'qfin-leave-approval-detail',
@@ -33,6 +34,7 @@ import { DocumentModalService } from '../../../../../shared/services/document-mo
 })
 export class LeaveApprovalDetail {
   private readonly leaveApprovalStore = inject(LeaveApprovalStore);
+  private readonly leaveRequestStore = inject(LeaveRequestStore);
   private readonly dateAdapter = inject(DateAdapter<Date>);
   readonly documentModal = inject(DocumentModalService);
   private readonly datePipe = inject(DatePipe);
@@ -44,8 +46,8 @@ export class LeaveApprovalDetail {
   readonly reject = output<void>();
   readonly recommend = output<void>();
 
-  readonly leaveApproval = this.leaveApprovalStore.leaveApproval;
-  readonly loading = this.leaveApprovalStore.leaveApprovalLoading;
+  readonly leaveApproval = this.leaveRequestStore.leaveRequest;
+  readonly loading = this.leaveRequestStore.leaveRequestLoading;
 
   readonly leaveTypeOptions = [
     'Sick Leave',
@@ -71,14 +73,6 @@ export class LeaveApprovalDetail {
 
   protected readonly leaveApprovalSchema: Schema<ILeaveApprovalDetailItem> = schema((path) => {
     required(path.remarks, { message: 'Remarks are required for action' });
-    [
-      path.employeeName,
-      path.address,
-      path.fromDate,
-      path.toDate,
-      path.reason,
-      path.leaveType,
-    ].forEach((field) => disabled(field));
   });
 
   protected readonly leaveApprovalForm = form(this.leaveApprovalModel, this.leaveApprovalSchema);
@@ -87,7 +81,7 @@ export class LeaveApprovalDetail {
     this.dateAdapter.setLocale('en-GB');
 
     effect(() => {
-      this.leaveApprovalStore.setLeaveApprovalId(this.leaveApprovalId());
+      this.leaveRequestStore.setLeaveRequestId(this.leaveApprovalId());
     });
 
     effect(() => {
@@ -103,7 +97,7 @@ export class LeaveApprovalDetail {
           address: request.address || '',
           remarks: '',
         });
-        this.documentUrl.set(request.documentUrl || '');
+        this.documentUrl.set(request.enclosedDocUrl || '');
       }
     });
   }

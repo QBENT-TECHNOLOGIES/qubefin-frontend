@@ -15,7 +15,7 @@
         <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="user" class="w-5 h-5"></svg>
         </div>
-        <input matInput [formField]="leaveApprovalForm.employeeName" rows="3" placeholder="Enter Employee Name" />
+        <input matInput [value]="leaveApprovalModel().employeeName" readonly placeholder="Enter Employee Name" />
       </mat-form-field>
 
       <!-- Leave Type -->
@@ -24,13 +24,7 @@
         <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="tag" class="w-5 h-5"></svg>
         </div>
-        <mat-select [formField]="leaveApprovalForm.leaveType">
-          @for (option of leaveTypeOptions; track option) {
-          <mat-option [value]="option">
-            {{ option }}
-          </mat-option>
-          }
-        </mat-select>
+        <input matInput [value]="leaveApprovalModel().leaveType" readonly placeholder="Enter Leave Type" />
       </mat-form-field>
 
       <div class="hidden md:block"></div>
@@ -41,9 +35,8 @@
         <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="calendar-arrow-up" class="w-5 h-5"></svg>
         </div>
-        <input matInput [matDatepicker]="fromPicker" placeholder="DD/MM/YYYY"
-          [formField]="leaveApprovalForm.fromDate" />
-        <mat-datepicker-toggle matIconSuffix [for]="fromPicker" disabled></mat-datepicker-toggle>
+        <input matInput [value]="leaveApprovalModel().fromDate | date:'dd/MM/yyyy'" placeholder="DD/MM/YYYY" readonly />
+        <mat-datepicker-toggle matIconSuffix [for]="fromPicker" [disabled]="true"></mat-datepicker-toggle>
         <mat-datepicker #fromPicker></mat-datepicker>
       </mat-form-field>
 
@@ -53,8 +46,8 @@
         <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="calendar-arrow-down" class="w-5 h-5"></svg>
         </div>
-        <input matInput [matDatepicker]="toPicker" placeholder="DD/MM/YYYY" [formField]="leaveApprovalForm.toDate" />
-        <mat-datepicker-toggle matIconSuffix [for]="toPicker" disabled></mat-datepicker-toggle>
+        <input matInput [value]="leaveApprovalModel().toDate | date:'dd/MM/yyyy'" placeholder="DD/MM/YYYY" readonly />
+        <mat-datepicker-toggle matIconSuffix [for]="toPicker" [disabled]="true"></mat-datepicker-toggle>
         <mat-datepicker #toPicker></mat-datepicker>
       </mat-form-field>
 
@@ -64,7 +57,7 @@
         <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="file-text" class="w-5 h-5"></svg>
         </div>
-        <input matInput [formField]="leaveApprovalForm.reason" rows="3" placeholder="Enter reason" />
+        <textarea matInput [value]="leaveApprovalModel().reason" rows="3" readonly placeholder="Enter reason"></textarea>
       </mat-form-field>
 
       <!-- Address -->
@@ -73,7 +66,7 @@
         <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
         </div>
-        <input matInput [formField]="leaveApprovalForm.address" rows="2" placeholder="Enter address while on leave" />
+        <textarea matInput [value]="leaveApprovalModel().address" rows="2" readonly placeholder="Enter address while on leave"></textarea>
       </mat-form-field>
 
       <!-- Document View -->
