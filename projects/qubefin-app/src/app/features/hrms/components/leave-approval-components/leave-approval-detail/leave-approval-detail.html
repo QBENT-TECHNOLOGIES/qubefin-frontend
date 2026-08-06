@@ -57,7 +57,7 @@
         <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="file-text" class="w-5 h-5"></svg>
         </div>
-        <textarea matInput [value]="leaveApprovalModel().reason" rows="3" readonly placeholder="Enter reason"></textarea>
+        <input matInput [value]="leaveApprovalModel().reason" rows="3" readonly placeholder="Enter reason">
       </mat-form-field>
 
       <!-- Address -->
@@ -66,7 +66,7 @@
         <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
         </div>
-        <textarea matInput [value]="leaveApprovalModel().address" rows="2" readonly placeholder="Enter address while on leave"></textarea>
+        <input matInput [value]="leaveApprovalModel().address" rows="2" readonly placeholder="Enter address while on leave">
       </mat-form-field>
 
       <!-- Document View -->
@@ -99,7 +99,7 @@
 
       <!-- Remarks (Editable) -->
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-4">
-        <mat-label>Remarks (Required for action)</mat-label>
+        <mat-label>Remarks (Required for Rejection)</mat-label>
         <div class="w-12 flex justify-center" matPrefix>
           <svg lucideIcon="message-square-plus" class="w-5 h-5"></svg>
         </div>
@@ -112,24 +112,27 @@
         class="cursor-pointer bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift dark:text-slate-200 border border-slate-200 dark:border-transparent">
         Cancel
       </button>
-
+@if (leaveApproval()?.isApprovalEvent || leaveApproval()?.isRecommendEvent) {
       <button type="button" (click)="onAction('reject')"
         class="cursor-pointer bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-rose-100 dark:hover:bg-rose-500/20 transition lift">
         <svg lucideIcon="x-circle" class="w-4 h-4"></svg>
         Reject
       </button>
-
+    }
+      @if (leaveApproval()?.isRecommendEvent) {
       <button type="button" (click)="onAction('recommend')"
         class="cursor-pointer bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-500/20 transition lift">
         <svg lucideIcon="arrow-up-right" class="w-4 h-4"></svg>
         Recommend
       </button>
-
+    }
+      @if (leaveApproval()?.isApprovalEvent) {
       <button type="button" (click)="onAction('approve')"
         class="cursor-pointer bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition lift">
         <svg lucideIcon="check-circle" class="w-4 h-4"></svg>
         Approve
       </button>
+      }
     </div>
   </form>
 <!-- </div> -->

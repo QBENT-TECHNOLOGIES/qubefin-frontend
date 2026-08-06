@@ -7,13 +7,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { LeaveApprovalStore } from '../../../stores/leave-approval-store';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { ILeaveApprovalDetailItem } from '../../../models/leave-approval';
 import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
 import { LeaveRequestStore } from '../../../stores/leave-request-store';
+import { LeaveRequestService } from '../../../services/leave-request-service';
 
 @Component({
   selector: 'qfin-leave-approval-detail',
@@ -37,6 +38,8 @@ export class LeaveApprovalDetail {
   private readonly leaveRequestStore = inject(LeaveRequestStore);
   private readonly dateAdapter = inject(DateAdapter<Date>);
   readonly documentModal = inject(DocumentModalService);
+  private readonly alertService = inject(AlertService);
+  private readonly leaveRequestService = inject(LeaveRequestService);
   private readonly datePipe = inject(DatePipe);
 
   readonly leaveApprovalId = input<string>(EMPTY_UUID);
@@ -71,9 +74,7 @@ export class LeaveApprovalDetail {
     remarks: '',
   });
 
-  protected readonly leaveApprovalSchema: Schema<ILeaveApprovalDetailItem> = schema((path) => {
-    required(path.remarks, { message: 'Remarks are required for action' });
-  });
+  protected readonly leaveApprovalSchema: Schema<ILeaveApprovalDetailItem> = schema((path) => {});
 
   protected readonly leaveApprovalForm = form(this.leaveApprovalModel, this.leaveApprovalSchema);
 
@@ -125,10 +126,6 @@ export class LeaveApprovalDetail {
     });
   }
 
-  protected onCancelClicked() {
-    this.cancel.emit();
-  }
-
   protected onAction(action: 'approve' | 'reject' | 'recommend') {
     if (!this.leaveApprovalForm().valid()) {
       this.leaveApprovalForm().markAsTouched();
@@ -136,11 +133,44 @@ export class LeaveApprovalDetail {
     }
 
     const dataToSave = this.leaveApprovalForm().value();
-    // Simulate action execution
-    if (action === 'approve') this.approve.emit();
-    if (action === 'reject') this.reject.emit();
-    if (action === 'recommend') this.recommend.emit();
 
-    this.leaveApprovalStore.refreshList();
+    if (
+      action === 'reject' &&
+      (!dataToSave.remarks || dataToSave.remarks === null || dataToSave.remarks === '')
+    ) {
+      this.alertService.warning(null, 'Please enter remarks.');
+      return;
+    }
+
+    this.alertService
+      .confirm(null, `Are you sure you want to ${action} this leave application?`, 'Yes', 'No')
+      .then((result: any) => {
+        if (result.isConfirmed) {
+          const payLoad: any = {
+            leaveRequestId: dataToSave.id,
+            isApproved: action === 'approve',
+            isRejected: action === 'reject',
+            rejectedReason: action === 'reject' ? dataToSave.remarks : null,
+          };
+
+          this.leaveRequestService.leaveAction(payLoad).subscribe({
+            next: (resp: any) => {
+              this.alertService.success('Success', resp.value.message).then(() => {
+                this.leaveApprovalStore.refreshList();
+                if (action === 'approve') this.approve.emit();
+                if (action === 'reject') this.reject.emit();
+                if (action === 'recommend') this.recommend.emit();
+              });
+            },
+            error: (err: any) => {
+              this.alertService.error('Failed', err.error.message);
+            },
+          });
+        }
+      });
+  }
+
+  protected onCancelClicked() {
+    this.cancel.emit();
   }
 }

@@ -18,7 +18,7 @@ export class AlertService {
     },
   });
 
-  success(title?: string, text?: string) {
+  success(title?: string | null, text?: string) {
     return this.swal.fire({
       html: `
                 <div class="alert-icon-wrapper success">
@@ -57,7 +57,7 @@ export class AlertService {
     });
   }
 
-  error(title?: string, text?: string) {
+  error(title?: string | null, text?: string) {
     return this.swal.fire({
       html: `
                 <div class="error-shape es1"></div>
@@ -95,7 +95,7 @@ export class AlertService {
     });
   }
 
-  warning(title?: string, text?: string) {
+  warning(title?: string | null, text?: string) {
     return this.swal.fire({
       html: `
                 <div class="alert-icon-wrapper warning">
@@ -130,7 +130,7 @@ export class AlertService {
     });
   }
 
-  info(title?: string, text?: string) {
+  info(title?: string | null, text?: string) {
     return this.swal.fire({
       html: `
                 <svg class="dot-pattern-tl">
@@ -186,7 +186,7 @@ export class AlertService {
   }
 
   confirm(
-    title?: string,
+    title?: string | null,
     text?: string,
     confirmText = 'Yes',
     cancelText = 'Cancel',

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { ApiPaths } from 'qubefin-core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LeaveRequestService {
   private readonly http = inject(HttpClient);
@@ -27,5 +27,9 @@ export class LeaveRequestService {
 
   cancelRequest(id: string, reason: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/cancel/${id}`, { id: id, reason: reason });
+  }
+
+  leaveAction(action: any) {
+    return this.http.post(`${ApiPaths.HRMS}/leaves/action`, action);
   }
 }

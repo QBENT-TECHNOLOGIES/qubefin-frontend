@@ -28,4 +28,61 @@ export class LeaveApprovalView {
       this.leaveRequestStore.setLeaveRequestId(this.leaveApprovalId());
     });
   }
+
+  getStatusClass(status: string | null | undefined): string {
+    switch (status) {
+      case 'Approved':
+        return 'text-emerald-600 dark:text-emerald-400';
+
+      case 'Rejected':
+        return 'text-rose-600 dark:text-rose-400';
+
+      case 'Cancelled':
+        return 'text-slate-600 dark:text-slate-400';
+
+      case 'Pending':
+        return 'text-yellow-600 dark:text-yellow-400';
+
+      default:
+        return 'text-blue-600 dark:text-blue-400';
+    }
+  }
+
+  getStatusPingClass(status: string | null | undefined): string {
+    switch (status) {
+      case 'Approved':
+        return 'bg-emerald-400';
+
+      case 'Rejected':
+        return 'bg-rose-400';
+
+      case 'Cancelled':
+        return 'bg-slate-400';
+
+      case 'Pending':
+        return 'bg-yellow-400';
+
+      default:
+        return 'bg-blue-400';
+    }
+  }
+
+  getStatusDotClass(status: string | null | undefined): string {
+    switch (status) {
+      case 'Approved':
+        return 'bg-emerald-500';
+
+      case 'Rejected':
+        return 'bg-rose-500';
+
+      case 'Cancelled':
+        return 'bg-slate-500';
+
+      case 'Pending':
+        return 'bg-yellow-500';
+
+      default:
+        return 'bg-blue-500';
+    }
+  }
 }
