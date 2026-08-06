@@ -14,7 +14,7 @@ export class AttendanceHistoryStore {
   readonly searchQuery = signal<string | null>(null);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
-  readonly sortOn = signal('assignedFrom');
+  readonly sortOn = signal('attendanceDate');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
 
   readonly attendanceHistoryResource = httpResource<{
