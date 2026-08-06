@@ -14,7 +14,7 @@
                     <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
                     </div>
-                    <mat-select [value]="formModel().regularizationType" (valueChange)="updateType($event)">
+                    <mat-select [formField]="applyForm.regularizationType" (valueChange)="updateType($event)">
                         @for(type of regularizationTypes(); track type){
                         <mat-option [value]="type"> {{type}} </mat-option>
                         }
@@ -27,7 +27,7 @@
                     <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
                     </div>
-                    <mat-select [value]="formModel().reason" (valueChange)="updateReason($event)">
+                    <mat-select [formField]="applyForm.reason">
                         @for(reason of reasons(); track $index){
                         <mat-option [value]="reason.sysVal"> {{reason.sysVal}} </mat-option>
                         }
@@ -39,8 +39,8 @@
                     <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
                     </div>
-                    <input matInput [ngModel]="formModel().reason" (ngModelChange)="updateReason($event)"
-                        autocomplete="off" placeholder="Enter reason details">
+                    <input matInput [formField]="applyForm.reason" autocomplete="off"
+                        placeholder="Enter reason details">
                 </mat-form-field>
 
                 }
@@ -60,7 +60,7 @@
                         <mat-datepicker-toggle matIconSuffix [for]="datePicker"></mat-datepicker-toggle>
                         <mat-datepicker #datePicker></mat-datepicker>
                     </mat-form-field>
-                    <!-- Selected Dates Chips -->
+
                     @if (formModel().regularizationDates.length > 0) {
                     <div
                         class="flex flex-wrap gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
@@ -84,7 +84,6 @@
                     }
                 </div>
 
-                <!-- Attachment Upload Section -->
                 <div class="md:col-span-2 mt-2">
                     <label
                         class="text-[12px] text-slate-600 dark:text-slate-300 tracking-wider uppercase font-semibold mb-2 block">
