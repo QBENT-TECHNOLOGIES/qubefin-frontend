@@ -187,6 +187,9 @@ export class LeaveRequestDetail {
   private buildFormData(): FormData {
     const dataToSave = this.leaveRequestForm().value();
     const formData = new FormData();
+    if (this.isEditMode()) {
+      formData.append('id', dataToSave.id);
+    }
     formData.append('leaveTypeId', dataToSave.leaveTypeId);
 
     const fromDateStr = this.datePipe.transform(dataToSave.fromDate, 'yyyy-MM-dd');
@@ -210,14 +213,19 @@ export class LeaveRequestDetail {
     }
 
     this.alertService
-      .confirm('Confirmation', 'Do you want to submit your leave request?', 'Yes', 'No')
+      .confirm(
+        'Confirmation',
+        `Do you want to ${this.isEditMode() ? 'update' : 'create'} your leave request?`,
+        'Yes',
+        'No',
+      )
       .then((result: any) => {
         if (result.isConfirmed) {
           const formData = this.buildFormData();
 
-          this.leaveRequestService.create(formData).subscribe({
+          this.leaveRequestService.save(formData).subscribe({
             next: (resp: any) => {
-              this.alertService.success('Success', resp.value.message).then(() => {
+              this.alertService.success('Success', resp.message).then(() => {
                 this.leaveRequestStore.refreshList();
                 this.save.emit();
               });

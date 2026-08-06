@@ -10,6 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
 
 @Component({
   selector: 'qfin-leave-request-view',
@@ -30,6 +31,7 @@ export class LeaveRequestView {
   private readonly leaveRequestStore = inject(LeaveRequestStore);
   private readonly leaveRequestService = inject(LeaveRequestService);
   private readonly alertService = inject(AlertService);
+  readonly documentModal = inject(DocumentModalService);
 
   readonly leaveRequestId = model<string>(EMPTY_UUID);
   readonly delete = output<void>();
@@ -64,6 +66,19 @@ export class LeaveRequestView {
         },
       });
     }
+  }
+
+  openDocument(url: any, name: any) {
+    if (!url || !name) {
+      return;
+    }
+
+    this.documentModal.open({
+      url: url,
+      documentName: name,
+      extension: name.split('.').pop()?.toLowerCase() || '',
+      downloadAccess: true,
+    });
   }
 
   onEdit() {

@@ -10,7 +10,7 @@ export class LeaveRequestService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${ApiPaths.HRMS}/leaves/requests`;
 
-  create(formData: FormData): Observable<any> {
+  save(formData: FormData): Observable<any> {
     return this.http.post(this.baseUrl, formData);
   }
 

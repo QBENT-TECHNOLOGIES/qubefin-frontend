@@ -72,7 +72,7 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="paperclip" class="w-5 h-5 text-slate-500"></svg>
       </div>
-      <input matInput [value]="selectedFile()?.name || (documentUrl() ? 'Current document available' : '')" readonly
+      <input matInput [value]="documentName() || (documentUrl() ? 'Current document available' : '')" readonly
         placeholder="No file chosen" />
       <input hidden (change)="onFileSelected($event)" #fileInput type="file">
 

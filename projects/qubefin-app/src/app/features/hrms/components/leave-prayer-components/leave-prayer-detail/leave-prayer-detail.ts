@@ -185,14 +185,14 @@ export class LeavePrayerDetail {
       formData.append('document', this.selectedFile() as Blob);
     }
 
-    if (!this.isEditMode()) {
-      this.leaveRequestService.create(formData).subscribe({
-        next: () => {
-          this.leaveRequestStore.refreshList();
-          this.save.emit();
-        },
-      });
-      return;
-    }
+    // if (!this.isEditMode()) {
+    //   this.leaveRequestService.create(formData).subscribe({
+    //     next: () => {
+    //       this.leaveRequestStore.refreshList();
+    //       this.save.emit();
+    //     },
+    //   });
+    //   return;
+    // }
   }
 }
