@@ -1,15 +1,16 @@
-<div class="flex flex-col">
-  <div class="flex flex-wrap items-center justify-end gap-4 mb-2">
-    <div class="flex items-center gap-3">
+<div class="page-container">
+  <div class="header-group">
+    <div class="flex items-center gap-3"></div>
+    <div class="headerBtn-area">
       @if (selectedsurveyStoreId() === EMPTY_UUID && isViewMode()) {
       <button type="button" (click)="toggleFilterArea()"
-        class="glass-input dark:text-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+        class="filter-btn glass-input lift shine-sweep ">
         <svg lucideIcon="funnel" class="w-4 h-4"></svg>
         Filter
       </button>
       } @else{}
       <button
-        class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+        class="global-btn shine-sweep lift"
         (click)="onAdd()">
         <svg lucideIcon="plus" class="w-4 h-4"></svg>
         Add Survey
