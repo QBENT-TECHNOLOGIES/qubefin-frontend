@@ -25,7 +25,14 @@ export const HrmsRoutes: Routes = [
                     subTitle: 'Configure the approval steps required for HRMS events.',
                     icon: 'clipboard-check'
                 }
-            }
+            },
+            {
+                path: 'attendance-history',
+                loadComponent: () =>
+                    import('./pages/attendance-history-component/attendance-history-component').then(
+                        (m) => m.AttendanceHistoryComponent,
+                    ),
+            },
         ]
     }
 ];
