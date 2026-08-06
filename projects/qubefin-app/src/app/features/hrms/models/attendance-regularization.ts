@@ -25,18 +25,21 @@ export interface IAttendanceRegularizationDetail {
   regularizationDates: string | null;
   reason: string;
   attachment: string | null;
+  attachmentUrl: string | null;
   createdBy: string;
   createdOn: string;
   currentStatus: string | null;
   isRecommendEvent?: boolean;
   isApprovalEvent?: boolean;
+  remarks: string | null;
   events?: IAttendanceRegularizationEvent[];
 }
 
 export interface IRegularizationForm {
   regularizationType: string;
-  reason: string;
+  reason: string | null;
   regularizationDates: Date[];
+  remarks: string;
 }
 
 export interface IAttendanceRegularizationDetailResponse {

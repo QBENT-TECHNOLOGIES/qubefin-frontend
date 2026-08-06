@@ -9,6 +9,7 @@ import { AttendanceService } from '../../../services/attendance-service';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { ApprovalRegularizationStore } from '../../../stores/approval-regularizations-store';
+import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 @Component({
   selector: 'qfin-attendance-regularization-view',
   imports: [
@@ -18,6 +19,7 @@ import { ApprovalRegularizationStore } from '../../../stores/approval-regulariza
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
+    FormField,
   ],
   templateUrl: './attendance-regularization-view.html',
   styles: ``,
@@ -32,16 +34,23 @@ export class AttendanceRegularizationView {
   readonly detail = this.store.regularization;
   readonly loading = this.store.regularizationUnitLoading;
   readonly error = this.store.regularizationUnitError;
+  readonly decisionModel = signal({ remarks: '' });
+  protected readonly decisionSchema: Schema<{ remarks: string }> = schema((path) => {
+    required(path.remarks, { message: 'Remarks are required' });
+  });
+  protected readonly decisionForm = form(this.decisionModel, this.decisionSchema);
   constructor() {
     effect(() => {
       this.store.setRegularizationId(this.regularizationId());
-      this.remarks.set('');
+      this.decisionModel.set({ remarks: '' });
     });
   }
-  readonly remarks = signal<string>('');
-
+  viewDocument(url: any) {
+    window.open(url, '_blank');
+  }
   onSubmitDecision(decision: string) {
-    if (!this.remarks().trim()) {
+    const curentRemarks = this.decisionModel().remarks;
+    if (!curentRemarks.trim()) {
       this.alertService.warning('Warning', 'Remarks are mandatory.');
       return;
     }
@@ -49,7 +58,7 @@ export class AttendanceRegularizationView {
     const payload = {
       id: this.regularizationId(),
       decision: decision,
-      remarks: this.remarks(),
+      remarks: curentRemarks,
     };
 
     this.alertService

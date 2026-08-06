@@ -187,33 +187,38 @@
                         </div>
                     </div>
 
-                    <div class="gen-info">
 
+                    <div class="gen-info md:col-span-2">
                         <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
-
-                            <svg lucideIcon="file-text" class="w-5 h-5 text-primary-700">
-                            </svg>
-
+                            <svg lucideIcon="paperclip" class="w-5 h-5 text-primary-700"></svg>
                         </div>
 
-                        <div>
+                        <div class="flex-1 flex items-center justify-between">
+                            <div>
+                                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">
+                                    Attachment
+                                </label>
 
-                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">
+                                @if (data.attachmentUrl) {
+                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                    {{ data.attachment }}
+                                </p>
+                                } @else {
+                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">-</p>
+                                }
+                            </div>
 
-                                Attachment
-
-                            </label>
-
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
-
-                                {{ data.attachment ? 'Attached' : 'No attachment' }}
-
-                            </p>
-
+                            @if (data.attachment) {
+                            <button type="button" (click)="viewDocument(data.attachmentUrl)" class="bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40
+               text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-xs font-semibold
+               flex items-center gap-2 transition-colors border border-primary-200
+               dark:border-primary-800/30 cursor-pointer ml-4">
+                                <svg lucideIcon="eye" class="w-3.5 h-3.5"></svg>
+                                View Document
+                            </button>
+                            }
                         </div>
-
                     </div>
-
                 </div>
 
             </div>
@@ -290,9 +295,8 @@
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Remarks</mat-label>
-            <textarea matInput rows="3" [(ngModel)]="remarks" placeholder="Add your remarks..."></textarea>
+            <textarea matInput rows="3" [formField]="decisionForm.remarks" placeholder="Add your remarks..."></textarea>
             <div class="w-12 flex justify-center pt-2" matPrefix>
-
             </div>
         </mat-form-field>
 

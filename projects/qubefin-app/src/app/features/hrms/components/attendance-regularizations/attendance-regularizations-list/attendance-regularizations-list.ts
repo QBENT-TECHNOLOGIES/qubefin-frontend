@@ -1,5 +1,5 @@
-import { Component, computed, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, computed, inject, input, output } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -18,6 +18,7 @@ import { IAttendanceRegularization } from '../../../models/attendance-regulariza
     MatTableModule,
     MatPaginatorModule,
   ],
+  providers: [DatePipe],
   templateUrl: './attendance-regularizations-list.html',
   styles: ``,
 })
@@ -25,6 +26,7 @@ export class AttendanceRegularizationsList {
   isCollapsed = input<boolean>(false);
   data = input<IAttendanceRegularization[]>([]);
   pageChanged = output<PageEvent>();
+  private readonly datePipe = inject(DatePipe);
   readonly totalRecords = input(0);
   readonly pageIndex = input(0);
   readonly pageSize = input(10);
@@ -37,5 +39,13 @@ export class AttendanceRegularizationsList {
   onViewDetail = output<string>();
   onPage(event: PageEvent) {
     this.pageChanged.emit(event);
+  }
+
+  dateFormatter(date: any) {
+    const datesArray = date.split(',').map((d: any) => this.datePipe.transform(d, 'dd/MM/yyyy'));
+    if (datesArray.length === 1) {
+      return datesArray[0];
+    }
+    return datesArray.join(', ');
   }
 }

@@ -47,13 +47,11 @@ export class AttendanceRegularizationApply {
     regularizationType: '',
     reason: '',
     regularizationDates: [],
+    remarks: '',
   });
 
   protected readonly formSchema: Schema<IRegularizationForm> = schema((path) => {
     required(path.regularizationType, { message: 'Regularization Type is required' });
-
-    required(path.reason, { message: 'Reason is required' });
-
     required(path.regularizationDates, { message: 'At least one date is required' });
   });
   readonly maxDate = new Date();
@@ -150,13 +148,16 @@ export class AttendanceRegularizationApply {
     if (!this.applyForm().valid()) {
       return;
     }
-
     const data = this.formModel();
-
+    if (!data.regularizationDates || data.regularizationDates.length === 0) {
+      this.alertService.warning('Warning', 'Please select at least one date from the calendar.');
+      return;
+    }
     const formData = new FormData();
     formData.append('regularizationType', data.regularizationType);
-    formData.append('reason', data.reason);
-
+    if (data.reason) {
+      formData.append('reason', data.reason);
+    }
     data.regularizationDates.forEach((d) => {
       const formatted = this.datePipe.transform(d, 'yyyy-MM-dd');
       if (formatted) {
@@ -167,7 +168,9 @@ export class AttendanceRegularizationApply {
     if (this.selectedFile()) {
       formData.append('attachment', this.selectedFile() as Blob);
     }
-
+    if (data.remarks) {
+      formData.append('remarks', data.remarks);
+    }
     this.alertService
       .confirm('Confirmation', 'Do you want to apply regularization?', 'Yes', 'No')
       .then((result: any) => {
