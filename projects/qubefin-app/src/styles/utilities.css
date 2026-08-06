@@ -796,6 +796,9 @@ a:focus-visible, button:focus-visible {
 .global-btn {
   @apply rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer;
 }
+.filter-btn {
+  @apply dark:text-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition cursor-pointer
+}
 .content-container {
   @apply flex gap-4 items-stretch;
 }
