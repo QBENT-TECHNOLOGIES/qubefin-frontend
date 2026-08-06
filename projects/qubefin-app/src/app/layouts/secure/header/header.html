@@ -41,7 +41,7 @@
                 </button>
                 <div [matMenuTriggerFor]="profileMenu"
                     class="button-theme">
-                    SA 
+                    {{getInitials(userStore.loggedInUserInfo()?.employee)}} 
                     <span
                         class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-white dark:border-slate-900"></span>
                 </div>
@@ -50,10 +50,10 @@
                 <mat-menu #profileMenu="matMenu" class="profile-menu">
                     <!-- Header -->
                     <div class="menu-header" (click)="$event.stopPropagation()">
-                        <div class="avatar">SA</div>
+                        <div class="avatar">{{getInitials(userStore.loggedInUserInfo()?.employee)}}</div>
                         <div class="info">
-                            <h4>Super Admin</h4>
-                            <p>Administrator</p>
+                            <h4>{{userStore.loggedInUserInfo()?.employee}}</h4>
+                            <p>{{userStore.loggedInUserInfo()?.designation}}</p>
                         </div>
                     </div>
                     <button mat-menu-item>
