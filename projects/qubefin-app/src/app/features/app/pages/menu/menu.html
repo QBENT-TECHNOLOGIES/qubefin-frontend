@@ -11,6 +11,7 @@
         </div>
     </div>
     <div class="flex gap-4 items-stretch">
+        @if (isViewMode()) {
         <aside class="w-70 md:w-70 shrink-0 sticky top-0 self-start">
             <div class="glass rounded-xl h-[calc(100vh-170px)] shadow-glass dark:shadow flex flex-col overflow-hidden">
                 <div class="flex items-center gap-2 px-4 py-3">
@@ -31,6 +32,7 @@
                 </div>
             </div>
         </aside>
+        }
         <section class="flex-1">
             @if (isViewMode()) {
             <qfin-menu-view-component [menuId]="selectedMenuId()" (showEdit)="onEdit()">

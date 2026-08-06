@@ -6,21 +6,15 @@ export const AppRoutes: Routes = [
         children: [
             {
                 path: 'menus',
-                loadComponent: () => import('./pages/menu/menu').then(m => m.MenuPage),
-                data: {
-                    title: 'Menus',
-                    subTitle: 'Manage and organize menus of the system.',
-                    icon: 'apartment'
-                }
+                loadComponent: () => import('./pages/menu/menu').then(m => m.MenuPage)
             },
             {
                 path: 'roles',
-                loadComponent: () => import('./pages/role/role').then(m => m.RolePage),
-                data: {
-                    title: 'Roles',
-                    subTitle: 'Manage and organize roles of the system.',
-                    icon: 'user'
-                }
+                loadComponent: () => import('./pages/role/role').then(m => m.RolePage)
+            },
+            {
+                path: 'users',
+                loadComponent: () => import('./pages/user/user').then(m => m.UserPage)
             }
         ]
     }

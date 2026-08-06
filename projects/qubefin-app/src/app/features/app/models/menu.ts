@@ -39,7 +39,7 @@ export interface MenuField {
     id: string;
     name: string;
     icon: string;
-    target: string | null;
+    target: string;
     parentId: string | null;
     displayPosition: number;
     isActive: boolean;

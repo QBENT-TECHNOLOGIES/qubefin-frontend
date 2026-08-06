@@ -1,6 +1,6 @@
 import { Component, input, output, signal } from '@angular/core';
-import { APP_ICONS_MAP } from '../../../../lucide-icons';
-import { Role, RoleSearch, RoleSearchResult } from '../../models/role';
+import { APP_ICONS_MAP } from '../../../../../lucide-icons';
+import { Role, RoleSearch, RoleSearchResult } from '../../../models/role';
 import { CommonModule } from '@angular/common';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
@@ -14,7 +14,6 @@ import { LucideDynamicIcon } from '@lucide/angular';
 })
 export class RoleListComponent {
 	
-
 	selectedId = signal<string>('');
 	readonly iconMap = APP_ICONS_MAP;
 
