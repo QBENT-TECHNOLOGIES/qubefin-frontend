@@ -204,7 +204,7 @@
                         <p class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">{{userStore.loggedInUserInfo()?.designation}}</p>
                     </div>
                 </div>
-                <div class="bg-primary-500/10 dark:bg-primary-50/10 text-primary-600 dark:text-primary-400 p-2 rounded-4xl cursor-pointer w-10 h-10 flex items-center justify-center overflow-hidden" matTooltip="Log Out">
+                <div class="bg-primary-500/10 dark:bg-primary-50/10 text-primary-600 dark:text-primary-400 p-2 rounded-4xl cursor-pointer w-10 h-10 flex items-center justify-center overflow-hidden" matTooltip="Log Out" (click)="onLogout()">
                     <svg lucideIcon="log-out" class="w-5 h-5"></svg>
                 </div>
             </div>
