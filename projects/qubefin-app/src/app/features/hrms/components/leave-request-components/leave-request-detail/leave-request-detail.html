@@ -74,7 +74,7 @@
       </div>
       <input matInput [value]="documentName() || (documentUrl() ? 'Current document available' : '')" readonly
         placeholder="No file chosen" />
-      <input hidden (change)="onFileSelected($event)" #fileInput type="file">
+      <input hidden (change)="onFileSelected($event)" #fileInput accept="image/*,.pdf" type="file">
 
       <div matSuffix class="flex items-center gap-2 pr-1.5 py-1">
         @if (selectedFile()) {

@@ -150,12 +150,32 @@ export class LeaveRequestDetail {
   }
 
   onFileSelected(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      this.selectedFile.set(file);
-      this.documentUrl.set(URL.createObjectURL(file));
-      this.documentName.set(file.name);
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
     }
+
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg',
+      'image/png',
+      'image/jpg',
+      'image/gif',
+      'image/webp',
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      // Show your Swal/toast message here
+      input.value = '';
+      this.alertService.warning(null, 'Only image/PDF file can be selected.');
+      return;
+    }
+
+    this.selectedFile.set(file);
+    this.documentUrl.set(URL.createObjectURL(file));
+    this.documentName.set(file.name);
   }
 
   removeFile() {

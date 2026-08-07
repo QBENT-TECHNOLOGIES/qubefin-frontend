@@ -26,7 +26,7 @@ export class LeaveRequestService {
   }
 
   cancelRequest(id: string, reason: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/cancel/${id}`, { id: id, reason: reason });
+    return this.http.post(`${this.baseUrl}/cancel`, { id: id, reason: reason });
   }
 
   leaveAction(action: any) {
