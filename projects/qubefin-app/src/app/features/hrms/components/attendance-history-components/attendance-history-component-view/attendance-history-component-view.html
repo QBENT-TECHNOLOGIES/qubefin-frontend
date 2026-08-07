@@ -1,0 +1,89 @@
+@if (attendanceData(); as data) {
+
+<div class="flex flex-col gap-4">
+    <div class="flex-1">
+        <div
+            class="bg-white/20 dark:bg-glass-dark rounded-xl border border-slate-200/60 dark:border-glass-dark/10 dark:shadow">
+
+            <div class="flex justify-self-start w-full gap-5 pt-0 p-4">
+                <div class="flex-1">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                        <div class="gen-info">
+                            <div
+                                class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                                <svg lucideIcon="user" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Attendance
+                                    Date</label>
+                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                    {{ data.attendanceDate| date: 'mediumDate' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="gen-info">
+                            <div
+                                class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                                <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Actual In
+                                    Time</label>
+                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                    {{ data.actualInTime || 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="gen-info">
+                            <div
+                                class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                                <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Actual Out
+                                    Time</label>
+                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                    {{ data.actualOutTime || 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="gen-info">
+                            <div
+                                class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                                <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Working
+                                    Hours</label>
+                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                    {{ data.workingHours || 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="gen-info">
+                            <div
+                                class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                                <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label
+                                    class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Status</label>
+                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                    {{ data.status || 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+} @else {
+<div class="p-8 text-center text-slate-400">
+    <p class="text-sm font-medium">Select an attendance record to view details.</p>
+</div>
+}

@@ -2,7 +2,7 @@
     class="bg-transparent pr-4">
     <!-- Leaf node without children -->
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding [matTreeNodePaddingIndent]="13">
-        <div class="group relative flex items-center py-2 px-2 mx-2 my-0.5 w-full rounded-xl cursor-pointer transition-all duration-300 select-none border border-transparent"
+        <div class="children-tree"
             [class.bg-primary-500/10]="selectedId() === node.id" [class.text-primary-600]="selectedId() === node.id"
             [class.dark:text-primary-600]="selectedId() === node.id"
             [class.border-blue-500/10]="selectedId() === node.id"
@@ -21,7 +21,7 @@
                 {{node.name}}
             </span>
             @if (selectedId() === node.id) {
-            <div class="absolute -left-1 top-2.5 bottom-2.5 w-1 bg-primary-600 dark:bg-primary rounded-full shadow-sm">
+            <div class="selected-node">
             </div>
             }
         </div>
@@ -30,7 +30,7 @@
     <!-- Expandable parent node -->
     <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding [matTreeNodePaddingIndent]="13"
         [cdkTreeNodeTypeaheadLabel]="node.name">
-        <div class="group relative flex justify-between items-center py-2 px-2 mx-2 my-0.5 w-full rounded-xl cursor-pointer transition-all duration-300 select-none border border-transparent"
+        <div class="parent-tree"
             [class.bg-primary-500/10]="selectedId() === node.id" [class.text-primary-600]="selectedId() === node.id"
             [class.dark:text-primary-600]="selectedId() === node.id"
             [class.border-blue-500/10]="selectedId() === node.id"
@@ -60,7 +60,7 @@
             </div>
 
             @if (selectedId() === node.id) {
-            <div class="absolute -left-1 top-2.5 bottom-2.5 w-1 bg-primary-600 dark:bg-primary rounded-full shadow-sm">
+            <div class="selected-node">
             </div>
             }
         </div>

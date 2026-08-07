@@ -1,0 +1,219 @@
+<div class="flex flex-col">
+    <div class="flex flex-wrap items-center justify-end gap-4 mb-2 z-10">
+        <div class="flex gap-3 items-center flex-wrap">
+            <div class="flex items-center gap-3">
+                @if (isViewMode()) {
+                <button type="button"
+                    class="glass-input dark:text-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                    <svg lucideIcon="funnel" class="w-4 h-4"></svg>
+                    Filter
+                </button>
+                } @else {}
+                <button
+                    class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+                    >
+                    <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                    Add New
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
+        <div class="glass rounded-xl shadow-glass dark:shadow
+           overflow-hidden min-w-0 shrink-0
+           transition-[width,max-width,opacity,transform] 
+           duration-500 ease-in-out" 
+            [ngClass]="{
+                'w-full max-w-full opacity-100 translate-x-0':
+                    isViewMode(),
+
+                'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0':
+                    isViewMode(),
+
+                'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
+                    !isViewMode()
+            }">
+            <!-- COLLAPSED SEARCH -->
+            @if (isViewMode()) {
+            <div class="flex items-center gap-2 px-4 py-3">
+            </div>
+            }
+            <qfin-approval-workflow-event-list [data]="workflowEvents()">
+            </qfin-approval-workflow-event-list>
+        </div>
+
+        <!-- @if (!isViewMode()) { -->
+        <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
+            [ngClass]="{
+                'w-3/4':
+                    isViewMode(),
+
+                'w-full':
+                    !isViewMode()
+            }">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <div class="flex justify-start gap-2">
+                                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
+                                    @if (selectedWorkflowEventId() === EMPTY_UUID) {
+                                    Add Approval Workflow Event
+                                    } @else if (isViewMode()) {
+                                    Details
+                                    } @else {
+                                    Edit Approval Workflow Event
+                                    }
+                                </h2>
+                                <div
+                                    class="flex items-center gap-1.5 px-3 pt-1 pb-0 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+                                    <span
+                                        class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                                        @if (selectedWorkflowEventId() === EMPTY_UUID) {
+                                        New Mode
+                                        } @else if (isViewMode()) {
+                                        View Mode
+                                        } @else {
+                                        Edit Mode
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                                @if (selectedWorkflowEventId() === EMPTY_UUID) {
+                                Create a new approval workflow event and configure its settings.
+                                } @else if (isViewMode()) {
+                                View the approval workflow event details and configuration.
+                                } @else {
+                                Update the approval workflow event and its settings.
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- <button aria-label="Close" matTooltip="Close"
+                    class="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
+                    (click)="closePanel()">
+                    <svg lucideIcon="x" class="w-4 h-4"></svg>
+                </button> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <div class="max-w-6xl mx-auto">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+        <div>
+            <p class="text-sm font-medium text-secondary-600 dark:text-slate-300">HRMS / Workflow Setup</p>
+            <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-1">Approval Workflow Event</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Configure the event, recipient and approval behaviour.</p>
+        </div>
+        <button type="button" (click)="save()"
+            class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
+            Save Event
+        </button>
+    </div>
+
+    <qfin-approval-workflow-event-list></qfin-approval-workflow-event-list>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <section class="glass rounded-xl shadow-glass dark:shadow p-5 lg:col-span-2">
+            <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-200 dark:border-slate-700">
+                <div class="w-10 h-10 rounded-xl bg-primary-500/10 text-primary-600 dark:text-primary-400 flex items-center justify-center">
+                    <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                </div>
+                <div>
+                    <h2 class="font-semibold text-slate-800 dark:text-slate-100">Event details</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Define when this workflow is applied.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Category</mat-label>
+                    <mat-select [formField]="workflowEventForm.category">
+                        @for (category of categories; track category) {
+                            <mat-option [value]="category">{{ category }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Sequence no.</mat-label>
+                    <input matInput type="number" [formField]="workflowEventForm.sequenceNo">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Leave type ID</mat-label>
+                    <input matInput [formField]="workflowEventForm.leaveTypeId" autocomplete="off" placeholder="Optional GUID">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Organization unit type ID</mat-label>
+                    <input matInput [formField]="workflowEventForm.organizationUnitTypeId" autocomplete="off" placeholder="Optional GUID">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Salary grade ID</mat-label>
+                    <input matInput [formField]="workflowEventForm.salaryGradeId" autocomplete="off" placeholder="Optional GUID">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Post ID</mat-label>
+                    <input matInput [formField]="workflowEventForm.postId" autocomplete="off" placeholder="Optional GUID">
+                </mat-form-field>
+            </div>
+        </section>
+
+        <section class="glass rounded-xl shadow-glass dark:shadow p-5 h-fit">
+            <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-200 dark:border-slate-700">
+                <div class="w-10 h-10 rounded-xl bg-primary-500/10 text-primary-600 dark:text-primary-400 flex items-center justify-center">
+                    <svg lucideIcon="user-check" class="w-5 h-5"></svg>
+                </div>
+                <div>
+                    <h2 class="font-semibold text-slate-800 dark:text-slate-100">Recipient</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">The post that receives the event.</p>
+                </div>
+            </div>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Receiver post ID</mat-label>
+                <input matInput [formField]="workflowEventForm.receiverPostId" autocomplete="off" placeholder="Enter receiver post GUID">
+            </mat-form-field>
+        </section>
+
+        <section class="glass rounded-xl shadow-glass dark:shadow p-5 lg:col-span-3">
+            <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-200 dark:border-slate-700">
+                <div class="w-10 h-10 rounded-xl bg-primary-500/10 text-primary-600 dark:text-primary-400 flex items-center justify-center">
+                    <svg lucideIcon="clipboard-check" class="w-5 h-5"></svg>
+                </div>
+                <div>
+                    <h2 class="font-semibold text-slate-800 dark:text-slate-100">Approval settings</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Set the event’s range, outcome and action text.</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Minimum days</mat-label>
+                    <input matInput type="number" [formField]="workflowEventForm.minimumDays">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Maximum days</mat-label>
+                    <input matInput type="number" [formField]="workflowEventForm.maximumDays" placeholder="No limit">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Event status</mat-label>
+                    <mat-select [formField]="workflowEventForm.eventStatus">
+                        @for (status of eventStatuses; track status) {
+                            <mat-option [value]="status">{{ status }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Button text</mat-label>
+                    <input matInput [formField]="workflowEventForm.eventButtonText" autocomplete="off" placeholder="e.g. Approve">
+                </mat-form-field>
+            </div>
+            <div class="flex flex-wrap gap-5 mt-3">
+                <mat-checkbox [formField]="workflowEventForm.isRecommendEvent" color="primary">Recommendation event</mat-checkbox>
+                <mat-checkbox [formField]="workflowEventForm.isApprovalEvent" color="primary">Approval event</mat-checkbox>
+            </div>
+        </section>
+    </div>
+</div> -->
