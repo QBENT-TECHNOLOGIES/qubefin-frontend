@@ -1,58 +1,35 @@
 @if (loading()) {
-
 <div
     class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400 flex flex-col items-center justify-center gap-3 min-h-[300px]">
 
     <div class="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin">
     </div>
-
     <p class="text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400">
         Loading details...
     </p>
-
 </div>
-
 } @else if (error()) {
-
 <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
-
     <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
-
     Unable to load regularization details.
-
 </div>
-
 } @else if (detail(); as data) {
-
 <div class="flex flex-col gap-4">
-
     <div class="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 items-stretch">
-
         <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
-
-
-
             <div class="flex px-4 py-4 items-center justify-between">
-
                 <div class="flex items-center gap-4">
-
                     <div>
                         <svg lucideIcon="tag" class="w-6 h-6 text-primary-700 dark:text-primary-400">
                         </svg>
                     </div>
-
                     <div>
-
                         <div class="flex items-center gap-2">
-
                             <h1 class="text-lg font-bold text-slate-800 dark:text-slate-100">
                                 Attendance Regularization
                             </h1>
-
                         </div>
-
                     </div>
-
                 </div>
                 <div class="flex items-center gap-4">
                     <div
@@ -91,104 +68,60 @@
                         </span>
                     </div>
                 </div>
-
             </div>
-
             <div class="pt-0 p-4">
-
                 <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
-
                     Approval Information
-
                 </h3>
-
                 <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
                     <div class="gen-info">
-
                         <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
-
                             <svg lucideIcon="tag" class="w-5 h-5 text-primary-700">
                             </svg>
-
                         </div>
-
                         <div>
-
                             <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">
-
                                 Regularization Type
-
                             </label>
-
                             <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
-
                                 {{ data.regularizationType || 'N/A' }}
 
                             </p>
-
                         </div>
-
-
                     </div>
-
                     <div class="gen-info">
-
                         <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
-
                             <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700">
                             </svg>
-
                         </div>
-
                         <div>
-
                             <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">
-
                                 Regularization Date(s)
-
                             </label>
-
                             <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
-
                                 {{ data.regularizationDates || 'N/A' }}
-
                             </p>
-
                         </div>
-
                     </div>
-
                     <div class="gen-info">
-
                         <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
 
                             <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700">
                             </svg>
-
                         </div>
-
                         <div>
-
                             <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">
-
                                 Reason
-
                             </label>
-
                             <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
 
                                 {{ data.reason || 'N/A' }}
 
                             </p>
-
                         </div>
                     </div>
-
-
-                    <div class="gen-info md:col-span-2">
+                    <div class="gen-info">
                         <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
                             <svg lucideIcon="paperclip" class="w-5 h-5 text-primary-700"></svg>
                         </div>
@@ -200,7 +133,8 @@
                                 </label>
 
                                 @if (data.attachmentUrl) {
-                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                <p
+                                    class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5 w-[150px] whitespace-nowrap overflow-hidden overflow-ellipsis">
                                     {{ data.attachment }}
                                 </p>
                                 } @else {
@@ -209,56 +143,41 @@
                             </div>
 
                             @if (data.attachment) {
-                            <button type="button" (click)="viewDocument(data.attachmentUrl)" class="bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40
-               text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-xs font-semibold
-               flex items-center gap-2 transition-colors border border-primary-200
-               dark:border-primary-800/30 cursor-pointer ml-4">
-                                <svg lucideIcon="eye" class="w-3.5 h-3.5"></svg>
-                                View Document
-                            </button>
+                            <div (click)="viewDocument(data.attachmentUrl)" matTooltip="View Document"
+                                class="cursor-pointer">
+                                <svg lucideIcon="eye" class="w-5 h-5 text-primary-600 dark:text-primary-400"></svg>
+                            </div>
                             }
                         </div>
                     </div>
                 </div>
-
             </div>
-
         </div>
         <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow p-4">
-
             <div class="mb-4">
                 <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
                     Approval History
                 </h3>
                 <div class="w-10 h-1 mt-2 rounded-full bg-primary-500"></div>
             </div>
-
             <div class="relative mt-2">
-
                 <div
                     class="absolute left-4 top-3 bottom-3 w-0.5 bg-gradient-to-b from-primary-500 via-primary-400 to-primary-300">
                 </div>
-
                 @for (event of data.events; track $index) {
                 <div class="relative flex gap-4 mb-5">
-
                     <div
                         class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-primary-500 text-white shadow shrink-0">
                         <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
                     </div>
-
-
                     <div
                         class="flex-1 rounded-2xl border border-slate-200/50 dark:border-slate-700 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md p-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                         <div class="flex justify-between items-start gap-3">
                             <div>
-
                                 <span
                                     class="px-3 py-1 rounded-full text-[11px] font-semibold bg-primary-100 text-primary-700 dark:bg-slate-300 dark:text-black">
                                     {{ event.eventStatus }}
                                 </span>
-
-
                                 <div
                                     class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
                                     <div class="flex items-center gap-2">
@@ -271,8 +190,6 @@
                     </div>
                 </div>
                 }
-
-
                 <div class="relative flex gap-4 mb-2">
                     <div
                         class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-500 text-slate-500 dark:text-white shadow-md dark:ring-0 shrink-0">
@@ -281,25 +198,20 @@
                 </div>
             </div>
         </div>
-
     </div>
-
     @if (data.isRecommendEvent || data.isApprovalEvent) {
-
-
     <div class="glass rounded-xl shadow-glass dark:shadow p-5 mt-2">
         <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 pb-3">
             Decision Action
         </h3>
         <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
-
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Remarks</mat-label>
-            <textarea matInput rows="3" [formField]="decisionForm.remarks" placeholder="Add your remarks..."></textarea>
+            <input matInput rows="3" [formField]="decisionForm.remarks" placeholder="Add your remarks...">
             <div class="w-12 flex justify-center pt-2" matPrefix>
+                <svg lucideIcon="message-square-plus" class="w-5 h-5"></svg>
             </div>
         </mat-form-field>
-
         <div class="flex justify-end gap-3 mt-5">
             <button type="button" (click)="onSubmitDecision('Rejected')"
                 class="bg-white dark:bg-slate-800 border border-red-200 dark:border-red-900 shadow rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-red-600 dark:text-red-400 hover:shadow-glass hover:bg-red-50 dark:hover:bg-red-900/30 transition lift cursor-pointer">
@@ -314,8 +226,6 @@
                 Recommend
             </button>
             }
-
-
             @if (data.isApprovalEvent) {
 
             <button type="button" (click)="onSubmitDecision('Approved')"
@@ -325,13 +235,8 @@
             }
         </div>
     </div>
-
     }
-
 </div>
-
-
-
 } @else {
 
 <div class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400">

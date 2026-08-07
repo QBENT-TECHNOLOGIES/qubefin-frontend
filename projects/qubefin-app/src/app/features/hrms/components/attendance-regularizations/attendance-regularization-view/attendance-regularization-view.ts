@@ -2,14 +2,13 @@ import { Component, computed, effect, inject, model, output, signal } from '@ang
 import { CommonModule } from '@angular/common';
 import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { AttendanceRegularizationsStore } from '../../../stores/attendance-regularizations-store';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import Swal from 'sweetalert2';
 import { AttendanceService } from '../../../services/attendance-service';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { ApprovalRegularizationStore } from '../../../stores/approval-regularizations-store';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
+import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'qfin-attendance-regularization-view',
   imports: [
@@ -20,6 +19,7 @@ import { form, FormField, required, schema, Schema } from '@angular/forms/signal
     MatFormFieldModule,
     MatInputModule,
     FormField,
+    MatTooltipModule,
   ],
   templateUrl: './attendance-regularization-view.html',
   styles: ``,

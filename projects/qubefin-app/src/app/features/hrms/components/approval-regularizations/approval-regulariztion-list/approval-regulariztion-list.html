@@ -12,7 +12,7 @@
 
         <ng-container matColumnDef="regularizationDate">
             <th mat-header-cell *matHeaderCellDef> Regularization Date </th>
-            <td mat-cell *matCellDef="let item"> {{ item.regularizationDate| date: 'dd/MM/yyyy' }} </td>
+            <td mat-cell *matCellDef="let item"> {{ dateFormatter(item.regularizationDate) }} </td>
         </ng-container>
         <ng-container matColumnDef="employeeName">
             <th mat-header-cell *matHeaderCellDef> Employee Name </th>

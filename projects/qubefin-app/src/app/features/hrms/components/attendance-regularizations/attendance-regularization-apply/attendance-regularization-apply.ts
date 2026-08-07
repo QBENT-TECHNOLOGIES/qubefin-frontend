@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { AttendanceRegularizationsStore } from '../../../stores/attendance-regularizations-store';
 import { IRegularizationForm } from '../../../models/attendance-regularization';
 import { AlertService } from 'qubefin-core';
-
+import { MatChipsModule } from '@angular/material/chips';
 @Component({
   selector: 'qfin-attendance-regularization-apply',
   imports: [
@@ -26,6 +26,7 @@ import { AlertService } from 'qubefin-core';
     LucideDynamicIcon,
     MatIconModule,
     FormField,
+    MatChipsModule,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './attendance-regularization-apply.html',
@@ -36,7 +37,6 @@ export class AttendanceRegularizationApply {
   private readonly attendanceService = inject(AttendanceService);
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
-  // readonly documentModal = inject(DocumentModalService);
   private readonly store = inject(AttendanceRegularizationsStore);
   readonly cancel = output<void>();
   readonly save = output<void>();
@@ -94,9 +94,7 @@ export class AttendanceRegularizationApply {
       }
     });
 
-    if (this.formModel().regularizationType === 'ONDUTY') {
-      inputElement.value = '';
-    }
+    inputElement.value = '';
   }
 
   removeDate(index: number) {
@@ -108,14 +106,26 @@ export class AttendanceRegularizationApply {
   }
 
   onFileSelected(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
+    const inputElement = event.target as HTMLInputElement;
+    const file = inputElement.files?.[0];
+
     if (file) {
+      const isImage = file.type.startsWith('image/');
+      const isPdf = file.type === 'application/pdf';
+      if (!isImage && !isPdf) {
+        this.alertService.error('Invalid File', 'Please upload only Image or PDF files.');
+        inputElement.value = '';
+        return;
+      }
       this.selectedFile.set(file);
       this.documentUrl.set(URL.createObjectURL(file));
       this.documentName.set(file.name);
     }
   }
-
+  openDocument() {
+    const url = this.documentUrl();
+    window.open(url, '_blank');
+  }
   removeFile() {
     this.selectedFile.set(null);
     if (this.documentUrl().startsWith('blob:')) {
@@ -124,17 +134,6 @@ export class AttendanceRegularizationApply {
     this.documentUrl.set('');
     this.documentName.set('');
   }
-
-  // openDocument() {
-  //   if (!this.documentUrl() || !this.documentName()) return;
-
-  //   this.documentModal.open({
-  //     url: this.documentUrl(),
-  //     documentName: this.documentName(),
-  //     extension: this.documentName().split('.').pop()?.toLowerCase() || '',
-  //     downloadAccess: true,
-  //   });
-  // }
 
   onCancelClicked() {
     this.cancel.emit();
