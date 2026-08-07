@@ -26,3 +26,6 @@
 .button-theme {
     @apply relative w-11 h-11 rounded-4xl bg-white/80 backdrop-blur-2xl dark:bg-slate-50/10 dark:text-white flex items-center justify-center hover:shadow-glow transition cursor-pointer hover:-translate-y-0.75 shrink-0;
 }
+.button-user {
+    @apply w-11 h-11 rounded-full bg-linear-to-br from-secondary-500 to-accent-500 flex items-center justify-center cursor-pointer text-white font-semibold text-sm relative shrink-0;
+}

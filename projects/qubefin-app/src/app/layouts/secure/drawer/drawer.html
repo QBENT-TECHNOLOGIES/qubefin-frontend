@@ -195,16 +195,16 @@
                     <div class="relative shrink-0">
                         <div
                             class="w-10 h-10 rounded-full bg-linear-to-br from-secondary-500 to-accent-500 flex items-center justify-center text-white font-semibold text-sm">
-                            SA</div>
+                            {{getInitials(userStore.loggedInUserInfo()?.employee)}}</div>
                         <span
                             class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-white dark:border-slate-900"></span>
                     </div>
                     <div class="profile-text overflow-hidden transition-all duration-300">
-                        <p class="text-sm font-semibold whitespace-nowrap dark:text-white">Super Admin</p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">Super Admin</p>
+                        <p class="text-sm font-semibold whitespace-nowrap dark:text-white">{{userStore.loggedInUserInfo()?.employee}}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">{{userStore.loggedInUserInfo()?.designation}}</p>
                     </div>
                 </div>
-                <div class="bg-primary-500/10 dark:bg-primary-50/10 text-primary-600 dark:text-primary-400 p-2 rounded-4xl cursor-pointer w-10 h-10 flex items-center justify-center overflow-hidden" matTooltip="Log Out">
+                <div class="bg-primary-500/10 dark:bg-primary-50/10 text-primary-600 dark:text-primary-400 p-2 rounded-4xl cursor-pointer w-10 h-10 flex items-center justify-center overflow-hidden" matTooltip="Log Out" (click)="onLogout()">
                     <svg lucideIcon="log-out" class="w-5 h-5"></svg>
                 </div>
             </div>
