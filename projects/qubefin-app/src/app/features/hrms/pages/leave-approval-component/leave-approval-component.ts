@@ -15,7 +15,6 @@ import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { LeaveApprovalStore } from '../../stores/leave-approval-store';
 import { LeaveApprovalList } from '../../components/leave-approval-components/leave-approval-list/leave-approval-list';
 import { LeaveApprovalView } from '../../components/leave-approval-components/leave-approval-view/leave-approval-view';
-import { LeaveApprovalDetail } from '../../components/leave-approval-components/leave-approval-detail/leave-approval-detail';
 import { EmployeeService } from '../../services/employee-service';
 import { EmployeeSearchByText, EmployeeSearchResponse } from '../../models/employee-search-by-text';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
@@ -39,7 +38,6 @@ import { DatePipe } from '@angular/common';
     CommonModule,
     LeaveApprovalList,
     LeaveApprovalView,
-    LeaveApprovalDetail,
     MatAutocompleteModule,
     MatDatepickerModule,
   ],
@@ -95,10 +93,6 @@ export class LeaveApprovalComponent {
   protected onView(id: string) {
     this.selectedLeaveApprovalId.set(id);
     this.isViewMode.set(true);
-  }
-
-  protected onActionMode() {
-    this.isViewMode.set(false);
   }
 
   protected closePanel() {

@@ -168,13 +168,13 @@
               }
             </div>
           </div>
-          @if(request.currentStatus == 'Cancelled'){
+          @if(request.currentStatus == 'Cancelled' || request.currentStatus == 'Rejected'){
           <div class="gen-info md:col-span-2">
             <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
               <svg lucideIcon="map-pin" class="w-5 h-5 text-primary-700"></svg>
             </div>
             <div>
-              <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Cancellation Reason</label>
+              <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">{{request.currentStatus == 'Rejected' ? 'Rejected': 'Cancellation'}} Reason</label>
               <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
                 {{ request.rejectedReason || '-' }}
               </p>
@@ -260,10 +260,23 @@
         }
         <div class="relative flex gap-4 mb-5">
           <!-- Timeline Icon -->
+          
           <div
             class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-500 text-slate-500 dark:text-white shadow-md dark:ring-0 shrink-0">
-            <svg lucideIcon="circle-dot" class="w-4 h-4">
-            </svg>
+            <span class="flex items-center gap-1.5 text-[12px] font-semibold"
+              [ngClass]="getStatusClass(request.currentStatus)">
+
+              <span class="w-2 h-2 rounded-full relative flex">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                  [ngClass]="getStatusPingClass(request.currentStatus)">
+                </span>
+
+                <span class="relative inline-flex rounded-full h-2 w-2"
+                  [ngClass]="getStatusDotClass(request.currentStatus)">
+                </span>
+              </span>
+
+            </span>
           </div>
         </div>
       </div>

@@ -1,32 +1,102 @@
 import { DatePipe, CommonModule } from '@angular/common';
-import { Component, effect, inject, model, output } from '@angular/core';
+import { Component, effect, inject, model, output, signal } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { APP_ICONS_MAP } from '../../../../../lucide-icons';
 import { LeaveRequestStore } from '../../../stores/leave-request-store';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { LeaveRequestService } from '../../../services/leave-request-service';
+import { LeaveApprovalStore } from '../../../stores/leave-approval-store';
 
 @Component({
   selector: 'qfin-leave-approval-view',
-  imports: [DatePipe, CommonModule, LucideDynamicIcon, MatTooltipModule],
+  imports: [
+    DatePipe,
+    CommonModule,
+    LucideDynamicIcon,
+    MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+  ],
   templateUrl: './leave-approval-view.html',
   styles: ``,
 })
 export class LeaveApprovalView {
   readonly iconMap = APP_ICONS_MAP;
   private readonly leaveRequestStore = inject(LeaveRequestStore);
+  private readonly leaveApprovalStore = inject(LeaveApprovalStore);
+  private readonly alertService = inject(AlertService);
+  private readonly leaveRequestService = inject(LeaveRequestService);
 
   readonly leaveApprovalId = model<string>(EMPTY_UUID);
   readonly delete = output<void>();
+  readonly approve = output<void>();
+  readonly reject = output<void>();
+  readonly recommend = output<void>();
 
   readonly leaveApproval = this.leaveRequestStore.leaveRequest;
   readonly loading = this.leaveRequestStore.leaveRequestLoading;
   readonly error = this.leaveRequestStore.leaveRequestError;
+  readonly showError = signal(false);
 
+  rejectedReasonControl = new FormControl('', {
+    nonNullable: true,
+    validators: [],
+  });
   constructor() {
     effect(() => {
       this.leaveRequestStore.setLeaveRequestId(this.leaveApprovalId());
     });
+  }
+
+  protected onAction(action: 'approve' | 'reject' | 'recommend') {
+    if (action === 'reject') {
+      this.rejectedReasonControl.setValidators([Validators.required]);
+      this.rejectedReasonControl.updateValueAndValidity();
+      const remarks = this.rejectedReasonControl.value.trim();
+
+      if (!remarks) {
+        this.alertService.warning(null, 'Please enter remarks.');
+        this.showError.set(true);
+        this.rejectedReasonControl.markAsTouched();
+        return;
+      }
+    }
+
+    this.rejectedReasonControl.clearValidators();
+    this.rejectedReasonControl.updateValueAndValidity();
+    this.showError.set(false);
+
+    this.alertService
+      .confirm(null, `Are you sure you want to ${action} this leave application?`, 'Yes', 'No')
+      .then((result: any) => {
+        if (result.isConfirmed) {
+          const payLoad: any = {
+            leaveRequestId: this.leaveApproval()?.id,
+            isApproved: action === 'approve',
+            isRejected: action === 'reject',
+            rejectedReason: action === 'reject' ? this.rejectedReasonControl.value : null,
+          };
+
+          this.leaveRequestService.leaveAction(payLoad).subscribe({
+            next: (resp: any) => {
+              this.alertService.success('Success', resp.value.message).then(() => {
+                this.leaveApprovalStore.refreshList();
+                if (action === 'approve') this.approve.emit();
+                if (action === 'reject') this.reject.emit();
+                if (action === 'recommend') this.recommend.emit();
+              });
+            },
+            error: (err: any) => {
+              this.alertService.error('Failed', err.error.message);
+            },
+          });
+        }
+      });
   }
 
   getStatusClass(status: string | null | undefined): string {

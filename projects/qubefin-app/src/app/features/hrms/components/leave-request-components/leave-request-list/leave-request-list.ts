@@ -28,7 +28,7 @@ export class LeaveRequestList {
   displayedColumns = ['sl', 'leaveType', 'fromDate', 'toDate', 'totalDays', 'status', 'action'];
 
   get columns() {
-    return this.isCollapsed() ? ['leaveType', 'action'] : this.displayedColumns;
+    return this.isCollapsed() ? ['fromDate', 'toDate', 'action'] : this.displayedColumns;
   }
 
   onDetailView(id: string) {

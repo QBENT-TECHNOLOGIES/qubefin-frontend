@@ -7,14 +7,6 @@
         <svg lucideIcon="funnel" class="w-4 h-4"></svg>
         Filter
       </button>
-      } @else{}
-      @if(isViewMode() && selectedLeaveApprovalId() !== EMPTY_UUID) {
-      <button
-        class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
-        (click)="onActionMode()">
-        <svg lucideIcon="check-square" class="w-4 h-4"></svg>
-        Take Action
-      </button>
       }
     </div>
   </div>
@@ -197,12 +189,8 @@
 
       <div>
         @if (isViewMode() && selectedLeaveApprovalId() !== EMPTY_UUID) {
-        <qfin-leave-approval-view [leaveApprovalId]="selectedLeaveApprovalId()" (delete)="closePanel()">
+        <qfin-leave-approval-view [leaveApprovalId]="selectedLeaveApprovalId()" (delete)="closePanel()" (approve)="onActionCompleted()" (reject)="onActionCompleted()" (recommend)="onActionCompleted()">
         </qfin-leave-approval-view>
-        } @else {
-        <qfin-leave-approval-detail [leaveApprovalId]="selectedLeaveApprovalId()" (cancel)="closePanel()"
-          (approve)="onActionCompleted()" (reject)="onActionCompleted()" (recommend)="onActionCompleted()">
-        </qfin-leave-approval-detail>
         }
       </div>
     </div>
