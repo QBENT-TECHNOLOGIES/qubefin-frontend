@@ -1,0 +1,117 @@
+<div class="space-y-2 animate-fade-in">
+  @if (isEditMode() && loading()) {
+  <div class="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-sm text-slate-500">
+    Loading leave request details...
+  </div>
+  } @else {
+
+  <div class="flex items-center gap-2">
+    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+      Leave Request Information
+    </h3>
+  </div>
+  <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- Leave Type Dropdown -->
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Leave Type</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="tag" class="w-5 h-5"></svg>
+      </div>
+      <mat-select [formField]="leaveRequestForm.leaveTypeId">
+        @for (balance of leaveTypeBalances(); track balance.leaveTypeId) {
+        <mat-option [value]="balance.leaveTypeId">{{ balance.title }} (Balance: {{ balance.leaveBalance }})</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <!-- From Date -->
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>From Date</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="calendar-arrow-down" class="w-5 h-5"></svg>
+      </div>
+      <input matInput [matDatepicker]="fromPicker" [min]="minDate()" [formField]="leaveRequestForm.fromDate" readonly/>
+      <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+      <mat-datepicker #fromPicker></mat-datepicker>
+    </mat-form-field>
+
+    <!-- To Date -->
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>To Date</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="calendar-arrow-up" class="w-5 h-5"></svg>
+      </div>
+      <input matInput [matDatepicker]="toPicker" [min]="leaveRequestForm.fromDate().value()"
+        [formField]="leaveRequestForm.toDate" readonly />
+      <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+      <mat-datepicker #toPicker></mat-datepicker>
+    </mat-form-field>
+
+    <!-- Reason -->
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-3">
+      <mat-label>Reason</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+      </div>
+      <input matInput [formField]="leaveRequestForm.reason" rows="3" />
+    </mat-form-field>
+
+    <!-- Address -->
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-3">
+      <mat-label>Address (While on leave)</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+      </div>
+      <input matInput [formField]="leaveRequestForm.address" />
+    </mat-form-field>
+    <!-- Document Upload -->
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-3">
+      <mat-label>Document Upload</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="paperclip" class="w-5 h-5 text-slate-500"></svg>
+      </div>
+      <input matInput [value]="documentName() || (documentUrl() ? 'Current document available' : '')" readonly
+        placeholder="No file chosen" />
+      <input hidden (change)="onFileSelected($event)" #fileInput accept="image/*,.pdf" type="file">
+
+      <div matSuffix class="flex items-center gap-2 pr-1.5 py-1">
+        @if (selectedFile()) {
+        <button type="button" mat-icon-button (click)="removeFile()" class="text-rose-500">
+          <svg lucideIcon="x" class="w-4 h-4"></svg>
+        </button>
+        }
+
+        <button type="button"
+          class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
+          (click)="fileInput.click()">
+          <svg lucideIcon="upload" class="w-3.5 h-3.5"></svg>
+          Choose File
+        </button>
+
+        @if (documentUrl()) {
+        <button type="button" (click)="openDocument()"
+          class="bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-primary-200 dark:border-primary-800/30 cursor-pointer">
+          <svg lucideIcon="eye" class="w-3.5 h-3.5"></svg>
+          View
+        </button>
+        }
+      </div>
+    </mat-form-field>
+  </div>
+
+  <div class="border-t border-slate-200 dark:border-slate-400/10 py-2 flex justify-end gap-3 mt-6">
+    <button type="button" (click)="onCancelClicked()"
+      class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+      <svg lucideIcon="x" class="w-4 h-4"></svg>
+      Cancel
+    </button>
+    <button type="button" (click)="onSaveAsDraft()"
+      class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-primary-700 bg-primary-100 hover:bg-primary-200 transition lift cursor-pointer">
+      <svg lucideIcon="save" class="w-4 h-4"></svg>
+      Save as draft
+    </button>
+  </div>
+  }
+</div>

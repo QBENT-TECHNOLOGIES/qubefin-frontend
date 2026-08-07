@@ -7,10 +7,11 @@ import {
   Router,
   RouterOutlet,
 } from '@angular/router';
+import { DocumentModal } from './shared/components/document-modal/document-modal';
 
 @Component({
   selector: 'qfin-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, DocumentModal],
   templateUrl: './app.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
