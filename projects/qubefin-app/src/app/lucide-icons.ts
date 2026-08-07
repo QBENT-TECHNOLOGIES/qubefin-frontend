@@ -152,6 +152,8 @@ import {
   LucideZodiacLeo,
   LucideMessageCircle,
   LucideCircleDot,
+  LucideSendHorizontal,
+  LucideSend
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -307,6 +309,8 @@ export const APP_ICONS = [
   LucideZodiacLeo,
   LucideMessageCircle,
   LucideCircleDot,
+  LucideSendHorizontal,
+  LucideSend
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -461,4 +465,6 @@ export const APP_ICONS_MAP: Record<string, any> = {
   ZodiacLeo: LucideZodiacLeo,
   MessageCircle: LucideMessageCircle,
   CircleDot: LucideCircleDot,
+  SendHorizontal: LucideSendHorizontal,
+  Send: LucideSend
 };
