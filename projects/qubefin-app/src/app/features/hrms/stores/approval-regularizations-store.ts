@@ -21,9 +21,9 @@ export class ApprovalRegularizationStore {
   readonly searchQuery = signal<string | null>(null);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
-  readonly sortOn = signal('appliedOn');
+  readonly sortOn = signal('fromDate');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
-
+  readonly searchEmployeeId = signal<string | null>(null);
   readonly approvalReguralizationsResource = httpResource<{
     results: IApprovalRegularization[];
     totalRecords: number;
@@ -34,6 +34,7 @@ export class ApprovalRegularizationStore {
       fromDate: this.fromDate(),
       toDate: this.toDate(),
       searchText: this.searchQuery(),
+      searchEmployeeId: this.searchEmployeeId(),
       sortOn: this.sortOn(),
       sortDirection: this.sortDirection(),
       pageIndex: this.pageIndex(),
@@ -81,7 +82,10 @@ export class ApprovalRegularizationStore {
     this.searchQuery.set(query);
     this.pageIndex.set(0);
   }
-
+  setEmployeeId(id: string | null) {
+    this.searchEmployeeId.set(id);
+    this.pageIndex.set(0);
+  }
   setPage(index: number) {
     this.pageIndex.set(index);
   }
