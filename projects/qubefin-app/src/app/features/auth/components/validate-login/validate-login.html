@@ -34,9 +34,9 @@
         autocomplete="current-password" placeholder="Enter your password">
       <div matSuffix (click)="hidePassword.update(v => !v)" class="pr-4">
         @if (hidePassword()) {
-          <svg lucideIcon="eye" class="w-5 h-5 cursor-pointer"></svg>
+        <svg lucideIcon="eye" class="w-5 h-5 cursor-pointer"></svg>
         } @else {
-          <svg lucideIcon="eye-off" class="w-5 h-5 cursor-pointer"></svg>
+        <svg lucideIcon="eye-off" class="w-5 h-5 cursor-pointer"></svg>
         }
       </div>
     </mat-form-field>
@@ -47,10 +47,25 @@
       <span class="text-blue-600 hover:text-primary-700">Forgot Password?</span>
     </a>
   </div>
-  <button [disabled]="loginForm().invalid()"
-      class="ripple-btn shine-sweep rounded-lg px-5 py-3.5 font-lg
+  <!-- <button [disabled]="loginForm().invalid()"
+    class="ripple-btn shine-sweep rounded-lg px-5 py-3.5 font-lg
       flex items-center justify-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
-      <svg lucideIcon="log-in" class="w-4 h-4"></svg>
-      Sign In
+    <svg lucideIcon="log-in" class="w-4 h-4"></svg>
+    Sign In
+  </button> -->
+
+  <button [disabled]="loginForm().invalid() || isLoading()"
+    class="ripple-btn shine-sweep rounded-lg px-5 py-3.5 font-lg
+      flex items-center justify-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift disabled:opacity-70 disabled:cursor-not-allowed">
+    @if (isLoading()) {
+    <svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+    </svg>
+    <span>Signing in...</span>
+    } @else {
+    <svg lucideIcon="log-in" class="w-4 h-4"></svg>
+    <span>Sign In</span>
+    }
   </button>
 </form>

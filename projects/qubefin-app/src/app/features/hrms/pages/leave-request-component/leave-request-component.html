@@ -3,7 +3,7 @@
     <div class="flex items-center gap-3">
       @if (selectedLeaveRequestId() === EMPTY_UUID && isViewMode()) {
       <div
-        class="year-pill inline-flex items-center gap-2 rounded-full border border-gray-300 hover:border-gray-400 bg-white px-3 py-2">
+        class="year-pill inline-flex items-center gap-2 rounded-lg border border-gray-300 hover:border-gray-400 bg-white px-3 py-2">
         <svg lucideIcon="calendar-days" class="w-4 h-4 text-gray-500"></svg>
         <mat-select class="year-select" [ngModel]="selectedYear()" (ngModelChange)="onYearChange($event)">
           @for (year of yearsList; track year) {
@@ -13,7 +13,7 @@
       </div>
       }
       <button
-        class="ripple-btn shine-sweep rounded-full px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+        class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
         (click)="onAdd()">
         <svg lucideIcon="plus" class="w-4 h-4"></svg>
         Add Request
