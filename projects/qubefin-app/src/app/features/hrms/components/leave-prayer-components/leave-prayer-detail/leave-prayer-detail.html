@@ -12,59 +12,37 @@
   </div>
   <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
     <!-- Leave Type Dropdown -->
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
       <mat-label>Leave Type</mat-label>
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="tag" class="w-5 h-5"></svg>
       </div>
-      <mat-select [formField]="leaveRequestForm.leaveTypeId">
-        @for (option of leaveTypeOptions; track option) {
-        <mat-option [value]="option">{{ option }}</mat-option>
+      <mat-select [formField]="leavePrayerForm.leaveTypeId" (selectionChange)="updateType($event.value)">
+        @for (balance of leaveTypeBalances(); track balance.leaveTypeId) {
+        <mat-option [value]="balance.leaveTypeId">{{ balance.title }} (Balance: {{ balance.leaveBalance }})</mat-option>
         }
       </mat-select>
     </mat-form-field>
 
-    <!-- From Date -->
+    <!-- NoOfDays -->
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-      <mat-label>From Date</mat-label>
-      <div class="w-12 flex justify-center" matPrefix>
-        <svg lucideIcon="calendar-arrow-down" class="w-5 h-5"></svg>
-      </div>
-      <input matInput [matDatepicker]="fromPicker" [formField]="leaveRequestForm.fromDate" />
-      <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
-      <mat-datepicker #fromPicker></mat-datepicker>
-    </mat-form-field>
-
-    <!-- To Date -->
-    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-      <mat-label>To Date</mat-label>
-      <div class="w-12 flex justify-center" matPrefix>
-        <svg lucideIcon="calendar-arrow-up" class="w-5 h-5"></svg>
-      </div>
-      <input matInput [matDatepicker]="toPicker" [formField]="leaveRequestForm.toDate" />
-      <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
-      <mat-datepicker #toPicker></mat-datepicker>
-    </mat-form-field>
-
-    <!-- Reason -->
-    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-3">
-      <mat-label>Reason</mat-label>
+      <mat-label>No Of Days</mat-label>
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="file-text" class="w-5 h-5"></svg>
       </div>
-      <input matInput [formField]="leaveRequestForm.reason" rows="3" />
+      <input type="number" matInput [formField]="leavePrayerForm.prayerDays" />
+    </mat-form-field>
+    <!-- remarks -->
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-3">
+      <mat-label>Remarks</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+      </div>
+      <input matInput [formField]="leavePrayerForm.remarks" rows="3" />
     </mat-form-field>
 
-    <!-- Address -->
-    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-3">
-      <mat-label>Address (While on leave)</mat-label>
-      <div class="w-12 flex justify-center" matPrefix>
-        <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
-      </div>
-      <input matInput [formField]="leaveRequestForm.address" />
-    </mat-form-field>
     <!-- Document Upload -->
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-3">
       <mat-label>Document Upload</mat-label>
@@ -109,7 +87,7 @@
     </button>
     <button type="button" (click)="onSubmit()"
       class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-      <svg lucideIcon="save" class="w-4 h-4"></svg>
+      <svg lucideIcon="send" class="w-4 h-4"></svg>
       Apply
     </button>
   </div>

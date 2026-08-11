@@ -9,12 +9,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { LeaveRequestStore } from '../../../stores/leave-request-store';
-import { LeaveRequestService } from '../../../services/leave-request-service';
 import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
-import { EMPTY_UUID } from '../../../../../../../../../dist/qubefin-core/types/qubefin-core';
-import { ILeaveRequestDetailItem } from '../../../models/leave-request';
-
+import { LeavePrayerStore } from '../../../stores/leave-prayer-store';
+import { ILeavePrayerDetailItem } from '../../../models/leave-prayer';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
+import { LeavePrayerService } from '../../../services/leave-prayer-service';
 @Component({
   selector: 'qfin-leave-prayer-detail',
   imports: [
@@ -33,108 +32,93 @@ import { ILeaveRequestDetailItem } from '../../../models/leave-request';
   styles: ``,
 })
 export class LeavePrayerDetail {
-  private readonly leaveRequestStore = inject(LeaveRequestStore);
-  private readonly leaveRequestService = inject(LeaveRequestService);
+  private readonly leavePrayerStore = inject(LeavePrayerStore);
+  private readonly leavePrayerService = inject(LeavePrayerService);
   private readonly dateAdapter = inject(DateAdapter<Date>);
   readonly documentModal = inject(DocumentModalService);
   private readonly datePipe = inject(DatePipe);
-
-  readonly leaveRequestId = input<string>(EMPTY_UUID);
+  private readonly alertService = inject(AlertService);
+  readonly leavePrayerId = input<string>(EMPTY_UUID);
 
   readonly cancel = output<void>();
   readonly save = output<void>();
 
   readonly isEditMode = computed(
-    () => !!this.leaveRequestId() && this.leaveRequestId() !== EMPTY_UUID,
+    () => !!this.leavePrayerId() && this.leavePrayerId() !== EMPTY_UUID,
   );
 
-  readonly leaveRequest = this.leaveRequestStore.leaveRequest;
-  readonly loading = this.leaveRequestStore.leaveRequestLoading;
+  readonly leavePrayer = this.leavePrayerStore.leavePrayer;
+  readonly loading = this.leavePrayerStore.leavePrayerLoading;
 
-  readonly leaveTypeOptions = [
-    'Sick Leave',
-    'Casual Leave',
-    'Earned Leave',
-    'Maternity Leave',
-    'Paternity Leave',
-  ];
+  readonly leaveTypeBalances = this.leavePrayerStore.leaveTypeBalances;
+  readonly leaveTypeBalancesLoading = this.leavePrayerStore.leaveTypeBalancesLoading;
 
   protected readonly selectedFile = signal<File | null>(null);
-
+  protected readonly isNoOfDaysDisabled = signal(false);
   public readonly documentUrl = signal<string>('');
   public readonly documentName = signal<string>('');
 
-  protected readonly leaveRequestModel = signal<ILeaveRequestDetailItem>({
+  protected readonly leavePrayerModel = signal<ILeavePrayerDetailItem>({
     id: EMPTY_UUID,
     leaveTypeId: '',
-    fromDate: '',
-    toDate: '',
-    reason: '',
-    address: '',
+    prayerDays: 0,
+    remarks: '',
   });
 
-  protected readonly leaveRequestSchema: Schema<ILeaveRequestDetailItem> = schema((path) => {
+  protected readonly leavePrayerSchema: Schema<ILeavePrayerDetailItem> = schema((path) => {
     required(path.leaveTypeId, { message: 'Leave Type is required' });
-    required(path.fromDate, { message: 'From Date is required' });
-    required(path.toDate, { message: 'To Date is required' });
-    required(path.reason, { message: 'Reason is required' });
+    required(path.prayerDays, { message: 'Prayer Days is required' });
   });
 
-  protected readonly leaveRequestForm = form(this.leaveRequestModel, this.leaveRequestSchema);
+  protected readonly leavePrayerForm = form(this.leavePrayerModel, this.leavePrayerSchema);
 
   constructor() {
     this.dateAdapter.setLocale('en-GB');
 
     effect(() => {
-      this.leaveRequestStore.setLeaveRequestId(this.leaveRequestId());
-
-      if (!this.isEditMode()) {
-        this.leaveRequestModel.set({
-          id: EMPTY_UUID,
-          leaveTypeId: '',
-          fromDate: '',
-          toDate: '',
-          reason: '',
-          address: '',
-        });
-        this.selectedFile.set(null);
-        this.documentUrl.set('');
-        this.documentName.set('');
-        return;
-      }
-    });
-
-    effect(() => {
-      const request = this.leaveRequest();
-      if (request) {
-        this.leaveRequestModel.set({
-          ...request,
-          fromDate: request.fromDate ? new Date(request.fromDate) : null,
-          toDate: request.toDate ? new Date(request.toDate) : null,
-        });
-        // this.documentUrl.set(request.documentUrl || '');
-        // this.documentName.set(request.documentName || '');
-      }
+      this.leavePrayerStore.setLeaveRequestId(this.leavePrayerId());
     });
   }
-
-  protected updateField<K extends keyof ILeaveRequestDetailItem>(
-    field: K,
-    value: ILeaveRequestDetailItem[K],
-  ) {
-    this.leaveRequestModel.update((current) => ({
-      ...current,
-      [field]: value,
-    }));
+  updateType(leedTypeId: string) {
+    const leaves = this.leaveTypeBalances();
+    const selectedLeaveBalance = leaves.find((m) => m.leaveTypeId === leedTypeId);
+    if (selectedLeaveBalance?.alias === 'PL' || selectedLeaveBalance?.alias === 'MML') {
+      this.leavePrayerModel.update((current) => ({
+        ...current,
+        prayerDays: selectedLeaveBalance?.leaveBalance,
+      }));
+      this.isNoOfDaysDisabled.set(true);
+    } else {
+      this.isNoOfDaysDisabled.set(false);
+    }
   }
 
   onFileSelected(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      this.selectedFile.set(file);
-      this.documentUrl.set(URL.createObjectURL(file));
-      this.documentName.set(file.name);
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
     }
+
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg',
+      'image/png',
+      'image/jpg',
+      'image/gif',
+      'image/webp',
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      input.value = '';
+      this.alertService.warning(null, 'Only image/PDF file can be selected.');
+      return;
+    }
+
+    this.selectedFile.set(file);
+    this.documentUrl.set(URL.createObjectURL(file));
+    this.documentName.set(file.name);
   }
 
   removeFile() {
@@ -142,8 +126,8 @@ export class LeavePrayerDetail {
     if (this.documentUrl().startsWith('blob:')) {
       URL.revokeObjectURL(this.documentUrl());
     }
-    // this.documentUrl.set(this.leaveRequest()?.documentUrl || '');
-    // this.documentName.set(this.leaveRequest()?.documentName || '');
+    this.documentUrl.set(this.leavePrayer()?.documentUrl || '');
+    this.documentName.set(this.leavePrayer()?.documentName || '');
   }
 
   openDocument() {
@@ -164,35 +148,43 @@ export class LeavePrayerDetail {
   }
 
   protected onSubmit() {
-    if (!this.leaveRequestForm().valid()) {
+    if (!this.leavePrayerForm().valid()) {
       return;
     }
-
-    const dataToSave = this.leaveRequestForm().value();
-
-    const formData = new FormData();
-    formData.append('leaveType', dataToSave.leaveTypeId);
-
-    const fromDateStr = this.datePipe.transform(dataToSave.fromDate, 'yyyy-MM-dd');
-    const toDateStr = this.datePipe.transform(dataToSave.toDate, 'yyyy-MM-dd');
-    if (fromDateStr) formData.append('fromDate', fromDateStr);
-    if (toDateStr) formData.append('toDate', toDateStr);
-
-    formData.append('reason', dataToSave.reason || '');
-    formData.append('address', dataToSave.address || '');
-
-    if (this.selectedFile()) {
-      formData.append('document', this.selectedFile() as Blob);
-    }
-
-    // if (!this.isEditMode()) {
-    //   this.leaveRequestService.create(formData).subscribe({
-    //     next: () => {
-    //       this.leaveRequestStore.refreshList();
-    //       this.save.emit();
-    //     },
-    //   });
+    // if (!this.selectedFile()) {
+    //   this.alertService.warning(null, 'Please select a file to upload.');
     //   return;
     // }
+    const dataToSave = this.leavePrayerForm().value();
+
+    const formData = new FormData();
+    formData.append('leaveTypeId', dataToSave.leaveTypeId);
+    formData.append('prayerDays', dataToSave.prayerDays?.toString());
+    formData.append('remarks', dataToSave.remarks || '');
+    if (this.selectedFile()) {
+      formData.append('attachment', this.selectedFile() as Blob);
+    }
+
+    this.alertService
+      .confirm('Confirmation', `Do you want to apply your leave prayer?`, 'Yes', 'No')
+      .then((result: any) => {
+        if (result.isConfirmed) {
+          this.leavePrayerService.save(formData).subscribe({
+            next: (resp: any) => {
+              if (resp.value && resp.value.success) {
+                this.alertService.success('Success', resp.message).then(() => {
+                  this.leavePrayerStore.refreshList();
+                  this.save.emit();
+                });
+              } else {
+                this.alertService.error('Failed', resp.message);
+              }
+            },
+            error: (err: any) => {
+              this.alertService.error('Failed', err.error.message);
+            },
+          });
+        }
+      });
   }
 }
