@@ -126,8 +126,8 @@ export class LeavePrayerDetail {
     if (this.documentUrl().startsWith('blob:')) {
       URL.revokeObjectURL(this.documentUrl());
     }
-    this.documentUrl.set(this.leavePrayer()?.documentUrl || '');
-    this.documentName.set(this.leavePrayer()?.documentName || '');
+    this.documentUrl.set(this.leavePrayer()?.attachmentUrl || '');
+    this.documentName.set(this.leavePrayer()?.attachment || '');
   }
 
   openDocument() {
@@ -151,10 +151,7 @@ export class LeavePrayerDetail {
     if (!this.leavePrayerForm().valid()) {
       return;
     }
-    // if (!this.selectedFile()) {
-    //   this.alertService.warning(null, 'Please select a file to upload.');
-    //   return;
-    // }
+
     const dataToSave = this.leavePrayerForm().value();
 
     const formData = new FormData();
@@ -171,17 +168,18 @@ export class LeavePrayerDetail {
         if (result.isConfirmed) {
           this.leavePrayerService.save(formData).subscribe({
             next: (resp: any) => {
-              if (resp.value && resp.value.success) {
+              if (resp.success) {
                 this.alertService.success('Success', resp.message).then(() => {
                   this.leavePrayerStore.refreshList();
-                  this.save.emit();
+                  this.save.emit(); //
+                  this.leavePrayerStore.refreshDetail();
                 });
               } else {
-                this.alertService.error('Failed', resp.message);
+                this.alertService.error('Failed', resp.message || 'Something went wrong');
               }
             },
             error: (err: any) => {
-              this.alertService.error('Failed', err.error.message);
+              this.alertService.error('Failed', err.error?.message || 'An error occurred');
             },
           });
         }

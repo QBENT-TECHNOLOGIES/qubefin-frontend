@@ -11,6 +11,7 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
 import { LeavePrayerStore } from '../../../stores/leave-prayer-store';
 import { LeavePrayerService } from '../../../services/leave-prayer-service';
+import { LeavePrayerApprovalStore } from '../../../stores/leave-prayer-approval-store';
 
 @Component({
   selector: 'qfin-leave-prayer-view',
@@ -28,16 +29,25 @@ import { LeavePrayerService } from '../../../services/leave-prayer-service';
 })
 export class LeavePrayerView {
   readonly iconMap = APP_ICONS_MAP;
-  private readonly leavePrayerStore = inject(LeavePrayerStore);
   private readonly leavePrayerService = inject(LeavePrayerService);
+  private readonly leavePrayerApprovalStore = inject(LeavePrayerApprovalStore);
+  private readonly leavePrayerStore = inject(LeavePrayerStore);
   private readonly alertService = inject(AlertService);
   readonly documentModal = inject(DocumentModalService);
   readonly leavePrayerId = model<string>(EMPTY_UUID);
   readonly delete = output<void>();
+  readonly approve = output<void>();
+  readonly reject = output<void>();
+  readonly recommend = output<void>();
   readonly leavePrayer = this.leavePrayerStore.leavePrayer;
   readonly loading = this.leavePrayerStore.leavePrayerLoading;
   readonly error = this.leavePrayerStore.leavePrayerError;
+  // readonly showError = signal(false);
 
+  // rejectedReasonControl = new FormControl('', {
+  //   nonNullable: true,
+  //   validators: [],
+  // });
   constructor() {
     effect(() => {
       this.leavePrayerStore.setLeaveRequestId(this.leavePrayerId());
@@ -61,7 +71,10 @@ export class LeavePrayerView {
       downloadAccess: true,
     });
   }
-
+  formatDocumentName(fileName: string | null | undefined): string {
+    if (!fileName) return '-';
+    return fileName.replace(/^\d+_/, '');
+  }
   getStatusClass(status: string | null | undefined): string {
     switch (status) {
       case 'Approved':
@@ -117,5 +130,49 @@ export class LeavePrayerView {
       default:
         return 'bg-blue-500';
     }
+  }
+  protected onAction(action: 'approve' | 'reject' | 'recommend') {
+    // if (action === 'reject') {
+    //   this.rejectedReasonControl.setValidators([Validators.required]);
+    //   this.rejectedReasonControl.updateValueAndValidity();
+    //   const remarks = this.rejectedReasonControl.value.trim();
+
+    //   if (!remarks) {
+    //     this.alertService.warning(null, 'Please enter remarks.');
+    //     this.showError.set(true);
+    //     this.rejectedReasonControl.markAsTouched();
+    //     return;
+    //   }
+    // }
+
+    // this.rejectedReasonControl.clearValidators();
+    // this.rejectedReasonControl.updateValueAndValidity();
+    // this.showError.set(false);
+
+    this.alertService
+      .confirm(null, `Are you sure you want to ${action} this leave prayer?`, 'Yes', 'No')
+      .then((result: any) => {
+        if (result.isConfirmed) {
+          const payLoad: any = {
+            leavePrayerId: this.leavePrayer()?.id, // Ensure this property name matches your backend DTO
+            isApproved: action === 'approve',
+            isRejected: action === 'reject',
+            rejectedReason: null,
+          };
+          this.leavePrayerService.leavePrayerAction(payLoad).subscribe({
+            next: (resp: any) => {
+              this.alertService.success('Success', resp.value.message).then(() => {
+                this.leavePrayerApprovalStore.refreshList();
+                if (action === 'approve') this.approve.emit();
+                if (action === 'reject') this.reject.emit();
+                if (action === 'recommend') this.recommend.emit();
+              });
+            },
+            error: (err: any) => {
+              this.alertService.error('Failed', err.error.message);
+            },
+          });
+        }
+      });
   }
 }

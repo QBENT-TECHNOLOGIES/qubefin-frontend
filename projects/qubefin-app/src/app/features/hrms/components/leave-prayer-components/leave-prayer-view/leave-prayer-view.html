@@ -100,13 +100,13 @@
                                 Applied On
                             </label>
                             <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
-                                {{ data.appliedOn || 'N/A' }}
+                                {{ data.appliedOn | date: 'dd/MM/yyyy' }}
                             </p>
                         </div>
                     </div>
                     <div class="gen-info">
                         <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
-                            <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700">
+                            <svg lucideIcon="file-text" class="w-5 h-5 text-primary-700">
                             </svg>
                         </div>
                         <div>
@@ -146,23 +146,22 @@
                                     Document
                                 </label>
 
-                                @if (data.documentUrl) {
-                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
-                                    {{ data.documentName }}
+                                @if (data.attachmentUrl) {
+                                <p
+                                    class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5 truncate max-w-[200px]">
+                                    {{ formatDocumentName(data.attachment) }}
                                 </p>
                                 } @else {
                                 <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">-</p>
                                 }
                             </div>
 
-                            @if (data.documentUrl) {
-                            <button type="button" (click)="openDocument(data.documentUrl, data.documentName)" class="bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40
-               text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-xs font-semibold
-               flex items-center gap-2 transition-colors border border-primary-200
-               dark:border-primary-800/30 cursor-pointer ml-4">
-                                <svg lucideIcon="eye" class="w-3.5 h-3.5"></svg>
-                                View Document
-                            </button>
+                            @if (data.attachmentUrl) {
+
+                            <div (click)="openDocument(data.attachmentUrl, data.attachment)" matTooltip="View Document"
+                                class="cursor-pointer">
+                                <svg lucideIcon="eye" class="w-5 h-5 text-primary-600 dark:text-primary-400"></svg>
+                            </div>
                             }
                         </div>
                     </div>
@@ -283,43 +282,54 @@
 
         </div>
     </div>
-    <!-- @if (data.isRecommendEvent || data.isApprovalEvent) {
-    <div class="glass rounded-xl shadow-glass dark:shadow p-5 mt-2">
-        <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 pb-3">
-            Decision Action
-        </h3>
-        <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Remarks</mat-label>
-            <input matInput rows="3" [formField]="decisionForm.remarks" placeholder="Add your remarks...">
-            <div class="w-12 flex justify-center pt-2" matPrefix>
-                <svg lucideIcon="message-square-plus" class="w-5 h-5"></svg>
-            </div>
-        </mat-form-field>
-        <div class="flex justify-end gap-3 mt-5">
-            <button type="button" (click)="onSubmitDecision('Rejected')"
-                class="bg-white dark:bg-slate-800 border border-red-200 dark:border-red-900 shadow rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-red-600 dark:text-red-400 hover:shadow-glass hover:bg-red-50 dark:hover:bg-red-900/30 transition lift cursor-pointer">
+    @if (data.isRecommendEvent || data.isApprovalEvent) {
+    <div
+        class="bg-white/20 dark:bg-glass-dark rounded-xl border border-slate-200/60 dark:border-glass-dark/10 dark:shadow p-4 flex flex-col md:flex-row items-end md:items-center justify-between gap-4 mt-2">
 
+        <!-- <div class="flex-1 w-full md:w-auto">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Remarks (Required for Rejection)</mat-label>
+
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+                </div>
+
+                <input matInput [formControl]="rejectedReasonControl" placeholder="Enter your remarks..."
+                    (input)="showError.set(false)" />
+
+                @if (showError()) {
+                <mat-error>Please enter remarks.</mat-error>
+                }
+            </mat-form-field>
+        </div> -->
+        <div class="flex items-center gap-3">
+            <!-- Changed leaveApproval() to data -->
+            @if (data.isApprovalEvent || data.isRecommendEvent) {
+            <button type="button" (click)="onAction('reject')"
+                class="cursor-pointer bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-rose-100 dark:hover:bg-rose-500/20 transition lift">
+                <svg lucideIcon="x-circle" class="w-4 h-4"></svg>
                 Reject
             </button>
+            }
+            <!-- Changed leaveApproval() to data -->
             @if (data.isRecommendEvent) {
-
-            <button type="button" (click)="onSubmitDecision('Recommend')"
-                class="ripple-btn shadow shine-sweep rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:shadow-glow transition lift cursor-pointer">
-
+            <button type="button" (click)="onAction('recommend')"
+                class="cursor-pointer bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-500/20 transition lift">
+                <svg lucideIcon="arrow-up-right" class="w-4 h-4"></svg>
                 Recommend
             </button>
             }
+            <!-- Changed leaveApproval() to data -->
             @if (data.isApprovalEvent) {
-
-            <button type="button" (click)="onSubmitDecision('Approved')"
-                class="ripple-btn shadow shine-sweep rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:shadow-glow transition lift cursor-pointer">
+            <button type="button" (click)="onAction('approve')"
+                class="cursor-pointer bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition lift">
+                <svg lucideIcon="check-circle" class="w-4 h-4"></svg>
                 Approve
             </button>
             }
         </div>
     </div>
-    } -->
+    }
 </div>
 }
 @else {

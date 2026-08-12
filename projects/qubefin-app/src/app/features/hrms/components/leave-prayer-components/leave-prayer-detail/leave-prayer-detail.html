@@ -1,19 +1,19 @@
 <div class="space-y-2 animate-fade-in">
   @if (isEditMode() && loading()) {
   <div class="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-sm text-slate-500">
-    Loading leave request details...
+    Loading leave prayer details...
   </div>
   } @else {
 
   <div class="flex items-center gap-2">
     <h3 class="text-base font-bold text-slate-800 dark:text-white">
-      Leave Request Information
+      Leave Prayer Information
     </h3>
   </div>
   <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-    <!-- Leave Type Dropdown -->
+
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
       <mat-label>Leave Type</mat-label>
       <div class="w-12 flex justify-center" matPrefix>
@@ -26,15 +26,14 @@
       </mat-select>
     </mat-form-field>
 
-    <!-- NoOfDays -->
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-      <mat-label>No Of Days</mat-label>
+      <mat-label>Prayer Days</mat-label>
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="file-text" class="w-5 h-5"></svg>
       </div>
       <input type="number" matInput [formField]="leavePrayerForm.prayerDays" />
     </mat-form-field>
-    <!-- remarks -->
+
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-3">
       <mat-label>Remarks</mat-label>
       <div class="w-12 flex justify-center" matPrefix>
@@ -43,7 +42,6 @@
       <input matInput [formField]="leavePrayerForm.remarks" rows="3" />
     </mat-form-field>
 
-    <!-- Document Upload -->
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-3">
       <mat-label>Document Upload</mat-label>
       <div class="w-12 flex justify-center" matPrefix>
@@ -51,7 +49,7 @@
       </div>
       <input matInput [value]="selectedFile()?.name || (documentUrl() ? 'Current document available' : '')" readonly
         placeholder="No file chosen" />
-      <input hidden (change)="onFileSelected($event)" #fileInput type="file">
+      <input hidden (change)="onFileSelected($event)" #fileInput accept="image/*,.pdf" type="file">
 
       <div matSuffix class="flex items-center gap-2 pr-1.5 py-1">
         @if (selectedFile()) {
@@ -78,7 +76,6 @@
     </mat-form-field>
   </div>
 
-  <!-- Footer Button -->
   <div class="border-t border-slate-200 dark:border-slate-400/10 py-2 flex justify-end gap-3 mt-6">
     <button type="button" (click)="onCancelClicked()"
       class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
