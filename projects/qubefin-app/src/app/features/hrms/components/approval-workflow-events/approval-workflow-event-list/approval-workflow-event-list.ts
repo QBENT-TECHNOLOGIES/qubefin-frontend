@@ -21,7 +21,11 @@ interface ApprovalWorkflowTreeRow {
   templateUrl: './approval-workflow-event-list.html',
 })
 export class ApprovalWorkflowEventList {
+  isCollapsed = input<boolean>(false);
   readonly data = input<IApprovalWorkflowEventGroupItem[]>([]);
 
-  protected readonly displayedColumns = ['category', 'organizationUnitType', 'leaveType', 'rangeDays', 'workflowEventPath'];
+  protected readonly displayedColumns = ['category', 'organizationUnitType', 'leaveType', 'rangeDays', 'workflowEventPath', 'action'];
+
+  onView(organizationUnitTypeId: string, leaveTypeId: string, salaryGradeId: string): void {
+  }
 }

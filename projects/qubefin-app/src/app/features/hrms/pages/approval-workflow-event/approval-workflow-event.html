@@ -25,19 +25,19 @@
            duration-500 ease-in-out" 
             [ngClass]="{
                 'w-full max-w-full opacity-100 translate-x-0':
-                    isViewMode(),
+                    !hasSelectddWorkflowEvent() && isViewMode(),
 
                 'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0':
-                    isViewMode(),
+                    hasSelectddWorkflowEvent() && isViewMode(),
 
                 'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
                     !isViewMode()
             }">
             <!-- COLLAPSED SEARCH -->
-            @if (isViewMode()) {
+            <!-- @if (isViewMode()) {
             <div class="flex items-center gap-2 px-4 py-3">
             </div>
-            }
+            } -->
             <qfin-approval-workflow-event-list [data]="workflowCategories()">
             </qfin-approval-workflow-event-list>
         </div>
@@ -99,6 +99,7 @@
                 </button> -->
             </div>
         </div>
+    <!-- } -->
     </div>
 </div>
 

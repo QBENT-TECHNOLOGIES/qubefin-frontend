@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { ApprovalWorkflowEventList } from '../../components/approval-workflow-events/approval-workflow-event-list/approval-workflow-event-list';
 import { ApprovalWorkflowEventStore } from '../../stores/approval-workflow-event-store';
@@ -21,6 +21,8 @@ export class ApprovalWorkflowEvent {
 	workflowCategories = this.approvalWorkflowEventStore.approvalWorkflowEvents;
 	public readonly EMPTY_UUID = EMPTY_UUID;
 	selectedWorkflowEventId = signal<string>(EMPTY_UUID);
+
+	hasSelectddWorkflowEvent = computed(() => this.selectedWorkflowEventId() !== EMPTY_UUID);
 
 	// protected readonly categories = ['Leave', 'Organization Unit', 'Salary Grade', 'Post'];
 	// protected readonly eventStatuses = ['Pending', 'Recommended', 'Approved', 'Rejected'];
