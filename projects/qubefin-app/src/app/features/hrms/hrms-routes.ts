@@ -9,10 +9,10 @@ export const HrmsRoutes: Routes = [
                 loadComponent: () => import('./pages/employee-component/employee-component').then(m => m.EmployeeComponent)
             },
             {
-                path: 'approval-workflow-events',
-                loadComponent: () => import('./pages/approval-workflow-event/approval-workflow-event').then(m => m.ApprovalWorkflowEvent),
+                path: 'approval-workflows',
+                loadComponent: () => import('./pages/approval-workflow/approval-workflow').then(m => m.ApprovalWorkflow),
                 data: {
-                    title: 'Approval Workflow Events',
+                    title: 'Approval Workflows',
                     subTitle: 'Configure the approval steps required for HRMS events.',
                     icon: 'clipboard-check'
                 }

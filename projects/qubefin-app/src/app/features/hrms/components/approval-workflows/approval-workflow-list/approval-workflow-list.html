@@ -12,25 +12,33 @@
         <ng-container matColumnDef="organizationUnitType">
             <th mat-header-cell *matHeaderCellDef>Organization Unit Type</th>
             <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
-                <span class="font-medium">{{ row.organizationUnitType }}</span>
+                <span class="font-medium">{{ row.organizationUnitTypeName }}</span>
             </td>
         </ng-container>
 
         <ng-container matColumnDef="leaveType">
             <th mat-header-cell *matHeaderCellDef>Leave Type</th>
             <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
-                <span class="font-medium">{{ row.leaveType }}</span>
+                <span class="font-medium">{{ row.leaveTypeName }}</span>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="salaryGrade">
+            <th mat-header-cell *matHeaderCellDef>Salary Grade</th>
+            <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                <span class="font-medium">{{ row.salaryGradeName }}</span>
             </td>
         </ng-container>
 
         <ng-container matColumnDef="rangeDays">
             <th mat-header-cell *matHeaderCellDef>Range days</th>
-            <td mat-cell *matCellDef="let row">{{ row.rangeDays || '-' }}</td>
+            <td mat-cell *matCellDef="let row">{{ row.minimumDays === 0 ? '-' : row.minimumDays + ' - ' +
+                row.maximumDays }}</td>
         </ng-container>
 
         <ng-container matColumnDef="workflowEventPath">
             <th mat-header-cell *matHeaderCellDef>Approval path</th>
-            <td mat-cell *matCellDef="let row" class="whitespace-normal">{{ row.workflowEventPath || '-' }}</td>
+            <td mat-cell *matCellDef="let row" class="whitespace-normal">{{ row.stepPost || '-' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="action">
@@ -38,7 +46,8 @@
             <td mat-cell *matCellDef="let item">
                 <div class="w-full flex justify-end">
                     <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
-                        matTooltip="View" (click)="onView(item.organizationUnitTypeId, item.leaveTypeId, item.salaryGradeId)">
+                        matTooltip="View"
+                        (click)="onView(item.id)">
                         <svg lucideIcon="chevron-right"
                             class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
                     </div>
