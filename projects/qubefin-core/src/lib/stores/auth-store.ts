@@ -1,5 +1,6 @@
-import { computed, effect, Injectable, signal } from "@angular/core";
+import { computed, effect, inject, Injectable, signal } from "@angular/core";
 import { StorageTokens } from "../enums/storage-tokens";
+import { LoginStateStore } from "./login-state-store";
 
 @Injectable({
     providedIn: 'root'
@@ -15,6 +16,8 @@ export class AuthStore {
         const accessToken = this.accessTokenSignal();
         return !!accessToken && !this.isAccessTokenExpired(accessToken);
     });
+
+    loginStateStore = inject(LoginStateStore);
 
     constructor() {
         effect(() => {
@@ -34,6 +37,7 @@ export class AuthStore {
     logout = () => {
         this.setSessionToken(null);
         this.setAccessToken(null);
+        this.loginStateStore.resetLoginState();
     }
 
     private sync = (key: string, value: string | null) => {
