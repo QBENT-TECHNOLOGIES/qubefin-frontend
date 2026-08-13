@@ -11,15 +11,22 @@
                     <div>
                         <div class="flex items-center gap-2">
                             <h1 class="text-lg font-bold text-slate-800 dark:text-slate-100">
-                                {{ approvalWorkflow()?.category }} - {{ approvalWorkflow()?.organizationUnitTypeName }}
-                                - {{ approvalWorkflow()?.leaveTypeName }} - {{ approvalWorkflow()?.salaryGradeName }}
+                                {{ approvalWorkflow()?.category }}
                             </h1>
                             <div class="p-2 rounded-4xl cursor-pointer hover:bg-secondary-500/10" matTooltip="Edit"
                                 (click)="onShowEdit()">
                                 <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
                             </div>
                         </div>
-                        <p class="text-sm text-primary-700 dark:text-primary-400 font-medium">User</p>
+                        <p class="text-sm text-primary-700 dark:text-primary-400 font-medium">Approval Workflow</p>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <!-- Status Badge -->
+                        <div
+                            class="flex items-center gap-2 px-3.5 py-1 rounded-4xl bg-white/45 dark:bg-white/5 border border-slate-200/20 dark:border-white/5 shadow-md">
+
+                        </div>
                     </div>
                 </div>
 
@@ -36,8 +43,10 @@
                             </div>
                             <div>
                                 <label
-                                    class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Employee</label>
-                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ approvalWorkflow()?.organizationUnitTypeName }}
+                                    class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Organization
+                                    Type</label>
+                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{
+                                    approvalWorkflow()?.organizationUnitTypeName }}
                                 </p>
                             </div>
                         </div>
@@ -47,27 +56,94 @@
                                 <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
                             </div>
                             <div>
-                                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">MFA
-                                    Key</label>
-                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ approvalWorkflow()?.leaveTypeName }}
+                                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Leave
+                                    Type</label>
+                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{
+                                    approvalWorkflow()?.leaveTypeName }}
                                 </p>
                             </div>
                         </div>
-                        <!-- <div class="gen-info">
+                        <div class="gen-info">
                             <div
                                 class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
-                                <svg lucideIcon="list-ordered" class="w-5 h-5 text-primary-700"></svg>
+                                <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
                             </div>
                             <div>
-                                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">MFA
-                                    Enabled</label>
+                                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Salary
+                                    Grade</label>
                                 <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{
-                                    user()?.hasMfaEnabled ? 'YES' : 'NO' }}
+                                    approvalWorkflow()?.salaryGradeName }}
                                 </p>
                             </div>
-                        </div> -->
+                        </div>
+                        <div class="gen-info">
+                            <div
+                                class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                                <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Post</label>
+                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{
+                                    approvalWorkflow()?.postName }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="gen-info">
+                            <div
+                                class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                                <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Days Range</label>
+                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{
+                                    approvalWorkflow()?.minimumDays === 0 ? '-' : approvalWorkflow()?.minimumDays + ' - ' +
+                                    approvalWorkflow()?.maximumDays }}
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <div class="box glass">
+            <!-- Hierarchy Path timeline -->
+            <div class="p-4 flex flex-col">
+                <h3 class="box-content-heading">
+                    Hierarchy Path
+                </h3>
+                <div class="green-line"></div>
+                <div class="flex-1 overflow-y-auto pr-2">
+                    <div class="space-y-0 pl-1">
+                        @for (step of approvalWorkflow()?.steps; track $index; let last = $last) {
+                        <div class="relative flex gap-4" [class.pb-3]="!last">
+                            <div class="relative flex flex-col items-center">
+                                <!-- Connection line -->
+                                @if (!last) {
+                                <div class="dashed-line"></div>
+                                }
+                                <!-- Timeline Dot -->
+                                @if ($index > 0) {
+                                <div class="blue-radio-outline">
+                                    <div class="blue-radio-solid"></div>
+                                </div>
+                                } @else {
+                                <div class="green-radio-outline">
+                                    <div class="green-radio-solid"></div>
+                                </div>
+                                }
+                            </div>
+
+                            <div class="flex flex-col">
+                                <h4 class="path-title">
+                                    {{step.receiverPostName}}
+                                </h4>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
             </div>
         </div>
 
@@ -91,7 +167,8 @@
                             <p
                                 class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
                                 Created By</p>
-                            <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ approvalWorkflow()?.createdBy }}
+                            <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{
+                                approvalWorkflow()?.createdBy }}
                             </p>
                         </div>
                     </div>
@@ -104,7 +181,8 @@
                             <p
                                 class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
                                 Created On</p>
-                            <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ approvalWorkflow()?.createdOn |
+                            <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{
+                                approvalWorkflow()?.createdOn |
                                 date:'dd-MM-yyyy hh:mm a' }}</p>
                         </div>
                     </div>
