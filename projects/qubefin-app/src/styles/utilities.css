@@ -204,6 +204,70 @@ a:focus-visible, button:focus-visible {
   @apply p-0;
 }
 
+/* ==========================================================================
+   Notification Menu (Glassmorphic Angular Material Menu)
+   ========================================================================== */
+.notification-menu.mat-mdc-menu-panel {
+  @apply overflow-hidden w-[350px] sm:w-[400px] max-w-[92vw] p-0 rounded-2xl bg-white/80 dark:bg-slate-900/85 backdrop-blur-xl border border-white/60 dark:border-white/10;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18), 0 5px 15px rgba(15, 23, 42, 0.08);
+}
+.notification-menu .mat-mdc-menu-content {
+  @apply p-0 flex flex-col;
+}
+
+.notification-container {
+  @apply flex flex-col w-full overflow-hidden;
+}
+
+.notification-header {
+  @apply flex items-center justify-between px-4 py-3 border-b border-slate-200/60 dark:border-slate-800/80 bg-white/40 dark:bg-white/5 backdrop-blur-md;
+}
+
+.notification-list {
+  @apply max-h-[380px] overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60;
+}
+
+.notification-item {
+  @apply flex items-start gap-3.5 p-3.5 text-left transition-all cursor-pointer hover:bg-slate-100/70 dark:hover:bg-white/5 relative;
+}
+
+.notification-item.unread {
+  @apply bg-primary-500/5 dark:bg-primary-500/10;
+}
+
+.notification-icon-box {
+  @apply w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105;
+}
+.notification-icon-box.success {
+  @apply bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400;
+}
+.notification-icon-box.info {
+  @apply bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400;
+}
+.notification-icon-box.warning {
+  @apply bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400;
+}
+.notification-icon-box.danger {
+  @apply bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400;
+}
+
+.notification-title {
+  @apply text-xs sm:text-sm text-slate-800 dark:text-slate-100 leading-snug truncate m-0;
+}
+
+.notification-date {
+  @apply text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap shrink-0;
+}
+
+.notification-desc {
+  @apply text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed m-0 mt-0.5;
+}
+
+.notification-footer {
+  @apply border-t border-slate-200/60 dark:border-slate-800/80 bg-white/40 dark:bg-white/5 backdrop-blur-md px-4 py-1;
+}
+
+
 .menu-header {
   @apply flex items-center gap-2 p-4 text-white mb-2 rounded-t-lg;
   background:linear-gradient(135deg,#6366f1,#8b5cf6);
