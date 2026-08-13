@@ -35,12 +35,10 @@
               <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="user-search" class="w-5 h-5"></svg>
               </div>
-              <input matInput [value]="employeeSearchText()"
-                     (input)="searchEmployees($any($event.target).value)" [matAutocomplete]="auto"
-                     autocomplete="off" placeholder="Search employee" />
-              <mat-autocomplete class="autoList" #auto="matAutocomplete"
-                                [displayWith]="displayEmployeeName"
-                                (optionSelected)="selectEmployee($event)">
+              <input matInput [value]="employeeSearchText()" (input)="searchEmployees($any($event.target).value)"
+                [matAutocomplete]="auto" autocomplete="off" placeholder="Search employee" />
+              <mat-autocomplete class="autoList" #auto="matAutocomplete" [displayWith]="displayEmployeeName"
+                (optionSelected)="selectEmployee($event)">
                 @for (employee of employeeOptions(); track employee.id) {
                 <mat-option [value]="employee">
                   {{ employee.employeeName }}
@@ -58,7 +56,8 @@
               <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-check" class="w-4 h-4"></svg>
               </div>
-              <input matInput [matDatepicker]="fromPicker" placeholder="Select From Date" [value]="fromDate()" (dateChange)="fromDate.set($event.value)" readonly />
+              <input matInput [matDatepicker]="fromPicker" placeholder="Select From Date" [value]="fromDate()"
+                (dateChange)="fromDate.set($event.value)" readonly />
               <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
               <mat-datepicker #fromPicker></mat-datepicker>
             </mat-form-field>
@@ -68,22 +67,23 @@
               <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-check" class="w-4 h-4"></svg>
               </div>
-              <input matInput [matDatepicker]="toPicker" placeholder="Select To Date" [value]="toDate()" (dateChange)="toDate.set($event.value)" readonly />
+              <input matInput [matDatepicker]="toPicker" placeholder="Select To Date" [value]="toDate()"
+                (dateChange)="toDate.set($event.value)" readonly />
               <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
               <mat-datepicker #toPicker></mat-datepicker>
             </mat-form-field>
           </div>
 
           <div class="flex items-center gap-2.5 shrink-0">
-            <button type="button" (click)="resetFilters()"
-              class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
-              <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
-              Reset
-            </button>
             <button type="button" (click)="applyFilters()"
               class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
               <svg lucideIcon="search" class="w-4 h-4"></svg>
               Search
+            </button>
+            <button type="button" (click)="resetFilters()"
+              class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
+              <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+              Reset
             </button>
           </div>
         </div>
@@ -94,11 +94,11 @@
         <div
           class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
           <svg lucideIcon="user" class="w-4 h-4 text-slate-400 shrink-0"></svg>
-          <input type="text" [value]="employeeSearchText()" (input)="searchEmployees($any($event.target).value)" [matAutocomplete]="autoCollapsed" placeholder="Search employee" autocomplete="off"
+          <input type="text" [value]="employeeSearchText()" (input)="searchEmployees($any($event.target).value)"
+            [matAutocomplete]="autoCollapsed" placeholder="Search employee" autocomplete="off"
             class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
-          <mat-autocomplete class="autoList" #autoCollapsed="matAutocomplete"
-                            [displayWith]="displayEmployeeName"
-                            (optionSelected)="selectEmployee($event)">
+          <mat-autocomplete class="autoList" #autoCollapsed="matAutocomplete" [displayWith]="displayEmployeeName"
+            (optionSelected)="selectEmployee($event)">
             @for (employee of employeeOptions(); track employee.id) {
             <mat-option [value]="employee">
               <p class="text-[13px] font-semibold text-slate-800 dark:text-slate-200 truncate">
@@ -189,7 +189,8 @@
 
       <div>
         @if (isViewMode() && selectedLeaveApprovalId() !== EMPTY_UUID) {
-        <qfin-leave-approval-view [leaveApprovalId]="selectedLeaveApprovalId()" (delete)="closePanel()" (approve)="onActionCompleted()" (reject)="onActionCompleted()" (recommend)="onActionCompleted()">
+        <qfin-leave-approval-view [leaveApprovalId]="selectedLeaveApprovalId()" (delete)="closePanel()"
+          (approve)="onActionCompleted()" (reject)="onActionCompleted()" (recommend)="onActionCompleted()">
         </qfin-leave-approval-view>
         }
       </div>

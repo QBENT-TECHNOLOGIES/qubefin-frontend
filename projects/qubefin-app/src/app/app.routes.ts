@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Area } from './layouts/public/area/area';
 import { Container } from './layouts/secure/container/container';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
     {
@@ -21,6 +22,7 @@ export const routes: Routes = [
     {
         path: 'secure',
         component: Container,
+        canActivate: [AuthGuard],
         children: [
             {
                 path: 'home',

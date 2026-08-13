@@ -5,23 +5,14 @@ export const HrmsRoutes: Routes = [
         path: '',
         children: [
             {
-                path: 'salary-components',
-                loadComponent: () => import('./pages/salary-component/salary-component').then(m => m.SalaryComponent),
-                data: {
-                    title: 'Salary Components',
-                    subTitle: 'Manage and organize administrative units within your organization.',
-                    icon: 'apartment'
-                }
-            },
-            {
-                path: 'employee-components',
+                path: 'employees',
                 loadComponent: () => import('./pages/employee-component/employee-component').then(m => m.EmployeeComponent)
             },
             {
-                path: 'approval-workflow-events',
-                loadComponent: () => import('./pages/approval-workflow-event/approval-workflow-event').then(m => m.ApprovalWorkflowEvent),
+                path: 'approval-workflows',
+                loadComponent: () => import('./pages/approval-workflow/approval-workflow').then(m => m.ApprovalWorkflow),
                 data: {
-                    title: 'Approval Workflow Events',
+                    title: 'Approval Workflows',
                     subTitle: 'Configure the approval steps required for HRMS events.',
                     icon: 'clipboard-check'
                 }
@@ -74,6 +65,15 @@ export const HrmsRoutes: Routes = [
                     icon: 'zodiac-leo'
                 }
             },
+            {
+                path: 'leave-prayer-approvals',
+                loadComponent: () => import('./pages/leave-prayer-approval-component/leave-prayer-approval-component').then((m) => m.LeavePrayerApprovalComponent),
+                data: {
+                  title: 'Leave Prayer Approvals',
+                  subTitle: 'Manage Leave Prayer Approvals',
+                  icon: 'zodiac-leo',
+                },
+            }
         ]
     }
 ];

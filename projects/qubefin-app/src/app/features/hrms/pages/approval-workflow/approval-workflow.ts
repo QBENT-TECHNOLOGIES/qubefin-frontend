@@ -1,26 +1,38 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { ApprovalWorkflowEventList } from '../../components/approval-workflow-events/approval-workflow-event-list/approval-workflow-event-list';
-import { ApprovalWorkflowEventStore } from '../../stores/approval-workflow-event-store';
+import { ApprovalWorkflowStore } from '../../stores/approval-workflow-store';
 import { CommonModule } from '@angular/common';
 import { EMPTY_UUID } from 'qubefin-core';
+import { ApprovalWorkflowList } from '../../components/approval-workflows/approval-workflow-list/approval-workflow-list';
+import { ApprovalWorkflowView } from '../../components/approval-workflows/approval-workflow-view/approval-workflow-view';
 
 @Component({
-	selector: 'qfin-approval-workflow-event',
+	selector: 'qfin-approval-workflow',
 	imports: [
 		CommonModule,
 		LucideDynamicIcon,
-		ApprovalWorkflowEventList
+		ApprovalWorkflowList, ApprovalWorkflowView
 	],
-	templateUrl: './approval-workflow-event.html',
+	templateUrl: './approval-workflow.html',
 })
-export class ApprovalWorkflowEvent {
-	protected readonly approvalWorkflowEventStore = inject(ApprovalWorkflowEventStore);
+export class ApprovalWorkflow {
+	protected readonly approvalWorkflowStore = inject(ApprovalWorkflowStore);
 
 	isViewMode = signal<boolean>(true);
-	workflowCategories = this.approvalWorkflowEventStore.approvalWorkflowEvents;
+	workflows = this.approvalWorkflowStore.approvalWorkflows;
 	public readonly EMPTY_UUID = EMPTY_UUID;
-	selectedWorkflowEventId = signal<string>(EMPTY_UUID);
+	selectedWorkflowId = signal<string>(EMPTY_UUID);
+
+	hasSelectedWorkflow = computed(() => this.selectedWorkflowId() !== EMPTY_UUID);
+
+	protected onView(id: string) {
+		this.selectedWorkflowId.set(id);
+		this.isViewMode.set(true);
+	}
+
+	protected onEdit() {
+		this.isViewMode.set(false);
+	}
 
 	// protected readonly categories = ['Leave', 'Organization Unit', 'Salary Grade', 'Post'];
 	// protected readonly eventStatuses = ['Pending', 'Recommended', 'Approved', 'Rejected'];

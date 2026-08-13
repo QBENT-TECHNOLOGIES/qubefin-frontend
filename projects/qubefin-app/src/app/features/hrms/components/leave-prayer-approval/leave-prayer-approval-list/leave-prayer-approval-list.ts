@@ -8,7 +8,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
 
 @Component({
-  selector: 'qfin-leave-approval-list',
+  selector: 'qfin-leave-prayer-approval-list',
   imports: [
     CommonModule,
     MatTableModule,
@@ -19,10 +19,10 @@ import { MatSortModule, Sort } from '@angular/material/sort';
     DatePipe,
     LucideDynamicIcon,
   ],
-  templateUrl: './leave-approval-list.html',
+  templateUrl: './leave-prayer-approval-list.html',
   styles: ``,
 })
-export class LeaveApprovalList {
+export class LeavePrayerApprovalList {
   readonly data = input<any[]>([]);
   readonly totalRecords = input(0);
   readonly pageIndex = input(0);
@@ -34,10 +34,10 @@ export class LeaveApprovalList {
   onViewDetail = output<string>();
   sortChanged = output<Sort>();
 
-  displayedColumns = ['sl', 'name', 'code', 'leaveType', 'fromDate', 'toDate', 'status', 'action'];
+  displayedColumns = ['sl', 'employeeName', 'code', 'leaveType', 'appliedOn', 'status', 'action'];
 
   get columns() {
-    return this.isCollapsed() ? ['codeName', 'action'] : this.displayedColumns;
+    return this.isCollapsed() ? ['nameCode', 'appliedOn', 'action'] : this.displayedColumns;
   }
 
   onDetailView(id: string) {
