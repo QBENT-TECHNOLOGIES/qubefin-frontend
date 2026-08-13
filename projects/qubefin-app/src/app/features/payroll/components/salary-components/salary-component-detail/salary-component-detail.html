@@ -1,14 +1,14 @@
 <div class="flex flex-col overflow-hidden">
     <div class="flex-1 overflow-y-auto scroll-thin space-y-6 min-h-0 mb-2">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
-                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                <h3 class="box-content-heading mb-2!">
                     Configuration Details
                 </h3>
-                <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                <div class="green-line"></div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="from-grid grid-cols-1 md:grid-cols-4">
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Name</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
@@ -50,12 +50,12 @@
             </div>
 
             <div>
-                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-3">
+                <h3 class="box-content-heading mb-2!">
                     Applicability Rules
                 </h3>
-                <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                <div class="blue-line"></div>
                 <div
-                    class="grid grid-cols-2 md:grid-cols-5 gap-2 bg-slate-100/50 dark:bg-white/5 dark:text-white rounded-xl p-4 border border-slate-200/20 dark:border-white/5">
+                    class="checkbox-area">
                     <mat-checkbox [formField]="salaryForm.isActive" color="primary">Is Active?</mat-checkbox>
                     <mat-checkbox [formField]="salaryForm.isTaxable" color="primary">Is Taxable?</mat-checkbox>
                     <mat-checkbox [formField]="salaryForm.isPfapplicable" color="primary">PF Applicable?</mat-checkbox>
@@ -67,14 +67,14 @@
         </div>
     </div>
 
-    <div class="border-t border-slate-200 dark:border-slate-400/10 py-2 flex justify-end gap-3">
+    <div class="footer-area">
         <button type="button" (click)="onCancelClicked()"
-            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            class="cancel-btn lift shine-sweep">
             <svg lucideIcon="x" class="w-4 h-4"></svg>
             Cancel
         </button>
         <button type="button" (click)="onSubmit()"
-            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            class="global-btn shine-sweep lift">
             <svg lucideIcon="save" class="w-4 h-4"></svg>
             {{ isEditMode() ? 'Update' : 'Submit' }}
         </button>

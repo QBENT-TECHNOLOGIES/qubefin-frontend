@@ -1,56 +1,44 @@
-<div class="flex flex-col">
+<div class="page-container">
     <!-- Breadcrumb Section -->
-    <div class="flex flex-wrap items-center justify-between gap-4 mb-2 z-10">
+    <div class="header-group">
         <div class="flex gap-3 items-center flex-wrap">
-            <p class="text-sm text-secondary-600 dark:text-slate-300 font-medium ">Filter By Category:</p>
+            <p class="text-sm text-secondary-600 dark:text-slate-300 font-medium">Filter By Category:</p>
             @for (category of categories(); track category.id) {
-                <div (click)="selectCategory(category)" class="p-2 rounded-lg border
-                            flex justify-start items-center gap-2
-                            cursor-pointer lift
-                            transition-all duration-300" 
-                            [ngClass]="{
-                            'bg-white/60 border-slate-200 text-slate-700 hover:bg-slate-100 dark:bg-slate-800/60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/70':
+            <div (click)="selectCategory(category)" class="filter-cat-btn lift" [ngClass]="{
+                            'unselect-cat-btn':
                                 selectedCategory() !== category.id,
-                            'bg-secondary-600 border-secondary-600 text-white shadow-lg dark:bg-primary-600/30 dark:border-primary-500/30 dark:text-white dark:shadow-primary-900/30':
+                            'select-cat-btn dark:shadow-primary-900/30':
                                 selectedCategory() === category.id
                         }">
 
-                    <svg [lucideIcon]="getCategoryIcon(category.name)" class="w-5 h-5">
-                    </svg>
+                <svg [lucideIcon]="getCategoryIcon(category.name)" class="w-5 h-5">
+                </svg>
 
-                    <p class="font-medium">
-                        {{ category.name }}
-                    </p>
-                </div>
+                <p class="font-medium">
+                    {{ category.name }}
+                </p>
+            </div>
             }
             @if (selectedCategory()) {
-                <div
-                    (click)="resetCategoryFilter()"
-                    class="p-2 rounded-full w-10 h-10
-                        flex justify-center items-center
-                        cursor-pointer lift
-                        transition-all duration-300
-                        bg-danger/5 text-danger
-                        hover:bg-danger/10
-                        dark:bg-danger/10 dark:hover:bg-danger/20"
-                    matTooltip="Reset">
-                    <svg
-                        lucideIcon="x"
-                        class="w-5 h-5">
-                    </svg>
-                </div>
+            <div (click)="resetCategoryFilter()" class="reset-cat-btn lift" matTooltip="Reset">
+                <svg lucideIcon="x" class="w-5 h-5">
+                </svg>
+                <p class="font-medium">
+                    Reset
+                </p>
+            </div>
             }
         </div>
-        <div class="flex items-center gap-3">
+        <div class="headerBtn-area">
             @if (selectedSalaryComponentId() === EMPTY_UUID && isViewMode()) {
             <button type="button" (click)="toggleFilterArea()"
-                class="glass-input dark:text-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                class="filter-btn glass-input lift shine-sweep">
                 <svg lucideIcon="funnel" class="w-4 h-4"></svg>
                 Filter
             </button>
             } @else {}
             <button
-                class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+                class="global-btn ripple-btn shine-sweep lift"
                 (click)="onAdd()">
                 <svg lucideIcon="plus" class="w-4 h-4"></svg>
                 Add New
@@ -59,11 +47,7 @@
     </div>
     <!-- Content Section -->
     <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
-        <div class="glass rounded-xl shadow-glass dark:shadow
-           overflow-hidden min-w-0 shrink-0
-           transition-[width,max-width,opacity,transform] 
-           duration-500 ease-in-out"
-            [ngClass]="{
+        <div class="mainCard-area glass" [ngClass]="{
                 'w-full max-w-full opacity-100 translate-x-0':
                     selectedSalaryComponentId() === EMPTY_UUID && isViewMode(),
 
@@ -76,8 +60,8 @@
             <!-- COLLAPSED SEARCH -->
             @if (selectedSalaryComponentId() === EMPTY_UUID && isViewMode()) {
             @if (showFilterArea()) {
-            <div class="p-3 transition-all duration-300">
-                <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
+            <div class="filter-area">
+                <div class="filter-container">
                     <!-- Search By Name/Code -->
                     <div class="flex-1 min-w-50">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -129,12 +113,12 @@
                     <!-- Actions -->
                     <div class="flex items-center gap-2.5 shrink-0">
                         <button type="button" (click)="resetFilters()"
-                            class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
+                            class="reset-btn lift">
                             <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
                             Reset
                         </button>
                         <button type="button" (click)="applyFilters()"
-                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            class="global-btn shine-sweep lift">
                             <svg lucideIcon="search" class="w-4 h-4"></svg>
                             Search
                         </button>
@@ -143,15 +127,14 @@
             </div>
             }
             } @else {
-            <div class="flex items-center gap-2 px-4 py-3">
+            <div class="search-area">
                 <div
-                    class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
+                    class="search-input-area">
                     <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
-                    <input type="text" [(ngModel)]="tempSearch" placeholder="Search by Name"
-                        class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
+                    <input type="text" [(ngModel)]="tempSearch" placeholder="Search by Name" class="search-input-style" />
                 </div>
                 <button (click)="applyFilters()"
-                    class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
+                    class="search-input-btn lift">
                     <svg lucideIcon="search" class="w-4 h-4"></svg>
                 </button>
             </div>
@@ -165,7 +148,7 @@
         </div>
 
         @if (selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()) {
-        <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
+        <div class="viewArea-container glass"
             [ngClass]="{
                 'w-3/4':
                     isViewMode() &&
@@ -175,8 +158,8 @@
                     !isViewMode()
             }">
             <!-- HEADER -->
-            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
-                <div class="flex items-center justify-between">
+            <div class="viewArea-header">
+                <div class="viewArea-headerInner">
                     <div class="flex items-center gap-4">
                         <!-- <div
                             class="w-14 h-14 rounded-xl shadow-md bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center dark:shadow-none">
@@ -190,7 +173,7 @@
                         </div> -->
                         <div>
                             <div class="flex justify-start gap-2">
-                                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
+                                <h2 class="viewArea-title">
                                     @if (selectedSalaryComponentId() === EMPTY_UUID) {
                                     Add Salary
                                     } @else if (isViewMode()) {
@@ -200,7 +183,7 @@
                                     }
                                 </h2>
                                 <div
-                                    class="flex items-center gap-1.5 px-3 pt-1 pb-0 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
+                                    class="viewArea-badge">
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                                     <span
                                         class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
@@ -214,7 +197,7 @@
                                     </span>
                                 </div>
                             </div>
-                            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                            <p class="viewArea-description">
                                 @if (selectedSalaryComponentId() === EMPTY_UUID) {
                                 Create a new salary component and configure its applicability.
                                 } @else if (isViewMode()) {
@@ -227,7 +210,7 @@
                     </div>
                 </div>
                 <button aria-label="Close" matTooltip="Close"
-                    class="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
+                    class="pannel-close"
                     (click)="closePanel()">
                     <svg lucideIcon="x" class="w-4 h-4"></svg>
                 </button>
