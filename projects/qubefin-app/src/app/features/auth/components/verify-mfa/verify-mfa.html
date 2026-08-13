@@ -2,12 +2,12 @@
   <div class="flex flex-col gap-6">
     <div class="flex flex-col gap-6">
       <!-- User ID -->
-      <mat-form-field class="w-full" appearance="outline">
+      <mat-form-field class="w-full" appearance="outline" autocomplete="off">
         <mat-label>MFA Code</mat-label>
         <div matPrefix class="w-10 flex justify-center text-primary-700">
           <svg lucideIcon="shield-check" class="w-5 h-5"></svg>
         </div>
-        <input matInput [formField]="mfaForm.mfaCode" autocomplete="mfaycode" placeholder="Enter MFA Code">
+        <input matInput [formField]="mfaForm.mfaCode" autocomplete="off" placeholder="Enter MFA Code">
         <!-- @if (
         loginForm.username.touched() &&
         loginForm.username.invalid()
@@ -32,9 +32,9 @@
       Sign In
     </button> -->
     <button [disabled]="mfaForm().invalid()"
-        class="w-full ripple-btn shine-sweep rounded-lg px-5 py-3.5 font-lg flex items-center justify-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
-        <svg lucideIcon="badge-check" class="w-4 h-4"></svg>
-        Verify
+      class="w-full ripple-btn shine-sweep rounded-lg px-5 py-3.5 font-lg flex items-center justify-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
+      <svg lucideIcon="badge-check" class="w-4 h-4"></svg>
+      Verify
     </button>
   </div>
 </form>

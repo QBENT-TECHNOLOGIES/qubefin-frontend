@@ -12,9 +12,11 @@ import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'qfin-employee-component',
@@ -30,17 +32,24 @@ import { Sort } from '@angular/material/sort';
     MatButtonModule,
     LucideDynamicIcon,
     MatTooltipModule,
+    MatDatepickerModule,
   ],
+  providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './employee-component.html',
 })
 export class EmployeeComponent {
   public readonly EMPTY_UUID = EMPTY_UUID;
+  private readonly datePipe = inject(DatePipe);
+  private readonly dateAdapter = inject(DateAdapter<Date>);
+  readonly srchJoiningDate = signal<Date | null>(null);
   readonly iconMap = APP_ICONS_MAP;
   // Filter properties
   showFilterArea = signal<boolean>(false);
   // Injecting the store that manages pagination and filtering states
   readonly employeeStore = inject(EmployeeStore);
-
+  constructor() {
+    this.dateAdapter.setLocale('en-GB');
+  }
   tempSearch = '';
   isViewMode = signal<boolean>(true);
   selectedEmployeeComponentId = signal<string>(EMPTY_UUID);
@@ -96,9 +105,16 @@ export class EmployeeComponent {
 
   protected applyFilters() {
     this.employeeStore.setSearchQuery(this.tempSearch);
+    const date = this.srchJoiningDate();
+    const formattedDate = date ? this.datePipe.transform(date, 'yyyy-MM-dd') : null;
+    this.employeeStore.setSearchJoiningDate(formattedDate);
   }
 
   protected resetFilters() {
+    this.tempSearch = '';
+    this.srchJoiningDate.set(null);
+    this.employeeStore.setSearchQuery('');
+    this.employeeStore.setSearchJoiningDate(null);
     this.applyFilters();
   }
   onSortChanged(sort: Sort) {

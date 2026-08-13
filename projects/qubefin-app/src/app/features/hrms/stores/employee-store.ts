@@ -18,6 +18,7 @@ export class EmployeeStore {
 
   // --- Pagination & Filtering State ---
   readonly searchQuery = signal<string>('');
+  readonly srchJoiningDate = signal<string | null>(null);
   readonly pageIndex = signal<number>(0);
   readonly pageSize = signal<number>(10);
   readonly sortOn = signal<string>('name');
@@ -33,8 +34,15 @@ export class EmployeeStore {
     const size = this.pageSize();
     const sort = this.sortOn();
     const dir = this.sortDirection();
+    const srchJoiningDate = this.srchJoiningDate();
 
-    return `${ApiPaths.HRMS}/employees/search?searchType=all&searchText=${search}&sortOn=${sort}&sortDirection=${dir}&pageIndex=${page}&pageSize=${size}`;
+    let url = `${ApiPaths.HRMS}/employees/search?searchType=all&searchText=${search}&sortOn=${sort}&sortDirection=${dir}&pageIndex=${page}&pageSize=${size}`;
+
+    if (srchJoiningDate) {
+      url += `&srchJoiningDate=${srchJoiningDate}`;
+    }
+
+    return url;
   });
 
   // Safely extracts the employees array from the root response model
@@ -118,7 +126,10 @@ export class EmployeeStore {
     if (this.employeeComponentId() === id) return;
     this.employeeComponentId.set(id);
   }
-
+  setSearchJoiningDate(date: string | null) {
+    this.srchJoiningDate.set(date);
+    this.pageIndex.set(0);
+  }
   refreshList() {
     this.employeeListComponentsResource.reload();
   }

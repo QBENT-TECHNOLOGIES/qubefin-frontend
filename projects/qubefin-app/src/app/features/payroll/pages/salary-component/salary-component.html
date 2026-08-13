@@ -4,41 +4,35 @@
         <div class="flex gap-3 items-center flex-wrap">
             <p class="text-sm text-secondary-600 dark:text-slate-300 font-medium ">Filter By Category:</p>
             @for (category of categories(); track category.id) {
-                <div (click)="selectCategory(category)" class="p-2 rounded-lg border
+            <div (click)="selectCategory(category)" class="p-2 rounded-lg border
                             flex justify-start items-center gap-2
                             cursor-pointer lift
-                            transition-all duration-300" 
-                            [ngClass]="{
+                            transition-all duration-300" [ngClass]="{
                             'bg-white/60 border-slate-200 text-slate-700 hover:bg-slate-100 dark:bg-slate-800/60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/70':
                                 selectedCategory() !== category.id,
                             'bg-secondary-600 border-secondary-600 text-white shadow-lg dark:bg-primary-600/30 dark:border-primary-500/30 dark:text-white dark:shadow-primary-900/30':
                                 selectedCategory() === category.id
                         }">
 
-                    <svg [lucideIcon]="getCategoryIcon(category.name)" class="w-5 h-5">
-                    </svg>
+                <svg [lucideIcon]="getCategoryIcon(category.name)" class="w-5 h-5">
+                </svg>
 
-                    <p class="font-medium">
-                        {{ category.name }}
-                    </p>
-                </div>
+                <p class="font-medium">
+                    {{ category.name }}
+                </p>
+            </div>
             }
             @if (selectedCategory()) {
-                <div
-                    (click)="resetCategoryFilter()"
-                    class="p-2 rounded-full w-10 h-10
+            <div (click)="resetCategoryFilter()" class="p-2 rounded-full w-10 h-10
                         flex justify-center items-center
                         cursor-pointer lift
                         transition-all duration-300
                         bg-danger/5 text-danger
                         hover:bg-danger/10
-                        dark:bg-danger/10 dark:hover:bg-danger/20"
-                    matTooltip="Reset">
-                    <svg
-                        lucideIcon="x"
-                        class="w-5 h-5">
-                    </svg>
-                </div>
+                        dark:bg-danger/10 dark:hover:bg-danger/20" matTooltip="Reset">
+                <svg lucideIcon="x" class="w-5 h-5">
+                </svg>
+            </div>
             }
         </div>
         <div class="flex items-center gap-3">
@@ -62,8 +56,7 @@
         <div class="glass rounded-xl shadow-glass dark:shadow
            overflow-hidden min-w-0 shrink-0
            transition-[width,max-width,opacity,transform] 
-           duration-500 ease-in-out"
-            [ngClass]="{
+           duration-500 ease-in-out" [ngClass]="{
                 'w-full max-w-full opacity-100 translate-x-0':
                     selectedSalaryComponentId() === EMPTY_UUID && isViewMode(),
 
@@ -128,15 +121,15 @@
 
                     <!-- Actions -->
                     <div class="flex items-center gap-2.5 shrink-0">
-                        <button type="button" (click)="resetFilters()"
-                            class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
-                            <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
-                            Reset
-                        </button>
                         <button type="button" (click)="applyFilters()"
                             class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                             <svg lucideIcon="search" class="w-4 h-4"></svg>
                             Search
+                        </button>
+                        <button type="button" (click)="resetFilters()"
+                            class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
+                            <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                            Reset
                         </button>
                     </div>
                 </div>

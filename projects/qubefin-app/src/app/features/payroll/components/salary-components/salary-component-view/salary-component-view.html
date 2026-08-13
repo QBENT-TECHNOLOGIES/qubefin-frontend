@@ -31,8 +31,10 @@
                     <div
                         class="flex items-center gap-2 px-3.5 py-1 rounded-4xl bg-white/45 dark:bg-white/5 border border-slate-200/20 dark:border-white/5 shadow-md">
                         <span class="flex items-center gap-1.5 text-[12px] font-semibold"
-                            [class.text-emerald-600]="salaryDetail()?.isActive" [class.dark:text-emerald-400]="salaryDetail()?.isActive"
-                            [class.text-rose-600]="!salaryDetail()?.isActive" [class.dark:text-rose-400]="!salaryDetail()?.isActive">
+                            [class.text-emerald-600]="salaryDetail()?.isActive"
+                            [class.dark:text-emerald-400]="salaryDetail()?.isActive"
+                            [class.text-rose-600]="!salaryDetail()?.isActive"
+                            [class.dark:text-rose-400]="!salaryDetail()?.isActive">
                             <span class="w-2 h-2 rounded-full relative flex">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
                                     [class.bg-emerald-400]="salaryDetail()?.isActive"
@@ -60,7 +62,8 @@
                         </div>
                         <div>
                             <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Code</label>
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ salaryDetail()?.code }}</p>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ salaryDetail()?.code }}
+                            </p>
                         </div>
                     </div>
                     <div class="gen-info">
@@ -70,7 +73,8 @@
                         <div>
                             <label
                                 class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Category</label>
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ salaryDetail()?.categoryId }}</p>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{
+                                salaryDetail()?.categoryName }}</p>
                         </div>
                     </div>
                     <div class="gen-info">
@@ -80,7 +84,8 @@
                         <div>
                             <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Display
                                 Order</label>
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ salaryDetail()?.displayOrder }}
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{
+                                salaryDetail()?.displayOrder }}
                             </p>
                         </div>
                     </div>
@@ -104,11 +109,11 @@
                         @if (salaryDetail()?.isTaxable) {
                         <span
                             class="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                            <svg lucideIcon="check" class="w-3.5 h-3.5"></svg> 
+                            <svg lucideIcon="check" class="w-3.5 h-3.5"></svg>
                         </span>
                         } @else {
                         <span class="flex items-center gap-1 text-xs font-semibold text-red-500 dark:text-red-400">
-                            <svg lucideIcon="x" class="w-3.5 h-3.5"></svg> 
+                            <svg lucideIcon="x" class="w-3.5 h-3.5"></svg>
                         </span>
                         }
                     </div>
@@ -184,7 +189,9 @@
                     <div>
                         <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
                             Created By</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ salaryDetail()?.createdBy }}</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{
+                            salaryDetail()?.auditInfo?.createdBy
+                            }}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -195,7 +202,9 @@
                     <div>
                         <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
                             Created On</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ salaryDetail()?.createdOn |
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{
+                            salaryDetail()?.auditInfo?.createdOn
+                            |
                             date:'dd-MM-yyyy hh:mm a' }}</p>
                     </div>
                 </div>
@@ -207,8 +216,8 @@
                     <div>
                         <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
                             Last Modified By</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ salaryDetail()?.lastModifiedBy ??
-                            '-' }}</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{
+                            salaryDetail()?.auditInfo?.lastModifiedBy ??'-' }}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -219,8 +228,9 @@
                     <div>
                         <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
                             Last Modified On</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ salaryDetail()?.lastModifiedOn ?
-                            (salaryDetail()?.lastModifiedOn | date:'dd-MM-yyyy hh:mm a') : '-' }}</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{
+                            salaryDetail()?.auditInfo?.lastModifiedOn ?
+                            (salaryDetail()?.auditInfo?.lastModifiedOn | date:'dd-MM-yyyy hh:mm a') : '-' }}</p>
                     </div>
                 </div>
             </div>

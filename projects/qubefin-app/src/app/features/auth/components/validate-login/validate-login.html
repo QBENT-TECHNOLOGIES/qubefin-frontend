@@ -8,7 +8,7 @@
         <svg lucideIcon="user" class="w-5 h-5"></svg>
       </div>
       <mat-error>User ID is required</mat-error>
-      <input matInput [formField]="loginForm.userName" autocomplete="username" placeholder="Enter your user ID">
+      <input matInput [formField]="loginForm.userName" autocomplete="off" placeholder="Enter your user ID">
 
       <!-- @if (
         loginForm.username.touched() &&
@@ -34,9 +34,9 @@
         autocomplete="current-password" placeholder="Enter your password">
       <div matSuffix (click)="hidePassword.update(v => !v)" class="pr-4">
         @if (hidePassword()) {
-          <svg lucideIcon="eye" class="w-5 h-5 cursor-pointer"></svg>
+        <svg lucideIcon="eye" class="w-5 h-5 cursor-pointer"></svg>
         } @else {
-          <svg lucideIcon="eye-off" class="w-5 h-5 cursor-pointer"></svg>
+        <svg lucideIcon="eye-off" class="w-5 h-5 cursor-pointer"></svg>
         }
       </div>
     </mat-form-field>
@@ -48,9 +48,9 @@
     </a>
   </div>
   <button [disabled]="loginForm().invalid()"
-      class="ripple-btn shine-sweep rounded-lg px-5 py-3.5 font-lg
+    class="ripple-btn shine-sweep rounded-lg px-5 py-3.5 font-lg
       flex items-center justify-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
-      <svg lucideIcon="log-in" class="w-4 h-4"></svg>
-      Sign In
+    <svg lucideIcon="log-in" class="w-4 h-4"></svg>
+    Sign In
   </button>
 </form>
