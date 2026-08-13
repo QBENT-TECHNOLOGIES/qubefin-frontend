@@ -1,6 +1,6 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { EMPTY_UUID } from 'qubefin-core';
-import { MatIconModule } from "@angular/material/icon";
+import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -13,12 +13,22 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
+import { PageEvent } from '@angular/material/paginator';
+import { Sort } from '@angular/material/sort';
 
 @Component({
   selector: 'qfin-employee-component',
   imports: [
-    EmployeeComponentList,CommonModule, MatFormFieldModule, MatInputModule, FormsModule, EmployeeComponentView, EmployeeComponentDetail, MatIconModule, MatButtonModule, LucideDynamicIcon,
+    EmployeeComponentList,
+    CommonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    EmployeeComponentView,
+    EmployeeComponentDetail,
+    MatIconModule,
+    MatButtonModule,
+    LucideDynamicIcon,
     MatTooltipModule,
   ],
   templateUrl: './employee-component.html',
@@ -30,23 +40,20 @@ export class EmployeeComponent {
   showFilterArea = signal<boolean>(false);
   // Injecting the store that manages pagination and filtering states
   readonly employeeStore = inject(EmployeeStore);
-  
+
   tempSearch = '';
   isViewMode = signal<boolean>(true);
   selectedEmployeeComponentId = signal<string>(EMPTY_UUID);
   employeeComponents = this.employeeStore.employeeListComponents;
-  
+
   protected onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.employeeStore.setSearchQuery(input.value);
   }
 
-  protected changePage(delta: number): void {
-    const current = this.employeeStore.pageIndex();
-    const next = current + delta;
-    if (next >= 0) {
-      this.employeeStore.setPage(next);
-    }
+  pageChanged(event: PageEvent) {
+    this.employeeStore.setPage(event.pageIndex);
+    this.employeeStore.setPageSize(event.pageSize);
   }
 
   protected onView(id: string) {
@@ -68,7 +75,7 @@ export class EmployeeComponent {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
   }
-   // Closes panels and forces state reset safely
+  // Closes panels and forces state reset safely
   protected handleCancel() {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
@@ -84,15 +91,21 @@ export class EmployeeComponent {
   }
 
   protected toggleFilterArea() {
-    this.showFilterArea.update(v => !v);
+    this.showFilterArea.update((v) => !v);
   }
 
   protected applyFilters() {
     this.employeeStore.setSearchQuery(this.tempSearch);
-
   }
 
   protected resetFilters() {
     this.applyFilters();
+  }
+  onSortChanged(sort: Sort) {
+    if (!sort.direction) {
+      return;
+    }
+
+    this.employeeStore.setSort(sort.active, sort.direction as 'asc' | 'desc');
   }
 }

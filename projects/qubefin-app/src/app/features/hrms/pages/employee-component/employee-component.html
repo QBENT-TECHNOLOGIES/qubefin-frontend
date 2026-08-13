@@ -28,91 +28,67 @@
                     !isViewMode()
             }">
             @if (selectedEmployeeComponentId() === EMPTY_UUID && isViewMode()) {
-                @if (showFilterArea()) {
-                    <div class="p-3 transition-all duration-300">
-                        <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
-                            <!-- Search By Name/Code -->
-                            <div class="flex-1 min-w-[200px]">
-                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                    <mat-label>Search By Name/Code</mat-label>
-                                    <div class="w-12 flex justify-center" matPrefix>
-                                        <svg lucideIcon="search" class="w-5 h-5"></svg>
-                                    </div>
-                                    <input matInput autocomplete="off" placeholder="Enter name or code" [(ngModel)]="tempSearch">
-                                </mat-form-field>
+            @if (showFilterArea()) {
+            <div class="p-3 transition-all duration-300">
+                <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
+                    <!-- Search By Name/Code -->
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Search By Name/Code</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="search" class="w-5 h-5"></svg>
                             </div>
-                            <div class="flex-1 min-w-[200px]">
-                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                    <mat-label>Date of Joining</mat-label>
-                                    <div class="w-12 flex justify-center" matPrefix>
-                                        <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
-                                    </div>
-                                    <input matInput  autocomplete="off" placeholder="Select Joining Date">
-                                </mat-form-field>
-                            </div>
-                            <!-- Actions -->
-                            <div class="flex items-center gap-2.5 shrink-0">
-                                <button type="button" (click)="resetFilters()"
-                                    class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
-                                    <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
-                                    Reset
-                                </button>
-                                <button type="button" (click)="applyFilters()"
-                                    class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                                    <svg lucideIcon="search" class="w-4 h-4"></svg>
-                                    Search
-                                </button>
-                            </div>
-                        </div>
+                            <input matInput autocomplete="off" placeholder="Enter name or code"
+                                [(ngModel)]="tempSearch">
+                        </mat-form-field>
                     </div>
-                }
-            } @else {
-                <div class="flex items-center gap-2 px-4 py-3">
-                    <div
-                        class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
-                        <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
-                        <input type="text" placeholder="Search components..." aria-label="Search employee components"
-                            [value]="employeeStore.searchQuery()" (input)="onSearch($event)"
-                            class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Date of Joining</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
+                            </div>
+                            <input matInput autocomplete="off" placeholder="Select Joining Date">
+                        </mat-form-field>
                     </div>
-                    <button aria-label="Filter"
-                        class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
-                        <svg lucideIcon="search" class="w-4 h-4"></svg>
-                    </button>
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <button type="button" (click)="applyFilters()"
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            <svg lucideIcon="search" class="w-4 h-4"></svg>
+                            Search
+                        </button>
+                        <button type="button" (click)="resetFilters()"
+                            class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
+                            <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                            Reset
+                        </button>
+                    </div>
                 </div>
+            </div>
+            }
+            } @else {
+            <div class="flex items-center gap-2 px-4 py-3">
+                <div
+                    class="flex-1 flex items-center gap-2 bg-white dark:bg-slate-500/10 border border-slate-200 dark:border-slate-400/10 rounded-xl px-3 py-2.5">
+                    <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
+                    <input type="text" placeholder="Search components..." aria-label="Search employee components"
+                        [value]="employeeStore.searchQuery()" (input)="onSearch($event)"
+                        class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
+                </div>
+                <button aria-label="Filter"
+                    class="bg-white dark:bg-primary-400/20 dark:text-primary-500 border dark:border-0 border-slate-200 cursor-pointer rounded-xl w-10 h-10 flex items-center justify-center shrink-0 hover:shadow-glass transition lift">
+                    <svg lucideIcon="search" class="w-4 h-4"></svg>
+                </button>
+            </div>
             }
 
             <qfin-employee-component-list [data]="employeeComponents()" [selectedId]="selectedEmployeeComponentId()"
                 [isCollapsed]="selectedEmployeeComponentId() !== EMPTY_UUID || !isViewMode()"
-                (onViewDetail)="onView($event)">
+                (onViewDetail)="onView($event)" [totalRecords]="employeeStore.totalRecords()"
+                [pageIndex]="employeeStore.pageIndex()" [pageSize]="employeeStore.pageSize()"
+                (pageChanged)="pageChanged($event)" (sortChanged)="onSortChanged($event)">
             </qfin-employee-component-list>
-
-            
-            <div
-                class="flex items-center justify-between border-slate-200 dark:border-slate-400/10 px-4 py-3 bg-slate-50/50 dark:bg-slate-800/20">
-                <div class="flex flex-col gap-0.5">
-                    <span class="text-xs font-medium text-slate-700 dark:text-slate-300">
-                        Page {{ employeeStore.totalPages() > 0 ? employeeStore.pageIndex() + 1 : 0 }} of {{
-                        employeeStore.totalPages() }}
-                    </span>
-                    <span class="text-[10px] text-slate-400">
-                        Total Records: {{ employeeStore.totalRecords() }}
-                    </span>
-                </div>
-                <div class="flex gap-1">
-                    <button [disabled]="employeeStore.pageIndex() === 0 || employeeStore.loading()"
-                        (click)="changePage(-1)"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-400/10 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer">
-                        <svg lucideIcon="chevron-left" class="w-4 h-4 text-slate-600 dark:text-slate-400"></svg>
-                    </button>
-                    <button
-                        [disabled]="(employeeStore.pageIndex() + 1) >= employeeStore.totalPages() || employeeStore.loading()"
-                        (click)="changePage(1)"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-400/10 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer">
-                        <svg lucideIcon="chevron-right" class="w-4 h-4 text-slate-600 dark:text-slate-400"></svg>
-                    </button>
-                </div>
-            </div>
         </div>
 
         @if (selectedEmployeeComponentId() !== EMPTY_UUID || !isViewMode()) {
@@ -180,7 +156,7 @@
                 </qfin-employee-component-view>
                 } @else {
                 <qfin-employee-component-detail [employeeId]="selectedEmployeeComponentId()" (onCancel)="handleCancel()"
-                    (onChildSave)="handleSave()" >
+                    (onChildSave)="handleSave()">
                 </qfin-employee-component-detail>
                 }
             </div>

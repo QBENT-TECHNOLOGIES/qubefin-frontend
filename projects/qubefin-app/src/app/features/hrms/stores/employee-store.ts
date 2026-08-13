@@ -1,10 +1,15 @@
-import { httpResource } from "@angular/common/http";
-import { computed, Injectable, signal } from "@angular/core";
-import { ApiPaths, EMPTY_UUID } from "qubefin-core";
-import { IEmployeePersonalInfo, IEmployeesBySearchResult, KycDocument, Utility } from "../models/employee-detail";
+import { httpResource } from '@angular/common/http';
+import { computed, Injectable, signal } from '@angular/core';
+import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
+import {
+  IEmployeePersonalInfo,
+  IEmployeesBySearchResult,
+  KycDocument,
+  Utility,
+} from '../models/employee-detail';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EmployeeStore {
   // --- Detail State ---
@@ -19,7 +24,10 @@ export class EmployeeStore {
   readonly sortDirection = signal<'asc' | 'desc'>('asc');
 
   // --- List Resource (Updated to match your response model) ---
-  employeeListComponentsResource = httpResource<{ employees: IEmployeesBySearchResult[]; totalRecords: number }>(() => {
+  employeeListComponentsResource = httpResource<{
+    employees: IEmployeesBySearchResult[];
+    totalRecords: number;
+  }>(() => {
     const search = encodeURIComponent(this.searchQuery());
     const page = this.pageIndex();
     const size = this.pageSize();
@@ -30,32 +38,36 @@ export class EmployeeStore {
   });
 
   // Safely extracts the employees array from the root response model
-  readonly employeeListComponents = computed(() => 
-    this.employeeListComponentsResource.value()?.employees ?? []
+  readonly employeeListComponents = computed(
+    () => this.employeeListComponentsResource.value()?.employees ?? [],
   );
 
   // Pulls the total records directly from the API response payload
-  readonly totalRecords = computed(() => 
-    this.employeeListComponentsResource.value()?.totalRecords ?? 0
+  readonly totalRecords = computed(
+    () => this.employeeListComponentsResource.value()?.totalRecords ?? 0,
   );
 
   // Computes the mathematical maximum total pages based on page sizes
-  readonly totalPages = computed(() => 
-    Math.ceil(this.totalRecords() / this.pageSize())
-  );
+  readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
 
   readonly loading = computed(() => this.employeeListComponentsResource.isLoading());
   readonly error = computed(() => this.employeeListComponentsResource.error());
-// --- View Resource ---
-  private readonly employeeInfoComponentResource = httpResource<{ personalInfo: IEmployeePersonalInfo }>(() => {
+  // --- View Resource ---
+  private readonly employeeInfoComponentResource = httpResource<{
+    personalInfo: IEmployeePersonalInfo;
+  }>(() => {
     const id = this.employeeComponentId();
     console.log(id);
     if (!id || id === EMPTY_UUID) return undefined;
     return `${ApiPaths.HRMS}/employees/${id}`;
   });
 
-  readonly employeeInfoComponent = computed(() => this.employeeInfoComponentResource.value()?.personalInfo ?? undefined);
-  readonly employeeInfoComponentLoading = computed(() => this.employeeInfoComponentResource.isLoading());
+  readonly employeeInfoComponent = computed(
+    () => this.employeeInfoComponentResource.value()?.personalInfo ?? undefined,
+  );
+  readonly employeeInfoComponentLoading = computed(() =>
+    this.employeeInfoComponentResource.isLoading(),
+  );
   readonly employeeInfoComponentError = computed(() => this.employeeInfoComponentResource.error());
 
   // // --- Personal Resource ---
@@ -85,7 +97,7 @@ export class EmployeeStore {
   // --- State Setters ---
   setSearchQuery(query: string) {
     this.searchQuery.set(query);
-    this.pageIndex.set(0); 
+    this.pageIndex.set(0);
   }
 
   setPage(index: number) {
@@ -94,7 +106,7 @@ export class EmployeeStore {
 
   setPageSize(size: number) {
     this.pageSize.set(size);
-    this.pageIndex.set(0); 
+    // this.pageIndex.set(0);
   }
 
   setSort(field: string, direction: 'asc' | 'desc') {
@@ -120,29 +132,23 @@ export class EmployeeStore {
   //   this.personalInfoComponentResource.reload();
   // }
 
-
   // --- UTILITY SERVICE ---
-  private readonly utilityResource = httpResource< Utility[]>(() => {
-  return `${ApiPaths.GLOBAL}/utilities`;
-});
+  private readonly utilityResource = httpResource<Utility[]>(() => {
+    return `${ApiPaths.GLOBAL}/utilities`;
+  });
 
-readonly utilityComponent = computed<Utility[]>(() =>
-  this.utilityResource.value() ?? []
-);
+  readonly utilityComponent = computed<Utility[]>(() => this.utilityResource.value() ?? []);
 
   readonly utilityComponentLoading = computed(() => this.utilityResource.isLoading());
   readonly utilityComponentError = computed(() => this.utilityResource.error());
 
   // --- KYC DOCUMENT TYPE SERVICE ---
-  private readonly KycResource = httpResource< KycDocument[]>(() => {
-  return `${ApiPaths.GLOBAL}/kyc-documents`;
-});
+  private readonly KycResource = httpResource<KycDocument[]>(() => {
+    return `${ApiPaths.GLOBAL}/kyc-documents`;
+  });
 
-readonly kycComponent = computed<KycDocument[]>(() =>
-  this.KycResource.value() ?? []
-);
+  readonly kycComponent = computed<KycDocument[]>(() => this.KycResource.value() ?? []);
 
   readonly kycComponentLoading = computed(() => this.KycResource.isLoading());
   readonly kycComponentError = computed(() => this.KycResource.error());
-  
 }
