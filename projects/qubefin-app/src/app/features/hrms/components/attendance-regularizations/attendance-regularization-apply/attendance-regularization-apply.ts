@@ -68,13 +68,14 @@ export class AttendanceRegularizationApply {
 
   updateType(regularizationType: string) {
     this.formModel.update((m) => {
-      const newDates =
-        regularizationType === 'ATTENDANCE' && m.regularizationDates.length > 1
-          ? [m.regularizationDates[0]]
-          : m.regularizationDates;
+      const newDates: Date[] = [];
       const updatedReason = '';
-
-      return { ...m, regularizationType, regularizationDates: newDates, reason: updatedReason };
+      return {
+        ...m,
+        regularizationType,
+        regularizationDates: newDates,
+        reason: updatedReason,
+      };
     });
   }
 

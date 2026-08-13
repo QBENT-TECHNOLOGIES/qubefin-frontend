@@ -18,6 +18,13 @@ import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { AttendanceRegularizationView } from '../../components/attendance-regularizations/attendance-regularization-view/attendance-regularization-view';
 import { ApprovalRegularizationStore } from '../../stores/approval-regularizations-store';
 import { ApprovalRegulariztionList } from '../../components/approval-regularizations/approval-regulariztion-list/approval-regulariztion-list';
+import { EmployeeSearchByText, EmployeeSearchResponse } from '../../models/employee-search-by-text';
+import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
+import { EmployeeService } from '../../services/employee-service';
 @Component({
   selector: 'qfin-approval-regularizations',
   imports: [
@@ -33,6 +40,7 @@ import { ApprovalRegulariztionList } from '../../components/approval-regularizat
     MatSelectModule,
     ApprovalRegulariztionList,
     AttendanceRegularizationView,
+    MatAutocompleteModule,
   ],
   providers: [DatePipe, provideNativeDateAdapter()],
   templateUrl: './approval-regularizations.html',
@@ -41,11 +49,16 @@ import { ApprovalRegulariztionList } from '../../components/approval-regularizat
 export class ApprovalRegularizations {
   public readonly EMPTY_UUID = EMPTY_UUID;
   readonly iconMap = APP_ICONS_MAP;
+  private readonly employeeService = inject(EmployeeService);
   readonly approvalRegularizationsStore = inject(ApprovalRegularizationStore);
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
   readonly isViewMode = signal<boolean>(true);
   readonly showFilterArea = signal<boolean>(false);
+  readonly employeeOptions = signal<EmployeeSearchByText[]>([]);
+  readonly employeeSearchText = signal('');
+  private readonly employeeSearch$ = new Subject<{ searchText: string }>();
+  readonly selectedEmployee = signal<EmployeeSearchByText | null>(null);
   readonly selectedAttendanceRegularizationId = signal<string>(EMPTY_UUID);
   readonly searchModel = signal({
     tempSearch: '',
@@ -57,6 +70,20 @@ export class ApprovalRegularizations {
   readonly attendanceRegularizations = this.approvalRegularizationsStore.approvalRegularization;
   constructor() {
     this.dateAdapter.setLocale('en-GB');
+    this.employeeSearch$
+      .pipe(
+        debounceTime(250),
+        distinctUntilChanged(),
+        switchMap((x) => this.employeeService.getEmployeesBySearchText(x)),
+      )
+      .subscribe((response: EmployeeSearchResponse) => {
+        this.employeeOptions.set(
+          response.value?.employees ??
+            response.valueOrDefault?.employees ??
+            response.employees ??
+            [],
+        );
+      });
   }
   readonly hasSelectedRegularization = computed(
     () => this.selectedAttendanceRegularizationId() !== EMPTY_UUID || !this.isViewMode(),
@@ -69,9 +96,6 @@ export class ApprovalRegularizations {
   protected onView(id: string) {
     this.selectedAttendanceRegularizationId.set(id);
     this.isViewMode.set(true);
-  }
-  protected onEdit() {
-    // this.isViewMode.set(false);
   }
   protected closePanel() {
     this.selectedAttendanceRegularizationId.set(EMPTY_UUID);
@@ -91,8 +115,9 @@ export class ApprovalRegularizations {
     this.approvalRegularizationsStore.setToDate(
       this.dateFormatter(this.searchForm.toDate().value()),
     );
-    // this.approvalRegularizationsStore.setStatus(this.searchForm.status().value());
+
     this.approvalRegularizationsStore.setSearchQuery(this.searchForm.tempSearch().value());
+    this.approvalRegularizationsStore.setEmployeeId(this.selectedEmployee()?.id || '');
   }
   private dateFormatter(date: any) {
     if (!date || date === null || date === '') {
@@ -107,9 +132,33 @@ export class ApprovalRegularizations {
       fromDate: '',
       toDate: '',
     }));
+    this.employeeSearchText.set('');
+    this.selectedEmployee.set(null);
+    this.employeeOptions.set([]);
     this.applyFilters();
   }
+  protected searchEmployees(searchText: string) {
+    this.employeeSearchText.set(searchText);
 
+    if (!searchText.trim()) {
+      this.employeeOptions.set([]);
+      this.employeeSearchText.set('');
+      this.selectedEmployee.set(null);
+      return;
+    }
+
+    this.employeeSearch$.next({ searchText });
+  }
+  protected selectEmployee(event: MatAutocompleteSelectedEvent) {
+    const employee = event.option.value as EmployeeSearchByText;
+    this.selectedEmployee.set(employee);
+    this.employeeSearchText.set(employee.employeeName);
+  }
+
+  displayEmployeeName(employee: EmployeeSearchByText | string | null): string {
+    if (!employee) return '';
+    return typeof employee === 'string' ? employee : employee.employeeName;
+  }
   protected changePage(delta: number) {
     const current = this.approvalRegularizationsStore.pageIndex();
     const next = current + delta;
