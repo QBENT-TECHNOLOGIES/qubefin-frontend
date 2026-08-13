@@ -5,7 +5,7 @@ export const HrmsRoutes: Routes = [
         path: '',
         children: [
             {
-                path: 'employee-components',
+                path: 'employees',
                 loadComponent: () => import('./pages/employee-component/employee-component').then(m => m.EmployeeComponent)
             },
             {
@@ -65,6 +65,15 @@ export const HrmsRoutes: Routes = [
                     icon: 'zodiac-leo'
                 }
             },
+            {
+                path: 'leave-prayer-approvals',
+                loadComponent: () => import('./pages/leave-prayer-approval-component/leave-prayer-approval-component').then((m) => m.LeavePrayerApprovalComponent),
+                data: {
+                  title: 'Leave Prayer Approvals',
+                  subTitle: 'Manage Leave Prayer Approvals',
+                  icon: 'zodiac-leo',
+                },
+            }
         ]
     }
 ];
