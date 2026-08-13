@@ -10,8 +10,7 @@
                 </button>
                 } @else {}
                 <button
-                    class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
-                    >
+                    class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
                     <svg lucideIcon="plus" class="w-4 h-4"></svg>
                     Add New
                 </button>
@@ -22,24 +21,23 @@
         <div class="glass rounded-xl shadow-glass dark:shadow
            overflow-hidden min-w-0 shrink-0
            transition-[width,max-width,opacity,transform] 
-           duration-500 ease-in-out" 
-            [ngClass]="{
+           duration-500 ease-in-out" [ngClass]="{
                 'w-full max-w-full opacity-100 translate-x-0':
-                    isViewMode(),
+                    !hasSelectedWorkflow() && isViewMode(),
 
                 'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0':
-                    isViewMode(),
+                    hasSelectedWorkflow() && isViewMode(),
 
                 'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
                     !isViewMode()
             }">
             <!-- COLLAPSED SEARCH -->
-            @if (isViewMode()) {
+            <!-- @if (isViewMode()) {
             <div class="flex items-center gap-2 px-4 py-3">
             </div>
-            }
-            <qfin-approval-workflow-event-list [data]="workflowCategories()">
-            </qfin-approval-workflow-event-list>
+            } -->
+            <qfin-approval-workflow-list [data]="workflows()">
+            </qfin-approval-workflow-list>
         </div>
 
         <!-- @if (!isViewMode()) { -->
@@ -57,7 +55,7 @@
                         <div>
                             <div class="flex justify-start gap-2">
                                 <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
-                                    @if (selectedWorkflowEventId() === EMPTY_UUID) {
+                                    @if (!hasSelectedWorkflow()) {
                                     Add Approval Workflow Event
                                     } @else if (isViewMode()) {
                                     Details
@@ -70,7 +68,7 @@
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                                     <span
                                         class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                                        @if (selectedWorkflowEventId() === EMPTY_UUID) {
+                                        @if (!hasSelectedWorkflow()) {
                                         New Mode
                                         } @else if (isViewMode()) {
                                         View Mode
@@ -81,7 +79,7 @@
                                 </div>
                             </div>
                             <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                                @if (selectedWorkflowEventId() === EMPTY_UUID) {
+                                @if (!hasSelectedWorkflow()) {
                                 Create a new approval workflow event and configure its settings.
                                 } @else if (isViewMode()) {
                                 View the approval workflow event details and configuration.
@@ -98,7 +96,18 @@
                     <svg lucideIcon="x" class="w-4 h-4"></svg>
                 </button> -->
             </div>
+
+            @if (isViewMode() && hasSelectedWorkflow()) {
+            <qfin-approval-workflow-view [approvalWorkflowId]="selectedWorkflowId()" (showEdit)="onEdit()">
+            </qfin-approval-workflow-view>
+            } @else {
+            <!-- <qfin-salary-component-detail [salaryId]="selectedUserId()" (onCancel)="closePanel()"
+                (onSave)="closePanel()">
+            </qfin-salary-component-detail> -->
+            }
+            <!-- </div> -->
         </div>
+        <!-- } -->
     </div>
 </div>
 

@@ -32,12 +32,13 @@ export class ApprovalRegulariztionList {
   readonly pageSize = input(10);
   displayedColumns = computed(() => {
     if (this.isCollapsed()) {
-      return ['regularizationType', 'employeeName', 'action'];
+      return ['regularizationType', 'codeName', 'action'];
     }
     return [
       'sl',
       'regularizationType',
-      'employeeName',
+      'name',
+      'code',
       'organizationUnit',
       'regularizationDate',
       'reason',

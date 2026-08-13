@@ -34,10 +34,10 @@ export class LeaveApprovalList {
   onViewDetail = output<string>();
   sortChanged = output<Sort>();
 
-  displayedColumns = ['sl', 'employeeName', 'leaveType', 'fromDate', 'toDate', 'status', 'action'];
+  displayedColumns = ['sl', 'name', 'code', 'leaveType', 'fromDate', 'toDate', 'status', 'action'];
 
   get columns() {
-    return this.isCollapsed() ? ['employeeName', 'action'] : this.displayedColumns;
+    return this.isCollapsed() ? ['codeName', 'action'] : this.displayedColumns;
   }
 
   onDetailView(id: string) {
