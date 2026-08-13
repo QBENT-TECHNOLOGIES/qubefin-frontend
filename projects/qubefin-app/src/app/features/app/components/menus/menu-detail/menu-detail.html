@@ -36,7 +36,7 @@
                 </h3>
                 <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <!-- Parent Menu select -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Parent Menu</mat-label>
@@ -56,7 +56,7 @@
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Name</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="pencil" class="w-5 h-5"></svg>
+                        <svg lucideIcon="user" class="w-5 h-5"></svg>
                     </div>
                     <input matInput [formField]="menuForm.name" autocomplete="name" placeholder="Enter name">
                 </mat-form-field>
@@ -64,7 +64,7 @@
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Icon</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="pencil" class="w-5 h-5"></svg>
+                        <svg lucideIcon="crosshair" class="w-5 h-5"></svg>
                     </div>
                     <input matInput [formField]="menuForm.icon" autocomplete="name" placeholder="Enter name">
                 </mat-form-field>
@@ -72,7 +72,7 @@
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Target Path</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="pencil" class="w-5 h-5"></svg>
+                        <svg lucideIcon="square-mouse-pointer" class="w-5 h-5"></svg>
                     </div>
                     <input matInput [formField]="menuForm.target" autocomplete="name" placeholder="Enter name">
                 </mat-form-field>
@@ -93,7 +93,7 @@
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
                                 [ngClass]="permission.backgroundClass">
-                                <svg [lucideIcon]="iconMap[permission.icon]" class="w-5 h-5" [ngClass]="permission.iconClass"></svg>
+                                <svg [lucideIcon]="iconMap[permission.icon]" class="w-5 h-5 dark:text-white" [ngClass]="permission.iconClass"></svg>
                             </div>
                             <div>
                                 <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ permission.permissionToken }}</p>
