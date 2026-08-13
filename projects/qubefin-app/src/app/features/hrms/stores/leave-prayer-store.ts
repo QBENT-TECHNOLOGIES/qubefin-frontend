@@ -19,11 +19,9 @@ export class LeavePrayerStore {
   private readonly sessionService = inject(SessionService);
   readonly yearQuery = signal<number | null>(new Date().getFullYear());
   private readonly employeeId = this.sessionService.employeeId;
-  readonly leaveTypeBalancesResource = httpResource<ILeaveTypeBalance[]>(() => {
-    return this.employeeId
-      ? `${ApiPaths.HRMS}/leave-types/prayer-balances/${this.employeeId}`
-      : undefined;
-  });
+  readonly leaveTypeBalancesResource = httpResource<ILeaveTypeBalance[]>(
+    () => `${ApiPaths.HRMS}/leave-types/prayer-balances`,
+  );
 
   readonly leaveTypeBalances = computed(
     () => this.leaveTypeBalancesResource.value()?.filter((m) => m.leaveBalance >= 1) ?? [],
