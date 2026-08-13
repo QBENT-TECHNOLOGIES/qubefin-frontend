@@ -84,21 +84,6 @@ export class ApprovalRegularizations {
             [],
         );
       });
-    //
-    //     this.employeeSearch$
-    // .pipe(
-    //   debounceTime(250),
-    //   distinctUntilChanged((prev, curr) => prev.searchText === curr.searchText),
-    //   switchMap((x) => this.employeeService.getEmployeesBySearchText(x)),
-    // )
-    // .subscribe((response: EmployeeSearchResponse) => {
-    //   this.employeeOptions.set(
-    //     response.value?.employees ??
-    //       response.valueOrDefault?.employees ??
-    //       response.employees ??
-    //       [],
-    //   );
-    // });
   }
   readonly hasSelectedRegularization = computed(
     () => this.selectedAttendanceRegularizationId() !== EMPTY_UUID || !this.isViewMode(),
@@ -111,9 +96,6 @@ export class ApprovalRegularizations {
   protected onView(id: string) {
     this.selectedAttendanceRegularizationId.set(id);
     this.isViewMode.set(true);
-  }
-  protected onEdit() {
-    // this.isViewMode.set(false);
   }
   protected closePanel() {
     this.selectedAttendanceRegularizationId.set(EMPTY_UUID);
@@ -133,7 +115,7 @@ export class ApprovalRegularizations {
     this.approvalRegularizationsStore.setToDate(
       this.dateFormatter(this.searchForm.toDate().value()),
     );
-    // this.approvalRegularizationsStore.setStatus(this.searchForm.status().value());
+
     this.approvalRegularizationsStore.setSearchQuery(this.searchForm.tempSearch().value());
     this.approvalRegularizationsStore.setEmployeeId(this.selectedEmployee()?.id || '');
   }
