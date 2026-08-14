@@ -11,7 +11,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { ISurveyCommitteeItem } from '../../../models/survey-committee-item';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { SurveyCommitteeStore } from '../../../stores/survey-committee-store';
 import { SurveyCommitteeService } from '../../../services/survey-committee-service';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -48,6 +48,7 @@ export class SurveyCommitteeUnitDetail {
   private readonly surveyCommitteeStore = inject(SurveyCommitteeStore);
   private readonly surveyCommitteeService = inject(SurveyCommitteeService);
   private readonly employeeService = inject(EmployeeService);
+  private readonly alertService = inject(AlertService);
 
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
@@ -251,19 +252,23 @@ export class SurveyCommitteeUnitDetail {
 
     if (!this.isEditMode()) {
       this.surveyCommitteeService.create(dataToSave).subscribe({
-        next: () => {
-          this.surveyCommitteeStore.refreshList();
-          this.save.emit();
+        next: (resp: any) => {
+          this.alertService.success('Success', resp).then(() => {
+            this.surveyCommitteeStore.refreshList();
+            this.save.emit();
+          });
         },
       });
       return;
     }
 
     this.surveyCommitteeService.update(payLoad).subscribe({
-      next: () => {
-        this.surveyCommitteeStore.refreshList();
-        this.surveyCommitteeStore.refreshDetail();
-        this.save.emit();
+      next: (resp: any) => {
+        this.alertService.success('Success', resp).then(() => {
+          this.surveyCommitteeStore.refreshList();
+          this.surveyCommitteeStore.refreshDetail();
+          this.save.emit();
+        });
       },
     });
   }

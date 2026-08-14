@@ -61,9 +61,7 @@ export class SurveyCommitteeStore {
   // Detail Api Call And Response
   // ===========================
 
-  readonly surveyCommitteeUnitResource = httpResource<{
-    surveyCommitteeMember: ISurveyCommitteeItem;
-  }>(() => {
+  readonly surveyCommitteeUnitResource = httpResource<ISurveyCommitteeItem>(() => {
     const id = this.surveyCommitteeId();
 
     return id && id !== EMPTY_UUID ? `${this.basePath}/${id}` : undefined;
@@ -74,7 +72,7 @@ export class SurveyCommitteeStore {
   // ===========================
 
   readonly surveyCommitteeUnit = computed(() => {
-    const item = this.surveyCommitteeUnitResource.value()?.surveyCommitteeMember;
+    const item = this.surveyCommitteeUnitResource.value();
     return item ? this.normalizeItem(item) : undefined;
   });
 

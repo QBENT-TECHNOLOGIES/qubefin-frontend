@@ -140,9 +140,7 @@ export class LeavePrayerView {
                 if (action === 'recommend') this.recommend.emit();
               });
             },
-            error: (err: any) => {
-              this.alertService.error('Failed', err.error.detail);
-            },
+            error: (err: any) => {},
           });
         }
       });

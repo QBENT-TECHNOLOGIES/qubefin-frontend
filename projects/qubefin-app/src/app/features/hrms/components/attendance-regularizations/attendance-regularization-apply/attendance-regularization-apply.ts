@@ -177,14 +177,12 @@ export class AttendanceRegularizationApply {
         if (result.isConfirmed) {
           this.attendanceService.applyRegularization(formData).subscribe({
             next: (resp: any) => {
-              this.alertService.success('Success', resp.message).then(() => {
+              this.alertService.success('Success', resp).then(() => {
                 this.store.refreshList();
                 this.save.emit();
               });
             },
-            error: (err: any) => {
-              this.alertService.error('Failed', err.error.message);
-            },
+            error: (err: any) => {},
           });
         }
       });

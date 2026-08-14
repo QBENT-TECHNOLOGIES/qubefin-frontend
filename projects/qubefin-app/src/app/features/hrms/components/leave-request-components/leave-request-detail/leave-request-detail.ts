@@ -245,16 +245,12 @@ export class LeaveRequestDetail {
 
           this.leaveRequestService.save(formData).subscribe({
             next: (resp: any) => {
-              this.alertService.success('Success', resp.message).then(() => {
+              this.alertService.success('Success', resp).then(() => {
                 this.leaveRequestStore.refreshList();
                 this.save.emit();
               });
             },
-            error: (err: any) => {
-              this.alertService.error('Failed', err.error.message);
-              // surface this via a toast/snackbar rather than alert() — plug in whatever
-              // notification service the rest of the app uses
-            },
+            error: (err: any) => {},
           });
         }
       });

@@ -1,4 +1,14 @@
-import { Component, computed, effect, inject, model, output, signal, untracked, WritableSignal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  model,
+  output,
+  signal,
+  untracked,
+  WritableSignal,
+} from '@angular/core';
 import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
 import { AdministrativeUnit } from '../../models/administrative-unit';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
@@ -15,278 +25,261 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 
 export interface AdministrativeUnitTypeParentField {
-	id: string;
-	name: string;
-	category: string;
-	categoryIcon: string;
-	value: WritableSignal<string | null>;
-	parentId: WritableSignal<string | null>;
-	options: WritableSignal<AdministrativeUnitBasic[]>;
+  id: string;
+  name: string;
+  category: string;
+  categoryIcon: string;
+  value: WritableSignal<string | null>;
+  parentId: WritableSignal<string | null>;
+  options: WritableSignal<AdministrativeUnitBasic[]>;
 }
 
 @Component({
-	selector: 'qfin-administrative-unit-detail-component',
-	imports: [FormField, MatIconModule, MatFormFieldModule, MatInputModule, MatSelectModule, LucideDynamicIcon],
-	templateUrl: './administrative-unit-detail.html'
+  selector: 'qfin-administrative-unit-detail-component',
+  imports: [
+    FormField,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    LucideDynamicIcon,
+  ],
+  templateUrl: './administrative-unit-detail.html',
 })
 export class AdministrativeUnitDetailComponent {
-	administrativeUnitStore = inject(AdministrativeUnitStore);
-	administrativeUnitTypeStore = inject(AdministrativeUnitTypeStore);
-	administrativeUnitService = inject(AdministrativeUnitService);
-	alertService = inject(AlertService);
+  administrativeUnitStore = inject(AdministrativeUnitStore);
+  administrativeUnitTypeStore = inject(AdministrativeUnitTypeStore);
+  administrativeUnitService = inject(AdministrativeUnitService);
+  alertService = inject(AlertService);
 
-	administrativeUnitId = model<string>('');
-	cancel = output<void>();
-	private readonly hierarchyInitialized = signal(false);
-	readonly iconMap = APP_ICONS_MAP;
+  administrativeUnitId = model<string>('');
+  cancel = output<void>();
+  private readonly hierarchyInitialized = signal(false);
+  readonly iconMap = APP_ICONS_MAP;
 
-	administrativeUnit = this.administrativeUnitStore.administrativeUnit;
-	administrativeUnitTypes = this.administrativeUnitTypeStore.administrativeUnitTypes;
+  administrativeUnit = this.administrativeUnitStore.administrativeUnit;
+  administrativeUnitTypes = this.administrativeUnitTypeStore.administrativeUnitTypes;
 
-	constructor() {
-		effect(() => {
-			const id = this.administrativeUnitId();
-			this.administrativeUnitStore.setAdministrativeUnitId(id);
-		});
+  constructor() {
+    effect(() => {
+      const id = this.administrativeUnitId();
+      this.administrativeUnitStore.setAdministrativeUnitId(id);
+    });
 
-		effect(() => {
-			const unit = this.administrativeUnit();
+    effect(() => {
+      const unit = this.administrativeUnit();
 
-			if (!unit)
-				return;
+      if (!unit) return;
 
-			this.administrativeUnitModel.set(unit!);
-		});
+      this.administrativeUnitModel.set(unit!);
+    });
 
-		effect(() => {
-			const typeId = this.administrativeUnitForm.administrativeUnitTypeId().value();
-			if (!typeId)
-				return;
+    effect(() => {
+      const typeId = this.administrativeUnitForm.administrativeUnitTypeId().value();
+      if (!typeId) return;
 
-			this.hierarchyInitialized.set(false);
-			const selectedType = this.administrativeUnitTypes().find(x => x.id === typeId);
+      this.hierarchyInitialized.set(false);
+      const selectedType = this.administrativeUnitTypes().find((x) => x.id === typeId);
 
-			if (!selectedType) {
-				this.parentTypes.set([]);
-				return;
-			}
+      if (!selectedType) {
+        this.parentTypes.set([]);
+        return;
+      }
 
-			this.parentTypes.set(
-				this.getParents(selectedType)
-					.map((parent, index) =>
-						this.createParentField(parent.id, parent.name, parent.category, parent.icon, null)
-					)
-			);
-		});
+      this.parentTypes.set(
+        this.getParents(selectedType).map((parent, index) =>
+          this.createParentField(parent.id, parent.name, parent.category, parent.icon, null),
+        ),
+      );
+    });
 
-		effect(() => {
+    effect(() => {
+      if (this.hierarchyInitialized()) {
+        return;
+      }
 
-			if (this.hierarchyInitialized()) {
-				return;
-			}
+      if (!this.parentTypes().length) {
+        return;
+      }
 
-			if (!this.parentTypes().length) {
-				return;
-			}
+      const hierarchy = this.administrativeUnitModel().hierarchy;
 
-			const hierarchy = this.administrativeUnitModel().hierarchy;
+      if (hierarchy.length === 0) {
+        this.loadOptionsForParentField(0);
+      } else {
+        this.populateHierarchy();
+      }
 
-			if (hierarchy.length === 0) {
-				this.loadOptionsForParentField(0);
-			} else {
-				this.populateHierarchy();
-			}
+      this.hierarchyInitialized.set(true);
+    });
+  }
 
-			this.hierarchyInitialized.set(true);
+  protected readonly administrativeUnitModel = signal<AdministrativeUnit>({
+    id: '',
+    name: '',
+    administrativeUnitTypeId: '',
+    administrativeUnitTypeIcon: '',
+    administrativeUnitTypeName: '',
+    parentId: '',
+    parentName: '',
+    isActive: true,
+    createdBy: '',
+    createdOn: new Date(),
+    hierarchy: [],
+  });
+  protected readonly administrativeUnitSchema: Schema<AdministrativeUnit> = schema((path) => {
+    required(path.name, { message: 'Administrative Unit Name is required' });
+  });
+  protected readonly administrativeUnitForm = form(
+    this.administrativeUnitModel,
+    this.administrativeUnitSchema,
+  );
 
-		});
+  parentTypes = signal<AdministrativeUnitTypeParentField[]>([]);
 
-	}
+  onParentChanged(index: number, value: string) {
+    const fields = this.parentTypes();
+    fields[index].value.set(value);
+    for (let i = index + 1; i < fields.length; i++) {
+      fields[i].value.set(null);
+      fields[i].options.set([]);
+      fields[i].parentId.set(null);
+    }
+    if (index + 1 < fields.length) {
+      fields[index + 1].parentId.set(value);
+      this.loadOptionsForParentField(index + 1);
+    }
+  }
 
-	protected readonly administrativeUnitModel = signal<AdministrativeUnit>({
-		id: '',
-		name: '',
-		administrativeUnitTypeId: '',
-		administrativeUnitTypeIcon: '',
-		administrativeUnitTypeName: '',
-		parentId: '',
-		parentName: '',
-		isActive: true,
-		createdBy: '',
-		createdOn: new Date(),
-		hierarchy: []
-	});
-	protected readonly administrativeUnitSchema: Schema<AdministrativeUnit> = schema((path) => {
-		required(path.name, { message: 'Administrative Unit Name is required' });
-	});
-	protected readonly administrativeUnitForm = form(this.administrativeUnitModel, this.administrativeUnitSchema);
+  onSubmit() {
+    if (!this.administrativeUnitForm().valid()) {
+      return;
+    }
 
-	parentTypes = signal<AdministrativeUnitTypeParentField[]>([]);
+    const dataToSave = this.administrativeUnitForm().value();
+    dataToSave.parentId = this.parentTypes().at(-1)?.value()!;
+    if (this.administrativeUnitId() === EMPTY_UUID) {
+      this.administrativeUnitService.create(dataToSave).subscribe({
+        next: (resp: any) => {
+          this.alertService.success('Success!', 'Administrative Unit created successfully !');
+          this.administrativeUnitStore.refreshAll();
+        },
+        error: (err: any) => {},
+      });
+    } else {
+      this.administrativeUnitService.update(this.administrativeUnitId(), dataToSave).subscribe({
+        next: (resp: any) => {
+          this.alertService.success('Success!', 'Administrative Unit updated successfully !');
+          this.administrativeUnitStore.refreshAll();
+        },
+        error: (err: any) => {},
+      });
+    }
+  }
 
-	onParentChanged(index: number, value: string) {
-		const fields = this.parentTypes();
-		fields[index].value.set(value);
-		for (let i = index + 1; i < fields.length; i++) {
-			fields[i].value.set(null);
-			fields[i].options.set([]);
-			fields[i].parentId.set(null);
-		}
-		if (index + 1 < fields.length) {
-			fields[index + 1].parentId.set(value);
-			this.loadOptionsForParentField(index + 1);
-		}
-	}
+  onCancel() {
+    this.cancel.emit();
+  }
 
-	onSubmit() {
-		if (!this.administrativeUnitForm().valid()) {
-			return;
-		}
+  private loadOptionsForParentField(index: number) {
+    const field = this.parentTypes()[index];
+    this.administrativeUnitService.loadChildren(field.parentId()).subscribe({
+      next: (result) => {
+        console.log(field.category);
+        if (field.category === 'RURAL') {
+          result = result.filter((x) => x.category.toLowerCase().includes('rural'));
+        }
+        if (field.category === 'URBAN') {
+          result = result.filter((x) => x.category.toLowerCase().includes('urban'));
+        }
 
-		const dataToSave = this.administrativeUnitForm().value();
-		dataToSave.parentId = this.parentTypes().at(-1)?.value()!;
-		if (this.administrativeUnitId() === EMPTY_UUID) {
-			this.administrativeUnitService.create(dataToSave).subscribe({
-				next: (resp: any) => {
-					this.alertService.success("Success!", "Administrative Unit created successfully !")
-					this.administrativeUnitStore.refreshAll();
-				},
-				error: (err: any) => {
-					if (err.error.isError) {
-					}
-				}
-			});
-		} else {
-			this.administrativeUnitService.update(this.administrativeUnitId(), dataToSave).subscribe({
-				next: (resp: any) => {
-					this.alertService.success("Success!", "Administrative Unit updated successfully !");
-					this.administrativeUnitStore.refreshAll();
-				},
-				error: (err: any) => {
-					if (err.error.isError) {
-					}
-				}
-			});
-		}
-	}
+        field.options.set(result);
+      },
+      error: () => {
+        field.options.set([]);
+      },
+    });
+  }
 
-	onCancel() {
-		this.cancel.emit();
-	}
+  private getParents(selected: AdministrativeUnitType): AdministrativeUnitType[] {
+    return this.administrativeUnitTypes()
+      .filter((x) => {
+        if (selected.category === 'RURAL')
+          return (
+            (x.category === 'COMMON' || x.category === 'RURAL') && x.levelNo < selected.levelNo
+          );
 
-	private loadOptionsForParentField(index: number) {
-		const field = this.parentTypes()[index];
-		this.administrativeUnitService
-			.loadChildren(field.parentId())
-			.subscribe({
-				next: result => {
-					console.log(field.category);
-					if (field.category === 'RURAL') {
-						result = result.filter(x => x.category.toLowerCase().includes('rural'));
-					}
-					if (field.category === 'URBAN') {
-						result = result.filter(x => x.category.toLowerCase().includes('urban'));
-					}
+        if (selected.category === 'URBAN')
+          return (
+            (x.category === 'COMMON' || x.category === 'URBAN') && x.levelNo < selected.levelNo
+          );
 
-					field.options.set(result);
-				},
-				error: () => {
-					field.options.set([]);
-				}
-			});
-	}
+        return x.levelNo < selected.levelNo;
+      })
+      .sort((a, b) => a.levelNo - b.levelNo);
+  }
 
-	private getParents(selected: AdministrativeUnitType): AdministrativeUnitType[] {
-		return this.administrativeUnitTypes()
-			.filter(x => {
-				if (selected.category === 'RURAL')
-					return (x.category === 'COMMON' || x.category === 'RURAL')
-						&& x.levelNo < selected.levelNo;
+  private createParentField(
+    id: string,
+    name: string,
+    category: string,
+    categoryIcon: string,
+    value: string | null,
+  ): AdministrativeUnitTypeParentField {
+    return {
+      id,
+      name,
+      category,
+      categoryIcon,
+      value: signal(value),
+      parentId: signal<string | null>(null),
+      options: signal<AdministrativeUnitBasic[]>([]),
+    };
+  }
 
-				if (selected.category === 'URBAN')
-					return (x.category === 'COMMON' || x.category === 'URBAN')
-						&& x.levelNo < selected.levelNo;
+  private populateHierarchy() {
+    if (!this.parentTypes().length) {
+      return;
+    }
 
-				return x.levelNo < selected.levelNo;
-			})
-			.sort((a, b) => a.levelNo - b.levelNo);
-	}
+    // First level has no parent
+    this.parentTypes()[0].parentId.set(null);
 
-	private createParentField(
-		id: string,
-		name: string,
-		category: string,
-		categoryIcon: string,
-		value: string | null
-	): AdministrativeUnitTypeParentField {
-		return {
-			id,
-			name,
-			category,
-			categoryIcon,
-			value: signal(value),
-			parentId: signal<string | null>(null),
-			options: signal<AdministrativeUnitBasic[]>([])
-		};
-	}
+    this.populateLevel(0);
+  }
 
-	private populateHierarchy() {
+  private populateLevel(index: number) {
+    const hierarchy = this.administrativeUnitModel().hierarchy;
+    const fields = this.parentTypes();
 
-		if (!this.parentTypes().length) {
-			return;
-		}
+    if (index >= fields.length) return;
 
-		// First level has no parent
-		this.parentTypes()[0].parentId.set(null);
+    const field = fields[index];
 
-		this.populateLevel(0);
+    this.administrativeUnitService.loadChildren(field.parentId()).subscribe({
+      next: (result) => {
+        if (field.category === 'RURAL') {
+          result = result.filter((x) => x.category.includes('RURAL'));
+        }
 
-	}
+        if (field.category === 'URBAN') {
+          result = result.filter((x) => x.category.includes('URBAN'));
+        }
 
-	private populateLevel(index: number) {
+        field.options.set(result);
 
-		const hierarchy = this.administrativeUnitModel().hierarchy;
-		const fields = this.parentTypes();
+        if (hierarchy.length > 0) {
+          // Set selected value from model
+          field.value.set(hierarchy[index].id ?? null);
 
-		if (index >= fields.length)
-			return;
+          // Set parent for next dropdown
+          if (index + 1 < fields.length) {
+            fields[index + 1].parentId.set(hierarchy[index].id);
 
-		const field = fields[index];
-
-		this.administrativeUnitService
-			.loadChildren(field.parentId())
-			.subscribe({
-
-				next: result => {
-
-					if (field.category === 'RURAL') {
-						result = result.filter(x => x.category.includes('RURAL'));
-					}
-
-					if (field.category === 'URBAN') {
-						result = result.filter(x => x.category.includes('URBAN'));
-					}
-
-					field.options.set(result);
-
-					if (hierarchy.length > 0) {
-						// Set selected value from model
-						field.value.set(hierarchy[index].id ?? null);
-
-						// Set parent for next dropdown
-						if (index + 1 < fields.length) {
-
-							fields[index + 1]
-								.parentId
-								.set(hierarchy[index].id);
-
-							this.populateLevel(index + 1);
-
-						}
-					}
-
-				}
-
-			});
-
-	}
+            this.populateLevel(index + 1);
+          }
+        }
+      },
+    });
+  }
 }

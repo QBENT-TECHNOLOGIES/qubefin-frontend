@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { applyEach, form, FormField, required, schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -19,11 +19,9 @@ import { EmployeeEmployment, IEmployeeEmployment } from '../../../../models/empl
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
 
-
 interface EmploymentFormModel {
   employments: EmployeeEmployment[];
 }
-
 
 @Component({
   selector: 'qfin-employment-component',
@@ -38,12 +36,11 @@ interface EmploymentFormModel {
     MatStepperModule,
     LucideDynamicIcon,
     MatDatepickerModule,
-    MatNativeDateModule   
+    MatNativeDateModule,
   ],
   templateUrl: './employment-component.html',
 })
 export class EmploymentComponentDetail {
-
   empId = input<string>(EMPTY_UUID);
 
   onEmpUpdate = output<void>();
@@ -52,13 +49,14 @@ export class EmploymentComponentDetail {
 
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
+  private readonly alertService = inject(AlertService);
   readonly iconMap = APP_ICONS_MAP;
 
   protected readonly employmentModel = signal<EmploymentFormModel>({
-    employments: []
+    employments: [],
   });
 
-    // 2. Refactor your schema block using applyEach
+  // 2. Refactor your schema block using applyEach
   protected readonly employmentschema = schema<EmploymentFormModel>((path) => {
     // Ensures the array itself is present
     required(path.employments);
@@ -73,100 +71,78 @@ export class EmploymentComponentDetail {
     });
   });
 
+  protected readonly employmentForm = form(this.employmentModel, this.employmentschema);
 
-  protected readonly employmentForm = form(
-    this.employmentModel,
-    this.employmentschema
-  );
-
-  private dateAdapter= inject(DateAdapter<Date>);
-  constructor(){
+  private dateAdapter = inject(DateAdapter<Date>);
+  constructor() {
     this.dateAdapter.setLocale('en-GB');
     effect(() => {
-      if(
-        this.employmentModel().employments.length === 0
-      ){
+      if (this.employmentModel().employments.length === 0) {
         // this.addEmployment();
         const model = new EmployeeEmployment();
-            model.id = EMPTY_UUID;
-            model.employeeId = this.empId();
+        model.id = EMPTY_UUID;
+        model.employeeId = this.empId();
 
-        this.employmentModel.set({employments :[model]});
+        this.employmentModel.set({ employments: [model] });
       }
-    })
-
-
+    });
   }
 
-  addEmployment(){
+  addEmployment() {
     const model = new EmployeeEmployment();
     model.employeeId = this.empId();
-    this.employmentModel.update(state => ({
-      employments:[
-        ...state.employments,
-        model
-      ]
+    this.employmentModel.update((state) => ({
+      employments: [...state.employments, model],
     }));
   }
 
-  removeEmployment(index:number){
-    this.employmentModel.update(state => ({
-      employments:
-        state.employments.filter((_,i)=>i !== index)
+  removeEmployment(index: number) {
+    this.employmentModel.update((state) => ({
+      employments: state.employments.filter((_, i) => i !== index),
     }));
   }
 
-  
-  
-
-  onSubmit(){
- 
-    
-    if(!this.employmentForm().valid()){
-          return;
-        }
+  onSubmit() {
+    if (!this.employmentForm().valid()) {
+      return;
+    }
     const dataToSave = [...this.employmentForm().value().employments];
-    this.employeeService.updateEmploymentInfo(this.empId(),dataToSave).subscribe({
-        next: () => {
+    this.employeeService.updateEmploymentInfo(this.empId(), dataToSave).subscribe({
+      next: (resp: any) => {
+        this.alertService.success('Success', resp).then(() => {
           this.employeeStore.refreshList();
           this.employeeStore.refreshDetail();
           this.onEmpUpdate.emit();
-        },
-        error: (err: any) => {
-          if (err.error?.isError) {
-          }
-        }
-      });
+        });
+      },
+      error: (err: any) => {},
+    });
   }
-
-  
 
   private kycResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
-      if (params.editMode && params.id !== EMPTY_UUID) {        
+      if (params.editMode && params.id !== EMPTY_UUID) {
         return this.employeeService.getEmploymentData(params.id).pipe(
           tap((resp: any) => {
-            this.employmentModel.update(state => ({
+            this.employmentModel.update((state) => ({
               employments: (resp.employments ?? []).map(
                 (doc: IEmployeeEmployment) =>
                   new EmployeeEmployment({
                     ...doc,
-                  fromDate: doc.fromDate ? new Date(doc.fromDate) : undefined,
-                  toDate: doc.toDate ? new Date(doc.toDate) : undefined,
-                  })
+                    fromDate: doc.fromDate ? new Date(doc.fromDate) : undefined,
+                    toDate: doc.toDate ? new Date(doc.toDate) : undefined,
+                  }),
               ),
             }));
-          })
+          }),
         );
       } else {
         this.employmentModel.set({
-
-          employments:[]
-
+          employments: [],
         });
         return of(null); // Safely stream an empty observable
       }
-    }
+    },
   });
 }
