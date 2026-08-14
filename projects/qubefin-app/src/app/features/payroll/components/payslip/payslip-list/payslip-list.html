@@ -2,9 +2,9 @@
     <div class="overflow-auto scrollbar-thin flex-1">
         <table mat-table [dataSource]="data()" class="w-full table">
             
-            <ng-container matColumnDef="employeeName">
-                <th mat-header-cell *matHeaderCellDef> Employee Name </th>
-                <td mat-cell *matCellDef="let element"> {{element.employeeName}} </td>
+            <ng-container matColumnDef="organizationUnitName">
+                <th mat-header-cell *matHeaderCellDef> Organization Unit </th>
+                <td mat-cell *matCellDef="let element"> {{element.organizationUnitName}} </td>
             </ng-container>
 
             <ng-container matColumnDef="designation">
@@ -12,14 +12,14 @@
                 <td mat-cell *matCellDef="let element"> {{element.designation}} </td>
             </ng-container>
             
-            <ng-container matColumnDef="organizationUnitName">
-                <th mat-header-cell *matHeaderCellDef> Organization Unit </th>
-                <td mat-cell *matCellDef="let element"> {{element.organizationUnitName}} </td>
+            <ng-container matColumnDef="salaryGrade">
+                <th mat-header-cell *matHeaderCellDef> Salary Grade </th>
+                <td mat-cell *matCellDef="let element"> {{element.salaryGrade}} </td>
             </ng-container>
 
             <ng-container matColumnDef="payrollMonthYear">
-                <th mat-header-cell *matHeaderCellDef> Period </th>
-                <td mat-cell *matCellDef="let element"> {{element.payrollMonth}}/{{element.payrollYear}} </td>
+                <th mat-header-cell *matHeaderCellDef> Month Year </th>
+                <td mat-cell *matCellDef="let element"> {{getMonthName(element.payrollMonth, element.payrollYear)}} </td>
             </ng-container>
 
             <ng-container matColumnDef="netPay">
@@ -32,8 +32,13 @@
                 <td mat-cell *matCellDef="let element">
                     <div class="w-full flex justify-end">
                         <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
-                            matTooltip="View Document" (click)="onViewDocument(element.payslipId)">
+                            [matTooltip]="openingPayslipId() === element.payslipId ? 'Opening payslip...' : 'View payslip'"
+                            (click)="onViewDocument(element.payslipId)">
+                            @if (openingPayslipId() === element.payslipId) {
+                            <svg lucideIcon="loader" class="w-5 h-5 text-primary-500 animate-spin"></svg>
+                            } @else {
                             <svg lucideIcon="file-text" class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
+                            }
                         </div>
                     </div>
                 </td>

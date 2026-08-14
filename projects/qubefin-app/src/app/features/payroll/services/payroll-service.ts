@@ -41,4 +41,9 @@ export class PayrollService {
   getPayslip(model: PayslipRptParam){
     return this.httpClient.post(`${ApiPaths.PAYROLL}/payslip`, model, { responseType: 'blob' });
   }
+  getPayslipById(payslipId: string) {
+    return this.httpClient.get(`${ApiPaths.PAYROLL}/reports/payslip/${payslipId}`, {
+      responseType: 'blob',
+    });
+  }
 }
