@@ -3,15 +3,12 @@
     <div class="flex items-center gap-3"></div>
     <div class="headerBtn-area">
       @if (selectedSurveyCommitteeId() === EMPTY_UUID && isViewMode()) {
-      <button type="button" (click)="toggleFilterArea()"
-        class="filter-btn glass-input lift shine-sweep ">
+      <button type="button" (click)="toggleFilterArea()" class="filter-btn glass-input lift shine-sweep ">
         <svg lucideIcon="funnel" class="w-4 h-4"></svg>
         Filter
       </button>
       } @else{}
-      <button
-        class="global-btn shine-sweep lift"
-        (click)="onAdd()">
+      <button class="global-btn shine-sweep lift" (click)="onAdd()">
         <svg lucideIcon="plus" class="w-4 h-4"></svg>
         Add Member
       </button>
@@ -45,15 +42,13 @@
           </div>
 
           <div class="flex items-center gap-2.5 shrink-0">
-            <button type="button" (click)="resetFilters()"
-              class="reset-btn lift">
-              <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
-              Reset
-            </button>
-            <button type="button" (click)="applyFilters()"
-              class="global-btn shine-sweep lift">
+            <button type="button" (click)="applyFilters()" class="global-btn shine-sweep lift">
               <svg lucideIcon="search" class="w-4 h-4"></svg>
               Search
+            </button>
+            <button type="button" (click)="resetFilters()" class="reset-btn lift">
+              <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+              Reset
             </button>
           </div>
         </div>
@@ -61,14 +56,12 @@
       }
       } @else {
       <div class="search-area">
-        <div
-          class="search-input-area">
+        <div class="search-input-area">
           <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
           <input type="text" [formField]="searchForm.tempSearch" placeholder="Search by employee ID"
             class="search-input-style" />
         </div>
-        <button (click)="applyFilters()"
-          class="search-input-btn lift">
+        <button (click)="applyFilters()" class="search-input-btn lift">
           <svg lucideIcon="search" class="w-4 h-4"></svg>
         </button>
       </div>
@@ -95,8 +88,7 @@
     </div>
 
     @if (hasSelectedSurveyCommittee()) {
-    <div class="viewArea-container glass"
-      [ngClass]="{
+    <div class="viewArea-container glass" [ngClass]="{
         'w-3/4': isViewMode() && selectedSurveyCommitteeId() !== EMPTY_UUID,
         'w-full': !isViewMode()
       }">
@@ -124,8 +116,7 @@
                   Edit Survey Committee Member
                   }
                 </h2>
-                <div
-                  class="viewArea-badge">
+                <div class="viewArea-badge">
                   <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                   <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
                     @if (selectedSurveyCommitteeId() === EMPTY_UUID) {
@@ -150,9 +141,7 @@
             </div>
           </div>
         </div>
-        <button aria-label="Close" matTooltip="Close"
-          class="pannel-close"
-          (click)="closePanel()">
+        <button aria-label="Close" matTooltip="Close" class="pannel-close" (click)="closePanel()">
           <svg lucideIcon="x" class="w-4 h-4"></svg>
         </button>
       </div>
