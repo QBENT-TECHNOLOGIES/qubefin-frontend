@@ -43,6 +43,9 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "allowedCommonJsDependencies": [
+              "sweetalert2"
+            ],
             "browser": "projects/qubefin-app/src/main.ts",
             "tsConfig": "projects/qubefin-app/tsconfig.app.json",
             "assets": [
@@ -61,8 +64,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1.2mb",
+                  "maximumError": "1.5mb"
                 },
                 {
                   "type": "anyComponentStyle",

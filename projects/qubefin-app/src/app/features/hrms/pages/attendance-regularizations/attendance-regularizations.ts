@@ -73,9 +73,7 @@ export class AttendanceRegularizations {
     this.selectedAttendanceRegularizationId.set(id);
     this.isViewMode.set(true);
   }
-  protected onEdit() {
-    // this.isViewMode.set(false);
-  }
+
   protected closePanel() {
     this.selectedAttendanceRegularizationId.set(EMPTY_UUID);
     this.isViewMode.set(true);

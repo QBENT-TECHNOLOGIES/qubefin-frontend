@@ -50,7 +50,7 @@ export class AttendanceRegularizationView {
   }
   onSubmitDecision(decision: string) {
     const curentRemarks = this.decisionModel().remarks;
-    if (!curentRemarks.trim()) {
+    if (decision === 'Rejected' && !curentRemarks.trim()) {
       this.alertService.warning('Warning', 'Remarks are mandatory.');
       return;
     }
