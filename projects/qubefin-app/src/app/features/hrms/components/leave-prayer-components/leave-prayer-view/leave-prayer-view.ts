@@ -133,7 +133,7 @@ export class LeavePrayerView {
           };
           this.leavePrayerService.leavePrayerAction(payLoad).subscribe({
             next: (resp: any) => {
-              this.alertService.success('Success', resp.value.message).then(() => {
+              this.alertService.success('Success', resp).then(() => {
                 this.leavePrayerApprovalStore.refreshList();
                 if (action === 'approve') this.approve.emit();
                 if (action === 'reject') this.reject.emit();
@@ -141,7 +141,7 @@ export class LeavePrayerView {
               });
             },
             error: (err: any) => {
-              this.alertService.error('Failed', err.error.message);
+              this.alertService.error('Failed', err.error.detail);
             },
           });
         }

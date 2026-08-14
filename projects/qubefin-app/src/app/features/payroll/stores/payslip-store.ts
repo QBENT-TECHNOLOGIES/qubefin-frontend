@@ -9,11 +9,9 @@ import { PayslipListModel } from '../models/payslip-list-model';
 export class PayslipStore {
   private readonly basePath = `${ApiPaths.PAYROLL}/payslips`;
 
-  readonly PayslipsListResource = httpResource<{ payslips: PayslipListModel[] }>(
-    () => `${this.basePath}`,
-  );
+  readonly PayslipsListResource = httpResource<PayslipListModel[]>(() => `${this.basePath}`);
 
-  readonly PayslipsList = computed(() => this.PayslipsListResource.value()?.payslips ?? []);
+  readonly PayslipsList = computed(() => this.PayslipsListResource.value() ?? []);
 
   readonly loading = computed(() => this.PayslipsListResource.isLoading());
   readonly error = computed(() => this.PayslipsListResource.error());

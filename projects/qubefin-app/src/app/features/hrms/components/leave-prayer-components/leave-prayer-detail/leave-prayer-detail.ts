@@ -168,8 +168,8 @@ export class LeavePrayerDetail {
         if (result.isConfirmed) {
           this.leavePrayerService.save(formData).subscribe({
             next: (resp: any) => {
-              if (resp.success) {
-                this.alertService.success('Success', resp.message).then(() => {
+              if (resp) {
+                this.alertService.success('Success', resp).then(() => {
                   this.leavePrayerStore.refreshList();
                   this.save.emit(); //
                   this.leavePrayerStore.refreshDetail();
@@ -178,9 +178,7 @@ export class LeavePrayerDetail {
                 this.alertService.error('Failed', resp.message || 'Something went wrong');
               }
             },
-            error: (err: any) => {
-              this.alertService.error('Failed', err.error?.message || 'An error occurred');
-            },
+            error: (err: any) => {},
           });
         }
       });

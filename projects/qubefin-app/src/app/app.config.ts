@@ -10,20 +10,21 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
 import { provideLucideIcons } from '@lucide/angular';
 import { APP_ICONS } from './lucide-icons';
+import { HttpErrorInterceptor } from './interceptors/http-error.interceptor';
 
 export const appConfig: ApplicationConfig = {
-	providers: [
-		provideBrowserGlobalErrorListeners(),
-		provideHttpClient(withInterceptors([AuthInterceptor])),
-		{
-			provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-			useValue: { appearance: 'fill' }
-		},
-		provideRouter(routes),
-		{
-			provide: ENV_CONFIG,
-			useValue: environment
-		},
-		provideLucideIcons(...APP_ICONS)
-	]
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideHttpClient(withInterceptors([AuthInterceptor, HttpErrorInterceptor])),
+    {
+      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+      useValue: { appearance: 'fill' },
+    },
+    provideRouter(routes),
+    {
+      provide: ENV_CONFIG,
+      useValue: environment,
+    },
+    provideLucideIcons(...APP_ICONS),
+  ],
 };

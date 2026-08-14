@@ -46,6 +46,15 @@
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="transition-colors"></tr>
+        <tr class="mat-row" *matNoDataRow colspan="6">
+            <td class="mat-cell text-center! p-8 italic text-gray-500 border-b-0"
+                [attr.colspan]="displayedColumns.length">
+                <div class="flex justify-center items-center gap-2">
+                    <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>
+                    No payslip data found.
+                </div>
+            </td>
+        </tr>
         </table>
     </div>
 </div>
