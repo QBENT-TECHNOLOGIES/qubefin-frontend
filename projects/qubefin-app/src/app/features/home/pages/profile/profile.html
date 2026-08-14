@@ -1,29 +1,20 @@
-<div class="min-h-full animate-fade-in pb-20">
-  <!-- Container -->
+<p>Profile Page Works</p>
+<!-- <div class="min-h-full animate-fade-in pb-20">
   <div class="space-y-4">
-    
-    <!-- Header / Cover Section -->
     <div class="relative rounded-3xl overflow-hidden bg-white dark:bg-slate-800 shadow-glass dark:shadow-glass-dark border border-slate-200/50 dark:border-slate-700/50">
-      <!-- Cover Image -->
       <div class="h-48 md:h-64 bg-gradient-to-r from-primary-500 to-secondary-500 relative">
         <div class="absolute inset-0 bg-white/10 dark:bg-black/20 backdrop-blur-sm"></div>
         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-30 mix-blend-overlay"></div>
       </div>
-      
-      <!-- Profile Info -->
       <div class="relative px-6 pb-8 md:px-10 flex flex-col md:flex-row items-center md:items-end gap-6 -mt-16 md:-mt-20">
-        <!-- Avatar -->
         <div class="relative group">
           <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white dark:border-slate-800 overflow-hidden shadow-glow relative z-10 transition-transform duration-300 group-hover:scale-105 bg-white">
             <img [src]="user.avatarUrl" alt="Profile avatar" class="w-full h-full object-cover">
           </div>
           <button class="absolute bottom-2 right-2 z-20 bg-primary-500 text-white p-2.5 rounded-full shadow-lg hover:bg-primary-600 transition-colors cursor-pointer">
-            <!-- Edit Icon -->
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
           </button>
         </div>
-        
-        <!-- Name and Role -->
         <div class="flex-1 text-center md:text-left mt-4 md:mt-0 pt-4 md:pt-16 pb-2">
           <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">{{user.name}}</h1>
           <p class="text-primary-600 dark:text-primary-400 font-medium text-lg mt-1 flex items-center justify-center md:justify-start gap-2">
@@ -35,8 +26,6 @@
             </span>
           </p>
         </div>
-        
-        <!-- Actions -->
         <div class="flex gap-3 mb-2 w-full md:w-auto px-4 md:px-0 mt-4 md:mt-0">
           <button class="flex-1 md:flex-none px-6 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-medium shadow-glow transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
@@ -49,13 +38,8 @@
         </div>
       </div>
     </div>
-
-    <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      
-      <!-- Left Column: Personal Info & Contact -->
       <div class="space-y-8">
-        <!-- About Section -->
         <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-glass dark:shadow-glass-dark border border-slate-200/50 dark:border-slate-700/50 hover:shadow-lg transition-shadow duration-300">
           <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
             <span class="w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center text-primary-500">
@@ -82,8 +66,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Security & Verification -->
         <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-glass dark:shadow-glass-dark border border-slate-200/50 dark:border-slate-700/50 hover:shadow-lg transition-shadow duration-300">
            <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
             <span class="w-8 h-8 rounded-lg bg-secondary-50 dark:bg-secondary-900/30 flex items-center justify-center text-secondary-500">
@@ -119,10 +101,7 @@
           </div>
         </div>
       </div>
-
-      <!-- Right Column: Stats & Financials -->
       <div class="lg:col-span-2 space-y-8">
-        <!-- Stats Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           @for(stat of stats; track stat.label) {
             <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-glass dark:shadow-glass-dark border border-slate-200/50 dark:border-slate-700/50 relative overflow-hidden group hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
@@ -152,8 +131,6 @@
             </div>
           }
         </div>
-
-        <!-- Recent Activity -->
         <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-glass dark:shadow-glass-dark border border-slate-200/50 dark:border-slate-700/50">
           <div class="flex items-center justify-between mb-8">
              <h3 class="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
@@ -169,12 +146,9 @@
             
             @for(activity of recentActivities; track activity.id) {
               <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group transition-all duration-300">
-                <!-- Icon -->
                 <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white dark:border-slate-800 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm relative z-10" [class]="activity.type === 'deposit' ? 'bg-green-100 text-green-600 dark:bg-green-900/50 dark:text-green-400' : (activity.type === 'withdrawal' ? 'bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-400' : 'bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400')">
                   <span [innerHTML]="activity.icon"></span>
                 </div>
-                
-                <!-- Card -->
                 <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-slate-50 dark:bg-slate-700/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 group-hover:border-primary-500/30 group-hover:shadow-md transition-all">
                   <div class="flex items-center justify-between mb-2">
                     <h4 class="font-bold text-slate-900 dark:text-white text-base">{{activity.title}}</h4>
@@ -196,4 +170,4 @@
       
     </div>
   </div>
-</div>
+</div> -->

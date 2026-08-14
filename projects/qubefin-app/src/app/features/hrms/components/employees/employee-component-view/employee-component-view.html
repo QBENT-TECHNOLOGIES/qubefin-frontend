@@ -1,51 +1,51 @@
 @if (employeeDetail(); as details) {
-<div class="flex flex-col gap-4">
+<div class="view-container">
     <div class="flex-1">
-        <div class="bg-white/20 dark:bg-glass-dark rounded-xl border border-slate-200/60 dark:border-glass-dark/10 dark:shadow">
+        <div class="unit-box">
             <!-- View Header -->
-            <div class="flex px-4 py-4 items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-sm bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] dark:shadow-none">
+            <div class="unit-box-header">
+                <div class="box-group">
+                    <div>
                         <svg lucideIcon="user" class="w-6 h-6 text-primary-700 dark:text-primary-400"></svg>
                     </div>
                     <div>
-                        <div class="flex items-center gap-2">
+                        <div class="box-title-group">
                             <!-- Safely maps fields inside the personalInfo structure -->
-                            <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">
+                            <h1 class="box-title">
                                 {{ details?.salutation }} 
                                 {{ details?.firstName }} 
                                 {{ details?.middleName }} 
                                 {{ details?.lastName }}
                             </h1>
                             @if (details?.code) {
-                            <span class="px-2 py-0.5 rounded-md bg-slate-500/10 dark:bg-white/10 text-[11px] font-mono font-semibold text-slate-600 dark:text-slate-300">
+                            <span class="title-badge">
                                 {{ details?.code }}
                             </span>
                             }
-                            <div class="p-2 rounded-4xl cursor-pointer hover:bg-secondary-500/10" matTooltip="Edit Profile"
+                            <div class="box-edit-btn" matTooltip="Edit Profile"
                                 (click)="onShowEdit()">
                                 <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
                             </div>
                         </div>
-                        <p class="text-sm text-primary-700 dark:text-primary-400 font-medium">Personal Information Profile</p>
+                        <p class="box-subTitle text-xs!">Personal Information Profile</p>
                     </div>
                 </div>
             </div>
             <div class="flex justify-self-start w-full gap-5 pt-0 p-4">
                 <div class="flex-1">
-                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+                    <h4 class="box-content-heading">
                         Personal Details
-                    </h3>
-                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-5"></div>
+                    </h4>
+                    <div class="green-line"></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Date of Birth -->
                         <div class="gen-info">
-                            <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <div class="gen-icon">
                                 <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
                             </div>
                             <div>
-                                <label class="text-[11px] text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Date of Birth</label>
-                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                <label class="gen-label">Date of Birth</label>
+                                <p class="gen-title">
                                     {{ details?.dateOfBirth | date:'longDate' }}
                                 </p>
                             </div>
@@ -53,12 +53,12 @@
                         
                         <!-- Gender -->
                         <div class="gen-info">
-                            <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <div class="gen-icon">
                                 <svg lucideIcon="user" class="w-5 h-5 text-primary-700"></svg>
                             </div>
                             <div>
-                                <label class="text-[11px] text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Gender</label>
-                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                <label class="gen-label">Gender</label>
+                                <p class="gen-title">
                                     {{ details?.gender === 'M' ? 'Male' : details?.gender === 'F' ? 'Female' : 'Others' }}
                                 </p>
                             </div>
@@ -66,12 +66,12 @@
 
                         <!-- Marital Status -->
                         <div class="gen-info">
-                            <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <div class="gen-icon">
                                 <svg lucideIcon="heart" class="w-5 h-5 text-primary-700"></svg>
                             </div>
                             <div>
-                                <label class="text-[11px] text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Marital Status</label>
-                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                <label class="gen-label">Marital Status</label>
+                                <p class="gen-title">
                                     {{ details?.maritalStatus || 'Not Specified' }}
                                 </p>
                             </div>
@@ -79,12 +79,12 @@
 
                         <!-- Blood Group -->
                         <div class="gen-info">
-                            <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <div class="gen-icon">
                                 <svg lucideIcon="droplet" class="w-5 h-5 text-primary-700"></svg>
                             </div>
                             <div>
-                                <label class="text-[11px] text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Blood Group</label>
-                                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                                <label class="gen-label">Blood Group</label>
+                                <p class="gen-title">
                                     {{ details?.bloodGroup || 'Not Specified' }}
                                 </p>
                             </div>
@@ -93,19 +93,19 @@
                 </div>
                 <div class="w-[1px] bg-slate-400/10"></div>
                 <div class="flex-1">
-                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+                    <h4 class="box-content-heading">
                         Family & Nationality
-                    </h3>
-                    <div class="w-10 h-1 rounded-full bg-secondary-500 mt-1 mb-5"></div>
+                    </h4>
+                    <div class="blue-line"></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Father's Name -->
                         <div class="gen-info">
-                            <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <div class="gen-icon">
                                 <svg lucideIcon="mars" class="w-5 h-5 text-primary-700"></svg>
                             </div>
                             <div>
-                                <label class="text-[11px] text-slate-400 uppercase tracking-wider">Father's Name</label>
-                                <p class="font-medium text-slate-700 dark:text-slate-200 mt-0.5">
+                                <label class="gen-label">Father's Name</label>
+                                <p class="gen-title">
                                     {{ details?.fatherName || '—' }}
                                 </p>
                             </div>
@@ -113,12 +113,12 @@
 
                         <!-- Mother's Name -->
                         <div class="gen-info">
-                            <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <div class="gen-icon">
                                 <svg lucideIcon="venus" class="w-5 h-5 text-primary-700"></svg>
                             </div>
                             <div>
-                                <label class="text-[11px] text-slate-400 uppercase tracking-wider">Mother's Name</label>
-                                <p class="font-medium text-slate-700 dark:text-slate-200 mt-0.5">
+                                <label class="gen-label">Mother's Name</label>
+                                <p class="gen-title">
                                     {{ details?.motherName || '—' }}
                                 </p>
                             </div>
@@ -126,12 +126,12 @@
 
                         <!-- Nationality -->
                         <div class="gen-info">
-                            <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <div class="gen-icon">
                                 <svg lucideIcon="flag" class="w-5 h-5 text-primary-700"></svg>
                             </div>
                             <div>
-                                <label class="text-[11px] text-slate-400 uppercase tracking-wider">Nationality</label>
-                                <p class="font-medium text-slate-700 dark:text-slate-200 mt-0.5">
+                                <label class="gen-label">Nationality</label>
+                                <p class="gen-title">
                                     {{ details?.nationality || '—' }}
                                 </p>
                             </div>
@@ -139,12 +139,12 @@
 
                         <!-- Religion -->
                         <div class="gen-info">
-                            <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <div class="gen-icon">
                                 <svg lucideIcon="chess-bishop" class="w-5 h-5 text-primary-700"></svg>
                             </div>
                             <div>
-                                <label class="text-[11px] text-slate-400 uppercase tracking-wider">Religion</label>
-                                <p class="font-medium text-slate-700 dark:text-slate-200 mt-0.5">
+                                <label class="gen-label">Religion</label>
+                                <p class="gen-title">
                                     {{ details?.religion || '—' }}
                                 </p>
                             </div>

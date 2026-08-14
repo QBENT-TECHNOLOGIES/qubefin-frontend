@@ -1,9 +1,9 @@
 <div class="space-y-4 animate-fade-in">
     <div>
-        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
+        <h3 class="box-content-heading mb-2!">
             KYC Info
         </h3>
-        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1"></div>
+        <div class="green-line"></div>
     </div>
     @for (doc of kycModel().documents; track $index) {
         <div class="flex items-center gap-3 border-b border-slate-200 pb-3">
@@ -98,12 +98,14 @@
         </button>
     </div>
     <!-- Save -->
-    <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-end">
-        <button type="button" (click)="onSubmit()"
-            class="cursor-pointer ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500">
-            Save
-            <svg lucideIcon="chevron-right" class="w-5 h-5">
-            </svg>
-        </button>
+    <div class="step-footer-area border-0!">
+        <div class="flex flex-1 justify-end items-center gap-3">
+            <button type="button" (click)="onSubmit()"
+                class="global-btn ripple-btn shadow shine-sweep lift">
+                Save
+                <svg lucideIcon="chevron-right" class="w-5 h-5">
+                </svg>
+            </button>
+        </div>
     </div>
 </div>

@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4">
+<div class="view-container">
     @if (loading()) {
     <div class="py-8 text-center text-slate-400 font-medium">Loading payroll details...</div>
     } @else if (!monthlyPayroll()?.headers?.length) {
@@ -9,40 +9,40 @@
         @for (header of monthlyPayroll()?.headers; track header.organizationUnitId; let idx = $index) {
         <mat-expansion-panel [expanded]="expandedOrgUnitId() === header.organizationUnitId"
             (opened)="togglePanel(header.organizationUnitId, true)"
-            class="shadow-none! hover:shadow-md! transition-all duration-300 border border-slate-200! dark:border-white/10! rounded-xl! glass overflow-hidden m-0!">
+            class="expansion-panel glass">
 
             <mat-expansion-panel-header
-                class="bg-primary-500/7! rounded! hover:bg-slate-200/30! dark:bg-slate-800/40! dark:hover:bg-slate-800/60! h-16! px-4 border-b border-slate-200/40 dark:border-white/5 transition duration-200">
-                <div class="flex flex-wrap md:flex-nowrap items-center justify-between gap-4 w-full select-none">
+                class="expansion-panel-header">
+                <div class="panel-header-inner">
                     <div class="flex items-center gap-3">
                         <div
-                            class="w-10 h-10 rounded-xl bg-primary-500/10 dark:bg-primary-400/10 flex items-center justify-center border border-primary-500/20 shrink-0">
+                            class="panel-header-icon-box">
                             <svg [lucideIcon]="icons['Building2']"
                                 class="w-5 h-5 text-primary-600 dark:text-primary-400"></svg>
                         </div>
                         <div>
-                            <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-wide uppercase">
+                            <h3 class="panel-header-title">
                                 {{ header.organizationUnitName }}
                             </h3>
                             <span
-                                class="text-[10px] px-2 py-0.5 rounded-md bg-slate-200/60 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 font-semibold uppercase tracking-wider">
+                                class="code-badge">
                                 Code: {{ header.codeVal }}
                             </span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 flex-wrap md:flex-nowrap text-xs font-medium mr-4">
+                    <div class="panel-header-info">
                         <div
-                            class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800/80 border border-slate-200/50 dark:border-white/5">
+                            class="info-badge">
                             <svg [lucideIcon]="icons['Users']" class="w-4 h-4 text-slate-300"></svg>
                             <span
-                                class="text-[11px] text-slate-500 dark:text-slate-300 uppercase tracking-wide">Employees:</span>
+                                class="info-label">Employees:</span>
                             <span class="font-bold text-slate-800 dark:text-slate-100">{{ header.details.length
                                 }}</span>
                         </div>
                         <div
-                            class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/10 dark:border-emerald-500/20">
+                            class="pay-info">
                             <span
-                                class="text-emerald-600 dark:text-emerald-400 uppercase tracking-wide text-[10px] font-bold">Net
+                                class="pay-label">Net
                                 Pay:</span>
                             <span class="font-bold text-emerald-600 dark:text-emerald-400">
                                 {{ (header.totalEarnings - header.totalDeductions) | currency:'INR' }}
@@ -51,21 +51,21 @@
                     </div>
                 </div>
             </mat-expansion-panel-header>
-            <div class="flex flex-col gap-3 p-4 bg-slate-50/50 dark:bg-slate-900/50">
+            <div class="panel-content-box">
                 @for (emp of header.details; track emp.id; let i = $index) {
                 <div
-                    class="dark:bg-slate-800/40 border border-slate-200/60 dark:border-white/5 rounded-xl p-2 flex flex-wrap md:flex-nowrap items-center justify-between gap-4 transition duration-200">
+                    class="panel-content-item-box">
                     <div class="flex items-center gap-3.5 min-w-[240px]">
                         <div
-                            class="w-11 h-11 rounded-full bg-primary-500/10 dark:bg-primary-400/10 text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold text-sm border border-primary-500/20 uppercase shrink-0">
+                            class="employee-circle">
                             {{ getInitials(emp.employeeName) }}
                         </div>
                         <div>
-                            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide">
+                            <h4 class="employee-name">
                                 {{ emp.employeeName }}
                             </h4>
                             <div
-                                class="flex flex-wrap items-center gap-1.5 mt-1 text-xs text-slate-400 dark:text-slate-400">
+                                class="emp-desg-com">
                                 <span class="font-medium text-slate-500 dark:text-slate-400">{{ emp.designationTitle
                                     }}</span>
                                 <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
@@ -74,30 +74,30 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-4 sm:gap-6 flex-1 justify-start md:justify-end">
-                        <div class="flex flex-col items-start md:items-end min-w-[90px]">
+                    <div class="panel-content-end-box">
+                        <div class="amount-box min-w-[90px]">
                             <span
-                                class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-300">Earnings</span>
+                                class="amount-label">Earnings</span>
                             <span
-                                class="text-sm font-semibold text-emerald-600 dark:text-emerald-500 flex items-center gap-1 mt-0.5">
+                                class="amount-title text-emerald-600 dark:text-emerald-500">
                                 <svg [lucideIcon]="icons['TrendingUp']" class="w-3.5 h-3.5 text-emerald-500"></svg>
                                 {{ emp.totalEarnings | currency:'INR' }}
                             </span>
                         </div>
-                        <div class="flex flex-col items-start md:items-end min-w-[90px]">
+                        <div class="amount-box min-w-[90px]">
                             <span
-                                class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-300">Deductions</span>
+                                class="amount-label">Deductions</span>
                             <span
-                                class="text-sm font-semibold text-rose-500 dark:text-rose-400 flex items-center gap-1 mt-0.5">
+                                class="amount-title text-rose-500 dark:text-rose-400">
                                 <svg [lucideIcon]="icons['TrendingDown']" class="w-3.5 h-3.5 text-rose-500"></svg>
                                 {{ emp.totalDeductions | currency:'INR' }}
                             </span>
                         </div>
-                        <div class="flex flex-col items-start md:items-end min-w-[110px] px-3 py-1.5 rounded-lg">
+                        <div class="amount-box min-w-[110px] px-3 py-1.5 rounded-lg">
                             <span
-                                class="text-[10px] font-semibold uppercase tracking-wider text-primary-500 dark:text-primary-400">Net
+                                class="amount-label text-primary-500 dark:text-primary-400">Net
                                 Pay</span>
-                            <span class="text-sm font-bold text-primary-600 dark:text-primary-400 mt-0.5">
+                            <span class="amount-title text-primary-600 dark:text-primary-400">
                                 {{ netPay(emp.totalEarnings, emp.totalDeductions) | currency:'INR' }}
                             </span>
                         </div>
@@ -105,7 +105,7 @@
                     <div class="flex items-center gap-2 shrink-0">
                         @if(!monthlyPayroll()?.isLocked){
                             <button type="button" matTooltip="Edit" (click)="onViewEmployeePayroll(emp.id)"
-                                class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:border-primary-500/50 dark:hover:border-primary-500/50 hover:bg-primary-500/5 dark:hover:bg-primary-500/10 transition cursor-pointer lift">
+                                class="edit-box lift">
                                 <svg [lucideIcon]="icons['Pencil']" class="w-4 h-4"></svg>
                             </button>}
                         @else {
