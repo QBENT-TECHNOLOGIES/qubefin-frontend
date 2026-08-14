@@ -9,7 +9,7 @@
                     Filter
                 </button>
                 } @else {}
-                <button
+                <button (click)="onAdd()"
                     class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
                     <svg lucideIcon="plus" class="w-4 h-4"></svg>
                     Add New
@@ -91,7 +91,7 @@
                         </div>
                     </div>
                 </div>
-                <button aria-label="Close" matTooltip="Close"
+                <button aria-label="Close" matTooltip="Close" (click)="closePanel()"
                     class="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer">
                     <svg lucideIcon="x" class="w-4 h-4"></svg>
                 </button>
@@ -101,9 +101,9 @@
             <qfin-approval-workflow-view [approvalWorkflowId]="selectedWorkflowId()" (showEdit)="onEdit()">
             </qfin-approval-workflow-view>
             } @else {
-            <!-- <qfin-salary-component-detail [salaryId]="selectedUserId()" (onCancel)="closePanel()"
+            <qfin-approval-workflow-detail [approvalWorkflowId]="selectedWorkflowId()" (onCancel)="closePanel()"
                 (onSave)="closePanel()">
-            </qfin-salary-component-detail> -->
+            </qfin-approval-workflow-detail>
             }
             <!-- </div> -->
         </div>
