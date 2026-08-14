@@ -67,15 +67,13 @@ export class AttendanceRegularizationView {
         if (result.isConfirmed) {
           this.attendanceService.submitRegularization(payload).subscribe({
             next: (resp: any) => {
-              this.alertService.success('Success', resp.value.message).then(() => {
+              this.alertService.success('Success', resp).then(() => {
                 this.save.emit();
                 this.store.refreshDetail();
                 this.store.refreshList();
               });
             },
-            error: (err: any) => {
-              this.alertService.error('Failed', err.error.message);
-            },
+            error: (err: any) => {},
           });
         }
       });

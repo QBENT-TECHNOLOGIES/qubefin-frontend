@@ -114,6 +114,7 @@ export class EmployeeStore {
 
   setPageSize(size: number) {
     this.pageSize.set(size);
+    this.pageIndex.set(0);
     // this.pageIndex.set(0);
   }
 

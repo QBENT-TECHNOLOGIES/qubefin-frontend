@@ -5,14 +5,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { form, FormField, required, schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeService } from '../../../../services/employee-service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
-import { EmployeeDocument, IEmployeeDocument, KycDocument } from '../../../../models/employee-detail';
+import {
+  EmployeeDocument,
+  IEmployeeDocument,
+  KycDocument,
+} from '../../../../models/employee-detail';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import Swal from 'sweetalert2';
@@ -20,11 +24,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 
-
 interface KycFormModel {
   documents: IEmployeeDocument[];
 }
-
 
 @Component({
   selector: 'qfin-kyc-document-component',
@@ -40,13 +42,11 @@ interface KycFormModel {
     LucideDynamicIcon,
     MatTooltipModule,
     MatDatepickerModule,
-    MatNativeDateModule   
+    MatNativeDateModule,
   ],
   templateUrl: './kyc-document-component.html',
 })
 export class KycDocumentComponentDetail {
-
-
   empId = input<string>(EMPTY_UUID);
 
   onKycUpdate = output<void>();
@@ -55,216 +55,158 @@ export class KycDocumentComponentDetail {
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
   private readonly employeeStore = inject(EmployeeStore);
-    private readonly employeeService = inject(EmployeeService);
-    readonly iconMap = APP_ICONS_MAP;
-
-
+  private readonly employeeService = inject(EmployeeService);
+  private readonly alertService = inject(AlertService);
+  readonly iconMap = APP_ICONS_MAP;
 
   protected readonly kycModel = signal<KycFormModel>({
-    documents: []
+    documents: [],
   });
-
-
 
   protected readonly kycSchema = schema<KycFormModel>((path) => {
-
     required(path.documents);
-
   });
 
+  protected readonly kycForm = form(this.kycModel, this.kycSchema);
 
+  private dateAdapter = inject(DateAdapter<Date>);
 
-  protected readonly kycForm = form(
-    this.kycModel,
-    this.kycSchema
-  );
-
-
-  private dateAdapter= inject(DateAdapter<Date>);
-
-  constructor(){
+  constructor() {
     this.dateAdapter.setLocale('en-GB');
     effect(() => {
-
       const docs = this.kycDocs();
-      if(
-        docs.length &&
-        this.kycModel().documents.length === 0
-      ){
-        const mandatoryDocs =
-          docs.filter(x => x.isMandatory);
+      if (docs.length && this.kycModel().documents.length === 0) {
+        const mandatoryDocs = docs.filter((x) => x.isMandatory);
 
         this.kycModel.set({
-          documents: mandatoryDocs.map(doc => {
+          documents: mandatoryDocs.map((doc) => {
             const model = new EmployeeDocument();
 
             model.documentName = doc.name;
-            model.documentNo = "";
+            model.documentNo = '';
             model.validFrom = null;
             model.validTill = null;
-            model.documentCategory = "KYC";
+            model.documentCategory = 'KYC';
             model.employeeId = this.empId();
             return model;
-          })
+          }),
         });
       }
     });
   }
 
   onDocumentChange(index: number) {
-
-    this.kycModel.update(state => {
-
+    this.kycModel.update((state) => {
       const documents = [...state.documents];
 
       const current = documents[index];
 
       documents[index] = {
         ...current,
-        documentNo: "",
+        documentNo: '',
         validFrom: null,
-        validTill: null
+        validTill: null,
       };
 
       return {
-        documents
+        documents,
       };
     });
   }
 
-  private getSelectedDocument(name:string){
-
-    return this.kycDocs()
-      .find(x => x.name === name);
-
+  private getSelectedDocument(name: string) {
+    return this.kycDocs().find((x) => x.name === name);
   }
-  selectedDocument(index:number){
-
-    const name =
-      this.kycModel()
-        .documents[index]
-        ?.documentName;
+  selectedDocument(index: number) {
+    const name = this.kycModel().documents[index]?.documentName;
 
     return this.getSelectedDocument(name);
   }
-  addDocument(){
+  addDocument() {
     const model = new EmployeeDocument();
-    model.documentCategory = "KYC";
+    model.documentCategory = 'KYC';
     model.employeeId = this.empId();
-    this.kycModel.update(state => ({
-      documents:[
-        ...state.documents,
-        model
-      ]
+    this.kycModel.update((state) => ({
+      documents: [...state.documents, model],
     }));
   }
 
-  removeDocument(index:number){
-    this.kycModel.update(state => ({
-      documents:
-        state.documents.filter((_,i)=>i !== index)
+  removeDocument(index: number) {
+    this.kycModel.update((state) => ({
+      documents: state.documents.filter((_, i) => i !== index),
     }));
   }
 
   availableDocuments(index: number) {
     const selectedNames = this.kycModel()
-      .documents
-      .map(x => x.documentName)
+      .documents.map((x) => x.documentName)
       .filter(Boolean);
 
-    return this.kycDocs().filter(doc =>
-      !selectedNames.includes(doc.name) ||
-      doc.name === this.kycModel().documents[index]?.documentName
+    return this.kycDocs().filter(
+      (doc) =>
+        !selectedNames.includes(doc.name) ||
+        doc.name === this.kycModel().documents[index]?.documentName,
     );
-
   }
   hasMissingMandatoryDocuments(): boolean {
-
-    const mandatoryDocs = this.kycDocs()
-      .filter(doc => doc.isMandatory);
-
+    const mandatoryDocs = this.kycDocs().filter((doc) => doc.isMandatory);
 
     const uploadedDocIds = this.kycModel()
-      .documents
-      .filter(doc => !!doc.documentName)
-      .map(doc => doc.documentName);
+      .documents.filter((doc) => !!doc.documentName)
+      .map((doc) => doc.documentName);
 
-    return mandatoryDocs.some(doc =>
-        !uploadedDocIds.includes(doc.name)
-      );
+    return mandatoryDocs.some((doc) => !uploadedDocIds.includes(doc.name));
   }
 
   hasMissingDateValidation(): boolean {
-    return this.kycModel()
-      .documents
-      .some(doc => {
-        const selectedDoc = this.kycDocs()
-          .find(x => x.name === doc.documentName);
+    return this.kycModel().documents.some((doc) => {
+      const selectedDoc = this.kycDocs().find((x) => x.name === doc.documentName);
 
-        return selectedDoc?.isDateValidate &&
-          (!doc.validFrom || !doc.validTill);
-
-      });
-
+      return selectedDoc?.isDateValidate && (!doc.validFrom || !doc.validTill);
+    });
   }
   hasMissingDocumentNumbers(): boolean {
-
-    return this.kycModel()
-      .documents
-      .some(doc =>
-        !!doc.documentName &&
-        !doc.documentNo?.trim()
-      );
-
+    return this.kycModel().documents.some((doc) => !!doc.documentName && !doc.documentNo?.trim());
   }
   hasInvalidDateRange(): boolean {
-    return this.kycModel().documents.some((_, index) =>
-      this.isValidTillInvalid(index)
-    );
+    return this.kycModel().documents.some((_, index) => this.isValidTillInvalid(index));
   }
 
-  onSubmit(){
-
-    const dataToSave = [...this.kycForm().value().documents];    
+  onSubmit() {
+    const dataToSave = [...this.kycForm().value().documents];
     if (this.hasMissingMandatoryDocuments()) {
-      Swal.fire('Oh!','Please upload all mandatory KYC documents.','error');
+      Swal.fire('Oh!', 'Please upload all mandatory KYC documents.', 'error');
       return;
     }
     if (this.hasMissingDocumentNumbers()) {
-      Swal.fire('Oh!','Document Number is required.','error');
+      Swal.fire('Oh!', 'Document Number is required.', 'error');
       return;
-
     }
-    if(this.hasMissingDateValidation()){
-      Swal.fire('Oh!','Valid From and Valid Till are required.','error');
+    if (this.hasMissingDateValidation()) {
+      Swal.fire('Oh!', 'Valid From and Valid Till are required.', 'error');
       return;
     }
     if (this.hasInvalidDateRange()) {
-      Swal.fire(
-        'Oh!',
-        'Valid Till must be greater than or equal to Valid From.',
-        'error'
-      );
+      Swal.fire('Oh!', 'Valid Till must be greater than or equal to Valid From.', 'error');
       return;
     }
-    if(!this.kycForm().valid()){
-          return;
-        }
+    if (!this.kycForm().valid()) {
+      return;
+    }
     // const data =
     //   this.kycForm().value();
     // const dataToSave = [...data.documents];
 
-    this.employeeService.updateKycInfo(this.empId(),dataToSave).subscribe({
-        next: () => {
+    this.employeeService.updateKycInfo(this.empId(), dataToSave).subscribe({
+      next: (resp: any) => {
+        this.alertService.success('Success', resp).then(() => {
           this.employeeStore.refreshList();
           this.employeeStore.refreshDetail();
           this.onKycUpdate.emit();
-        },
-        error: (err: any) => {
-          if (err.error?.isError) {
-          }
-        }
-      });
+        });
+      },
+      error: (err: any) => {},
+    });
   }
 
   isValidTillInvalid(index: number): boolean {
@@ -278,29 +220,27 @@ export class KycDocumentComponentDetail {
   private kycResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
-      if (params.editMode && params.id !== EMPTY_UUID) {        
+      if (params.editMode && params.id !== EMPTY_UUID) {
         return this.employeeService.getKycData(params.id).pipe(
           tap((resp: any) => {
-            this.kycModel.update(state => ({
+            this.kycModel.update((state) => ({
               documents: (resp.documents ?? []).map(
                 (doc: IEmployeeDocument) =>
                   new EmployeeDocument({
                     ...doc,
                     validFrom: doc.validFrom ? new Date(doc.validFrom) : null,
                     validTill: doc.validTill ? new Date(doc.validTill) : null,
-                  })
+                  }),
               ),
             }));
-          })
+          }),
         );
       } else {
         this.kycModel.set({
-
-          documents:[]
-
+          documents: [],
         });
         return of(null); // Safely stream an empty observable
       }
-    }
+    },
   });
 }

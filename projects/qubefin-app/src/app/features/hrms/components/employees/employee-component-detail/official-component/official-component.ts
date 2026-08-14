@@ -1,11 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, input, output, signal, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -31,18 +41,19 @@ import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
     MatStepperModule,
     LucideDynamicIcon,
     MatDatepickerModule,
-    MatNativeDateModule   
+    MatNativeDateModule,
   ],
   templateUrl: './official-component.html',
 })
 export class OfficialComponentDetail {
   empId = input<string>(EMPTY_UUID);
-//   onCancel = output<void>();
+  //   onCancel = output<void>();
   onOfficialUpdate = output<void>();
-  private dateAdapter= inject(DateAdapter<Date>);
+  private dateAdapter = inject(DateAdapter<Date>);
 
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
+  private readonly alertService = inject(AlertService);
   readonly iconMap = APP_ICONS_MAP;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
@@ -57,69 +68,73 @@ export class OfficialComponentDetail {
 
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
-  constructor(){
-    
+  constructor() {
     this.dateAdapter.setLocale('en-GB');
   }
-  
-   private officialResource = rxResource({
+
+  private officialResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
-      if (params.editMode && params.id !== EMPTY_UUID) {        
+      if (params.editMode && params.id !== EMPTY_UUID) {
         return this.employeeService.getOfficialData(params.id).pipe(
           tap((resp: any) => {
             this.employeeStore.setEmployeeComponentId(resp.id);
             this.officialModel.set(new EmployeeOfficialInfo(resp));
-            this.officialModel.update(state => ({ 
-              ...state, 
-              joiningDate:resp.joiningDate == null ? null : new Date(resp.joiningDate),
-              confirmationDate:resp.confirmationDate == null ? null : new Date(resp.confirmationDate),
-              separationDate:resp.separationDate == null ? null : new Date(resp.separationDate)
+            this.officialModel.update((state) => ({
+              ...state,
+              joiningDate: resp.joiningDate == null ? null : new Date(resp.joiningDate),
+              confirmationDate:
+                resp.confirmationDate == null ? null : new Date(resp.confirmationDate),
+              separationDate: resp.separationDate == null ? null : new Date(resp.separationDate),
             }));
-          })
+          }),
         );
       } else {
         this.officialModel.set(new EmployeeOfficialInfo());
         return of(null); // Safely stream an empty observable
       }
-    }
+    },
   });
-  
-  
 
   onSubmit() {
     // console.log(this.presentAddressForm().value());
     // console.log(this.permanentAddressForm().value());
-    
+
     if (!this.officialForm().valid()) {
       return;
     }
 
     const data = this.officialForm().value();
     const dataToSave: any = this.officialForm().value();
-    dataToSave.companyId = dataToSave.companyId == "" ? null : dataToSave.companyId;
-    dataToSave.organizationUnitId = dataToSave.organizationUnitId == "" ? null : dataToSave.organizationUnitId;
-    dataToSave.departmentId = dataToSave.departmentId == "" ? null : dataToSave.departmentId;
-    dataToSave.employementType = dataToSave.employementType == "" ? null : dataToSave.employementType;
-    dataToSave.joiningDate = dataToSave.joiningDate == "" ? null : new Date(dataToSave.joiningDate);
-    dataToSave.confirmationDate = dataToSave.confirmationDate == "" ? null : new Date(dataToSave.confirmationDate);
-    dataToSave.separationDate = dataToSave.separationDate == "" ? null : new Date(dataToSave.separationDate);
-    dataToSave.referedBy = dataToSave.referedBy == "" ? null : dataToSave.referedBy;
-    dataToSave.howYouKnow = dataToSave.howYouKnow == "" ? null : dataToSave.howYouKnow;
-    dataToSave.officialEmail = dataToSave.officialEmail == "" ? null : dataToSave.officialEmail;
-    dataToSave.isActive = dataToSave.isActive == "" ? false : dataToSave.isActive;
-    
+    dataToSave.companyId = dataToSave.companyId == '' ? null : dataToSave.companyId;
+    dataToSave.organizationUnitId =
+      dataToSave.organizationUnitId == '' ? null : dataToSave.organizationUnitId;
+    dataToSave.departmentId = dataToSave.departmentId == '' ? null : dataToSave.departmentId;
+    dataToSave.employementType =
+      dataToSave.employementType == '' ? null : dataToSave.employementType;
+    dataToSave.joiningDate = dataToSave.joiningDate == '' ? null : new Date(dataToSave.joiningDate);
+    dataToSave.confirmationDate =
+      dataToSave.confirmationDate == '' ? null : new Date(dataToSave.confirmationDate);
+    dataToSave.separationDate =
+      dataToSave.separationDate == '' ? null : new Date(dataToSave.separationDate);
+    dataToSave.referedBy = dataToSave.referedBy == '' ? null : dataToSave.referedBy;
+    dataToSave.howYouKnow = dataToSave.howYouKnow == '' ? null : dataToSave.howYouKnow;
+    dataToSave.officialEmail = dataToSave.officialEmail == '' ? null : dataToSave.officialEmail;
+    dataToSave.isActive = dataToSave.isActive == '' ? false : dataToSave.isActive;
+
     if (this.isEditMode()) {
-      this.employeeService.updateOfficialInfo( this.empId(),dataToSave).subscribe({
-        next: () => {
-          this.employeeStore.refreshList();
-          this.employeeStore.refreshDetail();
-          this.onOfficialUpdate.emit();
+      this.employeeService.updateOfficialInfo(this.empId(), dataToSave).subscribe({
+        next: (resp: any) => {
+          this.alertService.success('Success', resp).then(() => {
+            this.employeeStore.refreshList();
+            this.employeeStore.refreshDetail();
+            this.onOfficialUpdate.emit();
+          });
         },
         error: (err: any) => {
           if (err.error?.isError) {
           }
-        }
+        },
       });
     }
   }

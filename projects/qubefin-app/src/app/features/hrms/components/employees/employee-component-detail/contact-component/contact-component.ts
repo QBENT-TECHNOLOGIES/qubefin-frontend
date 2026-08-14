@@ -1,18 +1,33 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, input, output, signal, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import { EmployeeService } from '../../../../services/employee-service';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
-import { EmployeeAddressInfo, EmployeeContactInfo, IEmployeeAddressInfo, IEmployeeContactInfo } from '../../../../models/employee-detail';
+import {
+  EmployeeAddressInfo,
+  EmployeeContactInfo,
+  IEmployeeAddressInfo,
+  IEmployeeContactInfo,
+} from '../../../../models/employee-detail';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
 
@@ -27,17 +42,18 @@ import { of, tap } from 'rxjs';
     MatCheckboxModule,
     FormField,
     MatStepperModule,
-    LucideDynamicIcon
+    LucideDynamicIcon,
   ],
   templateUrl: './contact-component.html',
 })
 export class ContactComponentDetail {
   empId = input<string>(EMPTY_UUID);
-//   onCancel = output<void>();
+  //   onCancel = output<void>();
   onContactUpdate = output<void>();
 
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
+  private readonly alertService = inject(AlertService);
   readonly iconMap = APP_ICONS_MAP;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
@@ -85,56 +101,61 @@ export class ContactComponentDetail {
   //     }
   //   });
   // }
-   private contactResource = rxResource({
+  private contactResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
       if (params.editMode && params.id !== EMPTY_UUID) {
         this.employeeStore.setEmployeeComponentId(params.id);
-        
+
         return this.employeeService.getContactData(params.id).pipe(
           tap((resp: any) => {
             this.employeeStore.setEmployeeComponentId(resp.id);
             this.contactModel.set(new EmployeeContactInfo(resp));
-          })
+          }),
         );
       } else {
         this.contactModel.set(new EmployeeContactInfo());
         this.contactModel.set(new EmployeeContactInfo());
         return of(null); // Safely stream an empty observable
       }
-    }
+    },
   });
 
   onSubmit() {
     // console.log(this.presentAddressForm().value());
     // console.log(this.permanentAddressForm().value());
-    
+
     if (!this.contactForm().valid()) {
       return;
     }
 
     const data = this.contactForm().value();
     const dataToSave: any = this.contactForm().value();
-    dataToSave.mobileNo = dataToSave.mobileNo == "" ? null : dataToSave.mobileNo;
-    dataToSave.personalEmail = dataToSave.personalEmail == "" ? null : dataToSave.personalEmail;
-    dataToSave.primaryEmergencyRelation = dataToSave.primaryEmergencyRelation == "" ? null : dataToSave.primaryEmergencyRelation;
-    dataToSave.primaryEmergencyName = dataToSave.primaryEmergencyName == "" ? null : dataToSave.primaryEmergencyName;
-    dataToSave.primaryEmergencyMobile = dataToSave.primaryEmergencyMobile == "" ? null : dataToSave.primaryEmergencyMobile;
-    dataToSave.secondaryEmergencyRelation = dataToSave.secondaryEmergencyRelation == "" ? null : dataToSave.secondaryEmergencyRelation;
-    dataToSave.secondaryEmergencyName = dataToSave.secondaryEmergencyName == "" ? null : dataToSave.secondaryEmergencyName;
-    dataToSave.secondaryEmergencyMobile = dataToSave.secondaryEmergencyMobile == "" ? null : dataToSave.secondaryEmergencyMobile;
-    
+    dataToSave.mobileNo = dataToSave.mobileNo == '' ? null : dataToSave.mobileNo;
+    dataToSave.personalEmail = dataToSave.personalEmail == '' ? null : dataToSave.personalEmail;
+    dataToSave.primaryEmergencyRelation =
+      dataToSave.primaryEmergencyRelation == '' ? null : dataToSave.primaryEmergencyRelation;
+    dataToSave.primaryEmergencyName =
+      dataToSave.primaryEmergencyName == '' ? null : dataToSave.primaryEmergencyName;
+    dataToSave.primaryEmergencyMobile =
+      dataToSave.primaryEmergencyMobile == '' ? null : dataToSave.primaryEmergencyMobile;
+    dataToSave.secondaryEmergencyRelation =
+      dataToSave.secondaryEmergencyRelation == '' ? null : dataToSave.secondaryEmergencyRelation;
+    dataToSave.secondaryEmergencyName =
+      dataToSave.secondaryEmergencyName == '' ? null : dataToSave.secondaryEmergencyName;
+    dataToSave.secondaryEmergencyMobile =
+      dataToSave.secondaryEmergencyMobile == '' ? null : dataToSave.secondaryEmergencyMobile;
+
     if (this.isEditMode()) {
-      this.employeeService.updateContactInfo( this.empId(),dataToSave).subscribe({
-        next: () => {
-          this.employeeStore.refreshList();
-          this.employeeStore.refreshDetail();
-          this.onContactUpdate.emit();
+      this.employeeService.updateContactInfo(this.empId(), dataToSave).subscribe({
+        next: (resp: any) => {
+          this.alertService.success('Success', resp).then(() => {
+            this.employeeStore.refreshList();
+            this.employeeStore.refreshDetail();
+            this.onContactUpdate.emit();
+          });
         },
-        error: (err: any) => {
-          if (err.error?.isError) {
-          }
-        }
+        error: (err: any) => {},
       });
     }
   }

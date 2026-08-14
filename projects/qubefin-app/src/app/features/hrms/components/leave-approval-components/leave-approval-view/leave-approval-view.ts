@@ -84,16 +84,14 @@ export class LeaveApprovalView {
 
           this.leaveRequestService.leaveAction(payLoad).subscribe({
             next: (resp: any) => {
-              this.alertService.success('Success', resp.value.message).then(() => {
+              this.alertService.success('Success', resp).then(() => {
                 this.leaveApprovalStore.refreshList();
                 if (action === 'approve') this.approve.emit();
                 if (action === 'reject') this.reject.emit();
                 if (action === 'recommend') this.recommend.emit();
               });
             },
-            error: (err: any) => {
-              this.alertService.error('Failed', err.error.message);
-            },
+            error: (err: any) => {},
           });
         }
       });
