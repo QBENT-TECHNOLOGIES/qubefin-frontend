@@ -2,11 +2,13 @@
     <div class="header-group">
         <div class="flex items-center gap-3"></div>
         <div class="headerBtn-area">
+            @if(isViewMode()&& selectedEmployeeComponentId() === EMPTY_UUID){
             <button type="button" (click)="toggleFilterArea()"
                 class="filter-btn glass-input lift shine-sweep">
                 <svg lucideIcon="funnel" class="w-4 h-4"></svg>
                 Filter
             </button>
+            }
             <button
                 class="global-btn shine-sweep lift"
                 (click)="onAdd()">
@@ -29,91 +31,67 @@
                     !isViewMode()
             }">
             @if (selectedEmployeeComponentId() === EMPTY_UUID && isViewMode()) {
-                @if (showFilterArea()) {
-                    <div class="filter-area">
-                        <div class="filter-container">
-                            <!-- Search By Name/Code -->
-                            <div class="flex-1 min-w-[200px]">
-                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                    <mat-label>Search By Name/Code</mat-label>
-                                    <div class="w-12 flex justify-center" matPrefix>
-                                        <svg lucideIcon="search" class="w-5 h-5"></svg>
-                                    </div>
-                                    <input matInput autocomplete="off" placeholder="Enter name or code" [(ngModel)]="tempSearch">
-                                </mat-form-field>
+            @if (showFilterArea()) {
+            <div class="filter-area">
+                <div class="filter-container">
+                    <!-- Search By Name/Code -->
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Search By Name/Code</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="search" class="w-5 h-5"></svg>
                             </div>
-                            <div class="flex-1 min-w-[200px]">
-                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                    <mat-label>Date of Joining</mat-label>
-                                    <div class="w-12 flex justify-center" matPrefix>
-                                        <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
-                                    </div>
-                                    <input matInput  autocomplete="off" placeholder="Select Joining Date">
-                                </mat-form-field>
-                            </div>
-                            <!-- Actions -->
-                            <div class="flex items-center gap-2.5 shrink-0">
-                                <button type="button" (click)="resetFilters()"
-                                    class="reset-btn lift">
-                                    <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
-                                    Reset
-                                </button>
-                                <button type="button" (click)="applyFilters()"
-                                    class="global-btn shine-sweep lift">
-                                    <svg lucideIcon="search" class="w-4 h-4"></svg>
-                                    Search
-                                </button>
-                            </div>
-                        </div>
+                            <input matInput autocomplete="off" placeholder="Enter name or code"
+                                [(ngModel)]="tempSearch">
+                        </mat-form-field>
                     </div>
-                }
-            } @else {
-                <div class="search-area">
-                    <div
-                        class="search-input-area">
-                        <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
-                        <input type="text" placeholder="Search components..." aria-label="Search employee components"
-                            [value]="employeeStore.searchQuery()" (input)="onSearch($event)"
-                            class="search-input-style" />
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Date of Joining</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
+                            </div>
+
+                            <input matInput [matDatepicker]="joinPicker" placeholder="Select Joining Date"
+                                [value]="srchJoiningDate()" (dateChange)="srchJoiningDate.set($event.value)" readonly />
+                            <mat-datepicker-toggle matSuffix [for]="joinPicker"></mat-datepicker-toggle>
+                            <mat-datepicker #joinPicker></mat-datepicker>
+                        </mat-form-field>
                     </div>
-                    <button aria-label="Filter"
-                        class="search-input-btn lift">
-                        <svg lucideIcon="search" class="w-4 h-4"></svg>
-                    </button>
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <button type="button" (click)="applyFilters()" class="global-btn shine-sweep lift">
+                            <svg lucideIcon="search" class="w-4 h-4"></svg>
+                            Search
+                        </button>
+                        <button type="button" (click)="resetFilters()"class="reset-btn lift">
+                            <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                            Reset
+                        </button>
+                    </div>
                 </div>
+            </div>
+            }
+            } @else {
+            <div class="search-area">
+                <div class="search-input-area">
+                    <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
+                    <input type="text" placeholder="Enter name or code" aria-label="Search employee components"
+                        [value]="employeeStore.searchQuery()" (input)="onSearch($event)"
+                        class="search-input-style" />
+                </div>
+                <button aria-label="Filter" class="search-input-btn lift">
+                    <svg lucideIcon="search" class="w-4 h-4"></svg>
+                </button>
+            </div>
             }
 
             <qfin-employee-component-list [data]="employeeComponents()" [selectedId]="selectedEmployeeComponentId()"
                 [isCollapsed]="selectedEmployeeComponentId() !== EMPTY_UUID || !isViewMode()"
-                (onViewDetail)="onView($event)">
+                (onViewDetail)="onView($event)" [totalRecords]="employeeStore.totalRecords()"
+                [pageIndex]="employeeStore.pageIndex()" [pageSize]="employeeStore.pageSize()"
+                (pageChanged)="pageChanged($event)" (sortChanged)="onSortChanged($event)">
             </qfin-employee-component-list>
-
-            
-            <div
-                class="flex items-center justify-between border-slate-200 dark:border-slate-400/10 px-4 py-3 bg-slate-50/50 dark:bg-slate-800/20">
-                <div class="flex flex-col gap-0.5">
-                    <span class="text-xs font-medium text-slate-700 dark:text-slate-300">
-                        Page {{ employeeStore.totalPages() > 0 ? employeeStore.pageIndex() + 1 : 0 }} of {{
-                        employeeStore.totalPages() }}
-                    </span>
-                    <span class="text-[10px] text-slate-400">
-                        Total Records: {{ employeeStore.totalRecords() }}
-                    </span>
-                </div>
-                <div class="flex gap-1">
-                    <button [disabled]="employeeStore.pageIndex() === 0 || employeeStore.loading()"
-                        (click)="changePage(-1)"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-400/10 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer">
-                        <svg lucideIcon="chevron-left" class="w-4 h-4 text-slate-600 dark:text-slate-400"></svg>
-                    </button>
-                    <button
-                        [disabled]="(employeeStore.pageIndex() + 1) >= employeeStore.totalPages() || employeeStore.loading()"
-                        (click)="changePage(1)"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-400/10 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer">
-                        <svg lucideIcon="chevron-right" class="w-4 h-4 text-slate-600 dark:text-slate-400"></svg>
-                    </button>
-                </div>
-            </div>
         </div>
 
         @if (selectedEmployeeComponentId() !== EMPTY_UUID || !isViewMode()) {
@@ -181,7 +159,7 @@
                 </qfin-employee-component-view>
                 } @else {
                 <qfin-employee-component-detail [employeeId]="selectedEmployeeComponentId()" (onCancel)="handleCancel()"
-                    (onChildSave)="handleSave()" >
+                    (onChildSave)="handleSave()">
                 </qfin-employee-component-detail>
                 }
             </div>
