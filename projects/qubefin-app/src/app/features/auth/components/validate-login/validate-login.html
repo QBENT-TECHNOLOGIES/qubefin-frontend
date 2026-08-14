@@ -8,7 +8,7 @@
         <svg lucideIcon="user" class="w-5 h-5"></svg>
       </div>
       <mat-error>User ID is required</mat-error>
-      <input matInput [formField]="loginForm.userName" autocomplete="username" placeholder="Enter your user ID">
+      <input matInput [formField]="loginForm.userName" autocomplete="off" placeholder="Enter your user ID">
 
       <!-- @if (
         loginForm.username.touched() &&
