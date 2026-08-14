@@ -30,16 +30,16 @@ export class PayslipList {
     'action',
   ];
 
-  async onViewDocument(payslipId: string) {
-    this.openingPayslipId.set(payslipId);
+  async onViewDocument(element: any) {
+    this.openingPayslipId.set(element.payslipId);
 
     try {
-      const file = await firstValueFrom(this.payrollService.getPayslipById(payslipId));
+      const file = await firstValueFrom(this.payrollService.getPayslipById(element.payslipId));
       const fileUrl = URL.createObjectURL(file);
 
       this.documentModalService.open({
         url: fileUrl,
-        documentName: `Payslip_${payslipId}`,
+        documentName: `Payslip_${this.getMonthName(element.payrollMonth, element.payrollYear)}`,
         extension: 'pdf',
         downloadAccess: true,
       });

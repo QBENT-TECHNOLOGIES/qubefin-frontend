@@ -33,7 +33,7 @@
                     <div class="w-full flex justify-end">
                         <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
                             [matTooltip]="openingPayslipId() === element.payslipId ? 'Opening payslip...' : 'View payslip'"
-                            (click)="onViewDocument(element.payslipId)">
+                            (click)="onViewDocument(element)">
                             @if (openingPayslipId() === element.payslipId) {
                             <svg lucideIcon="loader" class="w-5 h-5 text-primary-500 animate-spin"></svg>
                             } @else {
