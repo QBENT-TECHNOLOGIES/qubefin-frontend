@@ -204,6 +204,70 @@ a:focus-visible, button:focus-visible {
   @apply p-0;
 }
 
+/* ==========================================================================
+   Notification Menu (Glassmorphic Angular Material Menu)
+   ========================================================================== */
+.notification-menu.mat-mdc-menu-panel {
+  @apply overflow-hidden w-[350px] sm:w-[400px] max-w-[92vw] p-0 rounded-2xl bg-white/80 dark:bg-slate-900/85 backdrop-blur-xl border border-white/60 dark:border-white/10;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18), 0 5px 15px rgba(15, 23, 42, 0.08);
+}
+.notification-menu .mat-mdc-menu-content {
+  @apply p-0 flex flex-col;
+}
+
+.notification-container {
+  @apply flex flex-col w-full overflow-hidden;
+}
+
+.notification-header {
+  @apply flex items-center justify-between px-4 py-3 border-b border-slate-200/60 dark:border-slate-800/80 bg-white/40 dark:bg-white/5 backdrop-blur-md;
+}
+
+.notification-list {
+  @apply max-h-[380px] overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60;
+}
+
+.notification-item {
+  @apply flex items-start gap-3.5 p-3.5 text-left transition-all cursor-pointer hover:bg-slate-100/70 dark:hover:bg-white/5 relative;
+}
+
+.notification-item.unread {
+  @apply bg-primary-500/5 dark:bg-primary-500/10;
+}
+
+.notification-icon-box {
+  @apply w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105;
+}
+.notification-icon-box.success {
+  @apply bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400;
+}
+.notification-icon-box.info {
+  @apply bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400;
+}
+.notification-icon-box.warning {
+  @apply bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400;
+}
+.notification-icon-box.danger {
+  @apply bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400;
+}
+
+.notification-title {
+  @apply text-xs sm:text-sm text-slate-800 dark:text-slate-100 leading-snug truncate m-0;
+}
+
+.notification-date {
+  @apply text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap shrink-0;
+}
+
+.notification-desc {
+  @apply text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed m-0 mt-0.5;
+}
+
+.notification-footer {
+  @apply border-t border-slate-200/60 dark:border-slate-800/80 bg-white/40 dark:bg-white/5 backdrop-blur-md px-4 py-1;
+}
+
+
 .menu-header {
   @apply flex items-center gap-2 p-4 text-white mb-2 rounded-t-lg;
   background:linear-gradient(135deg,#6366f1,#8b5cf6);
@@ -907,6 +971,9 @@ a:focus-visible, button:focus-visible {
 .green-line {
   @apply w-10 h-1 rounded-full bg-primary-500 mb-5;
 }
+.blue-line {
+  @apply w-10 h-1 rounded-full bg-secondary-500 mb-5;
+}
 .content-grid-2 {
   @apply grid grid-cols-1 md:grid-cols-2 gap-4;
 }
@@ -1030,4 +1097,104 @@ a:focus-visible, button:focus-visible {
 }
 .footer-area {
   @apply border-t border-slate-200 dark:border-slate-400/10 py-2 pt-4 flex justify-end gap-3;
+}
+.step-footer-area {
+  @apply mt-2 border-t border-slate-200 dark:border-white/10 py-3 flex justify-between gap-3;
+}
+.year-pill {
+  @apply inline-flex items-center gap-2 rounded-lg border border-gray-300 hover:border-gray-400 bg-white px-3 py-2;
+}
+.vertical-line {
+  @apply absolute left-4 top-3 bottom-3 w-0.5 bg-gradient-to-b from-primary-500 via-primary-400 to-primary-300;
+}
+.timeline-icon {
+  @apply relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-primary-500 text-white shadow shrink-0;
+}
+.history-card {
+  @apply flex-1 rounded-2xl border border-slate-200/50 dark:border-slate-700 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md p-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+}
+.card-badge {
+  @apply px-3 py-1 rounded-full text-[11px] font-semibold bg-primary-100 text-primary-700 dark:bg-slate-300 dark:text-black;
+}
+
+/*  */
+.filter-cat-btn {
+  @apply  p-2 rounded-lg border flex justify-start items-center gap-2 cursor-pointer transition-all duration-300;
+}
+.unselect-cat-btn {
+  @apply  bg-white/60 border-slate-200 text-slate-700 hover:bg-slate-100 dark:bg-slate-800/60 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/70;
+}
+.select-cat-btn {
+  @apply bg-secondary-600 border-secondary-600 text-white shadow-lg dark:bg-primary-600/30 dark:border-primary-500/30 dark:text-white;
+}
+.reset-cat-btn {
+  @apply  p-2 rounded-lg flex justify-center items-center cursor-pointer transition-all duration-300 bg-danger/5 text-danger hover:bg-danger/10 dark:bg-danger/10 dark:hover:bg-danger/20;
+}
+.checkbox-area {
+  @apply  grid grid-cols-2 md:grid-cols-5 gap-2 bg-slate-100/50 dark:bg-white/5 dark:text-white rounded-xl p-4 border border-slate-200/20 dark:border-white/5;
+}
+
+/*  */
+.expansion-panel {
+  @apply shadow-none! hover:shadow-md! transition-all duration-300 border border-slate-200! dark:border-white/10! rounded-xl! overflow-hidden m-0!;
+}
+.expansion-panel-header {
+  @apply bg-primary-500/7! rounded! hover:bg-slate-200/30! dark:bg-slate-800/40! dark:hover:bg-slate-800/60! h-16! px-4 border-b border-slate-200/40 dark:border-white/5 transition duration-200;
+}
+.panel-header-inner {
+  @apply flex flex-wrap md:flex-nowrap items-center justify-between gap-4 w-full select-none;
+}
+.panel-header-icon-box {
+  @apply w-10 h-10 rounded-xl bg-primary-500/10 dark:bg-primary-400/10 flex items-center justify-center border border-primary-500/20 shrink-0;
+}
+.panel-header-title {
+  @apply text-sm font-bold text-slate-800 dark:text-slate-100 tracking-wide uppercase;
+}
+.code-badge {
+  @apply text-[10px] px-2 py-0.5 rounded-md bg-slate-200/60 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 font-semibold uppercase tracking-wider;
+}
+.panel-header-info {
+  @apply flex items-center gap-2 flex-wrap md:flex-nowrap text-xs font-medium mr-4;
+}
+.info-badge {
+  @apply  flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800/80 border border-slate-200/50 dark:border-white/5;
+}
+.info-label {
+  @apply text-[11px] text-slate-500 dark:text-slate-300 uppercase tracking-wide;
+}
+.pay-info {
+  @apply flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/10 dark:border-emerald-500/20;
+}
+.pay-label {
+  @apply text-emerald-600 dark:text-emerald-400 uppercase tracking-wide text-[10px] font-bold;
+}
+.panel-content-box {
+  @apply flex flex-col gap-3 p-4 bg-slate-50/50 dark:bg-slate-900/50;
+}
+.panel-content-item-box {
+ @apply dark:bg-slate-800/40 border border-slate-200/60 dark:border-white/5 rounded-xl p-2 flex flex-wrap md:flex-nowrap items-center justify-between gap-4 transition duration-200; 
+}
+.employee-circle {
+  @apply w-11 h-11 rounded-full bg-primary-500/10 dark:bg-primary-400/10 text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold text-sm border border-primary-500/20 uppercase shrink-0;
+}
+.employee-name {
+  @apply  text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide;
+}
+.emp-desg-com {
+  @apply  flex flex-wrap items-center gap-1.5 mt-1 text-xs text-slate-400 dark:text-slate-400;
+}
+.panel-content-end-box {
+  @apply flex flex-wrap items-center gap-4 sm:gap-6 flex-1 justify-start md:justify-end;
+}
+.amount-box {
+  @apply flex flex-col items-start md:items-end;
+}
+.amount-label {
+  @apply text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-300;
+}
+.amount-title {
+  @apply text-sm font-semibold flex items-center gap-1 mt-0.5;
+}
+.edit-box {
+  @apply w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:border-primary-500/50 dark:hover:border-primary-500/50 hover:bg-primary-500/5 dark:hover:bg-primary-500/10 transition cursor-pointer;
 }

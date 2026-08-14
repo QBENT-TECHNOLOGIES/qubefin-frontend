@@ -26,6 +26,7 @@ export class ValidateLogin {
   loginStateStore = inject(LoginStateStore);
   authService = inject(AuthService);
   hidePassword = signal(true);
+  protected isLoading = signal(false);
 
   protected readonly loginModel = signal<ValidateLoginModel>({
     userName: '',
@@ -37,23 +38,50 @@ export class ValidateLogin {
   });
   protected readonly loginForm = form(this.loginModel, this.loginSchema);
 
+  // protected onSubmit(event: Event) {
+  //   if (this.loginForm().valid()) {
+  //     this.authService.validateLogin(this.loginForm().value()).subscribe({
+  //       next: (response) => {
+  //         if (response) {
+  //           this.authStore.setSessionToken(response.sessionToken);
+  //           this.loginStateStore.setLoginStep('mfa');
+  //         }
+  //       },
+  //       error: (err: any) => {
+  //         if (err.error) {
+  //           this.message.set(err.error.message);
+  //           this.messageType.set('error');
+  //         }
+  //       },
+  //     });
+  //   }
+  //   event.preventDefault();
+  // }
+
   protected onSubmit(event: Event) {
+    event.preventDefault();
+
     if (this.loginForm().valid()) {
+      this.isLoading.set(true);
+
       this.authService.validateLogin(this.loginForm().value()).subscribe({
         next: (response) => {
           if (response) {
             this.authStore.setSessionToken(response.sessionToken);
             this.loginStateStore.setLoginStep('mfa');
           }
+          this.isLoading.set(false);
         },
         error: (err: any) => {
           if (err.error) {
             // this.message.set(err.error.message);
             // this.messageType.set('error');
           }
+          this.isLoading.set(false);
         },
       });
     }
-    event.preventDefault();
   }
+
+  
 }
