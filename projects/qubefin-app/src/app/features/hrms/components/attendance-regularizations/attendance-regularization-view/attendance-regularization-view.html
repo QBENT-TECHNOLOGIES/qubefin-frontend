@@ -153,50 +153,116 @@
                 </div>
             </div>
         </div>
+        
         <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow p-4">
+
             <div class="mb-4">
-                <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                    Approval History
-                </h3>
+                <h4 class="text-base font-bold text-slate-800 dark:text-slate-100">
+                    History
+                </h4>
                 <div class="w-10 h-1 mt-2 rounded-full bg-primary-500"></div>
             </div>
-            <div class="relative mt-2">
+
+            @if (data.events && data.events.length > 0) {
+
+            <div class="relative">
+
                 <div
                     class="absolute left-4 top-3 bottom-3 w-0.5 bg-gradient-to-b from-primary-500 via-primary-400 to-primary-300">
                 </div>
-                @for (event of data.events; track $index) {
+                @for (item of data.events; track item; let last = $last) {
+
                 <div class="relative flex gap-4 mb-5">
+
                     <div
                         class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-primary-500 text-white shadow shrink-0">
-                        <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                        <svg lucideIcon="rotate-ccw" class="w-4 h-4">
+                        </svg>
                     </div>
+
                     <div
                         class="flex-1 rounded-2xl border border-slate-200/50 dark:border-slate-700 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md p-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+
                         <div class="flex justify-between items-start gap-3">
                             <div>
                                 <span
                                     class="px-3 py-1 rounded-full text-[11px] font-semibold bg-primary-100 text-primary-700 dark:bg-slate-300 dark:text-black">
-                                    {{ event.eventStatus }}
+                                    {{ item.eventStatus }}
                                 </span>
                                 <div
                                     class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
                                     <div class="flex items-center gap-2">
-                                        <svg lucideIcon="user-round" class="w-4 h-4"></svg>
-                                        {{ event.senderDesignation }}
+                                        <svg lucideIcon="calendar-days" class="w-4 h-4"></svg>
+                                        {{ item.eventDate | date:'dd MMM yyyy • hh:mm a' }}
                                     </div>
+                                </div>
+                                <div
+                                    class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                    <div class="flex items-center gap-2">
+                                        <svg lucideIcon="user-round" class="w-4 h-4"></svg>
+                                        {{ item.designation }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        @if(item.remarks){
+                        <div
+                            class="mt-4 rounded-xl bg-slate-100/80 dark:bg-slate-800/60 px-3 py-2 flex items-start gap-2">
+                            <svg lucideIcon="message-circle" class="w-4 h-4 mt-0.5 text-primary-500"></svg>
+                            <div>
+                                <div class="text-[10px] uppercase tracking-wide text-slate-500 mb-1">
+                                    Remarks
+                                </div>
+                                <div class="text-sx text-slate-700 dark:text-slate-300">
+                                    {{ item.remarks }}
                                 </div>
                             </div>
                         </div>
+                        }
                     </div>
+
                 </div>
+
                 }
-                <div class="relative flex gap-4 mb-2">
+                <div class="relative flex gap-4 mb-5">
+
                     <div
                         class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-500 text-slate-500 dark:text-white shadow-md dark:ring-0 shrink-0">
-                        <svg lucideIcon="circle-dot" class="w-4 h-4"></svg>
+                        <span class="flex items-center gap-1.5 text-[12px] font-semibold"
+                            [ngClass]="getStatusClass(data.currentStatus)">
+
+                            <span class="w-2 h-2 rounded-full relative flex">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                                    [ngClass]="getStatusPingClass(data.currentStatus)">
+                                </span>
+
+                                <span class="relative inline-flex rounded-full h-2 w-2"
+                                    [ngClass]="getStatusDotClass(data.currentStatus)">
+                                </span>
+                            </span>
+
+                        </span>
                     </div>
                 </div>
             </div>
+
+            }
+
+            @else {
+
+            <div class="flex flex-col items-center justify-center py-12 text-slate-500 dark:text-slate-400">
+
+                <svg lucideIcon="history" class="w-10 h-10 mb-3 text-slate-300">
+                </svg>
+
+                <p>No history available</p>
+
+            </div>
+
+            }
+
         </div>
     </div>
     @if (data.isRecommendEvent || data.isApprovalEvent) {

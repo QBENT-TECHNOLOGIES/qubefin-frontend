@@ -29,7 +29,7 @@ import { OrganizationUnitTypeStore } from '../../../../global/stores/organizatio
   templateUrl: './approval-workflow-detail.html',
 })
 export class ApprovalWorkflowDetail {
-  readonly categories = signal<string[]>(['LEAVE', 'LEAVE_PRAYER', 'ATTENDANCE']);
+  readonly categories = signal<string[]>(['LEAVE', 'LEAVE_PRAYER', 'ONDUTY', 'ATTENDANCE']);
 
   readonly approvalWorkflowId = model<string>(EMPTY_UUID);
   readonly onCancel = output<void>();
@@ -85,7 +85,7 @@ export class ApprovalWorkflowDetail {
     effect(() => {
       const category = this.approvalWorkflowForm.category().value();
 
-      if (category && category !== 'ATTENDANCE') {
+      if (category && (category === 'LEAVE' || category === 'LEAVE_PRAYER')) {
         this.filterLeaveTypes.set(
           this.leaveTypes().filter((m) =>
             category === 'LEAVE' ? !m.isPrayerable : m.isPrayerable,

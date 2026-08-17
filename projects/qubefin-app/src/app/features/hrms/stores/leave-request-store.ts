@@ -90,7 +90,7 @@ export class LeaveRequestStore {
       events: item.events
         ? item.events.map((h) => ({
             ...h,
-            eventOn: h.eventOn ? new Date(h.eventOn) : '',
+            eventDate: h.eventDate ? new Date(h.eventDate) : '',
           }))
         : [],
     };

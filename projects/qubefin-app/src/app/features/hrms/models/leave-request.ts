@@ -40,12 +40,10 @@ export interface ILeaveRequestListItem {
 }
 
 export interface ILeaveRequestHistory {
-  event: string;
-  eventBy: string | null;
-  eventOn: string | Date;
-  eventRemarks: string;
-  senderDesignation?: string | null;
-  receiverDesignation?: string | null;
+  eventStatus: string;
+  eventDate: string | Date;
+  remarks: string;
+  designation?: string | null;
 }
 
 export interface IAuditInfo {

@@ -117,18 +117,12 @@ export class ApprovalRegularizationStore {
 
       regularizationDates: this.normalizeRegularizationDates(item.regularizationDates),
 
-      events: (item.events ?? []).map(
-        (event): IAttendanceRegularizationEvent => ({
-          approvalCategory: event.approvalCategory,
-          eventDate: event.eventDate ? new Date(event.eventDate).toISOString() : event.eventDate,
-          remarks: event.remarks,
-          senderDesignation: event.senderDesignation,
-          receiverDesignation: event.receiverDesignation,
-          eventCategory: event.eventCategory,
-          eventStatus: event.eventStatus,
-          eventButtonText: event.eventButtonText,
-        }),
-      ),
+      events: item.events
+        ? item.events.map((h) => ({
+            ...h,
+            eventDate: h.eventDate ? new Date(h.eventDate) : '',
+          }))
+        : [],
     };
   }
 
