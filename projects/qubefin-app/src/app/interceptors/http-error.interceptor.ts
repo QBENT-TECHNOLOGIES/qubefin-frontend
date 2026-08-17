@@ -41,7 +41,7 @@ export const HttpErrorInterceptor: HttpInterceptorFn = (req, next) => {
       } else if (is504ResponseError(errResponse)) {
         errorMessage = 'The request is taking longer than expected. Please try again in a moment.';
       } else {
-        errorMessage = errResponse.error.detail;
+        errorMessage = errResponse.error.message ?? errResponse.error.detail;
       }
 
       if (errorMessage) {
