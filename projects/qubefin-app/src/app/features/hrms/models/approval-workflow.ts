@@ -1,10 +1,10 @@
 export interface IApprovalWorkflow {
   id: string;
   category: string;
+  organizationUnitTypeId: string | null;
   leaveTypeId: string | null;
-  organizationUnitTypeId?: string | null;
-  salaryGradeId?: string | null;
-  postId?: string | null;
+  postId: string | null;
+  salaryGradeId: string | null;
   minimumDays: number;
   maximumDays: number;
 
@@ -12,13 +12,13 @@ export interface IApprovalWorkflow {
   salaryGradeName?: string | null;
   organizationUnitTypeName?: string | null;
   postName?: string | null;
-  steps?: IApprovalWorkflowStep[];
-  stepPost?: string | null;
+  createdByName?: string | null;
+  lastModifiedByName?: string | null;
 
   createdOn?: Date;
-  createdBy?: string;
   lastModifiedOn?: Date | null;
-  lastModifiedBy?: string | null;
+  steps?: IApprovalWorkflowStep[];
+  stepPost?: string | null;
   approvalSteps: IApprovalStep[];
 }
 
@@ -51,4 +51,5 @@ export interface IApprovalStep {
   isApprovalEvent: boolean;
   eventStatus: string;
   eventButtonText: string;
+  sequenceNo: number;
 }

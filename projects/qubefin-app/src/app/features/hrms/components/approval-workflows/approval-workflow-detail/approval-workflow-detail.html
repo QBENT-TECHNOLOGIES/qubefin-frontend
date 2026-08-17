@@ -33,7 +33,7 @@
                     <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
                     </div>
-                    <mat-select [formField]="approvalWorkflowForm.category">
+                    <mat-select [formField]="approvalWorkflowForm.organizationUnitTypeId">
                         @for(item of organizationUnits(); track item.id){
                         <mat-option [value]="item.id">
                             {{item.name}}
@@ -41,25 +41,55 @@
                         }
                     </mat-select>
                 </mat-form-field>
+                @if(approvalWorkflowForm().value().category && approvalWorkflowForm().value().category !==
+                'ATTENDANCE'){
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Leave Type</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="tag" class="w-5 h-5"></svg>
                     </div>
                     <mat-select [formField]="approvalWorkflowForm.leaveTypeId">
-                        @for (balance of leaveTypeBalances(); track balance.leaveTypeId) {
-                        <mat-option [value]="balance.leaveTypeId">{{ balance.title }} (Balance: {{ balance.leaveBalance
+                        @for (type of filterLeaveTypes(); track type.id) {
+                        <mat-option [value]="type.id">{{ type.title }} ({{ type.alias
                             }})</mat-option>
                         }
                     </mat-select>
                 </mat-form-field>
+                }
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Post</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="approvalWorkflowForm.postId">
+                        @for (post of posts(); track post.id) {
+                        <mat-option [value]="post.id">{{ post.name }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                @if(approvalWorkflowForm().value().category && approvalWorkflowForm().value().category ===
+                'LEAVE'){
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Salary Grade</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="approvalWorkflowForm.salaryGradeId">
+                        @for (item of salaryGrades(); track item.id) {
+                        <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                }
+                @if(approvalWorkflowForm().value().category && approvalWorkflowForm().value().category !==
+                'ATTENDANCE'){
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Maximum days</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
                     </div>
                     <input matInput type="number" [formField]="approvalWorkflowForm.maximumDays"
-                        placeholder="Enter Maximum days">
+                        (wheel)="$event.preventDefault()" placeholder="Enter Maximum days">
                 </mat-form-field>
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Minimum days</mat-label>
@@ -67,8 +97,9 @@
                         <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
                     </div>
                     <input matInput type="number" [formField]="approvalWorkflowForm.minimumDays"
-                        placeholder="Enter Minimum days">
+                        (wheel)="$event.preventDefault()" placeholder="Enter Minimum days">
                 </mat-form-field>
+                }
 
                 <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Minimum days</mat-label>
@@ -134,7 +165,9 @@
 
                             <mat-select [formField]="approvalWorkflowForm.approvalSteps[i].receiverPostId">
                                 @for(post of posts(); track post) {
-                                <mat-option [value]="post"> {{post}} </mat-option>
+                                @if (isReceiverPostAvailable(post.id)) {
+                                <mat-option [value]="post.id"> {{post.name}} </mat-option>
+                                }
                                 }
                             </mat-select>
                         </mat-form-field>
