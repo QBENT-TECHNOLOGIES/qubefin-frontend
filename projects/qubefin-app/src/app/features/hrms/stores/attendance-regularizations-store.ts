@@ -56,13 +56,13 @@ export class AttendanceRegularizationsStore {
 
   //   return id && id !== EMPTY_UUID ? `${this.basePath}/${id}` : undefined;
   // });
-  readonly regularizationResource = httpResource<IAttendanceRegularizationDetailResponse>(() => {
+  readonly regularizationResource = httpResource<IAttendanceRegularizationDetail>(() => {
     const id = this.regularizationId();
 
     return id && id !== EMPTY_UUID ? `${this.basePath}/${id}` : undefined;
   });
   readonly regularization = computed(() => {
-    const item = this.regularizationResource.value()?.response;
+    const item = this.regularizationResource.value();
 
     return item ? this.normalizeItem(item) : undefined;
   });

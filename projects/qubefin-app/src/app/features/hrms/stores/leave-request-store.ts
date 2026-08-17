@@ -40,7 +40,7 @@ export class LeaveRequestStore {
   readonly loading = computed(() => this.leaveRequestsResource.isLoading());
   readonly error = computed(() => this.leaveRequestsResource.error());
 
-  readonly leaveRequestResource = httpResource<{ response: ILeaveRequestItem }>(() => {
+  readonly leaveRequestResource = httpResource<ILeaveRequestItem>(() => {
     const id = this.leaveRequestId();
     const employeeId = this.sessionService.employeeId;
     return id && id !== EMPTY_UUID && employeeId
@@ -49,7 +49,7 @@ export class LeaveRequestStore {
   });
 
   readonly leaveRequest = computed(() => {
-    const item = this.leaveRequestResource.value()?.response;
+    const item = this.leaveRequestResource.value();
     return item ? this.normalizeItem(item) : undefined;
   });
 

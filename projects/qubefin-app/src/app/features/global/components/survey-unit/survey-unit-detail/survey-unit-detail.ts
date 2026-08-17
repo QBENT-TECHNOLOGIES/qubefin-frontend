@@ -5,7 +5,7 @@ import { EmployeeService } from '../../../../hrms/services/employee-service';
 import { AdministrativeUnitService } from '../../../services/administrative-unit-service';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { ISurveyDetail } from '../../../models/survey';
 import {
   EmployeeSearchByText,
@@ -52,7 +52,7 @@ export class SurveyUnitDetail {
   private readonly surveyStore = inject(SurveyStore);
   private readonly surveyService = inject(SurveyService);
   private readonly employeeService = inject(EmployeeService);
-  private readonly administrativeUnitService = inject(AdministrativeUnitService);
+  private readonly alertService = inject(AlertService);
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
 
@@ -327,8 +327,10 @@ export class SurveyUnitDetail {
         if (!this.isEditMode()) {
           this.surveyService.create(payload).subscribe({
             next: (resp: any) => {
-              this.surveyStore.refreshList();
-              this.save.emit();
+              this.alertService.success('Success', resp).then(() => {
+                this.surveyStore.refreshList();
+                this.save.emit();
+              });
             },
           });
           return;
@@ -336,11 +338,7 @@ export class SurveyUnitDetail {
 
         this.surveyService.update(payload).subscribe({
           next: (resp: any) => {
-            Swal.fire({
-              title: 'Success!',
-              text: resp.value.message,
-              icon: 'success',
-            }).then(() => {
+            this.alertService.success('Success', resp).then(() => {
               this.surveyStore.refreshList();
               this.surveyStore.refreshDetail();
               this.save.emit();

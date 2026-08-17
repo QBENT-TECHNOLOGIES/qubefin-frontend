@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -54,6 +54,7 @@ export class AddressComponentDetail {
 
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
+  private readonly alertService = inject(AlertService);
   readonly iconMap = APP_ICONS_MAP;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
@@ -185,15 +186,14 @@ export class AddressComponentDetail {
       dataToSave.presentAddress.postOfficeId == '' ? null : dataToSave.presentAddress.postOfficeId;
     if (this.isEditMode()) {
       this.employeeService.updateAddresslInfo(this.empId(), dataToSave).subscribe({
-        next: () => {
-          this.employeeStore.refreshList();
-          this.employeeStore.refreshDetail();
-          this.onAddressUpdate.emit();
+        next: (resp: any) => {
+          this.alertService.success('Success', resp).then(() => {
+            this.employeeStore.refreshList();
+            this.employeeStore.refreshDetail();
+            this.onAddressUpdate.emit();
+          });
         },
-        error: (err: any) => {
-          if (err.error?.isError) {
-          }
-        },
+        error: (err: any) => {},
       });
     }
   }

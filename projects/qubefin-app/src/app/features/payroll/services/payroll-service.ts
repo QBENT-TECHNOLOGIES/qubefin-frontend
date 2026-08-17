@@ -24,17 +24,17 @@ export class PayrollService {
     return this.httpClient.put(`${ApiPaths.PAYROLL}/lock-payrolls/${year}/${month}`, null);
   }
   getPfReport(month: number, year: number) {
-    return this.httpClient.get(`${ApiPaths.PAYROLL}/pf-report/${month}/${year}`, {
+    return this.httpClient.get(`${ApiPaths.PAYROLL}/generate-pf-report/${month}/${year}`, {
       responseType: 'blob',
     });
   }
   getPTaxReport(month: number, year: number) {
-    return this.httpClient.get(`${ApiPaths.PAYROLL}/ptax-report/${month}/${year}`, {
+    return this.httpClient.get(`${ApiPaths.PAYROLL}/generate-ptax-report/${month}/${year}`, {
       responseType: 'blob',
     });
   }
   getEsiReport(month: number, year: number) {
-    return this.httpClient.get(`${ApiPaths.PAYROLL}/esi-report/${month}/${year}`, {
+    return this.httpClient.get(`${ApiPaths.PAYROLL}/generate-esi-report/${month}/${year}`, {
       responseType: 'blob',
     });
   }
@@ -46,6 +46,11 @@ export class PayrollService {
   }
   getPayslip(model: PayslipRptParam) {
     return this.httpClient.post(`${ApiPaths.PAYROLL}/payslip`, model, { responseType: 'blob' });
+  }
+  getPayslipById(payslipId: string) {
+    return this.httpClient.get(`${ApiPaths.PAYROLL}/reports/payslip/${payslipId}`, {
+      responseType: 'blob',
+    });
   }
   getSalaryGrade() {
     return this.httpClient.get(`${ApiPaths.PAYROLL}/salary-grade`);

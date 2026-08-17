@@ -2,11 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import { ILeavePrayerItem, ILeavePrayerListItem } from '../models/leave-prayer';
-import {
-  ILeaveRequestItem,
-  ILeaveRequestListItem,
-  ILeaveTypeBalance,
-} from '../models/leave-request';
+import { ILeaveTypeBalance } from '../models/leave-request';
 import { SessionService } from '../../../services/session.service';
 
 @Injectable({
@@ -34,45 +30,20 @@ export class LeavePrayerStore {
 
   readonly leavePrayers = computed(() => this.leavePrayersResource.value() ?? []);
 
-  // readonly totalRecords = computed(
-  //   () => this.leaveRequestsResource.value()?.totalCount ?? 0
-  // );
-
   readonly loading = computed(() => this.leavePrayersResource.isLoading());
   readonly error = computed(() => this.leavePrayersResource.error());
 
-  readonly leavePrayerResource = httpResource<{ response: ILeavePrayerItem }>(() => {
+  readonly leavePrayerResource = httpResource<ILeavePrayerItem>(() => {
     const id = this.leavePrayerId();
     return id && id !== EMPTY_UUID ? `${this.basePath}/${id}/${this.employeeId}` : undefined;
   });
 
-  readonly leavePrayer = computed(() => {
-    const item = this.leavePrayerResource.value()?.response;
-    return item ? item : undefined;
-  });
+  readonly leavePrayer = computed(() => this.leavePrayerResource.value());
 
   readonly leavePrayerLoading = computed(() => this.leavePrayerResource.isLoading());
   readonly leavePrayerError = computed(() => this.leavePrayerResource.error());
   setYearQuery(year: number) {
     this.yearQuery.set(year);
-  }
-  setSearchQuery(query: string) {
-    // this.searchQuery.set(query);
-    // this.pageIndex.set(0);
-  }
-
-  setPage(index: number) {
-    // this.pageIndex.set(index);
-  }
-
-  setPageSize(items: number) {
-    // this.pageSize.set(items);
-  }
-
-  setSort(sort: string, direction: 'asc' | 'desc') {
-    // this.sortOn.set(sort);
-    // this.sortDirection.set(direction);
-    // this.pageIndex.set(0);
   }
 
   refreshList() {
@@ -87,13 +58,5 @@ export class LeavePrayerStore {
 
   refreshDetail() {
     this.leavePrayerResource.reload();
-  }
-
-  private normalizeListItem(items: any) {
-    // return {
-    //   ...item,
-    //   fromDate: item.fromDate ? new Date(item.fromDate) : null,
-    //   toDate: item.toDate ? new Date(item.toDate) : null,
-    // };
   }
 }

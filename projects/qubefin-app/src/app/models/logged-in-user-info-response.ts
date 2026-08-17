@@ -10,4 +10,5 @@ export interface LoggedInUserInfoResponse {
   attendanceOutTime: string;
   checkRadiusInMeter: number;
   designation: string;
+  notificationCount?: number;
 }

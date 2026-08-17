@@ -16,7 +16,11 @@ export const PayrollRoutes: Routes = [
             {
                 path: 'monthly-payroll',
                 loadComponent: () => import('./pages/monthly-payroll/monthly-payroll').then(m => m.MonthlyPayroll)
-            }
+            },
+            {
+                path: 'payslip',
+                loadComponent: () => import('./pages/payslip/payslip').then((m) => m.Payslip),
+            },
         ]
     }
 ];

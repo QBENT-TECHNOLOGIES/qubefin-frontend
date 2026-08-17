@@ -19,85 +19,84 @@
     </div>
     <!-- Content Section -->
     <div class="flex items-start" [ngClass]="{'gap-4':isDetailMode()}">
-        <div class="mainCard-area glass"
-            [class.w-full]="!isDetailMode()" [class.w-1/4]="isDetailMode()" 
-            [ngClass]="{
+        <div class="glass rounded-xl shadow-glass dark:shadow transition-all duration-300 overflow-hidden"
+            [class.w-full]="!isDetailMode()" [class.w-1/4]="isDetailMode()" [ngClass]="{
                 'sticky top-0 h-[calc(100vh-170px)]': isDetailMode()
             }">
 
             @if (!isDetailMode()) {
-                @if (showFilterArea()) {
-                <div class="filter-area">
-                    <div class="filter-container">
-                        <div class="flex-1 min-w-[200px]">
-                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                <mat-label>Month</mat-label>
-                                <div class="w-12 flex justify-center" matPrefix>
-                                    <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
-                                </div>
-                                <mat-select placeholder="Select Month">
-                                    <mat-option value="">January</mat-option>
-                                    <mat-option value="">February</mat-option>
-                                    <mat-option value="">March</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                        <div class="flex-1 min-w-[200px]">
-                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                <mat-label>Year</mat-label>
-                                <div class="w-12 flex justify-center" matPrefix>
-                                    <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
-                                </div>
-                                <mat-select placeholder="Select Month">
-                                    <mat-option value="">January</mat-option>
-                                    <mat-option value="">February</mat-option>
-                                    <mat-option value="">March</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                        <div class="flex-1 min-w-[200px]">
-                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                <mat-label>Earnings</mat-label>
-                                <div class="w-12 flex justify-center" matPrefix>
-                                    <svg lucideIcon="banknote-arrow-up" class="w-5 h-5"></svg>
-                                </div>
-                                <input matInput autocomplete="off" placeholder="Enter Earnings">
-                            </mat-form-field>
-                        </div>
-                        <div class="flex-1 min-w-[200px]">
-                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                <mat-label>Deductions</mat-label>
-                                <div class="w-12 flex justify-center" matPrefix>
-                                    <svg lucideIcon="banknote-arrow-down" class="w-5 h-5"></svg>
-                                </div>
-                                <input matInput autocomplete="off" placeholder="Enter Deductions">
-                            </mat-form-field>
-                        </div>
-                        <div class="flex-1 min-w-[200px]">
-                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                                <mat-label>Net Pay</mat-label>
-                                <div class="w-12 flex justify-center" matPrefix>
-                                    <svg lucideIcon="badge-indian-rupee" class="w-5 h-5"></svg>
-                                </div>
-                                <input matInput autocomplete="off" placeholder="Enter Net Pay">
-                            </mat-form-field>
-                        </div>
+            @if (showFilterArea()) {
+            <div class="p-3 transition-all duration-300">
+                <div class="flex flex-wrap items-end gap-3 w-full">
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Month</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select placeholder="Select Month">
+                                <mat-option value="">January</mat-option>
+                                <mat-option value="">February</mat-option>
+                                <mat-option value="">March</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Year</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select placeholder="Select Month">
+                                <mat-option value="">January</mat-option>
+                                <mat-option value="">February</mat-option>
+                                <mat-option value="">March</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Earnings</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="banknote-arrow-up" class="w-5 h-5"></svg>
+                            </div>
+                            <input matInput autocomplete="off" placeholder="Enter Earnings">
+                        </mat-form-field>
+                    </div>
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Deductions</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="banknote-arrow-down" class="w-5 h-5"></svg>
+                            </div>
+                            <input matInput autocomplete="off" placeholder="Enter Deductions">
+                        </mat-form-field>
+                    </div>
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Net Pay</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="badge-indian-rupee" class="w-5 h-5"></svg>
+                            </div>
+                            <input matInput autocomplete="off" placeholder="Enter Net Pay">
+                        </mat-form-field>
+                    </div>
 
-                        <div class="flex items-center gap-2.5 shrink-0">
-                            <button type="button"
-                                class="reset-btn lift">
-                                <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
-                                Reset
-                            </button>
-                            <button type="button"
-                                class="global-btn shine-sweep lift">
-                                <svg lucideIcon="search" class="w-4 h-4"></svg>
-                                Search
-                            </button>
-                        </div>
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <button type="button"
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            <svg lucideIcon="search" class="w-4 h-4"></svg>
+                            Search
+                        </button>
+                        <button type="button"
+                            class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
+                            <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                            Reset
+                        </button>
                     </div>
                 </div>
-                }
+            </div>
+            }
             } @else {
             <div class="search-area">
                 <div

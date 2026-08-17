@@ -60,9 +60,11 @@ export class LeaveRequestView {
   onDelete() {
     if (confirm('Are you sure you want to delete this leave request?')) {
       this.leaveRequestService.delete(this.leaveRequestId()).subscribe({
-        next: () => {
-          this.leaveRequestStore.refreshList();
-          this.delete.emit();
+        next: (resp: any) => {
+          this.alertService.success('Success', resp).then(() => {
+            this.leaveRequestStore.refreshList();
+            this.delete.emit();
+          });
         },
       });
     }
@@ -92,20 +94,16 @@ export class LeaveRequestView {
         if (result.isConfirmed) {
           this.leaveRequestService.submit(this.leaveRequestId()).subscribe({
             next: (resp: any) => {
-              if (resp.value && resp.value.success) {
-                this.alertService.success('Success', resp.value.message).then(() => {
+              if (resp) {
+                this.alertService.success('Success', resp).then(() => {
                   this.leaveRequestStore.refreshList();
                   this.leaveRequestStore.refreshDetail();
                 });
               } else {
-                this.alertService.error('Failed', resp.value.message);
+                this.alertService.error('Failed', resp);
               }
             },
-            error: (err: any) => {
-              this.alertService.error('Failed', err.error.message);
-              // surface this via a toast/snackbar rather than alert() — plug in whatever
-              // notification service the rest of the app uses
-            },
+            error: (err: any) => {},
           });
         }
       });
@@ -124,8 +122,8 @@ export class LeaveRequestView {
       .cancelRequest(this.leaveRequestId(), this.cancelReasonControl.value)
       .subscribe({
         next: (resp: any) => {
-          if (resp.value && resp.value.success) {
-            this.alertService.success('Success', resp.value.message).then(() => {
+          if (resp) {
+            this.alertService.success('Success', resp).then(() => {
               this.leaveRequestStore.refreshList();
               this.leaveRequestStore.refreshDetail();
               this.isCancelling.set(false);
@@ -133,7 +131,6 @@ export class LeaveRequestView {
           }
         },
         error: (err: any) => {
-          this.alertService.error('Failed', err.error.message);
           this.isCancelling.set(false);
           // surface this via a toast/snackbar rather than alert() — plug in whatever
           // notification service the rest of the app uses

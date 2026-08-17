@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { SalaryStore } from '../../../stores/salary-store';
 import { SalaryComponentService } from '../../../services/salary-component-service';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
@@ -23,7 +23,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
     MatSelectModule,
     MatCheckboxModule,
     FormField,
-    LucideDynamicIcon
+    LucideDynamicIcon,
   ],
   templateUrl: './salary-component-detail.html',
 })
@@ -34,6 +34,7 @@ export class SalaryComponentDetail {
   readonly iconMap = APP_ICONS_MAP;
   private readonly salaryStore = inject(SalaryStore);
   private readonly salaryComponentService = inject(SalaryComponentService);
+  private readonly alertService = inject(AlertService);
   categories = this.salaryStore.categories;
 
   isEditMode = computed(() => !!this.salaryId() && this.salaryId() !== EMPTY_UUID);
@@ -77,26 +78,24 @@ export class SalaryComponentDetail {
 
     if (!this.isEditMode()) {
       this.salaryComponentService.create(dataToSave).subscribe({
-        next: () => {
-          this.salaryStore.refreshList();
-          this.onSave.emit();
+        next: (resp: any) => {
+          this.alertService.success('Success', resp).then(() => {
+            this.salaryStore.refreshList();
+            this.onSave.emit();
+          });
         },
-        error: (err: any) => {
-          if (err.error?.isError) {
-          }
-        }
+        error: (err: any) => {},
       });
     } else {
       this.salaryComponentService.update(this.salaryId(), dataToSave).subscribe({
-        next: () => {
-          this.salaryStore.refreshList();
-          this.salaryStore.refreshDetail();
-          this.onSave.emit();
+        next: (resp: any) => {
+          this.alertService.success('Success', resp).then(() => {
+            this.salaryStore.refreshList();
+            this.salaryStore.refreshDetail();
+            this.onSave.emit();
+          });
         },
-        error: (err: any) => {
-          if (err.error?.isError) {
-          }
-        }
+        error: (err: any) => {},
       });
     }
   }

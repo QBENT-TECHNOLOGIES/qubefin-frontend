@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { applyEach, form, FormField, required, schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -17,11 +17,9 @@ import { EmployeeStore } from '../../../../stores/employee-store';
 import Swal from 'sweetalert2';
 import { EmployeeQualification, IEmployeeQualification } from '../../../../models/employee-detail';
 
-
 interface QualificationFormModel {
   qualifications: IEmployeeQualification[];
 }
-
 
 @Component({
   selector: 'qfin-qualification-component',
@@ -34,12 +32,11 @@ interface QualificationFormModel {
     MatCheckboxModule,
     FormField,
     MatStepperModule,
-    LucideDynamicIcon
+    LucideDynamicIcon,
   ],
   templateUrl: './qualification-component.html',
 })
 export class QualificationComponentDetail {
-
   empId = input<string>(EMPTY_UUID);
 
   onQualifyUpdate = output<void>();
@@ -48,13 +45,14 @@ export class QualificationComponentDetail {
 
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
+  private readonly alertService = inject(AlertService);
   readonly iconMap = APP_ICONS_MAP;
 
   protected readonly qualificationModel = signal<QualificationFormModel>({
-    qualifications: []
+    qualifications: [],
   });
 
-    // 2. Refactor your schema block using applyEach
+  // 2. Refactor your schema block using applyEach
   protected readonly qualificationschema = schema<QualificationFormModel>((path) => {
     // Ensures the array itself is present
     required(path.qualifications);
@@ -70,96 +68,74 @@ export class QualificationComponentDetail {
     });
   });
 
+  protected readonly qualificationForm = form(this.qualificationModel, this.qualificationschema);
 
-  protected readonly qualificationForm = form(
-    this.qualificationModel,
-    this.qualificationschema
-  );
-
-  constructor(){
+  constructor() {
     effect(() => {
-      if(
-        this.qualificationModel().qualifications.length === 0
-      ){
+      if (this.qualificationModel().qualifications.length === 0) {
         // this.addQualification();
         const model = new EmployeeQualification();
-            model.id = EMPTY_UUID;
-            model.employeeId = this.empId();
+        model.id = EMPTY_UUID;
+        model.employeeId = this.empId();
 
-        this.qualificationModel.set({qualifications :[model]});
+        this.qualificationModel.set({ qualifications: [model] });
       }
-    })
-
-
+    });
   }
 
-  addQualification(){
+  addQualification() {
     const model = new EmployeeQualification();
     model.employeeId = this.empId();
-    this.qualificationModel.update(state => ({
-      qualifications:[
-        ...state.qualifications,
-        model
-      ]
+    this.qualificationModel.update((state) => ({
+      qualifications: [...state.qualifications, model],
     }));
   }
 
-  removeQualification(index:number){
-    this.qualificationModel.update(state => ({
-      qualifications:
-        state.qualifications.filter((_,i)=>i !== index)
+  removeQualification(index: number) {
+    this.qualificationModel.update((state) => ({
+      qualifications: state.qualifications.filter((_, i) => i !== index),
     }));
   }
 
-  
-  
-
-  onSubmit(){
- 
-    
-    if(!this.qualificationForm().valid()){
-          return;
-        }
+  onSubmit() {
+    if (!this.qualificationForm().valid()) {
+      return;
+    }
     const dataToSave = [...this.qualificationForm().value().qualifications];
-    this.employeeService.updateQualificationsInfo(this.empId(),dataToSave).subscribe({
-        next: () => {
+    this.employeeService.updateQualificationsInfo(this.empId(), dataToSave).subscribe({
+      next: (resp: any) => {
+        this.alertService.success('Success', resp).then(() => {
           this.employeeStore.refreshList();
           this.employeeStore.refreshDetail();
           this.onQualifyUpdate.emit();
-        },
-        error: (err: any) => {
-          if (err.error?.isError) {
-          }
-        }
-      });
+        });
+      },
+      error: (err: any) => {},
+    });
   }
-
-  
 
   private kycResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
-      if (params.editMode && params.id !== EMPTY_UUID) {        
+      if (params.editMode && params.id !== EMPTY_UUID) {
         return this.employeeService.getQualificationData(params.id).pipe(
           tap((resp: any) => {
-            this.qualificationModel.update(state => ({
+            this.qualificationModel.update((state) => ({
               qualifications: (resp.qualifications ?? []).map(
                 (doc: IEmployeeQualification) =>
                   new EmployeeQualification({
-                    ...doc
-                  })
+                    ...doc,
+                  }),
               ),
             }));
-          })
+          }),
         );
       } else {
         this.qualificationModel.set({
-
-          qualifications:[]
-
+          qualifications: [],
         });
         return of(null); // Safely stream an empty observable
       }
-    }
+    },
   });
 }

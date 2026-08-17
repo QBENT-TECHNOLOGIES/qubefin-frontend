@@ -112,6 +112,11 @@
 
                     <!-- Actions -->
                     <div class="flex items-center gap-2.5 shrink-0">
+                        <button type="button" (click)="applyFilters()"
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            <svg lucideIcon="search" class="w-4 h-4"></svg>
+                            Search
+                        </button>
                         <button type="button" (click)="resetFilters()"
                             class="reset-btn lift">
                             <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>

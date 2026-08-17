@@ -65,9 +65,7 @@ export class SurveyStore {
   // Detail Api Call And Response
   // ===========================
 
-  readonly surveyUnitResource = httpResource<{
-    surveyResponse: ISurveyDetail;
-  }>(() => {
+  readonly surveyUnitResource = httpResource<ISurveyDetail>(() => {
     const id = this.surveyId();
 
     return id && id !== EMPTY_UUID ? `${this.basePath}/${id}` : undefined;
@@ -77,7 +75,7 @@ export class SurveyStore {
   // Preparing Data
   // ===========================
   readonly surveyUnit = computed(() => {
-    const item = this.surveyUnitResource.value()?.surveyResponse;
+    const item = this.surveyUnitResource.value();
     return item ? this.normalizeItem(item) : undefined;
   });
 
