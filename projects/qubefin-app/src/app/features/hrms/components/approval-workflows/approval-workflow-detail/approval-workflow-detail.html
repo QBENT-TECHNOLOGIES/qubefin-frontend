@@ -1,0 +1,225 @@
+<div class="space-y-4">
+    <div class="grid grid-cols-1 lg:grid-cols-1 gap-4">
+        <!-- General Information -->
+        <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                General Information
+            </h3>
+            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- @if (isEditMode()) {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Assignment No</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [value]="formModel().assignmentNo" readonly />
+                </mat-form-field>
+                } -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Category</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="approvalWorkflowForm.category">
+                        @for(type of categories(); track type){
+                        <mat-option [value]="type"> {{type}}
+                        </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Organization Unit Type</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="approvalWorkflowForm.organizationUnitTypeId">
+                        @for(item of organizationUnits(); track item.id){
+                        <mat-option [value]="item.id">
+                            {{item.name}}
+                        </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                @if(approvalWorkflowForm().value().category && approvalWorkflowForm().value().category !==
+                'ATTENDANCE'){
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Leave Type</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="approvalWorkflowForm.leaveTypeId">
+                        @for (type of filterLeaveTypes(); track type.id) {
+                        <mat-option [value]="type.id">{{ type.title }} ({{ type.alias
+                            }})</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                }
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Post</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="approvalWorkflowForm.postId">
+                        @for (post of posts(); track post.id) {
+                        <mat-option [value]="post.id">{{ post.name }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                @if(approvalWorkflowForm().value().category && approvalWorkflowForm().value().category ===
+                'LEAVE'){
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Salary Grade</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="approvalWorkflowForm.salaryGradeId">
+                        @for (item of salaryGrades(); track item.id) {
+                        <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                }
+                @if(approvalWorkflowForm().value().category && approvalWorkflowForm().value().category !==
+                'ATTENDANCE'){
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Maximum days</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput type="number" [formField]="approvalWorkflowForm.maximumDays"
+                        (wheel)="$event.preventDefault()" placeholder="Enter Maximum days">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Minimum days</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput type="number" [formField]="approvalWorkflowForm.minimumDays"
+                        (wheel)="$event.preventDefault()" placeholder="Enter Minimum days">
+                </mat-form-field>
+                }
+
+                <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Minimum days</mat-label>
+                    <input matInput type="number" [formField]="approvalWorkflowForm.minimumDays">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Maximum days</mat-label>
+                    <input matInput type="number" [formField]="approvalWorkflowForm.maximumDays" placeholder="No limit">
+                </mat-form-field> -->
+
+                <!-- <button
+                    class="ripple-btn shine-sweep rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+                    (click)="addMember()" style="width: 152px;" [disabled]="!isMemberSelected()">
+                    <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                    Add Surveyor
+                </button> -->
+            </div>
+        </div>
+
+        <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                Approval Steps
+            </h3>
+            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+            <div class="mb-4">
+                <button type="button" (click)="addApprovalStep()"
+                    class="w-[150px] ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                    <svg lucideIcon="plus" class="w- h-5"></svg>
+                    Add Step
+                </button>
+            </div>
+            <div class="flex flex-col gap-4">
+                @for(approvalStep of approvalSteps(); track $index; let i = $index) {
+
+                <div
+                    class="p-4 border border-slate-200 dark:border-slate-700 rounded-lg relative bg-slate-50/50 dark:bg-slate-800/20">
+
+                    <div
+                        class="flex justify-between items-center mb-4 border-b border-slate-200 dark:border-slate-700 pb-3">
+                        <h4 class="font-semibold text-slate-700 dark:text-slate-200 text-sm flex items-center gap-2">
+                            <div
+                                class="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600 font-bold text-xs">
+                                {{i + 1}}
+                            </div>
+                            Step Configuration
+                        </h4>
+                        <button type="button" (click)="removeApprovalStep(i)"
+                            class="flex h-8 w-8 items-center justify-center rounded-lg text-red-500 transition hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30"
+                            matTooltip="Remove Step">
+                            <svg lucideIcon="trash-2" class="w-4 h-4"></svg>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Receiver Post</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="user-check" class="w-5 h-5"></svg>
+                            </div>
+
+                            <mat-select [formField]="approvalWorkflowForm.approvalSteps[i].receiverPostId">
+                                @for(post of posts(); track post) {
+                                @if (isReceiverPostAvailable(post.id)) {
+                                <mat-option [value]="post.id"> {{post.name}} </mat-option>
+                                }
+                                }
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Event Status</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="clock" class="w-5 h-5"></svg>
+                            </div>
+                            <input matInput [formField]="approvalWorkflowForm.approvalSteps[i].eventStatus"
+                                placeholder="Enter Event Status" />
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Event Button Text </mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+                            </div>
+
+                            <input matInput [formField]="approvalWorkflowForm.approvalSteps[i].eventButtonText"
+                                placeholder="Enter button text" />
+                        </mat-form-field>
+
+                        <div class="col-span-1 md:col-span-2 flex items-center gap-6 pt-2">
+                            <mat-checkbox color="primary" [checked]="approvalStep.isRecommendEvent"
+                                (change)="updateApprovalStep(i, 'isRecommendEvent', $event.checked)">
+                                Recommendation Event
+                            </mat-checkbox>
+
+                            <mat-checkbox color="primary" [checked]="approvalStep.isApprovalEvent"
+                                (change)="updateApprovalStep(i, 'isApprovalEvent', $event.checked)">
+                                Approval Event
+                            </mat-checkbox>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3 mt-4">
+        <button type="button" (click)="onCancelClicked()"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+            Cancel
+        </button>
+        <button type="button" (click)="onSubmit()"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
+            {{ isEditMode() ? 'Update' : 'Save' }}
+        </button>
+    </div>
+</div>

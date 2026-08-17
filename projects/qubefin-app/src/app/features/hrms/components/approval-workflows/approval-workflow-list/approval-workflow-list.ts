@@ -17,8 +17,20 @@ export class ApprovalWorkflowList {
   selectedId = signal<string>('');
 
   readonly showDetail = output<string>();
-
-  protected readonly displayedColumns = ['category', 'organizationUnitType', 'leaveType', 'salaryGrade', 'rangeDays', 'workflowEventPath', 'action'];
+  displayedColumns = computed(() => {
+    if (!this.isCollapsed()) {
+      return [
+        'category',
+        'organizationUnitType',
+        'leaveType',
+        'salaryGrade',
+        'rangeDays',
+        'workflowEventPath',
+        'action',
+      ];
+    }
+    return ['category', 'workflowEventPath', 'action'];
+  });
 
   onView(id: string): void {
     this.selectedId.set(id);

@@ -52,4 +52,7 @@ export class PayrollService {
       responseType: 'blob',
     });
   }
+  getSalaryGrade() {
+    return this.httpClient.get(`${ApiPaths.PAYROLL}/salary-grade`);
+  }
 }

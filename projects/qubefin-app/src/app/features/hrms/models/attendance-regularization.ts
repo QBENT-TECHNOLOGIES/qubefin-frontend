@@ -42,9 +42,6 @@ export interface IRegularizationForm {
   remarks: string;
 }
 
-export interface IAttendanceRegularizationDetailResponse {
-  response: IAttendanceRegularizationDetail;
-}
 export interface IApprovalRegularization {
   id: string;
   employeeName: string | null;
