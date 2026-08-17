@@ -62,4 +62,25 @@ export class ApprovalWorkflowStore {
   refreshDetail() {
     this.approvalWorkflowResource.reload();
   }
+
+  // Leave Type Drop Down
+  readonly leaveTypesResource = httpResource<any[]>(() => `${ApiPaths.HRMS}/leave-types`);
+
+  readonly leaveTypes = computed(() => this.leaveTypesResource.value() ?? []);
+  readonly leaveTypesLoading = computed(() => this.leaveTypesResource.isLoading());
+  readonly leaveTypesError = computed(() => this.leaveTypesResource.error());
+
+  // Post Drop Down
+  readonly postsResource = httpResource<any[]>(() => `${ApiPaths.HRMS}/posts`);
+
+  readonly posts = computed(() => this.postsResource.value() ?? []);
+  readonly postsLoading = computed(() => this.postsResource.isLoading());
+  readonly postsError = computed(() => this.postsResource.error());
+
+  // Salary Grade Drop Down
+  readonly salaryGradesResource = httpResource<any[]>(() => `${ApiPaths.PAYROLL}/salary-grade`);
+
+  readonly salaryGrades = computed(() => this.salaryGradesResource.value() ?? []);
+  readonly salaryGradesLoading = computed(() => this.salaryGradesResource.isLoading());
+  readonly salaryGradesError = computed(() => this.salaryGradesResource.error());
 }

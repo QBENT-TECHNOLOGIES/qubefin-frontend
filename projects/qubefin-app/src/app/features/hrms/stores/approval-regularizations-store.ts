@@ -4,9 +4,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import {
   IApprovalRegularization,
-  IAttendanceRegularization,
   IAttendanceRegularizationDetail,
-  IAttendanceRegularizationDetailResponse,
   IAttendanceRegularizationEvent,
 } from '../models/attendance-regularization';
 
@@ -55,13 +53,13 @@ export class ApprovalRegularizationStore {
 
   //   return id && id !== EMPTY_UUID ? `${this.basePath}/${id}` : undefined;
   // });
-  readonly regularizationResource = httpResource<IAttendanceRegularizationDetailResponse>(() => {
+  readonly regularizationResource = httpResource<IAttendanceRegularizationDetail>(() => {
     const id = this.regularizationId();
 
     return id && id !== EMPTY_UUID ? `${this.basePath}/${id}` : undefined;
   });
   readonly regularization = computed(() => {
-    const item = this.regularizationResource.value()?.response;
+    const item = this.regularizationResource.value();
 
     return item ? this.normalizeItem(item) : undefined;
   });

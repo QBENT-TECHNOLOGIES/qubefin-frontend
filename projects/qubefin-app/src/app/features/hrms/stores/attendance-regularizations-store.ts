@@ -5,7 +5,6 @@ import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import {
   IAttendanceRegularization,
   IAttendanceRegularizationDetail,
-  IAttendanceRegularizationDetailResponse,
   IAttendanceRegularizationEvent,
 } from '../models/attendance-regularization';
 import { Utility } from '../models/employee-detail';
