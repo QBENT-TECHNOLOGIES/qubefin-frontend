@@ -10,77 +10,66 @@ import { Menu } from '../../../features/app/models/menu';
 import { LoggedInUserInfoStore } from '../store/logged-in-user-info-store';
 import { AuthStore } from 'qubefin-core';
 import { Router } from '@angular/router';
-
-export interface NotificationItem {
-  id: number | string;
-  title: string;
-  description: string;
-  date: string;
-  read: boolean;
-  type?: 'info' | 'success' | 'warning' | 'danger';
-  icon?: string;
-}
+import { NotificationStore } from '../store/notification-store';
+import { NotificationService } from '../../../services/notification-service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'qfin-header',
   standalone: true,
-  imports: [MatDividerModule, LucideDynamicIcon, MatMenuModule, MatTooltipModule, Breadcrumb],
+  imports: [
+    MatDividerModule,
+    LucideDynamicIcon,
+    MatMenuModule,
+    MatTooltipModule,
+    Breadcrumb,
+    DatePipe,
+  ],
   templateUrl: './header.html',
 })
 export class Header {
   theme = inject(ThemeService);
+  readonly notificationService = inject(NotificationService);
+
+  readonly notificationStore = inject(NotificationStore);
   readonly authStore = inject(AuthStore);
   readonly userStore = inject(LoggedInUserInfoStore);
+
   readonly router = inject(Router);
   pageData = input<Menu | null>(null);
-
   isExpanded = model<boolean>(true);
+
   readonly iconMap = APP_ICONS_MAP;
 
-  notifications = signal<NotificationItem[]>([
-    {
-      id: 1,
-      title: 'New Loan Request Approved',
-      description: 'Loan application #QFB-9482 for ₹1,50,000 has been approved by risk compliance.',
-      date: '10 mins ago',
-      read: false,
-      type: 'success',
-      icon: 'check-circle'
-    },
-    {
-      id: 2,
-      title: 'System Security Update',
-      description: 'Scheduled maintenance will be performed tonight at 11:00 PM IST.',
-      date: '1 hour ago',
-      read: false,
-      type: 'info',
-      icon: 'alert-circle'
-    },
-    {
-      id: 3,
-      title: 'Monthly Report Generated',
-      description: 'Your financial summary report for July 2026 is ready to download.',
-      date: 'Yesterday, 4:30 PM',
-      read: false,
-      type: 'warning',
-      icon: 'file-text'
-    }
-  ]);
+  readonly notifications = this.notificationStore.notifications;
 
-  unreadCount = computed(() => this.notifications().filter(n => !n.read).length);
+  unreadCount = computed(() => this.notifications().filter((n) => !n.isRead).length);
 
   onHandleToggleDrawer() {
     this.isExpanded.set(!this.isExpanded());
   }
 
   markAllAsRead() {
-    this.notifications.update(items => items.map(item => ({ ...item, read: true })));
+    this.notificationService.allRead().subscribe({
+      next: () => {
+        this.notificationStore.refresh();
+        this.userStore.refresh();
+      },
+    });
   }
 
-  markAsRead(id: number | string) {
-    this.notifications.update(items =>
-      items.map(item => (item.id === id ? { ...item, read: true } : item))
-    );
+  markAsRead(id: string, actionUrl: string) {
+    if (this.unreadCount() > 0) {
+      this.notificationService.read(id).subscribe({
+        next: () => {
+          this.notificationStore.refresh();
+          this.userStore.refresh();
+          if (actionUrl) {
+            this.router.navigate([actionUrl]);
+          }
+        },
+      });
+    }
   }
 
   getInitials(name: string | null | undefined): string {
@@ -98,4 +87,3 @@ export class Header {
     this.router.navigate(['/public/auth/login']);
   }
 }
-
