@@ -23,7 +23,7 @@ export class EmployeeAttendanceHistoryStore {
     results: IEmployeeAttendanceHistory[];
     totalRecords: number;
   }>(() => ({
-    url: `${this.basePath}` + '/history',
+    url: `${this.basePath}` + '/history-all',
     method: 'POST',
     body: {
       fromDate: this.fromDate(),

@@ -1,5 +1,6 @@
 export interface IEmployeeAttendanceHistory {
   id: string;
+  organizationUnit: string;
   employeeName: string;
   employeeCode: string;
   organizationName: string;
@@ -8,4 +9,5 @@ export interface IEmployeeAttendanceHistory {
   actualOutTime: string | null;
   workingHours: string | null;
   status: string | null;
+  isRegulerized: string | null;
 }

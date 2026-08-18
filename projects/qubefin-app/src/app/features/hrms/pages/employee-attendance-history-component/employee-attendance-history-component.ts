@@ -25,6 +25,7 @@ import { EmployeeService } from '../../services/employee-service';
 import { EmployeeAttendanceHistoryList } from '../../components/employee-atendance-history-component/employee-attendance-history-list/employee-attendance-history-list';
 import { EmployeeAttendanceHistoryStore } from '../../stores/employee-attendance-history-store';
 import { EmployeeAttendanceHistoryView } from '../../components/employee-atendance-history-component/employee-attendance-history-view/employee-attendance-history-view';
+import { IEmployeeAttendanceHistory } from '../../models/employee-attendance-history';
 @Component({
   selector: 'qfin-employee-attendance-history-component',
   imports: [
@@ -49,53 +50,62 @@ import { EmployeeAttendanceHistoryView } from '../../components/employee-atendan
 export class EmployeeAttendanceHistoryComponent {
   public readonly EMPTY_UUID = EMPTY_UUID;
   readonly iconMap = APP_ICONS_MAP;
+
   private readonly employeeService = inject(EmployeeService);
+
   readonly employeeAttendanceHistoryStore = inject(EmployeeAttendanceHistoryStore);
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
+
   readonly isViewMode = signal<boolean>(true);
   readonly showFilterArea = signal<boolean>(false);
   readonly employeeOptions = signal<EmployeeSearchByText[]>([]);
   readonly employeeSearchText = signal('');
   private readonly employeeSearch$ = new Subject<{ searchText: string }>();
-  readonly selectedEmployee = signal<EmployeeSearchByText | null>(null);
-  readonly selectedAttendanceHistoryId = signal<string>(EMPTY_UUID);
+  // readonly selectedEmployee = signal<EmployeeSearchByText | null>(null);
+  readonly selectedAttendanceHistory = signal<IEmployeeAttendanceHistory | null>(null);
+
   readonly searchModel = signal({
     tempSearch: '',
     fromDate: '',
     toDate: '',
-    // status: ''
+    status: '',
   });
-  readonly statuses = signal<string[]>(['Approved', 'Rejected', 'Pending']);
+  readonly statuses = signal<string[]>([
+    'On Time',
+    'Late Entry',
+    'Early Exit',
+    'Late Entry & Early Exit',
+  ]);
+
   readonly searchForm = form(this.searchModel);
   readonly employeeAttendanceHistories =
     this.employeeAttendanceHistoryStore.employeeAttendanceHistory;
   constructor() {
     this.dateAdapter.setLocale('en-GB');
-    this.employeeSearch$
-      .pipe(
-        debounceTime(250),
-        distinctUntilChanged(),
-        switchMap((x) => this.employeeService.getEmployeesBySearchText(x)),
-      )
-      .subscribe((response: EmployeeSearchResponse) => {
-        this.employeeOptions.set(
-          response.value?.employees ??
-            response.valueOrDefault?.employees ??
-            response.employees ??
-            [],
-        );
-      });
+    // this.employeeSearch$
+    //   .pipe(
+    //     debounceTime(250),
+    //     distinctUntilChanged(),
+    //     switchMap((x) => this.employeeService.getEmployeesBySearchText(x)),
+    //   )
+    //   .subscribe((response: EmployeeSearchResponse) => {
+    //     this.employeeOptions.set(
+    //       response.value?.employees ??
+    //         response.valueOrDefault?.employees ??
+    //         response.employees ??
+    //         [],
+    //     );
+    //   });
   }
-  readonly hasSelectedAttendanceHistory = computed(
-    () => this.selectedAttendanceHistoryId() !== EMPTY_UUID || !this.isViewMode(),
-  );
-  protected onView(id: string) {
-    this.selectedAttendanceHistoryId.set(id);
+
+  protected onView(item: IEmployeeAttendanceHistory) {
+    this.selectedAttendanceHistory.set(item);
     this.isViewMode.set(true);
   }
+
   protected closePanel() {
-    this.selectedAttendanceHistoryId.set(EMPTY_UUID);
+    this.selectedAttendanceHistory.set(null);
     this.isViewMode.set(true);
   }
   protected toggleFilterArea() {
@@ -108,46 +118,43 @@ export class EmployeeAttendanceHistoryComponent {
     this.employeeAttendanceHistoryStore.setToDate(
       this.dateFormatter(this.searchForm.toDate().value()),
     );
+    this.employeeAttendanceHistoryStore.setStatus(this.searchForm.status().value());
 
     this.employeeAttendanceHistoryStore.setSearchQuery(this.searchForm.tempSearch().value());
-    this.employeeAttendanceHistoryStore.setEmployeeId(this.selectedEmployee()?.id || '');
+    // this.employeeAttendanceHistoryStore.setEmployeeId(this.selectedEmployee()?.id || '');
   }
 
-  private dateFormatter(date: any) {
-    if (!date || date === null || date === '') {
-      return null;
-    }
-    return this.datePipe.transform(date, 'yyyy-MM-dd');
-  }
   protected resetFilters() {
     this.searchModel.update((m) => ({
       ...m,
       tempSearch: '',
       fromDate: '',
       toDate: '',
+      status: '',
     }));
     this.employeeSearchText.set('');
-    this.selectedEmployee.set(null);
+    // this.selectedEmployee.set(null);
     this.employeeOptions.set([]);
     this.applyFilters();
   }
-  protected searchEmployees(searchText: string) {
-    this.employeeSearchText.set(searchText);
 
-    if (!searchText.trim()) {
-      this.employeeOptions.set([]);
-      this.employeeSearchText.set('');
-      this.selectedEmployee.set(null);
-      return;
-    }
+  // protected searchEmployees(searchText: string) {
+  //   this.employeeSearchText.set(searchText);
 
-    this.employeeSearch$.next({ searchText });
-  }
-  protected selectEmployee(event: MatAutocompleteSelectedEvent) {
-    const employee = event.option.value as EmployeeSearchByText;
-    this.selectedEmployee.set(employee);
-    this.employeeSearchText.set(employee.employeeName);
-  }
+  //   if (!searchText.trim()) {
+  //     this.employeeOptions.set([]);
+  //     this.employeeSearchText.set('');
+  //     // this.selectedEmployee.set(null);
+  //     return;
+  //   }
+
+  //   this.employeeSearch$.next({ searchText });
+  // }
+  // protected selectEmployee(event: MatAutocompleteSelectedEvent) {
+  //   const employee = event.option.value as EmployeeSearchByText;
+  //   this.selectedEmployee.set(employee);
+  //   this.employeeSearchText.set(employee.employeeName);
+  // }
 
   displayEmployeeName(employee: EmployeeSearchByText | string | null): string {
     if (!employee) return '';
@@ -170,5 +177,11 @@ export class EmployeeAttendanceHistoryComponent {
     }
 
     this.employeeAttendanceHistoryStore.setSort(sort.active, sort.direction as 'asc' | 'desc');
+  }
+  private dateFormatter(date: any) {
+    if (!date || date === null || date === '') {
+      return null;
+    }
+    return this.datePipe.transform(date, 'yyyy-MM-dd');
   }
 }

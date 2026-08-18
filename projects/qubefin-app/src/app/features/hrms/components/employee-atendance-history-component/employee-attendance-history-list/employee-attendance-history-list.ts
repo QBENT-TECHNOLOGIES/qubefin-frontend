@@ -25,36 +25,37 @@ import { IEmployeeAttendanceHistory } from '../../../models/employee-attendance-
 })
 export class EmployeeAttendanceHistoryList {
   isCollapsed = input<boolean>(false);
-  selectedRow = input<IAttendanceHistory | null>(null);
-  data = input<IAttendanceHistory[]>([]);
-  pageChanged = output<PageEvent>();
+  selectedRow = input<IEmployeeAttendanceHistory | null>(null);
+  data = input<IEmployeeAttendanceHistory[]>([]);
   readonly totalRecords = input(0);
   readonly pageIndex = input(0);
   readonly pageSize = input(10);
+
+  pageChanged = output<PageEvent>();
+  onViewDetail = output<IEmployeeAttendanceHistory>();
+
   readonly iconMap = APP_ICONS_MAP;
+
   displayedColumns = computed(() => {
     if (this.isCollapsed()) {
-      return ['attendanceDate', 'status', 'action'];
+      return ['codeName', 'attendanceDate', 'action'];
     }
     return [
       'sl',
       'name',
-      'codeName',
       'code',
+      'organizationUnit',
       'attendanceDate',
       'actualInTime',
       'actualOutTime',
       'workingHours',
       'status',
+      'isRegulerized',
       'action',
     ];
   });
-  onViewDetail = output<string>();
 
   onPage(event: PageEvent) {
     this.pageChanged.emit(event);
   }
-  // onDetailView(item: IEmployeeAttendanceHistory) {
-  // this.onViewDetail.emit(item);
-  // }
 }

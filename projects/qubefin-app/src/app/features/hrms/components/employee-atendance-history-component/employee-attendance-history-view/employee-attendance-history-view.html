@@ -1,1 +1,145 @@
-<p>employee-attendance-history-view works!</p>
+@if (attendanceData(); as data) {
+<div class="flex flex-col gap-4">
+    <div class="flex-1">
+        <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
+            <div class="flex px-4 py-4 items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div>
+                        <svg lucideIcon="calendar-days" class="w-6 h-6 text-primary-700 dark:text-primary-400"></svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-lg font-bold text-slate-800 dark:text-slate-100">
+                                Attendance History
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div
+                        class="flex items-center gap-2 px-3.5 py-1 rounded-4xl bg-white/45 dark:bg-white/5 border border-slate-200/20 dark:border-white/5 shadow-md">
+                        <span class="flex items-center gap-1.5 text-[12px] font-semibold"
+                            [class.text-emerald-600]="data.status === 'On Time'"
+                            [class.dark:text-emerald-400]="data.status === 'On Time'"
+                            [class.text-rose-600]="data.status && data.status !== 'On Time'"
+                            [class.dark:text-rose-400]="data.status && data.status !== 'On Time'"
+                            [class.text-slate-600]="!data.status" [class.dark:text-slate-400]="!data.status">
+
+                            <span class="w-2 h-2 rounded-full relative flex">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                                    [class.bg-emerald-400]="data.status === 'On Time'"
+                                    [class.bg-rose-400]="data.status && data.status !== 'On Time'"
+                                    [class.bg-slate-400]="!data.status">
+                                </span>
+
+                                <span class="relative inline-flex rounded-full h-2 w-2"
+                                    [class.bg-emerald-500]="data.status === 'On Time'"
+                                    [class.bg-rose-500]="data.status && data.status !== 'On Time'"
+                                    [class.bg-slate-500]="!data.status">
+                                </span>
+                            </span>
+
+                            {{ data.status || 'N/A' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-0 p-4">
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+                    Attendance Information
+                </h3>
+                <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div class="gen-info">
+                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">
+                                Attendance Date
+                            </label>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
+                                {{ data.attendanceDate || 'N/A' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="gen-info">
+                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <svg lucideIcon="clock" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">
+                                Actual In Time
+                            </label>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
+                                {{ data.actualInTime || 'N/A' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="gen-info">
+                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <svg lucideIcon="clock" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">
+                                Actual Out Time
+                            </label>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
+                                {{ data.actualOutTime || 'N/A' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="gen-info">
+                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">
+                                Working Hours
+                            </label>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
+                                {{ data.workingHours || 'N/A' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="gen-info">
+                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">
+                                Employee Name
+                            </label>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
+                                {{ data.employeeName || 'N/A' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="gen-info">
+                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">
+                                Organization Unit
+                            </label>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
+                                {{ data.organizationUnit || 'N/A' }}
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+} @else {
+<div class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400">
+    <p class="text-sm font-medium">Select an attendance record to view details.</p>
+</div>
+}
