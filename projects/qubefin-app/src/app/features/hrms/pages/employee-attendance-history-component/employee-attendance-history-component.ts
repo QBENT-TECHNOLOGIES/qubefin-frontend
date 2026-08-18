@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
@@ -13,15 +13,10 @@ import { CommonModule } from '@angular/common';
 import { form, FormField } from '@angular/forms/signals';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
-import { EMPTY_UUID, RouteMeta } from 'qubefin-core';
+import { EMPTY_UUID } from 'qubefin-core';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
-import { EmployeeSearchByText, EmployeeSearchResponse } from '../../models/employee-search-by-text';
-import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
-import {
-  MatAutocompleteModule,
-  MatAutocompleteSelectedEvent,
-} from '@angular/material/autocomplete';
-import { EmployeeService } from '../../services/employee-service';
+import { EmployeeSearchByText } from '../../models/employee-search-by-text';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { EmployeeAttendanceHistoryList } from '../../components/employee-atendance-history-component/employee-attendance-history-list/employee-attendance-history-list';
 import { EmployeeAttendanceHistoryStore } from '../../stores/employee-attendance-history-store';
 import { EmployeeAttendanceHistoryView } from '../../components/employee-atendance-history-component/employee-attendance-history-view/employee-attendance-history-view';
@@ -51,8 +46,6 @@ export class EmployeeAttendanceHistoryComponent {
   public readonly EMPTY_UUID = EMPTY_UUID;
   readonly iconMap = APP_ICONS_MAP;
 
-  private readonly employeeService = inject(EmployeeService);
-
   readonly employeeAttendanceHistoryStore = inject(EmployeeAttendanceHistoryStore);
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
@@ -61,8 +54,6 @@ export class EmployeeAttendanceHistoryComponent {
   readonly showFilterArea = signal<boolean>(false);
   readonly employeeOptions = signal<EmployeeSearchByText[]>([]);
   readonly employeeSearchText = signal('');
-  private readonly employeeSearch$ = new Subject<{ searchText: string }>();
-  // readonly selectedEmployee = signal<EmployeeSearchByText | null>(null);
   readonly selectedAttendanceHistory = signal<IEmployeeAttendanceHistory | null>(null);
 
   readonly searchModel = signal({
@@ -83,20 +74,6 @@ export class EmployeeAttendanceHistoryComponent {
     this.employeeAttendanceHistoryStore.employeeAttendanceHistory;
   constructor() {
     this.dateAdapter.setLocale('en-GB');
-    // this.employeeSearch$
-    //   .pipe(
-    //     debounceTime(250),
-    //     distinctUntilChanged(),
-    //     switchMap((x) => this.employeeService.getEmployeesBySearchText(x)),
-    //   )
-    //   .subscribe((response: EmployeeSearchResponse) => {
-    //     this.employeeOptions.set(
-    //       response.value?.employees ??
-    //         response.valueOrDefault?.employees ??
-    //         response.employees ??
-    //         [],
-    //     );
-    //   });
   }
 
   protected onView(item: IEmployeeAttendanceHistory) {
@@ -121,7 +98,6 @@ export class EmployeeAttendanceHistoryComponent {
     this.employeeAttendanceHistoryStore.setStatus(this.searchForm.status().value());
 
     this.employeeAttendanceHistoryStore.setSearchQuery(this.searchForm.tempSearch().value());
-    // this.employeeAttendanceHistoryStore.setEmployeeId(this.selectedEmployee()?.id || '');
   }
 
   protected resetFilters() {
@@ -133,33 +109,10 @@ export class EmployeeAttendanceHistoryComponent {
       status: '',
     }));
     this.employeeSearchText.set('');
-    // this.selectedEmployee.set(null);
     this.employeeOptions.set([]);
     this.applyFilters();
   }
 
-  // protected searchEmployees(searchText: string) {
-  //   this.employeeSearchText.set(searchText);
-
-  //   if (!searchText.trim()) {
-  //     this.employeeOptions.set([]);
-  //     this.employeeSearchText.set('');
-  //     // this.selectedEmployee.set(null);
-  //     return;
-  //   }
-
-  //   this.employeeSearch$.next({ searchText });
-  // }
-  // protected selectEmployee(event: MatAutocompleteSelectedEvent) {
-  //   const employee = event.option.value as EmployeeSearchByText;
-  //   this.selectedEmployee.set(employee);
-  //   this.employeeSearchText.set(employee.employeeName);
-  // }
-
-  displayEmployeeName(employee: EmployeeSearchByText | string | null): string {
-    if (!employee) return '';
-    return typeof employee === 'string' ? employee : employee.employeeName;
-  }
   protected changePage(delta: number) {
     const current = this.employeeAttendanceHistoryStore.pageIndex();
     const next = current + delta;

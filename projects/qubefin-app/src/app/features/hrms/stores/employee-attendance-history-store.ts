@@ -1,7 +1,6 @@
-import { DatePipe } from '@angular/common';
 import { httpResource } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
+import { computed, Injectable, signal } from '@angular/core';
+import { ApiPaths } from 'qubefin-core';
 import { IEmployeeAttendanceHistory } from '../models/employee-attendance-history';
 @Injectable({
   providedIn: 'root',
