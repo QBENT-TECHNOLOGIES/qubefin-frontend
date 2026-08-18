@@ -35,6 +35,8 @@ export class ApprovalWorkflowDetail {
   readonly onCancel = output<void>();
   readonly onSave = output<void>();
   readonly filterLeaveTypes = signal<any[]>([]);
+  readonly isLeaveCategory = signal<boolean>(false);
+  readonly isAttendanceCategory = signal<boolean>(false);
 
   private readonly organizationUnitTypeStore = inject(OrganizationUnitTypeStore);
   readonly approvalWorkflowstore = inject(ApprovalWorkflowStore);
@@ -85,7 +87,10 @@ export class ApprovalWorkflowDetail {
     effect(() => {
       const category = this.approvalWorkflowForm.category().value();
 
-      if (category && (category === 'LEAVE' || category === 'LEAVE_PRAYER')) {
+      this.isLeaveCategory.set(category === 'LEAVE' || category === 'LEAVE_PRAYER');
+      this.isAttendanceCategory.set(category === 'ONDUTY' || category === 'ATTENDANCE');
+
+      if (category && this.isLeaveCategory()) {
         this.filterLeaveTypes.set(
           this.leaveTypes().filter((m) =>
             category === 'LEAVE' ? !m.isPrayerable : m.isPrayerable,
