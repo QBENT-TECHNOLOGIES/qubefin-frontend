@@ -199,27 +199,27 @@
               <div>
                 <span
                   class="px-3 py-1 rounded-full text-[11px] font-semibold bg-primary-100 text-primary-700 dark:bg-slate-300 dark:text-black">
-                  {{ item.event }}
+                  {{ item.eventStatus }}
                 </span>
                 <div
                   class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
                   <div class="flex items-center gap-2">
                     <svg lucideIcon="calendar-days" class="w-4 h-4"></svg>
-                    {{ item.eventOn | date:'dd MMM yyyy • hh:mm a' }}
+                    {{ item.eventDate | date:'dd MMM yyyy • hh:mm a' }}
                   </div>
                 </div>
                 <div
                   class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
                   <div class="flex items-center gap-2">
                     <svg lucideIcon="user-round" class="w-4 h-4"></svg>
-                    {{ item.senderDesignation }}
+                    {{ item.designation }}
                   </div>
                 </div>
 
               </div>
             </div>
             <!-- Remarks -->
-            @if(item.eventRemarks){
+            @if(item.remarks){
             <div class="mt-4 rounded-xl bg-slate-100/80 dark:bg-slate-800/60 px-3 py-2 flex items-start gap-2">
               <svg lucideIcon="message-circle" class="w-4 h-4 mt-0.5 text-primary-500"></svg>
               <div>
@@ -227,7 +227,7 @@
                   Remarks
                 </div>
                 <div class="text-sx text-slate-700 dark:text-slate-300">
-                  {{ item.eventRemarks }}
+                  {{ item.remarks }}
                 </div>
               </div>
             </div>
