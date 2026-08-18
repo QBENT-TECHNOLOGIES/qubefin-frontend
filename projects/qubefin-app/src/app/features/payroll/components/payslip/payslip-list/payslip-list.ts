@@ -39,7 +39,7 @@ export class PayslipList {
 
       this.documentModalService.open({
         url: fileUrl,
-        documentName: `Payslip_${this.getMonthName(element.payrollMonth, element.payrollYear)}`,
+        documentName: `Payslip_${element.payrollMonthYear}`,
         extension: 'pdf',
         downloadAccess: true,
       });
@@ -48,10 +48,5 @@ export class PayslipList {
     } finally {
       this.openingPayslipId.set(null);
     }
-  }
-
-  getMonthName(monthNumber: number, year: number) {
-    const date = new Date(year, monthNumber);
-    return new Intl.DateTimeFormat('en-In', { month: 'long' }).format(date) + ', ' + year;
   }
 }

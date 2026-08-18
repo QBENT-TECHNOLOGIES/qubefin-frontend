@@ -19,7 +19,7 @@
 
             <ng-container matColumnDef="payrollMonthYear">
                 <th mat-header-cell *matHeaderCellDef> Month Year </th>
-                <td mat-cell *matCellDef="let element"> {{getMonthName(element.payrollMonth, element.payrollYear)}} </td>
+                <td mat-cell *matCellDef="let element"> {{element.payrollMonthYear}} </td>
             </ng-container>
 
             <ng-container matColumnDef="netPay">
