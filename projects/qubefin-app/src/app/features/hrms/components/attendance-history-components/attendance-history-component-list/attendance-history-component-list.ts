@@ -43,6 +43,7 @@ export class AttendanceHistoryComponentList {
       'actualOutTime',
       'workingHours',
       'status',
+      'isRegulerized',
       'action',
     ];
   });

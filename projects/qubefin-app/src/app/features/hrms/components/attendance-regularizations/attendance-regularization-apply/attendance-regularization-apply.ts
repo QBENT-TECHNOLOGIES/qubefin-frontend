@@ -55,7 +55,7 @@ export class AttendanceRegularizationApply {
     required(path.regularizationDates, { message: 'At least one date is required' });
   });
   readonly maxDate = new Date();
-  readonly minDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  readonly minDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   protected readonly applyForm = form(this.formModel, this.formSchema);
 
   protected readonly selectedFile = signal<File | null>(null);
