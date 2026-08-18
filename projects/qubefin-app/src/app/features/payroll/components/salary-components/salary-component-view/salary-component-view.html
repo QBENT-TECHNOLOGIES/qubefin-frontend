@@ -70,7 +70,7 @@
                         <div>
                             <label
                                 class="gen-label">Category</label>
-                            <p class="gen-title">{{ salaryDetail()?.categoryId }}</p>
+                            <p class="gen-title">{{ salaryDetail()?.categoryName }}</p>
                         </div>
                     </div>
                     <div class="gen-info">
@@ -182,7 +182,7 @@
                     <div>
                         <p class="audit-label">
                             Created By</p>
-                        <p class="audit-title">{{ salaryDetail()?.createdBy }}</p>
+                        <p class="audit-title">{{ salaryDetail()?.auditInfo?.createdBy ?? '-' }}</p>
                     </div>
                 </div>
                 <div class="audit-small-box">
@@ -193,7 +193,7 @@
                     <div>
                         <p class="audit-label">
                             Created On</p>
-                        <p class="audit-title">{{ salaryDetail()?.createdOn |
+                        <p class="audit-title">{{ salaryDetail()?.auditInfo?.createdOn |
                             date:'dd-MM-yyyy hh:mm a' }}</p>
                     </div>
                 </div>
@@ -205,7 +205,7 @@
                     <div>
                         <p class="audit-label">
                             Last Modified By</p>
-                        <p class="audit-title">{{ salaryDetail()?.lastModifiedBy ??
+                        <p class="audit-title">{{ salaryDetail()?.auditInfo?.lastModifiedBy ??
                             '-' }}</p>
                     </div>
                 </div>
@@ -217,7 +217,7 @@
                     <div>
                         <p class="audit-label">
                             Last Modified On</p>
-                        <p class="audit-title">{{ salaryDetail()?.lastModifiedOn ?
+                        <p class="audit-title">{{ salaryDetail()?.auditInfo?.lastModifiedOn ?
                             (salaryDetail()?.lastModifiedOn | date:'dd-MM-yyyy hh:mm a') : '-' }}</p>
                     </div>
                 </div>

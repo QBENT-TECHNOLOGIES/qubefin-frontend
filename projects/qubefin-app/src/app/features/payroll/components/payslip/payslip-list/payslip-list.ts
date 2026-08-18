@@ -26,6 +26,8 @@ export class PayslipList {
     'designation',
     'salaryGrade',
     'payrollMonthYear',
+    'totalEarning',
+    'totalDeduction',
     'netPay',
     'action',
   ];

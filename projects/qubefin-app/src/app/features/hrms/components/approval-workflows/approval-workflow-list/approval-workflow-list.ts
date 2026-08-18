@@ -38,6 +38,7 @@ export class ApprovalWorkflowList {
         'category',
         'organizationUnitType',
         'leaveType',
+        'postName',
         'salaryGrade',
         'rangeDays',
         'workflowEventPath',

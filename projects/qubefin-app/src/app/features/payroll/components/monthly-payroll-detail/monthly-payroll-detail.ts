@@ -9,6 +9,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { PayrollEditModal } from '../payroll-edit-modal/payroll-edit-modal';
 import { PayslipRptParam } from '../../models/payroll-model';
+import { DocumentModalService } from '../../../../shared/services/document-modal.service';
+import { AlertService } from 'qubefin-core';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'qfin-monthly-payroll-detail',
@@ -19,6 +22,11 @@ export class MonthlyPayrollDetail {
   private readonly payrollStore = inject(PayrollStore);
   private readonly dialog = inject(MatDialog);
   private readonly PayrollService = inject(PayrollService);
+  private readonly documentModalService = inject(DocumentModalService);
+  readonly payrollService = inject(PayrollService);
+  readonly alertService = inject(AlertService);
+
+  readonly openingPayslipId = signal<string | null>(null);
   month = input.required<number>();
   year = input.required<number>();
 
@@ -36,9 +44,11 @@ export class MonthlyPayrollDetail {
       if (!payroll || !payroll.headers.length) return;
 
       const headOffice = payroll.headers.find(
-        h => h.organizationUnitName.trim().toLowerCase() === 'headOffice'
+        (h) => h.organizationUnitName.trim().toLowerCase() === 'headOffice',
       );
-      this.expandedOrgUnitId.set(headOffice?.organizationUnitId ?? payroll.headers[0].organizationUnitId);
+      this.expandedOrgUnitId.set(
+        headOffice?.organizationUnitId ?? payroll.headers[0].organizationUnitId,
+      );
     });
   }
 
@@ -50,7 +60,7 @@ export class MonthlyPayrollDetail {
       data: { id: payrollId },
       // width: '1000px',
       maxWidth: '95vw',
-      panelClass: 'glass-modal'
+      panelClass: 'glass-modal',
     });
   }
 
@@ -64,7 +74,7 @@ export class MonthlyPayrollDetail {
     if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
-  downloadPayslip(employeeId: string, empName: string) {
+  async downloadPayslip(id: string, employeeId: string, empName: string) {
     let param = new PayslipRptParam();
     param.employeeId = employeeId;
     param.payslipMonth = this.month();
@@ -77,7 +87,25 @@ export class MonthlyPayrollDetail {
         a.download = `${empName}-Payslip of ${this.month()}-${this.year()}.pdf`;
         a.click();
         window.URL.revokeObjectURL(url);
-      }
+      },
     });
+
+    this.openingPayslipId.set(id);
+
+    try {
+      const file = await firstValueFrom(this.payrollService.getPayslipById(id));
+      const fileUrl = URL.createObjectURL(file);
+
+      this.documentModalService.open({
+        url: fileUrl,
+        documentName: `${empName}-Payslip of ${this.month()}-${this.year()}.pdf`,
+        extension: 'pdf',
+        downloadAccess: true,
+      });
+    } catch (error: any) {
+      this.alertService.error('Failed', error?.error?.message ?? 'Unable to load payslip.');
+    } finally {
+      this.openingPayslipId.set(null);
+    }
   }
 }
