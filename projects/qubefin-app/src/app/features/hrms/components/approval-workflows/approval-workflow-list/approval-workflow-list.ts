@@ -29,7 +29,7 @@ export class ApprovalWorkflowList {
         'action',
       ];
     }
-    return ['category', 'workflowEventPath', 'action'];
+    return ['category', 'action'];
   });
 
   onView(id: string): void {

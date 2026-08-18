@@ -13,7 +13,7 @@
         </ng-container>
 
         <ng-container matColumnDef="regularizationDate">
-            <th mat-header-cell *matHeaderCellDef> Regularization Date </th>
+            <th mat-header-cell *matHeaderCellDef> Date </th>
             <td mat-cell *matCellDef="let item"> {{ dateFormatter(item.regularizationDate) }} </td>
         </ng-container>
 
@@ -23,7 +23,7 @@
         </ng-container>
 
         <ng-container matColumnDef="regularizationType">
-            <th mat-header-cell *matHeaderCellDef> Regularization Type </th>
+            <th mat-header-cell *matHeaderCellDef> Type </th>
             <td mat-cell *matCellDef="let item"> {{ item.regularizationType }} </td>
         </ng-container>
 
@@ -37,7 +37,17 @@
         <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef>Status</th>
             <td mat-cell *matCellDef="let item">
-                {{ item.status || 'N/A' }}
+                <!-- {{ item.status || 'N/A' }} -->
+
+            <span class="px-2 py-1 text-xs font-medium rounded" [class.bg-green-100]="item.status === 'Approved'"
+            [class.text-green-800]="item.status === 'Approved'" [class.bg-red-100]="item.status === 'Rejected'"
+            [class.text-red-800]="item.status === 'Rejected'" [class.bg-gray-200]="item.status === 'Cancelled'"
+            [class.text-gray-800]="item.status === 'Cancelled'" [class.bg-blue-100]="item.status === 'Draft'"
+            [class.text-blue-800]="item.status === 'Draft'"
+            [class.bg-yellow-100]="item.status === 'Pending' || !item.status"
+            [class.text-yellow-800]="item.status === 'Pending' || !item.status">
+            {{ item.status || 'N/A' }}
+            </span>
             </td>
         </ng-container>
 

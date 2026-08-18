@@ -13,7 +13,7 @@
             </div>
             }
             <button
-                class="ripple-btn shine-sweep rounded-full px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+                class="global-btn ripple-btn shine-sweep lift"
                 (click)="onAdd()">
                 <svg lucideIcon="plus" class="w-4 h-4"></svg>
                 Apply Leave Prayer
@@ -29,7 +29,7 @@
           'w-full max-w-full opacity-100 translate-x-0':
               selectedLeavePrayerId() === EMPTY_UUID && isViewMode(),
 
-          'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]':
+          'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-150px)]':
               isViewMode() && selectedLeavePrayerId() !== EMPTY_UUID,
 
           'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
