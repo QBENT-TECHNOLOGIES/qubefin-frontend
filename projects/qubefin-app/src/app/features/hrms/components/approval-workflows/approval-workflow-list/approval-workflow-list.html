@@ -1,30 +1,38 @@
 <div class="overflow-auto scroll-thin" [ngClass]="{
   'h-[calc(100vh-150px)] overflow-y-auto': isCollapsed()
 }">
-    <table mat-table [dataSource]="data()" class="w-full table">
+    <table mat-table [dataSource]="data()" class="w-full table" matSort matSortActive="category" matSortDirection="desc"
+        matSortDisableClear (matSortChange)="onSortChange($event)">
         <ng-container matColumnDef="category">
-            <th mat-header-cell *matHeaderCellDef>Category</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="category">Category</th>
             <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
                 <span class="font-medium">{{ row.category }}</span>
             </td>
         </ng-container>
 
         <ng-container matColumnDef="organizationUnitType">
-            <th mat-header-cell *matHeaderCellDef>Organization Unit Type</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="organizationUnitType">Unit Type</th>
             <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
                 <span class="font-medium">{{ row.organizationUnitTypeName }}</span>
             </td>
         </ng-container>
 
         <ng-container matColumnDef="leaveType">
-            <th mat-header-cell *matHeaderCellDef>Leave Type</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="leaveType"> Leave Type</th>
             <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
                 <span class="font-medium">{{ row.leaveTypeName }}</span>
             </td>
         </ng-container>
 
+        <ng-container matColumnDef="postName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="postName"> Post</th>
+            <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                <span class="font-medium">{{ row.postName ? row.postName : '-' }}</span>
+            </td>
+        </ng-container>
+
         <ng-container matColumnDef="salaryGrade">
-            <th mat-header-cell *matHeaderCellDef>Salary Grade</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="salaryGrade">Salary Grade</th>
             <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
                 <span class="font-medium">{{ row.salaryGradeName }}</span>
             </td>
@@ -72,4 +80,9 @@
             </td>
         </tr>
     </table>
+    @if (!isCollapsed()) {
+    <mat-paginator [length]="totalRecords()" [pageSize]="pageSize()" [pageIndex]="pageIndex()"
+        [pageSizeOptions]="[10,20,50]" (page)="onPage($event)">
+    </mat-paginator>
+    }
 </div>

@@ -41,9 +41,7 @@
                         }
                     </mat-select>
                 </mat-form-field>
-                @if(approvalWorkflowForm().value().category && (approvalWorkflowForm().value().category ===
-                'LEAVE'|| approvalWorkflowForm().value().category ===
-                'LEAVE_PRAYER')){
+                @if(approvalWorkflowForm().value().category && isLeaveCategory()){
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Leave Type</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
@@ -57,9 +55,7 @@
                     </mat-select>
                 </mat-form-field>
                 }
-                 @if(approvalWorkflowForm().value().category && (approvalWorkflowForm().value().category !==
-                'LEAVE' && approvalWorkflowForm().value().category !==
-                'LEAVE_PRAYER')){
+                 @if(approvalWorkflowForm().value().category && isAttendanceCategory()){
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Post</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
@@ -72,9 +68,7 @@
                     </mat-select>
                 </mat-form-field>
             }
-                @if(approvalWorkflowForm().value().category && (approvalWorkflowForm().value().category ===
-                'LEAVE'|| approvalWorkflowForm().value().category ===
-                'LEAVE_PRAYER')){
+                @if(approvalWorkflowForm().value().category && isLeaveCategory()){
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Salary Grade</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
@@ -87,9 +81,7 @@
                     </mat-select>
                 </mat-form-field>
                 }
-                @if(approvalWorkflowForm().value().category && (approvalWorkflowForm().value().category ===
-                'LEAVE' || approvalWorkflowForm().value().category ===
-                'LEAVE_PRAYER')){
+                @if(approvalWorkflowForm().value().category && isLeaveCategory()){
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Maximum days</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>

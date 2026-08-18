@@ -3,7 +3,7 @@
         <div class="flex gap-3 items-center flex-wrap">
             <div class="flex items-center gap-3">
                 @if (isViewMode()) {
-                <button type="button"
+                <button type="button" (click)="toggleFilterArea()"
                     class="glass-input dark:text-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
                     <svg lucideIcon="funnel" class="w-4 h-4"></svg>
                     Filter
@@ -31,17 +31,75 @@
                 'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
                     !isViewMode()
             }">
-            <!-- COLLAPSED SEARCH -->
-            <!-- @if (isViewMode()) {
-            <div class="flex items-center gap-2 px-4 py-3">
+            
+    @if (showFilterArea()) {
+    <div class="p-3 transition-all duration-300">
+        <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
+            <div class="flex-1 min-w-[220px]">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Category</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [(ngModel)]="categoryFilter" placeholder="Select category">
+                        <mat-option value="">All Categories</mat-option>
+                        @for (category of categories(); track category) {
+                        <mat-option [value]="category">{{ category }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
             </div>
-            } -->
+
+            <div class="flex-1 min-w-[220px]">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Organization Unit Type</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [(ngModel)]="organizationUnitTypeFilter" placeholder="Select organization unit type">
+                        <mat-option value="">All Types</mat-option>
+                        @for (item of organizationUnitTypes(); track item.id) {
+                        <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <div class="flex items-center gap-2.5 shrink-0">
+                <button type="button" (click)="applyFilters()"
+                    class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                    <svg lucideIcon="search" class="w-4 h-4"></svg>
+                    Search
+                </button>
+                <button type="button" (click)="resetFilters()"
+                    class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
+                    <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                    Reset
+                </button>
+            </div>
+        </div>
+    </div>
+    }
+            @if (approvalWorkflowStore.loading()) {
+            <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+                <svg lucideIcon="loader" class="w-5 h-5"></svg>
+                Loading approval workflows...
+            </div>
+            } @else if (approvalWorkflowStore.error()) {
+            <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
+                <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
+                Unable to load approval workflows.
+            </div>
+            } @else {
             <qfin-approval-workflow-list [data]="workflows()" (showDetail)="onView($event)"
-                [isCollapsed]="hasSelectedWorkflow() || !isViewMode()">
+                [totalRecords]="approvalWorkflowStore.totalRecords()" [pageIndex]="approvalWorkflowStore.pageIndex()"
+                [pageSize]="approvalWorkflowStore.pageSize()" [isCollapsed]="hasSelectedWorkflow() || !isViewMode()"
+                (pageChanged)="pageChanged($event)" (sortChanged)="onSortChanged($event)">
             </qfin-approval-workflow-list>
+            }
         </div>
 
-        <!-- @if (!isViewMode()) { -->
+        @if (hasSelectedWorkflow()) {
         <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
             [ngClass]="{
                 'w-3/4':
@@ -105,124 +163,7 @@
                 (onSave)="closePanel()">
             </qfin-approval-workflow-detail>
             }
-            <!-- </div> -->
         </div>
-        <!-- } -->
+        }
     </div>
 </div>
-
-<!-- <div class="max-w-6xl mx-auto">
-    <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
-        <div>
-            <p class="text-sm font-medium text-secondary-600 dark:text-slate-300">HRMS / Workflow Setup</p>
-            <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-1">Approval Workflow Event</h1>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Configure the event, recipient and approval behaviour.</p>
-        </div>
-        <button type="button" (click)="save()"
-            class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
-            <svg lucideIcon="save" class="w-4 h-4"></svg>
-            Save Event
-        </button>
-    </div>
-
-    <qfin-approval-workflow-event-list></qfin-approval-workflow-event-list>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <section class="glass rounded-xl shadow-glass dark:shadow p-5 lg:col-span-2">
-            <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-200 dark:border-slate-700">
-                <div class="w-10 h-10 rounded-xl bg-primary-500/10 text-primary-600 dark:text-primary-400 flex items-center justify-center">
-                    <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
-                </div>
-                <div>
-                    <h2 class="font-semibold text-slate-800 dark:text-slate-100">Event details</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Define when this workflow is applied.</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Category</mat-label>
-                    <mat-select [formField]="workflowEventForm.category">
-                        @for (category of categories; track category) {
-                            <mat-option [value]="category">{{ category }}</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Sequence no.</mat-label>
-                    <input matInput type="number" [formField]="workflowEventForm.sequenceNo">
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Leave type ID</mat-label>
-                    <input matInput [formField]="workflowEventForm.leaveTypeId" autocomplete="off" placeholder="Optional GUID">
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Organization unit type ID</mat-label>
-                    <input matInput [formField]="workflowEventForm.organizationUnitTypeId" autocomplete="off" placeholder="Optional GUID">
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Salary grade ID</mat-label>
-                    <input matInput [formField]="workflowEventForm.salaryGradeId" autocomplete="off" placeholder="Optional GUID">
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Post ID</mat-label>
-                    <input matInput [formField]="workflowEventForm.postId" autocomplete="off" placeholder="Optional GUID">
-                </mat-form-field>
-            </div>
-        </section>
-
-        <section class="glass rounded-xl shadow-glass dark:shadow p-5 h-fit">
-            <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-200 dark:border-slate-700">
-                <div class="w-10 h-10 rounded-xl bg-primary-500/10 text-primary-600 dark:text-primary-400 flex items-center justify-center">
-                    <svg lucideIcon="user-check" class="w-5 h-5"></svg>
-                </div>
-                <div>
-                    <h2 class="font-semibold text-slate-800 dark:text-slate-100">Recipient</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">The post that receives the event.</p>
-                </div>
-            </div>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                <mat-label>Receiver post ID</mat-label>
-                <input matInput [formField]="workflowEventForm.receiverPostId" autocomplete="off" placeholder="Enter receiver post GUID">
-            </mat-form-field>
-        </section>
-
-        <section class="glass rounded-xl shadow-glass dark:shadow p-5 lg:col-span-3">
-            <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-200 dark:border-slate-700">
-                <div class="w-10 h-10 rounded-xl bg-primary-500/10 text-primary-600 dark:text-primary-400 flex items-center justify-center">
-                    <svg lucideIcon="clipboard-check" class="w-5 h-5"></svg>
-                </div>
-                <div>
-                    <h2 class="font-semibold text-slate-800 dark:text-slate-100">Approval settings</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Set the event’s range, outcome and action text.</p>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Minimum days</mat-label>
-                    <input matInput type="number" [formField]="workflowEventForm.minimumDays">
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Maximum days</mat-label>
-                    <input matInput type="number" [formField]="workflowEventForm.maximumDays" placeholder="No limit">
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Event status</mat-label>
-                    <mat-select [formField]="workflowEventForm.eventStatus">
-                        @for (status of eventStatuses; track status) {
-                            <mat-option [value]="status">{{ status }}</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Button text</mat-label>
-                    <input matInput [formField]="workflowEventForm.eventButtonText" autocomplete="off" placeholder="e.g. Approve">
-                </mat-form-field>
-            </div>
-            <div class="flex flex-wrap gap-5 mt-3">
-                <mat-checkbox [formField]="workflowEventForm.isRecommendEvent" color="primary">Recommendation event</mat-checkbox>
-                <mat-checkbox [formField]="workflowEventForm.isApprovalEvent" color="primary">Approval event</mat-checkbox>
-            </div>
-        </section>
-    </div>
-</div> -->

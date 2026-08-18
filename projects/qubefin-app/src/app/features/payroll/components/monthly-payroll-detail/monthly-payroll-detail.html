@@ -109,7 +109,7 @@
                                 <svg [lucideIcon]="icons['Pencil']" class="w-4 h-4"></svg>
                             </button>}
                         @else {
-                        <button mat-menu-item (click)="downloadPayslip(emp.employeeId, emp.employeeName)">
+                        <button mat-menu-item (click)="downloadPayslip(emp.id,emp.employeeId, emp.employeeName)">
                             <svg lucideIcon="file-down" matTooltip="Download Payslip"
                                 class="w-5 h-5 text-sky-600 dark:text-sky-500 hover:text-sky-700"></svg>
                         </button>
