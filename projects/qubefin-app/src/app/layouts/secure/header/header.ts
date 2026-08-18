@@ -13,7 +13,8 @@ import { Router } from '@angular/router';
 import { NotificationStore } from '../store/notification-store';
 import { NotificationService } from '../../../services/notification-service';
 import { DatePipe } from '@angular/common';
-
+import { interval } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'qfin-header',
   standalone: true,
@@ -44,7 +45,14 @@ export class Header {
   readonly notifications = this.notificationStore.notifications;
 
   unreadCount = computed(() => this.notifications().filter((n) => !n.isRead).length);
-
+  constructor() {
+    interval(300000)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.notificationStore.refresh();
+        this.userStore.refresh();
+      });
+  }
   onHandleToggleDrawer() {
     this.isExpanded.set(!this.isExpanded());
   }

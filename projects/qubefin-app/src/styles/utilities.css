@@ -228,7 +228,7 @@ a:focus-visible, button:focus-visible {
 }
 
 .notification-item {
-  @apply flex items-start gap-3.5 p-3.5 text-left transition-all cursor-pointer hover:bg-slate-100/70 dark:hover:bg-white/5 relative;
+  @apply flex items-start gap-3.5 p-3.5 pb-1 text-left transition-all cursor-pointer hover:bg-slate-100/70 dark:hover:bg-white/5 relative;
 }
 
 .notification-item.unread {
@@ -256,7 +256,7 @@ a:focus-visible, button:focus-visible {
 }
 
 .notification-date {
-  @apply text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap shrink-0;
+  @apply text-[9px] text-slate-400 dark:text-slate-500 whitespace-nowrap shrink-0;
 }
 
 .notification-desc {
