@@ -8,14 +8,10 @@ export interface IAttendanceRegularization {
 }
 
 export interface IAttendanceRegularizationEvent {
-  approvalCategory: string | null;
-  eventDate: string | null;
-  remarks: string | null;
-  senderDesignation: string | null;
-  receiverDesignation: string | null;
-  eventCategory: string | null;
-  eventStatus: string | null;
-  eventButtonText: string | null;
+  eventStatus: string;
+  eventDate: string | Date;
+  remarks: string;
+  designation?: string | null;
 }
 
 export interface IAttendanceRegularizationDetail {
