@@ -9,16 +9,33 @@ import { IApprovalWorkflow } from '../models/approval-workflow';
 export class ApprovalWorkflowStore {
   private readonly workflowPath = `${ApiPaths.HRMS}/approval-workflows`;
   private readonly approvalWorkflowId = signal<string | undefined>(undefined);
-  readonly searchQuery = signal('');
+  readonly category = signal<string | null>(null);
+  readonly organizationUnitTypeId = signal<string | null>(null);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
   readonly sortOn = signal('assignedFrom');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
-  private readonly approvalWorkflowsResource = httpResource<IApprovalWorkflow[]>(
-    () => this.workflowPath,
-  );
+  private readonly approvalWorkflowsResource = httpResource<{
+    workflows: IApprovalWorkflow[];
+    totalRecords: number;
+  }>(() => ({
+    url: `${this.workflowPath}/search`,
+    method: 'POST',
+    body: {
+      category: this.category(),
+      organizationUnitTypeId: this.organizationUnitTypeId(),
+      sortOn: this.sortOn(),
+      sortDirection: this.sortDirection(),
+      pageIndex: this.pageIndex(),
+      pageSize: this.pageSize(),
+    },
+  }));
 
-  readonly approvalWorkflows = computed(() => this.approvalWorkflowsResource.value() ?? []);
+  readonly approvalWorkflows = computed(
+    () => this.approvalWorkflowsResource.value()?.workflows ?? [],
+  );
+  readonly totalRecords = computed(() => this.approvalWorkflowsResource.value()?.totalRecords ?? 0);
+
   readonly loading = computed(() => this.approvalWorkflowsResource.isLoading());
   readonly error = computed(() => this.approvalWorkflowsResource.error());
 
@@ -38,7 +55,16 @@ export class ApprovalWorkflowStore {
   }
 
   setSearchQuery(query: string) {
-    this.searchQuery.set(query);
+    this.pageIndex.set(0);
+  }
+
+  setCategory(category: string | null) {
+    this.category.set(category);
+    this.pageIndex.set(0);
+  }
+
+  setOrganizationUnitTypeId(organizationUnitTypeId: string | null) {
+    this.organizationUnitTypeId.set(organizationUnitTypeId);
     this.pageIndex.set(0);
   }
 

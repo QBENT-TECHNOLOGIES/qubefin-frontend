@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, model, signal } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { ApprovalWorkflowStore } from '../../stores/approval-workflow-store';
 import { CommonModule } from '@angular/common';
@@ -16,6 +16,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { ApprovalWorkflowDetail } from '../../components/approval-workflows/approval-workflow-detail/approval-workflow-detail';
+import { OrganizationUnitTypeStore } from '../../../global/stores/organization-unit-type-store';
 @Component({
   selector: 'qfin-approval-workflow',
   imports: [
@@ -38,14 +39,23 @@ import { ApprovalWorkflowDetail } from '../../components/approval-workflows/appr
 })
 export class ApprovalWorkflow {
   protected readonly approvalWorkflowStore = inject(ApprovalWorkflowStore);
+  private readonly organizationUnitTypeStore = inject(OrganizationUnitTypeStore);
 
+  selectedWorkflowId = signal<string>(EMPTY_UUID);
   isViewMode = signal<boolean>(true);
   readonly showFilterArea = signal<boolean>(false);
+  readonly categories = signal<string[]>(['LEAVE', 'LEAVE_PRAYER', 'ONDUTY', 'ATTENDANCE']);
+
+  readonly organizationUnitTypes = this.organizationUnitTypeStore.organizationUnitTypes;
   workflows = this.approvalWorkflowStore.approvalWorkflows;
   public readonly EMPTY_UUID = EMPTY_UUID;
-  selectedWorkflowId = signal<string>(EMPTY_UUID);
-  hasSelectedWorkflow = computed(() => this.selectedWorkflowId() !== EMPTY_UUID);
-  readonly searchText = signal<string>('');
+  hasSelectedWorkflow = computed(
+    () => this.selectedWorkflowId() !== EMPTY_UUID || !this.isViewMode(),
+  );
+  readonly searchText = model<string>('');
+  readonly categoryFilter = model<string>('');
+  readonly organizationUnitTypeFilter = model<string>('');
+
   protected onView(id: string) {
     this.selectedWorkflowId.set(id);
     this.isViewMode.set(true);
@@ -67,9 +77,13 @@ export class ApprovalWorkflow {
   }
   protected applyFilters() {
     this.approvalWorkflowStore.setSearchQuery(this.searchText());
+    this.approvalWorkflowStore.setCategory(this.categoryFilter() || null);
+    this.approvalWorkflowStore.setOrganizationUnitTypeId(this.organizationUnitTypeFilter() || null);
   }
   protected resetFilters() {
     this.searchText.set('');
+    this.categoryFilter.set('');
+    this.organizationUnitTypeFilter.set('');
     this.applyFilters();
   }
   protected changePage(delta: number) {
@@ -93,48 +107,4 @@ export class ApprovalWorkflow {
   protected onSave() {
     this.closePanel();
   }
-  // protected readonly categories = ['Leave', 'Organization Unit', 'Salary Grade', 'Post'];
-  // protected readonly eventStatuses = ['Pending', 'Recommended', 'Approved', 'Rejected'];
-
-  // protected readonly workflowEventModel = signal<IApprovalWorkflowEvent>({
-  // 	id: '',
-  // 	category: 'Leave',
-  // 	leaveTypeId: '',
-  // 	organizationUnitTypeId: '',
-  // 	salaryGradeId: '',
-  // 	postId: '',
-  // 	minimumDays: 0,
-  // 	maximumDays: null,
-  // 	sequenceNo: 1,
-  // 	receiverPostId: '',
-  // 	isRecommendEvent: false,
-  // 	isApprovalEvent: true,
-  // 	eventStatus: 'Pending',
-  // 	eventButtonText: 'Approve',
-  // });
-
-  // protected readonly workflowEventSchema: Schema<IApprovalWorkflowEvent> = schema(path => {
-  // 	required(path.category, { message: 'Category is required' });
-  // 	required(path.receiverPostId, { message: 'Receiver post is required' });
-  // 	required(path.eventStatus, { message: 'Event status is required' });
-  // 	required(path.eventButtonText, { message: 'Button text is required' });
-  // });
-
-  // protected readonly workflowEventForm = form(this.workflowEventModel, this.workflowEventSchema);
-
-  // protected save(): void {
-  // 	if (!this.workflowEventForm().valid()) {
-  // 		return;
-  // 	}
-
-  // 	const value = this.workflowEventForm().value();
-  // 	const workflowEvent: IApprovalWorkflowEvent = {
-  // 		...value,
-  // 		leaveTypeId: value.leaveTypeId || null,
-  // 		organizationUnitTypeId: value.organizationUnitTypeId || null,
-  // 		salaryGradeId: value.salaryGradeId || null,
-  // 		postId: value.postId || null,
-  // 	};
-  // 	console.log('Approval workflow event', workflowEvent);
-  // }
 }
