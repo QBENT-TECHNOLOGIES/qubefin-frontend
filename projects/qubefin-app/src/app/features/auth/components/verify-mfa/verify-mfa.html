@@ -31,10 +31,19 @@
     <!-- <button mat-flat-button color="primary" class="login-button w-full mt-6" [disabled]="mfaForm().invalid()">
       Sign In
     </button> -->
-    <button [disabled]="mfaForm().invalid()"
-      class="w-full ripple-btn shine-sweep rounded-lg px-5 py-3.5 font-lg flex items-center justify-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
+    <button [disabled]="mfaForm().invalid() || isLoading()"
+      class="ripple-btn shine-sweep rounded-lg px-5 py-3.5 font-lg
+          flex items-center justify-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift disabled:opacity-70 disabled:cursor-not-allowed">
+      @if (isLoading()) {
+      <svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+      <span>Verifying...</span>
+      } @else {
       <svg lucideIcon="badge-check" class="w-4 h-4"></svg>
       Verify
+      }
     </button>
   </div>
 </form>
