@@ -29,13 +29,9 @@
             </div>
             <input matInput autocomplete="off" [formField]="presentAddressForm.landMark" placeholder="Enter Landmark">
         </mat-form-field>
-        <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>AdministrativeUnitId</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="map-pin-house" class="w-5 h-5"></svg>
-            </div>
-            <input matInput autocomplete="off" [formField]="presentAddressForm.administrativeUnitId" placeholder="Enter Landmark">
-        </mat-form-field> -->
+        <qfin-administrative-unit-cascade [columns]="3" [administrativeUnitId]="presentAddressModel().administrativeUnitId"
+            (selectedIdChanged)="updatePresentAddressField('administrativeUnitId', $event)">
+        </qfin-administrative-unit-cascade>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Pin Code</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -128,13 +124,9 @@
             </div>
             <input matInput autocomplete="off" [formField]="permanentAddressForm.landMark" placeholder="Enter Landmark">
         </mat-form-field>
-        <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>AdministrativeUnitId</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="map-pin-house" class="w-5 h-5"></svg>
-            </div>
-            <input matInput autocomplete="off" [formField]="permanentAddressForm.administrativeUnitId" placeholder="Enter Landmark">
-        </mat-form-field> -->
+        <qfin-administrative-unit-cascade [columns]="3" [administrativeUnitId]="permanentAddressModel().administrativeUnitId"
+            (selectedIdChanged)="updatePermanentAddressField('administrativeUnitId', $event)">
+        </qfin-administrative-unit-cascade>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Pin Code</mat-label>
             <div class="w-12 flex justify-center" matPrefix>

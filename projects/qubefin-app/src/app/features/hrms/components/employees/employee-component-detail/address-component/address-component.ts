@@ -29,6 +29,7 @@ import {
 } from '../../../../models/employee-detail';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
+import { AdministrativeUnitCascade } from '../../../../../global/components/administrative-unit-cascade/administrative-unit-cascade';
 
 @Component({
   selector: 'qfin-address-component',
@@ -42,6 +43,7 @@ import { of, tap } from 'rxjs';
     FormField,
     MatStepperModule,
     LucideDynamicIcon,
+    AdministrativeUnitCascade,
   ],
   templateUrl: './address-component.html',
 })
@@ -150,6 +152,26 @@ export class AddressComponentDetail {
       }
     },
   });
+
+  updatePresentAddressField<K extends keyof IEmployeeAddressInfo>(
+    field: K,
+    value: IEmployeeAddressInfo[K],
+  ) {
+    this.presentAddressModel.update((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  updatePermanentAddressField<K extends keyof IEmployeeAddressInfo>(
+    field: K,
+    value: IEmployeeAddressInfo[K],
+  ) {
+    this.permanentAddressModel.update((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
 
   onSubmit() {
     // console.log(this.presentAddressForm().value());
