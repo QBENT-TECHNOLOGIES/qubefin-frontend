@@ -75,23 +75,6 @@ export class MonthlyPayrollDetail {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
   async downloadPayslip(id: string, employeeId: string, empName: string) {
-    let param = new PayslipRptParam();
-    param.employeeId = employeeId;
-    param.payslipMonth = this.month();
-    param.payslipYear = this.year();
-    this.PayrollService.getPayslip(param).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${empName}-Payslip of ${this.month()}-${this.year()}.pdf`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-      },
-    });
-
-    this.openingPayslipId.set(id);
-
     try {
       const file = await firstValueFrom(this.payrollService.getPayslipById(id));
       const fileUrl = URL.createObjectURL(file);

@@ -18,7 +18,7 @@ import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { AttendanceRegularizationView } from '../../components/attendance-regularizations/attendance-regularization-view/attendance-regularization-view';
 import { ApprovalRegularizationStore } from '../../stores/approval-regularizations-store';
 import { ApprovalRegulariztionList } from '../../components/approval-regularizations/approval-regulariztion-list/approval-regulariztion-list';
-import { EmployeeSearchByText, EmployeeSearchResponse } from '../../models/employee-search-by-text';
+import { EmployeeSearchByText } from '../../models/employee-search-by-text';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import {
   MatAutocompleteModule,
@@ -76,13 +76,8 @@ export class ApprovalRegularizations {
         distinctUntilChanged(),
         switchMap((x) => this.employeeService.getEmployeesBySearchText(x)),
       )
-      .subscribe((response: EmployeeSearchResponse) => {
-        this.employeeOptions.set(
-          response.value?.employees ??
-            response.valueOrDefault?.employees ??
-            response.employees ??
-            [],
-        );
+      .subscribe((resp: any) => {
+        this.employeeOptions.set(resp ?? []);
       });
   }
   readonly hasSelectedRegularization = computed(

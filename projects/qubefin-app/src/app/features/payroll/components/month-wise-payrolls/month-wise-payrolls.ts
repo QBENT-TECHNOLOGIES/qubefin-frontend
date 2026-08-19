@@ -13,7 +13,8 @@ import { PayrollService } from '../../services/payroll-service';
 import { MatTableModule } from '@angular/material/table';
 @Component({
   selector: 'qfin-month-wise-payrolls',
-  imports: [CommonModule,
+  imports: [
+    CommonModule,
     MatMenuModule,
     CurrencyPipe,
     LucideDynamicIcon,
@@ -22,7 +23,8 @@ import { MatTableModule } from '@angular/material/table';
     MatInputModule,
     MatSelectModule,
     FormsModule,
-    MatTableModule],
+    MatTableModule,
+  ],
   templateUrl: './month-wise-payrolls.html',
 })
 export class MonthWisePayrolls {
@@ -41,7 +43,19 @@ export class MonthWisePayrolls {
     if (this.isCollapsed()) {
       return ['monthYear', 'netPay', 'actions'];
     }
-    return ['index', 'monthYear', 'employees', 'earnings', 'deductions', 'netPay', 'status', 'reports', 'actions'];
+    return [
+      'index',
+      'monthYear',
+      'companyName',
+      'employees',
+      'earnings',
+      'deductions',
+      'netPay',
+      'ctc',
+      'status',
+      'reports',
+      'actions',
+    ];
   });
   onView(month: number, year: number) {
     this.onViewMonth.emit({ month, year });
@@ -68,7 +82,7 @@ export class MonthWisePayrolls {
       },
       error: (err) => {
         this.isDownloading.set(false);
-      }
+      },
     });
   }
   onDownloadPTaxReport(month: number, year: number) {
@@ -85,7 +99,7 @@ export class MonthWisePayrolls {
       },
       error: (err) => {
         this.isDownloading.set(false);
-      }
+      },
     });
   }
   onDownloadEsiReport(month: number, year: number) {
@@ -96,15 +110,13 @@ export class MonthWisePayrolls {
         const link = document.createElement('a');
         link.href = downloadUrl;
         link.download = `ESI_Report_${month}_${year}.xlsx`;
-        window.URL.revokeObjectURL(downloadUrl);
         link.click();
+        window.URL.revokeObjectURL(downloadUrl);
         this.isDownloading.set(false);
       },
       error: (err) => {
         this.isDownloading.set(false);
-      }
-    })
+      },
+    });
   }
 }
-
-

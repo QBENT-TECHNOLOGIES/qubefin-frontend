@@ -7,10 +7,7 @@ import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { ISurveyDetail } from '../../../models/survey';
-import {
-  EmployeeSearchByText,
-  EmployeeSearchResponse,
-} from '../../../../hrms/models/employee-search-by-text';
+import { EmployeeSearchByText } from '../../../../hrms/models/employee-search-by-text';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import {
   MatAutocompleteModule,
@@ -121,13 +118,8 @@ export class SurveyUnitDetail {
         distinctUntilChanged(),
         switchMap((x) => this.employeeService.getEmployeesBySearchText(x)),
       )
-      .subscribe((response: EmployeeSearchResponse) => {
-        this.employeeOptions.set(
-          response.value?.employees ??
-            response.valueOrDefault?.employees ??
-            response.employees ??
-            [],
-        );
+      .subscribe((resp: any) => {
+        this.employeeOptions.set(resp ?? []);
       });
 
     effect(() => {
