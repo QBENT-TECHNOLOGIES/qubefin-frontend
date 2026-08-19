@@ -1,6 +1,7 @@
-<div class="flex flex-col">
-    <div class="flex flex-wrap items-center justify-end gap-4 mb-2">
-        <div class="flex items-center gap-3">
+<div class="page-container">
+    <div class="header-group">
+        <div class="flex items-center gap-3"></div>
+        <div class="headerBtn-area">
             @if (selectedLeavePrayerId() === EMPTY_UUID && isViewMode()) {
             <div
                 class="year-pill inline-flex items-center gap-2 rounded-full border border-gray-300 hover:border-gray-400 bg-white px-3 py-2">
@@ -22,10 +23,7 @@
     </div>
 
     <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
-        <div class="glass rounded-xl shadow-glass dark:shadow
-      overflow-hidden min-w-0 shrink-0
-      transition-[width,max-width,opacity,transform] 
-      duration-500 ease-in-out" [ngClass]="{
+        <div class="mainCard-area glass" [ngClass]="{
           'w-full max-w-full opacity-100 translate-x-0':
               selectedLeavePrayerId() === EMPTY_UUID && isViewMode(),
 
@@ -53,7 +51,7 @@
         </div>
 
         @if (hasSelectedLeavePrayer()) {
-        <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
+        <div class="viewArea-container glass"
             [ngClass]="{
         'w-3/4': isViewMode() && selectedLeavePrayerId() !== EMPTY_UUID,
         'w-full': !isViewMode()

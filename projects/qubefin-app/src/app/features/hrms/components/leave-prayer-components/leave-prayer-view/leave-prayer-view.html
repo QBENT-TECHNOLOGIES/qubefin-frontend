@@ -210,11 +210,17 @@
                                         {{ item.eventDate | date:'dd MMM yyyy • hh:mm a' }}
                                     </div>
                                 </div>
-                                <div
+                                <!-- <div
                                     class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
                                     <div class="flex items-center gap-2">
                                         <svg lucideIcon="user-round" class="w-4 h-4"></svg>
                                         {{ item.designation }}
+                                    </div>
+                                </div> -->
+                                <div class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400">
+                                    <div class="flex items-center gap-2 break-words">
+                                        <svg lucideIcon="user-round" class="w-4 h-4 shrink-0"></svg>
+                                        <span>{{ item.designation }}</span>
                                     </div>
                                 </div>
 

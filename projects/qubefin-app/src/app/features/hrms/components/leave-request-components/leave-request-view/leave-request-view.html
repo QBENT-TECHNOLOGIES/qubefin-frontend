@@ -1,7 +1,6 @@
 @if (leaveRequest(); as request) {
 <div class="view-container">
-  <div class="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 items-stretch">
-
+  <div class="section-container">
     <div
       class="unit-box">
       <!-- View Header -->
@@ -197,7 +196,6 @@
             @if (request.events && request.events.length > 0) {
 
             <div class="relative">
-
                 <div
                     class="absolute left-4 top-3 bottom-3 w-0.5 bg-gradient-to-b from-primary-500 via-primary-400 to-primary-300">
                 </div>
@@ -315,7 +313,7 @@
     </div>
     <div class="flex items-center gap-3">
       <button type="button" (click)="onCancel()" [disabled]="isCancelling()"
-        class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium text-rose-600 hover:shadow-glass transition lift shine-sweep cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none">
+        class="reset-btn lift">
         @if (isCancelling()) {
         <svg lucideIcon="loader" class="w-4 h-4 animate-spin"></svg>
         } @else {
@@ -325,7 +323,7 @@
       </button>
       @if (!request.isSubmitted) {
       <button type="button" (click)="onSubmit()"
-        class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+        class="global-btn ripple-btn shine-sweep lift">
         <svg lucideIcon="check" class="w-4 h-4"></svg>
         Submit Request
       </button>
