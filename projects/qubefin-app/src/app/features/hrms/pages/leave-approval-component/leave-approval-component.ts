@@ -16,7 +16,7 @@ import { LeaveApprovalStore } from '../../stores/leave-approval-store';
 import { LeaveApprovalList } from '../../components/leave-approval-components/leave-approval-list/leave-approval-list';
 import { LeaveApprovalView } from '../../components/leave-approval-components/leave-approval-view/leave-approval-view';
 import { EmployeeService } from '../../services/employee-service';
-import { EmployeeSearchByText, EmployeeSearchResponse } from '../../models/employee-search-by-text';
+import { EmployeeSearchByText } from '../../models/employee-search-by-text';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import {
   MatAutocompleteModule,
@@ -75,13 +75,8 @@ export class LeaveApprovalComponent {
         distinctUntilChanged(),
         switchMap((x) => this.employeeService.getEmployeesBySearchText(x)),
       )
-      .subscribe((response: EmployeeSearchResponse) => {
-        this.employeeOptions.set(
-          response.value?.employees ??
-            response.valueOrDefault?.employees ??
-            response.employees ??
-            [],
-        );
+      .subscribe((resp: any) => {
+        this.employeeOptions.set(resp ?? []);
       });
   }
 

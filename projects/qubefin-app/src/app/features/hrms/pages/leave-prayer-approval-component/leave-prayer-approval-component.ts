@@ -5,7 +5,7 @@ import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { EmployeeService } from '../../services/employee-service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
-import { EmployeeSearchByText, EmployeeSearchResponse } from '../../models/employee-search-by-text';
+import { EmployeeSearchByText } from '../../models/employee-search-by-text';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import {
   MatAutocompleteModule,
@@ -74,13 +74,8 @@ export class LeavePrayerApprovalComponent {
         distinctUntilChanged(),
         switchMap((x) => this.employeeService.getEmployeesBySearchText(x)),
       )
-      .subscribe((response: EmployeeSearchResponse) => {
-        this.employeeOptions.set(
-          response.value?.employees ??
-            response.valueOrDefault?.employees ??
-            response.employees ??
-            [],
-        );
+      .subscribe((resp: any) => {
+        this.employeeOptions.set(resp ?? []);
       });
   }
 

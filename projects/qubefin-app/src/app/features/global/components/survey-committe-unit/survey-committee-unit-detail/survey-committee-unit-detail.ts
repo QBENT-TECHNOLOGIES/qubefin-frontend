@@ -18,10 +18,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { APP_ICONS_MAP } from '../../../../../lucide-icons';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
-import {
-  EmployeeSearchByText,
-  EmployeeSearchResponse,
-} from '../../../../hrms/models/employee-search-by-text';
+import { EmployeeSearchByText } from '../../../../hrms/models/employee-search-by-text';
 import { EmployeeService } from '../../../../hrms/services/employee-service';
 
 @Component({
@@ -108,13 +105,8 @@ export class SurveyCommitteeUnitDetail {
         distinctUntilChanged(),
         switchMap((searchText) => this.employeeService.getEmployeesBySearchText(searchText)),
       )
-      .subscribe((response: EmployeeSearchResponse) => {
-        this.employeeOptions.set(
-          response.value?.employees ??
-            response.valueOrDefault?.employees ??
-            response.employees ??
-            [],
-        );
+      .subscribe((resp: any) => {
+        this.employeeOptions.set(resp ?? []);
       });
     // ===========================
     // Load Member / Reset Form
