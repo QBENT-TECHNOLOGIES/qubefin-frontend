@@ -119,17 +119,21 @@
         </div>
 
         <div>
-            <h3 class="text-base font-bold text-slate-800 dark:text-white">
-                Approval Steps
-            </h3>
-            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+            <div class="flex justify-between">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                        Approval Steps
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+                </div>
 
-            <div class="mb-4">
-                <button type="button" (click)="addApprovalStep()"
-                    class="w-[150px] ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-                    <svg lucideIcon="plus" class="w- h-5"></svg>
-                    Add Step
-                </button>
+                <div class="mb-4">
+                    <button type="button" (click)="addApprovalStep()"
+                        class="w-[150px] ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                        <svg lucideIcon="plus" class="w- h-5"></svg>
+                        Add Step
+                    </button>
+                </div>
             </div>
             <div class="flex flex-col gap-4">
                 @for(approvalStep of approvalSteps(); track $index; let i = $index) {

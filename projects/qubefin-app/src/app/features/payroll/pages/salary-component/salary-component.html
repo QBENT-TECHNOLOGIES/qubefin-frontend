@@ -20,13 +20,18 @@
             </div>
             }
             @if (selectedCategory()) {
-            <div (click)="resetCategoryFilter()" class="reset-cat-btn lift" matTooltip="Reset">
+            <!-- <div (click)="resetCategoryFilter()" class="reset-cat-btn lift" matTooltip="Reset">
                 <svg lucideIcon="x" class="w-5 h-5">
                 </svg>
                 <p class="font-medium">
                     Reset
                 </p>
-            </div>
+            </div> -->
+            <button type="button" (click)="resetCategoryFilter()"
+                class="filter-btn glass-input lift shine-sweep">
+                <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                Reset
+            </button>
             }
         </div>
         <div class="headerBtn-area">
@@ -122,11 +127,6 @@
                             <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
                             Reset
                         </button>
-                        <button type="button" (click)="applyFilters()"
-                            class="global-btn shine-sweep lift">
-                            <svg lucideIcon="search" class="w-4 h-4"></svg>
-                            Search
-                        </button>
                     </div>
                 </div>
             </div>
@@ -165,7 +165,7 @@
             <!-- HEADER -->
             <div class="viewArea-header">
                 <div class="viewArea-headerInner">
-                    <div class="flex items-center gap-4">
+                    <div class="box-group">
                         <!-- <div
                             class="w-14 h-14 rounded-xl shadow-md bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center dark:shadow-none">
                             @if (selectedSalaryComponentId() === EMPTY_UUID) {
