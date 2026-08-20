@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, pattern, required, schema, Schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeStore } from '../../../../stores/employee-store';
@@ -61,6 +61,17 @@ export class ContactComponentDetail {
 
   protected readonly contactSchema: Schema<IEmployeeContactInfo> = schema((path) => {
     required(path.mobileNo, { message: 'Mobile No is required' });
+    pattern(path.mobileNo, /^[6-9]\d{9}$/, { message: 'Enter a valid 10-digit mobile number' });
+    pattern(path.personalEmail, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
+      message: 'Enter a valid email address',
+    });
+    pattern(path.primaryEmergencyMobile, /^[6-9]\d{9}$/, {
+      message: 'Enter a valid 10-digit mobile number',
+    });
+
+    pattern(path.secondaryEmergencyMobile, /^[6-9]\d{9}$/, {
+      message: 'Enter a valid 10-digit mobile number',
+    });
   });
 
   protected readonly contactForm = form(this.contactModel, this.contactSchema);

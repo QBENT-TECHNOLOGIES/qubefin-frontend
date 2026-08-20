@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -30,6 +30,7 @@ interface KycFormModel {
 
 @Component({
   selector: 'qfin-kyc-document-component',
+  providers: [DatePipe],
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -54,6 +55,7 @@ export class KycDocumentComponentDetail {
   kycDocs = input<KycDocument[]>([]);
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
+  readonly datePipe = inject(DatePipe);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
@@ -171,7 +173,36 @@ export class KycDocumentComponentDetail {
   hasInvalidDateRange(): boolean {
     return this.kycModel().documents.some((_, index) => this.isValidTillInvalid(index));
   }
+  onFileSelected(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
 
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      input.value = '';
+      this.alertService.warning(null, 'Only image/PDF file can be selected.');
+      return;
+    }
+
+    this.kycModel.update((state) => {
+      const documents = [...state.documents];
+      const updatedDoc = { ...documents[index], fileName: file.name };
+      (updatedDoc as any).rawFile = file;
+      documents[index] = updatedDoc;
+      return { documents };
+    });
+  }
+
+  removeFile(index: number) {
+    this.kycModel.update((state) => {
+      const documents = [...state.documents];
+      const updatedDoc = { ...documents[index], fileName: '' };
+      (updatedDoc as any).rawFile = null;
+      documents[index] = updatedDoc;
+      return { documents };
+    });
+  }
   onSubmit() {
     const dataToSave = [...this.kycForm().value().documents];
     if (this.hasMissingMandatoryDocuments()) {
@@ -193,11 +224,34 @@ export class KycDocumentComponentDetail {
     if (!this.kycForm().valid()) {
       return;
     }
-    // const data =
-    //   this.kycForm().value();
-    // const dataToSave = [...data.documents];
 
-    this.employeeService.updateKycInfo(this.empId(), dataToSave).subscribe({
+    const formData = new FormData();
+    const documents = this.kycForm().value().documents;
+
+    documents.forEach((doc: any, index: number) => {
+      formData.append(`documents[${index}].documentName`, doc.documentName || '');
+      formData.append(`documents[${index}].documentNo`, doc.documentNo || '');
+
+      if (doc.validFrom) {
+        formData.append(
+          `documents[${index}].validFrom`,
+          this.datePipe.transform(doc.validFrom, 'yyyy-MM-dd') || '',
+        );
+      }
+      if (doc.validTill) {
+        formData.append(
+          `documents[${index}].validTill`,
+          this.datePipe.transform(doc.validTill, 'yyyy-MM-dd') || '',
+        );
+      }
+      if (doc.fileName) {
+        formData.append(`documents[${index}].fileName`, doc.fileName);
+      }
+      if (doc.rawFile) {
+        formData.append(`documents[${index}].file`, doc.rawFile);
+      }
+    });
+    this.employeeService.updateKycInfo(this.empId(), formData).subscribe({
       next: (resp: any) => {
         this.alertService.success('Success', resp).then(() => {
           this.employeeStore.refreshList();
@@ -223,8 +277,10 @@ export class KycDocumentComponentDetail {
       if (params.editMode && params.id !== EMPTY_UUID) {
         return this.employeeService.getKycData(params.id).pipe(
           tap((resp: any) => {
+            const documentsArray = Array.isArray(resp) ? resp : (resp?.documents ?? []);
+
             this.kycModel.update((state) => ({
-              documents: (resp.documents ?? []).map(
+              documents: documentsArray.map(
                 (doc: IEmployeeDocument) =>
                   new EmployeeDocument({
                     ...doc,

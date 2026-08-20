@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import {
   Component,
   computed,
@@ -30,10 +30,11 @@ import {
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
+import { DateAdapter, MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'qfin-personal-component',
+  providers: [provideNativeDateAdapter(), DatePipe],
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -59,6 +60,8 @@ export class PersonalComponentDetail {
 
   private dateAdapter = inject(DateAdapter<Date>);
   readonly maxDate = new Date();
+
+  private readonly datePipe = inject(DatePipe);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
@@ -171,9 +174,11 @@ export class PersonalComponentDetail {
     if (!this.employeeForm().valid()) {
       return;
     }
-
-    const dataToSave = this.employeeForm().value();
-    dataToSave.dateOfBirth = new Date(dataToSave.dateOfBirth);
+    const formValue = this.employeeForm().value();
+    const dataToSave = {
+      ...formValue,
+      dateOfBirth: this.datePipe.transform(formValue.dateOfBirth, 'yyyy-MM-dd'),
+    };
     if (!this.isEditMode()) {
       this.employeeService.create(dataToSave).subscribe({
         next: (resp: any) => {

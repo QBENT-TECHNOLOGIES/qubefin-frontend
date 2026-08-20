@@ -30,6 +30,9 @@ import {
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
 import { AdministrativeUnitCascade } from '../../../../../global/components/administrative-unit-cascade/administrative-unit-cascade';
+import { AdministrativeUnitStore } from '../../../../../global/stores/administrative-unit-store';
+import { AdministrativeUnitService } from '../../../../../global/services/administrative-unit-service';
+import { IPoliceStationList } from '../../../../../global/models/police-sation';
 
 @Component({
   selector: 'qfin-address-component',
@@ -52,14 +55,18 @@ export class AddressComponentDetail {
   utilities = input<Utility[]>([]);
   onAddressUpdate = output<void>();
   policeStations = [];
-  postOffices = [];
 
+  private readonly administrativeUnitService = inject(AdministrativeUnitService);
+  private readonly administrativeUnitStore = inject(AdministrativeUnitStore);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
   readonly iconMap = APP_ICONS_MAP;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
+  readonly postOffices = this.administrativeUnitStore.postoffice;
+  presentPoliceStations = signal<IPoliceStationList[]>([]);
+  permanentPoliceStations = signal<IPoliceStationList[]>([]);
   protected readonly presentAddressModel = signal<IEmployeeAddressInfo>(new EmployeeAddressInfo());
   protected readonly permanentAddressModel = signal<IEmployeeAddressInfo>(
     new EmployeeAddressInfo(),
@@ -105,6 +112,31 @@ export class AddressComponentDetail {
         }),
       );
     });
+
+    // effect(() => {
+    //   const postOffices = this.postOffices();
+    //   const selectedPostOffice = this.presentAddressModel().postOfficeId;
+    //   const pin = postOffices.find((x) => x.id === selectedPostOffice)?.pincode;
+
+    //   if (selectedPostOffice && pin) {
+    //     this.presentAddressModel.update((current) => ({
+    //       ...current,
+    //       pinCode: pin,
+    //     }));
+    //   }
+    // });
+    // effect(() => {
+    //   const postOffices = this.postOffices();
+    //   const selectedPostOffice = this.permanentAddressModel().postOfficeId;
+    //   const pin = postOffices.find((x) => x.id === selectedPostOffice)?.pincode;
+
+    //   if (selectedPostOffice && pin) {
+    //     this.permanentAddressModel.update((current) => ({
+    //       ...current,
+    //       pinCode: pin,
+    //     }));
+    //   }
+    // });
   }
   // constructor() {
   //   // this.employeeStore.loadCategories();
@@ -131,6 +163,37 @@ export class AddressComponentDetail {
   // 🚀 Replaces both effects! Safely streams, cancels stale requests, and maps components
   // 🚀 Fixed signature for rxResource compatibility
   // 🚀 Updated config naming convention for Angular 20+
+  onPostOfficeChange(type: 'present' | 'permanent', event: any) {
+    const selectedPostOfficeId = event.value;
+    const postOffices = this.postOffices();
+
+    const pin = postOffices.find((x) => x.id === selectedPostOfficeId)?.pincode;
+
+    if (pin) {
+      if (type === 'present') {
+        this.updatePresentAddressField('pinCode', pin);
+      } else {
+        this.updatePermanentAddressField('pinCode', pin);
+      }
+    }
+  }
+  onDistrictChangeForPoliceStation(type: 'present' | 'permanent', districtId: string) {
+    if (!districtId || districtId === EMPTY_UUID) {
+      if (type === 'present') this.presentPoliceStations.set([]);
+      else this.permanentPoliceStations.set([]);
+      return;
+    }
+
+    this.administrativeUnitService.getPoliceStationByDistrict(districtId).subscribe({
+      next: (res: any) => {
+        if (type === 'present') {
+          this.presentPoliceStations.set(res);
+        } else {
+          this.permanentPoliceStations.set(res);
+        }
+      },
+    });
+  }
   private addressResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }), // 👈 "request" becomes "params"
     stream: ({ params }) => {

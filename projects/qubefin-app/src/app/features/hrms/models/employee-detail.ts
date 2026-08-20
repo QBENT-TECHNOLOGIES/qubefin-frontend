@@ -103,13 +103,13 @@ export interface IEmployeeQualification {
 export class EmployeeQualification {
   id: string = '';
   academicStream: string = '';
-  specialization: string  = '';
+  specialization: string = '';
   yearOfPassing: number = defaultDate().getFullYear();
-  universityOrBoard: string  = '';
-  schoolOrCollege: string  = '';
-  gradeOrMarks: string  = '';
-  docFileName: string  = '';
-  docFileNo: string  = '';
+  universityOrBoard: string = '';
+  schoolOrCollege: string = '';
+  gradeOrMarks: string = '';
+  docFileName: string = '';
+  docFileNo: string = '';
   employeeId: string = '';
   sequence: number = 0;
 
@@ -178,8 +178,8 @@ export interface IEmployeeDocument {
   documentNo: string; // Nullable string
   validFrom: Date | null; // DateOnly? maps to string (YYYY-MM-DD)
   validTill: Date | null; // DateOnly? maps to string (YYYY-MM-DD)
-  fileName: string ; // Nullable string
-  fileNo: string ; // DateTime? maps to ISO timestamp string
+  fileName: string; // Nullable string
+  fileNo: string; // DateTime? maps to ISO timestamp string
   employeeId: string; // DateTime? maps to ISO timestamp string
 }
 
@@ -191,8 +191,8 @@ export class EmployeeDocument {
   validFrom: Date | null = null;
   validTill: Date | null = null;
 
-  fileName: string = "";
-  fileNo: string = "";
+  fileName: string = '';
+  fileNo: string = '';
   employeeId: string = '';
 
   constructor(init?: Partial<IEmployeeDocument>) {
@@ -223,7 +223,7 @@ export class EmployeeReference {
   id: string = '00000000-0000-0000-0000-000000000000';
   employeeId: string = '00000000-0000-0000-0000-000000000000';
   personName: string = '';
-  mobile: string = "";
+  mobile: string = '';
   email: string = '';
   address: string = '';
   occupation: string = '';
@@ -252,7 +252,7 @@ export interface IEmployeePersonalInfo {
   fullName: string;
   fatherName: string;
   motherName: string;
-  dateOfBirth: Date;
+  dateOfBirth: Date | string | null;
   gender: string;
   religion: string;
   caste: string;
@@ -271,7 +271,7 @@ export class EmployeePersonalInfo implements IEmployeePersonalInfo {
   fullName: string = '';
   fatherName: string = '';
   motherName: string = '';
-  dateOfBirth: Date = new Date(); // Replaced custom defaultDate() with standard fallback
+  dateOfBirth: Date | string | null = null; // Replaced custom defaultDate() with standard fallback
   gender: string = '';
   religion: string = '';
   caste: string = '';
