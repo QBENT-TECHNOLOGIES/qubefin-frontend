@@ -6,21 +6,21 @@
         </h3>
         <div class="green-line"></div>
     </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>House/Plot No</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="house" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="presentAddressForm.houseNo"  placeholder="Enter House/Plot No">
+            <input matInput autocomplete="off" [formField]="presentAddressForm.houseNo" placeholder="Enter House/Plot No">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Road/Street Name</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="road" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="presentAddressForm.roadName" placeholder="Enter Road/Street Name">
+            <input matInput autocomplete="off" [formField]="presentAddressForm.roadName"
+                placeholder="Enter Road/Street Name">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Landmark</mat-label>
@@ -29,9 +29,11 @@
             </div>
             <input matInput autocomplete="off" [formField]="presentAddressForm.landMark" placeholder="Enter Landmark">
         </mat-form-field>
-        <qfin-administrative-unit-cascade [columns]="3" [administrativeUnitId]="presentAddressModel().administrativeUnitId"
-            (selectedIdChanged)="updatePresentAddressField('administrativeUnitId', $event)">
-        </qfin-administrative-unit-cascade>
+    </div>
+    <qfin-administrative-unit-cascade [columns]="4" [administrativeUnitId]="presentAddressModel().administrativeUnitId"
+        (selectedIdChanged)="updatePresentAddressField('administrativeUnitId', $event)">
+    </qfin-administrative-unit-cascade>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Pin Code</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -102,7 +104,7 @@
         </h3>
         <div class="blue-line"></div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>House/Plot No</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -124,9 +126,11 @@
             </div>
             <input matInput autocomplete="off" [formField]="permanentAddressForm.landMark" placeholder="Enter Landmark">
         </mat-form-field>
-        <qfin-administrative-unit-cascade [columns]="3" [administrativeUnitId]="permanentAddressModel().administrativeUnitId"
+    </div>
+    <qfin-administrative-unit-cascade [columns]="4" [administrativeUnitId]="permanentAddressModel().administrativeUnitId"
             (selectedIdChanged)="updatePermanentAddressField('administrativeUnitId', $event)">
-        </qfin-administrative-unit-cascade>
+    </qfin-administrative-unit-cascade>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Pin Code</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
