@@ -60,4 +60,5 @@ export interface ILeaveTypeBalance {
   leaveEntitled: number;
   leaveTaken: number;
   leaveBalance: number;
+  isEligible: boolean;
 }

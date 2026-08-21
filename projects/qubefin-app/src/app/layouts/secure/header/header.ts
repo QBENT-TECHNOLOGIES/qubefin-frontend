@@ -46,12 +46,12 @@ export class Header {
 
   unreadCount = computed(() => this.notifications().filter((n) => !n.isRead).length);
   constructor() {
-    interval(300000)
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => {
-        this.notificationStore.refresh();
-        this.userStore.refresh();
-      });
+    // interval(300000)
+    //   .pipe(takeUntilDestroyed())
+    //   .subscribe(() => {
+    //     this.notificationStore.refresh();
+    //     this.userStore.refresh();
+    //   });
   }
   onHandleToggleDrawer() {
     this.isExpanded.set(!this.isExpanded());
