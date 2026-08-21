@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { applyEach, form, FormField, required, schema } from '@angular/forms/signals';
+import { applyEach, form, FormField, pattern, required, schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeService } from '../../../../services/employee-service';
@@ -15,7 +15,7 @@ import { of, tap } from 'rxjs';
 import { EmployeeReference, IEmployeeReference } from '../../../../models/employee-detail';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
-import Swal from 'sweetalert2';
+import { AttendanceRegularizationsStore } from '../../../../stores/attendance-regularizations-store';
 
 interface ReferenceFormModel {
   references: IEmployeeReference[];
@@ -40,13 +40,17 @@ export class ReferenceComponentDetail {
   empId = input<string>(EMPTY_UUID);
 
   onRefUpdate = output<void>();
-
-  isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
-
+  private readonly attendRegularizationsStore = inject(AttendanceRegularizationsStore);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
   readonly iconMap = APP_ICONS_MAP;
+
+  readonly reasons = computed(() => {
+    const list = this.attendRegularizationsStore.utilities();
+    return list.length > 0 ? list.filter((m) => m.sysKey === 'RELATION') : [];
+  });
+  isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
   protected readonly referenceModel = signal<ReferenceFormModel>({
     references: [],
@@ -61,7 +65,11 @@ export class ReferenceComponentDetail {
     applyEach(path.references, (refPath) => {
       required(refPath.personName);
       required(refPath.mobile);
+      pattern(refPath.mobile, /^[6-9]\d{9}$/, { message: 'Enter a valid 10-digit mobile number' });
       required(refPath.email);
+      pattern(refPath.email, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
+        message: 'Enter a valid email',
+      });
       required(refPath.address);
     });
   });
@@ -123,14 +131,14 @@ export class ReferenceComponentDetail {
     });
   }
 
-  private kycResource = rxResource({
+  private referenceResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
       if (params.editMode && params.id !== EMPTY_UUID) {
         return this.employeeService.getReferenceData(params.id).pipe(
           tap((resp: any) => {
             this.referenceModel.update((state) => ({
-              references: (resp.references ?? []).map(
+              references: (resp || []).map(
                 (doc: IEmployeeReference) =>
                   new EmployeeReference({
                     ...doc,
@@ -143,7 +151,7 @@ export class ReferenceComponentDetail {
         this.referenceModel.set({
           references: [],
         });
-        return of(null); // Safely stream an empty observable
+        return of(null);
       }
     },
   });

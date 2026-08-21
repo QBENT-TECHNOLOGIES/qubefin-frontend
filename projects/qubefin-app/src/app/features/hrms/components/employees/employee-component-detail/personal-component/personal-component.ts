@@ -124,6 +124,9 @@ export class PersonalComponentDetail {
 
         return this.employeeService.getPresonalData(params.id).pipe(
           tap((resp: any) => {
+            if (resp && typeof resp.bloodGroup === 'string') {
+              resp.bloodGroup = resp.bloodGroup.trim();
+            }
             this.employeeModel.set(new EmployeePersonalInfo(resp));
           }),
         );

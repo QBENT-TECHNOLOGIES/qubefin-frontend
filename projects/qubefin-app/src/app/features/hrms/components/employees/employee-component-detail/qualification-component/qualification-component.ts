@@ -14,7 +14,6 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
-import Swal from 'sweetalert2';
 import { EmployeeQualification, IEmployeeQualification } from '../../../../models/employee-detail';
 
 interface QualificationFormModel {
@@ -121,7 +120,7 @@ export class QualificationComponentDetail {
         return this.employeeService.getQualificationData(params.id).pipe(
           tap((resp: any) => {
             this.qualificationModel.update((state) => ({
-              qualifications: (resp.qualifications ?? []).map(
+              qualifications: (resp ?? []).map(
                 (doc: IEmployeeQualification) =>
                   new EmployeeQualification({
                     ...doc,

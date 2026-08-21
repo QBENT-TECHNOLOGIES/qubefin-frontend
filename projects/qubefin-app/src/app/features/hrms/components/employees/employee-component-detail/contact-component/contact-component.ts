@@ -30,6 +30,7 @@ import {
 } from '../../../../models/employee-detail';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
+import { AttendanceRegularizationsStore } from '../../../../stores/attendance-regularizations-store';
 
 @Component({
   selector: 'qfin-contact-component',
@@ -50,13 +51,16 @@ export class ContactComponentDetail {
   empId = input<string>(EMPTY_UUID);
   //   onCancel = output<void>();
   onContactUpdate = output<void>();
-
+  private readonly attendRegularizationsStore = inject(AttendanceRegularizationsStore);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
   readonly iconMap = APP_ICONS_MAP;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
-
+  readonly reasons = computed(() => {
+    const list = this.attendRegularizationsStore.utilities();
+    return list.length > 0 ? list.filter((m) => m.sysKey === 'RELATION') : [];
+  });
   protected readonly contactModel = signal<IEmployeeContactInfo>(new EmployeeContactInfo());
 
   protected readonly contactSchema: Schema<IEmployeeContactInfo> = schema((path) => {

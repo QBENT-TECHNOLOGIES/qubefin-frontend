@@ -5,31 +5,33 @@ import { Observable } from 'rxjs';
 import { OrganizationUnitBasic } from '../models/organization-unit-tree-node';
 import { OrganizationUnit } from '../models/organization-unit';
 
-
 @Injectable({
-    providedIn: 'root',
+  providedIn: 'root',
 })
 export class OrganizationUnitService {
+  httpClient = inject(HttpClient);
 
-    httpClient = inject(HttpClient);
+  create(organizationUnit: OrganizationUnit) {
+    return this.httpClient.post(`${ApiPaths.GLOBAL}/organization-units`, organizationUnit);
+  }
 
-    create(organizationUnit: OrganizationUnit) {
-        return this.httpClient.post(`${ApiPaths.GLOBAL}/organization-units`, organizationUnit);
+  update(id: string, organizationUnit: OrganizationUnit) {
+    return this.httpClient.put(`${ApiPaths.GLOBAL}/organization-units/${id}`, organizationUnit);
+  }
+
+  loadChildren(parentId: string | null): Observable<OrganizationUnitBasic[]> {
+    let params = new HttpParams();
+    if (parentId) {
+      params = params.set('id', parentId);
     }
-
-    update(id: string, organizationUnit: OrganizationUnit) {
-        return this.httpClient.put(`${ApiPaths.GLOBAL}/organization-units/${id}`, organizationUnit);
-    }
-
-    loadChildren(parentId: string | null): Observable<OrganizationUnitBasic[]> {
-        let params = new HttpParams();
-        if (parentId) {
-            params = params.set('id', parentId);
-        }
-        return this.httpClient.get<OrganizationUnitBasic[]>(
-            `${ApiPaths.GLOBAL}/organization-units/children`,
-            {
-                params
-            });
-    }
+    return this.httpClient.get<OrganizationUnitBasic[]>(
+      `${ApiPaths.GLOBAL}/organization-units/children`,
+      {
+        params,
+      },
+    );
+  }
+  getOrganizationUnitByType(id: string) {
+    return this.httpClient.get(`${ApiPaths.GLOBAL}/organization-units/${id}/types`);
+  }
 }

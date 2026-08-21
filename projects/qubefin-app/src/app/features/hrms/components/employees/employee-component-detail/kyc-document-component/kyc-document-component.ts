@@ -19,10 +19,10 @@ import {
 } from '../../../../models/employee-detail';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
-import Swal from 'sweetalert2';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { DocumentModalService } from '../../../../../../shared/services/document-modal.service';
 
 interface KycFormModel {
   documents: IEmployeeDocument[];
@@ -54,11 +54,12 @@ export class KycDocumentComponentDetail {
 
   kycDocs = input<KycDocument[]>([]);
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
-
+  readonly documentModal = inject(DocumentModalService);
   readonly datePipe = inject(DatePipe);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
+
   readonly iconMap = APP_ICONS_MAP;
 
   protected readonly kycModel = signal<KycFormModel>({
@@ -70,6 +71,22 @@ export class KycDocumentComponentDetail {
   });
 
   protected readonly kycForm = form(this.kycModel, this.kycSchema);
+  isDocumentNumberInvalid(index: number): boolean {
+    const doc = this.kycModel().documents[index];
+    if (!doc) return false;
+
+    const name = doc.documentName?.toLowerCase() || '';
+    const no = doc.documentNo?.trim().toUpperCase() || '';
+
+    if (!name || !no) return false;
+
+    if (name.includes('aadhaar') || name.includes('adhar')) return !/^\d{12}$/.test(no);
+    if (name.includes('pan')) return !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(no);
+    if (name.includes('voter')) return !/^[A-Z]{3}[0-9]{7}$/.test(no);
+    if (name.includes('driving')) return !/^[A-Z]{2}[0-9]{13}$/.test(no);
+
+    return false;
+  }
 
   private dateAdapter = inject(DateAdapter<Date>);
 
@@ -159,6 +176,16 @@ export class KycDocumentComponentDetail {
 
     return mandatoryDocs.some((doc) => !uploadedDocIds.includes(doc.name));
   }
+  hasMissingFilesForImportantDocs(): boolean {
+    return this.kycModel().documents.some((doc) => {
+      const name = doc.documentName?.toLowerCase() || '';
+      const isImportant =
+        name.includes('aadhaar') || name.includes('adhar') || name.includes('pan');
+      const hasNoFile = !doc.fileName && !(doc as any).rawFile;
+
+      return isImportant && hasNoFile;
+    });
+  }
 
   hasMissingDateValidation(): boolean {
     return this.kycModel().documents.some((doc) => {
@@ -167,6 +194,7 @@ export class KycDocumentComponentDetail {
       return selectedDoc?.isDateValidate && (!doc.validFrom || !doc.validTill);
     });
   }
+
   hasMissingDocumentNumbers(): boolean {
     return this.kycModel().documents.some((doc) => !!doc.documentName && !doc.documentNo?.trim());
   }
@@ -199,28 +227,72 @@ export class KycDocumentComponentDetail {
       const documents = [...state.documents];
       const updatedDoc = { ...documents[index], fileName: '' };
       (updatedDoc as any).rawFile = null;
+      (updatedDoc as any).fileUrl = '';
+      (updatedDoc as any).filePath = '';
+
       documents[index] = updatedDoc;
       return { documents };
     });
   }
+  openDocument(index: number) {
+    const doc = this.kycModel().documents[index];
+    if (!doc) return;
+
+    let url = '';
+    const name = doc.fileName || doc.documentName || 'Document';
+
+    if ((doc as any).rawFile) {
+      url = URL.createObjectURL((doc as any).rawFile);
+    } else if ((doc as any).fileUrl || (doc as any).filePath) {
+      url = (doc as any).fileUrl || (doc as any).filePath;
+    }
+
+    if (!url) {
+      this.alertService.warning('Oops!', 'Document preview is not available.');
+      return;
+    }
+
+    this.documentModal.open({
+      url: url,
+      documentName: name,
+      extension: name.split('.').pop()?.toLowerCase() || '',
+      downloadAccess: true,
+    });
+  }
   onSubmit() {
     const dataToSave = [...this.kycForm().value().documents];
+    if (this.hasMissingFilesForImportantDocs()) {
+      this.alertService.warning(null, 'Please upload the document file for Aadhaar and PAN cards.');
+      return;
+    }
     if (this.hasMissingMandatoryDocuments()) {
-      Swal.fire('Oh!', 'Please upload all mandatory KYC documents.', 'error');
+      this.alertService.warning(null, 'Please upload all mandatory KYC documents.');
       return;
     }
     if (this.hasMissingDocumentNumbers()) {
-      Swal.fire('Oh!', 'Document Number is required.', 'error');
+      this.alertService.warning(null, 'Document Number is required.');
       return;
     }
+    const hasInvalidDocs = this.kycModel().documents.some((_, i) =>
+      this.isDocumentNumberInvalid(i),
+    );
+    if (hasInvalidDocs) {
+      this.alertService.warning(
+        null,
+        'Please provide valid document numbers matching their format.',
+      );
+      return;
+    }
+
     if (this.hasMissingDateValidation()) {
-      Swal.fire('Oh!', 'Valid From and Valid Till are required.', 'error');
+      this.alertService.warning(null, 'Valid From and Valid Till are required.');
       return;
     }
     if (this.hasInvalidDateRange()) {
-      Swal.fire('Oh!', 'Valid Till must be greater than or equal to Valid From.', 'error');
+      this.alertService.warning(null, 'Valid Till must be greater than or equal to Valid From.');
       return;
     }
+
     if (!this.kycForm().valid()) {
       return;
     }
@@ -251,6 +323,7 @@ export class KycDocumentComponentDetail {
         formData.append(`documents[${index}].file`, doc.rawFile);
       }
     });
+
     this.employeeService.updateKycInfo(this.empId(), formData).subscribe({
       next: (resp: any) => {
         this.alertService.success('Success', resp).then(() => {
@@ -295,7 +368,7 @@ export class KycDocumentComponentDetail {
         this.kycModel.set({
           documents: [],
         });
-        return of(null); // Safely stream an empty observable
+        return of(null);
       }
     },
   });

@@ -7,73 +7,73 @@
     </div>
 
     @for (ref of qualificationModel().qualifications; track $index) {
-        <div class="flex items-start gap-3 border-b border-slate-200 pb-3">
-            <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-                <!-- Academic Stream -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Academic Stream</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="user" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput autocomplete="off" placeholder="Enter Academic Stream"
-                        [formField]="qualificationForm.qualifications[$index].academicStream">
-                </mat-form-field>
-                <!-- Specialization -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Specialization</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="phone" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput type="text" autocomplete="off" placeholder="Enter Specialization"
-                        [formField]="qualificationForm.qualifications[$index].specialization">
-                </mat-form-field>
-                <!-- Year of Passing -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Year of Passing</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="mail" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput type="number" autocomplete="off" placeholder="Enter Year of Passing"
-                        [formField]="qualificationForm.qualifications[$index].yearOfPassing">
-                </mat-form-field>
-                <!-- University / Board -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>University / Board</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="mail" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput type="text" autocomplete="off" placeholder="Enter University / Board"
-                        [formField]="qualificationForm.qualifications[$index].universityOrBoard">
-                </mat-form-field>
-                <!-- School / College-->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>School / College</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="mail" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput type="text" autocomplete="off" placeholder="School / College"
-                        [formField]="qualificationForm.qualifications[$index].schoolOrCollege">
-                </mat-form-field>
-                <!-- Grade / Percentage / CGPA -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Grade / Percentage / CGPA</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="contact" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput type="text" autocomplete="off" placeholder="Enter Grade / Percentage / CGPA"
-                        [formField]="qualificationForm.qualifications[$index].gradeOrMarks">
-                </mat-form-field>
-            </div>
-            <!-- Delete -->
-            <div (click)="removeQualification($index)" matTooltip="Delete" 
-                class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 text-red-500 hover:text-red-700 cursor-pointer">
-                <svg lucideIcon="trash-2" class="w-5 h-5"></svg>
-            </div>
+    <div class="flex items-start gap-3 border-b border-slate-200 pb-3">
+        <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Academic Stream -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Academic Stream</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="user" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" placeholder="Enter Academic Stream"
+                    [formField]="qualificationForm.qualifications[$index].academicStream">
+            </mat-form-field>
+            <!-- Specialization -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Specialization</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="text" autocomplete="off" placeholder="Enter Specialization"
+                    [formField]="qualificationForm.qualifications[$index].specialization">
+            </mat-form-field>
+            <!-- Year of Passing -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Year of Passing</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" autocomplete="off" placeholder="Enter Year of Passing"
+                    [formField]="qualificationForm.qualifications[$index].yearOfPassing">
+            </mat-form-field>
+            <!-- University / Board -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>University / Board</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="graduation-cap" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="text" autocomplete="off" placeholder="Enter University / Board"
+                    [formField]="qualificationForm.qualifications[$index].universityOrBoard">
+            </mat-form-field>
+            <!-- School / College-->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>School / College</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="graduation-cap" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="text" autocomplete="off" placeholder="School / College"
+                    [formField]="qualificationForm.qualifications[$index].schoolOrCollege">
+            </mat-form-field>
+            <!-- Grade / Percentage / CGPA -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Grade / Percentage / CGPA</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="contact" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="text" autocomplete="off" placeholder="Enter Grade / Percentage / CGPA"
+                    [formField]="qualificationForm.qualifications[$index].gradeOrMarks">
+            </mat-form-field>
         </div>
+        <!-- Delete -->
+        <div (click)="removeQualification($index)" matTooltip="Delete"
+            class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 text-red-500 hover:text-red-700 cursor-pointer">
+            <svg lucideIcon="trash-2" class="w-5 h-5"></svg>
+        </div>
+    </div>
     }
     <!-- Add Qualification -->
     <div class="flex justify-end items-center">
-        <button type="button" (click)="addQualification()" 
+        <button type="button" (click)="addQualification()"
             class="cursor-pointer ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r to-primary-500 from-secondary-500">
             <svg lucideIcon="plus" class="w-5 h-5"></svg>
             Add Qualification

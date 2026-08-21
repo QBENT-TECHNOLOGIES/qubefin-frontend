@@ -181,6 +181,7 @@ export interface IEmployeeDocument {
   fileName: string; // Nullable string
   fileNo: string; // DateTime? maps to ISO timestamp string
   employeeId: string; // DateTime? maps to ISO timestamp string
+  fileUrl: string;
 }
 
 export class EmployeeDocument {
@@ -194,6 +195,7 @@ export class EmployeeDocument {
   fileName: string = '';
   fileNo: string = '';
   employeeId: string = '';
+  fileUrl: string = '';
 
   constructor(init?: Partial<IEmployeeDocument>) {
     if (!init) return;
@@ -311,30 +313,40 @@ export class EmployeePersonalInfo implements IEmployeePersonalInfo {
 // --- OfficialInfo ---
 
 export interface IEmployeeOfficialInfo {
-  companyId: string; // Guid? maps to string
+  companyId?: string; // Guid? maps to string
   organizationUnitId: string; // Guid? maps to string
   departmentId: string; // Guid? maps to string
   employementType: string; // string? maps to optional string
-  joiningDate: Date | null; // DateOnly? maps to ISO date string (YYYY-MM-DD)
-  confirmationDate: Date | null; // DateOnly? maps to ISO date string (YYYY-MM-DD)
+  dateOfJoining: Date | null; // DateOnly? maps to ISO date string (YYYY-MM-DD)
+  dateOfConfirmation: Date | null; // DateOnly? maps to ISO date string (YYYY-MM-DD)
   separationDate: Date | null; // DateOnly? maps to ISO date string (YYYY-MM-DD)
   referedBy: string; // Guid? maps to string
   howYouKnow: string;
   officialEmail: string;
   isActive: boolean; // bool maps to required boolean
+  organizationUnitTypeId: string; // Guid? maps to string
+  companyName: string;
+  designationId: string;
+  salaryGrade: string;
+  grossSalary: number;
 }
 export class EmployeeOfficialInfo {
   companyId: string = '';
   organizationUnitId: string = '';
   departmentId: string = '';
   employementType: string = '';
-  joiningDate: Date | null = null;
-  confirmationDate: Date | null = null;
+  dateOfJoining: Date | null = null;
+  dateOfConfirmation: Date | null = null;
   separationDate: Date | null = null;
   referedBy: string = '';
   howYouKnow: string = '';
   officialEmail: string = '';
   isActive: boolean = true;
+  organizationUnitTypeId: string = '';
+  companyName: string = '';
+  designationId: string = '';
+  salaryGrade: string = '';
+  grossSalary: number = 0;
 
   constructor(init?: Partial<IEmployeeOfficialInfo>) {
     if (!init) return;

@@ -150,7 +150,7 @@
                 <svg lucideIcon="siren" class="w-5 h-5"></svg>
             </div>
             <mat-select [formField]="permanentAddressForm.policeStationId" placeholder="Select Police Station">
-                @for (police of presentPoliceStations(); track police.id) {
+                @for (police of permanentPoliceStations(); track police.id) {
                 <mat-option [value]="police.id">
                     {{ police.name }}
                 </mat-option>
