@@ -11,66 +11,64 @@ import { UserView } from '../../components/users/user-view/user-view';
 import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
-	selector: 'qfin-user-page',
-	imports: [CommonModule, LucideDynamicIcon, UserListComponent, UserView],
-	templateUrl: './user.html'
+  selector: 'qfin-user-page',
+  imports: [CommonModule, LucideDynamicIcon, UserListComponent, UserView],
+  templateUrl: './user.html',
 })
 export class UserPage {
-	public readonly EMPTY_UUID = EMPTY_UUID;
+  public readonly EMPTY_UUID = EMPTY_UUID;
 
-	userStore = inject(UserStore);
+  userStore = inject(UserStore);
 
-	isViewMode = signal<boolean>(true);
-	showFilterArea = signal<boolean>(false);
-	selectedUserId = signal<string>(EMPTY_UUID);
-	searchedUsers = this.userStore.searchedUsers;
+  isViewMode = signal<boolean>(true);
+  showFilterArea = signal<boolean>(false);
+  selectedUserId = signal<string>(EMPTY_UUID);
+  searchedUsers = this.userStore.searchedUsers;
 
-	protected readonly userSearchFields = signal<UserSearchParam>({
-		searchText: '',
-		sortOn: 'userName',
-		sortDirection: 'ASC',
-		pageIndex: 0,
-		pageSize: 10
-	});
+  protected readonly userSearchFields = signal<UserSearchParam>({
+    searchText: '',
+    sortOn: 'userName',
+    sortDirection: 'ASC',
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
-	protected readonly userSearchForm = form(this.userSearchFields);
+  protected readonly userSearchForm = form(this.userSearchFields);
 
-	constructor() {
-		effect(() => {
-			console.log(this.searchedUsers());
-		});
-	}
+  constructor() {
+    effect(() => {});
+  }
 
-	onSort(sort: Sort) {
-		this.userStore.setSort(sort.active, sort.direction);
-	}
+  onSort(sort: Sort) {
+    this.userStore.setSort(sort.active, sort.direction);
+  }
 
-	onPageChange(event: PageEvent) {
-		this.userStore.setPagination(event.pageIndex, event.pageSize);
-	}
+  onPageChange(event: PageEvent) {
+    this.userStore.setPagination(event.pageIndex, event.pageSize);
+  }
 
-	protected onView(id: string) {
-		this.selectedUserId.set(id);
-		this.isViewMode.set(true);
-	}
+  protected onView(id: string) {
+    this.selectedUserId.set(id);
+    this.isViewMode.set(true);
+  }
 
-	protected onAdd() {
-		this.isViewMode.set(false);
-		this.selectedUserId.set(EMPTY_UUID);
-	}
+  protected onAdd() {
+    this.isViewMode.set(false);
+    this.selectedUserId.set(EMPTY_UUID);
+  }
 
-	protected onEdit() {
-		this.isViewMode.set(false);
-	}
+  protected onEdit() {
+    this.isViewMode.set(false);
+  }
 
-	protected viewDetail(id: string) {
-		this.selectedUserId.set(id);
-	}
+  protected viewDetail(id: string) {
+    this.selectedUserId.set(id);
+  }
 
-	protected closePanel() {
-		this.selectedUserId.set(EMPTY_UUID);
-		this.isViewMode.set(true);
-	}
+  protected closePanel() {
+    this.selectedUserId.set(EMPTY_UUID);
+    this.isViewMode.set(true);
+  }
 
-	protected toggleFilterArea() {}
+  protected toggleFilterArea() {}
 }

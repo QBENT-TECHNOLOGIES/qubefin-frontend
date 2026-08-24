@@ -72,7 +72,6 @@ export class EmployeeComponent {
 
   protected onView(id: string) {
     this.selectedEmployeeComponentId.set(id);
-    console.log(this.selectedEmployeeComponentId());
     this.isViewMode.set(true);
   }
 
@@ -89,20 +88,17 @@ export class EmployeeComponent {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
   }
-  // Closes panels and forces state reset safely
+
   protected handleCancel() {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
   }
 
-  // Executed on successful API responses from employee-component-detail
   protected handleSave() {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
   }
-  protected handleUpdate(event: any) {
-    console.log(event);
-  }
+  protected handleUpdate(event: any) {}
 
   protected toggleFilterArea() {
     this.showFilterArea.update((v) => !v);

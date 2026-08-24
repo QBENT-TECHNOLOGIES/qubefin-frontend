@@ -10,11 +10,7 @@ import { APP_ICONS_MAP } from '../../../../../lucide-icons';
 
 @Component({
   selector: 'qfin-employee-component-view',
-  imports: [MatIconModule,
-    DatePipe,
-    MatTooltipModule,
-    LucideDynamicIcon
-    ],
+  imports: [MatIconModule, DatePipe, MatTooltipModule, LucideDynamicIcon],
   templateUrl: './employee-component-view.html',
 })
 export class EmployeeComponentView {
@@ -23,12 +19,11 @@ export class EmployeeComponentView {
   showEdit = output<boolean>();
   employeeDetail = this.employeeStore.employeeInfoComponent;
   readonly iconMap = APP_ICONS_MAP;
-  
+
   constructor() {
     effect(() => {
       if (this.employeeId() && this.employeeId() !== EMPTY_UUID) {
         this.employeeStore.setEmployeeComponentId(this.employeeId());
-        console.log(this.employeeDetail());
       }
     });
   }

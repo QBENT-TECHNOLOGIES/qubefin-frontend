@@ -189,7 +189,6 @@ export class SurveyUnitDetail {
 
   protected addMember() {
     const employee = this.selectedEmployee();
-    console.log(employee);
 
     if (!employee) {
       Swal.fire({

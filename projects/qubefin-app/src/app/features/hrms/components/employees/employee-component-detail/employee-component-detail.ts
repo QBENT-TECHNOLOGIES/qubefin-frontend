@@ -8,6 +8,7 @@ import {
   ViewChild,
   ElementRef,
   effect,
+  untracked,
 } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,7 +18,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { EMPTY_UUID } from 'qubefin-core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { EmployeeStore } from '../../../stores/employee-store';
-import { MatStepperModule } from '@angular/material/stepper';
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { PersonalComponentDetail } from './personal-component/personal-component';
 import { AddressComponentDetail } from './address-component/address-component';
 import { ContactComponentDetail } from './contact-component/contact-component';
@@ -63,12 +64,25 @@ export class EmployeeComponentDetail {
 
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
-
+  @ViewChild('stepper')
+  matStepper!: MatStepper;
   constructor() {
-    effect(() => {
-      console.log('Utilities:', this.utilityComponents());
-      console.log('KYC DOCUMENTS:', this.kycComponents());
-    });
+    effect(
+      () => {
+        const id = this.employeeId();
+
+        if (id === EMPTY_UUID) {
+          untracked(() => {
+            this.activeStepIndex.set(0);
+
+            if (this.matStepper) {
+              this.matStepper.reset();
+            }
+          });
+        }
+      },
+      { allowSignalWrites: true },
+    );
   }
   onStepChange(index: number) {
     this.activeStepIndex.set(index);
