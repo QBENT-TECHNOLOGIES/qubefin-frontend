@@ -24,7 +24,7 @@ export class LeaveRequestStore {
   );
 
   readonly leaveTypeBalances = computed(
-    () => this.leaveTypeBalancesResource.value()?.filter((m) => m.leaveBalance >= 1) ?? [],
+    () => this.leaveTypeBalancesResource.value()?.filter((m) => m.isEligible) ?? [],
   );
   readonly leaveTypeBalancesLoading = computed(() => this.leaveTypeBalancesResource.isLoading());
 
