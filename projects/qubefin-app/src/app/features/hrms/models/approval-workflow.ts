@@ -25,6 +25,7 @@ export interface IApprovalWorkflow {
 export interface IApprovalWorkflowStep {
   id: string;
   approvalWorkflowId: string;
+  organizationUnitTypeId: string | null;
   organizationUnitType: string;
   receiverPostId: string | null;
   isRecommendEvent: boolean;
@@ -33,6 +34,7 @@ export interface IApprovalWorkflowStep {
   eventButtonText: string;
   sequenceNo: number;
 
+  organizationUnitTypeName?: string | null;
   receiverPostName?: string | null;
 }
 export interface IApprovalWorkflowDetail {
@@ -46,10 +48,13 @@ export interface IApprovalWorkflowDetail {
 export interface IApprovalStep {
   id: string;
   approvalWorkflowId: string;
+  organizationUnitTypeId: string | null;
   receiverPostId: string;
   isRecommendEvent: boolean;
   isApprovalEvent: boolean;
   eventStatus: string;
   eventButtonText: string;
   sequenceNo: number;
+
+  organizationUnitTypeName?: string | null;
 }

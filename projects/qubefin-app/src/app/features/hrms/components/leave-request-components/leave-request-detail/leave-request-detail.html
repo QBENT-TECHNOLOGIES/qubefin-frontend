@@ -19,11 +19,14 @@
       <div class="w-12 flex justify-center" matPrefix>
         <svg lucideIcon="tag" class="w-5 h-5"></svg>
       </div>
-      <mat-select [formField]="leaveRequestForm.leaveTypeId">
-        @for (balance of leaveTypeBalances(); track balance.leaveTypeId) {
-        <mat-option [value]="balance.leaveTypeId">{{ balance.title }} (Balance: {{ balance.leaveBalance }})</mat-option>
-        }
-      </mat-select>
+     <mat-select [formField]="leaveRequestForm.leaveTypeId">
+      @for (balance of leaveTypeBalances(); track balance.leaveTypeId) {
+        <mat-option [value]="balance.leaveTypeId">
+          {{ balance.title }}
+          {{ balance.alias !== 'LOP' ? '(Balance: ' + balance.leaveBalance + ')' : '' }}
+        </mat-option>
+      }
+    </mat-select>
     </mat-form-field>
 
     <!-- From Date -->
