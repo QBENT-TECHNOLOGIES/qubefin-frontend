@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { ApprovalRegularizationStore } from '../../../stores/approval-regularizations-store';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
 @Component({
   selector: 'qfin-attendance-regularization-view',
   imports: [
@@ -28,12 +29,16 @@ export class AttendanceRegularizationView {
   private readonly store = inject(ApprovalRegularizationStore);
   private readonly alertService = inject(AlertService);
   private readonly attendanceService = inject(AttendanceService);
+  readonly documentModal = inject(DocumentModalService);
+
   readonly regularizationId = model<string>(EMPTY_UUID);
   readonly save = output<void>();
   readonly showEdit = output<void>();
+
   readonly detail = this.store.regularization;
   readonly loading = this.store.regularizationUnitLoading;
   readonly error = this.store.regularizationUnitError;
+
   readonly decisionModel = signal({ remarks: '' });
   protected readonly decisionSchema: Schema<{ remarks: string }> = schema((path) => {
     required(path.remarks, { message: 'Remarks are required' });
@@ -45,8 +50,17 @@ export class AttendanceRegularizationView {
       this.decisionModel.set({ remarks: '' });
     });
   }
-  viewDocument(url: any) {
-    window.open(url, '_blank');
+  viewDocument(url: any, name: any) {
+    if (!url || !name) {
+      return;
+    }
+
+    this.documentModal.open({
+      url: url,
+      documentName: name,
+      extension: name.split('.').pop()?.toLowerCase() || '',
+      downloadAccess: true,
+    });
   }
   onSubmitDecision(decision: string) {
     const curentRemarks = this.decisionModel().remarks;

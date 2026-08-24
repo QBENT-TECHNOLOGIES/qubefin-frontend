@@ -8,11 +8,12 @@ import { PageEvent } from '@angular/material/paginator';
 import { CommonModule } from '@angular/common';
 import { UserListComponent } from '../../components/users/user-list/user-list';
 import { UserView } from '../../components/users/user-view/user-view';
+import { UserDetail } from '../../components/users/user-detail/user-detail';
 import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
 	selector: 'qfin-user-page',
-	imports: [CommonModule, LucideDynamicIcon, UserListComponent, UserView],
+	imports: [CommonModule, LucideDynamicIcon, UserListComponent, UserView, UserDetail],
 	templateUrl: './user.html'
 })
 export class UserPage {

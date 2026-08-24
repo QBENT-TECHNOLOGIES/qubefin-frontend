@@ -10,8 +10,10 @@ export class NotificationStore {
   private readonly basePath = `${ApiPaths.GLOBAL}/notifications`;
 
   readonly notificationsResource = httpResource<NotificationItem[]>(() => this.basePath);
-  readonly notifications = computed(() => this.notificationsResource.value() ?? []);
-
+  readonly notifications = computed(() => {
+    if (this.notificationsResource.error()) return [];
+    return this.notificationsResource.value() ?? [];
+  });
   readonly loading = computed(() => this.notificationsResource.isLoading());
   readonly error = computed(() => this.notificationsResource.error());
   refresh() {

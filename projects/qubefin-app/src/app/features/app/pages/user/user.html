@@ -100,7 +100,7 @@
             </qfin-user-list-component>
         </div>
 
-        @if (selectedUserId() !== EMPTY_UUID) {
+        @if (selectedUserId() !== EMPTY_UUID || !isViewMode()) {
         <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
             [ngClass]="{
                 'w-3/4':
@@ -174,9 +174,9 @@
             <qfin-user-view [userId]="selectedUserId()" (showEdit)="onEdit()">
             </qfin-user-view>
             } @else {
-            <!-- <qfin-salary-component-detail [salaryId]="selectedUserId()" (onCancel)="closePanel()"
-                (onSave)="closePanel()">
-            </qfin-salary-component-detail> -->
+            <qfin-user-detail [userId]="selectedUserId()" (cancel)="closePanel()"
+                (save)="closePanel()">
+            </qfin-user-detail>
             }
             <!-- </div> -->
         </div>
