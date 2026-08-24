@@ -2,7 +2,15 @@ import { Component, computed, effect, inject, model, output, signal } from '@ang
 import { ApprovalWorkflowStore } from '../../../stores/approval-workflow-store';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { IApprovalWorkflow, IApprovalWorkflowDetail } from '../../../models/approval-workflow';
-import { form, required, schema, Schema, validate } from '@angular/forms/signals';
+import {
+  disabled,
+  form,
+  readonly,
+  required,
+  schema,
+  Schema,
+  validate,
+} from '@angular/forms/signals';
 import { ApprovalWorkflowService } from '../../../services/approval-workflow-service';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -92,9 +100,7 @@ export class ApprovalWorkflowDetail {
 
       if (category && this.isLeaveCategory()) {
         this.filterLeaveTypes.set(
-          this.leaveTypes().filter((m) =>
-            category === 'LEAVE' ? !m.isPrayerable : m.isPrayerable,
-          ),
+          this.leaveTypes().filter((m) => (category === 'LEAVE' ? true : m.isPrayerable)),
         );
       } else {
         this.approvalWorkflowForm.leaveTypeId().reset();
@@ -108,6 +114,7 @@ export class ApprovalWorkflowDetail {
           const normalizedSteps = (detail.approvalSteps ?? detail.steps ?? []).map((step) => ({
             id: step.id ?? EMPTY_UUID,
             approvalWorkflowId: step.approvalWorkflowId ?? detail.id ?? EMPTY_UUID,
+            organizationUnitTypeId: step.organizationUnitTypeId ?? null,
             receiverPostId: step.receiverPostId ?? '',
             isRecommendEvent: !!step.isRecommendEvent,
             isApprovalEvent: !!step.isApprovalEvent,
@@ -155,6 +162,7 @@ export class ApprovalWorkflowDetail {
           {
             id: EMPTY_UUID,
             approvalWorkflowId: this.approvalWorkflowId(),
+            organizationUnitTypeId: null,
             receiverPostId: '',
             isRecommendEvent: false,
             isApprovalEvent: false,
@@ -240,6 +248,14 @@ export class ApprovalWorkflowDetail {
               return;
             }
 
+            if (!step.organizationUnitTypeId?.trim()) {
+              this.alertService.error(
+                null,
+                `Organization Unit Type is required for Step ${stepNo}`,
+              );
+              return;
+            }
+
             if (workflowPostId && step.receiverPostId === workflowPostId) {
               this.alertService.error(
                 null,
@@ -280,6 +296,7 @@ export class ApprovalWorkflowDetail {
 
             steps: (this.formModel().approvalSteps ?? []).map((step) => ({
               id: step.id,
+              organizationUnitTypeId: step.organizationUnitTypeId,
               receiverPostId: step.receiverPostId,
               isRecommendEvent: step.isRecommendEvent,
               isApprovalEvent: step.isApprovalEvent,

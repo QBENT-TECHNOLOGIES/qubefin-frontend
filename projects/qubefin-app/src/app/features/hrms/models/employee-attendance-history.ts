@@ -9,5 +9,5 @@ export interface IEmployeeAttendanceHistory {
   actualOutTime: string | null;
   workingHours: string | null;
   status: string | null;
-  isRegulerized: string | null;
+  isRegularized: string | null;
 }

@@ -83,20 +83,20 @@
                 }
                 @if(approvalWorkflowForm().value().category && isLeaveCategory()){
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Maximum days</mat-label>
-                    <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput type="number" [formField]="approvalWorkflowForm.maximumDays"
-                        (wheel)="$event.preventDefault()" placeholder="Enter Maximum days">
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Minimum days</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
                     </div>
                     <input matInput type="number" [formField]="approvalWorkflowForm.minimumDays"
                         (wheel)="$event.preventDefault()" placeholder="Enter Minimum days">
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Maximum days</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput type="number" [formField]="approvalWorkflowForm.maximumDays"
+                        (wheel)="$event.preventDefault()" placeholder="Enter Maximum days">
                 </mat-form-field>
                 }
 
@@ -157,8 +157,21 @@
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Organization Unit Type</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select [formField]="approvalWorkflowForm.approvalSteps[i].organizationUnitTypeId">
+                                @for(item of organizationUnits(); track item.id){
+                                <mat-option [value]="item.id">
+                                    {{item.name}}
+                                </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
 
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                             <mat-label>Receiver Post</mat-label>

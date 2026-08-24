@@ -19,9 +19,7 @@ export class LeavePrayerStore {
     () => `${ApiPaths.HRMS}/leave-types/prayer-balances`,
   );
 
-  readonly leaveTypeBalances = computed(
-    () => this.leaveTypeBalancesResource.value()?.filter((m) => m.leaveBalance >= 1) ?? [],
-  );
+  readonly leaveTypeBalances = computed(() => this.leaveTypeBalancesResource.value() ?? []);
   readonly leaveTypeBalancesLoading = computed(() => this.leaveTypeBalancesResource.isLoading());
   readonly leavePrayersResource = httpResource<ILeavePrayerListItem[]>(() => {
     const year = this.yearQuery();

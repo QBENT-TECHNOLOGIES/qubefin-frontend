@@ -63,9 +63,29 @@ export class PayrollStore {
   refreshMonthlyPayroll() {
     this.monthlyPayrollResource.reload();
   }
-  monthlyPayrollSummariesResource = httpResource<IMonthWisePayroll[]>(
-    () => `${ApiPaths.PAYROLL}/month-wise-payroll`,
-  );
+  private readonly monthlyPayrollSummariesParams = signal<
+    | {
+        companyId: string | null;
+        payrollMonth: number | null;
+        payrollYear: number;
+      }
+    | undefined
+  >({
+    companyId: null,
+    payrollMonth: null,
+    payrollYear: new Date().getFullYear(),
+  });
+
+  monthlyPayrollSummariesResource = httpResource<IMonthWisePayroll[]>(() => {
+    const params = this.monthlyPayrollSummariesParams();
+    if (!params?.payrollYear) return undefined;
+
+    const queryParams = new URLSearchParams({ payrollYear: params.payrollYear.toString() });
+    if (params.companyId) queryParams.set('companyId', params.companyId);
+    if (params.payrollMonth) queryParams.set('payrollMonth', params.payrollMonth.toString());
+
+    return `${ApiPaths.PAYROLL}/month-wise-payroll?${queryParams.toString()}`;
+  });
   readonly monthlyPayrollSummaries = computed(
     () => this.monthlyPayrollSummariesResource.value() ?? [],
   );
@@ -78,6 +98,17 @@ export class PayrollStore {
 
   refreshMonthlyPayrollSummaries() {
     this.monthlyPayrollSummariesResource.reload();
+  }
+  setMonthlyPayrollSummariesParams(
+    companyId: string | null,
+    payrollMonth: number | null,
+    payrollYear: number,
+  ) {
+    this.monthlyPayrollSummariesParams.set({ companyId, payrollMonth, payrollYear });
+  }
+
+  clearMonthlyPayrollSummariesParams() {
+    this.monthlyPayrollSummariesParams.set(undefined);
   }
   readonly isCreatingPayroll = signal<boolean>(false);
   createPayroll(companyId: string) {
