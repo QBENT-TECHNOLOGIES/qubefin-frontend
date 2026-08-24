@@ -73,11 +73,13 @@ export class PersonalComponentDetail {
   protected readonly employeeSchema: Schema<IEmployeePersonalInfo> = schema((path) => {
     required(path.firstName, { message: 'First name is required' });
     required(path.code, { message: 'code is required' });
-
+    required(path.bloodGroup, { message: 'Blood Group is required' });
+    required(path.nationality, { message: 'Nationality is required' });
     required(path.lastName, { message: 'Last name is required' });
     required(path.dateOfBirth, { message: 'Date of birth is required' });
     required(path.gender, { message: 'Gender is required' });
     required(path.maritalStatus, { message: 'Gender is required' });
+    required(path.religion, { message: 'Religion is required' });
   });
 
   protected readonly employeeForm = form(this.employeeModel, this.employeeSchema);
@@ -178,9 +180,15 @@ export class PersonalComponentDetail {
       return;
     }
     const formValue = this.employeeForm().value();
-    const dataToSave = {
+    const dataToSave: any = {
       ...formValue,
       dateOfBirth: this.datePipe.transform(formValue.dateOfBirth, 'yyyy-MM-dd'),
+      middleName: formValue.middleName?.trim() === '' ? null : formValue.middleName,
+      fatherName: formValue.fatherName?.trim() === '' ? null : formValue.fatherName,
+      motherName: formValue.motherName?.trim() === '' ? null : formValue.motherName,
+      caste: formValue.caste?.trim() === '' ? null : formValue.caste,
+      disabilityType: formValue.disablityType?.trim() === '' ? null : formValue.disablityType,
+      salutation: formValue.salutation?.trim() === '' ? null : formValue.salutation,
     };
     if (!this.isEditMode()) {
       this.employeeService.create(dataToSave).subscribe({

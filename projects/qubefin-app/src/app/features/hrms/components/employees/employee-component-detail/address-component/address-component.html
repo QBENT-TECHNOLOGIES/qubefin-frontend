@@ -37,13 +37,6 @@
     </qfin-administrative-unit-cascade>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Pin Code</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
-            </div>
-            <input matInput [formField]="presentAddressForm.pinCode" placeholder="Enter Pin Code">
-        </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Police Station</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="siren" class="w-5 h-5"></svg>
@@ -57,15 +50,23 @@
                 }
             </mat-select>
         </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Pin Code</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="presentAddressForm.pinCode" placeholder="Enter Pin Code"
+                (input)="onPinCodeChange('present', $event)">
+        </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Post Office</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
             </div>
             <!-- <input matInput autocomplete="off" [formField]="presentAddressForm.postOfficeId" placeholder="Enter Post Office"> -->
-            <mat-select [formField]="presentAddressForm.postOfficeId" placeholder="Select Post Office"
-                (selectionChange)="onPostOfficeChange('present', $event)">
-                @for (post of postOffices(); track post.id) {
+            <mat-select [formField]="presentAddressForm.postOfficeId" placeholder="Select Post Office">
+                @for (post of presentPostOffices(); track post.id) {
                 <mat-option [value]="post.id">
                     {{ post.name }}
                 </mat-option>
@@ -138,13 +139,6 @@
     </qfin-administrative-unit-cascade>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Pin Code</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
-            </div>
-            <input matInput autocomplete="off" [formField]="permanentAddressForm.pinCode" placeholder="Enter Pin Code">
-        </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Police Station</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="siren" class="w-5 h-5"></svg>
@@ -158,13 +152,20 @@
             </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Pin Code</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="permanentAddressForm.pinCode" placeholder="Enter Pin Code"
+                (input)="onPinCodeChange('permanent', $event)">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Post Office</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
             </div>
-            <mat-select [formField]="permanentAddressForm.postOfficeId" placeholder="Select Post Office"
-                (selectionChange)="onPostOfficeChange('permanent', $event)">
-                @for (post of postOffices(); track post.id) {
+            <mat-select [formField]="permanentAddressForm.postOfficeId" placeholder="Select Post Office">
+                @for (post of permanentPostOffices(); track post.id) {
                 <mat-option [value]="post.id">
                     {{ post.name }}
                 </mat-option>

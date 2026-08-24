@@ -249,11 +249,11 @@ export interface IEmployeePersonalInfo {
   code: string;
   salutation: string;
   firstName: string;
-  middleName: string;
+  middleName: string | null;
   lastName: string;
   fullName: string;
-  fatherName: string;
-  motherName: string;
+  fatherName: string | null;
+  motherName: string | null;
   dateOfBirth: Date | string | null;
   gender: string;
   religion: string;
@@ -304,7 +304,7 @@ export class EmployeePersonalInfo implements IEmployeePersonalInfo {
         caste: init.caste ?? '',
         nationality: init.nationality ?? '',
         bloodGroup: init.bloodGroup ?? '',
-        disablityType: init.disablityType ?? '',
+        disabltyType: init.disablityType ?? '',
       });
     }
   }

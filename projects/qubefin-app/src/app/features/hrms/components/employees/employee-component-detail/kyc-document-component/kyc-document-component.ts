@@ -201,6 +201,19 @@ export class KycDocumentComponentDetail {
   hasInvalidDateRange(): boolean {
     return this.kycModel().documents.some((_, index) => this.isValidTillInvalid(index));
   }
+  getDocumentErrorMessage(index: number): string {
+    const doc = this.kycModel().documents[index];
+    if (!doc) return '';
+
+    const name = doc.documentName?.toLowerCase() || '';
+    if (name.includes('aadhaar') || name.includes('adhar'))
+      return 'Enter a valid 12-digit Aadhaar number';
+    if (name.includes('pan')) return 'Enter a valid PAN number (e.g. ABCDE1234F)';
+    if (name.includes('voter')) return 'Enter a valid Voter ID (e.g. ABC1234567)';
+    if (name.includes('driving')) return 'Enter a valid 15-character Driving License';
+
+    return 'Invalid Document Number';
+  }
   onFileSelected(event: Event, index: number) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];

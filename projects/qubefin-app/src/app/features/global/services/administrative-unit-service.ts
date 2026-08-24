@@ -36,4 +36,7 @@ export class AdministrativeUnitService {
       `${ApiPaths.GLOBAL}/administrative-units/police-stations/${districtId}`,
     );
   }
+  getPostOfficeByPincode(pincode: string) {
+    return this.httpClient.get(`${ApiPaths.GLOBAL}/administrative-units/postoffices/${pincode}`);
+  }
 }

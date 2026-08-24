@@ -73,6 +73,7 @@ export class OfficialComponentDetail {
     pattern(path.officialEmail, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
       message: 'Enter a valid email address',
     });
+    required(path.employementType, { message: 'Employement Type is required' });
     required(path.dateOfJoining, { message: 'Joining Date is required' });
     required(path.designationId, { message: 'Designation is required' });
     required(path.salaryGrade, { message: 'Salary Grade is required' });

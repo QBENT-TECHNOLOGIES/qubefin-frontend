@@ -3,7 +3,6 @@ import { computed, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import { AdministrativeUnitTreeNode } from '../models/administrative-unit-tree-node';
 import { AdministrativeUnit } from '../models/administrative-unit';
-import { IPostOfficeList } from '../models/post-office';
 
 @Injectable({
   providedIn: 'root',
@@ -35,13 +34,6 @@ export class AdministrativeUnitStore {
   );
   readonly administrativeUnitLoading = computed(() => this.administrativeUnitResource.isLoading());
   readonly administrativeUnitError = computed(() => this.administrativeUnitResource.error());
-
-  private readonly postofficeResource = httpResource<IPostOfficeList[]>(() => {
-    return `${ApiPaths.GLOBAL}/administrative-units/postoffices`;
-  });
-  readonly postoffice = computed(() => this.postofficeResource.value() ?? []);
-  readonly postofficeLoading = computed(() => this.postofficeResource.isLoading());
-  readonly postofficeError = computed(() => this.postofficeResource.error());
 
   // Actions
   setAdministrativeUnitId(administrativeUnitId: string | undefined) {
