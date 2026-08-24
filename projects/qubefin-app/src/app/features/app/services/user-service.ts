@@ -20,4 +20,12 @@ export class UserService {
     // changePassword(passwordChangeRequest: PasswordChangeRequest) {
     //     return this.httpClient.post<any>(`${ApiPaths.APP}/change-password`, passwordChangeRequest);
     // }
+
+    create(payload: any) {
+        return this.httpClient.post<any>(`${ApiPaths.APP}/users`, payload);
+    }
+
+    update(payload: any) {
+        return this.httpClient.put<any>(`${ApiPaths.APP}/users/${payload.userId}`, payload);
+    }
 }

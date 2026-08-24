@@ -30,3 +30,13 @@ export interface UserSearchResult {
     totalCount: number;
     users: UserSearch[];
 };
+
+export interface IUserDetail {
+    userId: string | null;
+    userName: string;
+    password?: string;
+    employeeId: string | null;
+    isActive?: boolean;
+    hasMfaEnabled?: boolean;
+    employeeName?: string; // used for display
+}

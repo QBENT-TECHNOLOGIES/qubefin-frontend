@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, readonly, required, schema, Schema } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -68,6 +68,10 @@ export class LeavePrayerDetail {
   protected readonly leavePrayerSchema: Schema<ILeavePrayerDetailItem> = schema((path) => {
     required(path.leaveTypeId, { message: 'Leave Type is required' });
     required(path.prayerDays, { message: 'Prayer Days is required' });
+
+    readonly(path.prayerDays, {
+      when: () => this.isNoOfDaysDisabled() || !this.leavePrayerForm().value().leaveTypeId,
+    });
   });
 
   protected readonly leavePrayerForm = form(this.leavePrayerModel, this.leavePrayerSchema);
@@ -79,9 +83,14 @@ export class LeavePrayerDetail {
       this.leavePrayerStore.setLeaveRequestId(this.leavePrayerId());
     });
   }
-  updateType(leedTypeId: string) {
+  updateType(leaveTypeId: string) {
+    this.leavePrayerModel.update((current) => ({
+      ...current,
+      prayerDays: 0,
+    }));
+
     const leaves = this.leaveTypeBalances();
-    const selectedLeaveBalance = leaves.find((m) => m.leaveTypeId === leedTypeId);
+    const selectedLeaveBalance = leaves.find((m) => m.leaveTypeId === leaveTypeId);
     if (selectedLeaveBalance?.alias === 'PL' || selectedLeaveBalance?.alias === 'MML') {
       this.leavePrayerModel.update((current) => ({
         ...current,
@@ -156,7 +165,7 @@ export class LeavePrayerDetail {
 
     const formData = new FormData();
     formData.append('leaveTypeId', dataToSave.leaveTypeId);
-    formData.append('prayerDays', dataToSave.prayerDays?.toString());
+    formData.append('prayerDays', dataToSave.prayerDays?.toString() ?? '');
     formData.append('remarks', dataToSave.remarks || '');
     if (this.selectedFile()) {
       formData.append('attachment', this.selectedFile() as Blob);

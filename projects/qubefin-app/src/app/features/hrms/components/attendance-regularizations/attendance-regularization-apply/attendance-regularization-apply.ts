@@ -14,6 +14,7 @@ import { AttendanceRegularizationsStore } from '../../../stores/attendance-regul
 import { IRegularizationForm } from '../../../models/attendance-regularization';
 import { AlertService } from 'qubefin-core';
 import { MatChipsModule } from '@angular/material/chips';
+import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
 @Component({
   selector: 'qfin-attendance-regularization-apply',
   imports: [
@@ -35,6 +36,8 @@ import { MatChipsModule } from '@angular/material/chips';
 export class AttendanceRegularizationApply {
   private readonly alertService = inject(AlertService);
   private readonly attendanceService = inject(AttendanceService);
+  readonly documentModal = inject(DocumentModalService);
+
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
   private readonly store = inject(AttendanceRegularizationsStore);
@@ -124,8 +127,16 @@ export class AttendanceRegularizationApply {
     }
   }
   openDocument() {
-    const url = this.documentUrl();
-    window.open(url, '_blank');
+    if (!this.documentUrl() || !this.documentName()) {
+      return;
+    }
+
+    this.documentModal.open({
+      url: this.documentUrl(),
+      documentName: this.documentName(),
+      extension: this.documentName().split('.').pop()?.toLowerCase() || '',
+      downloadAccess: true,
+    });
   }
   removeFile() {
     this.selectedFile.set(null);
