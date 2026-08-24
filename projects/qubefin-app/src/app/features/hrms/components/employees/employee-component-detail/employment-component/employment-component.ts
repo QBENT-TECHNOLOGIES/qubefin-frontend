@@ -57,12 +57,9 @@ export class EmploymentComponentDetail {
     employments: [],
   });
 
-  // 2. Refactor your schema block using applyEach
   protected readonly employmentschema = schema<EmploymentFormModel>((path) => {
-    // Ensures the array itself is present
     required(path.employments);
 
-    // Iterates cleanly through each item in the array with correct type safety
     applyEach(path.employments, (refPath) => {
       required(refPath.employerName);
       required(refPath.designation);
@@ -79,7 +76,6 @@ export class EmploymentComponentDetail {
     this.dateAdapter.setLocale('en-GB');
     effect(() => {
       if (this.employmentModel().employments.length === 0) {
-        // this.addEmployment();
         const model = new EmployeeEmployment();
         model.id = EMPTY_UUID;
         model.employeeId = this.empId();

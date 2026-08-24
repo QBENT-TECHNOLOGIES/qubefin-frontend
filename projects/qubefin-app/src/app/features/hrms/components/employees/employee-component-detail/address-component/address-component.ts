@@ -246,7 +246,6 @@ export class AddressComponentDetail {
       permanentAddress: this.permanentAddressForm().value(),
     };
 
-    // --- Present Address Null Checks ---
     dataToSave.presentAddress.administrativeUnitId =
       dataToSave.presentAddress.administrativeUnitId == ''
         ? null
@@ -260,7 +259,6 @@ export class AddressComponentDetail {
     dataToSave.presentAddress.postOfficeId =
       dataToSave.presentAddress.postOfficeId == '' ? null : dataToSave.presentAddress.postOfficeId;
 
-    // --- Permanent Address Null Checks (এখানে present এর বদলে permanent করা হয়েছে) ---
     dataToSave.permanentAddress.administrativeUnitId =
       dataToSave.permanentAddress.administrativeUnitId == ''
         ? null

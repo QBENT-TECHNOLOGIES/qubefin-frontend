@@ -54,7 +54,6 @@ export class PersonalComponentDetail {
   empId = input<string>(EMPTY_UUID);
   utilities = input<Utility[]>([]);
   activeIndex = input<number>(0);
-  //   onCancel = output<void>();
   onSave = output<void>();
   onUpdate = output<void>();
 
@@ -97,27 +96,7 @@ export class PersonalComponentDetail {
     const list = this.utilities();
     return list.length > 0 ? list.filter((m: any) => m.sysKey === sysKey) : [];
   }
-  // constructor() {
 
-  //   effect(() => {
-  //     const id = this.empId();
-  //     if (id && id !== EMPTY_UUID) {
-  //       this.employeeStore.setEmployeeComponentId(id);
-  //     }
-  //   });
-  //   effect(() => {
-  //     const id = this.empId();
-  //     if ( id !== EMPTY_UUID) {
-  //       this.employeeService.getPresonalData(id).subscribe(resp => {
-  //         this.employeeModel.set(new EmployeePersonalInfo(resp));
-  //       })
-  //     } else {
-  //       this.employeeModel.set(new EmployeePersonalInfo());
-  //     }
-  //   });
-  // }
-
-  // 🚀 Native Angular 20+ Data Fetcher (Replaces all constructor effects & manual mapping leaks)
   private personalDataResource = rxResource({
     params: () => ({ id: this.empId() }),
     stream: ({ params }) => {
@@ -174,8 +153,6 @@ export class PersonalComponentDetail {
       : [];
   }
   onSubmit() {
-    // console.log(this.employeeForm().value());
-
     if (!this.employeeForm().valid()) {
       return;
     }

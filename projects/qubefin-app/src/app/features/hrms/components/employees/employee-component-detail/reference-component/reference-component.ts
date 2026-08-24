@@ -56,12 +56,9 @@ export class ReferenceComponentDetail {
     references: [],
   });
 
-  // 2. Refactor your schema block using applyEach
   protected readonly referenceSchema = schema<ReferenceFormModel>((path) => {
-    // Ensures the array itself is present
     required(path.references);
 
-    // Iterates cleanly through each item in the array with correct type safety
     applyEach(path.references, (refPath) => {
       required(refPath.personName);
       required(refPath.mobile);
@@ -79,7 +76,6 @@ export class ReferenceComponentDetail {
   constructor() {
     effect(() => {
       if (this.referenceModel().references.length === 0) {
-        // this.addReference();
         const model = new EmployeeReference();
         model.id = EMPTY_UUID;
         model.employeeId = this.empId();
@@ -110,10 +106,9 @@ export class ReferenceComponentDetail {
     const dataToSave = [...this.referenceForm().value().references].map((ref) => {
       const cleanedRef = { ...ref };
 
-      // Cast keys to keyof typeof cleanedRef to fix the TypeScript error
       (Object.keys(cleanedRef) as Array<keyof typeof cleanedRef>).forEach((key) => {
         if (cleanedRef[key] === '') {
-          cleanedRef[key] = null as any; // Cast to any to allow null on string fields
+          cleanedRef[key] = null as any;
         }
       });
 

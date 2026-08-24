@@ -83,39 +83,6 @@ export class ContactComponentDetail {
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
 
-  // constructor() {
-  //   // this.employeeStore.loadCategories();
-  //   effect(() => {
-  //     const id = this.empId();
-  //     if (id && id !== EMPTY_UUID) {
-  //       this.employeeStore.setEmployeeComponentId(id);
-  //     }
-  //   });
-  //   effect(() => {
-  //     if (this.isEditMode() && this.empId() !== EMPTY_UUID) {
-  //       this.employeeService.getAddressData(this.empId()).subscribe((resp: any) => {
-  //       this.employeeStore.setEmployeeComponentId(resp.id);
-  //         this.presentAddressModel.set(new EmployeeAddressInfo(resp.presentAddressInfo));
-  //         // this.presentAddressModel.update(model => ({
-  //         //   houseNo: resp.presentAddressInfo.houseNo ?? '',
-  //         //   roadName: resp.presentAddressInfo.roadName ?? '',
-  //         //   landMark: resp.presentAddressInfo.landMark ?? '',
-  //         //   administrativeUnitId: resp.presentAddressInfo.administrativeUnitId ?? '',
-  //         //   policeStationId: resp.presentAddressInfo.policeStationId ?? '',
-  //         //   postOfficeId: resp.presentAddressInfo.postOfficeId ?? '',
-  //         //   pinCode: resp.presentAddressInfo.pinCode ?? '',
-  //         //   ownerShipOfHouse: resp.presentAddressInfo.ownerShipOfHouse ?? '',
-  //         //   durationOfStayInMonths: resp.presentAddressInfo.durationOfStayInMonths ?? 0,
-  //         // }));
-
-  //         this.permanentAddressModel.set(new EmployeeAddressInfo(resp.permanentAddressInfo));
-  //       })
-  //      } else {
-  //       this.presentAddressModel.set(new EmployeeAddressInfo());
-  //       this.permanentAddressModel.set(new EmployeeAddressInfo());
-  //     }
-  //   });
-  // }
   private contactResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
@@ -137,9 +104,6 @@ export class ContactComponentDetail {
   });
 
   onSubmit() {
-    // console.log(this.presentAddressForm().value());
-    // console.log(this.permanentAddressForm().value());
-
     if (!this.contactForm().valid()) {
       return;
     }
