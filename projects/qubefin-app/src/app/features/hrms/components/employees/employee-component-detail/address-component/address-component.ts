@@ -117,36 +117,6 @@ export class AddressComponentDetail {
     }
   }
   constructor() {
-    // effect(() => {
-    //   const pinCode = this.presentAddressForm.pinCode().value();
-
-    //   if (pinCode && pinCode.toString().length === 6) {
-    //     untracked(() => {
-    //       this.administrativeUnitService.getPostOfficeByPincode(pinCode).subscribe({
-    //         next: (res: any) => {
-    //           this.presentPostOffices.set(res);
-    //         }
-    //       });
-    //     });
-    //   } else {
-    //     this.presentPostOffices.set([]);
-    //   }
-    // });
-    // effect(() => {
-    //   const pinCode = this.permanentAddressForm.pinCode().value();
-
-    //   if (pinCode && pinCode.toString().length === 6) {
-    //     untracked(() => {
-    //       this.administrativeUnitService.getPostOfficeByPincode(pinCode).subscribe({
-    //         next: (res: any) => {
-    //           this.permanentPostOffices.set(res);
-    //         }
-    //       });
-    //     });
-    //   } else {
-    //     this.permanentPostOffices.set([]);
-    //   }
-    // });
     effect(() => {
       if (!this.sameAsPresentAddress()) return;
 
@@ -178,20 +148,7 @@ export class AddressComponentDetail {
       }
     }
   }
-  // onPostOfficeChange(type: 'present' | 'permanent', event: any) {
-  //   const selectedPostOfficeId = event.value;
-  //   const postOffices = this.postOffices();
 
-  //   const pin = postOffices.find((x) => x.id === selectedPostOfficeId)?.pincode;
-
-  //   if (pin) {
-  //     if (type === 'present') {
-  //       this.updatePresentAddressField('pinCode', pin);
-  //     } else {
-  //       this.updatePermanentAddressField('pinCode', pin);
-  //     }
-  //   }
-  // }
   onDistrictChangeForPoliceStation(type: 'present' | 'permanent', districtId: string) {
     if (!districtId || districtId === EMPTY_UUID) {
       if (type === 'present') this.presentPoliceStations.set([]);
@@ -220,6 +177,7 @@ export class AddressComponentDetail {
             this.employeeStore.setEmployeeComponentId(resp.id);
             this.presentAddressModel.set(new EmployeeAddressInfo(resp.presentAddressInfo));
             this.permanentAddressModel.set(new EmployeeAddressInfo(resp.permanentAddressInfo));
+            this.sameAsPresentAddress.set(resp.sameAsPresentAddress ?? false);
             const presentPin = resp.presentAddressInfo?.pinCode;
             if (presentPin && presentPin.toString().length === 6) {
               this.administrativeUnitService
@@ -279,9 +237,6 @@ export class AddressComponentDetail {
   }
 
   onSubmit() {
-    // console.log(this.presentAddressForm().value());
-    // console.log(this.permanentAddressForm().value());
-
     if (!this.presentAddressForm().valid() || !this.permanentAddressForm().valid()) {
       return;
     }
@@ -290,27 +245,34 @@ export class AddressComponentDetail {
       presentAddress: this.presentAddressForm().value(),
       permanentAddress: this.permanentAddressForm().value(),
     };
+
+    // --- Present Address Null Checks ---
     dataToSave.presentAddress.administrativeUnitId =
       dataToSave.presentAddress.administrativeUnitId == ''
         ? null
         : dataToSave.presentAddress.administrativeUnitId;
+
     dataToSave.presentAddress.policeStationId =
       dataToSave.presentAddress.policeStationId == ''
         ? null
         : dataToSave.presentAddress.policeStationId;
+
     dataToSave.presentAddress.postOfficeId =
       dataToSave.presentAddress.postOfficeId == '' ? null : dataToSave.presentAddress.postOfficeId;
 
+    // --- Permanent Address Null Checks (এখানে present এর বদলে permanent করা হয়েছে) ---
     dataToSave.permanentAddress.administrativeUnitId =
-      dataToSave.presentAddress.administrativeUnitId == ''
+      dataToSave.permanentAddress.administrativeUnitId == ''
         ? null
-        : dataToSave.presentAddress.administrativeUnitId;
+        : dataToSave.permanentAddress.administrativeUnitId;
+
     dataToSave.permanentAddress.policeStationId =
-      dataToSave.presentAddress.policeStationId == ''
+      dataToSave.permanentAddress.policeStationId == ''
         ? null
-        : dataToSave.presentAddress.policeStationId;
+        : dataToSave.permanentAddress.policeStationId;
+
     dataToSave.permanentAddress.postOfficeId =
-      dataToSave.presentAddress.postOfficeId == ''
+      dataToSave.permanentAddress.postOfficeId == ''
         ? null
         : dataToSave.permanentAddress.postOfficeId;
 

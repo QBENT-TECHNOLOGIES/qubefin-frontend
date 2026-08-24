@@ -23,27 +23,24 @@ export class EmployeeStore {
   readonly pageSize = signal<number>(10);
   readonly sortOn = signal<string>('name');
   readonly sortDirection = signal<'asc' | 'desc'>('asc');
+  readonly companyId = signal<string | null>(null);
 
-  // --- List Resource (Updated to match your response model) ---
   employeeListComponentsResource = httpResource<{
     employees: IEmployeesBySearchResult[];
     totalRecords: number;
-  }>(() => {
-    const search = encodeURIComponent(this.searchQuery());
-    const page = this.pageIndex();
-    const size = this.pageSize();
-    const sort = this.sortOn();
-    const dir = this.sortDirection();
-    const srchJoiningDate = this.srchJoiningDate();
-
-    let url = `${ApiPaths.HRMS}/employees/search?searchType=all&searchText=${search}&sortOn=${sort}&sortDirection=${dir}&pageIndex=${page}&pageSize=${size}`;
-
-    if (srchJoiningDate) {
-      url += `&srchJoiningDate=${srchJoiningDate}`;
-    }
-
-    return url;
-  });
+  }>(() => ({
+    url: `${ApiPaths.HRMS}/employees/search`,
+    method: 'POST',
+    body: {
+      searchText: this.searchQuery() || null,
+      sortOn: this.sortOn(),
+      sortDirection: this.sortDirection(),
+      pageIndex: this.pageIndex(),
+      pageSize: this.pageSize(),
+      srchJoiningDate: this.srchJoiningDate(),
+      companyId: this.companyId(),
+    },
+  }));
 
   // Safely extracts the employees array from the root response model
   readonly employeeListComponents = computed(
@@ -107,7 +104,10 @@ export class EmployeeStore {
     this.searchQuery.set(query);
     this.pageIndex.set(0);
   }
-
+  setCompanyId(id: string | null) {
+    this.companyId.set(id);
+    this.pageIndex.set(0);
+  }
   setPage(index: number) {
     this.pageIndex.set(index);
   }

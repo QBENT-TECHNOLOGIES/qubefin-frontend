@@ -35,7 +35,9 @@
                 <input matInput autocomplete="off" placeholder="Enter Document Number"
                     [formField]="kycForm.documents[$index].documentNo">
                 @if (isDocumentNumberInvalid($index)) {
-                <mat-error>{{ getDocumentErrorMessage($index) }}</mat-error>
+                <mat-hint class="text-red-500 font-medium">
+                    {{ getDocumentErrorMessage($index) }}
+                </mat-hint>
                 }
             </mat-form-field>
             }
@@ -45,7 +47,8 @@
                     <svg lucideIcon="paperclip" class="w-5 h-5 text-slate-500"></svg>
                 </div>
                 <input matInput [value]="doc.fileName || 'No file chosen'" readonly />
-                <input hidden (change)="onFileSelected($event, $index)" #fileInput accept="image/*,.pdf" type="file">
+                <input hidden (change)="onFileSelected($event, $index)" #fileInput
+                    accept="image/jpeg,image/png,image/jpg,image/webp,application/pdf" type="file">
 
                 <div matSuffix class="flex items-center gap-2 pr-1.5 py-1">
                     @if (doc.fileName) {

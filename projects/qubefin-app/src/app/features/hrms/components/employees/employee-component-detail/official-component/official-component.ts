@@ -16,7 +16,16 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { form, FormField, pattern, required, schema, Schema } from '@angular/forms/signals';
+import {
+  disabled,
+  form,
+  FormField,
+  pattern,
+  readonly,
+  required,
+  schema,
+  Schema,
+} from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeStore } from '../../../../stores/employee-store';
@@ -81,6 +90,15 @@ export class OfficialComponentDetail {
     required(path.organizationUnitTypeId, { message: 'Organization Unit Type is required' });
     required(path.organizationUnitId, { message: 'Organization Unit is required' });
     required(path.companyName, { message: 'Company Name is required' });
+    readonly(path.companyName, { when: () => true });
+    readonly(path.salaryGrade, { when: () => true });
+    readonly(path.grossSalary, { when: () => true });
+    const isNotEditable = ({ valueOf }: any) => {
+      return valueOf(path.isDesignationEditable) === false;
+    };
+    disabled(path.organizationUnitTypeId, { when: isNotEditable });
+    disabled(path.organizationUnitId, { when: isNotEditable });
+    disabled(path.designationId, { when: isNotEditable });
   });
 
   readonly organizationUnitTypes = this.organizationUnitTypeStore.organizationUnitTypes;
@@ -156,6 +174,7 @@ export class OfficialComponentDetail {
               dateOfConfirmation:
                 resp.confirmationDate == null ? null : new Date(resp.confirmationDate),
               separationDate: resp.separationDate == null ? null : new Date(resp.separationDate),
+              isDesignationEditable: resp.isDesignationEditable,
             }));
 
             if (resp.organizationUnitTypeId) {

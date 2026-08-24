@@ -329,6 +329,7 @@ export interface IEmployeeOfficialInfo {
   designationId: string;
   salaryGrade: string;
   grossSalary: number;
+  isDesignationEditable: boolean;
 }
 export class EmployeeOfficialInfo {
   companyId: string = '';
@@ -347,7 +348,7 @@ export class EmployeeOfficialInfo {
   designationId: string = '';
   salaryGrade: string = '';
   grossSalary: number = 0;
-
+  isDesignationEditable: boolean = true;
   constructor(init?: Partial<IEmployeeOfficialInfo>) {
     if (!init) return;
 
