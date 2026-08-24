@@ -195,7 +195,7 @@ export class UserDetail {
             return;
           }
 
-          this.userService.update(payload).subscribe({
+          this.userService.update(payload, payload.userId).subscribe({
             next: (resp: any) => {
               this.alertService.success('Success', resp).then(() => {
                 this.userStore.setPageIndex(0); // Refresh list
