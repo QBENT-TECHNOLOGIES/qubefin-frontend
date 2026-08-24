@@ -34,12 +34,12 @@
                     {{ item.status }}
                 </span> </td>
         </ng-container>
-        <ng-container matColumnDef="isRegulerized">
-            <th mat-header-cell *matHeaderCellDef> Regulerized </th>
+        <ng-container matColumnDef="isRegularized">
+            <th mat-header-cell *matHeaderCellDef> Regularized </th>
             <td mat-cell *matCellDef="let item"> <span class="px-2 py-1 text-xs rounded font-medium"
-                    [class.bg-blue-100]="item.isRegulerized === 'Yes'"
-                    [class.text-blue-800]="item.isRegulerized === 'Yes'">
-                    {{ item.isRegulerized }}
+                    [class.bg-blue-100]="item.isRegularized === 'Yes'"
+                    [class.text-blue-800]="item.isRegularized === 'Yes'">
+                    {{ item.isRegularized }}
                 </span> </td>
         </ng-container>
         <ng-container matColumnDef="action">
