@@ -596,6 +596,9 @@ export interface IEmployeesBySearchResult {
   joiningDate?: Date; // DateOnly? maps to ISO date string (YYYY-MM-DD)
   separationDate?: Date; // DateOnly? maps to ISO date string (YYYY-MM-DD)
   isActive: boolean; // bool maps to required boolean
+  companyName?: string | null;
+  organizationUnitName?: string | null;
+  gender?: string | null;
 }
 
 export class Utility {
