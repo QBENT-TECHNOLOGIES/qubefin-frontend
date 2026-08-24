@@ -49,7 +49,7 @@ export class EmployeeAttendanceHistoryList {
       'actualOutTime',
       'workingHours',
       'status',
-      'isRegulerized',
+      'isRegularized',
       'action',
     ];
   });
