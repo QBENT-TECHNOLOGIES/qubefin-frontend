@@ -7,88 +7,82 @@
     </div>
 
     @for (ref of employmentModel().employments; track $index) {
-        <div class="flex items-start gap-3 border-b border-slate-200 pb-3">
-            <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-                <!-- Employer Name -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Employer Name</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="user" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput autocomplete="off" placeholder="Enter Employer Name"
-                        [formField]="employmentForm.employments[$index].employerName">
-                </mat-form-field>
-                <!-- Designation -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Designation</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="phone" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput type="text" autocomplete="off" placeholder="Enter Designation"
-                        [formField]="employmentForm.employments[$index].designation">
-                </mat-form-field>
-                <!-- From Date -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>From Date</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="mail" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput 
-                        [matDatepicker]="fromDate" autocomplete="off" placeholder="Enter From Date"
-                        [formField]="employmentForm.employments[$index].fromDate">
-                        <mat-datepicker-toggle
-                                matIconSuffix
-                                [for]="fromDate">
-                            </mat-datepicker-toggle>
+    <div class="flex items-start gap-3 border-b border-slate-200 pb-3">
+        <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Employer Name -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Employer Name</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="user" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" placeholder="Enter Employer Name"
+                    [formField]="employmentForm.employments[$index].employerName">
+            </mat-form-field>
+            <!-- Designation -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Designation</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="user-check" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="text" autocomplete="off" placeholder="Enter Designation"
+                    [formField]="employmentForm.employments[$index].designation">
+            </mat-form-field>
+            <!-- From Date -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>From Date</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="mail" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [matDatepicker]="fromDate" autocomplete="off" placeholder="Enter From Date"
+                    [formField]="employmentForm.employments[$index].fromDate">
+                <mat-datepicker-toggle matIconSuffix [for]="fromDate">
+                </mat-datepicker-toggle>
 
-                        <mat-datepicker #fromDate></mat-datepicker>
-                </mat-form-field>
-                <!-- To Date -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>To Date</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="mail" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput 
-                        [matDatepicker]="toDate" autocomplete="off" placeholder="Enter To Date"
-                        [formField]="employmentForm.employments[$index].toDate">
-                        <mat-datepicker-toggle
-                                matIconSuffix
-                                [for]="toDate">
-                            </mat-datepicker-toggle>
+                <mat-datepicker #fromDate></mat-datepicker>
+            </mat-form-field>
+            <!-- To Date -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>To Date</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="mail" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [matDatepicker]="toDate" autocomplete="off" placeholder="Enter To Date"
+                    [formField]="employmentForm.employments[$index].toDate">
+                <mat-datepicker-toggle matIconSuffix [for]="toDate">
+                </mat-datepicker-toggle>
 
-                        <mat-datepicker #toDate></mat-datepicker>
-                </mat-form-field>
-                <!-- lastDrawnSalary -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Last Drawn Salary</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="contact" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput type="number" autocomplete="off" placeholder="Enter Last Drawn Salary"
-                        [formField]="employmentForm.employments[$index].lastDrawnSalary">
-                </mat-form-field>
-                <!-- Relationship -->
-        
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Job Title</mat-label>
-                     <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="user-lock" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput autocomplete="off" placeholder="Relationship"
-                        [formField]="employmentForm.employments[$index].jobTitle">
-                </mat-form-field>
-            </div>
-            <!-- Delete -->
-            <div (click)="removeEmployment($index)" matTooltip="Delete" 
-                class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 text-red-500 hover:text-red-700 cursor-pointer">
-                <svg lucideIcon="trash-2" class="w-5 h-5"></svg>
-            </div>
+                <mat-datepicker #toDate></mat-datepicker>
+            </mat-form-field>
+            <!-- lastDrawnSalary -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Last Drawn Salary</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="contact" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" autocomplete="off" placeholder="Enter Last Drawn Salary"
+                    [formField]="employmentForm.employments[$index].lastDrawnSalary">
+            </mat-form-field>
+            <!-- Relationship -->
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Job Title</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="user-lock" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" placeholder="Relationship"
+                    [formField]="employmentForm.employments[$index].jobTitle">
+            </mat-form-field>
         </div>
+        <!-- Delete -->
+        <div (click)="removeEmployment($index)" matTooltip="Delete"
+            class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 text-red-500 hover:text-red-700 cursor-pointer">
+            <svg lucideIcon="trash-2" class="w-5 h-5"></svg>
+        </div>
+    </div>
     }
     <!-- Add Employment -->
     <div class="flex justify-end items-center">
-        <button type="button" (click)="addEmployment()" 
+        <button type="button" (click)="addEmployment()"
             class="cursor-pointer ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r to-primary-500 from-secondary-500">
             <svg lucideIcon="plus" class="w-5 h-5"></svg>
             Add Previous Employment

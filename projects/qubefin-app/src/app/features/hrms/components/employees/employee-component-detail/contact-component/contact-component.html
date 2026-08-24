@@ -19,7 +19,8 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="mail" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="email" autocomplete="off" [formField]="contactForm.personalEmail" placeholder="Enter Personal Email">
+            <input matInput type="email" autocomplete="off" [formField]="contactForm.personalEmail"
+                placeholder="Enter Personal Email">
         </mat-form-field>
     </div>
     <div>
@@ -41,14 +42,22 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="notebook-tabs" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="contactForm.primaryEmergencyRelation" placeholder="Enter Relation">
+            <mat-select [formField]="contactForm.primaryEmergencyRelation">
+                @for (item of reasons(); track item.sysVal) {
+                <mat-option [value]="item.sysVal">
+                    {{ item.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+            <!-- <input matInput autocomplete="off" [formField]="contactForm.primaryEmergencyRelation" placeholder="Enter Relation"> -->
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Emergency Contact Mobile</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="headset" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="contactForm.primaryEmergencyMobile" placeholder="Enter Mobile No">
+            <input matInput autocomplete="off" [formField]="contactForm.primaryEmergencyMobile"
+                placeholder="Enter Mobile No">
         </mat-form-field>
     </div>
     <div>
@@ -63,29 +72,35 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="user-round" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="contactForm.secondaryEmergencyName" placeholder="Enter Name">
+            <input matInput autocomplete="off" [formField]="contactForm.secondaryEmergencyName"
+                placeholder="Enter Name">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Relation</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="notebook-tabs" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="contactForm.secondaryEmergencyRelation" placeholder="Enter Relation">
+            <mat-select [formField]="contactForm.secondaryEmergencyRelation">
+                @for (item of reasons(); track item.sysVal) {
+                <mat-option [value]="item.sysVal">
+                    {{ item.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Emergency Contact Mobile</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="headset" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="contactForm.secondaryEmergencyMobile" placeholder="Enter Mobile No">
+            <input matInput autocomplete="off" [formField]="contactForm.secondaryEmergencyMobile"
+                placeholder="Enter Mobile No">
         </mat-form-field>
     </div>
 
-    <div
-        class="step-footer-area">
+    <div class="step-footer-area">
         <div class="flex flex-1 justify-end items-center gap-3">
-            <button type="button" (click)="onSubmit()"
-                class="global-btn ripple-btn shadow shine-sweep lift">
+            <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">
                 Save
                 <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
             </button>

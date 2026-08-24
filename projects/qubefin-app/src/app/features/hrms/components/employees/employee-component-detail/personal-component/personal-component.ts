@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import {
   Component,
   computed,
@@ -30,10 +30,11 @@ import {
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
+import { DateAdapter, MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'qfin-personal-component',
+  providers: [provideNativeDateAdapter(), DatePipe],
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -53,12 +54,13 @@ export class PersonalComponentDetail {
   empId = input<string>(EMPTY_UUID);
   utilities = input<Utility[]>([]);
   activeIndex = input<number>(0);
-  //   onCancel = output<void>();
   onSave = output<void>();
   onUpdate = output<void>();
 
   private dateAdapter = inject(DateAdapter<Date>);
   readonly maxDate = new Date();
+
+  private readonly datePipe = inject(DatePipe);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
@@ -70,11 +72,13 @@ export class PersonalComponentDetail {
   protected readonly employeeSchema: Schema<IEmployeePersonalInfo> = schema((path) => {
     required(path.firstName, { message: 'First name is required' });
     required(path.code, { message: 'code is required' });
-
+    required(path.bloodGroup, { message: 'Blood Group is required' });
+    required(path.nationality, { message: 'Nationality is required' });
     required(path.lastName, { message: 'Last name is required' });
     required(path.dateOfBirth, { message: 'Date of birth is required' });
     required(path.gender, { message: 'Gender is required' });
     required(path.maritalStatus, { message: 'Gender is required' });
+    required(path.religion, { message: 'Religion is required' });
   });
 
   protected readonly employeeForm = form(this.employeeModel, this.employeeSchema);
@@ -92,27 +96,7 @@ export class PersonalComponentDetail {
     const list = this.utilities();
     return list.length > 0 ? list.filter((m: any) => m.sysKey === sysKey) : [];
   }
-  // constructor() {
 
-  //   effect(() => {
-  //     const id = this.empId();
-  //     if (id && id !== EMPTY_UUID) {
-  //       this.employeeStore.setEmployeeComponentId(id);
-  //     }
-  //   });
-  //   effect(() => {
-  //     const id = this.empId();
-  //     if ( id !== EMPTY_UUID) {
-  //       this.employeeService.getPresonalData(id).subscribe(resp => {
-  //         this.employeeModel.set(new EmployeePersonalInfo(resp));
-  //       })
-  //     } else {
-  //       this.employeeModel.set(new EmployeePersonalInfo());
-  //     }
-  //   });
-  // }
-
-  // 🚀 Native Angular 20+ Data Fetcher (Replaces all constructor effects & manual mapping leaks)
   private personalDataResource = rxResource({
     params: () => ({ id: this.empId() }),
     stream: ({ params }) => {
@@ -121,6 +105,9 @@ export class PersonalComponentDetail {
 
         return this.employeeService.getPresonalData(params.id).pipe(
           tap((resp: any) => {
+            if (resp && typeof resp.bloodGroup === 'string') {
+              resp.bloodGroup = resp.bloodGroup.trim();
+            }
             this.employeeModel.set(new EmployeePersonalInfo(resp));
           }),
         );
@@ -166,14 +153,20 @@ export class PersonalComponentDetail {
       : [];
   }
   onSubmit() {
-    // console.log(this.employeeForm().value());
-
     if (!this.employeeForm().valid()) {
       return;
     }
-
-    const dataToSave = this.employeeForm().value();
-    dataToSave.dateOfBirth = new Date(dataToSave.dateOfBirth);
+    const formValue = this.employeeForm().value();
+    const dataToSave: any = {
+      ...formValue,
+      dateOfBirth: this.datePipe.transform(formValue.dateOfBirth, 'yyyy-MM-dd'),
+      middleName: formValue.middleName?.trim() === '' ? null : formValue.middleName,
+      fatherName: formValue.fatherName?.trim() === '' ? null : formValue.fatherName,
+      motherName: formValue.motherName?.trim() === '' ? null : formValue.motherName,
+      caste: formValue.caste?.trim() === '' ? null : formValue.caste,
+      disabilityType: formValue.disablityType?.trim() === '' ? null : formValue.disablityType,
+      salutation: formValue.salutation?.trim() === '' ? null : formValue.salutation,
+    };
     if (!this.isEditMode()) {
       this.employeeService.create(dataToSave).subscribe({
         next: (resp: any) => {

@@ -2,7 +2,7 @@
 <div class="animate-fade-in">
     <div>
         <h3 class="box-content-heading mb-2!">
-            Permanent Address
+            Present Address
         </h3>
         <div class="green-line"></div>
     </div>
@@ -12,7 +12,8 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="house" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="presentAddressForm.houseNo" placeholder="Enter House/Plot No">
+            <input matInput autocomplete="off" [formField]="presentAddressForm.houseNo"
+                placeholder="Enter House/Plot No">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Road/Street Name</mat-label>
@@ -31,16 +32,10 @@
         </mat-form-field>
     </div>
     <qfin-administrative-unit-cascade [columns]="4" [administrativeUnitId]="presentAddressModel().administrativeUnitId"
-        (selectedIdChanged)="updatePresentAddressField('administrativeUnitId', $event)">
+        (selectedIdChanged)="updatePresentAddressField('administrativeUnitId', $event)"
+        (districtChanged)="onDistrictChangeForPoliceStation('present', $event)">
     </qfin-administrative-unit-cascade>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Pin Code</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
-            </div>
-            <input matInput autocomplete="off" [formField]="presentAddressForm.pinCode" placeholder="Enter Pin Code">
-        </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Police Station</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -48,12 +43,21 @@
             </div>
             <!-- <input matInput autocomplete="off" [formField]="presentAddressForm.policeStationId" placeholder="Enter Police Station"> -->
             <mat-select [formField]="presentAddressForm.policeStationId" placeholder="Select Police Station">
-                @for (police of policeStations; track police) {
-                <mat-option [value]="police">
-                    {{ police }}
+                @for (police of presentPoliceStations(); track police.id) {
+                <mat-option [value]="police.id">
+                    {{ police.name }}
                 </mat-option>
                 }
             </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Pin Code</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="presentAddressForm.pinCode" placeholder="Enter Pin Code"
+                (input)="onPinCodeChange('present', $event)">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Post Office</mat-label>
@@ -61,10 +65,10 @@
                 <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
             </div>
             <!-- <input matInput autocomplete="off" [formField]="presentAddressForm.postOfficeId" placeholder="Enter Post Office"> -->
-             <mat-select [formField]="presentAddressForm.policeStationId" placeholder="Select Post Office">
-                @for (post of postOffices; track post) {
-                <mat-option [value]="post">
-                    {{ post }}
+            <mat-select [formField]="presentAddressForm.postOfficeId" placeholder="Select Post Office">
+                @for (post of presentPostOffices(); track post.id) {
+                <mat-option [value]="post.id">
+                    {{ post.name }}
                 </mat-option>
                 }
             </mat-select>
@@ -86,21 +90,20 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="number" autocomplete="off" [formField]="presentAddressForm.durationOfStayInMonths" placeholder="Enter duration in months">
+            <input matInput type="number" autocomplete="off" [formField]="presentAddressForm.durationOfStayInMonths"
+                placeholder="Enter duration in months">
         </mat-form-field>
     </div>
     <!-- Same Address Checkbox -->
     <div class="my-4 flex items-center">
-        <mat-checkbox
-            [checked]="sameAsPresentAddress()"
-            (change)="onSameAddressChange($event.checked)">
+        <mat-checkbox [checked]="sameAsPresentAddress()" (change)="onSameAddressChange($event.checked)">
             Permanent Address is same as Present Address
         </mat-checkbox>
     </div>
 
     <div>
         <h3 class="box-content-heading mb-2!">
-            Present Address
+            Permanent Address
         </h3>
         <div class="blue-line"></div>
     </div>
@@ -110,14 +113,16 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="house" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="permanentAddressForm.houseNo"  placeholder="Enter House/Plot No">
+            <input matInput autocomplete="off" [formField]="permanentAddressForm.houseNo"
+                placeholder="Enter House/Plot No">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Road/Street Name</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="road" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="permanentAddressForm.roadName" placeholder="Enter Road/Street Name">
+            <input matInput autocomplete="off" [formField]="permanentAddressForm.roadName"
+                placeholder="Enter Road/Street Name">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Landmark</mat-label>
@@ -127,30 +132,45 @@
             <input matInput autocomplete="off" [formField]="permanentAddressForm.landMark" placeholder="Enter Landmark">
         </mat-form-field>
     </div>
-    <qfin-administrative-unit-cascade [columns]="4" [administrativeUnitId]="permanentAddressModel().administrativeUnitId"
-            (selectedIdChanged)="updatePermanentAddressField('administrativeUnitId', $event)">
+    <qfin-administrative-unit-cascade [columns]="4"
+        [administrativeUnitId]="permanentAddressModel().administrativeUnitId"
+        (selectedIdChanged)="updatePermanentAddressField('administrativeUnitId', $event)"
+        (districtChanged)="onDistrictChangeForPoliceStation('permanent', $event)">
     </qfin-administrative-unit-cascade>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Pin Code</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
-            </div>
-            <input matInput autocomplete="off" [formField]="permanentAddressForm.pinCode" placeholder="Enter Pin Code">
-        </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Police Station</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="siren" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="permanentAddressForm.policeStationId" placeholder="Enter Police Station">
+            <mat-select [formField]="permanentAddressForm.policeStationId" placeholder="Select Police Station">
+                @for (police of permanentPoliceStations(); track police.id) {
+                <mat-option [value]="police.id">
+                    {{ police.name }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Pin Code</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="permanentAddressForm.pinCode" placeholder="Enter Pin Code"
+                (input)="onPinCodeChange('permanent', $event)">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Post Office</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
             </div>
-            <input matInput autocomplete="off" [formField]="permanentAddressForm.postOfficeId" placeholder="Enter Post Office">
+            <mat-select [formField]="permanentAddressForm.postOfficeId" placeholder="Select Post Office">
+                @for (post of permanentPostOffices(); track post.id) {
+                <mat-option [value]="post.id">
+                    {{ post.name }}
+                </mat-option>
+                }
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Ownership of House</mat-label>
@@ -169,14 +189,14 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="number" autocomplete="off" [formField]="permanentAddressForm.durationOfStayInMonths" placeholder="Enter duration in months">
+            <input matInput type="number" autocomplete="off" [formField]="permanentAddressForm.durationOfStayInMonths"
+                placeholder="Enter duration in months">
         </mat-form-field>
     </div>
-    
+
     <div class="step-footer-area">
         <div class="flex flex-1 justify-end items-center gap-3">
-            <button type="button" (click)="onSubmit()"
-                class="global-btn ripple-btn shadow shine-sweep lift">
+            <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">
                 Save &amp; Next
                 <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
             </button>

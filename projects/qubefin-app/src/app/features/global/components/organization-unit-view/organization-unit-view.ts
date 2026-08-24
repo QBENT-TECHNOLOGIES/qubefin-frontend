@@ -6,35 +6,30 @@ import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { DatePipe } from '@angular/common';
 
 @Component({
-	selector: 'qfin-organization-unit-view-component',
-	imports: [DatePipe, LucideDynamicIcon],
-	templateUrl: './organization-unit-view.html'
+  selector: 'qfin-organization-unit-view-component',
+  imports: [DatePipe, LucideDynamicIcon],
+  templateUrl: './organization-unit-view.html',
 })
 export class OrganizationUnitViewComponent {
-	permissionStore = inject(PermissionStore);
-	organizationUnitStore = inject(OrganizationUnitStore);
+  permissionStore = inject(PermissionStore);
+  organizationUnitStore = inject(OrganizationUnitStore);
 
-	organizationUnitId = model<string>(EMPTY_UUID);
-	readonly iconMap = APP_ICONS_MAP;
+  organizationUnitId = model<string>(EMPTY_UUID);
+  readonly iconMap = APP_ICONS_MAP;
 
-	showEdit = output<boolean>();
+  showEdit = output<boolean>();
 
-	organizationUnit = this.organizationUnitStore.organizationUnit;
+  organizationUnit = this.organizationUnitStore.organizationUnit;
 
-	constructor() {
-		effect(() => {
-			if (this.organizationUnitId()) {
-				this.organizationUnitStore.setOrganizationUnitId(this.organizationUnitId());
-			}
-		});
+  constructor() {
+    effect(() => {
+      if (this.organizationUnitId()) {
+        this.organizationUnitStore.setOrganizationUnitId(this.organizationUnitId());
+      }
+    });
+  }
 
-		effect(() => {
-			console.log('Organization Unit:', this.organizationUnit());
-		});
-	}
-
-	onShowEdit() {
-		this.showEdit.emit(true);
-	}
-
+  onShowEdit() {
+    this.showEdit.emit(true);
+  }
 }

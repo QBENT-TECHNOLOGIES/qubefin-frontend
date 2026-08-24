@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, pattern, required, schema, Schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeStore } from '../../../../stores/employee-store';
@@ -59,9 +59,16 @@ export class BankingComponentDetail {
 
   protected readonly bankingModel = signal<IEmployeePayrollInfo>(new EmployeePayrollInfo());
 
-  protected readonly officialSchema: Schema<IEmployeePayrollInfo> = schema((path) => {});
+  protected readonly bankingSchema: Schema<IEmployeePayrollInfo> = schema((path) => {
+    pattern(path.bankAccountNo as any, /^\d{9,15}$/, {
+      message: 'Account number must be between 9 and 15 digits',
+    });
+    pattern(path.universalAccountNumber, /^\d{12}$/, {
+      message: 'Account number must be between 9 and 15 digits',
+    });
+  });
 
-  protected readonly bankingForm = form(this.bankingModel, this.officialSchema);
+  protected readonly bankingForm = form(this.bankingModel, this.bankingSchema);
 
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
@@ -87,9 +94,6 @@ export class BankingComponentDetail {
   });
 
   onSubmit() {
-    // console.log(this.presentAddressForm().value());
-    // console.log(this.permanentAddressForm().value());
-
     if (!this.bankingForm().valid()) {
       return;
     }

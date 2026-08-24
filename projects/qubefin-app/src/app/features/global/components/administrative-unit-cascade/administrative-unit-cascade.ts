@@ -28,7 +28,7 @@ export class AdministrativeUnitCascade {
   columns = input<1 | 2 | 3 | 4>(3);
   administrativeUnitId = input<string>('');
   selectedIdChanged = output<string>();
-
+  districtChanged = output<string>();
   // ────────────────────────────────────────────────
   // Host bindings — grid column span based on `columns`
   // ────────────────────────────────────────────────
@@ -192,7 +192,7 @@ export class AdministrativeUnitCascade {
     if (!this.restoring) {
       this.selectedIdChanged.emit('');
     }
-
+    this.districtChanged.emit(id);
     this.selectedDistrict.set(id);
     this.resetArea();
 

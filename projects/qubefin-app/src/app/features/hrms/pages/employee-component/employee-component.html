@@ -3,15 +3,12 @@
         <div class="flex items-center gap-3"></div>
         <div class="headerBtn-area">
             @if(isViewMode()&& selectedEmployeeComponentId() === EMPTY_UUID){
-            <button type="button" (click)="toggleFilterArea()"
-                class="filter-btn glass-input lift shine-sweep">
+            <button type="button" (click)="toggleFilterArea()" class="filter-btn glass-input lift shine-sweep">
                 <svg lucideIcon="funnel" class="w-4 h-4"></svg>
                 Filter
             </button>
             }
-            <button
-                class="global-btn shine-sweep lift"
-                (click)="onAdd()">
+            <button class="global-btn shine-sweep lift" (click)="onAdd()">
                 <svg lucideIcon="plus" class="w-4 h-4"></svg>
                 Add New
             </button>
@@ -19,8 +16,7 @@
     </div>
 
     <div class="flex items-start" [ngClass]="{'gap-4':isViewMode() && selectedEmployeeComponentId() !== EMPTY_UUID}">
-        <div class="mainCard-area glass"
-            [ngClass]="{
+        <div class="mainCard-area glass" [ngClass]="{
                 'w-full opacity-100 translate-x-0':
                     selectedEmployeeComponentId() === EMPTY_UUID && isViewMode(),
 
@@ -58,13 +54,30 @@
                             <mat-datepicker #joinPicker></mat-datepicker>
                         </mat-form-field>
                     </div>
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Company</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select [ngModel]="srchCompanyId()"
+                                (ngModelChange)="srchCompanyId.set($event === 'All' ? null : $event)">
+                                <mat-option [value]="'All'">All</mat-option>
+                                @for (company of companyStore.companies(); track company.id) {
+                                <mat-option [value]="company.id">
+                                    {{ company.name }}
+                                </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
                     <!-- Actions -->
                     <div class="flex items-center gap-2.5 shrink-0">
                         <button type="button" (click)="applyFilters()" class="global-btn shine-sweep lift">
                             <svg lucideIcon="search" class="w-4 h-4"></svg>
                             Search
                         </button>
-                        <button type="button" (click)="resetFilters()"class="reset-btn lift">
+                        <button type="button" (click)="resetFilters()" class="reset-btn lift">
                             <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
                             Reset
                         </button>
@@ -77,8 +90,7 @@
                 <div class="search-input-area">
                     <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
                     <input type="text" placeholder="Enter name or code" aria-label="Search employee components"
-                        [value]="employeeStore.searchQuery()" (input)="onSearch($event)"
-                        class="search-input-style" />
+                        [value]="employeeStore.searchQuery()" (input)="onSearch($event)" class="search-input-style" />
                 </div>
                 <button aria-label="Filter" class="search-input-btn lift">
                     <svg lucideIcon="search" class="w-4 h-4"></svg>
@@ -95,16 +107,14 @@
         </div>
 
         @if (selectedEmployeeComponentId() !== EMPTY_UUID || !isViewMode()) {
-        <div class="viewArea-container glass"
-            [ngClass]="{
+        <div class="viewArea-container glass" [ngClass]="{
                 'w-3/4':
                     isViewMode() && selectedEmployeeComponentId() !== EMPTY_UUID,
 
                 'w-full':
                     !isViewMode()
             }">
-            <div
-                class="viewArea-header">
+            <div class="viewArea-header">
                 <div class="viewArea-headerInner">
                     <div class="flex items-center gap-4">
                         <div>
@@ -118,8 +128,7 @@
                                     Edit Employee
                                     }
                                 </h2>
-                                <div
-                                    class="viewArea-badge">
+                                <div class="viewArea-badge">
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                                     <span
                                         class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
@@ -145,9 +154,7 @@
                         </div>
                     </div>
                 </div>
-                <button aria-label="Close" matTooltip="Close"
-                    class="pannel-close"
-                    (click)="closePanel()">
+                <button aria-label="Close" matTooltip="Close" class="pannel-close" (click)="closePanel()">
                     <svg lucideIcon="x" class="w-4 h-4"></svg>
                 </button>
             </div>
