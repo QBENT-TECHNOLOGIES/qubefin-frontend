@@ -30,19 +30,6 @@
                 <div class="flex flex-wrap items-end gap-3 w-full">
                     <div class="flex-1 min-w-[200px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Month</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
-                            </div>
-                            <mat-select placeholder="Select Month">
-                                <mat-option value="">January</mat-option>
-                                <mat-option value="">February</mat-option>
-                                <mat-option value="">March</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-                    <div class="flex-1 min-w-[200px]">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                             <mat-label>Year</mat-label>
                             <div class="w-12 flex justify-center" matPrefix>
                                 <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
@@ -55,6 +42,19 @@
                         </mat-form-field>
                     </div>
                     <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Month</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select placeholder="Select Month">
+                                <mat-option value="">January</mat-option>
+                                <mat-option value="">February</mat-option>
+                                <mat-option value="">March</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <!-- <div class="flex-1 min-w-[200px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                             <mat-label>Earnings</mat-label>
                             <div class="w-12 flex justify-center" matPrefix>
@@ -80,7 +80,7 @@
                             </div>
                             <input matInput autocomplete="off" placeholder="Enter Net Pay">
                         </mat-form-field>
-                    </div>
+                    </div> -->
 
                     <div class="flex items-center gap-2.5 shrink-0">
                         <button type="button"
