@@ -2,7 +2,15 @@ import { Component, computed, effect, inject, model, output, signal } from '@ang
 import { ApprovalWorkflowStore } from '../../../stores/approval-workflow-store';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { IApprovalWorkflow, IApprovalWorkflowDetail } from '../../../models/approval-workflow';
-import { form, required, schema, Schema, validate } from '@angular/forms/signals';
+import {
+  disabled,
+  form,
+  readonly,
+  required,
+  schema,
+  Schema,
+  validate,
+} from '@angular/forms/signals';
 import { ApprovalWorkflowService } from '../../../services/approval-workflow-service';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';

@@ -34,6 +34,17 @@
                             <svg lucideIcon="tag" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
+                            <label class="gen-label">Category</label>
+                            <p class="gen-title">{{
+                                approvalWorkflow()?.category }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="gen-info">
+                        <div class="gen-icon">
+                            <svg lucideIcon="tag" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
                             <label class="gen-label">Organization
                                 Type</label>
                             <p class="gen-title">{{
@@ -65,6 +76,7 @@
                             </p>
                         </div>
                     </div>
+                    @if(!approvalWorkflow()?.leaveTypeName && approvalWorkflow()?.leaveTypeName === null&& approvalWorkflow()?.leaveTypeName === ''){
                     <div class="gen-info">
                         <div class="gen-icon">
                             <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
@@ -76,6 +88,7 @@
                             </p>
                         </div>
                     </div>
+                    }
                     <div class="gen-info">
                         <div class="gen-icon">
                             <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
