@@ -310,7 +310,9 @@ export class AddressComponentDetail {
         ? null
         : dataToSave.presentAddress.policeStationId;
     dataToSave.permanentAddress.postOfficeId =
-      dataToSave.presentAddress.postOfficeId == '' ? null : dataToSave.presentAddress.postOfficeId;
+      dataToSave.presentAddress.postOfficeId == ''
+        ? null
+        : dataToSave.permanentAddress.postOfficeId;
 
     if (this.isEditMode()) {
       this.employeeService.updateAddresslInfo(this.empId(), dataToSave).subscribe({
