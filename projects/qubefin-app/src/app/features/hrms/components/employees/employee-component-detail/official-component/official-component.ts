@@ -61,7 +61,6 @@ import { IDesignation } from '../../../../models/designation';
 })
 export class OfficialComponentDetail {
   empId = input<string>(EMPTY_UUID);
-  //   onCancel = output<void>();
   onOfficialUpdate = output<void>();
   private dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
@@ -92,7 +91,6 @@ export class OfficialComponentDetail {
     required(path.companyName, { message: 'Company Name is required' });
     readonly(path.companyName, { when: () => true });
     readonly(path.salaryGrade, { when: () => true });
-    readonly(path.grossSalary, { when: () => true });
     const isNotEditable = ({ valueOf }: any) => {
       return valueOf(path.isDesignationEditable) === false;
     };
@@ -212,9 +210,6 @@ export class OfficialComponentDetail {
   });
 
   onSubmit() {
-    // console.log(this.presentAddressForm().value());
-    // console.log(this.permanentAddressForm().value());
-
     if (!this.officialForm().valid()) {
       return;
     }

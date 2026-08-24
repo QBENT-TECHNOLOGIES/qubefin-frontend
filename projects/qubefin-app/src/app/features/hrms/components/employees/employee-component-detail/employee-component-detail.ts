@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input, output, signal, ViewChild, ElementRef, effect } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  output,
+  signal,
+  ViewChild,
+  ElementRef,
+  effect,
+} from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -18,7 +27,6 @@ import { ReferenceComponentDetail } from './reference-component/reference-compon
 import { EmploymentComponentDetail } from './employment-component/employment-component';
 import { QualificationComponentDetail } from './qualification-component/qualification-component';
 import { BankingComponentDetail } from './banking-component/banking-component';
-
 
 @Component({
   selector: 'qfin-employee-component-detail',
@@ -39,76 +47,66 @@ import { BankingComponentDetail } from './banking-component/banking-component';
     ReferenceComponentDetail,
     EmploymentComponentDetail,
     QualificationComponentDetail,
-    BankingComponentDetail
+    BankingComponentDetail,
   ],
   templateUrl: './employee-component-detail.html',
 })
 export class EmployeeComponentDetail {
   emptyGuid = EMPTY_UUID;
   employeeId = input<string>(EMPTY_UUID);
-  // onCancel = output<void>();
   onChildSave = output<void>();
-  
-readonly activeStepIndex = signal(0);
+
+  readonly activeStepIndex = signal(0);
   private readonly employeeStore = inject(EmployeeStore);
   utilityComponents = this.employeeStore.utilityComponent;
   kycComponents = this.employeeStore.kycComponent;
-  
 
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
 
   constructor() {
-  effect(() => {
-    console.log('Utilities:', this.utilityComponents());
-    console.log('KYC DOCUMENTS:', this.kycComponents());
-  });
-}
+    effect(() => {
+      console.log('Utilities:', this.utilityComponents());
+      console.log('KYC DOCUMENTS:', this.kycComponents());
+    });
+  }
   onStepChange(index: number) {
     this.activeStepIndex.set(index);
   }
-  handlePersonal(){
+  handlePersonal() {
     this.onStepChange(1);
   }
-  handleAddress(){
+  handleAddress() {
     this.onStepChange(2);
   }
-  handleContact(){
+  handleContact() {
     this.onStepChange(3);
-
   }
-  handleOfficial(){
+  handleOfficial() {
     this.onStepChange(4);
-
   }
-  handleKyc(){
+  handleKyc() {
     this.onStepChange(5);
   }
-  handleReference(){
+  handleReference() {
     this.onStepChange(6);
   }
-  handleEmployment(){
+  handleEmployment() {
     this.onStepChange(7);
-
   }
-  handleQualification(){
+  handleQualification() {
     this.onStepChange(8);
-
   }
-  handlePayroll(){
+  handlePayroll() {
     this.onStepChange(0);
-
   }
-  handleSave(){
+  handleSave() {
     this.onChildSave.emit();
   }
 
-   
-
   ngAfterViewInit() {
-
     const header = this.stepper.nativeElement.querySelector(
-      '.mat-horizontal-stepper-header-container'
+      '.mat-horizontal-stepper-header-container',
     );
 
     if (!header) return;
@@ -116,16 +114,14 @@ readonly activeStepIndex = signal(0);
     header.addEventListener(
       'wheel',
       (event: WheelEvent) => {
-
         event.preventDefault();
 
         header.scrollBy({
           left: event.deltaY,
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
-
       },
-      { passive: false }
+      { passive: false },
     );
   }
 }

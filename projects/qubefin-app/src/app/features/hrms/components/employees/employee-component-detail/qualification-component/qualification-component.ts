@@ -51,15 +51,11 @@ export class QualificationComponentDetail {
     qualifications: [],
   });
 
-  // 2. Refactor your schema block using applyEach
   protected readonly qualificationschema = schema<QualificationFormModel>((path) => {
-    // Ensures the array itself is present
     required(path.qualifications);
 
-    // Iterates cleanly through each item in the array with correct type safety
     applyEach(path.qualifications, (refPath) => {
       required(refPath.academicStream);
-      // required(refPath.specialization);
       required(refPath.yearOfPassing);
       required(refPath.universityOrBoard);
       required(refPath.schoolOrCollege);
@@ -72,7 +68,6 @@ export class QualificationComponentDetail {
   constructor() {
     effect(() => {
       if (this.qualificationModel().qualifications.length === 0) {
-        // this.addQualification();
         const model = new EmployeeQualification();
         model.id = EMPTY_UUID;
         model.employeeId = this.empId();
@@ -133,7 +128,7 @@ export class QualificationComponentDetail {
         this.qualificationModel.set({
           qualifications: [],
         });
-        return of(null); // Safely stream an empty observable
+        return of(null);
       }
     },
   });

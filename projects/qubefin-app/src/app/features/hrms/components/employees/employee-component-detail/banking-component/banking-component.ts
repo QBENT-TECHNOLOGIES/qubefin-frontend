@@ -94,9 +94,6 @@ export class BankingComponentDetail {
   });
 
   onSubmit() {
-    // console.log(this.presentAddressForm().value());
-    // console.log(this.permanentAddressForm().value());
-
     if (!this.bankingForm().valid()) {
       return;
     }
