@@ -4,14 +4,12 @@
         <div class="flex items-center gap-3"></div>
         <div class="headerBtn-area">
             @if (!isDetailMode()) {
-            <button type="button" (click)="toggleFilterArea()"
-                class="filter-btn glass-input lift shine-sweep">
+            <button type="button" (click)="toggleFilterArea()" class="filter-btn glass-input lift shine-sweep">
                 <svg lucideIcon="funnel" class="w-4 h-4"></svg>
                 Filter
             </button>
             }
-            <button (click)="openCreatePayrollModal()"
-                class="global-btn ripple-btn shine-sweep lift">
+            <button (click)="openCreatePayrollModal()" class="global-btn ripple-btn shine-sweep lift">
                 <svg lucideIcon="plus" class="w-4 h-4"></svg>
                 Create Payroll
             </button>
@@ -34,10 +32,10 @@
                             <div class="w-12 flex justify-center" matPrefix>
                                 <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
                             </div>
-                            <mat-select placeholder="Select Month">
-                                <mat-option value="">January</mat-option>
-                                <mat-option value="">February</mat-option>
-                                <mat-option value="">March</mat-option>
+                            <mat-select [ngModel]="selectedYear()" (ngModelChange)="selectedYear.set($event)">
+                                @for (year of years; track year) {
+                                <mat-option [value]="year">{{ year }}</mat-option>
+                                }
                             </mat-select>
                         </mat-form-field>
                     </div>
@@ -47,49 +45,42 @@
                             <div class="w-12 flex justify-center" matPrefix>
                                 <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
                             </div>
-                            <mat-select placeholder="Select Month">
-                                <mat-option value="">January</mat-option>
-                                <mat-option value="">February</mat-option>
-                                <mat-option value="">March</mat-option>
+                            <mat-select [ngModel]="selectedMonth()"
+                                (ngModelChange)="selectedMonth.set($event === 'All' ? null : $event)">
+                                <mat-option [value]="'All'">All</mat-option>
+
+                                @for (month of months; track month.value) {
+                                <mat-option [value]="month.value">
+                                    {{ month.label }}
+                                </mat-option>
+                                }
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <!-- <div class="flex-1 min-w-[200px]">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Earnings</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="banknote-arrow-up" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput autocomplete="off" placeholder="Enter Earnings">
-                        </mat-form-field>
-                    </div>
                     <div class="flex-1 min-w-[200px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Deductions</mat-label>
+                            <mat-label>Company</mat-label>
                             <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="banknote-arrow-down" class="w-5 h-5"></svg>
+                                <svg lucideIcon="building-2" class="w-5 h-5"></svg>
                             </div>
-                            <input matInput autocomplete="off" placeholder="Enter Deductions">
+                            <mat-select [ngModel]="selectedCompanyId()" (ngModelChange)="selectedCompanyId.set($event === 'All' ? null : $event)">
+                                  <mat-option [value]="'All'">All</mat-option>
+
+                                @for (company of companyStore.companies(); track company.id) {
+                                <mat-option [value]="company.id">
+                                    {{ company.name }}
+                                </mat-option>
+                                }
+                            </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 min-w-[200px]">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Net Pay</mat-label>
-                            <div class="w-12 flex justify-center" matPrefix>
-                                <svg lucideIcon="badge-indian-rupee" class="w-5 h-5"></svg>
-                            </div>
-                            <input matInput autocomplete="off" placeholder="Enter Net Pay">
-                        </mat-form-field>
-                    </div> -->
 
                     <div class="flex items-center gap-2.5 shrink-0">
-                        <button type="button"
-                            class="global-btn ripple-btn lift shine-sweep">
+                        <button type="button" class="global-btn ripple-btn lift shine-sweep" (click)="searchPayrolls()">
                             <svg lucideIcon="search" class="w-4 h-4"></svg>
                             Search
                         </button>
-                        <button type="button"
-                            class="reset-btn lift">
+                        <button type="button" class="reset-btn lift" (click)="resetFilters()">
                             <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
                             Reset
                         </button>
@@ -99,14 +90,11 @@
             }
             } @else {
             <div class="search-area">
-                <div
-                    class="search-input-area">
+                <div class="search-input-area">
                     <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
-                    <input type="text" placeholder="Search by Month/Year"
-                        class="search-input-style" />
+                    <input type="text" placeholder="Search by Month/Year" class="search-input-style" />
                 </div>
-                <button
-                    class="search-input-btn lift">
+                <button class="search-input-btn lift">
                     <svg lucideIcon="search" class="w-4 h-4"></svg>
                 </button>
             </div>
@@ -121,21 +109,16 @@
         <div class="viewArea-container glass flex-1 overflow-hidden">
             <div class="viewArea-header">
                 <div class="box-group">
-                    <!-- <div
-                        class="w-14 h-14 rounded-xl shadow-md bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center dark:shadow-none">
-                        <svg lucideIcon="eye" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
-                    </div> -->
                     <div>
                         <div class="flex justify-start gap-2">
                             <h2 class="viewArea-title">
                                 Payroll Details
                             </h2>
-                            <div
-                                class="viewArea-badge">
+                            <div class="viewArea-badge">
                                 <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                                 <span
                                     class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                                    {{ getMonthName(selectedMonth()) }} {{ selectedYear() }}
+                                    {{ getMonthName(selectedMonth() ?? 0) }} {{ selectedYear() }}
                                 </span>
                             </div>
                         </div>
@@ -144,18 +127,13 @@
                         </p>
                     </div>
                 </div>
-                <button aria-label="Close" matTooltip="Close"
-                    class="pannel-close"
-                    (click)="onBackToList()">
+                <button aria-label="Close" matTooltip="Close" class="pannel-close" (click)="onBackToList()">
                     <svg lucideIcon="x" class="w-4 h-4"></svg>
                 </button>
             </div>
 
-            <qfin-monthly-payroll-detail [month]="selectedMonth()"
-                [year]="selectedYear()"></qfin-monthly-payroll-detail>
-
-            <!-- <qfin-monthly-payrolls-details [month]="selectedMonth()" [year]="selectedYear()"></qfin-monthly-payrolls-details> -->
-
+            <qfin-monthly-payroll-detail [month]="selectedMonth() ?? 1"
+                [year]="selectedYear() ?? years[0]"></qfin-monthly-payroll-detail>
         </div>
         }
     </div>
