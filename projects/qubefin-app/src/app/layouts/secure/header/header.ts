@@ -46,13 +46,13 @@ export class Header {
   readonly unreadCount = this.notificationStore.count;
 
   constructor() {
-    // interval(300000)
-    //   .pipe(takeUntilDestroyed())
-    //   .subscribe(() => {
-    //     this.notificationStore.refresh();
-    //     this.notificationStore.refreshCount();
-    //     this.userStore.refresh();
-    //   });
+    interval(120000)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.notificationStore.refresh();
+        this.notificationStore.refreshCount();
+        this.userStore.refresh();
+      });
   }
   onHandleToggleDrawer() {
     this.isExpanded.set(!this.isExpanded());

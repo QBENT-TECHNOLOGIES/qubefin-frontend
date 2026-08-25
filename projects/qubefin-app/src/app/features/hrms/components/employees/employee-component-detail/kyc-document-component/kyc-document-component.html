@@ -35,7 +35,7 @@
                 <input matInput autocomplete="off" placeholder="Enter Document Number"
                     [formField]="kycForm.documents[$index].documentNo">
 
-                <mat-error class="error">
+                <mat-error class="cus-error">
                     {{ kycForm.documents[$index].documentNo().errors()[0]?.message }}
                 </mat-error>
             </mat-form-field>

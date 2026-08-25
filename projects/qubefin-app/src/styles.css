@@ -56,7 +56,7 @@
 .year-select {
     width: 90px !important;
 }
-.error {
+.cus-error {
     position: absolute;
     bottom: -8px;
     background: #fff;
