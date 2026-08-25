@@ -46,7 +46,7 @@ export class Header {
   readonly unreadCount = this.notificationStore.count;
 
   constructor() {
-    interval(120000)
+    interval(300000)
       .pipe(takeUntilDestroyed())
       .subscribe(() => {
         this.notificationStore.refresh();
