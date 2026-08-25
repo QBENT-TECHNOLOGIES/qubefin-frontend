@@ -55,7 +55,7 @@
                             }
 
                             <input [matDatepicker]="datePicker" (dateChange)="onDateSelected($event, dateInput)"
-                                [disabled]="!formModel().regularizationType" readonly
+                                readonly [disabled]="!formModel().regularizationType" readonly
                                 placeholder="Pick date from calendar" #dateInput
                                 [max]="formModel().regularizationType === 'ONDUTY' ? null : maxDate" [min]="minDate"
                                 [matChipInputFor]="chipGrid" />

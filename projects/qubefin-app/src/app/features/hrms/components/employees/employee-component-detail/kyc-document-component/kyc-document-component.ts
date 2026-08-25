@@ -6,7 +6,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { form, FormField, required, schema } from '@angular/forms/signals';
+import {
+  applyEach,
+  form,
+  FormField,
+  pattern,
+  readonly,
+  required,
+  schema,
+} from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeService } from '../../../../services/employee-service';
@@ -68,25 +76,50 @@ export class KycDocumentComponentDetail {
 
   protected readonly kycSchema = schema<KycFormModel>((path) => {
     required(path.documents);
+    applyEach(path.documents, (docPath) => {
+      readonly(docPath.validFrom, { when: () => true });
+      readonly(docPath.validTill, { when: () => true });
+
+      required(docPath.documentNo, {
+        when: ({ valueOf }: any) => !!valueOf(docPath.documentName),
+        message: 'Document Number is required',
+      });
+
+      pattern(docPath.documentNo, /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, {
+        when: ({ valueOf }: any) => {
+          const name = valueOf(docPath.documentName)?.toLowerCase() || '';
+          return name.includes('pan');
+        },
+        message: 'Enter a valid PAN number (e.g. ABCDE1234F)',
+      });
+
+      pattern(docPath.documentNo, /^\d{12}$/, {
+        when: ({ valueOf }: any) => {
+          const name = valueOf(docPath.documentName)?.toLowerCase() || '';
+          return name.includes('aadhaar') || name.includes('adhar');
+        },
+        message: 'Enter a valid 12-digit Aadhaar number',
+      });
+
+      pattern(docPath.documentNo, /^[A-Z]{3}[0-9]{7}$/, {
+        when: ({ valueOf }: any) => {
+          const name = valueOf(docPath.documentName)?.toLowerCase() || '';
+          return name.includes('voter');
+        },
+        message: 'Enter a valid Voter ID (e.g. ABC1234567)',
+      });
+
+      pattern(docPath.documentNo, /^[A-Z]{2}[0-9]{13}$/, {
+        when: ({ valueOf }: any) => {
+          const name = valueOf(docPath.documentName)?.toLowerCase() || '';
+          return name.includes('driving');
+        },
+        message: 'Enter a valid 15-character Driving License',
+      });
+    });
   });
 
   protected readonly kycForm = form(this.kycModel, this.kycSchema);
-  isDocumentNumberInvalid(index: number): boolean {
-    const doc = this.kycModel().documents[index];
-    if (!doc) return false;
-
-    const name = doc.documentName?.toLowerCase() || '';
-    const no = doc.documentNo?.trim().toUpperCase() || '';
-
-    if (!name || !no) return false;
-
-    if (name.includes('aadhaar') || name.includes('adhar')) return !/^\d{12}$/.test(no);
-    if (name.includes('pan')) return !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(no);
-    if (name.includes('voter')) return !/^[A-Z]{3}[0-9]{7}$/.test(no);
-    if (name.includes('driving')) return !/^[A-Z]{2}[0-9]{13}$/.test(no);
-
-    return false;
-  }
 
   private dateAdapter = inject(DateAdapter<Date>);
 
@@ -201,19 +234,7 @@ export class KycDocumentComponentDetail {
   hasInvalidDateRange(): boolean {
     return this.kycModel().documents.some((_, index) => this.isValidTillInvalid(index));
   }
-  getDocumentErrorMessage(index: number): string {
-    const doc = this.kycModel().documents[index];
-    if (!doc) return '';
 
-    const name = doc.documentName?.toLowerCase() || '';
-    if (name.includes('aadhaar') || name.includes('adhar'))
-      return 'Enter a valid 12-digit Aadhaar number';
-    if (name.includes('pan')) return 'Enter a valid PAN number (e.g. ABCDE1234F)';
-    if (name.includes('voter')) return 'Enter a valid Voter ID (e.g. ABC1234567)';
-    if (name.includes('driving')) return 'Enter a valid 15-character Driving License';
-
-    return 'Invalid Document Number';
-  }
   onFileSelected(event: Event, index: number) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -273,27 +294,14 @@ export class KycDocumentComponentDetail {
     });
   }
   onSubmit() {
+    this.kycForm().markAsTouched();
     const dataToSave = [...this.kycForm().value().documents];
     if (this.hasMissingFilesForImportantDocs()) {
-      this.alertService.warning(null, 'Please upload the document file for Aadhaar and PAN cards.');
+      this.alertService.warning(null, 'Please upload the document file .');
       return;
     }
     if (this.hasMissingMandatoryDocuments()) {
       this.alertService.warning(null, 'Please upload all mandatory KYC documents.');
-      return;
-    }
-    if (this.hasMissingDocumentNumbers()) {
-      this.alertService.warning(null, 'Document Number is required.');
-      return;
-    }
-    const hasInvalidDocs = this.kycModel().documents.some((_, i) =>
-      this.isDocumentNumberInvalid(i),
-    );
-    if (hasInvalidDocs) {
-      this.alertService.warning(
-        null,
-        'Please provide valid document numbers matching their format.',
-      );
       return;
     }
 

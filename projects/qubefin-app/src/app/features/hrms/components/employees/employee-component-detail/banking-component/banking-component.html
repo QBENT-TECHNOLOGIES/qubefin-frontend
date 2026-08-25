@@ -6,8 +6,22 @@
         <div class="w-10 h-1 rounded-full bg-primary-500 mt-1"></div>
     </div>
 
-        <!-- -----------Bank Holder Name--------- -->
+    <!-- -----------Bank Holder Name--------- -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Bank</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="bankingForm.bankId">
+                @for(bank of banks(); track bank.id){
+                <mat-option [value]="bank.id">
+                    {{bank.name}}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Bank Holder Name</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -15,16 +29,6 @@
             </div>
             <input matInput type="text" autocomplete="off" [formField]="bankingForm.bankHolderName"
                 placeholder="Enter Bank Holder Name">
-        </mat-form-field>
-        
-        <!-- -----------Branch Name--------- -->
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Branch Name</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="map-pinned" class="w-5 h-5"></svg>
-            </div>
-            <input matInput type="text" autocomplete="off" [formField]="bankingForm.bankBranch"
-                placeholder="Enter Branch Name">
         </mat-form-field>
 
         <!-- -----------Account Number--------- -->
@@ -36,23 +40,35 @@
             <input matInput type="number" autocomplete="off" [formField]="bankingForm.bankAccountNo"
                 placeholder="Enter Account Number">
         </mat-form-field>
-
-        <mat-checkbox [formField]="bankingForm.hasEsiEligible" color="primary">Is Esi Eligible?</mat-checkbox>
-
-        <!-- -----------ESI IP NUMBER--------- -->
-        @if(bankingModel().hasEsiEligible === true){
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>ESI IP NUMBER</mat-label>
+            <mat-label>IFSC Code</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="shield-check" class="w-5 h-5"></svg>
+                <svg lucideIcon="wallet" class="w-5 h-5"></svg>
             </div>
-            <input matInput  autocomplete="off" [formField]="bankingForm.esiIpNumber"
-                placeholder="Enter ESI IP NUMBER">
+            <input matInput autocomplete="off" [formField]="bankingForm.ifscCode" placeholder="Enter IFSC Code">
         </mat-form-field>
-        }
-        
+        <!-- -----------Branch Name--------- -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Branch Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="map-pinned" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="text" autocomplete="off" [formField]="bankingForm.bankBranch"
+                placeholder="Enter Branch Name">
+        </mat-form-field>
 
-        <!-- -----------Universal Account Number (UAN)--------- -->
+
+    </div>
+    <!--  -->
+    <!-- -----------Payroll Info--------- -->
+    <!--  -->
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
+            Payroll Info
+        </h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1"></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Universal Account Number (UAN)</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -61,9 +77,30 @@
             <input matInput type="text" autocomplete="off" [formField]="bankingForm.universalAccountNumber"
                 placeholder="Enter UAN No">
         </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>PF Account Number</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="wallet" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="bankingForm.pFAccountNo"
+                placeholder="Enter PF Account Number">
+        </mat-form-field>
+
+        <mat-checkbox [formField]="bankingForm.hasEsiEligible" color="primary">Esi Eligible?</mat-checkbox>
+
+        <!-- -----------ESI IP NUMBER--------- -->
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>ESI IP NUMBER</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="shield-check" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="bankingForm.esiIpNumber" placeholder="Enter ESI IP NUMBER">
+        </mat-form-field>
+
+
         <mat-checkbox [formField]="bankingForm.isPayrollActive" color="primary">Is Payroll Active?</mat-checkbox>
     </div>
-
     <div
         class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-between gap-3">
         <div class="flex flex-1 justify-end items-center gap-3">
@@ -74,4 +111,5 @@
             </button>
         </div>
     </div>
+
 </div>

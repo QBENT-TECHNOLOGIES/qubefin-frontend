@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { applyEach, form, FormField, required, schema } from '@angular/forms/signals';
+import { applyEach, form, FormField, readonly, required, schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeService } from '../../../../services/employee-service';
@@ -66,6 +66,8 @@ export class EmploymentComponentDetail {
       required(refPath.fromDate);
       required(refPath.toDate);
       required(refPath.lastDrawnSalary);
+      readonly(refPath.fromDate, { when: () => true });
+      readonly(refPath.toDate, { when: () => true });
     });
   });
 

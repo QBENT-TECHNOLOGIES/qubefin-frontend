@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CommonModule } from '@angular/common';
-import { form, FormField } from '@angular/forms/signals';
+import { form, FormField, readonly, Schema, schema } from '@angular/forms/signals';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
 import { EMPTY_UUID } from 'qubefin-core';
@@ -21,6 +21,12 @@ import { EmployeeAttendanceHistoryList } from '../../components/employee-atendan
 import { EmployeeAttendanceHistoryStore } from '../../stores/employee-attendance-history-store';
 import { EmployeeAttendanceHistoryView } from '../../components/employee-atendance-history-component/employee-attendance-history-view/employee-attendance-history-view';
 import { IEmployeeAttendanceHistory } from '../../models/employee-attendance-history';
+export interface ISearchModel {
+  tempSearch: string;
+  fromDate: string;
+  toDate: string;
+  status: string;
+}
 @Component({
   selector: 'qfin-employee-attendance-history-component',
   imports: [
@@ -56,11 +62,15 @@ export class EmployeeAttendanceHistoryComponent {
   readonly employeeSearchText = signal('');
   readonly selectedAttendanceHistory = signal<IEmployeeAttendanceHistory | null>(null);
 
-  readonly searchModel = signal({
+  readonly searchModel = signal<ISearchModel>({
     tempSearch: '',
     fromDate: '',
     toDate: '',
     status: '',
+  });
+  readonly searchSchema: Schema<ISearchModel> = schema((path) => {
+    readonly(path.fromDate, { when: () => true });
+    readonly(path.toDate, { when: () => true });
   });
   readonly statuses = signal<string[]>([
     'On Time',
@@ -69,7 +79,7 @@ export class EmployeeAttendanceHistoryComponent {
     'Late Entry & Early Exit',
   ]);
 
-  readonly searchForm = form(this.searchModel);
+  readonly searchForm = form(this.searchModel, this.searchSchema);
   readonly employeeAttendanceHistories =
     this.employeeAttendanceHistoryStore.employeeAttendanceHistory;
   constructor() {

@@ -7,7 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
-import { form, FormField, required, Schema, schema } from '@angular/forms/signals';
+import { form, FormField, readonly, required, Schema, schema } from '@angular/forms/signals';
 import { AttendanceService } from '../../../services/attendance-service';
 import { MatIconModule } from '@angular/material/icon';
 import { AttendanceRegularizationsStore } from '../../../stores/attendance-regularizations-store';
@@ -56,6 +56,7 @@ export class AttendanceRegularizationApply {
   protected readonly formSchema: Schema<IRegularizationForm> = schema((path) => {
     required(path.regularizationType, { message: 'Regularization Type is required' });
     required(path.regularizationDates, { message: 'At least one date is required' });
+    readonly(path.regularizationDates, { when: () => true });
   });
   readonly maxDate = new Date();
   readonly minDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);

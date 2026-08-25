@@ -30,6 +30,7 @@ import {
   IEmployeeOfficialInfo,
   IEmployeePayrollInfo,
 } from '../../../../models/employee-detail';
+import { CompanyStore } from '../../../../../global/stores/company-store';
 
 @Component({
   selector: 'qfin-banking-component',
@@ -51,20 +52,27 @@ export class BankingComponentDetail {
   //   onCancel = output<void>();
   onBankingUpdate = output<void>();
 
+  private readonly companyStore = inject(CompanyStore);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
   readonly iconMap = APP_ICONS_MAP;
+
+  readonly banks = this.companyStore.banks;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
   protected readonly bankingModel = signal<IEmployeePayrollInfo>(new EmployeePayrollInfo());
 
   protected readonly bankingSchema: Schema<IEmployeePayrollInfo> = schema((path) => {
+    required(path.esiIpNumber, { when: () => this.bankingModel().hasEsiEligible });
     pattern(path.bankAccountNo as any, /^\d{9,15}$/, {
       message: 'Account number must be between 9 and 15 digits',
     });
     pattern(path.universalAccountNumber, /^\d{12}$/, {
       message: 'Account number must be between 9 and 15 digits',
+    });
+    pattern(path.ifscCode, /^[A-Z]{4}0[A-Z0-9]{6}$/, {
+      message: 'Invalid IFSC Code',
     });
   });
 
@@ -111,6 +119,8 @@ export class BankingComponentDetail {
     dataToSave.universalAccountNumber =
       dataToSave.universalAccountNumber == '' ? null : dataToSave.universalAccountNumber;
     dataToSave.isPayrollActive = dataToSave.isPayrollActive;
+    dataToSave.pFAccountNo = dataToSave.pFAccountNo == '' ? null : dataToSave.pFAccountNo;
+    dataToSave.ifscCode = dataToSave.ifscCode == '' ? null : dataToSave.ifscCode;
 
     if (this.isEditMode()) {
       this.employeeService.updateBankingInfo(this.empId(), dataToSave).subscribe({

@@ -89,6 +89,9 @@ export class OfficialComponentDetail {
     required(path.organizationUnitTypeId, { message: 'Organization Unit Type is required' });
     required(path.organizationUnitId, { message: 'Organization Unit is required' });
     required(path.companyName, { message: 'Company Name is required' });
+    readonly(path.dateOfJoining, { when: () => true });
+    readonly(path.dateOfConfirmation, { when: () => true });
+    readonly(path.separationDate, { when: () => true });
     readonly(path.companyName, { when: () => true });
     readonly(path.salaryGrade, { when: () => true });
     const isNotEditable = ({ valueOf }: any) => {
