@@ -43,13 +43,14 @@ export class Header {
   readonly iconMap = APP_ICONS_MAP;
 
   readonly notifications = this.notificationStore.notifications;
+  readonly unreadCount = this.notificationStore.count;
 
-  unreadCount = computed(() => this.notifications().filter((n) => !n.isRead).length);
   constructor() {
     // interval(300000)
     //   .pipe(takeUntilDestroyed())
     //   .subscribe(() => {
     //     this.notificationStore.refresh();
+    //     this.notificationStore.refreshCount();
     //     this.userStore.refresh();
     //   });
   }
@@ -61,6 +62,7 @@ export class Header {
     this.notificationService.allRead().subscribe({
       next: () => {
         this.notificationStore.refresh();
+        this.notificationStore.refreshCount();
         this.userStore.refresh();
       },
     });
@@ -71,6 +73,7 @@ export class Header {
       this.notificationService.read(id).subscribe({
         next: () => {
           this.notificationStore.refresh();
+          this.notificationStore.refreshCount();
           this.userStore.refresh();
           if (actionUrl) {
             this.router.navigate([actionUrl]);

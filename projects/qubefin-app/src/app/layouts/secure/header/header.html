@@ -49,7 +49,7 @@
                                 @if (unreadCount() > 0) {
                                 <span
                                     class="px-2 py-0.5 text-xs font-semibold rounded-full bg-primary-500/10 text-primary-600 dark:bg-primary-500/20 dark:text-primary-400">
-                                    {{ userStore.loggedInUserInfo()?.notificationCount }} new
+                                    {{ unreadCount() }} new
                                 </span>
                                 }
                             </div>
