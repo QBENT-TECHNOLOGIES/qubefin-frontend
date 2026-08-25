@@ -465,7 +465,7 @@ export interface IEmployeePayrollInfo {
   esiIpNumber: string;
   universalAccountNumber: string;
   isPayrollActive: boolean; // bool maps to required boolean
-  pFAccountNo: string;
+  pfAccountNo: string;
   ifscCode: string;
 }
 export class EmployeePayrollInfo {
@@ -478,7 +478,7 @@ export class EmployeePayrollInfo {
   esiIpNumber: string = '';
   universalAccountNumber: string = '';
   isPayrollActive: boolean = true;
-  pFAccountNo: string = '';
+  pfAccountNo: string = '';
   ifscCode: string = '';
 
   constructor(init?: Partial<IEmployeePayrollInfo>) {

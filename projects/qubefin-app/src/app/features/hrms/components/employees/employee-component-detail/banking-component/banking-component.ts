@@ -119,7 +119,7 @@ export class BankingComponentDetail {
     dataToSave.universalAccountNumber =
       dataToSave.universalAccountNumber == '' ? null : dataToSave.universalAccountNumber;
     dataToSave.isPayrollActive = dataToSave.isPayrollActive;
-    dataToSave.pFAccountNo = dataToSave.pFAccountNo == '' ? null : dataToSave.pFAccountNo;
+    dataToSave.pfAccountNo = dataToSave.pfAccountNo == '' ? null : dataToSave.pfAccountNo;
     dataToSave.ifscCode = dataToSave.ifscCode == '' ? null : dataToSave.ifscCode;
 
     if (this.isEditMode()) {
