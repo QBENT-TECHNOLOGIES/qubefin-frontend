@@ -128,11 +128,11 @@
                             <div class="flex justify-start gap-2">
                                 <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
                                     @if (selectedUserId() === EMPTY_UUID) {
-                                    Add Salary
+                                    Add User
                                     } @else if (isViewMode()) {
                                     Details
                                     } @else {
-                                    Edit Salary
+                                    Edit User
                                     }
                                 </h2>
                                 <div
@@ -152,7 +152,7 @@
                             </div>
                             <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
                                 @if (selectedUserId() === EMPTY_UUID) {
-                                Create a new salary component and configure its applicability.
+                                Create a new user and configure its applicability.
                                 } @else if (isViewMode()) {
                                 View the user details and configuration.
                                 } @else {

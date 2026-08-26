@@ -10,12 +10,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PageEvent } from '@angular/material/paginator';
 
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID, months } from 'qubefin-core';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { EmployeeLopFinalizationStore } from '../../stores/employee-lop-finalization-store';
 import { EmployeeLopFinalizationList } from '../../components/employee-lop-finalization-components/employee-lop-finalization-list/employee-lop-finalization-list';
 import { EmployeeLopFinalizationDetail } from '../../components/employee-lop-finalization-components/employee-lop-finalization-detail/employee-lop-finalization-detail';
+import { CompanyStore } from '../../../global/stores/company-store';
+import { Sort } from '@angular/material/sort';
 
 @Component({
   selector: 'qfin-employee-lop-finalization-component',
@@ -45,7 +48,10 @@ export class EmployeeLopFinalizationComponent {
   // Dependency Injection
   // ===========================
   readonly store = inject(EmployeeLopFinalizationStore);
-  readonly snackBar = inject(MatSnackBar);
+  readonly companyStore = inject(CompanyStore);
+  readonly srchCompanyId = signal<string | null>(null);
+  readonly srchOrganizationUnitId = signal<string | null>(null);
+  readonly alertService = inject(AlertService);
 
   // ===========================
   // Component State
@@ -57,21 +63,8 @@ export class EmployeeLopFinalizationComponent {
 
   readonly currentYear = new Date().getFullYear();
   readonly yearsList = Array.from({ length: 4 }, (_, i) => this.currentYear - i);
-  
-  readonly monthsList = [
-    { value: 1, label: 'January' },
-    { value: 2, label: 'February' },
-    { value: 3, label: 'March' },
-    { value: 4, label: 'April' },
-    { value: 5, label: 'May' },
-    { value: 6, label: 'June' },
-    { value: 7, label: 'July' },
-    { value: 8, label: 'August' },
-    { value: 9, label: 'September' },
-    { value: 10, label: 'October' },
-    { value: 11, label: 'November' },
-    { value: 12, label: 'December' },
-  ];
+
+  readonly monthsList = months;
 
   readonly statusOptions = [
     { value: 1, label: 'Irregular' },
@@ -90,21 +83,24 @@ export class EmployeeLopFinalizationComponent {
   // ===========================
   readonly listData = this.store.listData;
   readonly hasSelectedRecord = computed(
-    () => this.selectedId() !== EMPTY_UUID || !this.isViewMode()
+    () => this.selectedId() !== EMPTY_UUID || !this.isViewMode(),
   );
 
   // ===========================
   // Panel Actions
   // ===========================
   protected onEdit(id: string) {
+    const employee = this.listData().find((item) => item.id === id);
     this.selectedId.set(id);
     this.store.setSelectedId(id);
+    this.store.setSelectedEmployeeId(employee?.employeeId);
     this.isViewMode.set(false);
   }
 
   protected closePanel() {
     this.selectedId.set(EMPTY_UUID);
     this.store.setSelectedId(EMPTY_UUID);
+    this.store.setSelectedEmployeeId(undefined);
     this.isViewMode.set(true);
     this.store.refreshList();
   }
@@ -121,6 +117,8 @@ export class EmployeeLopFinalizationComponent {
     this.store.setMonth(this.month());
     this.store.setStatus(this.status());
     this.store.setSearchQuery(this.searchQuery() || null);
+    this.store.setCompanyId(this.srchCompanyId());
+    this.store.setOrganizationUnitId(this.srchOrganizationUnitId());
   }
 
   protected resetFilters() {
@@ -128,6 +126,8 @@ export class EmployeeLopFinalizationComponent {
     this.month.set(new Date().getMonth() + 1);
     this.status.set(null);
     this.searchQuery.set('');
+    this.srchCompanyId.set(null);
+    this.srchOrganizationUnitId.set(null);
     this.applyFilters();
   }
 
@@ -136,13 +136,24 @@ export class EmployeeLopFinalizationComponent {
   // ===========================
   protected onGenerate() {
     this.store.generateMoralization().subscribe({
-      next: (res: any) => {
-        this.snackBar.open(res.message || 'Generation successful', 'Close', { duration: 3000 });
-        this.store.refreshList();
+      next: (resp: any) => {
+        this.alertService.success('Success', resp).then(() => {
+          this.store.refreshList();
+        });
       },
-      error: (err: any) => {
-        this.snackBar.open('Error generating moralization', 'Close', { duration: 3000 });
-      }
+      error: (err: any) => {},
     });
+  }
+
+  pageChanged(event: PageEvent) {
+    this.store.setPage(event.pageIndex);
+    this.store.setPageSize(event.pageSize);
+  }
+  onSortChanged(sort: Sort) {
+    if (!sort.direction) {
+      return;
+    }
+
+    this.store.setSort(sort.active, sort.direction as 'asc' | 'desc');
   }
 }

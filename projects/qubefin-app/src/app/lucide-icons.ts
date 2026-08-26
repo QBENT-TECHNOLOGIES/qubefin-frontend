@@ -161,6 +161,7 @@ import {
   LucideGraduationCap,
   LucideZap,
   LucideActivity,
+  LucideNetwork,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -324,6 +325,7 @@ export const APP_ICONS = [
   LucideGraduationCap,
   LucideZap,
   LucideActivity,
+  LucideNetwork,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -487,4 +489,5 @@ export const APP_ICONS_MAP: Record<string, any> = {
   GraduationCap: LucideGraduationCap,
   Zap: LucideZap,
   Activity: LucideActivity,
+  Network: LucideNetwork,
 };

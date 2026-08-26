@@ -18,23 +18,32 @@ export class EmployeeLopFinalizationStore {
 
   readonly year = signal<number>(new Date().getFullYear());
   readonly month = signal<number>(new Date().getMonth() + 1);
+  readonly companyId = signal<string | null>(null);
   readonly organizationUnitId = signal<string | null>(null);
   readonly status = signal<number | null>(null);
   readonly searchQuery = signal<string | null>(null);
   readonly pageIndex = signal(0);
-  readonly pageSize = signal(50);
+  readonly pageSize = signal(10);
   readonly sortOn = signal('employeeName');
   readonly sortDirection = signal<'asc' | 'desc'>('asc');
 
   private readonly selectedId = signal<string | undefined>(undefined);
+  private readonly selectedEmployeeId = signal<string | undefined>(undefined);
 
-  readonly leaveTypeBalancesResource = httpResource<ILeaveTypeBalance[]>(
-    () => `${ApiPaths.HRMS}/leave-types/balances`,
-  );
+  readonly leaveTypeBalancesResource = httpResource<ILeaveTypeBalance[]>(() => {
+    const employeeId = this.selectedEmployeeId();
+    return employeeId ? `${ApiPaths.HRMS}/leave-types/balances/${employeeId}` : undefined;
+  });
 
   readonly leaveTypeBalances = computed(
     () => this.leaveTypeBalancesResource.value()?.filter((m) => m.isEligible) ?? [],
   );
+
+  readonly organizationUnitsResource = httpResource<{ id: string; name: string }[]>(
+    () => `${ApiPaths.GLOBAL}/organization-units/all`,
+  );
+
+  readonly organizationUnits = computed(() => this.organizationUnitsResource.value() ?? []);
 
   readonly listResource = httpResource<{
     employees: EmployeeWiseCalculationResponse[];
@@ -45,6 +54,7 @@ export class EmployeeLopFinalizationStore {
     body: {
       year: this.year(),
       month: this.month(),
+      companyId: this.companyId(),
       searchOrganizationUnitId: this.organizationUnitId(),
       status: this.status(),
       searchText: this.searchQuery(),
@@ -81,6 +91,10 @@ export class EmployeeLopFinalizationStore {
     this.month.set(val);
     this.pageIndex.set(0);
   }
+  setCompanyId(val: string | null) {
+    this.companyId.set(val);
+    this.pageIndex.set(0);
+  }
   setOrganizationUnitId(val: string | null) {
     this.organizationUnitId.set(val);
     this.pageIndex.set(0);
@@ -107,6 +121,10 @@ export class EmployeeLopFinalizationStore {
 
   setSelectedId(id: string | undefined) {
     this.selectedId.set(id);
+  }
+
+  setSelectedEmployeeId(employeeId: string | undefined) {
+    this.selectedEmployeeId.set(employeeId);
   }
 
   refreshList() {
