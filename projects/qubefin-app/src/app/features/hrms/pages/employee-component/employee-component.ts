@@ -17,6 +17,8 @@ import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
+import { CompanyStore } from '../../../global/stores/company-store';
 
 @Component({
   selector: 'qfin-employee-component',
@@ -33,6 +35,7 @@ import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
     LucideDynamicIcon,
     MatTooltipModule,
     MatDatepickerModule,
+    MatSelectModule,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './employee-component.html',
@@ -42,11 +45,13 @@ export class EmployeeComponent {
   private readonly datePipe = inject(DatePipe);
   private readonly dateAdapter = inject(DateAdapter<Date>);
   readonly srchJoiningDate = signal<Date | null>(null);
+  readonly srchCompanyId = signal<string | null>(null);
   readonly iconMap = APP_ICONS_MAP;
   // Filter properties
   showFilterArea = signal<boolean>(false);
   // Injecting the store that manages pagination and filtering states
   readonly employeeStore = inject(EmployeeStore);
+  readonly companyStore = inject(CompanyStore);
   constructor() {
     this.dateAdapter.setLocale('en-GB');
   }
@@ -67,7 +72,6 @@ export class EmployeeComponent {
 
   protected onView(id: string) {
     this.selectedEmployeeComponentId.set(id);
-    console.log(this.selectedEmployeeComponentId());
     this.isViewMode.set(true);
   }
 
@@ -84,20 +88,17 @@ export class EmployeeComponent {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
   }
-  // Closes panels and forces state reset safely
+
   protected handleCancel() {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
   }
 
-  // Executed on successful API responses from employee-component-detail
   protected handleSave() {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
   }
-  protected handleUpdate(event: any) {
-    console.log(event);
-  }
+  protected handleUpdate(event: any) {}
 
   protected toggleFilterArea() {
     this.showFilterArea.update((v) => !v);
@@ -108,13 +109,16 @@ export class EmployeeComponent {
     const date = this.srchJoiningDate();
     const formattedDate = date ? this.datePipe.transform(date, 'yyyy-MM-dd') : null;
     this.employeeStore.setSearchJoiningDate(formattedDate);
+    this.employeeStore.setCompanyId(this.srchCompanyId());
   }
 
   protected resetFilters() {
     this.tempSearch = '';
     this.srchJoiningDate.set(null);
+    this.srchCompanyId.set(null);
     this.employeeStore.setSearchQuery('');
     this.employeeStore.setSearchJoiningDate(null);
+    this.employeeStore.setCompanyId(null);
     this.applyFilters();
   }
   onSortChanged(sort: Sort) {

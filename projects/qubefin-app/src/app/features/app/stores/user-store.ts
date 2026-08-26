@@ -35,7 +35,10 @@ export class UserStore {
     // All Users
     usersResource = httpResource<User[]>(() => `${ApiPaths.APP}/users`);
 
-    readonly users = computed(() => this.usersResource.value() ?? []);
+    readonly users = computed(() => {
+        if (this.usersResource.error()) return [];
+        return this.usersResource.value() ?? [];
+    });
     readonly loading = computed(() => this.usersResource.isLoading());
     readonly error = computed(() => this.usersResource.error());
 
@@ -45,9 +48,11 @@ export class UserStore {
         return `${ApiPaths.APP}/users/search?${params.toString()}`;
     });
 
-    readonly searchedUsers = computed(() => this.usersSearchResource.value() ?? {
-        totalCount: 0,
-        users: []
+    readonly searchedUsers = computed(() => {
+        if (this.usersSearchResource.error()) {
+            return { totalCount: 0, users: [] };
+        }
+        return this.usersSearchResource.value() ?? { totalCount: 0, users: [] };
     });
     readonly searchedLoading = computed(() => this.usersSearchResource.isLoading());
     readonly searchedError = computed(() => this.usersSearchResource.error());
@@ -59,7 +64,10 @@ export class UserStore {
             : undefined
     );
 
-    readonly user = computed(() => this.userResource.value() ?? undefined);
+    readonly user = computed(() => {
+        if (this.userResource.error()) return undefined;
+        return this.userResource.value() ?? undefined;
+    });
     readonly userLoading = computed(() => this.userResource.isLoading());
     readonly userError = computed(() => this.userResource.error());
 

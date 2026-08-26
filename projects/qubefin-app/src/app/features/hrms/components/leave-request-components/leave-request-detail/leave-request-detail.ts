@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, readonly, required, schema, Schema } from '@angular/forms/signals';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -75,6 +75,8 @@ export class LeaveRequestDetail {
     required(path.fromDate, { message: 'From Date is required' });
     required(path.toDate, { message: 'To Date is required' });
     required(path.reason, { message: 'Reason is required' });
+    readonly(path.fromDate, { when: () => true });
+    readonly(path.toDate, { when: () => true });
   });
 
   protected readonly leaveRequestForm = form(this.leaveRequestModel, this.leaveRequestSchema);

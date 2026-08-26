@@ -1,1 +1,83 @@
-<p>user-detail works!</p>
+<div class="space-y-4">
+    <div class="grid grid-cols-1 lg:grid-cols-1 gap-4">
+        <!-- General Information -->
+        <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                User Information
+            </h3>
+            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Employee</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="user-search" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [value]="employeeSearchText()"
+                        (input)="searchEmployees($any($event.target).value)" [matAutocomplete]="employeeAuto"
+                        autocomplete="off" placeholder="Search employee" [disabled]="isEditMode()" />
+                    <mat-autocomplete class="autoList" #employeeAuto="matAutocomplete" [displayWith]="displayEmployeeName"
+                        (optionSelected)="selectEmployee($event)">
+                        @for (employee of employeeOptions(); track employee.id) {
+                        <mat-option [value]="employee">
+                            {{ employee.employeeName }} {{ employee.employeeCode ? '(' + employee.employeeCode + ')' : '' }}
+                        </mat-option>
+                        } @empty {
+                        @if (employeeSearchText().trim()) {
+                        <mat-option disabled>No employees found</mat-option>
+                        }
+                        }
+                    </mat-autocomplete>
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class=" w-full">
+                    <mat-label>Username</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="user" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [value]="formModel().userName"
+                        (input)="updateField('userName', $any($event.target).value)"
+                        placeholder="Enter username" />
+                </mat-form-field>
+
+                @if(!isEditMode()) {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class=" w-full">
+                        <mat-label>Password</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="lock" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput type="password" [value]="formModel().password"
+                            (input)="updateField('password', $any($event.target).value)"
+                            placeholder="Enter password" />
+                    </mat-form-field>
+                }
+                
+                @if(isEditMode()) {
+                    <div class="flex items-center gap-4">
+                        <mat-checkbox [checked]="formModel().isActive" (change)="updateField('isActive', $event.checked)">
+                            Is Active
+                        </mat-checkbox>
+                        <mat-checkbox [checked]="formModel().hasMfaEnabled" (change)="updateField('hasMfaEnabled', $event.checked)">
+                            MFA Enabled
+                        </mat-checkbox>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3">
+        <button type="button" (click)="onCancelClicked()"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+            Cancel
+        </button>
+        <button type="button" (click)="onSubmit()"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
+            {{ isEditMode() ? 'Update' : 'Save' }}
+        </button>
+    </div>
+</div>

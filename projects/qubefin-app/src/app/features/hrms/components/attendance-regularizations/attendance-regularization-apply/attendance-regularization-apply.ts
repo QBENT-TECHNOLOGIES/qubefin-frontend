@@ -7,13 +7,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
-import { form, FormField, required, Schema, schema } from '@angular/forms/signals';
+import { form, FormField, readonly, required, Schema, schema } from '@angular/forms/signals';
 import { AttendanceService } from '../../../services/attendance-service';
 import { MatIconModule } from '@angular/material/icon';
 import { AttendanceRegularizationsStore } from '../../../stores/attendance-regularizations-store';
 import { IRegularizationForm } from '../../../models/attendance-regularization';
 import { AlertService } from 'qubefin-core';
 import { MatChipsModule } from '@angular/material/chips';
+import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
 @Component({
   selector: 'qfin-attendance-regularization-apply',
   imports: [
@@ -35,6 +36,8 @@ import { MatChipsModule } from '@angular/material/chips';
 export class AttendanceRegularizationApply {
   private readonly alertService = inject(AlertService);
   private readonly attendanceService = inject(AttendanceService);
+  readonly documentModal = inject(DocumentModalService);
+
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
   private readonly store = inject(AttendanceRegularizationsStore);
@@ -53,6 +56,7 @@ export class AttendanceRegularizationApply {
   protected readonly formSchema: Schema<IRegularizationForm> = schema((path) => {
     required(path.regularizationType, { message: 'Regularization Type is required' });
     required(path.regularizationDates, { message: 'At least one date is required' });
+    readonly(path.regularizationDates, { when: () => true });
   });
   readonly maxDate = new Date();
   readonly minDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
@@ -124,8 +128,16 @@ export class AttendanceRegularizationApply {
     }
   }
   openDocument() {
-    const url = this.documentUrl();
-    window.open(url, '_blank');
+    if (!this.documentUrl() || !this.documentName()) {
+      return;
+    }
+
+    this.documentModal.open({
+      url: this.documentUrl(),
+      documentName: this.documentName(),
+      extension: this.documentName().split('.').pop()?.toLowerCase() || '',
+      downloadAccess: true,
+    });
   }
   removeFile() {
     this.selectedFile.set(null);

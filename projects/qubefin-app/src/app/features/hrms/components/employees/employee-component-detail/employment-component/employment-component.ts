@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { applyEach, form, FormField, required, schema } from '@angular/forms/signals';
+import { applyEach, form, FormField, readonly, required, schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeService } from '../../../../services/employee-service';
@@ -14,7 +14,6 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
-import Swal from 'sweetalert2';
 import { EmployeeEmployment, IEmployeeEmployment } from '../../../../models/employee-detail';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
@@ -25,6 +24,7 @@ interface EmploymentFormModel {
 
 @Component({
   selector: 'qfin-employment-component',
+  providers: [DatePipe],
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -47,6 +47,7 @@ export class EmploymentComponentDetail {
 
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
+  private readonly datePipe = inject(DatePipe);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
@@ -56,18 +57,17 @@ export class EmploymentComponentDetail {
     employments: [],
   });
 
-  // 2. Refactor your schema block using applyEach
   protected readonly employmentschema = schema<EmploymentFormModel>((path) => {
-    // Ensures the array itself is present
     required(path.employments);
 
-    // Iterates cleanly through each item in the array with correct type safety
     applyEach(path.employments, (refPath) => {
       required(refPath.employerName);
       required(refPath.designation);
       required(refPath.fromDate);
       required(refPath.toDate);
       required(refPath.lastDrawnSalary);
+      readonly(refPath.fromDate, { when: () => true });
+      readonly(refPath.toDate, { when: () => true });
     });
   });
 
@@ -78,7 +78,6 @@ export class EmploymentComponentDetail {
     this.dateAdapter.setLocale('en-GB');
     effect(() => {
       if (this.employmentModel().employments.length === 0) {
-        // this.addEmployment();
         const model = new EmployeeEmployment();
         model.id = EMPTY_UUID;
         model.employeeId = this.empId();
@@ -106,7 +105,13 @@ export class EmploymentComponentDetail {
     if (!this.employmentForm().valid()) {
       return;
     }
-    const dataToSave = [...this.employmentForm().value().employments];
+    const dataToSave = this.employmentForm()
+      .value()
+      .employments.map((emp: any) => ({
+        ...emp,
+        fromDate: emp.fromDate ? this.datePipe.transform(emp.fromDate, 'yyyy-MM-dd') : null,
+        toDate: emp.toDate ? this.datePipe.transform(emp.toDate, 'yyyy-MM-dd') : null,
+      }));
     this.employeeService.updateEmploymentInfo(this.empId(), dataToSave).subscribe({
       next: (resp: any) => {
         this.alertService.success('Success', resp).then(() => {
@@ -119,14 +124,14 @@ export class EmploymentComponentDetail {
     });
   }
 
-  private kycResource = rxResource({
+  private employmentResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
       if (params.editMode && params.id !== EMPTY_UUID) {
         return this.employeeService.getEmploymentData(params.id).pipe(
           tap((resp: any) => {
             this.employmentModel.update((state) => ({
-              employments: (resp.employments ?? []).map(
+              employments: (resp || []).map(
                 (doc: IEmployeeEmployment) =>
                   new EmployeeEmployment({
                     ...doc,
@@ -141,7 +146,7 @@ export class EmploymentComponentDetail {
         this.employmentModel.set({
           employments: [],
         });
-        return of(null); // Safely stream an empty observable
+        return of(null);
       }
     },
   });

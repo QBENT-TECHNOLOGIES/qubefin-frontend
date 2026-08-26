@@ -11,59 +11,55 @@ import { PageEvent } from '@angular/material/paginator';
 import { RoleViewyComponent } from '../../components/roles/role-view/role-view';
 
 @Component({
-	selector: 'qfin-role-page',
-	imports: [CommonModule, RoleListComponent, RoleViewyComponent, LucideDynamicIcon],
-	templateUrl: './role.html'
+  selector: 'qfin-role-page',
+  imports: [CommonModule, RoleListComponent, RoleViewyComponent, LucideDynamicIcon],
+  templateUrl: './role.html',
 })
 export class RolePage {
-	public readonly EMPTY_UUID = EMPTY_UUID;
+  public readonly EMPTY_UUID = EMPTY_UUID;
 
-	roleStore = inject(RoleStore);
+  roleStore = inject(RoleStore);
 
-	isViewMode = signal<boolean>(true);
-	showFilterArea = signal<boolean>(false);
-	selectedRoleId = signal<string>(EMPTY_UUID);
-	searchedRoles = this.roleStore.searchedRoles;
+  isViewMode = signal<boolean>(true);
+  showFilterArea = signal<boolean>(false);
+  selectedRoleId = signal<string>(EMPTY_UUID);
+  searchedRoles = this.roleStore.searchedRoles;
 
-	protected readonly roleSearchFields = signal<RoleSearchParam>({
-		searchText: '',
-		sortOn: '',
-		sortDirection: 'ASC',
-		pageIndex: 0,
-		pageSize: 10
-	});
+  protected readonly roleSearchFields = signal<RoleSearchParam>({
+    searchText: '',
+    sortOn: '',
+    sortDirection: 'ASC',
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
-	protected readonly roleSearchForm = form(this.roleSearchFields);
+  protected readonly roleSearchForm = form(this.roleSearchFields);
 
-	constructor() {
-		effect(() => {
-			console.log(this.searchedRoles());
-		});
-	}
+  constructor() {}
 
-	onSort(sort: Sort) {
-		this.roleStore.setSort(sort.active, sort.direction);
-	}
+  onSort(sort: Sort) {
+    this.roleStore.setSort(sort.active, sort.direction);
+  }
 
-	onPageChange(event: PageEvent) {
-		this.roleStore.setPagination(event.pageIndex, event.pageSize);
-	}
+  onPageChange(event: PageEvent) {
+    this.roleStore.setPagination(event.pageIndex, event.pageSize);
+  }
 
-	protected onView(id: string) {
-		this.selectedRoleId.set(id);
-		this.isViewMode.set(true);
-	}
+  protected onView(id: string) {
+    this.selectedRoleId.set(id);
+    this.isViewMode.set(true);
+  }
 
-	protected onAdd() {
-		this.isViewMode.set(false);
-		this.selectedRoleId.set(EMPTY_UUID);
-	}
+  protected onAdd() {
+    this.isViewMode.set(false);
+    this.selectedRoleId.set(EMPTY_UUID);
+  }
 
-	protected onEdit() {
-		this.isViewMode.set(false);
-	}
+  protected onEdit() {
+    this.isViewMode.set(false);
+  }
 
-	protected viewDetail(id: string) {
-		this.selectedRoleId.set(id);
-	}
+  protected viewDetail(id: string) {
+    this.selectedRoleId.set(id);
+  }
 }

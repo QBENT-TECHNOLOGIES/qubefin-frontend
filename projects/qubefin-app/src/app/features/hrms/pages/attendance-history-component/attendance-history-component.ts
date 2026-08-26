@@ -11,13 +11,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CommonModule } from '@angular/common';
-import { form, FormField } from '@angular/forms/signals';
+import { form, FormField, readonly, Schema, schema } from '@angular/forms/signals';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
 import { AttendanceHistoryComponentList } from '../../components/attendance-history-components/attendance-history-component-list/attendance-history-component-list';
 import { EMPTY_UUID } from 'qubefin-core';
 import { AttendanceHistoryComponentView } from '../../components/attendance-history-components/attendance-history-component-view/attendance-history-component-view';
 import { IAttendanceHistory } from '../../models/attendance-history';
+export interface ISearchModel {
+  tempSearch: string;
+  fromDate: string;
+  toDate: string;
+  status: string;
+}
 @Component({
   selector: 'qfin-attendance-history-component',
   imports: [
@@ -56,14 +62,17 @@ export class AttendanceHistoryComponent {
     'Early Exit',
     'Late Entry & Early Exit',
   ]);
-  readonly searchModel = signal({
+  readonly searchModel = signal<ISearchModel>({
     tempSearch: '',
     fromDate: '',
     toDate: '',
     status: '',
   });
-
-  readonly searchForm = form(this.searchModel);
+  readonly searchSchema: Schema<ISearchModel> = schema((path) => {
+    readonly(path.fromDate, { when: () => true });
+    readonly(path.toDate, { when: () => true });
+  });
+  readonly searchForm = form(this.searchModel, this.searchSchema);
   readonly attendanceHistories = this.attendanceHistoryStore.attendanceHistory;
 
   constructor() {

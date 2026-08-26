@@ -185,7 +185,6 @@ export class AdministrativeUnitDetailComponent {
     const field = this.parentTypes()[index];
     this.administrativeUnitService.loadChildren(field.parentId()).subscribe({
       next: (result) => {
-        console.log(field.category);
         if (field.category === 'RURAL') {
           result = result.filter((x) => x.category.toLowerCase().includes('rural'));
         }

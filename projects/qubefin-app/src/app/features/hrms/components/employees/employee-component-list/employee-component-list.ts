@@ -49,7 +49,17 @@ export class EmployeeComponentList {
     if (this.isCollapsed()) {
       return ['nameCode', 'action'];
     }
-    return ['sl', 'name', 'code', 'joiningDate', 'action'];
+    return [
+      'sl',
+      'company',
+      'orgUnit',
+      'name',
+      'code',
+      'gender',
+      'mobile',
+      'joiningDate',
+      'action',
+    ];
   });
   onDetailView(id: string) {
     this.onViewDetail.emit(id);

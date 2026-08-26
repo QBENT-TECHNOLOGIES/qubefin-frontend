@@ -41,8 +41,6 @@ export class SurveyUnitView {
 
       if (!survey) return;
 
-      console.log(survey.surveyAssigneds);
-
       // Assign to your local array or FormArray here
       // this.members = survey.surveyAssigneds;
     });

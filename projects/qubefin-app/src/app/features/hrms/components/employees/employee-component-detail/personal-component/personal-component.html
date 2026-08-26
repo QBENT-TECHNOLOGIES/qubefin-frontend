@@ -40,7 +40,8 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="user" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="text" [formField]="$any(employeeForm)['middleName']" autocomplete="off" placeholder="Enter middle name">
+            <input matInput type="text" [formField]="$any(employeeForm)['middleName']" autocomplete="off"
+                placeholder="Enter middle name">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Last Name</mat-label>
@@ -57,21 +58,15 @@
                 <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
             </div>
 
-            <input
-                matInput
-                [matDatepicker]="dobPicker"
-                [formField]="employeeForm.dateOfBirth"
-                placeholder="Select Date of Birth"
-                autocomplete="off">
+            <input matInput [matDatepicker]="dobPicker" [formField]="employeeForm.dateOfBirth"
+                placeholder="Select Date of Birth" autocomplete="off">
 
-            <mat-datepicker-toggle
-                matIconSuffix
-                [for]="dobPicker">
+            <mat-datepicker-toggle matIconSuffix [for]="dobPicker">
             </mat-datepicker-toggle>
 
             <mat-datepicker #dobPicker></mat-datepicker>
         </mat-form-field>
-        
+
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Gender</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -90,14 +85,16 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="mars" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="$any(employeeForm)['fatherName']" autocomplete="off" placeholder="Enter Father name">
+            <input matInput [formField]="$any(employeeForm)['fatherName']" autocomplete="off"
+                placeholder="Enter Father name">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Mother Name</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="venus" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="$any(employeeForm)['motherName']" autocomplete="off" placeholder="Enter Mother Name">
+            <input matInput [formField]="$any(employeeForm)['motherName']" autocomplete="off"
+                placeholder="Enter Mother Name">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Religion</mat-label>
@@ -132,11 +129,17 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="flag" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="$any(employeeForm)['nationality']" autocomplete="off" placeholder="Enter Nationality">
+            <mat-select [formField]="employeeForm.nationality" placeholder="Select Nationality">
+                @for (n of nationalities; track n) {
+                <mat-option [value]="n">
+                    {{ n }}
+                </mat-option>
+                }
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Blood Group</mat-label>
-            
+
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="droplet" class="w-5 h-5"></svg>
             </div>
@@ -153,7 +156,8 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="accessibility" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="employeeForm.disablityType" autocomplete="off" placeholder="Enter Disablity Type">
+            <input matInput [formField]="employeeForm.disablityType" autocomplete="off"
+                placeholder="Enter Disablity Type">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Marital Status</mat-label>
@@ -171,10 +175,9 @@
     </div>
 
     <div class="step-footer-area">
-        
+
         <div class="flex flex-1 justify-end items-center gap-3">
-            <button type="button" (click)="onSubmit()"
-                class="global-btn ripple-btn shadow shine-sweep lift">
+            <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">
                 Save &amp; Next
                 <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
             </button>

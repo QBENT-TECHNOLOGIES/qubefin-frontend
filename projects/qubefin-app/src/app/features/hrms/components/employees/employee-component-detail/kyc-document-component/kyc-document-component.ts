@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,7 +6,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { form, FormField, required, schema } from '@angular/forms/signals';
+import {
+  applyEach,
+  form,
+  FormField,
+  pattern,
+  readonly,
+  required,
+  schema,
+} from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeService } from '../../../../services/employee-service';
@@ -19,10 +27,10 @@ import {
 } from '../../../../models/employee-detail';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
-import Swal from 'sweetalert2';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { DocumentModalService } from '../../../../../../shared/services/document-modal.service';
 
 interface KycFormModel {
   documents: IEmployeeDocument[];
@@ -30,6 +38,7 @@ interface KycFormModel {
 
 @Component({
   selector: 'qfin-kyc-document-component',
+  providers: [DatePipe],
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -53,10 +62,12 @@ export class KycDocumentComponentDetail {
 
   kycDocs = input<KycDocument[]>([]);
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
-
+  readonly documentModal = inject(DocumentModalService);
+  readonly datePipe = inject(DatePipe);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
+
   readonly iconMap = APP_ICONS_MAP;
 
   protected readonly kycModel = signal<KycFormModel>({
@@ -65,6 +76,47 @@ export class KycDocumentComponentDetail {
 
   protected readonly kycSchema = schema<KycFormModel>((path) => {
     required(path.documents);
+    applyEach(path.documents, (docPath) => {
+      readonly(docPath.validFrom, { when: () => true });
+      readonly(docPath.validTill, { when: () => true });
+
+      required(docPath.documentNo, {
+        when: ({ valueOf }: any) => !!valueOf(docPath.documentName),
+        message: 'Document Number is required',
+      });
+
+      pattern(docPath.documentNo, /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, {
+        when: ({ valueOf }: any) => {
+          const name = valueOf(docPath.documentName)?.toLowerCase() || '';
+          return name.includes('pan');
+        },
+        message: 'Enter a valid PAN number (e.g. ABCDE1234F)',
+      });
+
+      pattern(docPath.documentNo, /^\d{12}$/, {
+        when: ({ valueOf }: any) => {
+          const name = valueOf(docPath.documentName)?.toLowerCase() || '';
+          return name.includes('aadhaar') || name.includes('adhar');
+        },
+        message: 'Enter a valid 12-digit Aadhaar number',
+      });
+
+      pattern(docPath.documentNo, /^[A-Z]{3}[0-9]{7}$/, {
+        when: ({ valueOf }: any) => {
+          const name = valueOf(docPath.documentName)?.toLowerCase() || '';
+          return name.includes('voter');
+        },
+        message: 'Enter a valid Voter ID (e.g. ABC1234567)',
+      });
+
+      pattern(docPath.documentNo, /^[A-Z]{2}[0-9]{13}$/, {
+        when: ({ valueOf }: any) => {
+          const name = valueOf(docPath.documentName)?.toLowerCase() || '';
+          return name.includes('driving');
+        },
+        message: 'Enter a valid 15-character Driving License',
+      });
+    });
   });
 
   protected readonly kycForm = form(this.kycModel, this.kycSchema);
@@ -157,6 +209,16 @@ export class KycDocumentComponentDetail {
 
     return mandatoryDocs.some((doc) => !uploadedDocIds.includes(doc.name));
   }
+  hasMissingFilesForImportantDocs(): boolean {
+    return this.kycModel().documents.some((doc) => {
+      const name = doc.documentName?.toLowerCase() || '';
+      const isImportant =
+        name.includes('aadhaar') || name.includes('adhar') || name.includes('pan');
+      const hasNoFile = !doc.fileName && !(doc as any).rawFile;
+
+      return isImportant && hasNoFile;
+    });
+  }
 
   hasMissingDateValidation(): boolean {
     return this.kycModel().documents.some((doc) => {
@@ -165,6 +227,7 @@ export class KycDocumentComponentDetail {
       return selectedDoc?.isDateValidate && (!doc.validFrom || !doc.validTill);
     });
   }
+
   hasMissingDocumentNumbers(): boolean {
     return this.kycModel().documents.some((doc) => !!doc.documentName && !doc.documentNo?.trim());
   }
@@ -172,32 +235,117 @@ export class KycDocumentComponentDetail {
     return this.kycModel().documents.some((_, index) => this.isValidTillInvalid(index));
   }
 
+  onFileSelected(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      input.value = '';
+      this.alertService.warning(null, 'Only image/PDF file can be selected.');
+      return;
+    }
+
+    this.kycModel.update((state) => {
+      const documents = [...state.documents];
+      const updatedDoc = { ...documents[index], fileName: file.name };
+      (updatedDoc as any).rawFile = file;
+      documents[index] = updatedDoc;
+      return { documents };
+    });
+  }
+
+  removeFile(index: number) {
+    this.kycModel.update((state) => {
+      const documents = [...state.documents];
+      const updatedDoc = { ...documents[index], fileName: '' };
+      (updatedDoc as any).rawFile = null;
+      (updatedDoc as any).fileUrl = '';
+      (updatedDoc as any).filePath = '';
+
+      documents[index] = updatedDoc;
+      return { documents };
+    });
+  }
+  openDocument(index: number) {
+    const doc = this.kycModel().documents[index];
+    if (!doc) return;
+
+    let url = '';
+    const name = doc.fileName || doc.documentName || 'Document';
+
+    if ((doc as any).rawFile) {
+      url = URL.createObjectURL((doc as any).rawFile);
+    } else if ((doc as any).fileUrl || (doc as any).filePath) {
+      url = (doc as any).fileUrl || (doc as any).filePath;
+    }
+
+    if (!url) {
+      this.alertService.warning('Oops!', 'Document preview is not available.');
+      return;
+    }
+
+    this.documentModal.open({
+      url: url,
+      documentName: name,
+      extension: name.split('.').pop()?.toLowerCase() || '',
+      downloadAccess: true,
+    });
+  }
   onSubmit() {
+    this.kycForm().markAsTouched();
     const dataToSave = [...this.kycForm().value().documents];
+    if (this.hasMissingFilesForImportantDocs()) {
+      this.alertService.warning(null, 'Please upload the document file .');
+      return;
+    }
     if (this.hasMissingMandatoryDocuments()) {
-      Swal.fire('Oh!', 'Please upload all mandatory KYC documents.', 'error');
+      this.alertService.warning(null, 'Please upload all mandatory KYC documents.');
       return;
     }
-    if (this.hasMissingDocumentNumbers()) {
-      Swal.fire('Oh!', 'Document Number is required.', 'error');
-      return;
-    }
+
     if (this.hasMissingDateValidation()) {
-      Swal.fire('Oh!', 'Valid From and Valid Till are required.', 'error');
+      this.alertService.warning(null, 'Valid From and Valid Till are required.');
       return;
     }
     if (this.hasInvalidDateRange()) {
-      Swal.fire('Oh!', 'Valid Till must be greater than or equal to Valid From.', 'error');
+      this.alertService.warning(null, 'Valid Till must be greater than or equal to Valid From.');
       return;
     }
+
     if (!this.kycForm().valid()) {
       return;
     }
-    // const data =
-    //   this.kycForm().value();
-    // const dataToSave = [...data.documents];
 
-    this.employeeService.updateKycInfo(this.empId(), dataToSave).subscribe({
+    const formData = new FormData();
+    const documents = this.kycForm().value().documents;
+
+    documents.forEach((doc: any, index: number) => {
+      formData.append(`documents[${index}].documentName`, doc.documentName || '');
+      formData.append(`documents[${index}].documentNo`, doc.documentNo || '');
+
+      if (doc.validFrom) {
+        formData.append(
+          `documents[${index}].validFrom`,
+          this.datePipe.transform(doc.validFrom, 'yyyy-MM-dd') || '',
+        );
+      }
+      if (doc.validTill) {
+        formData.append(
+          `documents[${index}].validTill`,
+          this.datePipe.transform(doc.validTill, 'yyyy-MM-dd') || '',
+        );
+      }
+      if (doc.fileName) {
+        formData.append(`documents[${index}].fileName`, doc.fileName);
+      }
+      if (doc.rawFile) {
+        formData.append(`documents[${index}].file`, doc.rawFile);
+      }
+    });
+
+    this.employeeService.updateKycInfo(this.empId(), formData).subscribe({
       next: (resp: any) => {
         this.alertService.success('Success', resp).then(() => {
           this.employeeStore.refreshList();
@@ -223,8 +371,10 @@ export class KycDocumentComponentDetail {
       if (params.editMode && params.id !== EMPTY_UUID) {
         return this.employeeService.getKycData(params.id).pipe(
           tap((resp: any) => {
+            const documentsArray = Array.isArray(resp) ? resp : (resp?.documents ?? []);
+
             this.kycModel.update((state) => ({
-              documents: (resp.documents ?? []).map(
+              documents: documentsArray.map(
                 (doc: IEmployeeDocument) =>
                   new EmployeeDocument({
                     ...doc,
@@ -239,7 +389,7 @@ export class KycDocumentComponentDetail {
         this.kycModel.set({
           documents: [],
         });
-        return of(null); // Safely stream an empty observable
+        return of(null);
       }
     },
   });

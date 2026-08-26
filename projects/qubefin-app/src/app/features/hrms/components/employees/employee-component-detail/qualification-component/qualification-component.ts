@@ -14,7 +14,6 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
-import Swal from 'sweetalert2';
 import { EmployeeQualification, IEmployeeQualification } from '../../../../models/employee-detail';
 
 interface QualificationFormModel {
@@ -52,15 +51,11 @@ export class QualificationComponentDetail {
     qualifications: [],
   });
 
-  // 2. Refactor your schema block using applyEach
   protected readonly qualificationschema = schema<QualificationFormModel>((path) => {
-    // Ensures the array itself is present
     required(path.qualifications);
 
-    // Iterates cleanly through each item in the array with correct type safety
     applyEach(path.qualifications, (refPath) => {
       required(refPath.academicStream);
-      // required(refPath.specialization);
       required(refPath.yearOfPassing);
       required(refPath.universityOrBoard);
       required(refPath.schoolOrCollege);
@@ -73,7 +68,6 @@ export class QualificationComponentDetail {
   constructor() {
     effect(() => {
       if (this.qualificationModel().qualifications.length === 0) {
-        // this.addQualification();
         const model = new EmployeeQualification();
         model.id = EMPTY_UUID;
         model.employeeId = this.empId();
@@ -121,7 +115,7 @@ export class QualificationComponentDetail {
         return this.employeeService.getQualificationData(params.id).pipe(
           tap((resp: any) => {
             this.qualificationModel.update((state) => ({
-              qualifications: (resp.qualifications ?? []).map(
+              qualifications: (resp ?? []).map(
                 (doc: IEmployeeQualification) =>
                   new EmployeeQualification({
                     ...doc,
@@ -134,7 +128,7 @@ export class QualificationComponentDetail {
         this.qualificationModel.set({
           qualifications: [],
         });
-        return of(null); // Safely stream an empty observable
+        return of(null);
       }
     },
   });

@@ -143,7 +143,7 @@
                             </div>
 
                             @if (data.attachment) {
-                            <div (click)="viewDocument(data.attachmentUrl)" matTooltip="View Document"
+                            <div (click)="viewDocument(data.attachmentUrl, data.attachment)" matTooltip="View Document"
                                 class="cursor-pointer">
                                 <svg lucideIcon="eye" class="w-5 h-5 text-primary-600 dark:text-primary-400"></svg>
                             </div>

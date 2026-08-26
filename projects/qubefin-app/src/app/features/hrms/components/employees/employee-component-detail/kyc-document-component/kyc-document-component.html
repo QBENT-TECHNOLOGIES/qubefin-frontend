@@ -6,92 +6,125 @@
         <div class="green-line"></div>
     </div>
     @for (doc of kycModel().documents; track $index) {
-        <div class="flex items-center gap-3 border-b border-slate-200 pb-3">
-            <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-                <!-- Document -->
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Document</mat-label>
-                    <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="file-text" class="w-5 h-5"></svg>
-                    </div>
-                    <mat-select [formField]="kycForm.documents[$index].documentName"
-                        (selectionChange)="onDocumentChange($index)" placeholder="Select Document">
-                        @for (item of availableDocuments($index); track item.id) {
-                        <mat-option [value]="item.name">
-                            {{ item.name }}
-                        </mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
-                <!-- Document Number -->
-                @if(selectedDocument($index)) {
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>
-                            Document Number
-                        </mat-label>
-                        <div class="w-12 flex justify-center" matPrefix>
-                            <svg lucideIcon="tag" class="w-5 h-5"></svg>
-                        </div>
-                        <input matInput autocomplete="off" placeholder="Enter Document Number"
-                            [formField]="kycForm.documents[$index].documentNo">
-                    </mat-form-field>
-                }
-                <!-- Valid From -->
-                @if(selectedDocument($index)?.isDateValidate) {
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>
-                            Valid From
-                        </mat-label>
-                        <div matPrefix class="w-12 flex justify-center">
-                            <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
-                        </div>
-                        <input matInput  [matDatepicker]="validFrom" autocomplete="off" [formField]="kycForm.documents[$index].validFrom">
-                        
-                            <mat-datepicker-toggle
-                                matIconSuffix
-                                [for]="validFrom">
-                            </mat-datepicker-toggle>
+    <div class="flex items-center gap-3 border-b border-slate-200 pb-3">
+        <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Document -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Document</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="kycForm.documents[$index].documentName"
+                    (selectionChange)="onDocumentChange($index)" placeholder="Select Document">
+                    @for (item of availableDocuments($index); track item.id) {
+                    <mat-option [value]="item.name">
+                        {{ item.name }}
+                    </mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            <!-- Document Number -->
+            @if(selectedDocument($index)) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>
+                    Document Number
+                </mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" placeholder="Enter Document Number"
+                    [formField]="kycForm.documents[$index].documentNo">
 
-                            <mat-datepicker #validFrom></mat-datepicker>
-                        <mat-error> Valid From is invalid.</mat-error>
-                    </mat-form-field>
-                    <!-- Valid Till -->
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>
-                            Valid Till
-                        </mat-label>
-                        <div matPrefix class="w-12 flex justify-center">
-                            <svg lucideIcon="calendar-clock" class="w-5 h-5">
-                            </svg>
-                        </div>
-                        <input matInput 
-                            [matDatepicker]="validTill"
-                            autocomplete="off" [min]="doc.validFrom"
-                            [formField]="kycForm.documents[$index].validTill">
-                            <mat-datepicker-toggle
-                                matIconSuffix
-                                [for]="validTill">
-                            </mat-datepicker-toggle>
+                <mat-error class="cus-error">
+                    {{ kycForm.documents[$index].documentNo().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+            }
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Upload Document</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="paperclip" class="w-5 h-5 text-slate-500"></svg>
+                </div>
+                <input matInput [value]="doc.fileName || 'No file chosen'" readonly />
+                <input hidden (change)="onFileSelected($event, $index)" #fileInput
+                    accept="image/jpeg,image/png,image/jpg,image/webp,application/pdf" type="file">
 
-                            <mat-datepicker #validTill></mat-datepicker>
-                        <mat-error> Valid Till is invalid.</mat-error>
-                    </mat-form-field>
-                    <!-- @if (isValidTillInvalid($index)) {
+                <div matSuffix class="flex items-center gap-2 pr-1.5 py-1">
+                    @if (doc.fileName) {
+                    <!-- Remove Button (X icon) -->
+                    <button type="button" mat-icon-button (click)="removeFile($index)" class="text-rose-500">
+                        <svg lucideIcon="x" class="w-4 h-4"></svg>
+                    </button>
+                    }
+
+                    <button type="button"
+                        class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
+                        (click)="fileInput.click()">
+                        <svg lucideIcon="upload" class="w-3.5 h-3.5"></svg>
+                        Choose File
+                    </button>
+
+                    @if (doc.fileName) {
+                    <!-- Leave Request Style View Button -->
+                    <button type="button" (click)="openDocument($index)"
+                        class="bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-primary-200 dark:border-primary-800/30 cursor-pointer">
+                        <svg lucideIcon="eye" class="w-3.5 h-3.5"></svg>
+                        View
+                    </button>
+                    }
+                </div>
+            </mat-form-field>
+            <!-- Valid From -->
+            @if(selectedDocument($index)?.isDateValidate) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>
+                    Valid From
+                </mat-label>
+                <div matPrefix class="w-12 flex justify-center">
+                    <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [matDatepicker]="validFrom" autocomplete="off"
+                    [formField]="kycForm.documents[$index].validFrom">
+
+                <mat-datepicker-toggle matIconSuffix [for]="validFrom">
+                </mat-datepicker-toggle>
+
+                <mat-datepicker #validFrom></mat-datepicker>
+                <mat-error> Valid From is invalid.</mat-error>
+            </mat-form-field>
+            <!-- Valid Till -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>
+                    Valid Till
+                </mat-label>
+                <div matPrefix class="w-12 flex justify-center">
+                    <svg lucideIcon="calendar-clock" class="w-5 h-5">
+                    </svg>
+                </div>
+                <input matInput [matDatepicker]="validTill" autocomplete="off" [min]="doc.validFrom"
+                    [formField]="kycForm.documents[$index].validTill">
+                <mat-datepicker-toggle matIconSuffix [for]="validTill">
+                </mat-datepicker-toggle>
+
+                <mat-datepicker #validTill></mat-datepicker>
+                <mat-error> Valid Till is invalid.</mat-error>
+            </mat-form-field>
+            <!-- @if (isValidTillInvalid($index)) {
                         <mat-error>
                             Valid Till is invalid.
                         </mat-error>
                     } -->
-                }
-            </div>
-            <div (click)="removeDocument($index)" matTooltip="Delete" 
-                class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 text-red-500 hover:text-red-700 cursor-pointer">
-                <svg lucideIcon="trash-2" class="w-5 h-5"></svg>
-            </div>
+            }
         </div>
+        <div (click)="removeDocument($index)" matTooltip="Delete"
+            class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 text-red-500 hover:text-red-700 cursor-pointer">
+            <svg lucideIcon="trash-2" class="w-5 h-5"></svg>
+        </div>
+    </div>
     }
     <!-- Add Document -->
     <div class="flex justify-end items-center">
-        <button type="button" (click)="addDocument()" 
+        <button type="button" (click)="addDocument()"
             class="cursor-pointer ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r to-primary-500 from-secondary-500">
             <svg lucideIcon="plus" class="w-5 h-5"></svg>
             Add Document
@@ -100,8 +133,7 @@
     <!-- Save -->
     <div class="step-footer-area border-0!">
         <div class="flex flex-1 justify-end items-center gap-3">
-            <button type="button" (click)="onSubmit()"
-                class="global-btn ripple-btn shadow shine-sweep lift">
+            <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">
                 Save
                 <svg lucideIcon="chevron-right" class="w-5 h-5">
                 </svg>

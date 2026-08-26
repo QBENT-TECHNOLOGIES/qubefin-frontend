@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, pattern, required, schema, Schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeStore } from '../../../../stores/employee-store';
@@ -30,6 +30,7 @@ import {
   IEmployeeOfficialInfo,
   IEmployeePayrollInfo,
 } from '../../../../models/employee-detail';
+import { CompanyStore } from '../../../../../global/stores/company-store';
 
 @Component({
   selector: 'qfin-banking-component',
@@ -51,17 +52,31 @@ export class BankingComponentDetail {
   //   onCancel = output<void>();
   onBankingUpdate = output<void>();
 
+  private readonly companyStore = inject(CompanyStore);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
   readonly iconMap = APP_ICONS_MAP;
+
+  readonly banks = this.companyStore.banks;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
   protected readonly bankingModel = signal<IEmployeePayrollInfo>(new EmployeePayrollInfo());
 
-  protected readonly officialSchema: Schema<IEmployeePayrollInfo> = schema((path) => {});
+  protected readonly bankingSchema: Schema<IEmployeePayrollInfo> = schema((path) => {
+    required(path.esiIpNumber, { when: () => this.bankingModel().hasEsiEligible });
+    pattern(path.bankAccountNo as any, /^\d{9,15}$/, {
+      message: 'Account number must be between 9 and 15 digits',
+    });
+    pattern(path.universalAccountNumber, /^\d{12}$/, {
+      message: 'Account number must be between 9 and 15 digits',
+    });
+    pattern(path.ifscCode, /^[A-Z]{4}0[A-Z0-9]{6}$/, {
+      message: 'Invalid IFSC Code',
+    });
+  });
 
-  protected readonly bankingForm = form(this.bankingModel, this.officialSchema);
+  protected readonly bankingForm = form(this.bankingModel, this.bankingSchema);
 
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
@@ -87,9 +102,6 @@ export class BankingComponentDetail {
   });
 
   onSubmit() {
-    // console.log(this.presentAddressForm().value());
-    // console.log(this.permanentAddressForm().value());
-
     if (!this.bankingForm().valid()) {
       return;
     }
@@ -107,6 +119,8 @@ export class BankingComponentDetail {
     dataToSave.universalAccountNumber =
       dataToSave.universalAccountNumber == '' ? null : dataToSave.universalAccountNumber;
     dataToSave.isPayrollActive = dataToSave.isPayrollActive;
+    dataToSave.pfAccountNo = dataToSave.pfAccountNo == '' ? null : dataToSave.pfAccountNo;
+    dataToSave.ifscCode = dataToSave.ifscCode == '' ? null : dataToSave.ifscCode;
 
     if (this.isEditMode()) {
       this.employeeService.updateBankingInfo(this.empId(), dataToSave).subscribe({
