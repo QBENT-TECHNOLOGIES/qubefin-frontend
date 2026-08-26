@@ -207,9 +207,11 @@
                         <th mat-header-cell *matHeaderCellDef>Is Active</th>
 
                         <td mat-cell *matCellDef="let item">
-                            <p [class.text-emerald-600]="item.isActive" [class.text-rose-600]="!item.isActive">
+                            <span class="px-2 py-1 text-xs font-medium rounded" [class.bg-green-100]="item.isActive"
+                                [class.text-green-800]="item.isActive" [class.bg-red-100]="!item.isActive"
+                                [class.text-red-800]="!item.isActive">
                                 {{ item.isActive? 'Yes': 'No' }}
-                            </p>
+                            </span>
                         </td>
                     </ng-container>
 

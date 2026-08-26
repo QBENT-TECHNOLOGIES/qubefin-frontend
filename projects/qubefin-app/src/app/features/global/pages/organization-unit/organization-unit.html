@@ -2,9 +2,7 @@
     <div class="header-group">
         <div class="flex items-center gap-3"></div>
         <div class="headerBtn-area">
-            <button
-                class="global-btn shine-sweep lift"
-                (click)="onAdd()">
+            <button class="global-btn shine-sweep lift" (click)="onAdd()">
                 <svg lucideIcon="plus" class="w-4 h-4"></svg>
                 New Unit
             </button>
@@ -15,14 +13,12 @@
         <aside class="aside-view">
             <div class="aside-container glass">
                 <div class="search-area">
-                    <div
-                        class="search-input-area">
+                    <div class="search-input-area">
                         <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
                         <input type="text" placeholder="Search units..." aria-label="Search organization units"
                             class="search-input-style" />
                     </div>
-                    <button aria-label="Filter"
-                        class="search-input-btn lift">
+                    <button aria-label="Filter" class="search-input-btn lift">
                         <svg lucideIcon="funnel" class="w-4 h-4"></svg>
                     </button>
                 </div>
@@ -41,7 +37,7 @@
             </qfin-organization-unit-view-component>
             } @else {
             <qfin-organization-unit-detail-component [organizationUnitId]="selectedOrganizationUnitId()"
-                (cancel)="isViewMode.set(true)">
+                (cancel)="onClose()">
             </qfin-organization-unit-detail-component>
             }
         </section>
