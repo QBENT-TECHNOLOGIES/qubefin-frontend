@@ -1,0 +1,168 @@
+<div class="page-container">
+  <div class="header-group">
+    <div class="flex items-center gap-3"></div>
+    <div class="headerBtn-area">
+      @if (selectedId() === EMPTY_UUID && isViewMode()) {
+      <button type="button" (click)="toggleFilterArea()"
+        class="filter-btn glass-input lift shine-sweep">
+        <svg lucideIcon="funnel" class="w-4 h-4"></svg>
+        Filter
+      </button>
+      <button class="global-btn ripple-btn shine-sweep lift" (click)="onGenerate()">
+        <svg lucideIcon="zap" class="w-4 h-4"></svg>
+        Generate
+      </button>
+      }
+    </div>
+  </div>
+
+  <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
+    <div class="mainCard-area glass" [ngClass]="{
+          'w-full max-w-full opacity-100 translate-x-0':
+              selectedId() === EMPTY_UUID && isViewMode(),
+
+          'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]':
+              !isViewMode() && selectedId() !== EMPTY_UUID,
+
+          'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
+              false 
+      }">
+      @if (selectedId() === EMPTY_UUID && isViewMode()) {
+      @if (showFilterArea()) {
+      <div class="filter-area">
+        <div class="filter-container">
+          <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3 w-full md:w-auto">
+            <!-- Search -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+              <mat-label>Search</mat-label>
+              <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="search" class="w-4 h-4"></svg>
+              </div>
+              <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                placeholder="Search by name or code" autocomplete="off" />
+            </mat-form-field>
+            
+            <!-- Year -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+              <mat-label>Year</mat-label>
+              <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-days" class="w-4 h-4"></svg>
+              </div>
+              <mat-select [ngModel]="year()" (ngModelChange)="year.set($event)">
+                @for (y of yearsList; track y) {
+                <mat-option [value]="y">{{ y }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Month -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+              <mat-label>Month</mat-label>
+              <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar" class="w-4 h-4"></svg>
+              </div>
+              <mat-select [ngModel]="month()" (ngModelChange)="month.set($event)">
+                @for (m of monthsList; track m.value) {
+                <mat-option [value]="m.value">{{ m.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Status -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+              <mat-label>Status</mat-label>
+              <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="activity" class="w-4 h-4"></svg>
+              </div>
+              <mat-select [ngModel]="status()" (ngModelChange)="status.set($event)">
+                <mat-option [value]="null">All Status</mat-option>
+                @for (opt of statusOptions; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="flex items-center gap-2.5 shrink-0">
+            <button type="button" (click)="applyFilters()"
+              class="global-btn shine-sweep lift">
+              <svg lucideIcon="search" class="w-4 h-4"></svg>
+              Search
+            </button>
+            <button type="button" (click)="resetFilters()"
+              class="reset-btn lift">
+              <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+      } @else {
+      <div class="search-area">
+        <div class="search-input-area">
+          <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
+          <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+            placeholder="Search by name or code..." autocomplete="off"
+            (keyup.enter)="applyFilters()"
+            class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400" />
+        </div>
+        <button (click)="applyFilters()" class="search-input-btn lift">
+          <svg lucideIcon="search" class="w-4 h-4"></svg>
+        </button>
+      </div>
+      }
+      }
+
+      @if (store.loading()) {
+      <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="loader" class="w-5 h-5 animate-spin"></svg>
+        Loading data...
+      </div>
+      } @else if (store.error()) {
+      <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
+        Unable to load data.
+      </div>
+      } @else {
+      <qfin-employee-lop-finalization-list [data]="listData()" [selectedId]="selectedId()"
+        [isCollapsed]="selectedId() !== EMPTY_UUID && !isViewMode()" (onEditDetail)="onEdit($event)">
+      </qfin-employee-lop-finalization-list>
+      }
+    </div>
+
+    @if (hasSelectedRecord()) {
+    <div class="viewArea-container glass" [ngClass]="{
+        'w-3/4': !isViewMode() && selectedId() !== EMPTY_UUID,
+        'w-full': false
+      }">
+      <div class="viewArea-header">
+        <div class="viewArea-headerInner">
+          <div class="flex items-center gap-4">
+            <div>
+              <div class="flex justify-start gap-2">
+                <h2 class="viewArea-title">Edit LOP Details</h2>
+                <div class="viewArea-badge">
+                  <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+                  <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                    Edit Mode
+                  </span>
+                </div>
+              </div>
+              <p class="viewArea-description">Update the selected employee's attendance status.</p>
+            </div>
+          </div>
+        </div>
+        <button aria-label="Close" matTooltip="Close" class="pannel-close" (click)="closePanel()">
+          <svg lucideIcon="x" class="w-4 h-4"></svg>
+        </button>
+      </div>
+
+      <div>
+        <qfin-employee-lop-finalization-detail [recordId]="selectedId()" (cancel)="closePanel()"
+          (save)="closePanel()">
+        </qfin-employee-lop-finalization-detail>
+      </div>
+    </div>
+    }
+  </div>
+</div>

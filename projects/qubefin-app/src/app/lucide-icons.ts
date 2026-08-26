@@ -157,7 +157,9 @@ import {
   LucideCheckCheck,
   LucideSquareMousePointer,
   LucideCrosshair,
-  LucideWorkflow
+  LucideWorkflow,
+  LucideZap,
+  LucideActivity,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -318,6 +320,8 @@ export const APP_ICONS = [
   LucideCheckCheck,
   LucideSquareMousePointer,
   LucideCrosshair,
+  LucideZap,
+  LucideActivity,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -477,5 +481,7 @@ export const APP_ICONS_MAP: Record<string, any> = {
   CheckCheck: LucideCheckCheck,
   SquareMousePointer: LucideSquareMousePointer,
   Crosshair: LucideCrosshair,
-  Workflow: LucideWorkflow
+  Workflow: LucideWorkflow,
+  Zap: LucideZap,
+  Activity: LucideActivity,
 };
