@@ -129,8 +129,13 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="flag" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="$any(employeeForm)['nationality']" autocomplete="off"
-                placeholder="Enter Nationality">
+            <mat-select [formField]="employeeForm.nationality" placeholder="Select Nationality">
+                @for (n of nationalities; track n) {
+                <mat-option [value]="n">
+                    {{ n }}
+                </mat-option>
+                }
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Blood Group</mat-label>

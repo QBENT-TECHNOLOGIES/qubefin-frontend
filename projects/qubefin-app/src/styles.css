@@ -56,3 +56,9 @@
 .year-select {
     width: 90px !important;
 }
+.cus-error {
+    position: absolute;
+    bottom: -8px;
+    background: #fff;
+    left: 12%;
+}

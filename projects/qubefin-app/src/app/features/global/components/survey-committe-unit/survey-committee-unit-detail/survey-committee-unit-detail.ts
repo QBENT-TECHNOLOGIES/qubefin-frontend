@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, readonly, required, schema, Schema } from '@angular/forms/signals';
 import {
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
@@ -82,7 +82,7 @@ export class SurveyCommitteeUnitDetail {
     required(path.employeeId, {
       message: 'Employee ID is required',
     });
-
+    readonly(path.assignedTo, { when: () => true });
     if (!this.formModel().isActive) {
       required(path.assignedTo, {
         message: 'Assigned To is required',

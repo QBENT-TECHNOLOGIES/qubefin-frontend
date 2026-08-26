@@ -34,11 +34,10 @@
                 </div>
                 <input matInput autocomplete="off" placeholder="Enter Document Number"
                     [formField]="kycForm.documents[$index].documentNo">
-                @if (isDocumentNumberInvalid($index)) {
-                <mat-hint class="text-red-500 font-medium">
-                    {{ getDocumentErrorMessage($index) }}
-                </mat-hint>
-                }
+
+                <mat-error class="cus-error">
+                    {{ kycForm.documents[$index].documentNo().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             }
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">

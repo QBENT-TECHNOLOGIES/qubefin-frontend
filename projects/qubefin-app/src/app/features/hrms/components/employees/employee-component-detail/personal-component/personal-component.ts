@@ -15,8 +15,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
+import { AlertService, EMPTY_UUID, nationalities } from 'qubefin-core';
+import { form, FormField, readonly, required, schema, Schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeStore } from '../../../../stores/employee-store';
@@ -59,7 +59,7 @@ export class PersonalComponentDetail {
 
   private dateAdapter = inject(DateAdapter<Date>);
   readonly maxDate = new Date();
-
+  readonly nationalities = nationalities;
   private readonly datePipe = inject(DatePipe);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
@@ -79,6 +79,7 @@ export class PersonalComponentDetail {
     required(path.gender, { message: 'Gender is required' });
     required(path.maritalStatus, { message: 'Gender is required' });
     required(path.religion, { message: 'Religion is required' });
+    readonly(path.dateOfBirth, { when: () => true });
   });
 
   protected readonly employeeForm = form(this.employeeModel, this.employeeSchema);

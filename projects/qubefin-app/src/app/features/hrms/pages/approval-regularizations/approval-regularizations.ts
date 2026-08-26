@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CommonModule } from '@angular/common';
-import { form, FormField } from '@angular/forms/signals';
+import { form, FormField, readonly, schema, Schema } from '@angular/forms/signals';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
 import { EMPTY_UUID, RouteMeta } from 'qubefin-core';
@@ -25,6 +25,11 @@ import {
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
 import { EmployeeService } from '../../services/employee-service';
+export interface ISearchModel {
+  tempSearch: string;
+  fromDate: string;
+  toDate: string;
+}
 @Component({
   selector: 'qfin-approval-regularizations',
   imports: [
@@ -60,13 +65,18 @@ export class ApprovalRegularizations {
   private readonly employeeSearch$ = new Subject<{ searchText: string }>();
   readonly selectedEmployee = signal<EmployeeSearchByText | null>(null);
   readonly selectedAttendanceRegularizationId = signal<string>(EMPTY_UUID);
-  readonly searchModel = signal({
+  readonly statuses = signal<string[]>(['Approved', 'Rejected', 'Pending']);
+
+  readonly searchModel = signal<ISearchModel>({
     tempSearch: '',
     fromDate: '',
     toDate: '',
   });
-  readonly statuses = signal<string[]>(['Approved', 'Rejected', 'Pending']);
-  readonly searchForm = form(this.searchModel);
+  readonly searchSchema: Schema<ISearchModel> = schema((path) => {
+    readonly(path.fromDate, { when: () => true });
+    readonly(path.toDate, { when: () => true });
+  });
+  readonly searchForm = form(this.searchModel, this.searchSchema);
   readonly attendanceRegularizations = this.approvalRegularizationsStore.approvalRegularization;
   constructor() {
     this.dateAdapter.setLocale('en-GB');
