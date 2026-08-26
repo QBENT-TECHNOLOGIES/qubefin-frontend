@@ -564,6 +564,13 @@ a:focus-visible, button:focus-visible {
  /* =================================================
  ============================================== For Success Sweet-alert
  ======================================================== */
+.swal2-container,
+.swal2-container.swal2-backdrop-show,
+.swal2-container.swal2-shown,
+body.swal2-shown .swal2-container {
+  z-index: 999999 !important;
+}
+
 .swal-popup {
   border-radius: 20px !important;
   overflow: hidden;

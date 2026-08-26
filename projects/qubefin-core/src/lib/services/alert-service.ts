@@ -5,13 +5,23 @@ import Swal, { SweetAlertIcon, SweetAlertOptions, SweetAlertResult } from 'sweet
   providedIn: 'root',
 })
 export class AlertService {
+  private get targetElement(): HTMLElement | string {
+    const overlayPanes = document.querySelectorAll('.cdk-overlay-pane');
+    if (overlayPanes.length > 0) {
+      return overlayPanes[overlayPanes.length - 1] as HTMLElement;
+    }
+    return 'body';
+  }
+
   private swal = Swal.mixin({
+    target: 'body',
     heightAuto: false,
     allowOutsideClick: false,
     allowEscapeKey: true,
     reverseButtons: true,
     buttonsStyling: false,
     customClass: {
+      container: 'high-z-index-swal',
       popup: 'rounded-3xl',
       confirmButton: 'btn btn-primary',
       cancelButton: 'btn btn-secondary',
@@ -20,6 +30,7 @@ export class AlertService {
 
   success(title?: string | null, text?: string) {
     return this.swal.fire({
+      target: this.targetElement,
       html: `
                 <div class="alert-icon-wrapper success">
                 <div class="confetti c1"></div>
@@ -59,6 +70,7 @@ export class AlertService {
 
   error(title?: string | null, text?: string) {
     return this.swal.fire({
+      target: this.targetElement,
       html: `
                 <div class="error-shape es1"></div>
                 <div class="error-shape es2"></div>
@@ -97,6 +109,7 @@ export class AlertService {
 
   warning(title?: string | null, text?: string) {
     return this.swal.fire({
+      target: this.targetElement,
       html: `
                 <div class="alert-icon-wrapper warning">
                 <div class="circle-outer warning-outer">
@@ -132,6 +145,7 @@ export class AlertService {
 
   info(title?: string | null, text?: string) {
     return this.swal.fire({
+      target: this.targetElement,
       html: `
                 <svg class="dot-pattern-tl">
                 ${Array.from({ length: 12 })
@@ -178,6 +192,7 @@ export class AlertService {
 
   question(title: string, text?: string) {
     return this.swal.fire({
+      target: this.targetElement,
       icon: 'question',
       title,
       text,
@@ -192,6 +207,7 @@ export class AlertService {
     cancelText = 'Cancel',
   ): Promise<SweetAlertResult<any>> {
     return this.swal.fire({
+      target: this.targetElement,
       html: `
             <svg class="dot-pattern-tl">
             ${Array.from({ length: 12 })
@@ -240,6 +256,7 @@ export class AlertService {
 
   delete(text = 'This action cannot be undone.'): Promise<SweetAlertResult<any>> {
     return this.swal.fire({
+      target: this.targetElement,
       icon: 'warning',
       title: 'Delete Record?',
       text,
