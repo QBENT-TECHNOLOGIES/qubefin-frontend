@@ -163,6 +163,7 @@ export class PersonalComponentDetail {
       dateOfBirth: this.datePipe.transform(formValue.dateOfBirth, 'yyyy-MM-dd'),
       middleName: formValue.middleName?.trim() === '' ? null : formValue.middleName,
       fatherName: formValue.fatherName?.trim() === '' ? null : formValue.fatherName,
+      husbandName: formValue.husbandName?.trim() === '' ? null : formValue.husbandName,
       motherName: formValue.motherName?.trim() === '' ? null : formValue.motherName,
       caste: formValue.caste?.trim() === '' ? null : formValue.caste,
       disabilityType: formValue.disablityType?.trim() === '' ? null : formValue.disablityType,

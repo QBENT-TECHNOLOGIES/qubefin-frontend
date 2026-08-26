@@ -75,9 +75,6 @@ export class AddressComponentDetail {
   );
 
   protected readonly employeeAddressSchema: Schema<IEmployeeAddressInfo> = schema((path) => {
-    required(path.houseNo, { message: 'House/Plot No is required' });
-    required(path.roadName, { message: 'Road/Street Name is required' });
-    required(path.landMark, { message: 'Landmark is required' });
     required(path.administrativeUnitId, { message: 'Location details are required' });
     required(path.policeStationId, { message: 'Police Station is required' });
     required(path.pinCode, { message: 'Pin Code is required' });

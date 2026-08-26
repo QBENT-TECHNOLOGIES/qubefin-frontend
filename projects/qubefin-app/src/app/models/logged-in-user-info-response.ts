@@ -11,4 +11,5 @@ export interface LoggedInUserInfoResponse {
   checkRadiusInMeter: number;
   designation: string;
   notificationCount?: number;
+  companyLogoUrl?: string;
 }

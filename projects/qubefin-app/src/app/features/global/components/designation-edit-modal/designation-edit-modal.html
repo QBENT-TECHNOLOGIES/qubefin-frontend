@@ -1,0 +1,107 @@
+<div
+    class="flex items-center justify-between px-5 py-3 bg-white/60 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+    <div class="flex items-center gap-4">
+        <div
+            class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50 dark:bg-secondary-600/50 text-indigo-600 dark:text-indigo-500 border border-indigo-100 dark:border-0">
+            <svg lucideIcon="banknote" class="w-6 h-6"></svg>
+        </div>
+        <div>
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 leading-tight">
+                Create Designation For {{desName()}}
+            </h2>
+            <!-- <p class="text-sm text-slate-500 font-medium mt-1 flex items-center gap-1.5">
+          <span class="text-slate-700 dark:text-slate-300 font-semibold">{{ payroll.employeeName | uppercase }}</span>
+          <span class="text-slate-400 dark:text-slate-200">({{ payroll.employeeCode }})</span>
+          <span class="text-slate-300">&bull;</span>
+          <span class="text-indigo-600 font-semibold bg-indigo-50 px-2 py-0.5 rounded-md">{{ getMonthName(payroll.payrollMonth) }} {{ payroll.payrollYear }}</span>
+        </p> -->
+        </div>
+    </div>
+    <button (click)="onCancel()"
+        class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer focus:outline-none">
+        <svg lucideIcon="x" class="w-5 h-5"></svg>
+    </button>
+</div>
+<mat-dialog-content class="p-5!">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="text" autocomplete="off" [formField]="designationForm.name"
+                placeholder="Enter Designation Name">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Role</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="designationForm.roleId">
+                @for(item of roles(); track item.id){
+                <mat-option [value]="item.id">
+                    {{item.name}}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Post</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="designationForm.postId">
+                @for(item of posts(); track item.id){
+                <mat-option [value]="item.id">
+                    {{item.name}}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Salaray Grade</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="designationForm.salaryGradeId">
+                @for(item of salaryGrades(); track item.id){
+                <mat-option [value]="item.id">
+                    {{item.name}}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions class="justify-between! px-6 py-4 bg-white/60 dark:bg-slate-800 border-t border-slate-200">
+    <!-- <div class="flex items-center gap-4">
+      <div class="flex flex-col">
+        <span class="text-[11px] font-bold text-slate-500 dark:text-slate-200 uppercase tracking-wider">Net Pay</span>
+        <span class="text-2xl font-bold text-slate-800 dark:text-slate-200 tracking-tight">₹{{ netPay() | number:'1.2-2' }}</span>
+      </div>
+      @if (payroll.isLocked) {
+        <div class="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg flex items-center gap-1.5 border border-slate-200 ml-2">
+          <svg lucideIcon="lock" class="w-3.5 h-3.5"></svg> Locked
+        </div>
+      }
+    </div> -->
+    <div class="flex justify-end gap-3">
+
+        <button (click)="onSave()" class="global-btn shine-sweep lift">
+
+            <!-- <svg lucideIcon="loader-2" class="w-4 h-4 animate-spin"></svg> Saving... -->
+
+            <svg lucideIcon="save" class="w-4 h-4"></svg> Save
+
+        </button>
+
+        <button (click)="onCancel()"
+            class="cursor-pointer px-5 py-2.5 flex items-center gap-2 bg-white border border-slate-300 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 text-slate-700 text-sm font-semibold rounded-lg shadow-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+            Cancel
+        </button>
+    </div>
+</mat-dialog-actions>
