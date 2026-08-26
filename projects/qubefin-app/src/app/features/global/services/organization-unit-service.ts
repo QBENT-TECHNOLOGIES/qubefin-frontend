@@ -34,4 +34,10 @@ export class OrganizationUnitService {
   getOrganizationUnitByType(id: string) {
     return this.httpClient.get(`${ApiPaths.GLOBAL}/organization-units/${id}/types`);
   }
+  saveDesignation(designation: any) {
+    return this.httpClient.post(
+      `${ApiPaths.GLOBAL}/organization-units/designation-create`,
+      designation,
+    );
+  }
 }

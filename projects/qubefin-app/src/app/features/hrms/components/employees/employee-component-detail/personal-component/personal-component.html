@@ -88,6 +88,7 @@
             <input matInput [formField]="$any(employeeForm)['fatherName']" autocomplete="off"
                 placeholder="Enter Father name">
         </mat-form-field>
+
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Mother Name</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -95,6 +96,14 @@
             </div>
             <input matInput [formField]="$any(employeeForm)['motherName']" autocomplete="off"
                 placeholder="Enter Mother Name">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Husband Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="$any(employeeForm)['husbandName']" autocomplete="off"
+                placeholder="Enter Husband Name">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Religion</mat-label>

@@ -115,6 +115,7 @@ export class OrganizationUnitDetailComponent {
     createdBy: '',
     createdOn: new Date(),
     hierarchy: [],
+    designations: [],
   });
   protected readonly organizationUnitSchema: Schema<OrganizationUnit> = schema((path) => {
     required(path.name, { message: 'Organization Unit Name is required' });

@@ -180,9 +180,9 @@ a:focus-visible, button:focus-visible {
 .table {
   @apply w-full text-left border-collapse whitespace-nowrap;
 }
-.table thead tr {
+/* .table thead tr {
   @apply border-b border-gray-100 bg-secondary-600/10 dark:bg-slate-500/10 dark:border-slate-700;
-}
+} */
 .table thead tr th {
   @apply p-3 text-sm font-semibold text-secondary-600 dark:text-slate-200;
 }
@@ -193,7 +193,8 @@ a:focus-visible, button:focus-visible {
   @apply px-3 py-0.5 text-[13px] text-gray-600 dark:text-slate-300;
 }
 .table.mat-mdc-table .mat-mdc-header-cell {
-  @apply border-b border-gray-100 bg-secondary-500/1 dark:bg-slate-500/10 dark:border-slate-700;
+  /* @apply border-b border-gray-100 bg-secondary-500/1 dark:bg-slate-500/10 dark:border-slate-700; */
+  @apply border-b border-gray-100 bg-secondary-600/10 dark:bg-slate-500/10 dark:border-slate-700;
 }
 /* For Drawer */
 .profile-menu.mat-mdc-menu-panel {
@@ -563,6 +564,13 @@ a:focus-visible, button:focus-visible {
  /* =================================================
  ============================================== For Success Sweet-alert
  ======================================================== */
+.swal2-container,
+.swal2-container.swal2-backdrop-show,
+.swal2-container.swal2-shown,
+body.swal2-shown .swal2-container {
+  z-index: 999999 !important;
+}
+
 .swal-popup {
   border-radius: 20px !important;
   overflow: hidden;
@@ -1197,4 +1205,12 @@ a:focus-visible, button:focus-visible {
 }
 .edit-box {
   @apply w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:border-primary-500/50 dark:hover:border-primary-500/50 hover:bg-primary-500/5 dark:hover:bg-primary-500/10 transition cursor-pointer;
+}
+
+.table-box {
+  max-height: 400px;
+  @apply overflow-y-auto divide-y divide-slate-200/20 dark:divide-white/10;
+}
+.table-box .table.mat-mdc-table .mat-mdc-header-cell {
+  @apply border-b border-gray-100 bg-gray-300 dark:bg-slate-700 dark:border-slate-700;
 }

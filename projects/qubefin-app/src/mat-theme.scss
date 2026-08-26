@@ -346,3 +346,19 @@ html {
     color: #fff !important;
   }
 }
+
+/* Ensure SweetAlert modal container always displays above Angular Material Dialog overlays */
+.cdk-overlay-container,
+.cdk-global-overlay-wrapper,
+.cdk-overlay-pane {
+  z-index: 1000 !important;
+}
+
+.high-z-index-swal,
+.swal2-container,
+.swal2-container.swal2-backdrop-show,
+.swal2-container.swal2-shown,
+body.swal2-shown .swal2-container,
+html body div.swal2-container {
+  z-index: 9999999 !important;
+}
