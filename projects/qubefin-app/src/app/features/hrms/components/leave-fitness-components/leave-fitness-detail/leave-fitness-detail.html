@@ -1,0 +1,358 @@
+@if (item(); as request) {
+<div class="view-container">
+  <div class="section-container">
+    <div class="unit-box">
+      <!-- View Header -->
+      <div class="unit-box-header">
+        <div class="box-group">
+          <div>
+            <svg lucideIcon="calendar-days" class="w-6 h-6 text-primary-700 dark:text-primary-400"></svg>
+          </div>
+          <div>
+            <div class="box-title-group">
+              <h1 class="box-title">
+                Leave Request
+              </h1>
+
+            </div>
+            <p class="box-subTitle text-xs!">Details</p>
+          </div>
+        </div>
+
+        <div class="box-group">
+          <!-- Status Badge -->
+          <div class="badge-group">
+            <span class="badge" [class.text-emerald-600]="request.currentStatus === 'Approved'"
+              [class.dark:text-emerald-400]="request.currentStatus === 'Approved'"
+              [class.text-rose-600]="request.currentStatus === 'Rejected'"
+              [class.dark:text-rose-400]="request.currentStatus === 'Rejected'"
+              [class.text-slate-600]="request.currentStatus === 'Cancelled'"
+              [class.dark:text-slate-400]="request.currentStatus === 'Cancelled'"
+              [class.text-yellow-600]="request.currentStatus === 'Pending'"
+              [class.dark:text-yellow-400]="request.currentStatus === 'Pending'"
+              [class.text-blue-600]="request.currentStatus === 'Draft' || !request.currentStatus"
+              [class.dark:text-blue-400]="request.currentStatus === 'Draft' || !request.currentStatus">
+
+              <span class="w-2 h-2 rounded-full relative flex">
+                <span class="animate-circle" [class.bg-emerald-400]="request.currentStatus === 'Approved'"
+                  [class.bg-rose-400]="request.currentStatus === 'Rejected'"
+                  [class.bg-slate-400]="request.currentStatus === 'Cancelled'"
+                  [class.bg-yellow-400]="request.currentStatus === 'Pending'"
+                  [class.bg-blue-400]="request.currentStatus === 'Draft' || !request.currentStatus">
+                </span>
+
+                <span class="badge-status" [class.bg-emerald-500]="request.currentStatus === 'Approved'"
+                  [class.bg-rose-500]="request.currentStatus === 'Rejected'"
+                  [class.bg-slate-500]="request.currentStatus === 'Cancelled'"
+                  [class.bg-yellow-500]="request.currentStatus === 'Pending'"
+                  [class.bg-blue-500]="request.currentStatus === 'Draft' || !request.currentStatus">
+                </span>
+              </span>
+
+              {{ request.currentStatus || 'Draft' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="pt-0 p-4">
+        <h3 class="box-content-heading mb-2!">
+          Leave Information
+        </h3>
+        <div class="green-line"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="gen-info">
+            <div class="gen-icon">
+              <svg lucideIcon="tag" class="w-5 h-5 text-primary-700"></svg>
+            </div>
+            <div>
+              <label class="gen-label">Leave Type</label>
+              <p class="gen-title">
+                {{ request.leaveType }}
+              </p>
+            </div>
+          </div>
+          <div class="gen-info">
+            <div class="gen-icon">
+              <svg lucideIcon="calendar-arrow-up" class="w-5 h-5 text-primary-700"></svg>
+            </div>
+            <div>
+              <label class="gen-label">From Date</label>
+              <p class="gen-title">
+                {{ request.fromDate | date: 'mediumDate' }}
+              </p>
+            </div>
+          </div>
+          <div class="gen-info">
+            <div class="gen-icon">
+              <svg lucideIcon="calendar-arrow-down" class="w-5 h-5 text-primary-700"></svg>
+            </div>
+            <div>
+              <label class="gen-label">To Date</label>
+              <p class="gen-title">
+                {{ request.toDate | date: 'mediumDate' }}
+              </p>
+            </div>
+          </div>
+          <div class="gen-info">
+            <div class="gen-icon">
+              <svg lucideIcon="clock" class="w-5 h-5 text-primary-700"></svg>
+            </div>
+            <div>
+              <label class="gen-label">Days</label>
+              <p class="gen-title">
+                {{ request.totalDays }}
+              </p>
+            </div>
+          </div>
+          <div class="gen-info md:col-span-2">
+            <div class="gen-icon">
+              <svg lucideIcon="file-text" class="w-5 h-5 text-primary-700"></svg>
+            </div>
+            <div>
+              <label class="gen-label">Reason</label>
+              <p class="gen-title">
+                {{ request.reason || '-' }}
+              </p>
+            </div>
+          </div>
+          <div class="gen-info md:col-span-2">
+            <div class="gen-icon">
+              <svg lucideIcon="map-pin" class="w-5 h-5 text-primary-700"></svg>
+            </div>
+            <div>
+              <label class="gen-label">Address</label>
+              <p class="gen-title">
+                {{ request.address || '-' }}
+              </p>
+            </div>
+          </div>
+          <div class="gen-info md:col-span-2">
+            <div class="gen-icon">
+              <svg lucideIcon="paperclip" class="w-5 h-5 text-primary-700"></svg>
+            </div>
+
+            <div class="flex-1 flex items-center justify-between">
+              <div>
+                <label class="gen-label">
+                  Document
+                </label>
+
+                @if (request.enclosedDocUrl) {
+                <p class="gen-title">
+                  {{ request.enclosedDocName }}
+                </p>
+                } @else {
+                <p class="gen-title">-</p>
+                }
+              </div>
+
+              @if (request.enclosedDocUrl) {
+              <button type="button" matTooltip="View Document"
+                (click)="openDocument(request.enclosedDocUrl, request.enclosedDocName)"
+                class="text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-lg font-semibold cursor-pointer ml-4">
+                <svg lucideIcon="eye" class="w-5 h-5"></svg>
+                <!-- View Document -->
+              </button>
+              }
+            </div>
+          </div>
+          <div class="gen-info md:col-span-2">
+
+            <div class="flex-1 flex items-center justify-between">
+              <div>
+                <label class="gen-label">
+                  Fitness Report
+                </label>
+
+                @if (request.fitnessReportUrl) {
+                <p class="gen-title">
+                  {{ request.fitnessReportAttachment }}
+                </p>
+                } @else {
+                <p class="gen-title">-</p>
+                }
+              </div>
+
+              @if (request.fitnessReportUrl) {
+              <button type="button" matTooltip="View Document"
+                (click)="openDocument(request.fitnessReportUrl, request.fitnessReportAttachment)"
+                class="text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-lg font-semibold cursor-pointer ml-4">
+                <svg lucideIcon="eye" class="w-5 h-5"></svg>
+                <!-- View Document -->
+              </button>
+              }
+            </div>
+          </div>
+
+          <div class="gen-info md:col-span-2">
+            <div class="gen-icon">
+              <svg lucideIcon="map-pin" class="w-5 h-5 text-primary-700"></svg>
+            </div>
+            <div>
+              <label class="gen-label">Fitness Report ApprovedBy</label>
+              <p class="gen-title">
+                {{ request.fitnessReportApprovedBy || '-' }}
+              </p>
+            </div>
+          </div>
+          @if(request.currentStatus == 'Cancelled' || request.currentStatus == 'Rejected'){
+          <div class="gen-info md:col-span-2">
+            <div class="gen-icon">
+              <svg lucideIcon="map-pin" class="w-5 h-5 text-primary-700"></svg>
+            </div>
+            <div>
+              <label class="gen-label">{{request.currentStatus == 'Rejected' ? 'Rejected': 'Cancellation'}}
+                Reason</label>
+              <p class="gen-title">
+                {{ request.rejectedReason || '-' }}
+              </p>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+    <!-- History -->
+    <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow p-4">
+
+      <!-- Header -->
+      <div class="mb-4">
+        <h4 class="box-content-heading mb-2!">
+          History
+        </h4>
+        <div class="blue-line"></div>
+      </div>
+
+
+      @if (request.events && request.events.length > 0) {
+
+      <div class="relative">
+        <div
+          class="absolute left-4 top-3 bottom-3 w-0.5 bg-gradient-to-b from-primary-500 via-primary-400 to-primary-300">
+        </div>
+        @for (item of request.events; track item; let last = $last) {
+
+        <div class="relative flex gap-3 mb-5">
+
+          <div
+            class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-primary-500 text-white shadow shrink-0">
+            <svg lucideIcon="rotate-ccw" class="w-4 h-4">
+            </svg>
+          </div>
+
+          <div
+            class="flex-1 rounded-lg border border-slate-200/50 dark:border-slate-700 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md p-2 transition-all duration-300 hover:shadow hover:-translate-y-1">
+
+            <div class="flex justify-between items-start gap-3">
+              <div>
+                <span
+                  class="px-3 py-1 rounded-full text-[11px] font-semibold bg-primary-100 text-primary-700 dark:bg-slate-300 dark:text-black">
+                  {{ item.eventStatus }}
+                </span>
+                <div
+                  class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <svg lucideIcon="calendar-days" class="w-4 h-4"></svg>
+                    {{ item.eventDate | date:'dd MMM yyyy • hh:mm a' }}
+                  </div>
+                </div>
+                <!-- <div
+                                    class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                    <div class="flex items-center gap-2">
+                                        <svg lucideIcon="user-round" class="w-4 h-4"></svg>
+                                        {{ item.designation }}
+                                    </div>
+                                </div> -->
+
+                <div class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400">
+                  <div class="flex items-center gap-2 break-words">
+                    <svg lucideIcon="user-round" class="w-4 h-4 shrink-0"></svg>
+                    <span>{{ item.designation }}</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            @if(item.remarks){
+            <div class="mt-4 rounded-xl bg-slate-100/80 dark:bg-slate-800/60 px-3 py-2 flex items-start gap-2">
+              <svg lucideIcon="message-circle" class="w-4 h-4 mt-0.5 text-primary-500"></svg>
+              <div>
+                <div class="text-[10px] uppercase tracking-wide text-slate-500 mb-1">
+                  Remarks
+                </div>
+                <div class="text-[11px] text-slate-700 dark:text-slate-300">
+                  {{ item.remarks }}
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+
+        </div>
+
+        }
+        <div class="relative flex gap-4 mb-5">
+
+          <div
+            class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-500 text-slate-500 dark:text-white shadow-md dark:ring-0 shrink-0">
+            <span class="flex items-center gap-1.5 text-[12px] font-semibold"
+              [ngClass]="getStatusClass(request.currentStatus)">
+
+              <span class="w-2 h-2 rounded-full relative flex">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                  [ngClass]="getStatusPingClass(request.currentStatus)">
+                </span>
+
+                <span class="relative inline-flex rounded-full h-2 w-2"
+                  [ngClass]="getStatusDotClass(request.currentStatus)">
+                </span>
+              </span>
+
+            </span>
+          </div>
+        </div>
+      </div>
+
+      }
+
+      @else {
+
+      <div class="flex flex-col items-center justify-center py-12 text-slate-500 dark:text-slate-400">
+
+        <svg lucideIcon="history" class="w-10 h-10 mb-3 text-slate-300">
+        </svg>
+
+        <p>No history available</p>
+
+      </div>
+
+      }
+
+    </div>
+  </div>
+  <div
+    class="bg-white/20 dark:bg-glass-dark rounded-xl border border-slate-200/60 dark:border-glass-dark/10 dark:shadow p-4 flex flex-col md:flex-row items-end md:items-end justify-between gap-4 mt-2">
+
+    <div class="flex items-center gap-3">
+
+      <button type="button" (click)="onCancelClicked()" class="reset-btn lift">
+        <svg lucideIcon="x" class="w-4 h-4"></svg>
+        Cancel
+      </button>      
+      <button type="button" (click)="onApprove()"
+        class="cursor-pointer bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition lift">
+        <svg lucideIcon="check-circle" class="w-4 h-4"></svg>
+        Approve
+      </button>
+    </div>
+  </div>
+</div>
+} @else {
+<!-- Interactive Skeleton Loading Card State -->
+<div
+  class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400 flex flex-col items-center justify-center gap-3 min-h-[300px]">
+  <div class="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+  <p class="text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400">Loading leave request details...</p>
+</div>
+}

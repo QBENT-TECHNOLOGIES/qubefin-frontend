@@ -53,12 +53,15 @@
       </div>
     }
   </div>
-
-  <div class="mt-6 shrink-0 flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-    <button mat-button type="button" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors" (click)="onCancel()">
+  <div class="border-t border-slate-200 dark:border-slate-400/10 py-2 flex justify-end gap-3 mt-6">
+    <button type="button" (click)="onCancel()"
+      class="reset-btn lift">
+      <svg lucideIcon="x" class="w-4 h-4"></svg>
       Cancel
     </button>
-    <button mat-flat-button color="primary" type="button" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors disabled:opacity-50" (click)="onSave()" [disabled]="store.detailLoading() || editingData().length === 0">
+    <button type="button" (click)="onSave()" [disabled]="store.detailLoading() || editingData().length === 0"
+      class="global-btn ripple-btn shine-sweep lift">
+      <svg lucideIcon="save" class="w-4 h-4"></svg>
       Update
     </button>
   </div>

@@ -139,6 +139,10 @@ export class EmployeeLopFinalizationStore {
     return this.http.get(`${this.basePath}/generate/${this.month()}/${this.year()}`);
   }
 
+  lockMoralization(): Observable<any> {
+    return this.http.get(`${this.basePath}/lock/${this.month()}/${this.year()}`);
+  }
+
   updateDetails(id: string, payload: EmployeeLosDetails[]): Observable<any> {
     return this.http.post(`${this.basePath}/update/${id}`, payload);
   }

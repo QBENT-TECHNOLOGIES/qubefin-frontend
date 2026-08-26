@@ -144,6 +144,22 @@ export class EmployeeLopFinalizationComponent {
       error: (err: any) => {},
     });
   }
+  protected onLock() {
+    this.alertService
+      .confirm('Confirmation', `Do you want to lock?`, 'Yes', 'No')
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.store.lockMoralization().subscribe({
+            next: (resp: any) => {
+              this.alertService.success('Success', resp).then(() => {
+                this.store.refreshList();
+              });
+            },
+            error: (err: any) => {},
+          });
+        }
+      });
+  }
 
   pageChanged(event: PageEvent) {
     this.store.setPage(event.pageIndex);
