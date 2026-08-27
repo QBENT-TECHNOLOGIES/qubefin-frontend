@@ -8,38 +8,48 @@ import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
-	selector: 'qfin-organization-unit-page',
-	imports: [OrganizationUnitTreeComponent, OrganizationUnitViewComponent, OrganizationUnitDetailComponent, LucideDynamicIcon],
-	templateUrl: './organization-unit.html'
+  selector: 'qfin-organization-unit-page',
+  imports: [
+    OrganizationUnitTreeComponent,
+    OrganizationUnitViewComponent,
+    OrganizationUnitDetailComponent,
+    LucideDynamicIcon,
+  ],
+  templateUrl: './organization-unit.html',
 })
 export class OrganizationUnitPage {
-	readonly permissionStore = inject(PermissionStore);
-	readonly organizationUnitStore = inject(OrganizationUnitStore);
+  readonly permissionStore = inject(PermissionStore);
+  readonly organizationUnitStore = inject(OrganizationUnitStore);
 
-	readonly iconMap = APP_ICONS_MAP;
+  readonly iconMap = APP_ICONS_MAP;
 
-	isViewMode = signal<boolean>(true);
-	selectedOrganizationUnitId = signal<string>(EMPTY_UUID);
-	organizationUnitTreeNodes = this.organizationUnitStore.organizationUnitTree;
+  isViewMode = signal<boolean>(true);
+  selectedOrganizationUnitId = signal<string>(EMPTY_UUID);
+  organizationUnitTreeNodes = this.organizationUnitStore.organizationUnitTree;
 
-	constructor() {
-		effect(() => {
-			if (this.organizationUnitTreeNodes().length > 0) {
-				this.selectedOrganizationUnitId.set(this.organizationUnitTreeNodes()[0].id);
-			}
-		});
-	}
+  constructor() {
+    effect(() => {
+      if (this.organizationUnitTreeNodes().length > 0) {
+        this.selectedOrganizationUnitId.set(this.organizationUnitTreeNodes()[0].id);
+      }
+    });
+  }
 
-	protected onAdd() {
-		this.isViewMode.set(false);
-		this.selectedOrganizationUnitId.set(EMPTY_UUID);
-	}
+  protected onAdd() {
+    this.isViewMode.set(false);
+    this.selectedOrganizationUnitId.set(EMPTY_UUID);
+  }
 
-	protected viewDetail(id: string) {
-		this.selectedOrganizationUnitId.set(id);
-	}
+  protected viewDetail(id: string) {
+    this.selectedOrganizationUnitId.set(id);
+  }
 
-	protected onEdit() {
-		this.isViewMode.set(false);
-	}
+  protected onEdit() {
+    this.isViewMode.set(false);
+  }
+
+  protected onClose() {
+    this.selectedOrganizationUnitId.set(this.organizationUnitTreeNodes()[0].id);
+    this.isViewMode.set(true);
+  }
 }

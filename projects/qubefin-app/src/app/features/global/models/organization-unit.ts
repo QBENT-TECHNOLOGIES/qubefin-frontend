@@ -16,4 +16,16 @@ export interface OrganizationUnit {
   companyName?: string;
   companyId?: string;
   hierarchy: OrganizationUnitHierarchyItem[];
+  designations: Designations[];
+}
+export interface Designations {
+  id: string;
+  name: string;
+  postId: string;
+  postName: string;
+  gradeId: string;
+  gradeName: string;
+  roleId: string;
+  roleName: string;
+  isActive: boolean;
 }

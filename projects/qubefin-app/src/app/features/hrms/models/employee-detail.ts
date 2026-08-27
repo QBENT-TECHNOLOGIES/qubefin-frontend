@@ -253,6 +253,7 @@ export interface IEmployeePersonalInfo {
   lastName: string;
   fullName: string;
   fatherName: string | null;
+  husbandName: string;
   motherName: string | null;
   dateOfBirth: Date | string | null;
   gender: string;
@@ -273,6 +274,7 @@ export class EmployeePersonalInfo implements IEmployeePersonalInfo {
   fullName: string = '';
   fatherName: string = '';
   motherName: string = '';
+  husbandName: string = '';
   dateOfBirth: Date | string | null = null; // Replaced custom defaultDate() with standard fallback
   gender: string = '';
   religion: string = '';
@@ -300,6 +302,7 @@ export class EmployeePersonalInfo implements IEmployeePersonalInfo {
         fullName: init.fullName ?? '',
         fatherName: init.fatherName ?? '',
         motherName: init.motherName ?? '',
+        husbandName: init.husbandName ?? '',
         religion: init.religion ?? '',
         caste: init.caste ?? '',
         nationality: init.nationality ?? '',
