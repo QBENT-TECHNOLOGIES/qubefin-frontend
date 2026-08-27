@@ -39,13 +39,28 @@
                             <span class="font-bold text-slate-800 dark:text-slate-100">{{ header.details.length
                                 }}</span>
                         </div>
-                        <div
-                            class="pay-info">
-                            <span
-                                class="pay-label">Net
-                                Pay:</span>
+                        <div class="pay-info">
+                            <span class="pay-label text-emerald-600 dark:text-emerald-400">Earnings:</span>
                             <span class="font-bold text-emerald-600 dark:text-emerald-400">
-                                {{ (header.totalEarnings - header.totalDeductions) | currency:'INR' }}
+                                {{ header.totalEarnings | currency:'INR' }}
+                            </span>
+                        </div>
+                        <div class="pay-info border-rose-500/10! dark:border-rose-500/20! bg-rose-500/5! dark:bg-rose-500/10!">
+                            <span class="pay-label text-rose-600 dark:text-rose-400">Deductions:</span>
+                            <span class="font-bold text-rose-600 dark:text-rose-400">
+                                {{ header.totalDeductions | currency:'INR' }}
+                            </span>
+                        </div>
+                        <div class="pay-info border-sky-500/10! dark:border-sky-500/20! bg-sky-500/5! dark:bg-sky-500/10!">
+                            <span class="pay-label text-sky-600 dark:text-sky-400">Employer Contribution:</span>
+                            <span class="font-bold text-sky-600 dark:text-sky-400">
+                                {{ header.employerContribution | currency:'INR' }}
+                            </span>
+                        </div>
+                        <div class="pay-info">
+                            <span class="pay-label">Net Pay:</span>
+                            <span class="font-bold text-emerald-600 dark:text-emerald-400">
+                                {{ netPay(header.totalEarnings, header.totalDeductions) | currency:'INR' }}
                             </span>
                         </div>
                     </div>

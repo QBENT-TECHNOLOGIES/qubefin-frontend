@@ -95,6 +95,22 @@ export const HrmsRoutes: Routes = [
             (m) => m.EmployeeAttendanceHistoryComponent,
           ),
       },
+      {
+        path: 'employee-lop-finalization',
+        loadComponent: () =>
+          import(
+            './pages/employee-lop-finalization-component/employee-lop-finalization-component'
+          ).then((c) => c.EmployeeLopFinalizationComponent),
+        data: { breadcrumb: 'Employee LOP Finalization' },
+      },
+      {
+        path: 'leave-fitness',
+        loadComponent: () =>
+          import(
+            './pages/leave-fitness-component/leave-fitness-component'
+          ).then((c) => c.LeaveFitnessComponent),
+        data: { breadcrumb: 'Leave Fitness' },
+      },
     ],
   },
 ];

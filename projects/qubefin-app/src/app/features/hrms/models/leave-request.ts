@@ -10,6 +10,7 @@ export interface ILeaveRequestItem {
   id: string;
   employeeName: string;
   leaveType: string;
+  alias?: string;
   leaveTypeId: string;
   fromDate: string | Date | null;
   toDate: string | Date | null;
@@ -17,17 +18,21 @@ export interface ILeaveRequestItem {
   currentStatus: string;
   reason: string;
   address: string;
-  enclosedDocUrl?: string | null;
-  enclosedDocName?: string | null;
-  enclosedDocNo?: string | null;
+  enclosedDocName: string | null;
+  enclosedDocNo: string | null;
+  enclosedDocUrl: string | null;
   isSubmitted: boolean;
   isCancellable: boolean;
-  rejectedReason: string;
+  rejectedReason: string | null;
   approvalCategory: string;
   eventButtonText: string;
   isRecommendEvent: boolean;
   isApprovalEvent: boolean;
-  events?: ILeaveRequestHistory[];
+  fitnessReportAttachment: string | null;
+  fitnessReportUrl: string | null;
+  isFitnessReportApproved: boolean;
+  fitnessReportApprovedBy: string | null;
+  events: ILeaveRequestHistory[];
 }
 
 export interface ILeaveRequestListItem {

@@ -1,0 +1,142 @@
+<div class="overflow-auto scroll-thin" [ngClass]="{
+    'h-[calc(100vh-170px-72px)] overflow-y-auto': isCollapsed()
+  }">
+  <table mat-table [dataSource]="data()" class="w-full table" matSort matSortActive="assignedFrom" matSortDirection="desc"
+    matSortDisableClear (matSortChange)="onSortChange($event)">
+
+    <!-- Sl -->
+    <ng-container matColumnDef="sl">
+      <th mat-header-cell *matHeaderCellDef>#</th>
+      <td mat-cell *matCellDef="let row; let i = index" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+        {{ i + 1 }}
+      </td>
+    </ng-container>
+
+    <!-- Company Name -->
+    <ng-container matColumnDef="companyName">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="company">Company</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+        {{ item.companyName }}
+      </td>
+    </ng-container>
+
+    <!-- Organization Unit -->
+    <ng-container matColumnDef="organizationUnitName">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="organizationUnit">Organization</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+        {{ item.organizationUnitName }}
+      </td>
+    </ng-container>
+
+    <!-- Employee Name -->
+    <ng-container matColumnDef="employeeName">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="name">Emp. Name</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+        {{ item.employeeName }}
+      </td>
+    </ng-container>
+
+    <!-- Employee Code -->
+    <ng-container matColumnDef="employeeCode">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="code">Code</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+        {{ item.employeeCode }}
+      </td>
+    </ng-container>
+
+    <!-- Working Days -->
+    <ng-container matColumnDef="workingDays">
+      <th mat-header-cell *matHeaderCellDef>Working Days</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300 text-center">
+        {{ item.workingDays }}
+      </td>
+    </ng-container>
+
+    <!-- Leave Days -->
+    <ng-container matColumnDef="leaveDays">
+      <th mat-header-cell *matHeaderCellDef>Leave Days</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300 text-center">
+        {{ item.leaveDays }}
+      </td>
+    </ng-container>
+
+    <!-- Holidays -->
+    <ng-container matColumnDef="holiDays">
+      <th mat-header-cell *matHeaderCellDef>Holidays</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300 text-center">
+        {{ item.holiDays }}
+      </td>
+    </ng-container>
+
+    <!-- Attendance Days -->
+    <ng-container matColumnDef="attendanceDays">
+      <th mat-header-cell *matHeaderCellDef>Atd. Days</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300 text-center">
+        {{ item.attendanceDays }}
+      </td>
+    </ng-container>
+
+    <!-- Absent Days -->
+    <ng-container matColumnDef="absentDays">
+      <th mat-header-cell *matHeaderCellDef>Abs. Days</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300 text-center">
+        {{ item.absentDays }}
+      </td>
+    </ng-container>
+
+    <!-- Attendance Irregular Days -->
+    <ng-container matColumnDef="attendanceIrregularDays">
+      <th mat-header-cell *matHeaderCellDef>Atd. Irr. Days</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300 text-center">
+        {{ item.attendanceIrregularDays }}
+      </td>
+    </ng-container>
+
+    <!-- Irregular LOP Days -->
+    <ng-container matColumnDef="irregularLopDays">
+      <th mat-header-cell *matHeaderCellDef>Irr. LOP Days</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300 text-center">
+        {{ item.irregularLopDays }}
+      </td>
+    </ng-container>
+
+    <!-- Action -->
+    <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef class="text-right!"> Actions</th>
+      <td mat-cell *matCellDef="let item">
+        <div class="w-full flex justify-end">
+          @if (!item.isLocked) {
+          <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
+            matTooltip="Edit" (click)="onEditAction(item.id)">
+            <svg lucideIcon="pencil"
+              class="w-4 h-4 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
+          </div>
+          } @else {
+          <div class="flex items-center justify-center w-9 h-9" matTooltip="Locked">
+            <svg lucideIcon="lock" class="w-4 h-4 text-gray-400 dark:text-gray-500"></svg>
+          </div>
+          }
+        </div>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns" [class.bg-primary-500]="selectedId() === row.id"
+      [class.bg-opacity-10]="selectedId() === row.id" class="transition-colors">
+    </tr>
+
+    <tr class="mat-row" *matNoDataRow [attr.colspan]="columns.length">
+      <td class="mat-cell px-8 text-center! text-slate-400 border-b-0" [attr.colspan]="columns.length">
+        <div class="flex justify-center items-center gap-2">
+          <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>
+          No data found.
+        </div>
+      </td>
+    </tr>
+  </table>
+  @if (!isCollapsed()) {
+  <mat-paginator [length]="totalRecords()" [pageSize]="pageSize()" [pageIndex]="pageIndex()"
+    [pageSizeOptions]="[10,20,50]" (page)="onPage($event)">
+  </mat-paginator>
+  }
+</div>
