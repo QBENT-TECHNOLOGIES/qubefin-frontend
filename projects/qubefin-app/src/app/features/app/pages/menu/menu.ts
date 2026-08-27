@@ -10,33 +10,38 @@ import { MenuDetailComponent } from '../../components/menus/menu-detail/menu-det
 @Component({
   selector: 'qfin-menu-page',
   imports: [MenuTreeComponent, MenuViewComponent, MenuDetailComponent, LucideDynamicIcon],
-  templateUrl: './menu.html'
+  templateUrl: './menu.html',
 })
 export class MenuPage {
-	menuStore = inject(MenuStore);
+  menuStore = inject(MenuStore);
 
-	isViewMode = signal<boolean>(true);
-	selectedMenuId = signal<string>(EMPTY_UUID);
-	menuTreeNodes = this.menuStore.menuTree;
-	readonly iconMap = APP_ICONS_MAP;
-	constructor() {
-		effect(() => {
-			if (this.menuTreeNodes().length > 0) {
-				this.selectedMenuId.set(this.menuTreeNodes()[0].id);
-			}
-		});
-	}
+  isViewMode = signal<boolean>(true);
+  selectedMenuId = signal<string>(EMPTY_UUID);
+  menuTreeNodes = this.menuStore.menuTree;
+  //   menuTreeNodes = this.menuStore.menuTreeByUser;
 
-	protected onAdd() {
-		this.isViewMode.set(false);
-		this.selectedMenuId.set(EMPTY_UUID);
-	}
+  readonly iconMap = APP_ICONS_MAP;
+  constructor() {
+    effect(() => {
+      if (this.menuTreeNodes().length > 0) {
+        this.selectedMenuId.set(this.menuTreeNodes()[0].id);
+      }
+    });
+    effect(() => {
+      this.menuStore.setShouldLoadmenuTree(true);
+    });
+  }
 
-	protected viewDetail(id: string) {
-		this.selectedMenuId.set(id);
-	}
+  protected onAdd() {
+    this.isViewMode.set(false);
+    this.selectedMenuId.set(EMPTY_UUID);
+  }
 
-	protected onEdit() {
-		this.isViewMode.set(false);
-	}
+  protected viewDetail(id: string) {
+    this.selectedMenuId.set(id);
+  }
+
+  protected onEdit() {
+    this.isViewMode.set(false);
+  }
 }
