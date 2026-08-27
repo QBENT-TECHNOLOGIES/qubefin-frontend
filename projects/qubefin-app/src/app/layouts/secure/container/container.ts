@@ -26,8 +26,8 @@ export class Container implements OnInit {
 
   pageData = signal<Menu | null>(null);
 
-  userMenus = this.menuStore.menuTree;
-
+  userMenus = this.menuStore.menuTreeByUser;
+  // userMenus = this.menuStore.menuTree;
   currentPath = signal<string>('');
 
   ngOnInit() {
@@ -35,6 +35,11 @@ export class Container implements OnInit {
 
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       this.loadPageData(this.router.url);
+    });
+  }
+  constructor() {
+    effect(() => {
+      this.menuStore.setShouldLoadmenuTreeByUser(true);
     });
   }
 
