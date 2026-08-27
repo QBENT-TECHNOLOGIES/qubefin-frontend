@@ -62,17 +62,21 @@
                     </div>
                 </div>
                 <mat-menu #repotsList="matMenu" class="menus-area">
-                    <button mat-menu-item (click)="onDownloadPfReport(item.payrollMonth, item.payrollYear)">
+                    <button mat-menu-item (click)="onDownloadPfReport(item.payrollMonth, item.payrollYear, item.companyId, item.companyName)">
                         <svg lucideIcon="file-down" class="w-5 h-5 text-sky-600 dark:text-sky-500 hover:text-sky-700"></svg>
                         <span>Download PF Report</span>
                     </button>
-                    <button mat-menu-item (click)="onDownloadEsiReport(item.payrollMonth, item.payrollYear)">
+                    <button mat-menu-item (click)="onDownloadEsiReport(item.payrollMonth, item.payrollYear, item.companyId, item.companyName)">
                         <svg lucideIcon="file-down" class="w-5 h-5 text-indigo-600 dark:text-indigo-500 hover:text-indigo-700"></svg>
                         <span>Download ESI Report</span>
                     </button>
-                    <button mat-menu-item (click)="onDownloadPTaxReport(item.payrollMonth, item.payrollYear)">
+                    <button mat-menu-item (click)="onDownloadPTaxReport(item.payrollMonth, item.payrollYear, item.companyId, item.companyName)">
                         <svg lucideIcon="file-down" class="w-5 h-5 text-teal-600 dark:text-teal-500 hover:text-teal-700"></svg>
                         <span>Download PTax Report</span>
+                    </button>
+                    <button mat-menu-item (click)="onDownloadSalaryDisbursementReport(item.payrollMonth, item.payrollYear, item.companyId, item.companyName)">
+                        <svg lucideIcon="file-down" class="w-5 h-5 text-teal-600 dark:text-teal-500 hover:text-teal-700"></svg>
+                        <span>Download Salary Report</span>
                     </button>
                 </mat-menu>
             </td>

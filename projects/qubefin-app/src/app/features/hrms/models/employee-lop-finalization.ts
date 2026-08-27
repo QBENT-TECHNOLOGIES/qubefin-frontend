@@ -38,5 +38,5 @@ export interface EmployeeLosDetails {
   id: string;
   employeeLopId: string;
   absentDate: string | Date;
-  payrollStatus?: string | null;
+  leaveTypeId?: string | null;
 }

@@ -165,6 +165,49 @@
               }
             </div>
           </div>
+          @if(request.currentStatus === 'Approved' && (request.alias == 'ML' || request.alias == 'MML'))
+          {            
+          <div class="gen-info md:col-span-2">
+            <div class="gen-icon">
+              <svg lucideIcon="paperclip" class="w-5 h-5 text-primary-700"></svg>
+            </div>
+            <div class="flex-1 flex items-center justify-between">
+              <div>
+                <label class="gen-label">
+                  Fitness Report
+                </label>
+
+                @if (request.fitnessReportUrl) {
+                <p class="gen-title">
+                  {{ request.fitnessReportAttachment }}
+                </p>
+                } @else {
+                <p class="gen-title">-</p>
+                }
+              </div>
+
+              @if (request.fitnessReportUrl) {
+              <button type="button" matTooltip="View Document"
+                (click)="openDocument(request.fitnessReportUrl, request.fitnessReportAttachment)"
+                class="text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-lg font-semibold cursor-pointer ml-4">
+                <svg lucideIcon="eye" class="w-5 h-5"></svg>
+                <!-- View Document -->
+              </button>
+              }
+            </div>
+          </div>
+          <div class="gen-info md:col-span-2">
+            <div class="gen-icon">
+              <svg lucideIcon="map-pin" class="w-5 h-5 text-primary-700"></svg>
+            </div>
+            <div>
+              <label class="gen-label">Fitness Report ApprovedBy</label>
+              <p class="gen-title">
+                {{ request.fitnessReportApprovedBy || '-' }}
+              </p>
+            </div>
+          </div>
+          }
           @if(request.currentStatus == 'Cancelled' || request.currentStatus == 'Rejected'){
           <div class="gen-info md:col-span-2">
             <div class="gen-icon">

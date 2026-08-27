@@ -11,7 +11,6 @@ export interface ILeaveRequestItem {
   employeeName: string;
   leaveType: string;
   alias?: string;
-  Alias?: string; // from user json
   leaveTypeId: string;
   fromDate: string | Date | null;
   toDate: string | Date | null;

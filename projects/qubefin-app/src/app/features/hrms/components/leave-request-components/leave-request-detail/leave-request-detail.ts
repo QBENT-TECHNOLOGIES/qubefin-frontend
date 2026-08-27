@@ -234,6 +234,18 @@ export class LeaveRequestDetail {
       return;
     }
 
+    const leaveAlias = this.leaveTypeBalances().find(
+      (m) => m.leaveTypeId === this.leaveRequestForm().value().leaveTypeId,
+    )?.alias;
+
+    if (leaveAlias === 'ML' && !this.selectedFile()?.size) {
+      this.alertService.warning(
+        null,
+        'Please upload the required medical document before proceeding.',
+      );
+      return;
+    }
+
     this.alertService
       .confirm(
         'Confirmation',

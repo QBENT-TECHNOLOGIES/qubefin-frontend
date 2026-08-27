@@ -53,22 +53,24 @@ export class EmployeeLopFinalizationDetail {
     });
   }
 
-  isLeaveTypeLimitReached(row: EmployeeLosDetails, alias: string): boolean {
-    if (row.payrollStatus === alias) return false;
+  isLeaveTypeLimitReached(row: EmployeeLosDetails, leaveTypeId: string): boolean {
+    if (row.leaveTypeId === leaveTypeId) return false;
 
-    const leaveType = this.store.leaveTypeBalances().find((item) => item.alias === alias);
+    const leaveType = this.store
+      .leaveTypeBalances()
+      .find((item) => item.leaveTypeId === leaveTypeId);
     if (!leaveType) return false;
 
     const selectedCount = this.editingData().filter(
-      (item) => item !== row && item.payrollStatus === alias,
+      (item) => item !== row && item.leaveTypeId === leaveTypeId,
     ).length;
     return selectedCount >= Math.floor(leaveType.leaveBalance);
   }
 
-  onStatusChange(row: EmployeeLosDetails, alias: string | null): void {
-    if (alias && this.isLeaveTypeLimitReached(row, alias)) return;
+  onStatusChange(row: EmployeeLosDetails, leaveTypeId: string | null): void {
+    if (leaveTypeId && this.isLeaveTypeLimitReached(row, leaveTypeId)) return;
 
-    row.payrollStatus = alias;
+    row.leaveTypeId = leaveTypeId;
     this.editingData.update((items) => [...items]);
   }
 
