@@ -100,6 +100,7 @@ export class OfficialComponentDetail {
     disabled(path.organizationUnitTypeId, { when: isNotEditable });
     disabled(path.organizationUnitId, { when: isNotEditable });
     disabled(path.designationId, { when: isNotEditable });
+    disabled(path.grossSalary, { when: isNotEditable });
   });
 
   readonly organizationUnitTypes = this.organizationUnitTypeStore.organizationUnitTypes;

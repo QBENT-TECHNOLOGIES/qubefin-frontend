@@ -25,7 +25,7 @@ export class AdministrativeUnitStore {
   // Single Administrative Unit
   private readonly administrativeUnitResource = httpResource<AdministrativeUnit>(() => {
     const id = this.administrativeUnitId();
-    //if (!id || id === EMPTY_UUID) return undefined;
+    if (!id || id === EMPTY_UUID) return undefined;
     return `${ApiPaths.GLOBAL}/administrative-units/${id}`;
   });
 
