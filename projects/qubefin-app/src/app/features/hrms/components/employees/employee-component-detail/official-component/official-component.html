@@ -95,7 +95,12 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="building-2" class="w-5 h-5"></svg>
             </div>
-            <input matInput type="text" autocomplete="off" [formField]="officialForm.companyName" placeholder="Company">
+            <mat-select [formField]="officialForm.companyId" placeholder="Select Company"
+                (selectionChange)="onCompanyChange($event.value)">
+                @for (company of companies(); track company.id) {
+                <mat-option [value]="company.id">{{ company.name }}</mat-option>
+                }
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Designations</mat-label>
