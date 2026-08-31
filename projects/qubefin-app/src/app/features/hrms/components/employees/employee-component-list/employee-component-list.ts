@@ -58,6 +58,7 @@ export class EmployeeComponentList {
       'gender',
       'mobile',
       'joiningDate',
+
       'action',
     ];
   });

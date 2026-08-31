@@ -81,7 +81,6 @@ export class OfficialComponentDetail {
   protected readonly officialModel = signal<IEmployeeOfficialInfo>(new EmployeeOfficialInfo());
 
   protected readonly officialSchema: Schema<IEmployeeOfficialInfo> = schema((path) => {
-    required(path.officialEmail, { message: 'Official Email is required' });
     pattern(path.officialEmail, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
       message: 'Enter a valid email address',
     });
