@@ -55,6 +55,14 @@ export class PayrollService {
       },
     );
   }
+  getEmployeeSalaryRegisterReport(month: number, year: number, companyId: string) {
+    return this.httpClient.get(
+      `${ApiPaths.PAYROLL}/generate-salary-register-report/${month}/${year}/${companyId}`,
+      {
+        responseType: 'blob',
+      },
+    );
+  }
   createPayroll(companyId: string) {
     return this.httpClient.post(`${ApiPaths.PAYROLL}/create?companyId=${companyId}`, null);
   }
