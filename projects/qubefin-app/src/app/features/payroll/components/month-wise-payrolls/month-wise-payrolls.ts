@@ -141,4 +141,26 @@ export class MonthWisePayrolls {
       },
     });
   }
+  onDownloadEmployeeSalaryRegisterReport(
+    month: number,
+    year: number,
+    companyId: string,
+    companyName: string,
+  ) {
+    this.isDownloading.set(true);
+    this.payrollService.getEmployeeSalaryRegisterReport(month, year, companyId).subscribe({
+      next: (blob: Blob) => {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `employee_salary_register_Report_${month}_${year}_${companyName}.xlsx`;
+        link.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        this.isDownloading.set(false);
+      },
+      error: (err) => {
+        this.isDownloading.set(false);
+      },
+    });
+  }
 }

@@ -78,6 +78,10 @@
                         <svg lucideIcon="file-down" class="w-5 h-5 text-teal-600 dark:text-teal-500 hover:text-teal-700"></svg>
                         <span>Download Salary Report</span>
                     </button>
+                    <button mat-menu-item (click)="onDownloadEmployeeSalaryRegisterReport(item.payrollMonth, item.payrollYear, item.companyId, item.companyName)">
+                        <svg lucideIcon="file-down" class="w-5 h-5 text-teal-600 dark:text-teal-500 hover:text-teal-700"></svg>
+                        <span>Download Salary Register Report</span>
+                    </button>
                 </mat-menu>
             </td>
         </ng-container>
