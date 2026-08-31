@@ -131,7 +131,7 @@ export class MonthWisePayrolls {
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = downloadUrl;
-        link.download = `ESI_Report_${month}_${year}_${companyName}.xlsx`;
+        link.download = `salary_Report_${month}_${year}_${companyName}.xlsx`;
         link.click();
         window.URL.revokeObjectURL(downloadUrl);
         this.isDownloading.set(false);
