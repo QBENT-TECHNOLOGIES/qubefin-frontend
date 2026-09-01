@@ -81,7 +81,7 @@
                     </div>
                     }
                     }
-                    @if (menu()?.parentId) {
+                    <!-- @if (menu()?.parentId) {
                     <div class="gen-info">
                         <div
                             class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow-glass dark:shadow justify-center shrink-0">
@@ -93,7 +93,7 @@
                                 {{menu()?.parentId}}</p>
                         </div>
                     </div>
-                    }
+                    } -->
                 </div>
             </div>
         </div>
@@ -155,15 +155,13 @@
                     @for (item of menu()?.permissions; track $index) {
                     <div class="flex items-center justify-between py-2.5">
                         <div class="flex items-center gap-2">
-                            <svg
-                                [lucideIcon]="permissionIconMap[item.permissionToken]"
-                                class="w-4 h-4 text-slate-400">
+                            <svg [lucideIcon]="permissionIconMap[item.permissionToken]" class="w-4 h-4 text-slate-400">
                             </svg>
                             <span class="text-sm text-slate-600 dark:text-slate-300">{{item.permissionToken}}</span>
                         </div>
                         <span
                             class="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                            <svg lucideIcon="check" class="w-3.5 h-3.5"></svg> 
+                            <svg lucideIcon="check" class="w-3.5 h-3.5"></svg>
                         </span>
                     </div>
                     }
@@ -171,6 +169,186 @@
             </div>
         </div>
     </div>
+    <div class="glass rounded-xl shadow-glass dark:shadow p-4 pb-6">
+        <div class="flex flex-col gap-4">
+            <div class="flex items-center justify-between gap-3">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200">
+                        Role Permissions
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-3"></div>
+                </div>
+                <button type="button" (click)="savePermissions()" [disabled]="isSaving()"
+                    class="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition disabled:opacity-60 disabled:cursor-not-allowed">
+                    {{ isSaving() ? 'Saving...' : 'Save' }}
+                </button>
+            </div>
+
+            <div class="overflow-auto scrollbar-thin">
+                <div class="max-h-[270px] overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+                    <table mat-table [dataSource]="roleAssignments()" class="w-full table">
+                        <ng-container matColumnDef="select">
+                            <th mat-header-cell *matHeaderCellDef>
+                                <input type="checkbox" [checked]="isAllRolesSelected()"
+                                    (change)="toggleAllRoleSelection($any($event.target).checked)"
+                                    class="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500" />
+                            </th>
+                            <td mat-cell *matCellDef="let row; let rowIndex = index" class="text-center!">
+                                <input type="checkbox" [checked]="row.isSelected"
+                                    (change)="toggleRoleSelection(rowIndex, $any($event.target).checked)"
+                                    class="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500" />
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="role">
+                            <th mat-header-cell *matHeaderCellDef> Role </th>
+                            <td mat-cell *matCellDef="let row"> {{ row.roleName }} </td>
+                        </ng-container>
+
+                        @for (permission of permissionColumns(); track permission.id) {
+                        <ng-container [matColumnDef]="'perm_' + permission.id">
+                            <th mat-header-cell *matHeaderCellDef class="text-center!"> {{ permission.permissionToken }}
+                            </th>
+                            <td mat-cell *matCellDef="let row; let rowIndex = index" class="text-center!">
+                                <input type="checkbox"
+                                    [checked]="row.isSelected && row.menuPermissionIds.includes(permission.id)"
+                                    [disabled]="!row.isSelected"
+                                    (change)="toggleRolePermission(rowIndex, permission.id, $any($event.target).checked)"
+                                    class="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500 disabled:opacity-40" />
+                            </td>
+                        </ng-container>
+                        }
+
+                        <tr mat-header-row *matHeaderRowDef="roleTableColumns(); sticky: true"></tr>
+                        <tr mat-row *matRowDef="let row; columns: roleTableColumns();" class="transition-colors"></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass rounded-xl shadow-glass dark:shadow p-4 pb-6">
+        <div class="flex flex-col gap-4">
+            <div class="flex items-center justify-between gap-3">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200">
+                        User / Employee Permissions
+                    </h3>
+                    <div class="w-10 h-1 rounded-full bg-primary-500 mt-3"></div>
+                </div>
+                <button type="button" (click)="savePermissions()" [disabled]="isSaving()"
+                    class="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition disabled:opacity-60 disabled:cursor-not-allowed">
+                    {{ isSaving() ? 'Saving...' : 'Save' }}
+                </button>
+            </div>
+            <div class="relative z-30">
+                <!-- Search -->
+                <div class="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700
+               bg-white dark:bg-slate-900 px-3 py-2.5 shadow-sm">
+
+                    <svg lucideIcon="search" class="w-4 h-4 text-slate-400"></svg>
+
+                    <input type="text" [(ngModel)]="employeeSearchText"
+                        (input)="searchEmployees($any($event.target).value)"
+                        placeholder="Search employee by name / code" class="w-full bg-transparent text-sm text-slate-700 dark:text-slate-200
+                   placeholder:text-slate-400 outline-none" />
+                </div>
+
+                <!-- Search Results -->
+                @if (employeeSearchText().trim() && (employeeSearchResults().length || isSearchingEmployees())) {
+                <div class="mt-2 w-full max-h-48 overflow-y-auto rounded-xl
+                   border border-slate-200 dark:border-slate-700
+                   bg-white dark:bg-slate-900 shadow-lg">
+
+                    @if (isSearchingEmployees()) {
+
+                    <div class="px-4 py-3 text-sm text-slate-500 dark:text-slate-300">
+                        Searching employees...
+                    </div>
+
+                    } @else {
+
+                    @for (employee of employeeSearchResults(); track employee.id) {
+
+                    <button type="button" (click)="addEmployeeToLocalList(employee)" class="flex w-full items-center justify-between gap-4
+                               px-4 py-3 text-left text-sm
+                               text-slate-700 dark:text-slate-200
+                               hover:bg-slate-100 dark:hover:bg-slate-800
+                               transition-colors">
+
+                        <span class="font-medium truncate">
+                            {{ employee.employeeName }}
+                        </span>
+
+                        <span class="shrink-0 text-xs text-slate-400">
+                            {{ employee.employeeCode || 'N/A' }}
+                        </span>
+
+                    </button>
+                    }
+                    }
+                </div>
+                }
+            </div>
+
+            <div class="overflow-auto scrollbar-thin">
+                <div class="max-h-[270px] overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+                    <table mat-table [dataSource]="userAssignments()" class="w-full table">
+                        <ng-container matColumnDef="select">
+                            <th mat-header-cell *matHeaderCellDef>
+                                <input type="checkbox" [checked]="isAllUsersSelected()"
+                                    (change)="toggleAllUserSelection($any($event.target).checked)"
+                                    [disabled]="userAssignments().length === 0"
+                                    class="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500" />
+                            </th>
+                            <td mat-cell *matCellDef="let row; let rowIndex = index" class="text-center!">
+                                <input type="checkbox" [checked]="row.isSelected ?? true"
+                                    (change)="toggleUserSelection(rowIndex, $any($event.target).checked)"
+                                    class="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500" />
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="employee">
+                            <th mat-header-cell *matHeaderCellDef> Employee </th>
+                            <td mat-cell *matCellDef="let row; let rowIndex = index">
+                                <div class="flex items-center justify-between gap-3">
+                                    <span>{{ row.userName }}</span>
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        @for (permission of permissionColumns(); track permission.id) {
+                        <ng-container [matColumnDef]="'perm_' + permission.id">
+                            <th mat-header-cell *matHeaderCellDef class="text-center!"> {{ permission.permissionToken }}
+                            </th>
+                            <td mat-cell *matCellDef="let row; let rowIndex = index" class="text-center!">
+                                <input type="checkbox"
+                                    [checked]="(row.isSelected ?? true) && row.menuPermissionIds.includes(permission.id)"
+                                    [disabled]="!(row.isSelected ?? true)"
+                                    (change)="toggleUserPermission(rowIndex, permission.id, $any($event.target).checked)"
+                                    class="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500 disabled:opacity-40" />
+                            </td>
+                        </ng-container>
+                        }
+
+                        <ng-container matColumnDef="action">
+                            <th mat-header-cell *matHeaderCellDef> Action </th>
+                            <td mat-cell *matCellDef="let row; let rowIndex = index">
+                                <button type="button" (click)="removeUserFromLocalList(rowIndex)"
+                                    class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-600 hover:border-rose-200 hover:text-rose-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-rose-500 dark:hover:text-rose-400">
+                                    Delete
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="userTableColumns(); sticky: true"></tr>
+                        <tr mat-row *matRowDef="let row; columns: userTableColumns();" class="transition-colors"></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="glass rounded-xl shadow-glass dark:shadow p-4 pb-6">
         <div class="flex flex-col gap-3">
             <div>
