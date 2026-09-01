@@ -95,8 +95,10 @@
             } -->
 
             <!-- LIST -->
-            <qfin-user-list-component [data]="searchedUsers()"
-                [isCollapsed]="selectedUserId() !== EMPTY_UUID || !isViewMode()" (showDetail)="onView($event)">
+            <qfin-user-list-component [data]="searchedUsers()" [data]="searchedUsers()"
+                [isCollapsed]="selectedUserId() !== EMPTY_UUID || !isViewMode()" (showDetail)="onView($event)"
+                [pageSize]="userStore.searchParams().pageSize" [pageIndex]="userStore.searchParams().pageIndex"
+                (pageChange)="onPageChange($event)" (sortChange)="onSort($event)">
             </qfin-user-list-component>
         </div>
 
@@ -174,8 +176,7 @@
             <qfin-user-view [userId]="selectedUserId()" (showEdit)="onEdit()">
             </qfin-user-view>
             } @else {
-            <qfin-user-detail [userId]="selectedUserId()" (cancel)="closePanel()"
-                (save)="closePanel()">
+            <qfin-user-detail [userId]="selectedUserId()" (cancel)="closePanel()" (save)="closePanel()">
             </qfin-user-detail>
             }
             <!-- </div> -->
