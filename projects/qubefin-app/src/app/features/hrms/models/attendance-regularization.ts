@@ -35,6 +35,8 @@ export interface IRegularizationForm {
   regularizationType: string;
   reason: string | null;
   regularizationDates: Date[];
+  actualInTime: string | Date | null;
+  actualOutTime: string | Date | null;
   remarks: string;
 }
 

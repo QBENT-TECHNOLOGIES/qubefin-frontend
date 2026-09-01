@@ -14,6 +14,8 @@ import { AttendanceRegularizationsStore } from '../../../stores/attendance-regul
 import { IRegularizationForm } from '../../../models/attendance-regularization';
 import { AlertService } from 'qubefin-core';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTimepickerModule } from '@angular/material/timepicker';
+import { MatButtonModule } from '@angular/material/button';
 import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
 @Component({
   selector: 'qfin-attendance-regularization-apply',
@@ -24,6 +26,8 @@ import { DocumentModalService } from '../../../../../shared/services/document-mo
     MatInputModule,
     MatSelectModule,
     MatDatepickerModule,
+    MatTimepickerModule,
+    MatButtonModule,
     LucideDynamicIcon,
     MatIconModule,
     FormField,
@@ -50,6 +54,8 @@ export class AttendanceRegularizationApply {
     regularizationType: '',
     reason: '',
     regularizationDates: [],
+    actualInTime: null,
+    actualOutTime: null,
     remarks: '',
   });
 
@@ -79,6 +85,8 @@ export class AttendanceRegularizationApply {
         regularizationType,
         regularizationDates: newDates,
         reason: updatedReason,
+        actualInTime: null,
+        actualOutTime: null,
       };
     });
   }
@@ -156,6 +164,18 @@ export class AttendanceRegularizationApply {
     return list.length > 0 ? list.filter((m: any) => m.sysKey === 'REGULARIZATION') : [];
   });
 
+  private normalizeTimeValue(value: string | Date | null): string | null {
+    if (!value) {
+      return null;
+    }
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    return this.datePipe.transform(value, 'HH:mm') ?? null;
+  }
+
   onSubmit() {
     if (!this.applyForm().valid()) {
       return;
@@ -177,6 +197,15 @@ export class AttendanceRegularizationApply {
       }
     });
 
+    const actualInTime = this.normalizeTimeValue(data.actualInTime);
+    const actualOutTime = this.normalizeTimeValue(data.actualOutTime);
+
+    if (actualInTime) {
+      formData.append('actualInTime', actualInTime);
+    }
+    if (actualOutTime) {
+      formData.append('actualOutTime', actualOutTime);
+    }
     if (this.selectedFile()) {
       formData.append('attachment', this.selectedFile() as Blob);
     }

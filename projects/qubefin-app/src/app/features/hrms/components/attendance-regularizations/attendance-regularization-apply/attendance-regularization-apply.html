@@ -65,6 +65,30 @@
                         <mat-datepicker #datePicker></mat-datepicker>
                     </mat-form-field>
                 </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:col-span-2">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Actual In Time</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="clock-3" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [matTimepicker]="inTimePicker" [formField]="applyForm.actualInTime"
+                            placeholder="Select in time">
+                        <mat-timepicker-toggle matSuffix [for]="inTimePicker"></mat-timepicker-toggle>
+                        <mat-timepicker #inTimePicker></mat-timepicker>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Actual Out Time</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="clock-3" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [matTimepicker]="outTimePicker" [formField]="applyForm.actualOutTime"
+                            placeholder="Select out time">
+                        <mat-timepicker-toggle matSuffix [for]="outTimePicker"></mat-timepicker-toggle>
+                        <mat-timepicker #outTimePicker></mat-timepicker>
+                    </mat-form-field>
+                </div>
+
                 <div class="flex flex-col gap-3 md:col-span-2">
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Remarks</mat-label>

@@ -164,6 +164,7 @@ import {
   LucideNetwork,
   LucideSquareActivity,
   LucideClipboardList,
+  LucideClock3,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -330,6 +331,7 @@ export const APP_ICONS = [
   LucideNetwork,
   LucideSquareActivity,
   LucideClipboardList,
+  LucideClock3
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -496,4 +498,5 @@ export const APP_ICONS_MAP: Record<string, any> = {
   Network: LucideNetwork,
   SquareActivity: LucideSquareActivity,
   ClipboardList: LucideClipboardList,
+  Clock3: LucideClock3
 };
