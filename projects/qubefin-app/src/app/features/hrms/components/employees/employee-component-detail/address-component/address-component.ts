@@ -234,6 +234,8 @@ export class AddressComponentDetail {
   }
 
   onSubmit() {
+    this.permanentAddressForm().markAsTouched();
+    this.presentAddressForm().markAsTouched();
     if (!this.presentAddressForm().valid() || !this.permanentAddressForm().valid()) {
       return;
     }

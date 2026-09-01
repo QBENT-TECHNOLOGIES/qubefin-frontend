@@ -80,6 +80,7 @@ export class KycDocumentComponentDetail {
       readonly(docPath.validFrom, { when: () => true });
       readonly(docPath.validTill, { when: () => true });
 
+      required(docPath.documentName, { message: 'Document Name is required' });
       required(docPath.documentNo, {
         when: ({ valueOf }: any) => !!valueOf(docPath.documentName),
         message: 'Document Number is required',
@@ -295,6 +296,7 @@ export class KycDocumentComponentDetail {
   }
   onSubmit() {
     this.kycForm().markAsTouched();
+
     const dataToSave = [...this.kycForm().value().documents];
     if (this.hasMissingFilesForImportantDocs()) {
       this.alertService.warning(null, 'Please upload the document file .');

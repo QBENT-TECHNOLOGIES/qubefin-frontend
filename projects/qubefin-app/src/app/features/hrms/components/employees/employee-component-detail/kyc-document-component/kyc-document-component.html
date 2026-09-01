@@ -22,6 +22,9 @@
                     </mat-option>
                     }
                 </mat-select>
+                <mat-error class="cus-error">
+                    {{ kycForm.documents[$index].documentName().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- Document Number -->
             @if(selectedDocument($index)) {

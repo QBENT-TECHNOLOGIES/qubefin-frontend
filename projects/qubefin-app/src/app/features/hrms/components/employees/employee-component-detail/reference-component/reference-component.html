@@ -16,6 +16,9 @@
                 </div>
                 <input matInput autocomplete="off" placeholder="Enter Person Name"
                     [formField]="referenceForm.references[$index].personName">
+                <mat-error class="cus-error">
+                    {{ referenceForm.references[$index].personName().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- Mobile -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -25,6 +28,9 @@
                 </div>
                 <input matInput type="text" autocomplete="off" placeholder="Enter Mobile Number"
                     [formField]="referenceForm.references[$index].mobile">
+                <mat-error class="cus-error">
+                    {{ referenceForm.references[$index].mobile().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- Email -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -34,6 +40,9 @@
                 </div>
                 <input matInput type="email" autocomplete="off" placeholder="Enter Email"
                     [formField]="referenceForm.references[$index].email">
+                <mat-error class="cus-error">
+                    {{ referenceForm.references[$index].email().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- Occupation -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -52,6 +61,9 @@
                 </div>
                 <input matInput rows="2" placeholder="Enter Address"
                     [formField]="referenceForm.references[$index].address">
+                <mat-error class="cus-error">
+                    {{ referenceForm.references[$index].address().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- Relationship -->
 
