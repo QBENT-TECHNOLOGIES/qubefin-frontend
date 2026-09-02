@@ -14,9 +14,13 @@ import { AttendanceRegularizationsStore } from '../../../stores/attendance-regul
 import { IRegularizationForm } from '../../../models/attendance-regularization';
 import { AlertService } from 'qubefin-core';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatButtonModule } from '@angular/material/button';
 import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatListModule } from '@angular/material/list';
+import { TimePickerDialogComponent } from './time-picker-dialog.component';
+import { MatRadioModule } from '@angular/material/radio';
+
 @Component({
   selector: 'qfin-attendance-regularization-apply',
   imports: [
@@ -26,12 +30,14 @@ import { DocumentModalService } from '../../../../../shared/services/document-mo
     MatInputModule,
     MatSelectModule,
     MatDatepickerModule,
-    MatTimepickerModule,
     MatButtonModule,
     LucideDynamicIcon,
     MatIconModule,
     FormField,
     MatChipsModule,
+    MatDialogModule,
+    MatListModule,
+    MatRadioModule,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './attendance-regularization-apply.html',
@@ -41,6 +47,7 @@ export class AttendanceRegularizationApply {
   private readonly alertService = inject(AlertService);
   private readonly attendanceService = inject(AttendanceService);
   readonly documentModal = inject(DocumentModalService);
+  private readonly dialog = inject(MatDialog);
 
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
@@ -49,6 +56,7 @@ export class AttendanceRegularizationApply {
   readonly save = output<void>();
 
   readonly regularizationTypes = signal<string[]>(['ATTENDANCE', 'ONDUTY']);
+  readonly timeSelectionMode = signal<'inTime' | 'outTime' | 'both'>('both');
 
   readonly formModel = signal<IRegularizationForm>({
     regularizationType: '',
@@ -63,6 +71,14 @@ export class AttendanceRegularizationApply {
     required(path.regularizationType, { message: 'Regularization Type is required' });
     required(path.regularizationDates, { message: 'At least one date is required' });
     readonly(path.regularizationDates, { when: () => true });
+
+    const mode = this.timeSelectionMode();
+    if (mode === 'inTime' || mode === 'both') {
+      required(path.actualInTime, { message: 'In Time is required' });
+    }
+    if (mode === 'outTime' || mode === 'both') {
+      required(path.actualOutTime, { message: 'Out Time is required' });
+    }
   });
   readonly maxDate = new Date();
   readonly minDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
@@ -159,6 +175,36 @@ export class AttendanceRegularizationApply {
   onCancelClicked() {
     this.cancel.emit();
   }
+
+  onTimeSelectionModeChange(mode: 'inTime' | 'outTime' | 'both') {
+    this.timeSelectionMode.set(mode);
+    // Clear time fields when switching modes
+    if (mode === 'inTime') {
+      this.formModel.update((m) => ({ ...m, actualOutTime: null }));
+    } else if (mode === 'outTime') {
+      this.formModel.update((m) => ({ ...m, actualInTime: null }));
+    }
+  }
+
+  readonly isInTimeRequired = computed(() => {
+    const mode = this.timeSelectionMode();
+    return mode === 'inTime' || mode === 'both';
+  });
+
+  readonly isOutTimeRequired = computed(() => {
+    const mode = this.timeSelectionMode();
+    return mode === 'outTime' || mode === 'both';
+  });
+
+  readonly isInTimeDisabled = computed(() => {
+    const mode = this.timeSelectionMode();
+    return mode === 'outTime';
+  });
+
+  readonly isOutTimeDisabled = computed(() => {
+    const mode = this.timeSelectionMode();
+    return mode === 'inTime';
+  });
   readonly reasons = computed(() => {
     const list = this.store.utilities();
     return list.length > 0 ? list.filter((m: any) => m.sysKey === 'REGULARIZATION') : [];
@@ -174,6 +220,74 @@ export class AttendanceRegularizationApply {
     }
 
     return this.datePipe.transform(value, 'HH:mm') ?? null;
+  }
+
+  onInTimeChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.formModel.update((m) => {
+      return { ...m, actualInTime: input.value || null };
+    });
+  }
+
+  onOutTimeChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.formModel.update((m) => {
+      return { ...m, actualOutTime: input.value || null };
+    });
+  }
+
+  openInTimePicker() {
+    if (this.isInTimeDisabled()) return;
+    this.openTimePicker('In Time', this.formModel().actualInTime as string, (time: string) => {
+      this.formModel.update((m) => ({ ...m, actualInTime: time }));
+    });
+  }
+
+  openOutTimePicker() {
+    if (this.isOutTimeDisabled()) return;
+    this.openTimePicker('Out Time', this.formModel().actualOutTime as string, (time: string) => {
+      this.formModel.update((m) => ({ ...m, actualOutTime: time }));
+    });
+  }
+
+  private openTimePicker(title: string, currentTime: string, callback: (time: string) => void) {
+    // Parse current time (format: "HH:mm" or "HH:mm AM/PM")
+    let currentHour = 12;
+    let currentMinute = 0;
+    let currentPeriod: 'AM' | 'PM' = 'AM';
+
+    if (currentTime) {
+      const parts = currentTime.split(' ');
+      const timeParts = parts[0].split(':');
+      currentHour = parseInt(timeParts[0], 10) || 12;
+      currentMinute = parseInt(timeParts[1], 10) || 0;
+      if (parts[1]) {
+        currentPeriod = parts[1] as 'AM' | 'PM';
+      } else {
+        // Convert 24-hour to 12-hour format
+        currentPeriod = currentHour >= 12 ? 'PM' : 'AM';
+        currentHour = currentHour % 12 || 12;
+      }
+    }
+
+    const dialogRef = this.dialog.open(TimePickerDialogComponent, {
+      width: '256px',
+      data: { title, currentHour, currentMinute, currentPeriod },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.formatted) {
+        // Convert from 12-hour AM/PM format to 24-hour HH:mm format
+        let hour24 = result.hour;
+        if (result.period === 'PM' && result.hour !== 12) {
+          hour24 = result.hour + 12;
+        } else if (result.period === 'AM' && result.hour === 12) {
+          hour24 = 0;
+        }
+        const timeString = `${String(hour24).padStart(2, '0')}:${String(result.minute).padStart(2, '0')}`;
+        callback(timeString);
+      }
+    });
   }
 
   onSubmit() {

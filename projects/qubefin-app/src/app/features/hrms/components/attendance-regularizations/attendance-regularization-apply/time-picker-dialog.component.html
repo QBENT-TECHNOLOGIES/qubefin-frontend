@@ -1,0 +1,162 @@
+<div class="w-[320px] rounded-2xl overflow-hidden bg-white shadow-xl">
+  <!-- Header -->
+  <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-slate-100">
+    <h2 class="text-base font-semibold text-slate-800 tracking-tight">
+      {{ data.title || 'Select Time' }}
+    </h2>
+    <button
+      type="button"
+      (click)="setNow()"
+      class="text-xs font-semibold text-primary-600 hover:text-primary-700 px-2 py-1 -mr-2 rounded-md hover:bg-primary-50 transition-colors"
+    >
+      Now
+    </button>
+  </div>
+
+  <!-- Digital readout -->
+  <div
+    class="flex items-baseline justify-center gap-1.5 py-6 bg-slate-50 border-b border-slate-100"
+  >
+    <span class="text-4xl font-bold text-slate-800 tabular-nums tracking-tight">{{
+      selectedHour
+    }}</span>
+    <span class="text-4xl font-bold text-slate-300 -mx-0.5">:</span>
+    <span class="text-4xl font-bold text-slate-800 tabular-nums tracking-tight">{{
+      pad(selectedMinute)
+    }}</span>
+    <span class="text-sm font-bold text-primary-600 ml-2 self-start mt-2 tracking-wide">{{
+      selectedPeriod
+    }}</span>
+  </div>
+
+  <!-- Wheel columns -->
+  <div class="flex gap-2.5 px-5 pt-5">
+    <!-- Hours -->
+    <div class="flex-1">
+      <div
+        class="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2"
+      >
+        Hour
+      </div>
+      <div class="relative h-44 rounded-xl border border-slate-200 bg-white">
+        <div class="wheel-fade-top"></div>
+        <div class="wheel-fade-bottom"></div>
+        <div
+          #hourList
+          class="no-scrollbar h-full overflow-y-auto snap-y snap-mandatory scroll-py-1 py-16"
+        >
+          @for (hour of hours; track hour) {
+            <button
+              type="button"
+              (click)="selectHour(hour)"
+              class="w-full snap-center flex items-center justify-center py-2.5 text-sm font-medium transition-all duration-150"
+              [class.bg-primary-600]="selectedHour === hour"
+              [class.text-white]="selectedHour === hour"
+              [class.font-semibold]="selectedHour === hour"
+              [class.shadow-sm]="selectedHour === hour"
+              [class.rounded-lg]="selectedHour === hour"
+              [class.mx-1.5]="selectedHour === hour"
+              [class.text-slate-500]="selectedHour !== hour"
+              [class.hover:bg-primary-50]="selectedHour !== hour"
+              [class.hover:text-primary-700]="selectedHour !== hour"
+            >
+              {{ hour }}
+            </button>
+          }
+        </div>
+        <!-- center selection guide -->
+        <div
+          class="pointer-events-none absolute inset-x-2 top-1/2 h-9 -translate-y-1/2 rounded-lg border border-slate-100"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Minutes -->
+    <div class="flex-1">
+      <div
+        class="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2"
+      >
+        Minute
+      </div>
+      <div class="relative h-44 rounded-xl border border-slate-200 bg-white">
+        <div class="wheel-fade-top"></div>
+        <div class="wheel-fade-bottom"></div>
+        <div
+          #minuteList
+          class="no-scrollbar h-full overflow-y-auto snap-y snap-mandatory scroll-py-1 py-16"
+        >
+          @for (minute of minutes; track minute) {
+            <button
+              type="button"
+              (click)="selectMinute(minute)"
+              class="w-full snap-center flex items-center justify-center py-2.5 text-sm font-medium transition-all duration-150"
+              [class.bg-primary-600]="selectedMinute === minute"
+              [class.text-white]="selectedMinute === minute"
+              [class.font-semibold]="selectedMinute === minute"
+              [class.shadow-sm]="selectedMinute === minute"
+              [class.rounded-lg]="selectedMinute === minute"
+              [class.mx-1.5]="selectedMinute === minute"
+              [class.text-slate-500]="selectedMinute !== minute"
+              [class.hover:bg-primary-50]="selectedMinute !== minute"
+              [class.hover:text-primary-700]="selectedMinute !== minute"
+            >
+              {{ pad(minute) }}
+            </button>
+          }
+        </div>
+        <div
+          class="pointer-events-none absolute inset-x-2 top-1/2 h-9 -translate-y-1/2 rounded-lg border border-slate-100"
+        ></div>
+      </div>
+    </div>
+
+    <!-- AM / PM -->
+    <div class="w-16">
+      <div
+        class="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2"
+      >
+        Period
+      </div>
+      <div
+        class="h-44 rounded-xl border border-slate-200 flex flex-col justify-center gap-2 p-2 bg-white"
+      >
+        @for (period of periods; track period) {
+          <button
+            type="button"
+            (click)="selectPeriod(period)"
+            class="w-full rounded-lg py-2.5 text-sm font-semibold transition-all duration-150"
+            [class.bg-primary-600]="selectedPeriod === period"
+            [class.text-white]="selectedPeriod === period"
+            [class.shadow-sm]="selectedPeriod === period"
+            [class.text-slate-400]="selectedPeriod !== period"
+            [class.hover:bg-primary-50]="selectedPeriod !== period"
+            [class.hover:text-primary-700]="selectedPeriod !== period"
+          >
+            {{ period }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex gap-3 justify-end px-6 py-5">
+    <button
+      type="button"
+      mat-stroked-button
+      (click)="dialogRef.close()"
+      class="!rounded-lg !font-medium !text-slate-600 !border-slate-300"
+    >
+      Cancel
+    </button>
+    <button
+      type="button"
+      mat-raised-button
+      color="primary"
+      (click)="onConfirm()"
+      class="!rounded-lg !font-semibold !shadow-sm"
+    >
+      Select
+    </button>
+  </div>
+</div>

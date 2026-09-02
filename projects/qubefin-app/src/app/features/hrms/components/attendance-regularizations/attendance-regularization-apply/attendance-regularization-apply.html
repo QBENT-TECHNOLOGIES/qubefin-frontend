@@ -65,28 +65,77 @@
                         <mat-datepicker #datePicker></mat-datepicker>
                     </mat-form-field>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:col-span-2">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                
+                <!-- Time Selection Mode Radio Buttons -->
+                <div class="md:col-span-2 py-4">
+                    <h3 class="text-sm font-semibold text-slate-800 dark:text-white mb-3">Attendance Time</h3>
+                    <mat-radio-group
+                        [value]="timeSelectionMode()"
+                        (change)="onTimeSelectionModeChange($event.value)"
+                        class="flex gap-6"
+                    >
+                        <mat-radio-button value="inTime">
+                            <span class="text-sm">In Time Only</span>
+                        </mat-radio-button>
+                        <mat-radio-button value="outTime">
+                            <span class="text-sm">Out Time Only</span>
+                        </mat-radio-button>
+                        <mat-radio-button value="both">
+                            <span class="text-sm">Both</span>
+                        </mat-radio-button>
+                    </mat-radio-group>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:col-span-2">
+
+                    <!-- Actual In Time -->
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full"
+                        [class.opacity-50]="isInTimeDisabled()">
+
                         <mat-label>Actual In Time</mat-label>
-                        <div class="w-12 flex justify-center" matPrefix>
-                            <svg lucideIcon="clock-3" class="w-5 h-5"></svg>
+
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                            <svg lucideIcon="clock-3" class="w-[16px] h-[16px]">
+                            </svg>
                         </div>
-                        <input matInput [matTimepicker]="inTimePicker" [formField]="applyForm.actualInTime"
-                            placeholder="Select in time">
-                        <mat-timepicker-toggle matSuffix [for]="inTimePicker"></mat-timepicker-toggle>
-                        <mat-timepicker #inTimePicker></mat-timepicker>
+
+                        <input matInput type="text" [value]="formModel().actualInTime || ''" readonly
+                            [disabled]="isInTimeDisabled()"
+                            placeholder="Select in time" />
+
+                        <button type="button" mat-icon-button matSuffix (click)="openInTimePicker()"
+                            [disabled]="isInTimeDisabled()"
+                            class="text-primary-600">
+                            <svg lucideIcon="clock-3" class="w-[18px] h-[18px]">
+                            </svg>
+                        </button>
+
                     </mat-form-field>
 
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+
+                    <!-- Actual Out Time -->
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full"
+                        [class.opacity-50]="isOutTimeDisabled()">
+
                         <mat-label>Actual Out Time</mat-label>
-                        <div class="w-12 flex justify-center" matPrefix>
-                            <svg lucideIcon="clock-3" class="w-5 h-5"></svg>
+
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                            <svg lucideIcon="clock-3" class="w-[16px] h-[16px]">
+                            </svg>
                         </div>
-                        <input matInput [matTimepicker]="outTimePicker" [formField]="applyForm.actualOutTime"
-                            placeholder="Select out time">
-                        <mat-timepicker-toggle matSuffix [for]="outTimePicker"></mat-timepicker-toggle>
-                        <mat-timepicker #outTimePicker></mat-timepicker>
+
+                        <input matInput type="text" [value]="formModel().actualOutTime || ''" readonly
+                            [disabled]="isOutTimeDisabled()"
+                            placeholder="Select out time" />
+
+                        <button type="button" mat-icon-button matSuffix (click)="openOutTimePicker()"
+                            [disabled]="isOutTimeDisabled()"
+                            class="text-primary-600">
+                            <svg lucideIcon="clock-3" class="w-[18px] h-[18px]">
+                            </svg>
+                        </button>
                     </mat-form-field>
+
                 </div>
 
                 <div class="flex flex-col gap-3 md:col-span-2">

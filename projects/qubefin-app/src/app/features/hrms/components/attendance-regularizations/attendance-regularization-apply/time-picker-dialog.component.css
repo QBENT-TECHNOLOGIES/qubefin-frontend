@@ -1,0 +1,33 @@
+/* Static fade overlays (not on the scrolling element itself, so nothing
+   gets repainted on scroll — mask-image on a scroll container is what
+   was causing the laggy/delayed scroll feel). */
+.wheel-fade-top,
+.wheel-fade-bottom {
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  height: 34px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wheel-fade-top {
+  top: 1px;
+  background: linear-gradient(to bottom, white, rgba(255, 255, 255, 0));
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.wheel-fade-bottom {
+  bottom: 1px;
+  background: linear-gradient(to top, white, rgba(255, 255, 255, 0));
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
