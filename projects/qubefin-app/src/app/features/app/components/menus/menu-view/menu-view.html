@@ -169,6 +169,7 @@
             </div>
         </div>
     </div>
+    <!--  -->
     <div class="glass rounded-xl shadow-glass dark:shadow p-4 pb-6">
         <div class="flex flex-col gap-4">
             <div class="flex items-center justify-between gap-3">
@@ -185,7 +186,7 @@
             </div>
 
             <div class="overflow-auto scrollbar-thin">
-                <div class="max-h-[270px] overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+                <div class="table-box overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl">
                     <table mat-table [dataSource]="roleAssignments()" class="w-full table">
                         <ng-container matColumnDef="select">
                             <th mat-header-cell *matHeaderCellDef>
@@ -292,7 +293,7 @@
             </div>
 
             <div class="overflow-auto scrollbar-thin">
-                <div class="max-h-[270px] overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+                <div class="table-box overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl">
                     <table mat-table [dataSource]="userAssignments()" class="w-full table">
                         <ng-container matColumnDef="select">
                             <th mat-header-cell *matHeaderCellDef>
@@ -348,7 +349,7 @@
             </div>
         </div>
     </div>
-
+    <!--  -->
     <div class="glass rounded-xl shadow-glass dark:shadow p-4 pb-6">
         <div class="flex flex-col gap-3">
             <div>
