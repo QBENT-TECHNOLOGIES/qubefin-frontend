@@ -271,7 +271,9 @@ export class AttendanceRegularizationApply {
     }
 
     const dialogRef = this.dialog.open(TimePickerDialogComponent, {
-      width: '256px',
+      width: '340px',
+      maxWidth: '95vw',
+      panelClass: 'custom-time-picker-dialog',
       data: { title, currentHour, currentMinute, currentPeriod },
     });
 

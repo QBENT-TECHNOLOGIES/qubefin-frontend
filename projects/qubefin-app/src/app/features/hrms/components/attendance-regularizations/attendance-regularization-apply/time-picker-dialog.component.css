@@ -6,21 +6,29 @@
   position: absolute;
   left: 1px;
   right: 1px;
-  height: 34px;
+  height: 38px;
   pointer-events: none;
   z-index: 1;
 }
 
 .wheel-fade-top {
   top: 1px;
-  background: linear-gradient(to bottom, white, rgba(255, 255, 255, 0));
-  border-radius: 0.75rem 0.75rem 0 0;
+  background: linear-gradient(to bottom, rgba(248, 250, 252, 0.95), transparent);
+  border-radius: 1rem 1rem 0 0;
 }
 
 .wheel-fade-bottom {
   bottom: 1px;
-  background: linear-gradient(to top, white, rgba(255, 255, 255, 0));
-  border-radius: 0 0 0.75rem 0.75rem;
+  background: linear-gradient(to top, rgba(248, 250, 252, 0.95), transparent);
+  border-radius: 0 0 1rem 1rem;
+}
+
+:host-context(.dark) .wheel-fade-top {
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.95), transparent);
+}
+
+:host-context(.dark) .wheel-fade-bottom {
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.95), transparent);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -31,3 +39,4 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
