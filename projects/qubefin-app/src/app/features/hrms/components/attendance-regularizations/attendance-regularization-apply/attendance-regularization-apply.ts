@@ -323,6 +323,7 @@ export class AttendanceRegularizationApply {
   }
 
   onSubmit() {
+    this.applyForm().markAsTouched();
     if (!this.applyForm().valid()) {
       return;
     }
