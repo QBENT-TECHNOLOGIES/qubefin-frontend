@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { PayrollEditModal } from '../payroll-edit-modal/payroll-edit-modal';
 import { PayslipRptParam } from '../../models/payroll-model';
-import { DocumentModalService } from '../../../../shared/services/document-modal.service';
+import { DocumentModalService } from 'qubefin-core';
 import { AlertService } from 'qubefin-core';
 import { firstValueFrom } from 'rxjs';
 

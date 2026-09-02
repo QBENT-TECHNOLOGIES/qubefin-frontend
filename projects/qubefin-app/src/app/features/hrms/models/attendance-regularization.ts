@@ -20,6 +20,8 @@ export interface IAttendanceRegularizationDetail {
   regularizationType: string | null;
   regularizationDates: string | null;
   reason: string;
+  actualInTime: string | null;
+  actualOutTime: string | null;
   attachment: string | null;
   attachmentUrl: string | null;
   createdBy: string;
@@ -35,6 +37,8 @@ export interface IRegularizationForm {
   regularizationType: string;
   reason: string | null;
   regularizationDates: Date[];
+  actualInTime: string | Date | null;
+  actualOutTime: string | Date | null;
   remarks: string;
 }
 

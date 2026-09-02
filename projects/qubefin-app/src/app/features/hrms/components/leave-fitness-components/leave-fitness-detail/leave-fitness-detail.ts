@@ -9,7 +9,7 @@ import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { LeaveFitnessStore } from '../../../stores/leave-fitness-store';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
-import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
+import { DocumentModalService } from 'qubefin-core';
 import { ILeaveFitnessItem } from '../../../models/leave-fitness';
 import { LeaveRequestStore } from '../../../stores/leave-request-store';
 

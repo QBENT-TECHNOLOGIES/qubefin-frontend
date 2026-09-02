@@ -7,7 +7,7 @@ import {
   Router,
   RouterOutlet,
 } from '@angular/router';
-import { DocumentModal } from './shared/components/document-modal/document-modal';
+import { DocumentModal } from 'qubefin-core';
 
 @Component({
   selector: 'qfin-root',

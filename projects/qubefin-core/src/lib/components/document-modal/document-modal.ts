@@ -13,7 +13,17 @@ import {
   signal,
 } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { APP_ICONS_MAP } from '../../../lucide-icons';
+import {
+  LucideImage,
+  LucideFileText,
+  LucideVideo,
+  LucideMusic,
+  LucideExternalLink,
+  LucideMaximize2,
+  LucideMinimize2,
+  LucideDownload,
+  LucideX
+} from '@lucide/angular';
 import {
   DocumentModalData,
   DocumentModalService,
@@ -37,7 +47,17 @@ export class DocumentModal implements OnInit, OnDestroy {
   readonly documentRef = inject(DOCUMENT);
   readonly platformId = inject(PLATFORM_ID);
   readonly sanitizer = inject(DomSanitizer);
-  readonly iconMap = APP_ICONS_MAP;
+  readonly iconMap: Record<string, any> = {
+    Image: LucideImage,
+    FileText: LucideFileText,
+    Video: LucideVideo,
+    Music: LucideMusic,
+    ExternalLink: LucideExternalLink,
+    Maximize2: LucideMaximize2,
+    Minimize2: LucideMinimize2,
+    Download: LucideDownload,
+    X: LucideX
+  };
   readonly isBrowser = isPlatformBrowser(this.platformId);
 
   readonly zoom = signal(1);
