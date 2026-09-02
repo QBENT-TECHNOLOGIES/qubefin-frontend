@@ -72,13 +72,23 @@ export class AttendanceRegularizationApply {
     required(path.regularizationDates, { message: 'At least one date is required' });
     readonly(path.regularizationDates, { when: () => true });
 
-    const mode = this.timeSelectionMode();
-    if (mode === 'inTime' || mode === 'both') {
-      required(path.actualInTime, { message: 'In Time is required' });
-    }
-    if (mode === 'outTime' || mode === 'both') {
-      required(path.actualOutTime, { message: 'Out Time is required' });
-    }
+    required(path.reason, {
+      message: 'Reason is required',
+      when: () => this.formModel().regularizationType === 'ATTENDANCE',
+    });
+
+    required(path.actualInTime, {
+      message: 'In Time is required',
+      when: () =>
+        this.formModel().regularizationType === 'ATTENDANCE' &&
+        (this.timeSelectionMode() === 'inTime' || this.timeSelectionMode() === 'both'),
+    });
+    required(path.actualOutTime, {
+      message: 'Out Time is required',
+      when: () =>
+        this.formModel().regularizationType === 'ATTENDANCE' &&
+        (this.timeSelectionMode() === 'outTime' || this.timeSelectionMode() === 'both'),
+    });
   });
   readonly maxDate = new Date();
   readonly minDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
@@ -216,10 +226,38 @@ export class AttendanceRegularizationApply {
     }
 
     if (typeof value === 'string') {
-      return value;
+      // Handle 12-hour format: 02:30 PM
+      if (value.includes('AM') || value.includes('PM')) {
+        const parts = value.trim().split(/\s+/);
+        const timeParts = parts[0].split(':');
+
+        let hour = parseInt(timeParts[0], 10);
+        const minute = parseInt(timeParts[1] ?? '0', 10);
+        const period = parts[1]?.toUpperCase();
+
+        if (period === 'PM' && hour !== 12) {
+          hour += 12;
+        }
+
+        if (period === 'AM' && hour === 12) {
+          hour = 0;
+        }
+
+        return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
+      }
+
+      // Handle HH:mm or HH:mm:ss
+      const timeParts = value.split(':');
+
+      const hour = String(timeParts[0]).padStart(2, '0');
+      const minute = String(timeParts[1] ?? '0').padStart(2, '0');
+      const second = String(timeParts[2] ?? '0').padStart(2, '0');
+
+      return `${hour}:${minute}:${second}`;
     }
 
-    return this.datePipe.transform(value, 'HH:mm') ?? null;
+    // Date object
+    return this.datePipe.transform(value, 'HH:mm:ss') ?? null;
   }
 
   onInTimeChange(event: Event) {
@@ -279,15 +317,7 @@ export class AttendanceRegularizationApply {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result && result.formatted) {
-        // Convert from 12-hour AM/PM format to 24-hour HH:mm format
-        let hour24 = result.hour;
-        if (result.period === 'PM' && result.hour !== 12) {
-          hour24 = result.hour + 12;
-        } else if (result.period === 'AM' && result.hour === 12) {
-          hour24 = 0;
-        }
-        const timeString = `${String(hour24).padStart(2, '0')}:${String(result.minute).padStart(2, '0')}`;
-        callback(timeString);
+        callback(result.formatted);
       }
     });
   }

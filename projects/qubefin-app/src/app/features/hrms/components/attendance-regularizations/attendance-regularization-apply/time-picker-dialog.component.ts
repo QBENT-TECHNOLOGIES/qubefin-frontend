@@ -30,6 +30,9 @@ export class TimePickerDialogComponent implements AfterViewInit {
   readonly minutes: number[];
   readonly periods: ('AM' | 'PM')[] = ['AM', 'PM'];
 
+  private hourScrollFrame: number | null = null;
+  private minuteScrollFrame: number | null = null;
+
   selectedHour: number;
   selectedMinute: number;
   selectedPeriod: 'AM' | 'PM';
@@ -112,5 +115,65 @@ export class TimePickerDialogComponent implements AfterViewInit {
     // and then letting the browser's own snap-correction animate the rest
     // of the way — that secondary animation is what looked like a delay.
     el.scrollTop = item.offsetTop - el.clientHeight / 2 + item.clientHeight / 2;
+  }
+  onHourScroll(): void {
+    if (this.hourScrollFrame !== null) {
+      return;
+    }
+
+    this.hourScrollFrame = requestAnimationFrame(() => {
+      this.hourScrollFrame = null;
+
+      const index = this.getCenteredItemIndex(this.hourList?.nativeElement);
+
+      if (index >= 0 && this.hours[index] !== this.selectedHour) {
+        this.selectedHour = this.hours[index];
+      }
+    });
+  }
+
+  onMinuteScroll(): void {
+    if (this.minuteScrollFrame !== null) {
+      return;
+    }
+
+    this.minuteScrollFrame = requestAnimationFrame(() => {
+      this.minuteScrollFrame = null;
+
+      const index = this.getCenteredItemIndex(this.minuteList?.nativeElement);
+
+      if (index >= 0 && this.minutes[index] !== this.selectedMinute) {
+        this.selectedMinute = this.minutes[index];
+      }
+    });
+  }
+
+  private getCenteredItemIndex(el: HTMLDivElement | undefined): number {
+    if (!el || el.children.length === 0) {
+      return -1;
+    }
+
+    const containerRect = el.getBoundingClientRect();
+
+    const containerCenter = containerRect.top + containerRect.height / 2;
+
+    let closestIndex = -1;
+    let closestDistance = Infinity;
+
+    Array.from(el.children).forEach((child, index) => {
+      const item = child as HTMLElement;
+      const itemRect = item.getBoundingClientRect();
+
+      const itemCenter = itemRect.top + itemRect.height / 2;
+
+      const distance = Math.abs(containerCenter - itemCenter);
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = index;
+      }
+    });
+
+    return closestIndex;
   }
 }

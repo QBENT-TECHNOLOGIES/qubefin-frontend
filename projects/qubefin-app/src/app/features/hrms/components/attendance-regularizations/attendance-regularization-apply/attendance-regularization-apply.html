@@ -19,6 +19,9 @@
                         <mat-option [value]="type"> {{type}} </mat-option>
                         }
                     </mat-select>
+                    <mat-error class="cus-error">
+                        {{ applyForm.regularizationType().errors()[0]?.message }}
+                    </mat-error>
                 </mat-form-field>
 
                 @if (formModel().regularizationType !== 'ONDUTY') {
@@ -32,6 +35,9 @@
                         <mat-option [value]="reason.sysVal"> {{reason.sysVal}} </mat-option>
                         }
                     </mat-select>
+                    <mat-error class="cus-error">
+                        {{ applyForm.reason().errors()[0]?.message }}
+                    </mat-error>
                 </mat-form-field>
                 }
                 <div class="flex flex-col gap-3 md:col-span-2">
@@ -65,34 +71,32 @@
                         <mat-datepicker #datePicker></mat-datepicker>
                     </mat-form-field>
                 </div>
-                
+
                 <!-- Time Selection Mode Radio Buttons -->
+                @if (formModel().regularizationType === 'ATTENDANCE') {
                 <div class="md:col-span-2 py-4">
-                    <h3 class="text-sm font-semibold text-slate-800 dark:text-white mb-3">Attendance Time</h3>
-                    <mat-radio-group
-                        [value]="timeSelectionMode()"
-                        (change)="onTimeSelectionModeChange($event.value)"
-                        class="flex gap-6"
-                    >
+                    <h3 class="text-sm font-semibold text-slate-800 dark:text-white mb-3">Regularization For</h3>
+                    <mat-radio-group [value]="timeSelectionMode()" (change)="onTimeSelectionModeChange($event.value)"
+                        class="flex gap-6">
                         <mat-radio-button value="inTime">
-                            <span class="text-sm">In Time Only</span>
+                            <span class="text-sm">In Time</span>
                         </mat-radio-button>
                         <mat-radio-button value="outTime">
-                            <span class="text-sm">Out Time Only</span>
+                            <span class="text-sm">Out Time</span>
                         </mat-radio-button>
                         <mat-radio-button value="both">
                             <span class="text-sm">Both</span>
                         </mat-radio-button>
                     </mat-radio-group>
                 </div>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:col-span-2">
 
                     <!-- Actual In Time -->
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full"
                         [class.opacity-50]="isInTimeDisabled()">
 
-                        <mat-label>Actual In Time</mat-label>
+                        <mat-label>In Time</mat-label>
 
                         <div class="w-10 flex justify-center text-slate-400" matPrefix>
                             <svg lucideIcon="clock-3" class="w-[16px] h-[16px]">
@@ -100,15 +104,16 @@
                         </div>
 
                         <input matInput type="text" [value]="formModel().actualInTime || ''" readonly
-                            [disabled]="isInTimeDisabled()"
-                            placeholder="Select in time" />
+                            [disabled]="isInTimeDisabled()" placeholder="Select in time" />
 
                         <button type="button" mat-icon-button matSuffix (click)="openInTimePicker()"
-                            [disabled]="isInTimeDisabled()"
-                            class="text-primary-600">
+                            [disabled]="isInTimeDisabled()" class="text-primary-600">
                             <svg lucideIcon="clock-3" class="w-[16px] h-[16px]">
                             </svg>
                         </button>
+                        <mat-error class="cus-error">
+                            {{ applyForm.actualInTime().errors()[0]?.message }}
+                        </mat-error>
 
                     </mat-form-field>
 
@@ -117,7 +122,7 @@
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full"
                         [class.opacity-50]="isOutTimeDisabled()">
 
-                        <mat-label>Actual Out Time</mat-label>
+                        <mat-label>Out Time</mat-label>
 
                         <div class="w-10 flex justify-center text-slate-400" matPrefix>
                             <svg lucideIcon="clock-3" class="w-[16px] h-[16px]">
@@ -125,18 +130,20 @@
                         </div>
 
                         <input matInput type="text" [value]="formModel().actualOutTime || ''" readonly
-                            [disabled]="isOutTimeDisabled()"
-                            placeholder="Select out time" />
+                            [disabled]="isOutTimeDisabled()" placeholder="Select out time" />
 
                         <button type="button" mat-icon-button matSuffix (click)="openOutTimePicker()"
-                            [disabled]="isOutTimeDisabled()"
-                            class="text-primary-600">
+                            [disabled]="isOutTimeDisabled()" class="text-primary-600">
                             <svg lucideIcon="clock-3" class="w-[18px] h-[18px]">
                             </svg>
                         </button>
+                        <mat-error class="cus-error">
+                            {{ applyForm.actualOutTime().errors()[0]?.message }}
+                        </mat-error>
                     </mat-form-field>
 
                 </div>
+                }
 
                 <div class="flex flex-col gap-3 md:col-span-2">
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
