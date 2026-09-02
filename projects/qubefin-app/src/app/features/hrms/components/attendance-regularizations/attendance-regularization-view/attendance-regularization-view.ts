@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { ApprovalRegularizationStore } from '../../../stores/approval-regularizations-store';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
+import { DocumentModalService } from 'qubefin-core';
 @Component({
   selector: 'qfin-attendance-regularization-view',
   imports: [

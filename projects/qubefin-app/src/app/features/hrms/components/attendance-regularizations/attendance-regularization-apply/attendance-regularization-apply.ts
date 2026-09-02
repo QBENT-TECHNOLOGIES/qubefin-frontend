@@ -15,10 +15,10 @@ import { IRegularizationForm } from '../../../models/attendance-regularization';
 import { AlertService } from 'qubefin-core';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
-import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
+import { DocumentModalService } from 'qubefin-core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatListModule } from '@angular/material/list';
-import { TimePickerDialogComponent } from './time-picker-dialog.component';
+import { TimePickerDialogComponent } from 'qubefin-core';
 import { MatRadioModule } from '@angular/material/radio';
 
 @Component({

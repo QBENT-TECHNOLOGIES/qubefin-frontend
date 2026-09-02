@@ -13,7 +13,7 @@ import { LeaveRequestService } from '../../../services/leave-request-service';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { ILeaveRequestDetailItem } from '../../../models/leave-request';
-import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
+import { DocumentModalService } from 'qubefin-core';
 
 @Component({
   selector: 'qfin-leave-request-detail',
