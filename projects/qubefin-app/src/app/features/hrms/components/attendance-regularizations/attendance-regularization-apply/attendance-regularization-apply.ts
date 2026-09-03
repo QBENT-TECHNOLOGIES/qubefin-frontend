@@ -91,7 +91,7 @@ export class AttendanceRegularizationApply {
     });
   });
   public maxDate = new Date();
-  readonly minDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  public minDate = new Date();
   protected readonly applyForm = form(this.formModel, this.formSchema);
 
   protected readonly selectedFile = signal<File | null>(null);
@@ -108,6 +108,15 @@ export class AttendanceRegularizationApply {
         lastWorkingDay && new Date(lastWorkingDay).toDateString() === today.toDateString()
           ? today
           : new Date(today.setDate(today.getDate() - 1));
+    });
+    effect(() => {
+      const today = new Date();
+      const firstDateOfCurrentMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+      this.minDate =
+        this.applyForm.regularizationType().value() === 'ATTENDANCE'
+          ? firstDateOfCurrentMonth
+          : today;
     });
   }
 
