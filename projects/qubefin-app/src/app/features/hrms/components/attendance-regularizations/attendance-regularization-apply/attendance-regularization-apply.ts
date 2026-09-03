@@ -101,18 +101,11 @@ export class AttendanceRegularizationApply {
   constructor() {
     this.dateAdapter.setLocale('en-GB');
     effect(() => {
-      const lastWorkingDay = this.store.lastWorkingDay();
       const today = new Date();
-
-      if (!lastWorkingDay) {
-        this.maxDate = new Date(today.setDate(today.getDate() - 1));
-        return;
-      }
-
-      const lastWorkingDate = new Date(lastWorkingDay);
+      const lastWorkingDay = this.store.lastWorkingDay();
 
       this.maxDate =
-        lastWorkingDate.toDateString() === today.toDateString()
+        lastWorkingDay && new Date(lastWorkingDay).toDateString() === today.toDateString()
           ? today
           : new Date(today.setDate(today.getDate() - 1));
     });
