@@ -105,7 +105,7 @@ export class AttendanceRegularizationApply {
       const today = new Date();
 
       if (!lastWorkingDay) {
-        this.maxDate = today;
+        this.maxDate = new Date(today.setDate(today.getDate() - 1));
         return;
       }
 
