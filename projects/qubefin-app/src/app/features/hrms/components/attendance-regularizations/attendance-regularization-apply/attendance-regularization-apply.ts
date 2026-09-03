@@ -1,4 +1,4 @@
-import { Component, output, signal, inject, computed } from '@angular/core';
+import { Component, output, signal, inject, computed, effect } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -58,7 +58,7 @@ export class AttendanceRegularizationApply {
     required(path.regularizationDates, { message: 'At least one date is required' });
     readonly(path.regularizationDates, { when: () => true });
   });
-  readonly maxDate = new Date();
+  public maxDate = new Date();
   readonly minDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   protected readonly applyForm = form(this.formModel, this.formSchema);
 
@@ -68,6 +68,22 @@ export class AttendanceRegularizationApply {
 
   constructor() {
     this.dateAdapter.setLocale('en-GB');
+    effect(() => {
+      const lastWorkingDay = this.store.lastWorkingDay();
+      const today = new Date();
+
+      if (!lastWorkingDay) {
+        this.maxDate = today;
+        return;
+      }
+
+      const lastWorkingDate = new Date(lastWorkingDay);
+
+      this.maxDate =
+        lastWorkingDate.toDateString() === today.toDateString()
+          ? today
+          : new Date(today.setDate(today.getDate() - 1));
+    });
   }
 
   updateType(regularizationType: string) {
