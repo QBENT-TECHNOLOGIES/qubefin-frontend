@@ -33,7 +33,7 @@
                     !isViewMode()
             }">
             <!-- COLLAPSED SEARCH -->
-            <!-- @if (selectedUserId() === EMPTY_UUID && isViewMode()) {
+            @if (selectedUserId() === EMPTY_UUID && isViewMode()) {
             @if (showFilterArea()) {
             <div class="p-3 transition-all duration-300">
                 <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
@@ -48,7 +48,7 @@
                         </mat-form-field>
                     </div>
 
-                    <div class="flex-1 min-w-[200px]">
+                    <!-- <div class="flex-1 min-w-[200px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                             <mat-label>Category</mat-label>
                             <div class="w-12 flex justify-center" matPrefix>
@@ -61,7 +61,7 @@
                                 }
                             </mat-select>
                         </mat-form-field>
-                    </div>
+                    </div> -->
 
 
                     <div class="flex items-center gap-2.5 shrink-0">
@@ -92,11 +92,12 @@
                     <svg lucideIcon="search" class="w-4 h-4"></svg>
                 </button>
             </div>
-            } -->
+            }
 
             <!-- LIST -->
-            <qfin-user-list-component [data]="searchedUsers()"
-                [isCollapsed]="selectedUserId() !== EMPTY_UUID || !isViewMode()" (showDetail)="onView($event)">
+            <qfin-user-list-component [data]="searchedUsers()" [pageIndex]="userStore.searchParams().pageIndex"
+                [pageSize]="userStore.searchParams().pageSize" [isCollapsed]="selectedUserId() !== EMPTY_UUID || !isViewMode()"
+                (showDetail)="onView($event)" (sortChange)="onSort($event)" (pageChange)="onPageChange($event)">
             </qfin-user-list-component>
         </div>
 
