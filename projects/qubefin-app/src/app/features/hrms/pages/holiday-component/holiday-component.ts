@@ -33,8 +33,14 @@ export class HolidayComponent {
   readonly isViewMode = signal<boolean>(true);
   readonly selectedHolidayId = signal<string>(EMPTY_UUID);
 
+  readonly minYear = 2026;
   readonly currentYear = new Date().getFullYear();
-  readonly yearsList = Array.from({ length: 4 }, (_, i) => this.currentYear - i);
+
+  readonly yearsList = Array.from(
+    { length: this.currentYear - this.minYear + 1 },
+    (_, i) => this.currentYear - i,
+  );
+
   readonly selectedYear = signal(this.currentYear);
 
   readonly holidays = this.holidayStore.holidays;
