@@ -75,11 +75,11 @@ export class MenuStore {
   }
 
   refreshMenu() {
-    const currentMenuId = this.menuId();
-    this.menuId.set(undefined);
-    setTimeout(() => {
-      this.menuId.set(currentMenuId);
-    });
+    this.menuResource.reload();
+  }
+
+  refreshTree() {
+    this.menuTreeResource.reload();
   }
 
   setShouldLoadmenuTreeByUser(shouldLoad: boolean) {

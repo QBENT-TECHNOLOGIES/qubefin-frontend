@@ -27,7 +27,8 @@
                     </button>
                 </div>
                 <div class="flex-1 overflow-y-auto min-h-0 scroll-thin">
-                    <qfin-menu-tree-component [menuTreeNodes]="menuTreeNodes()" (onViewDetail)="viewDetail($event)">
+                    <qfin-menu-tree-component [menuTreeNodes]="menuTreeNodes()" [selectedMenuId]="selectedMenuId()"
+                        (onViewDetail)="viewDetail($event)">
                     </qfin-menu-tree-component>
                 </div>
             </div>
@@ -38,7 +39,7 @@
             <qfin-menu-view-component [menuId]="selectedMenuId()" (showEdit)="onEdit()">
             </qfin-menu-view-component>
             } @else {
-            <qfin-menu-detail-component [menuId]="selectedMenuId()" (cancel)="isViewMode.set(true)">
+            <qfin-menu-detail-component [menuId]="selectedMenuId()" (cancel)="onClose()">
             </qfin-menu-detail-component>
             }
         </section>

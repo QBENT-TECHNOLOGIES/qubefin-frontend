@@ -18,6 +18,7 @@ export class MenuTreeComponent {
 	readonly iconMap = APP_ICONS_MAP;
 
 	menuTreeNodes = input<MenuTreeNode[]>([]);
+	selectedMenuId = input<string>('');
 
 	childrenAccessor = (node: MenuTreeNode) => {
 		return node.children ?? [];
@@ -27,8 +28,17 @@ export class MenuTreeComponent {
 
 	constructor() {
 		effect(() => {
-			if (this.menuTreeNodes().length > 0) {
-				this.selectedId.set(this.menuTreeNodes()[0].id);
+			const nodes = this.menuTreeNodes();
+			if (!nodes.length) return;
+
+			const externalSelectedId = this.selectedMenuId();
+			if (externalSelectedId && this.containsNode(nodes, externalSelectedId)) {
+				this.selectedId.set(externalSelectedId);
+				return;
+			}
+
+			if (!this.containsNode(nodes, this.selectedId())) {
+				this.selectedId.set(nodes[0].id);
 			}
 		});
 	}
@@ -36,5 +46,9 @@ export class MenuTreeComponent {
 	onDetailView(id: string) {
 		this.selectedId.set(id);
 		this.onViewDetail.emit(id);
+	}
+
+	private containsNode(nodes: MenuTreeNode[], id: string): boolean {
+		return nodes.some(node => node.id === id || this.containsNode(node.children ?? [], id));
 	}
 }
