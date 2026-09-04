@@ -1,0 +1,144 @@
+@if (holiday(); as detail) {
+<div class="view-container">
+    <div class="section-container">
+
+        <div class="box glass">
+            <div class="box-header">
+                <div class="box-group">
+                    <div class="box-header-icon">
+                        <svg lucideIcon="calendar-check" class="text-3xl text-primary-700 dark:text-primary-400"></svg>
+                    </div>
+                    <div>
+                        <div class="box-title-group">
+                            <h1 class="box-title">
+                                {{ detail.description }}
+                            </h1>
+
+                            <div class="box-edit-btn" matTooltip="Edit" (click)="onEdit()">
+                                <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 pt-0">
+                <h3 class="box-content-heading">
+                    General Information
+                </h3>
+                <div class="green-line"></div>
+                <div class="content-grid-2">
+                    <div class="gen-info">
+                        <div class="gen-icon">
+                            <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="gen-label">Holiday Date</label>
+                            <p class="gen-title">{{ detail.holidayDate | date:'dd-MM-yyyy' }}</p>
+                        </div>
+                    </div>
+                    <div class="gen-info">
+                        <div class="gen-icon">
+                            <svg lucideIcon="tag" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="gen-label">Holiday Description</label>
+                            <p class="gen-title">{{ detail.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <h4 class="box-content-heading">
+                    Audit Information
+                </h4>
+                <div class="green-line"></div>
+                <div class="audit-grid">
+                    <div class="audit-small-box">
+                        <div class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
+                            <svg lucideIcon="user-check" class="w-4 h-4 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <p class="audit-label">Created By</p>
+                            <p class="audit-title">{{detail.createdBy}}</p>
+                        </div>
+                    </div>
+                    <div class="audit-small-box">
+                        <div class="audit-icon-box bg-secondary-500/15 dark:bg-primary-300">
+                            <svg lucideIcon="calendar-plus" class="w-4 h-4 text-secondary-600"></svg>
+                        </div>
+                        <div>
+                            <p class="audit-label">Created On</p>
+                            <p class="audit-title">{{detail.createdOn | date: 'dd-MM-yyyy hh:mm a'}}</p>
+                        </div>
+                    </div>
+                    @if (detail.lastModifiedBy) {
+                    <div class="audit-small-box">
+                        <div class="audit-icon-box bg-accent-500/15 dark:bg-primary-300">
+                            <svg lucideIcon="user-cog" class="w-4 h-4 text-secondary-600"></svg>
+                        </div>
+                        <div>
+                            <p class="audit-label">Last Modified By</p>
+                            <p class="audit-title">{{detail.lastModifiedBy}}</p>
+                        </div>
+                    </div>
+                    <div class="audit-small-box">
+                        <div class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
+                            <svg lucideIcon="calendar-clock" class="w-4 h-4 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <p class="audit-label">Last Modified On</p>
+                            <p class="audit-title">{{detail.lastModifiedOn | date: 'dd-MM-yyyy hh:mm a'}}</p>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="box glass">
+            <div class="p-4 flex flex-col h-full">
+                <h3 class="box-content-heading">
+                    Applicable Organization Units
+                </h3>
+                <div class="green-line"></div>
+
+                <div class="overflow-y-auto scrollbar-thin max-h-[400px] pr-2 mt-2">
+                    <div class="space-y-0 pl-1">
+                        @for (unit of detail.orgUnits; track unit.id; let last = $last) {
+                        <div class="relative flex gap-4" [class.pb-4]="!last">
+                            <div class="relative flex flex-col items-center">
+                                @if (!last) {
+                                <div class="dashed-line"></div>
+                                }
+                                <div class="blue-radio-outline">
+                                    <div class="blue-radio-solid"></div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col mt-[-2px]">
+                                <h4 class="path-title">
+                                    {{unit.name}}
+                                </h4>
+                            </div>
+                        </div>
+                        }
+
+                        @if (!detail.orgUnits || detail.orgUnits.length === 0) {
+                        <div class="text-sm text-slate-500 italic mt-2">
+                            No units assigned.
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+} @else {
+<div class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400">
+    Loading details...
+</div>
+}
