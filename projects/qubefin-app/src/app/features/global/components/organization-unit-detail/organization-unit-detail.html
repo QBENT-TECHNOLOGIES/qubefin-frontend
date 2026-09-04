@@ -4,7 +4,7 @@
         <div>
             <h2 class="box-title text-xl!">
                 {{ organizationUnitId() && organizationUnitId() !== '00000000-0000-0000-0000-000000000000' ? 'Edit
-                Organization Unit' : 'Create Administrative Unit' }}
+                Organization Unit' : 'Create Organization Unit' }}
             </h2>
             <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
                 Configure the organization hierarchy and unit information.
@@ -44,6 +44,9 @@
                     <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="layers" class="w-5 h-5"></svg>
                     </div>
+                    <mat-error class="cus-error">
+                        {{ organizationUnitForm.organizationUnitTypeId().errors()?.[0]?.message }}
+                    </mat-error>
                 </mat-form-field>
 
                 <!-- Dynamic parent select dropdowns -->
@@ -73,7 +76,104 @@
                     </div>
                     <input matInput [formField]="organizationUnitForm.name" autocomplete="name"
                         placeholder="Enter name">
+                    <mat-error class="cus-error">
+                        {{ organizationUnitForm.name().errors()?.[0]?.message }}
+                    </mat-error>
                 </mat-form-field>
+
+                @if (isBranchSelected()) {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Company</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="organizationUnitForm.companyId" placeholder="Select Company">
+                        @for (company of companies(); track company.id) {
+                        <mat-option [value]="company.id">{{ company.name }}</mat-option>
+                        }
+                    </mat-select>
+                    <mat-error class="cus-error">
+                        {{ organizationUnitForm.companyId().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Latitude</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput type="number" [formField]="organizationUnitForm.latitude!"
+                        placeholder="Enter latitude">
+                    <mat-error class="cus-error">
+                        {{ organizationUnitForm.latitude().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Longitude</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput type="number" [formField]="organizationUnitForm.longitude!"
+                        placeholder="Enter longitude">
+                    <mat-error class="cus-error">
+                        {{ organizationUnitForm.longitude().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Check Radius (Meter)</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="radar" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput type="number" [formField]="organizationUnitForm.checkRadiusInMeter!"
+                        placeholder="Enter radius">
+                    <mat-error class="cus-error">
+                        {{ organizationUnitForm.checkRadiusInMeter().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                <!-- Attendance In Time -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>In Time</mat-label>
+
+                    <div class="w-12 flex justify-center text-slate-400" matPrefix>
+                        <svg lucideIcon="clock-3" class="w-5 h-5"></svg>
+                    </div>
+
+
+                    <input matInput type="text" [formField]="organizationUnitForm.attendanceInTime!"
+                        placeholder="Select in time" />
+
+                    <button type="button" mat-icon-button matSuffix (click)="openInTimePicker()"
+                        class="text-primary-600">
+                        <svg lucideIcon="clock-3" class="w-5 h-5"></svg>
+                    </button>
+
+                    <mat-error class="cus-error">
+                        {{ organizationUnitForm.attendanceInTime().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Attendance Out Time -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Out Time</mat-label>
+
+                    <div class="w-12 flex justify-center text-slate-400" matPrefix>
+                        <svg lucideIcon="clock-3" class="w-5 h-5"></svg>
+                    </div>
+
+                    <input matInput type="text" [formField]="organizationUnitForm.attendanceOutTime!"
+                        placeholder="Select out time" />
+
+                    <button type="button" mat-icon-button matSuffix (click)="openOutTimePicker()"
+                        class="text-primary-600">
+                        <svg lucideIcon="clock-3" class="w-5 h-5"></svg>
+                    </button>
+
+                    <mat-error class="cus-error">
+                        {{ organizationUnitForm.attendanceOutTime().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                }
             </div>
         </div>
     </div>
