@@ -10,7 +10,9 @@ import { OrganizationUnit } from '../models/organization-unit';
 })
 export class OrganizationUnitService {
   httpClient = inject(HttpClient);
-
+  getAll() {
+    return this.httpClient.get(`${ApiPaths.GLOBAL}/organization-units/all`);
+  }
   create(organizationUnit: OrganizationUnit) {
     return this.httpClient.post(`${ApiPaths.GLOBAL}/organization-units`, organizationUnit);
   }

@@ -1,0 +1,55 @@
+<div class="overflow-auto scroll-thin" [ngClass]="{
+  'h-[calc(100vh-170px-72px)] overflow-y-auto': isCollapsed()
+}">
+    <table mat-table [dataSource]="data()" class="w-full table">
+
+        <!-- Sl -->
+        <ng-container matColumnDef="sl">
+            <th mat-header-cell *matHeaderCellDef>#</th>
+            <td mat-cell *matCellDef="let row; let i = index"
+                class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                {{ i + 1 }}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef>Description</th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                <div class="flex items-center gap-2"> {{ item.description }}</div>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="holidayDate">
+            <th mat-header-cell *matHeaderCellDef> Holiday Date </th>
+            <td mat-cell *matCellDef="let item"> {{ item.holidayDate | date: 'dd-MM-yyyy' }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef class="text-right!"> Actions</th>
+            <td mat-cell *matCellDef="let item">
+                <div class="w-full flex justify-end">
+                    <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
+                        matTooltip="View" (click)="onDetailView(item.id)">
+                        <svg lucideIcon="chevron-right"
+                            class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
+                    </div>
+                </div>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+
+        <tr mat-row *matRowDef="let row; columns: columns" [class.bg-primary-500]="selectedId() === row.id"
+            [class.bg-opacity-10]="selectedId() === row.id" class="transition-colors">
+        </tr>
+
+        <tr class="mat-row" *matNoDataRow colspan="4">
+            <td class="mat-cell text-center! p-8 italic text-gray-500 border-b-0" [attr.colspan]="columns.length">
+                <div class="flex justify-center items-center gap-2">
+                    <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>
+                    No Holiday data found.
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
