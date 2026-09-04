@@ -1,4 +1,13 @@
-import { Component, effect, inject, model, output, signal, WritableSignal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  model,
+  output,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { OrganizationUnitStore } from '../../stores/organization-unit-store';
 import { OrganizationUnitTypeStore } from '../../stores/organization-unit-type-store';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
@@ -48,6 +57,7 @@ export class OrganizationUnitDetailComponent {
 
   organizationUnit = this.organizationUnitStore.organizationUnit;
   organizationUnitTypes = this.organizationUnitTypeStore.organizationUnitTypes;
+  buttonText = computed(() => (this.organizationUnitId() === EMPTY_UUID ? 'Create' : 'Update'));
 
   constructor() {
     effect(() => {
@@ -162,6 +172,8 @@ export class OrganizationUnitDetailComponent {
         next: (resp: any) => {
           this.alertService.success('Success', resp).then(() => {
             this.organizationUnitStore.refreshTree();
+            this.organizationUnitStore.refresh();
+            this.onCancel();
           });
         },
         error: (err: any) => {},

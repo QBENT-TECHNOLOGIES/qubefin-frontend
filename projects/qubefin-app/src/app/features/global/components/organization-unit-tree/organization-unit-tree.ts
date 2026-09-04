@@ -1,4 +1,4 @@
-import { Component, effect, input, output, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, effect, input, output, ViewChild } from '@angular/core';
 import { OrganizationUnitTreeNode } from '../../models/organization-unit-tree-node';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,10 +20,10 @@ import { APP_ICONS_MAP } from '../../../../lucide-icons';
   ],
   templateUrl: './organization-unit-tree.html',
 })
-export class OrganizationUnitTreeComponent {
+export class OrganizationUnitTreeComponent implements AfterViewInit {
   onViewDetail = output<string>();
 
-  selectedId = signal<string>('');
+  selectedId = input<string>('');
   readonly iconMap = APP_ICONS_MAP;
 
   @ViewChild(MatTree) tree!: MatTree<any>;
@@ -36,13 +36,11 @@ export class OrganizationUnitTreeComponent {
   hasChild = (_: number, node: OrganizationUnitTreeNode) =>
     !!node.children && node.children.length > 0;
 
-  constructor() {
-    effect(() => {
-      if (this.organizationUnitTreeNodes().length > 0) {
-        this.selectedId.set(this.organizationUnitTreeNodes()[0].id);
-      }
-    });
+  ngAfterViewInit(): void {
+    this.expandAll();
+  }
 
+  constructor() {
     effect(() => {
       const nodes = this.organizationUnitTreeNodes();
 
@@ -55,7 +53,6 @@ export class OrganizationUnitTreeComponent {
   }
 
   onDetailView(id: string) {
-    this.selectedId.set(id);
     this.onViewDetail.emit(id);
   }
   private expandAll(): void {

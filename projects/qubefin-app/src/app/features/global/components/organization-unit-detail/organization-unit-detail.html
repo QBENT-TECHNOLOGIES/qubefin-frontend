@@ -2,23 +2,30 @@
     <!-- Header -->
     <div class="details-card-header">
         <div>
+            <div class="flex justify-start gap-2">
             <h2 class="box-title text-xl!">
                 {{ organizationUnitId() && organizationUnitId() !== '00000000-0000-0000-0000-000000000000' ? 'Edit
                 Organization Unit' : 'Create Administrative Unit' }}
             </h2>
+
+            <div
+                class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+                <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                    {{ organizationUnitId() && organizationUnitId() !== '00000000-0000-0000-0000-000000000000' ? 'Edit
+                    Mode'
+                    : 'New Mode' }}
+                </span>
+            </div>
+            </div>
             <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
                 Configure the organization hierarchy and unit information.
             </p>
         </div>
-        <!-- Status Indicator / Pill -->
-        <div
-            class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
-            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
-            <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                {{ organizationUnitId() && organizationUnitId() !== '00000000-0000-0000-0000-000000000000' ? 'Edit Mode'
-                : 'New Mode' }}
-            </span>
-        </div>
+
+        <button aria-label="Close" matTooltip="Close" class="pannel-close" (click)="onCancel()">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+        </button>
     </div>
 
     <!-- Scrollable content -->
@@ -89,7 +96,7 @@
         <!-- Submit button -->
         <button type="button" (click)="onSubmit()" class="global-btn shine-sweep lift">
             <svg lucideIcon="save" class="w-4 h-4"></svg>
-            Save / Update
+            {{buttonText()}}
         </button>
     </div>
 </div>

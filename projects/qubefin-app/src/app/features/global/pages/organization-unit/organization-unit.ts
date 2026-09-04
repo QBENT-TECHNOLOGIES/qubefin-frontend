@@ -6,6 +6,7 @@ import { OrganizationUnitViewComponent } from '../../components/organization-uni
 import { OrganizationUnitDetailComponent } from '../../components/organization-unit-detail/organization-unit-detail';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { OrganizationUnitTreeNode } from '../../models/organization-unit-tree-node';
 
 @Component({
   selector: 'qfin-organization-unit-page',
@@ -29,8 +30,13 @@ export class OrganizationUnitPage {
 
   constructor() {
     effect(() => {
-      if (this.organizationUnitTreeNodes().length > 0) {
-        this.selectedOrganizationUnitId.set(this.organizationUnitTreeNodes()[0].id);
+      const nodes = this.organizationUnitTreeNodes();
+      if (!nodes.length) return;
+
+      const selectedId = this.selectedOrganizationUnitId();
+
+      if (!this.containsNode(nodes, selectedId)) {
+        this.selectedOrganizationUnitId.set(nodes[0].id);
       }
     });
   }
@@ -49,7 +55,10 @@ export class OrganizationUnitPage {
   }
 
   protected onClose() {
-    this.selectedOrganizationUnitId.set(this.organizationUnitTreeNodes()[0].id);
     this.isViewMode.set(true);
+  }
+
+  private containsNode(nodes: OrganizationUnitTreeNode[], id: string): boolean {
+    return nodes.some((node) => node.id === id || this.containsNode(node.children ?? [], id));
   }
 }

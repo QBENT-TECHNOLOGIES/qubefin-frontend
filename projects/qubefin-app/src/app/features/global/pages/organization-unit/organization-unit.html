@@ -24,6 +24,7 @@
                 </div>
                 <div class="tree-view scroll-thin">
                     <qfin-organization-unit-tree-component [organizationUnitTreeNodes]="organizationUnitTreeNodes()"
+                        [selectedId]="selectedOrganizationUnitId()"
                         (onViewDetail)="viewDetail($event)">
                     </qfin-organization-unit-tree-component>
                 </div>
