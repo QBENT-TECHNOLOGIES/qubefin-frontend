@@ -1,11 +1,9 @@
-import { DatePipe } from '@angular/common';
 import { httpResource } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import {
   IAttendanceRegularization,
   IAttendanceRegularizationDetail,
-  IAttendanceRegularizationEvent,
 } from '../models/attendance-regularization';
 import { Utility } from '../models/employee-detail';
 
@@ -50,6 +48,14 @@ export class AttendanceRegularizationsStore {
 
   readonly loading = computed(() => this.attendanceReguralizationsResource.isLoading());
   readonly error = computed(() => this.attendanceReguralizationsResource.error());
+  readonly lastWorkingDayResource = httpResource<{ lastWorkingDay: string | null }>(
+    () => `${ApiPaths.HRMS}/attendances/last-working-days`,
+  );
+  readonly lastWorkingDay = computed(
+    () => this.lastWorkingDayResource.value()?.lastWorkingDay ?? null,
+  );
+  readonly lastWorkingDayLoading = computed(() => this.lastWorkingDayResource.isLoading());
+  readonly lastWorkingDayError = computed(() => this.lastWorkingDayResource.error());
   // readonly regularizationResource = httpResource<IAttendanceRegularizationDetail>(() => {
   //   const id = this.regularizationId();
 

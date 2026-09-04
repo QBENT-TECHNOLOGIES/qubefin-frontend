@@ -22,6 +22,9 @@
                     </mat-option>
                     }
                 </mat-select>
+                <mat-error class="cus-error">
+                    {{ kycForm.documents[$index].documentName().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- Document Number -->
             @if(selectedDocument($index)) {
@@ -39,7 +42,7 @@
                     {{ kycForm.documents[$index].documentNo().errors()[0]?.message }}
                 </mat-error>
             </mat-form-field>
-            }
+
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                 <mat-label>Upload Document</mat-label>
                 <div class="w-12 flex justify-center" matPrefix>
@@ -74,6 +77,7 @@
                     }
                 </div>
             </mat-form-field>
+            }
             <!-- Valid From -->
             @if(selectedDocument($index)?.isDateValidate) {
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
