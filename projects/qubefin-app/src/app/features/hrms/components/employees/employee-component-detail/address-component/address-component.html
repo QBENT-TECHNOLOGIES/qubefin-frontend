@@ -49,6 +49,9 @@
                 </mat-option>
                 }
             </mat-select>
+            <mat-error class="cus-error">
+                {{ presentAddressForm.policeStationId().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -58,6 +61,9 @@
             </div>
             <input matInput [formField]="presentAddressForm.pinCode" placeholder="Enter Pin Code"
                 (input)="onPinCodeChange('present', $event)">
+            <mat-error class="cus-error">
+                {{ presentAddressForm.pinCode().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Post Office</mat-label>
@@ -72,6 +78,9 @@
                 </mat-option>
                 }
             </mat-select>
+            <mat-error class="cus-error">
+                {{ presentAddressForm.postOfficeId().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Ownership of House</mat-label>
@@ -84,6 +93,9 @@
                 <mat-option value="Leased">Leased</mat-option>
                 <mat-option value="Other">Other</mat-option>
             </mat-select>
+            <mat-error class="cus-error">
+                {{ presentAddressForm.ownerShipOfHouse().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Duration of Stay (Months)</mat-label>
@@ -92,6 +104,9 @@
             </div>
             <input matInput type="number" autocomplete="off" [formField]="presentAddressForm.durationOfStayInMonths"
                 placeholder="Enter duration in months">
+            <mat-error class="cus-error">
+                {{ presentAddressForm.durationOfStayInMonths().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
     </div>
     <!-- Same Address Checkbox -->
@@ -150,6 +165,9 @@
                 </mat-option>
                 }
             </mat-select>
+            <mat-error class="cus-error">
+                {{ permanentAddressForm.policeStationId().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Pin Code</mat-label>
@@ -158,6 +176,9 @@
             </div>
             <input matInput autocomplete="off" [formField]="permanentAddressForm.pinCode" placeholder="Enter Pin Code"
                 (input)="onPinCodeChange('permanent', $event)">
+            <mat-error class="cus-error">
+                {{ permanentAddressForm.pinCode().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Post Office</mat-label>
@@ -171,6 +192,9 @@
                 </mat-option>
                 }
             </mat-select>
+            <mat-error class="cus-error">
+                {{ permanentAddressForm.postOfficeId().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Ownership of House</mat-label>
@@ -183,6 +207,9 @@
                 <mat-option value="Leased">Leased</mat-option>
                 <mat-option value="Other">Other</mat-option>
             </mat-select>
+            <mat-error class="cus-error">
+                {{ permanentAddressForm.ownerShipOfHouse().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Duration of Stay (Months)</mat-label>
@@ -191,6 +218,9 @@
             </div>
             <input matInput type="number" autocomplete="off" [formField]="permanentAddressForm.durationOfStayInMonths"
                 placeholder="Enter duration in months">
+            <mat-error class="cus-error">
+                {{ permanentAddressForm.durationOfStayInMonths().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
     </div>
 

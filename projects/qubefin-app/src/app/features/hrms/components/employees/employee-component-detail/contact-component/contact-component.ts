@@ -104,6 +104,7 @@ export class ContactComponentDetail {
   });
 
   onSubmit() {
+    this.contactForm().markAsTouched();
     if (!this.contactForm().valid()) {
       return;
     }

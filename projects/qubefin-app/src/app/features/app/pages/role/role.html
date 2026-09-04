@@ -22,8 +22,7 @@
         <div class="glass rounded-xl shadow-glass dark:shadow
            overflow-hidden min-w-0 shrink-0
            transition-[width,max-width,opacity,transform] 
-           duration-500 ease-in-out" 
-            [ngClass]="{
+           duration-500 ease-in-out" [ngClass]="{
                 'w-full max-w-full opacity-100 translate-x-0':
                     isViewMode(),
 
@@ -45,7 +44,9 @@
             <div class="flex items-center gap-2 px-4 py-3">
             </div>
             }
-            <qfin-role-list-component [data]="searchedRoles()" (showDetail)="onView($event)" (sortChange)="onSort($event)" (pageChange)="onPageChange($event)">
+            <qfin-role-list-component [data]="searchedRoles()" (showDetail)="onView($event)"
+                (sortChange)="onSort($event)" (pageChange)="onPageChange($event)"
+                [pageIndex]="roleStore.searchParams().pageIndex" [pageSize]="roleStore.searchParams().pageSize">
             </qfin-role-list-component>
         </div>
 

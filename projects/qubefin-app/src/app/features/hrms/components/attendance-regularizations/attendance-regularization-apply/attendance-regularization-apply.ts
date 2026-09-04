@@ -1,4 +1,4 @@
-import { Component, output, signal, inject, computed } from '@angular/core';
+import { Component, output, signal, inject, computed, effect } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -90,8 +90,8 @@ export class AttendanceRegularizationApply {
         (this.timeSelectionMode() === 'outTime' || this.timeSelectionMode() === 'both'),
     });
   });
-  readonly maxDate = new Date();
-  readonly minDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  public maxDate = new Date();
+  public minDate = new Date();
   protected readonly applyForm = form(this.formModel, this.formSchema);
 
   protected readonly selectedFile = signal<File | null>(null);
@@ -100,6 +100,24 @@ export class AttendanceRegularizationApply {
 
   constructor() {
     this.dateAdapter.setLocale('en-GB');
+    effect(() => {
+      const today = new Date();
+      const lastWorkingDay = this.store.lastWorkingDay();
+
+      this.maxDate =
+        lastWorkingDay && new Date(lastWorkingDay).toDateString() === today.toDateString()
+          ? today
+          : new Date(today.setDate(today.getDate() - 1));
+    });
+    effect(() => {
+      const today = new Date();
+      const firstDateOfCurrentMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+      this.minDate =
+        this.applyForm.regularizationType().value() === 'ATTENDANCE'
+          ? firstDateOfCurrentMonth
+          : today;
+    });
   }
 
   updateType(regularizationType: string) {
