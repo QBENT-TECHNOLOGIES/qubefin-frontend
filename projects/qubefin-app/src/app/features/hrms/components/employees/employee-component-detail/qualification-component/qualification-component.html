@@ -17,6 +17,9 @@
                 </div>
                 <input matInput autocomplete="off" placeholder="Enter Academic Stream"
                     [formField]="qualificationForm.qualifications[$index].academicStream">
+                <mat-error class="cus-error">
+                    {{ qualificationForm.qualifications[$index].academicStream().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- Specialization -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -26,6 +29,9 @@
                 </div>
                 <input matInput type="text" autocomplete="off" placeholder="Enter Specialization"
                     [formField]="qualificationForm.qualifications[$index].specialization">
+                <mat-error class="cus-error">
+                    {{ qualificationForm.qualifications[$index].specialization().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- Year of Passing -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -35,6 +41,9 @@
                 </div>
                 <input matInput type="number" autocomplete="off" placeholder="Enter Year of Passing"
                     [formField]="qualificationForm.qualifications[$index].yearOfPassing">
+                <mat-error class="cus-error">
+                    {{ qualificationForm.qualifications[$index].yearOfPassing().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- University / Board -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -44,6 +53,9 @@
                 </div>
                 <input matInput type="text" autocomplete="off" placeholder="Enter University / Board"
                     [formField]="qualificationForm.qualifications[$index].universityOrBoard">
+                <mat-error class="cus-error">
+                    {{ qualificationForm.qualifications[$index].universityOrBoard().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- School / College-->
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -53,6 +65,9 @@
                 </div>
                 <input matInput type="text" autocomplete="off" placeholder="School / College"
                     [formField]="qualificationForm.qualifications[$index].schoolOrCollege">
+                <mat-error class="cus-error">
+                    {{ qualificationForm.qualifications[$index].schoolOrCollege().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- Grade / Percentage / CGPA -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -62,6 +77,9 @@
                 </div>
                 <input matInput type="text" autocomplete="off" placeholder="Enter Grade / Percentage / CGPA"
                     [formField]="qualificationForm.qualifications[$index].gradeOrMarks">
+                <mat-error class="cus-error">
+                    {{ qualificationForm.qualifications[$index].gradeOrMarks().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
         </div>
         <!-- Delete -->

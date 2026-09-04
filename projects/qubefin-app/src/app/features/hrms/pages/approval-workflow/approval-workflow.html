@@ -3,14 +3,12 @@
         <div class="flex items-center gap-3"></div>
         <div class="headerBtn-area">
             @if (isViewMode()) {
-            <button type="button" (click)="toggleFilterArea()"
-                class="filter-btn glass-input shine-sweep lift">
+            <button type="button" (click)="toggleFilterArea()" class="filter-btn glass-input shine-sweep lift">
                 <svg lucideIcon="funnel" class="w-4 h-4"></svg>
                 Filter
             </button>
             } @else {}
-            <button (click)="onAdd()"
-                class="global-btn ripple-btn shine-sweep lift">
+            <button (click)="onAdd()" class="global-btn ripple-btn shine-sweep lift">
                 <svg lucideIcon="plus" class="w-4 h-4"></svg>
                 Add New
             </button>
@@ -27,66 +25,67 @@
                 'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
                     !isViewMode()
             }">
-            
-    @if (showFilterArea()) {
-    <div class="filter-area">
-        <div class="filter-container">
-            <div class="flex-1 min-w-[220px]">
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Category</mat-label>
-                    <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="tag" class="w-5 h-5"></svg>
-                    </div>
-                    <mat-select [(ngModel)]="categoryFilter" placeholder="Select category">
-                        <mat-option value="">All Categories</mat-option>
-                        @for (category of categories(); track category) {
-                        <mat-option [value]="category">{{ category }}</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
-            </div>
 
-            <div class="flex-1 min-w-[220px]">
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Organization Unit Type</mat-label>
-                    <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+            @if (showFilterArea()) {
+            <div class="filter-area">
+                <div class="filter-container">
+                    <div class="flex-1 min-w-[220px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Category</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select [(ngModel)]="categoryFilter" placeholder="Select category">
+                                <mat-option value="">All Categories</mat-option>
+                                @for (category of categories(); track category) {
+                                <mat-option [value]="category">{{ category }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
                     </div>
-                    <mat-select [(ngModel)]="organizationUnitTypeFilter" placeholder="Select organization unit type">
-                        <mat-option value="">All Types</mat-option>
-                        @for (item of organizationUnitTypes(); track item.id) {
-                        <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
-            </div>
 
-            <div class="flex items-center gap-2.5 shrink-0">
-                <button type="button" (click)="applyFilters()"
-                    class="global-btn shine-sweep lift">
-                    <svg lucideIcon="search" class="w-4 h-4"></svg>
-                    Search
-                </button>
-                <button type="button" (click)="resetFilters()"
-                    class="reset-btn lift">
-                    <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
-                    Reset
-                </button>
+                    <div class="flex-1 min-w-[220px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Organization Unit Type</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select [(ngModel)]="organizationUnitTypeFilter"
+                                placeholder="Select organization unit type">
+                                <mat-option value="">All Types</mat-option>
+                                @for (item of organizationUnitTypes(); track item.id) {
+                                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <button type="button" (click)="applyFilters()" class="global-btn shine-sweep lift">
+                            <svg lucideIcon="search" class="w-4 h-4"></svg>
+                            Search
+                        </button>
+                        <button type="button" (click)="resetFilters()" class="reset-btn lift">
+                            <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                            Reset
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    }
+            }
             @if (approvalWorkflowStore.loading()) {
             <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
                 <svg lucideIcon="loader" class="w-5 h-5"></svg>
                 Loading approval workflows...
             </div>
-            } @else if (approvalWorkflowStore.error()) {
+            }
+            @else if (approvalWorkflowStore.error()) {
             <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
                 <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
                 Unable to load approval workflows.
             </div>
-            } @else {
+            }
+            @else{
             <qfin-approval-workflow-list [data]="workflows()" (showDetail)="onView($event)"
                 [totalRecords]="approvalWorkflowStore.totalRecords()" [pageIndex]="approvalWorkflowStore.pageIndex()"
                 [pageSize]="approvalWorkflowStore.pageSize()" [isCollapsed]="hasSelectedWorkflow() || !isViewMode()"
@@ -96,8 +95,7 @@
         </div>
 
         @if (hasSelectedWorkflow()) {
-        <div class="viewArea-container glass"
-            [ngClass]="{
+        <div class="viewArea-container glass" [ngClass]="{
                 'w-3/4':
                     isViewMode(),
 
@@ -118,8 +116,7 @@
                                     Edit Approval Workflow Event
                                     }
                                 </h2>
-                                <div
-                                    class="viewArea-badge">
+                                <div class="viewArea-badge">
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                                     <span
                                         class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
