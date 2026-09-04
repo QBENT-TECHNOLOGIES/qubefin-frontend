@@ -13,6 +13,9 @@
                 <svg lucideIcon="id-card-lanyard" class="w-5 h-5"></svg>
             </div>
             <input matInput [formField]="$any(employeeForm)['code']" autocomplete="off" placeholder="Enter code">
+            <mat-error class="cus-error">
+                {{ employeeForm.code().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Salutation</mat-label>
@@ -34,6 +37,9 @@
                 <svg lucideIcon="user" class="w-5 h-5"></svg>
             </div>
             <input matInput [formField]="employeeForm.firstName" autocomplete="off" placeholder="Enter name">
+            <mat-error class="cus-error">
+                {{ employeeForm.firstName().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Middle Name</mat-label>
@@ -49,6 +55,9 @@
                 <svg lucideIcon="user" class="w-5 h-5"></svg>
             </div>
             <input matInput [formField]="employeeForm.lastName" autocomplete="off" placeholder="Enter last name">
+            <mat-error class="cus-error">
+                {{ employeeForm.lastName().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -65,6 +74,10 @@
             </mat-datepicker-toggle>
 
             <mat-datepicker #dobPicker></mat-datepicker>
+
+            <mat-error class="cus-error">
+                {{ employeeForm.dateOfBirth().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -79,6 +92,9 @@
                 </mat-option>
                 }
             </mat-select>
+            <mat-error class="cus-error">
+                {{ employeeForm.gender().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Father Name</mat-label>
@@ -118,6 +134,9 @@
                 </mat-option>
                 }
             </mat-select>
+            <mat-error class="cus-error">
+                {{ employeeForm.religion().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Caste</mat-label>
@@ -145,6 +164,9 @@
                 </mat-option>
                 }
             </mat-select>
+            <mat-error class="cus-error">
+                {{ employeeForm.nationality().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Blood Group</mat-label>
@@ -159,6 +181,9 @@
                 </mat-option>
                 }
             </mat-select>
+            <mat-error class="cus-error">
+                {{ employeeForm.bloodGroup().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Disablity Type</mat-label>
@@ -180,6 +205,9 @@
                 </mat-option>
                 }
             </mat-select>
+            <mat-error class="cus-error">
+                {{ employeeForm.maritalStatus().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
     </div>
 
