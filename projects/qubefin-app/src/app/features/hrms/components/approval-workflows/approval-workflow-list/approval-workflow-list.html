@@ -13,40 +13,42 @@
         <ng-container matColumnDef="organizationUnitType">
             <th mat-header-cell *matHeaderCellDef mat-sort-header="organizationUnitType">Unit Type</th>
             <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
-                <span class="font-medium">{{ row.organizationUnitTypeName }}</span>
+                <span class="font-medium">{{ row.organizationUnitTypeName || '-' }}</span>
             </td>
         </ng-container>
 
         <ng-container matColumnDef="leaveType">
             <th mat-header-cell *matHeaderCellDef mat-sort-header="leaveType"> Leave Type</th>
             <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
-                <span class="font-medium">{{ row.leaveTypeName }}</span>
+                <span class="font-medium">{{ row.leaveTypeName || '-' }}</span>
             </td>
         </ng-container>
 
         <ng-container matColumnDef="postName">
             <th mat-header-cell *matHeaderCellDef mat-sort-header="postName"> Post</th>
             <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
-                <span class="font-medium">{{ row.postName ? row.postName : '-' }}</span>
+                <span class="font-medium">{{ row.postName || '-' }}</span>
             </td>
         </ng-container>
 
+        <!-- salaryGradesName is already a comma-joined string, e.g. "V, VI, VII" -->
         <ng-container matColumnDef="salaryGrade">
             <th mat-header-cell *matHeaderCellDef mat-sort-header="salaryGrade">Salary Grade</th>
-            <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
-                <span class="font-medium">{{ row.salaryGradeName }}</span>
+            <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300 whitespace-normal">
+                <span class="font-medium">{{ row.salaryGradesName || '-' }}</span>
             </td>
         </ng-container>
 
+        <!-- rangeDaysDisplay is server-computed, no client-side ternary needed -->
         <ng-container matColumnDef="rangeDays">
             <th mat-header-cell *matHeaderCellDef>Range days</th>
-            <td mat-cell *matCellDef="let row">{{ row.minimumDays === 0 ? '-' : row.minimumDays + ' - ' +
-                row.maximumDays }}</td>
+            <td mat-cell *matCellDef="let row">{{ row.rangeDaysDisplay }}</td>
         </ng-container>
 
+        <!-- approvalPath replaces stepPost; already formatted server-side (e.g. "Branch Manager → Area Manager") -->
         <ng-container matColumnDef="workflowEventPath">
             <th mat-header-cell *matHeaderCellDef>Approval path</th>
-            <td mat-cell *matCellDef="let row" class="whitespace-normal">{{ row.stepPost || '-' }}</td>
+            <td mat-cell *matCellDef="let row" class="whitespace-normal">{{ row.approvalPath || '-' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="action">
@@ -63,7 +65,6 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-
 
         <tr mat-row *matRowDef="let row; columns: displayedColumns();"
             class="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"

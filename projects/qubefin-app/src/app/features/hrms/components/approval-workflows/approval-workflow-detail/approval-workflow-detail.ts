@@ -1,16 +1,8 @@
 import { Component, computed, effect, inject, model, output, signal } from '@angular/core';
 import { ApprovalWorkflowStore } from '../../../stores/approval-workflow-store';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { IApprovalWorkflow, IApprovalWorkflowDetail } from '../../../models/approval-workflow';
-import {
-  disabled,
-  form,
-  readonly,
-  required,
-  schema,
-  Schema,
-  validate,
-} from '@angular/forms/signals';
+import { IApprovalWorkflow, IApprovalWorkflowRequest } from '../../../models/approval-workflow';
+import { form, required, schema, Schema, validate } from '@angular/forms/signals';
 import { ApprovalWorkflowService } from '../../../services/approval-workflow-service';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,9 +11,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { FormField } from '@angular/forms/signals';
-import { LeaveRequestStore } from '../../../stores/leave-request-store';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { OrganizationUnitTypeStore } from '../../../../global/stores/organization-unit-type-store';
+
 @Component({
   selector: 'qfin-approval-workflow-detail',
   imports: [
@@ -65,12 +57,13 @@ export class ApprovalWorkflowDetail {
     leaveTypeId: null,
     organizationUnitTypeId: null,
     postId: null,
-    salaryGradeId: null,
+    salaryGradeIds: [],
     minimumDays: 0,
     maximumDays: 0,
     approvalSteps: [],
   });
   readonly approvalSteps = computed(() => this.formModel().approvalSteps || []);
+
   protected readonly formSchema: Schema<IApprovalWorkflow> = schema((path) => {
     required(path.category, { message: 'Category is required' });
     required(path.organizationUnitTypeId, { message: 'Organization Unit Type is required' });
@@ -78,9 +71,16 @@ export class ApprovalWorkflowDetail {
       message: 'Leave Type is required',
       when: ({ valueOf }) => {
         const category = valueOf(path.category);
-
         return category === 'LEAVE' || category === 'LEAVE_PRAYER';
       },
+    });
+    validate(path.salaryGradeIds, ({ value, valueOf }) => {
+      const category = valueOf(path.category);
+      const isLeave = category === 'LEAVE' || category === 'LEAVE_PRAYER';
+      if (isLeave && (!value() || value().length === 0)) {
+        return { kind: 'required', message: 'At least one Salary Grade is required' };
+      }
+      return null;
     });
   });
 
@@ -92,6 +92,7 @@ export class ApprovalWorkflowDetail {
         this.approvalWorkflowstore.setApprovalWorkflowId(this.approvalWorkflowId());
       }
     });
+
     effect(() => {
       const category = this.approvalWorkflowForm.category().value();
 
@@ -107,11 +108,14 @@ export class ApprovalWorkflowDetail {
         this.filterLeaveTypes.set([]);
       }
     });
+
     effect(() => {
       if (this.isEditMode()) {
         const detail = this.approvalWorkflowstore.approvalWorkflow();
         if (detail) {
-          const normalizedSteps = (detail.approvalSteps ?? detail.steps ?? []).map((step) => ({
+          // ApprovalWorkflowDetail.approvalSteps is the current field — the legacy
+          // `steps` array is no longer read from here.
+          const normalizedSteps = (detail.approvalSteps ?? []).map((step) => ({
             id: step.id ?? EMPTY_UUID,
             approvalWorkflowId: step.approvalWorkflowId ?? detail.id ?? EMPTY_UUID,
             organizationUnitTypeId: step.organizationUnitTypeId ?? null,
@@ -129,7 +133,7 @@ export class ApprovalWorkflowDetail {
             leaveTypeId: detail.leaveTypeId ?? null,
             organizationUnitTypeId: detail.organizationUnitTypeId ?? null,
             postId: detail.postId ?? null,
-            salaryGradeId: detail.salaryGradeId ?? null,
+            salaryGradeIds: detail.salaryGradeIds ?? [],
             minimumDays: detail.minimumDays ?? 0,
             maximumDays: detail.maximumDays ?? 0,
             approvalSteps: normalizedSteps,
@@ -142,7 +146,7 @@ export class ApprovalWorkflowDetail {
           leaveTypeId: null,
           organizationUnitTypeId: null,
           postId: null,
-          salaryGradeId: null,
+          salaryGradeIds: [],
           minimumDays: 0,
           maximumDays: 0,
           approvalSteps: [],
@@ -182,22 +186,14 @@ export class ApprovalWorkflowDetail {
         if (result.isConfirmed) {
           this.formModel.update((current) => {
             const steps = [...(current.approvalSteps || [])];
-
             steps.splice(index, 1);
-
-            const updatedSteps = steps.map((step, i) => ({
-              ...step,
-              sequenceNo: i + 1,
-            }));
-
-            return {
-              ...current,
-              approvalSteps: updatedSteps,
-            };
+            const updatedSteps = steps.map((step, i) => ({ ...step, sequenceNo: i + 1 }));
+            return { ...current, approvalSteps: updatedSteps };
           });
         }
       });
   }
+
   protected updateApprovalStep(
     index: number,
     field: 'isRecommendEvent' | 'isApprovalEvent',
@@ -229,104 +225,97 @@ export class ApprovalWorkflowDetail {
     if (!this.approvalWorkflowForm().valid()) {
       return;
     }
+
     this.alertService
       .confirm(
         'Confirmation',
         `Are you sure you want to ${!this.isEditMode() ? 'create' : 'update'} this approval workflow?`,
       )
       .then((result) => {
-        if (result.isConfirmed) {
-          const approvalSteps = this.formModel().approvalSteps || [];
+        if (!result.isConfirmed) return;
 
-          for (let i = 0; i < approvalSteps.length; i++) {
-            const step = approvalSteps[i];
-            const stepNo = i + 1;
-            const workflowPostId = this.approvalWorkflowForm.postId().value();
+        const approvalSteps = this.formModel().approvalSteps || [];
+        for (let i = 0; i < approvalSteps.length; i++) {
+          const step = approvalSteps[i];
+          const stepNo = i + 1;
+          const workflowPostId = this.approvalWorkflowForm.postId().value();
 
-            if (!step.receiverPostId?.trim()) {
-              this.alertService.error(null, `Receiver Post is required for Step ${stepNo}`);
-              return;
-            }
-
-            if (!step.organizationUnitTypeId?.trim()) {
-              this.alertService.error(
-                null,
-                `Organization Unit Type is required for Step ${stepNo}`,
-              );
-              return;
-            }
-
-            if (workflowPostId && step.receiverPostId === workflowPostId) {
-              this.alertService.error(
-                null,
-                `Receiver Post cannot be the same as the workflow Post for Step ${stepNo}`,
-              );
-              return;
-            }
-
-            if (!step.eventStatus?.trim()) {
-              this.alertService.error(null, `Event Status is required for Step ${stepNo}`);
-              return;
-            }
-
-            if (!step.eventButtonText?.trim()) {
-              this.alertService.error(null, `Event Button Text is required for Step ${stepNo}`);
-              return;
-            }
-
-            if (!step.isApprovalEvent && !step.isRecommendEvent) {
-              this.alertService.error(
-                null,
-                `Please select at least one event type (Approval or Recommend) for Step ${stepNo}.`,
-              );
-              return;
-            }
+          if (!step.receiverPostId?.trim()) {
+            this.alertService.error(null, `Receiver Post is required for Step ${stepNo}`);
+            return;
           }
-          const formValue = this.approvalWorkflowForm().value();
-
-          const payload = {
-            id: formValue.id,
-            category: formValue.category,
-            leaveTypeId: formValue.leaveTypeId,
-            organizationUnitTypeId: formValue.organizationUnitTypeId,
-            salaryGradeId: formValue.salaryGradeId,
-            postId: formValue.postId,
-            minimumDays: formValue.minimumDays,
-            maximumDays: formValue.maximumDays,
-
-            steps: (this.formModel().approvalSteps ?? []).map((step) => ({
-              id: step.id,
-              organizationUnitTypeId: step.organizationUnitTypeId,
-              receiverPostId: step.receiverPostId,
-              isRecommendEvent: step.isRecommendEvent,
-              isApprovalEvent: step.isApprovalEvent,
-              eventStatus: step.eventStatus,
-              eventButtonText: step.eventButtonText,
-              sequenceNo: step.sequenceNo,
-            })),
-          };
-          if (!this.isEditMode()) {
-            this.workflowService.create(payload).subscribe({
-              next: (resp: any) => {
-                this.alertService.success(null, resp).then(() => {
-                  this.approvalWorkflowstore.refreshList();
-                  this.onSave.emit();
-                });
-              },
-              error: (err: any) => {},
-            });
-          } else {
-            this.workflowService.update(payload.id, payload).subscribe({
-              next: (resp: any) => {
-                this.alertService.success(null, resp).then(() => {
-                  this.approvalWorkflowstore.refreshList();
-                  this.approvalWorkflowstore.refreshDetail();
-                  this.onSave.emit();
-                });
-              },
-              error: (err: any) => {},
-            });
+          if (!step.organizationUnitTypeId?.trim()) {
+            this.alertService.error(null, `Organization Unit Type is required for Step ${stepNo}`);
+            return;
           }
+          if (workflowPostId && step.receiverPostId === workflowPostId) {
+            this.alertService.error(
+              null,
+              `Receiver Post cannot be the same as the workflow Post for Step ${stepNo}`,
+            );
+            return;
+          }
+          if (!step.eventStatus?.trim()) {
+            this.alertService.error(null, `Event Status is required for Step ${stepNo}`);
+            return;
+          }
+          if (!step.eventButtonText?.trim()) {
+            this.alertService.error(null, `Event Button Text is required for Step ${stepNo}`);
+            return;
+          }
+          if (!step.isApprovalEvent && !step.isRecommendEvent) {
+            this.alertService.error(
+              null,
+              `Please select at least one event type (Approval or Recommend) for Step ${stepNo}.`,
+            );
+            return;
+          }
+        }
+
+        const formValue = this.approvalWorkflowForm().value();
+
+        // Maps 1:1 to ApprovalWorkflowRequest / ApprovalWorkflowStepRequest.
+        const payload: IApprovalWorkflowRequest = {
+          category: formValue.category,
+          leaveTypeId: formValue.leaveTypeId,
+          organizationUnitTypeId: formValue.organizationUnitTypeId,
+          salaryGradeIds: formValue.salaryGradeIds,
+          postId: formValue.postId,
+          minimumDays: formValue.minimumDays,
+          maximumDays: formValue.maximumDays,
+          steps: (this.formModel().approvalSteps ?? []).map((step) => ({
+            id: step.id === EMPTY_UUID ? null : step.id,
+            receiverPostId: step.receiverPostId,
+            organizationUnitTypeId: step.organizationUnitTypeId as string,
+            isRecommendEvent: step.isRecommendEvent,
+            isApprovalEvent: step.isApprovalEvent,
+            eventStatus: step.eventStatus,
+            eventButtonText: step.eventButtonText,
+            sequenceNo: step.sequenceNo,
+          })),
+        };
+
+        if (!this.isEditMode()) {
+          this.workflowService.create(payload).subscribe({
+            next: (resp: any) => {
+              this.alertService.success(null, resp).then(() => {
+                this.approvalWorkflowstore.refreshList();
+                this.onSave.emit();
+              });
+            },
+            error: () => {},
+          });
+        } else {
+          this.workflowService.update(formValue.id, payload).subscribe({
+            next: (resp: any) => {
+              this.alertService.success(null, resp).then(() => {
+                this.approvalWorkflowstore.refreshList();
+                this.approvalWorkflowstore.refreshDetail();
+                this.onSave.emit();
+              });
+            },
+            error: () => {},
+          });
         }
       });
   }

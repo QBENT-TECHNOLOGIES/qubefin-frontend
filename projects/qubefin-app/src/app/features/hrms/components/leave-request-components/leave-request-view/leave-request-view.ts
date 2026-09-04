@@ -149,6 +149,9 @@ export class LeaveRequestView {
       case 'Cancelled':
         return 'text-slate-600 dark:text-slate-400';
 
+      case 'Lapsed':
+        return 'text-slate-600 dark:text-slate-400';
+
       case 'Pending':
         return 'text-yellow-600 dark:text-yellow-400';
 
@@ -166,6 +169,9 @@ export class LeaveRequestView {
         return 'bg-rose-400';
 
       case 'Cancelled':
+        return 'bg-slate-400';
+
+      case 'Lapsed':
         return 'bg-slate-400';
 
       case 'Pending':
@@ -186,6 +192,9 @@ export class LeaveRequestView {
 
       case 'Cancelled':
         return 'bg-slate-500';
+
+      case 'Lapsed':
+        return 'bg-slate-400';
 
       case 'Pending':
         return 'bg-yellow-500';

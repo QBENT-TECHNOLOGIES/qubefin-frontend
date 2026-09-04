@@ -4,7 +4,7 @@ import { EMPTY_UUID } from 'qubefin-core';
 import { APP_ICONS_MAP } from '../../../../../lucide-icons';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DatePipe } from '@angular/common';
-import { IApprovalWorkflow } from '../../../models/approval-workflow';
+import { IApprovalWorkflowDetail } from '../../../models/approval-workflow';
 
 @Component({
   selector: 'qfin-approval-workflow-view',
@@ -22,7 +22,7 @@ export class ApprovalWorkflowView {
 
   readonly approvalWorkflow = computed(() => this.approvalWorkflowCache());
 
-  private readonly approvalWorkflowCache = signal<IApprovalWorkflow | undefined>(undefined);
+  private readonly approvalWorkflowCache = signal<IApprovalWorkflowDetail | undefined>(undefined);
 
   constructor() {
     effect(() => {

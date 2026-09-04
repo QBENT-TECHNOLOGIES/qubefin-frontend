@@ -7,15 +7,6 @@
             </h3>
             <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <!-- @if (isEditMode()) {
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Assignment No</mat-label>
-                    <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput [value]="formModel().assignmentNo" readonly />
-                </mat-form-field>
-                } -->
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Category</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
@@ -55,7 +46,7 @@
                     </mat-select>
                 </mat-form-field>
                 }
-                 @if(approvalWorkflowForm().value().category && isAttendanceCategory()){
+                @if(approvalWorkflowForm().value().category && isAttendanceCategory()){
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Post</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
@@ -67,14 +58,14 @@
                         }
                     </mat-select>
                 </mat-form-field>
-            }
+                }
                 @if(approvalWorkflowForm().value().category && isLeaveCategory()){
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Salary Grade</mat-label>
+                    <mat-label>Salary Grade(s)</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="tag" class="w-5 h-5"></svg>
                     </div>
-                    <mat-select [formField]="approvalWorkflowForm.salaryGradeId">
+                    <mat-select multiple [formField]="approvalWorkflowForm.salaryGradeIds">
                         @for (item of salaryGrades(); track item.id) {
                         <mat-option [value]="item.id">{{ item.name }}</mat-option>
                         }
@@ -99,22 +90,6 @@
                         (wheel)="$event.preventDefault()" placeholder="Enter Maximum days">
                 </mat-form-field>
                 }
-
-                <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Minimum days</mat-label>
-                    <input matInput type="number" [formField]="approvalWorkflowForm.minimumDays">
-                </mat-form-field>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Maximum days</mat-label>
-                    <input matInput type="number" [formField]="approvalWorkflowForm.maximumDays" placeholder="No limit">
-                </mat-form-field> -->
-
-                <!-- <button
-                    class="ripple-btn shine-sweep rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
-                    (click)="addMember()" style="width: 152px;" [disabled]="!isMemberSelected()">
-                    <svg lucideIcon="plus" class="w-4 h-4"></svg>
-                    Add Surveyor
-                </button> -->
             </div>
         </div>
 
