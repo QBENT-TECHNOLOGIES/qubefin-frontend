@@ -118,8 +118,8 @@ export class OrganizationUnitDetailComponent {
         latitude: unit.latitude ?? null,
         longitude: unit.longitude ?? null,
         checkRadiusInMeter: unit.checkRadiusInMeter ?? null,
-        attendanceInTime: unit.attendanceInTime ?? '',
-        attendanceOutTime: unit.attendanceOutTime ?? '',
+        attendanceInTime: this.formatTo12Hour(unit.attendanceInTime),
+        attendanceOutTime: this.formatTo12Hour(unit.attendanceOutTime),
       });
     });
     effect(() => {
@@ -276,6 +276,37 @@ export class OrganizationUnitDetailComponent {
         callback(result.formatted);
       }
     });
+  }
+
+  private formatTo12Hour(time: string | null | undefined): string {
+    if (!time) return '';
+
+    const parts = time.trim().split(' ');
+    const timePart = parts[0];
+
+    const [hoursStr, minutesStr] = timePart.split(':');
+    let hours = parseInt(hoursStr, 10);
+    const minutes = parseInt(minutesStr, 10);
+
+    if (isNaN(hours) || isNaN(minutes)) {
+      return '';
+    }
+
+    // Already 12-hour format
+    if (parts[1]) {
+      const period = parts[1].toUpperCase();
+      hours = hours % 12 || 12;
+
+      return `${hours.toString().padStart(2, '0')}:${minutes
+        .toString()
+        .padStart(2, '0')} ${period}`;
+    }
+
+    // Convert 24-hour -> 12-hour
+    const period = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
   }
   private formatTimeForApi(timeStr: string | null | undefined): string {
     if (!timeStr) return '';
