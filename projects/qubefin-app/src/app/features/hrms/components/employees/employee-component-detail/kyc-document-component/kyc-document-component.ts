@@ -30,7 +30,7 @@ import { EmployeeStore } from '../../../../stores/employee-store';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { DocumentModalService } from '../../../../../../shared/services/document-modal.service';
+import { DocumentModalService } from 'qubefin-core';
 
 interface KycFormModel {
   documents: IEmployeeDocument[];

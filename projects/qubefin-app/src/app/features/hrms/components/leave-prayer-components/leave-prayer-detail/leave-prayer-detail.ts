@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
+import { DocumentModalService } from 'qubefin-core';
 import { LeavePrayerStore } from '../../../stores/leave-prayer-store';
 import { ILeavePrayerDetailItem } from '../../../models/leave-prayer';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';

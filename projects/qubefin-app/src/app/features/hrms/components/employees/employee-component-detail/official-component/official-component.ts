@@ -40,6 +40,8 @@ import { OrganizationUnitTypeStore } from '../../../../../global/stores/organiza
 import { OrganizationUnitService } from '../../../../../global/services/organization-unit-service';
 import { OrganizationUnit } from '../../../../../global/models/organization-unit';
 import { IDesignation } from '../../../../models/designation';
+import { CompanyService } from '../../../../../global/services/company-service';
+import { IComapnyList } from '../../../../../global/models/company';
 
 @Component({
   selector: 'qfin-official-component',
@@ -68,16 +70,17 @@ export class OfficialComponentDetail {
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly organizationUnitService = inject(OrganizationUnitService);
+  private readonly companyService = inject(CompanyService);
   private readonly alertService = inject(AlertService);
 
   readonly iconMap = APP_ICONS_MAP;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
   organizationUnits = signal<OrganizationUnit[]>([]);
   designations = signal<IDesignation[]>([]);
+  companies = signal<IComapnyList[]>([]);
   protected readonly officialModel = signal<IEmployeeOfficialInfo>(new EmployeeOfficialInfo());
 
   protected readonly officialSchema: Schema<IEmployeeOfficialInfo> = schema((path) => {
-    // required(path.officialEmail, { message: 'Official Email is required' });
     pattern(path.officialEmail, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
       message: 'Enter a valid email address',
     });
@@ -92,7 +95,6 @@ export class OfficialComponentDetail {
     readonly(path.dateOfJoining, { when: () => true });
     readonly(path.dateOfConfirmation, { when: () => true });
     readonly(path.separationDate, { when: () => true });
-    readonly(path.companyName, { when: () => true });
     readonly(path.salaryGrade, { when: () => true });
     const isNotEditable = ({ valueOf }: any) => {
       return valueOf(path.isDesignationEditable) === false;
@@ -100,6 +102,7 @@ export class OfficialComponentDetail {
     disabled(path.organizationUnitTypeId, { when: isNotEditable });
     disabled(path.organizationUnitId, { when: isNotEditable });
     disabled(path.designationId, { when: isNotEditable });
+    disabled(path.grossSalary, { when: isNotEditable });
   });
 
   readonly organizationUnitTypes = this.organizationUnitTypeStore.organizationUnitTypes;
@@ -108,6 +111,24 @@ export class OfficialComponentDetail {
   stepper!: ElementRef;
   constructor() {
     this.dateAdapter.setLocale('en-GB');
+    this.companyService.getAll().subscribe((companies: any) => {
+      this.companies.set(
+        companies.map((company: any) => ({ ...company, name: company.name.trim() })),
+      );
+    });
+  }
+
+  onCompanyChange(companyId: string) {
+    const company = this.companies().find((item) => item.id === companyId);
+    if (!company) {
+      return;
+    }
+
+    this.officialModel.update((state) => ({
+      ...state,
+      companyId: company.id,
+      companyName: company.name,
+    }));
   }
   onOrganizationUnitTypeChange(typeId: string) {
     if (!typeId || typeId === EMPTY_UUID) {
@@ -176,6 +197,7 @@ export class OfficialComponentDetail {
                 resp.confirmationDate == null ? null : new Date(resp.confirmationDate),
               separationDate: resp.separationDate == null ? null : new Date(resp.separationDate),
               isDesignationEditable: resp.isDesignationEditable,
+              companyId: resp.companyId,
             }));
 
             if (resp.organizationUnitTypeId) {

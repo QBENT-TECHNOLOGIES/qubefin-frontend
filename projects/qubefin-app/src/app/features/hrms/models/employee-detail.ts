@@ -316,7 +316,7 @@ export class EmployeePersonalInfo implements IEmployeePersonalInfo {
 // --- OfficialInfo ---
 
 export interface IEmployeeOfficialInfo {
-  companyId?: string; // Guid? maps to string
+  companyId: string; // Guid? maps to string
   organizationUnitId: string; // Guid? maps to string
   departmentId: string; // Guid? maps to string
   employementType: string; // string? maps to optional string

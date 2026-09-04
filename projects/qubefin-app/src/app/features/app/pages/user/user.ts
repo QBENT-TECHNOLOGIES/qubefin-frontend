@@ -6,15 +6,31 @@ import { form } from '@angular/forms/signals';
 import { Sort } from '@angular/material/sort';
 import { PageEvent } from '@angular/material/paginator';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { UserListComponent } from '../../components/users/user-list/user-list';
 import { UserView } from '../../components/users/user-view/user-view';
 import { UserDetail } from '../../components/users/user-detail/user-detail';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
-	selector: 'qfin-user-page',
-	imports: [CommonModule, LucideDynamicIcon, UserListComponent, UserView, UserDetail],
-	templateUrl: './user.html'
+  selector: 'qfin-user-page',
+  imports: [
+    CommonModule,
+    FormsModule,
+    LucideDynamicIcon,
+    UserListComponent,
+    UserView,
+    UserDetail,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+  ],
+  templateUrl: './user.html',
 })
 export class UserPage {
   public readonly EMPTY_UUID = EMPTY_UUID;
@@ -25,6 +41,14 @@ export class UserPage {
   showFilterArea = signal<boolean>(false);
   selectedUserId = signal<string>(EMPTY_UUID);
   searchedUsers = this.userStore.searchedUsers;
+  tempSearch = '';
+  tempCategory = '';
+  readonly categories = signal<Array<{ id: string; name: string }>>([
+    { id: '', name: 'All Categories' },
+    { id: 'ADMIN', name: 'Admin' },
+    { id: 'MANAGER', name: 'Manager' },
+    { id: 'USER', name: 'User' },
+  ]);
 
   protected readonly userSearchFields = signal<UserSearchParam>({
     searchText: '',
@@ -41,6 +65,8 @@ export class UserPage {
   }
 
   onSort(sort: Sort) {
+    const currentPageSize = this.userStore.searchParams().pageSize;
+    this.userStore.setPagination(0, currentPageSize);
     this.userStore.setSort(sort.active, sort.direction);
   }
 
@@ -71,5 +97,21 @@ export class UserPage {
     this.isViewMode.set(true);
   }
 
-  protected toggleFilterArea() {}
+  protected toggleFilterArea() {
+    this.showFilterArea.update((value) => !value);
+  }
+
+  protected applyFilters() {
+    this.userStore.setPagination(0, 10);
+    this.userStore.setSearchQuery(this.tempSearch.trim());
+    this.userStore.setSort('userName', 'ASC');
+  }
+
+  protected resetFilters() {
+    this.tempSearch = '';
+    this.tempCategory = '';
+    this.userStore.setSearchQuery('');
+    this.userStore.setPagination(0, 10);
+    this.userStore.setSort('userName', 'ASC');
+  }
 }

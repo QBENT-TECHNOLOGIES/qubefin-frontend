@@ -13,7 +13,7 @@ import { LeaveRequestService } from '../../../services/leave-request-service';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { ILeaveRequestDetailItem } from '../../../models/leave-request';
-import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
+import { DocumentModalService } from 'qubefin-core';
 
 @Component({
   selector: 'qfin-leave-request-detail',
@@ -231,6 +231,18 @@ export class LeaveRequestDetail {
 
   protected onSaveAsDraft() {
     if (!this.leaveRequestForm().valid()) {
+      return;
+    }
+
+    const leaveAlias = this.leaveTypeBalances().find(
+      (m) => m.leaveTypeId === this.leaveRequestForm().value().leaveTypeId,
+    )?.alias;
+
+    if (leaveAlias === 'ML' && !this.selectedFile()?.size) {
+      this.alertService.warning(
+        null,
+        'Please upload the required medical document before proceeding.',
+      );
       return;
     }
 

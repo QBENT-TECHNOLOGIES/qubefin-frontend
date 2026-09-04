@@ -23,20 +23,45 @@ export class PayrollService {
   lockPayroll(year: number, month: number) {
     return this.httpClient.put(`${ApiPaths.PAYROLL}/lock-payrolls/${year}/${month}`, null);
   }
-  getPfReport(month: number, year: number) {
-    return this.httpClient.get(`${ApiPaths.PAYROLL}/generate-pf-report/${month}/${year}`, {
-      responseType: 'blob',
-    });
+  getPfReport(month: number, year: number, companyId: string) {
+    return this.httpClient.get(
+      `${ApiPaths.PAYROLL}/generate-pf-report/${month}/${year}/${companyId}`,
+      {
+        responseType: 'blob',
+      },
+    );
   }
-  getPTaxReport(month: number, year: number) {
-    return this.httpClient.get(`${ApiPaths.PAYROLL}/generate-ptax-report/${month}/${year}`, {
-      responseType: 'blob',
-    });
+  getPTaxReport(month: number, year: number, companyId: string) {
+    return this.httpClient.get(
+      `${ApiPaths.PAYROLL}/generate-ptax-report/${month}/${year}/${companyId}`,
+      {
+        responseType: 'blob',
+      },
+    );
   }
-  getEsiReport(month: number, year: number) {
-    return this.httpClient.get(`${ApiPaths.PAYROLL}/generate-esi-report/${month}/${year}`, {
-      responseType: 'blob',
-    });
+  getEsiReport(month: number, year: number, companyId: string) {
+    return this.httpClient.get(
+      `${ApiPaths.PAYROLL}/generate-esi-report/${month}/${year}/${companyId}`,
+      {
+        responseType: 'blob',
+      },
+    );
+  }
+  getSalaryDisbursementReport(month: number, year: number, companyId: string) {
+    return this.httpClient.get(
+      `${ApiPaths.PAYROLL}/generate-salary-disbursement-report/${month}/${year}/${companyId}`,
+      {
+        responseType: 'blob',
+      },
+    );
+  }
+  getEmployeeSalaryRegisterReport(month: number, year: number, companyId: string) {
+    return this.httpClient.get(
+      `${ApiPaths.PAYROLL}/generate-salary-register-report/${month}/${year}/${companyId}`,
+      {
+        responseType: 'blob',
+      },
+    );
   }
   createPayroll(companyId: string) {
     return this.httpClient.post(`${ApiPaths.PAYROLL}/create?companyId=${companyId}`, null);

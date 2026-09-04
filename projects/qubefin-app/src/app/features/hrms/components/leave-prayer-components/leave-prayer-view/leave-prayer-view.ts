@@ -8,7 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DocumentModalService } from '../../../../../shared/services/document-modal.service';
+import { DocumentModalService } from 'qubefin-core';
 import { LeavePrayerStore } from '../../../stores/leave-prayer-store';
 import { LeavePrayerService } from '../../../services/leave-prayer-service';
 import { LeavePrayerApprovalStore } from '../../../stores/leave-prayer-approval-store';

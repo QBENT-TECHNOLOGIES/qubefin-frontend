@@ -105,6 +105,8 @@ export class EmployeeComponent {
   }
 
   protected applyFilters() {
+    this.employeeStore.setPage(0);
+    this.employeeStore.setPageSize(10);
     this.employeeStore.setSearchQuery(this.tempSearch);
     const date = this.srchJoiningDate();
     const formattedDate = date ? this.datePipe.transform(date, 'yyyy-MM-dd') : null;

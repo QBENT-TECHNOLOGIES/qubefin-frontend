@@ -68,14 +68,14 @@ export class MonthWisePayrolls {
     }
   }
   readonly isDownloading = signal<boolean>(false);
-  onDownloadPfReport(month: number, year: number) {
+  onDownloadPfReport(month: number, year: number, companyId: string, companyName: string) {
     this.isDownloading.set(true);
-    this.payrollService.getPfReport(month, year).subscribe({
+    this.payrollService.getPfReport(month, year, companyId).subscribe({
       next: (blob: Blob) => {
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = downloadUrl;
-        link.download = `PF_Report_${month}_${year}.xlsx`;
+        link.download = `PF_Report_${month}_${year}_${companyName}.xlsx`;
         link.click();
         window.URL.revokeObjectURL(downloadUrl);
         this.isDownloading.set(false);
@@ -85,14 +85,14 @@ export class MonthWisePayrolls {
       },
     });
   }
-  onDownloadPTaxReport(month: number, year: number) {
+  onDownloadPTaxReport(month: number, year: number, companyId: string, companyName: string) {
     this.isDownloading.set(true);
-    this.payrollService.getPTaxReport(month, year).subscribe({
+    this.payrollService.getPTaxReport(month, year, companyId).subscribe({
       next: (blob: Blob) => {
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = downloadUrl;
-        link.download = `PTax_Report_${month}_${year}.xlsx`;
+        link.download = `PTax_Report_${month}_${year}_${companyName}.xlsx`;
         link.click();
         window.URL.revokeObjectURL(downloadUrl);
         this.isDownloading.set(false);
@@ -102,14 +102,58 @@ export class MonthWisePayrolls {
       },
     });
   }
-  onDownloadEsiReport(month: number, year: number) {
+  onDownloadEsiReport(month: number, year: number, companyId: string, companyName: string) {
     this.isDownloading.set(true);
-    this.payrollService.getEsiReport(month, year).subscribe({
+    this.payrollService.getEsiReport(month, year, companyId).subscribe({
       next: (blob: Blob) => {
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = downloadUrl;
-        link.download = `ESI_Report_${month}_${year}.xlsx`;
+        link.download = `ESI_Report_${month}_${year}_${companyName}.xlsx`;
+        link.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        this.isDownloading.set(false);
+      },
+      error: (err) => {
+        this.isDownloading.set(false);
+      },
+    });
+  }
+  onDownloadSalaryDisbursementReport(
+    month: number,
+    year: number,
+    companyId: string,
+    companyName: string,
+  ) {
+    this.isDownloading.set(true);
+    this.payrollService.getSalaryDisbursementReport(month, year, companyId).subscribe({
+      next: (blob: Blob) => {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `salary_Report_${month}_${year}_${companyName}.xlsx`;
+        link.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        this.isDownloading.set(false);
+      },
+      error: (err) => {
+        this.isDownloading.set(false);
+      },
+    });
+  }
+  onDownloadEmployeeSalaryRegisterReport(
+    month: number,
+    year: number,
+    companyId: string,
+    companyName: string,
+  ) {
+    this.isDownloading.set(true);
+    this.payrollService.getEmployeeSalaryRegisterReport(month, year, companyId).subscribe({
+      next: (blob: Blob) => {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `employee_salary_register_Report_${month}_${year}_${companyName}.xlsx`;
         link.click();
         window.URL.revokeObjectURL(downloadUrl);
         this.isDownloading.set(false);
