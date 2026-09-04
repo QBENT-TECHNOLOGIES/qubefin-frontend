@@ -63,7 +63,7 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-sync" class="w-5 h-5"></svg>
             </div>
-            <input matInput [matDatepicker]="separationDate" autocomplete="off"
+            <input matInput [matDatepicker]="separationDate" [min]="officialForm.dateOfJoining().value()" autocomplete="off"
                 [formField]="officialForm.separationDate">
             <mat-datepicker-toggle matIconSuffix [for]="separationDate">
             </mat-datepicker-toggle>
