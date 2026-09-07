@@ -4,6 +4,7 @@ import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import {
   IEmployeePersonalInfo,
   IEmployeesBySearchResult,
+  IEmpTransferHistory,
   KycDocument,
   Utility,
 } from '../models/employee-detail';
@@ -41,7 +42,12 @@ export class EmployeeStore {
       companyId: this.companyId(),
     },
   }));
-
+  readonly empTransferHistoryResource = httpResource<{ empTransferHistory: IEmpTransferHistory[] }>(
+    () => {
+      const id = this.employeeComponentId();
+      return `${ApiPaths.HRMS}/employees/transfer-history/${id}`;
+    },
+  );
   // Safely extracts the employees array from the root response model
   readonly employeeListComponents = computed(
     () => this.employeeListComponentsResource.value()?.employees ?? [],
