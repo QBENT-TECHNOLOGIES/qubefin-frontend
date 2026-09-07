@@ -9,6 +9,7 @@ export interface IHolidayDetail {
   id: string;
   holidayDate: string;
   description: string;
+  editable?: boolean;
   createdBy?: string;
   createdOn?: string;
   lastModifiedBy?: string;

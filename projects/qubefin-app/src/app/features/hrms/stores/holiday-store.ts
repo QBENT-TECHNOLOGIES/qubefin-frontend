@@ -11,7 +11,8 @@ export class HolidayStore {
 
   readonly yearQuery = signal<number>(new Date().getFullYear());
   private readonly holidayId = signal<string | undefined>(undefined);
-
+  private readonly holidayDateQuery = signal<string | undefined>(undefined);
+  private readonly detailYear = signal<number | undefined>(undefined);
   readonly holidaysResource = httpResource<IHolidayList[]>(() => {
     return `${this.basePath}/search/${this.yearQuery()}`;
   });
@@ -21,9 +22,18 @@ export class HolidayStore {
   readonly loading = computed(() => this.holidaysResource.isLoading());
   readonly error = computed(() => this.holidaysResource.error());
 
+  // readonly holidayResource = httpResource<IHolidayDetail>(() => {
+  //   const id = this.holidayId();
+  //   return id && id !== EMPTY_UUID ? `${this.basePath}/${id}` : undefined;
+  // });
+
   readonly holidayResource = httpResource<IHolidayDetail>(() => {
-    const id = this.holidayId();
-    return id && id !== EMPTY_UUID ? `${this.basePath}/${id}` : undefined;
+    const date = this.holidayDateQuery();
+
+    if (!date) return undefined;
+
+    const encodedDate = encodeURIComponent(date);
+    return `${this.basePath}/get?holidayDate=${encodedDate}`;
   });
 
   readonly holiday = computed(() => {
@@ -49,6 +59,16 @@ export class HolidayStore {
   setHolidayId(id: string | undefined) {
     if (this.holidayId() !== id) {
       this.holidayId.set(id);
+    }
+  }
+  setHolidayYear(year: number | undefined) {
+    if (this.detailYear() !== year) {
+      this.detailYear.set(year);
+    }
+  }
+  setHolidayDate(date: string | undefined) {
+    if (this.holidayDateQuery() !== date) {
+      this.holidayDateQuery.set(date);
     }
   }
 }

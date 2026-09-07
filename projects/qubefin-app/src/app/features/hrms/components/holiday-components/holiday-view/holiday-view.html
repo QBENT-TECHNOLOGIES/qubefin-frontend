@@ -14,9 +14,9 @@
                                 {{ detail.description }}
                             </h1>
 
-                            <div class="box-edit-btn" matTooltip="Edit" (click)="onEdit()">
+                            @if(detail.editable){ <div class="box-edit-btn" matTooltip="Edit" (click)="onEdit()">
                                 <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
-                            </div>
+                            </div>}
                         </div>
                     </div>
                 </div>
