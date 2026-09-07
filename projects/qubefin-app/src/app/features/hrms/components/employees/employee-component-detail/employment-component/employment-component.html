@@ -17,6 +17,9 @@
                 </div>
                 <input matInput autocomplete="off" placeholder="Enter Employer Name"
                     [formField]="employmentForm.employments[$index].employerName">
+                <mat-error class="cus-error">
+                    {{ employmentForm.employments[$index].employerName().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- Designation -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -26,6 +29,9 @@
                 </div>
                 <input matInput type="text" autocomplete="off" placeholder="Enter Designation"
                     [formField]="employmentForm.employments[$index].designation">
+                <mat-error class="cus-error">
+                    {{ employmentForm.employments[$index].designation().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- From Date -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -61,6 +67,9 @@
                 </div>
                 <input matInput type="number" autocomplete="off" placeholder="Enter Last Drawn Salary"
                     [formField]="employmentForm.employments[$index].lastDrawnSalary">
+                <mat-error class="cus-error">
+                    {{ employmentForm.employments[$index].lastDrawnSalary().errors()[0]?.message }}
+                </mat-error>
             </mat-form-field>
             <!-- Relationship -->
 

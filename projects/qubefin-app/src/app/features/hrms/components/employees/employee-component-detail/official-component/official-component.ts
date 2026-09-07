@@ -91,7 +91,7 @@ export class OfficialComponentDetail {
     required(path.grossSalary, { message: 'Gross Salary is required' });
     required(path.organizationUnitTypeId, { message: 'Organization Unit Type is required' });
     required(path.organizationUnitId, { message: 'Organization Unit is required' });
-    required(path.companyName, { message: 'Company Name is required' });
+    required(path.companyId, { message: 'Company Name is required' });
     readonly(path.dateOfJoining, { when: () => true });
     readonly(path.dateOfConfirmation, { when: () => true });
     readonly(path.separationDate, { when: () => true });
@@ -235,6 +235,7 @@ export class OfficialComponentDetail {
   });
 
   onSubmit() {
+    this.officialForm().markAsTouched();
     if (!this.officialForm().valid()) {
       return;
     }

@@ -55,11 +55,12 @@ export class QualificationComponentDetail {
     required(path.qualifications);
 
     applyEach(path.qualifications, (refPath) => {
-      required(refPath.academicStream);
-      required(refPath.yearOfPassing);
-      required(refPath.universityOrBoard);
-      required(refPath.schoolOrCollege);
-      required(refPath.gradeOrMarks);
+      required(refPath.academicStream, { message: 'Academic Stream is required' });
+      required(refPath.specialization, { message: 'Specialization is required' });
+      required(refPath.yearOfPassing, { message: 'Year of Passing is required' });
+      required(refPath.universityOrBoard, { message: 'University or Board is required' });
+      required(refPath.schoolOrCollege, { message: 'School or College is required' });
+      required(refPath.gradeOrMarks, { message: 'Grade or Marks is required' });
     });
   });
 
@@ -92,6 +93,7 @@ export class QualificationComponentDetail {
   }
 
   onSubmit() {
+    this.qualificationForm().markAsTouched();
     if (!this.qualificationForm().valid()) {
       return;
     }

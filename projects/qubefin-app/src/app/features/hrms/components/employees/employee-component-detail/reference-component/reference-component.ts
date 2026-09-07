@@ -60,14 +60,14 @@ export class ReferenceComponentDetail {
     required(path.references);
 
     applyEach(path.references, (refPath) => {
-      required(refPath.personName);
-      required(refPath.mobile);
+      required(refPath.address, { message: 'Address is required' });
+      required(refPath.personName, { message: 'Person Name is required' });
+      required(refPath.mobile, { message: 'Mobile No. is required' });
       pattern(refPath.mobile, /^[6-9]\d{9}$/, { message: 'Enter a valid 10-digit mobile number' });
-      required(refPath.email);
+      required(refPath.email, { message: 'Email is required' });
       pattern(refPath.email, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
         message: 'Enter a valid email',
       });
-      required(refPath.address);
     });
   });
 
@@ -100,6 +100,7 @@ export class ReferenceComponentDetail {
   }
 
   onSubmit() {
+    this.referenceForm().markAsTouched();
     if (!this.referenceForm().valid()) {
       return;
     }

@@ -20,6 +20,9 @@
                 </mat-option>
                 }
             </mat-select>
+            <mat-error class="cus-error">
+                {{ bankingForm.bankId().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -39,6 +42,9 @@
             </div>
             <input matInput type="number" autocomplete="off" [formField]="bankingForm.bankAccountNo"
                 placeholder="Enter Account Number">
+            <mat-error class="cus-error">
+                {{ bankingForm.bankAccountNo().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>IFSC Code</mat-label>
@@ -46,6 +52,9 @@
                 <svg lucideIcon="wallet" class="w-5 h-5"></svg>
             </div>
             <input matInput autocomplete="off" [formField]="bankingForm.ifscCode" placeholder="Enter IFSC Code">
+            <mat-error class="cus-error">
+                {{ bankingForm.ifscCode().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <!-- -----------Branch Name--------- -->
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -76,6 +85,9 @@
             </div>
             <input matInput type="text" autocomplete="off" [formField]="bankingForm.universalAccountNumber"
                 placeholder="Enter UAN No">
+            <mat-error class="cus-error">
+                {{ bankingForm.universalAccountNumber().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>PF Account Number</mat-label>
@@ -84,6 +96,9 @@
             </div>
             <input matInput autocomplete="off" [formField]="bankingForm.pfAccountNo"
                 placeholder="Enter PF Account Number">
+            <mat-error class="cus-error">
+                {{ bankingForm.pfAccountNo().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
 
         <mat-checkbox [formField]="bankingForm.hasEsiEligible" color="primary">Esi Eligible?</mat-checkbox>
@@ -96,6 +111,9 @@
                 <svg lucideIcon="shield-check" class="w-5 h-5"></svg>
             </div>
             <input matInput autocomplete="off" [formField]="bankingForm.esiIpNumber" placeholder="Enter ESI IP NUMBER">
+            <mat-error class="cus-error">
+                {{ bankingForm.esiIpNumber().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
 
 

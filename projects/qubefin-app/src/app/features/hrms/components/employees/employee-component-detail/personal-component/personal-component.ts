@@ -16,7 +16,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertService, EMPTY_UUID, nationalities } from 'qubefin-core';
-import { form, FormField, readonly, required, schema, Schema } from '@angular/forms/signals';
+import {
+  form,
+  FormField,
+  pattern,
+  readonly,
+  required,
+  schema,
+  Schema,
+} from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeStore } from '../../../../stores/employee-store';
@@ -72,12 +80,11 @@ export class PersonalComponentDetail {
   protected readonly employeeSchema: Schema<IEmployeePersonalInfo> = schema((path) => {
     required(path.firstName, { message: 'First name is required' });
     required(path.code, { message: 'code is required' });
-    required(path.bloodGroup, { message: 'Blood Group is required' });
+    required(path.bloodGroup, { message: 'Blood group is required' });
     required(path.nationality, { message: 'Nationality is required' });
     required(path.lastName, { message: 'Last name is required' });
     required(path.dateOfBirth, { message: 'Date of birth is required' });
     required(path.gender, { message: 'Gender is required' });
-    required(path.maritalStatus, { message: 'Gender is required' });
     required(path.religion, { message: 'Religion is required' });
     readonly(path.dateOfBirth, { when: () => true });
   });
@@ -154,6 +161,7 @@ export class PersonalComponentDetail {
       : [];
   }
   onSubmit() {
+    this.employeeForm().markAsTouched();
     if (!this.employeeForm().valid()) {
       return;
     }

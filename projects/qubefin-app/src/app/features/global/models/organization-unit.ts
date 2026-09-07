@@ -6,15 +6,20 @@ export interface OrganizationUnit {
   organizationUnitTypeId: string;
   organizationUnitTypeIcon: string;
   organizationUnitTypeName: string;
+  latitude: number | null;
+  longitude: number | null;
+  attendanceInTime: string;
+  attendanceOutTime: string;
+  checkRadiusInMeter: number | null;
   parentId: string | null;
   parentName?: string;
   isActive: boolean;
-  createdBy: string;
-  createdOn: Date;
+  createdBy?: string;
+  createdOn?: Date;
   lastModifiedBy?: string;
   lastModifiedOn?: Date;
   companyName?: string;
-  companyId?: string;
+  companyId: string;
   hierarchy: OrganizationUnitHierarchyItem[];
   designations: Designations[];
 }

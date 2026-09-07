@@ -14,6 +14,9 @@
             </div>
             <input matInput type="email" autocomplete="off" [formField]="officialForm.officialEmail"
                 placeholder="Enter Official Email">
+            <mat-error class="cus-error">
+                {{ officialForm.officialEmail().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Employment Type</mat-label>
@@ -25,6 +28,9 @@
                 <mat-option value="Contractual">Contractual</mat-option>
                 <mat-option value="Probation">Probation</mat-option>
             </mat-select>
+            <mat-error class="cus-error">
+                {{ officialForm.employementType().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Joining Date</mat-label>
@@ -36,6 +42,9 @@
             </mat-datepicker-toggle>
 
             <mat-datepicker #dateOfJoining></mat-datepicker>
+            <mat-error class="cus-error">
+                {{ officialForm.dateOfJoining().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Confirmation Date</mat-label>
@@ -54,7 +63,7 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-sync" class="w-5 h-5"></svg>
             </div>
-            <input matInput [matDatepicker]="separationDate" autocomplete="off"
+            <input matInput [matDatepicker]="separationDate" [min]="officialForm.dateOfJoining().value()" autocomplete="off"
                 [formField]="officialForm.separationDate">
             <mat-datepicker-toggle matIconSuffix [for]="separationDate">
             </mat-datepicker-toggle>
@@ -74,6 +83,9 @@
                 </mat-option>
                 }
             </mat-select>
+            <mat-error class="cus-error">
+                {{ officialForm.organizationUnitTypeId().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Organization Unit </mat-label>
@@ -88,6 +100,9 @@
                 </mat-option>
                 }
             </mat-select>
+            <mat-error class="cus-error">
+                {{ officialForm.organizationUnitId().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -101,6 +116,9 @@
                 <mat-option [value]="company.id">{{ company.name }}</mat-option>
                 }
             </mat-select>
+             <mat-error class="cus-error">
+                {{ officialForm.companyId().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Designations</mat-label>
@@ -114,6 +132,9 @@
                 </mat-option>
                 }
             </mat-select>
+            <mat-error class="cus-error">
+                {{ officialForm.designationId().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Salary Grade</mat-label>
@@ -122,6 +143,9 @@
             </div>
             <input matInput type="text" autocomplete="off" [formField]="officialForm.salaryGrade"
                 placeholder="Salary Grade">
+            <mat-error class="cus-error">
+                {{ officialForm.salaryGrade().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Gross Salary</mat-label>
@@ -130,6 +154,9 @@
             </div>
             <input matInput type="number" autocomplete="off" [formField]="officialForm.grossSalary"
                 placeholder="Gross Salary">
+            <mat-error class="cus-error">
+                {{ officialForm.grossSalary().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
     </div>
 

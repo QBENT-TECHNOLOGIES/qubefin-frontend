@@ -1,0 +1,100 @@
+<div class="space-y-4">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                General Information
+            </h3>
+            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+            <div class="flex flex-col gap-4">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Description</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [formField]="holidayForm.description" autocomplete="off"
+                        placeholder="Enter holiday description" />
+                    <mat-error class="cus-error">
+                        {{ holidayForm.description().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Holiday Date</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [matDatepicker]="holidayPicker" [formField]="holidayForm.holidayDate" readonly
+                        placeholder="Select Date" />
+                    <mat-datepicker-toggle matIconSuffix [for]="holidayPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #holidayPicker></mat-datepicker>
+                    <mat-error class="cus-error">
+                        {{ holidayForm.holidayDate().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                Applicable Organization Units
+            </h3>
+            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+            <div class="overflow-auto scrollbar-thin">
+                <div
+                    class="table-box overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl h-[400px]">
+                    <table mat-table [dataSource]="orgUnitsList()" class="w-full table">
+
+                        <ng-container matColumnDef="select">
+                            <th mat-header-cell *matHeaderCellDef class="w-16">
+                                <input type="checkbox" [checked]="isAllOrgUnitsSelected()"
+                                    (change)="toggleAllOrgUnitSelection($any($event.target).checked)"
+                                    class="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500 cursor-pointer" />
+                            </th>
+                            <td mat-cell *matCellDef="let row; let rowIndex = index" class="text-center!">
+                                <input type="checkbox" [checked]="row.isSelected"
+                                    (change)="toggleOrgUnitSelection(rowIndex, $any($event.target).checked)"
+                                    class="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500 cursor-pointer" />
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="name">
+                            <th mat-header-cell *matHeaderCellDef> Organization Unit </th>
+                            <td mat-cell *matCellDef="let row">
+                                <span class="font-medium text-slate-700 dark:text-slate-200">{{ row.name }}</span>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="orgUnitColumns; sticky: true"></tr>
+                        <tr mat-row *matRowDef="let row; columns: orgUnitColumns;"
+                            class="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"></tr>
+
+                        <tr class="mat-row" *matNoDataRow>
+                            <td class="mat-cell text-center! p-8 italic text-gray-500"
+                                [attr.colspan]="orgUnitColumns.length">
+                                Loading organization units...
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3 mt-6">
+        <button type="button" (click)="onCancelClicked()"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+            Cancel
+        </button>
+        <button type="button" (click)="onSubmit()"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
+            {{ isEditMode() ? 'Update' : 'Save' }}
+        </button>
+    </div>
+</div>

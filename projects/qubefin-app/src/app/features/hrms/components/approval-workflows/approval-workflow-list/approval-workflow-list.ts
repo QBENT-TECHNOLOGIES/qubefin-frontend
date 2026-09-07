@@ -35,6 +35,7 @@ export class ApprovalWorkflowList {
   displayedColumns = computed(() => {
     if (!this.isCollapsed()) {
       return [
+        'sl',
         'category',
         'organizationUnitType',
         'leaveType',

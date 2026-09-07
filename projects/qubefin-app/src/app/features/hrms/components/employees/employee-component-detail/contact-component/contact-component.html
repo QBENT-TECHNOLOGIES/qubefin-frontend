@@ -13,6 +13,9 @@
                 <svg lucideIcon="phone" class="w-5 h-5"></svg>
             </div>
             <input matInput autocomplete="off" [formField]="contactForm.mobileNo" placeholder="Enter Mobile No">
+            <mat-error class="cus-error">
+                {{ contactForm.mobileNo().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Personal Email</mat-label>
@@ -21,6 +24,9 @@
             </div>
             <input matInput type="email" autocomplete="off" [formField]="contactForm.personalEmail"
                 placeholder="Enter Personal Email">
+            <mat-error class="cus-error">
+                {{ contactForm.personalEmail().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
     </div>
     <div>
@@ -58,6 +64,9 @@
             </div>
             <input matInput autocomplete="off" [formField]="contactForm.primaryEmergencyMobile"
                 placeholder="Enter Mobile No">
+            <mat-error class="cus-error">
+                {{ contactForm.primaryEmergencyMobile().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
     </div>
     <div>
@@ -95,6 +104,8 @@
             </div>
             <input matInput autocomplete="off" [formField]="contactForm.secondaryEmergencyMobile"
                 placeholder="Enter Mobile No">
+            <mat-error class="cus-error">
+                {{ contactForm.secondaryEmergencyMobile().errors()[0]?.message }} </mat-error>
         </mat-form-field>
     </div>
 

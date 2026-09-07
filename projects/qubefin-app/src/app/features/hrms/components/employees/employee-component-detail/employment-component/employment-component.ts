@@ -61,11 +61,11 @@ export class EmploymentComponentDetail {
     required(path.employments);
 
     applyEach(path.employments, (refPath) => {
-      required(refPath.employerName);
-      required(refPath.designation);
+      required(refPath.employerName, { message: 'Employer Name is required' });
+      required(refPath.designation, { message: 'Designation is required' });
       required(refPath.fromDate);
       required(refPath.toDate);
-      required(refPath.lastDrawnSalary);
+      required(refPath.lastDrawnSalary, { message: 'Last Drawn Salary is required' });
       readonly(refPath.fromDate, { when: () => true });
       readonly(refPath.toDate, { when: () => true });
     });
@@ -102,6 +102,7 @@ export class EmploymentComponentDetail {
   }
 
   onSubmit() {
+    this.employmentForm().markAsTouched();
     if (!this.employmentForm().valid()) {
       return;
     }
