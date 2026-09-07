@@ -2,7 +2,7 @@
     <div class="header-group">
         <div class="flex items-center gap-3"></div>
         <div class="headerBtn-area">
-            @if (selectedHolidayId() === EMPTY_UUID && isViewMode()) {
+            @if (!selectedHolidayDate() && isViewMode()) {
             <div class="year-pill">
                 <svg lucideIcon="calendar-days" class="w-4 h-4 text-gray-500"></svg>
                 <mat-select class="year-select" [ngModel]="selectedYear()" (ngModelChange)="onYearChange($event)">
@@ -21,10 +21,10 @@
 
     <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
         <div class="mainCard-area glass" [ngClass]="{
-        'w-full max-w-full opacity-100 translate-x-0': selectedHolidayId() === EMPTY_UUID && isViewMode(),
-        'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]': isViewMode() && selectedHolidayId() !== EMPTY_UUID,
-        'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none': !isViewMode()
-      }">
+    'w-full max-w-full opacity-100 translate-x-0': !selectedHolidayDate() && isViewMode(),
+    'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]': isViewMode() && !!selectedHolidayDate(),
+    'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none': !isViewMode()
+}">
 
             @if (holidayStore.loading()) {
             <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
@@ -37,31 +37,33 @@
                 Unable to load Holiday.
             </div>
             } @else {
-            <qfin-holiday-list [data]="holidays()" [selectedId]="selectedHolidayId()"
+            <!-- <qfin-holiday-list [data]="holidays()" [selectedId]="selectedHolidayId()"
                 [isCollapsed]="selectedHolidayId() !== EMPTY_UUID || !isViewMode()" (onViewDetail)="onView($event)">
+            </qfin-holiday-list> -->
+            <qfin-holiday-list [data]="holidays()" [selectedId]="selectedHolidayDate() ?? ''"
+                [isCollapsed]="!!selectedHolidayDate() || !isViewMode()" (onViewDetail)="onView($event)">
             </qfin-holiday-list>
             }
         </div>
 
-        @if (hasSelectedHolidayId()) {
+        @if (hasSelectedHoliday()) {
         <div class="glass rounded-xl shadow-glass dark:shadow px-5 pt-4 pb-2 min-w-0 transition-all duration-500 ease-in-out"
-            [ngClass]="{ 'w-3/4': isViewMode() && selectedHolidayId() !== EMPTY_UUID, 'w-full': !isViewMode() }">
+            [ngClass]="{ 'w-3/4': isViewMode() && !!selectedHolidayDate(), 'w-full': !isViewMode() }">
             <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <div>
                             <div class="flex justify-start gap-2">
                                 <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
-                                    @if (selectedHolidayId() === EMPTY_UUID) { Add Holiday }
+                                    @if (!selectedHolidayDate()) { Add Holiday }
                                     @else if (isViewMode()) { Holiday Details }
                                     @else { Edit Holiday }
                                 </h2>
-                                <div
-                                    class="flex items-center gap-1.5 px-3 pt-1 pb-0 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
+                                <div class="...">
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                                     <span
                                         class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                                        @if (selectedHolidayId() === EMPTY_UUID) { New Mode }
+                                        @if (!selectedHolidayDate()) { New Mode }
                                         @else if (isViewMode()) { View Mode }
                                         @else { Edit Mode }
                                     </span>
@@ -78,10 +80,10 @@
             </div>
 
             <div>
-                @if (isViewMode() && selectedHolidayId() !== EMPTY_UUID) {
-                <qfin-holiday-view [holidayId]="selectedHolidayId()" (showEdit)="onEdit()"></qfin-holiday-view>
+                @if (isViewMode() && !!selectedHolidayDate()) {
+                <qfin-holiday-view [holidayDate]="selectedHolidayDate()" (showEdit)="onEdit()"></qfin-holiday-view>
                 } @else {
-                <qfin-holiday-detail [holidayId]="selectedHolidayId()" (cancel)="closePanel()"
+                <qfin-holiday-detail [holidayDate]="selectedHolidayDate()" (cancel)="closePanel()"
                     (save)="closePanel()"></qfin-holiday-detail>
                 }
             </div>

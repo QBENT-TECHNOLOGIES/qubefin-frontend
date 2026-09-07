@@ -32,6 +32,7 @@ export class HolidayComponent {
 
   readonly isViewMode = signal<boolean>(true);
   readonly selectedHolidayId = signal<string>(EMPTY_UUID);
+  readonly selectedHolidayDate = signal<string | undefined>(undefined);
 
   readonly minYear = 2026;
   readonly currentYear = new Date().getFullYear();
@@ -47,9 +48,9 @@ export class HolidayComponent {
   readonly hasSelectedHolidayId = computed(
     () => this.selectedHolidayId() !== EMPTY_UUID || !this.isViewMode(),
   );
-
-  protected onView(id: string) {
-    this.selectedHolidayId.set(id);
+  readonly hasSelectedHoliday = computed(() => !!this.selectedHolidayDate() || !this.isViewMode());
+  protected onView(date: string) {
+    this.selectedHolidayDate.set(date);
     this.isViewMode.set(true);
   }
   protected onEdit() {
@@ -57,10 +58,10 @@ export class HolidayComponent {
   }
   protected onAdd() {
     this.isViewMode.set(false);
-    this.selectedHolidayId.set(EMPTY_UUID);
+    this.selectedHolidayDate.set(undefined);
   }
   protected closePanel() {
-    this.selectedHolidayId.set(EMPTY_UUID);
+    this.selectedHolidayDate.set(undefined);
     this.isViewMode.set(true);
   }
 

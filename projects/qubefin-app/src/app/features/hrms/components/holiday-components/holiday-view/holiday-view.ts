@@ -14,6 +14,7 @@ export class HolidayView {
   private readonly holidayStore = inject(HolidayStore);
   private readonly datePipe = inject(DatePipe);
   readonly holidayId = model<string>(EMPTY_UUID);
+  readonly holidayDate = model<string | undefined>();
   readonly showEdit = output<void>();
 
   readonly holiday = this.holidayStore.holiday;
@@ -22,7 +23,8 @@ export class HolidayView {
 
   constructor() {
     effect(() => {
-      this.holidayStore.setHolidayId(this.holidayId());
+      // this.holidayStore.setHolidayId(this.holidayId());
+      this.holidayStore.setHolidayDate(this.holidayDate());
     });
     effect(() => {
       const holiday = this.holidayStore.holiday();

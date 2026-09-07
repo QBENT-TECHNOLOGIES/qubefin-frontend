@@ -42,12 +42,13 @@ export class HolidayDetail {
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
 
+  readonly holidayDate = input<string | undefined>();
   readonly holidayId = input<string>(EMPTY_UUID);
   readonly cancel = output<void>();
   readonly save = output<void>();
 
-  readonly isEditMode = computed(() => this.holidayId() !== EMPTY_UUID);
-
+  // readonly isEditMode = computed(() => this.holidayId() !== EMPTY_UUID);
+  readonly isEditMode = computed(() => !!this.holidayDate());
   readonly orgUnitsList = signal<OrgUnitSelection[]>([]);
   readonly orgUnitColumns = ['select', 'name'];
 
@@ -87,23 +88,26 @@ export class HolidayDetail {
         this.syncOrgUnitsSelection();
       },
     });
-
     effect(() => {
-      this.holidayStore.setHolidayId(this.holidayId());
+      this.holidayStore.setHolidayDate(this.holidayDate());
     });
+    // effect(() => {
+    //   this.holidayStore.setHolidayId(this.holidayId());
+    // });
 
     effect(() => {
-      const id = this.holidayId();
+      const date = this.holidayDate();
       const holiday = this.holidayStore.holiday();
 
-      if (id === EMPTY_UUID) {
+      // Check if there is no date provided (create mode)
+      if (!date) {
         this.formModel.set(this.createEmptyModel());
         this.orgUnitsList.update((list) => list.map((ou) => ({ ...ou, isSelected: false })));
-        this.loadedForId = null;
+        this.loadedForId = null; // Can rename this to loadedForDate if preferred
         return;
       }
 
-      if (!holiday || this.loadedForId === id) return;
+      if (!holiday || this.loadedForId === date) return;
 
       this.formModel.set({
         ...holiday,
@@ -111,7 +115,7 @@ export class HolidayDetail {
       });
 
       this.syncOrgUnitsSelection();
-      this.loadedForId = id;
+      this.loadedForId = date;
     });
   }
 
@@ -172,7 +176,7 @@ export class HolidayDetail {
         },
       });
     } else {
-      this.holidayService.updateHoliday(this.holidayId(), payload).subscribe({
+      this.holidayService.updateHoliday(payload).subscribe({
         next: (resp: any) => {
           this.alertService.success('Success', 'Holiday updated successfully').then(() => {
             this.holidayStore.refreshList();

@@ -10,7 +10,7 @@ export class HolidayService {
   createHoliday(holiday: any) {
     return this.httpClient.post(`${ApiPaths.HRMS}/holidays`, holiday);
   }
-  updateHoliday(holidayId: string, holiday: any) {
-    return this.httpClient.put(`${ApiPaths.HRMS}/holidays/${holidayId}`, holiday);
+  updateHoliday(holiday: any) {
+    return this.httpClient.put(`${ApiPaths.HRMS}/holidays`, holiday);
   }
 }

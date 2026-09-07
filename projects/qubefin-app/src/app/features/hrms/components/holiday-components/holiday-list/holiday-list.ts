@@ -13,6 +13,7 @@ import { IHolidayList } from '../../../models/holiday-detail';
 export class HolidayList {
   readonly data = input<IHolidayList[]>([]);
   readonly selectedId = input('');
+  readonly selectedDate = input<string | undefined>();
   readonly isCollapsed = input(false);
 
   onViewDetail = output<string>();
@@ -23,7 +24,7 @@ export class HolidayList {
     return this.isCollapsed() ? ['holidayDate', 'action'] : this.displayedColumns;
   }
 
-  onDetailView(id: string) {
-    this.onViewDetail.emit(id);
+  onDetailView(date: string) {
+    this.onViewDetail.emit(date);
   }
 }
