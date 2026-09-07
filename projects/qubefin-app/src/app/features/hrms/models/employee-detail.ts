@@ -307,7 +307,7 @@ export class EmployeePersonalInfo implements IEmployeePersonalInfo {
         caste: init.caste ?? '',
         nationality: init.nationality ?? '',
         bloodGroup: init.bloodGroup ?? '',
-        disabltyType: init.disablityType ?? '',
+        disablityType: init.disablityType ?? '',
       });
     }
   }
