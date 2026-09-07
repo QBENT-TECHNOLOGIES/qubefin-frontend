@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
-import { IApprovalWorkflow } from '../models/approval-workflow';
+import { IApprovalWorkflowDetail, IApprovalWorkflowListItem } from '../models/approval-workflow';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +16,7 @@ export class ApprovalWorkflowStore {
   readonly sortOn = signal('assignedFrom');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
   private readonly approvalWorkflowsResource = httpResource<{
-    workflows: IApprovalWorkflow[];
+    workflows: IApprovalWorkflowListItem[];
     totalRecords: number;
   }>(() => ({
     url: `${this.workflowPath}/search`,
@@ -39,7 +39,7 @@ export class ApprovalWorkflowStore {
   readonly loading = computed(() => this.approvalWorkflowsResource.isLoading());
   readonly error = computed(() => this.approvalWorkflowsResource.error());
 
-  private readonly approvalWorkflowResource = httpResource<IApprovalWorkflow>(() => {
+  private readonly approvalWorkflowResource = httpResource<IApprovalWorkflowDetail>(() => {
     const id = this.approvalWorkflowId();
     return id && id !== EMPTY_UUID ? `${this.workflowPath}/${id}` : undefined;
   });

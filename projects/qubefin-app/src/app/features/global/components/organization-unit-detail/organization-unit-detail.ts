@@ -68,6 +68,7 @@ export class OrganizationUnitDetailComponent {
   isBranchSelected = computed(() => {
     const typeId = this.organizationUnitForm.organizationUnitTypeId().value();
     if (!typeId) return false;
+  buttonText = computed(() => (this.organizationUnitId() === EMPTY_UUID ? 'Create' : 'Update'));
 
     const selectedType = this.organizationUnitTypes().find((x) => x.id === typeId);
     return selectedType?.name === 'Branch';
@@ -368,7 +369,8 @@ export class OrganizationUnitDetailComponent {
         next: (resp: any) => {
           this.alertService.success('Success', resp).then(() => {
             this.organizationUnitStore.refreshTree();
-            this.cancel.emit();
+            this.organizationUnitStore.refresh();
+            this.onCancel();
           });
         },
         error: (err: any) => {},

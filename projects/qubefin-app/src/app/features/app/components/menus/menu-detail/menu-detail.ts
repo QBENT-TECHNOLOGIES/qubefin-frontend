@@ -42,6 +42,7 @@ export class MenuDetailComponent {
   permissions = signal<PermissionField[]>([]); //this.permissionStore.permissions;
   menu = this.menuStore.menu;
   mode = computed(() => (this.menuId() === EMPTY_UUID ? 'Add' : 'Edit'));
+  buttonText = computed(() => (this.menuId() === EMPTY_UUID ? 'Create' : 'Update'));
 
   enabledPermissionsCount = computed(
     () => this.menuModel().permissions.filter((p) => p.checked).length,
@@ -146,7 +147,9 @@ export class MenuDetailComponent {
       this.menuService.create(dataToSave).subscribe({
         next: (resp: any) => {
           this.alertService.success('Success!', 'Menu saved successfully !');
-          //this.administrativeUnitStore.refreshTree();
+          this.menuStore.refreshTree();
+          this.menuStore.refreshMenu();
+          this.onCancel();
         },
         error: (err: any) => {
           if (err.error.isError) {
@@ -157,7 +160,9 @@ export class MenuDetailComponent {
       this.menuService.update(this.menuId(), dataToSave).subscribe({
         next: (resp: any) => {
           this.alertService.success('Success!', 'Menu updated successfully !');
-          //this.menuStore.refreshTree();
+          this.menuStore.refreshTree();
+          this.menuStore.refreshMenu();
+          this.onCancel();
         },
         error: (err: any) => {
           if (err.error.isError) {

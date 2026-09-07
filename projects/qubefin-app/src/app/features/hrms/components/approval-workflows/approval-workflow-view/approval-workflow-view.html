@@ -1,20 +1,15 @@
-<!-- @if (role(); as detail) { -->
 <div class="view-container">
     <div class="section-container">
         <div class="unit-box">
             <!-- View Header -->
             <div class="unit-box-header">
                 <div class="box-group">
-                    <!-- <div>
-                        <svg lucideIcon="wallet" class="w-6 h-6 text-primary-700 dark:text-primary-400"></svg>
-                    </div> -->
                     <div>
                         <div class="box-title-group">
                             <h1 class="box-title">
                                 {{ approvalWorkflow()?.category }}
                             </h1>
-                            <div class="box-edit-btn" matTooltip="Edit"
-                                (click)="onShowEdit()">
+                            <div class="box-edit-btn" matTooltip="Edit" (click)="onShowEdit()">
                                 <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
                             </div>
                         </div>
@@ -35,9 +30,7 @@
                         </div>
                         <div>
                             <label class="gen-label">Category</label>
-                            <p class="gen-title">{{
-                                approvalWorkflow()?.category }}
-                            </p>
+                            <p class="gen-title">{{ approvalWorkflow()?.category }}</p>
                         </div>
                     </div>
                     <div class="gen-info">
@@ -45,11 +38,8 @@
                             <svg lucideIcon="tag" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
-                            <label class="gen-label">Organization
-                                Type</label>
-                            <p class="gen-title">{{
-                                approvalWorkflow()?.organizationUnitTypeName }}
-                            </p>
+                            <label class="gen-label">Organization Type</label>
+                            <p class="gen-title">{{ approvalWorkflow()?.organizationUnitTypeName || '-' }}</p>
                         </div>
                     </div>
                     <div class="gen-info">
@@ -57,55 +47,51 @@
                             <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
-                            <label class="gen-label">Leave
-                                Type</label>
-                            <p class="gen-title">{{
-                                approvalWorkflow()?.leaveTypeName }}
-                            </p>
+                            <label class="gen-label">Leave Type</label>
+                            <p class="gen-title">{{ approvalWorkflow()?.leaveTypeName || '-' }}</p>
                         </div>
                     </div>
+
+                    <!-- salaryGradesName is a comma-joined string covering ALL grades
+                         in this group (e.g. "V, VI, VII"), not a single grade. -->
                     <div class="gen-info">
                         <div class="gen-icon">
                             <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
-                            <label class="gen-label">Salary
-                                Grade</label>
-                            <p class="gen-title">{{
-                                approvalWorkflow()?.salaryGradeName }}
-                            </p>
+                            <label class="gen-label">Salary Grade(s)</label>
+                            <p class="gen-title">{{ approvalWorkflow()?.salaryGradesName || '-' }}</p>
                         </div>
                     </div>
-                    @if(!approvalWorkflow()?.leaveTypeName && approvalWorkflow()?.leaveTypeName === null&& approvalWorkflow()?.leaveTypeName === ''){
+
+                    @if(!approvalWorkflow()?.leaveTypeName){
                     <div class="gen-info">
                         <div class="gen-icon">
                             <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
                             <label class="gen-label">Post</label>
-                            <p class="gen-title">{{
-                                approvalWorkflow()?.postName }}
-                            </p>
+                            <p class="gen-title">{{ approvalWorkflow()?.postName || '-' }}</p>
                         </div>
                     </div>
                     }
+
                     <div class="gen-info">
                         <div class="gen-icon">
                             <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
-                            <label class="gen-label">Days
-                                Range</label>
-                            <p class="gen-title">{{
-                                approvalWorkflow()?.minimumDays === 0 ? '-' : approvalWorkflow()?.minimumDays + ' -
-                                ' +
-                                approvalWorkflow()?.maximumDays }}
+                            <label class="gen-label">Days Range</label>
+                            <p class="gen-title">
+                                {{ (approvalWorkflow()?.minimumDays ?? 0) === 0 ? '-' :
+                                approvalWorkflow()?.minimumDays + ' - ' + approvalWorkflow()?.maximumDays }}
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <div class="unit-box">
             <!-- Hierarchy Path timeline -->
             <div class="p-4 flex flex-col">
@@ -115,14 +101,12 @@
                 <div class="blue-line"></div>
                 <div class="flex-1 overflow-y-auto pr-2">
                     <div class="space-y-0 pl-1">
-                        @for (step of approvalWorkflow()?.steps; track $index; let last = $last) {
+                        @for (step of approvalWorkflow()?.approvalSteps; track $index; let last = $last) {
                         <div class="relative flex gap-4" [class.pb-3]="!last">
                             <div class="relative flex flex-col items-center">
-                                <!-- Connection line -->
                                 @if (!last) {
                                 <div class="dashed-line"></div>
                                 }
-                                <!-- Timeline Dot -->
                                 @if ($index > 0) {
                                 <div class="blue-radio-outline">
                                     <div class="blue-radio-solid"></div>
@@ -135,8 +119,10 @@
                             </div>
 
                             <div class="flex flex-col">
+                                <!-- ApprovalStep has no receiverPostName field yet — see note below.
+                                     Falls back to eventStatus so the timeline isn't blank. -->
                                 <h4 class="path-title">
-                                    {{step.receiverPostName}}
+                                    {{ step.eventStatus || ('Step ' + (($index ?? 0) + 1)) }}
                                 </h4>
                             </div>
                         </div>
@@ -156,66 +142,47 @@
                 </h4>
                 <div class="green-line"></div>
             </div>
-            <div
-                class="audit-grid">
+            <div class="audit-grid">
                 <div class="audit-small-box">
-                    <div
-                        class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
+                    <div class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
                         <svg lucideIcon="user-check" class="w-4 h-4 text-primary-700"></svg>
                     </div>
                     <div>
-                        <p class="audit-label">
-                            Created By</p>
-                        <p class="audit-title">{{
-                            approvalWorkflow()?.createdByName }}
-                        </p>
+                        <p class="audit-label">Created By</p>
+                        <p class="audit-title">{{ approvalWorkflow()?.createdByName || '-' }}</p>
                     </div>
                 </div>
                 <div class="audit-small-box">
-                    <div
-                        class="audit-icon-box bg-secondary-500/15 dark:bg-primary-300">
+                    <div class="audit-icon-box bg-secondary-500/15 dark:bg-primary-300">
                         <svg lucideIcon="calendar-plus" class="w-4 h-4 text-secondary-600"></svg>
                     </div>
                     <div>
-                        <p class="audit-label">
-                            Created On</p>
-                        <p class="audit-title">{{
-                            approvalWorkflow()?.createdOn |
-                            date:'dd-MM-yyyy hh:mm a' }}</p>
+                        <p class="audit-label">Created On</p>
+                        <p class="audit-title">{{ approvalWorkflow()?.createdOn | date:'dd-MM-yyyy hh:mm a' }}</p>
                     </div>
                 </div>
                 <div class="audit-small-box">
-                    <div
-                        class="audit-icon-box bg-accent-500/15 dark:bg-primary-300">
+                    <div class="audit-icon-box bg-accent-500/15 dark:bg-primary-300">
                         <svg lucideIcon="user-cog" class="w-4 h-4 text-secondary-600"></svg>
                     </div>
                     <div>
-                        <p class="audit-label">
-                            Last Modified By</p>
-                        <p class="audit-title">{{
-                            approvalWorkflow()?.lastModifiedByName ??
-                            '-' }}</p>
+                        <p class="audit-label">Last Modified By</p>
+                        <p class="audit-title">{{ approvalWorkflow()?.lastModifiedByName ?? '-' }}</p>
                     </div>
                 </div>
                 <div class="audit-small-box">
-                    <div
-                        class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
+                    <div class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
                         <svg lucideIcon="calendar-clock" class="w-4 h-4 text-primary-700"></svg>
                     </div>
                     <div>
-                        <p class="audit-label">
-                            Last Modified On</p>
-                        <p class="audit-title">{{
-                            approvalWorkflow()?.lastModifiedOn ?
-                            (approvalWorkflow()?.lastModifiedOn | date:'dd-MM-yyyy hh:mm a') : '-' }}</p>
+                        <p class="audit-label">Last Modified On</p>
+                        <p class="audit-title">
+                            {{ approvalWorkflow()?.lastModifiedOn ? (approvalWorkflow()?.lastModifiedOn |
+                            date:'dd-MM-yyyy hh:mm a') : '-' }}
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<!-- } @else {
-<div class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400">
-    Loading details...
-</div>
-} -->

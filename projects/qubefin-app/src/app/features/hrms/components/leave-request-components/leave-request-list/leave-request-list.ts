@@ -31,6 +31,27 @@ export class LeaveRequestList {
     return this.isCollapsed() ? ['fromDate', 'toDate', 'action'] : this.displayedColumns;
   }
 
+  getStatusClass(status: string | null | undefined): string {
+    switch (status) {
+      case 'Approved':
+        return 'text-emerald-600 dark:text-emerald-400';
+
+      case 'Rejected':
+        return 'text-rose-600 dark:text-rose-400';
+
+      case 'Cancelled':
+        return 'text-slate-600 dark:text-slate-400';
+
+      case 'Lapsed':
+        return 'text-slate-600 dark:text-slate-400';
+
+      case 'Pending':
+        return 'text-yellow-600 dark:text-yellow-400';
+
+      default:
+        return 'text-blue-600 dark:text-blue-400';
+    }
+  }
   onDetailView(id: string) {
     this.onViewDetail.emit(id);
   }

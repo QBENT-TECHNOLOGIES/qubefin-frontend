@@ -47,7 +47,8 @@
           [class.text-green-800]="item.currentStatus === 'Approved'" [class.bg-red-100]="item.currentStatus === 'Rejected'"
           [class.text-red-800]="item.currentStatus === 'Rejected'" [class.bg-gray-200]="item.currentStatus === 'Cancelled'"
           [class.text-gray-800]="item.currentStatus === 'Cancelled'" [class.bg-blue-100]="item.currentStatus === 'Draft'"
-          [class.text-blue-800]="item.currentStatus === 'Draft'"
+          [class.text-blue-800]="item.currentStatus === 'Draft'" [class.text-gray-800]="item.currentStatus === 'Lapsed'"
+          [class.bg-gray-200]="item.currentStatus === 'Lapsed'"
           [class.bg-yellow-100]="item.currentStatus === 'Pending' || !item.currentStatus"
           [class.text-yellow-800]="item.currentStatus === 'Pending' || !item.currentStatus">
           {{ item.currentStatus || 'Pending' }}

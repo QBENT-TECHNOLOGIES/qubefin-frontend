@@ -3,7 +3,7 @@ import { Component, computed, input, output, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { IApprovalWorkflow } from '../../../models/approval-workflow';
+import { IApprovalWorkflowListItem } from '../../../models/approval-workflow';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
 
@@ -21,7 +21,7 @@ import { MatSortModule, Sort } from '@angular/material/sort';
 })
 export class ApprovalWorkflowList {
   isCollapsed = input<boolean>(false);
-  readonly data = input<IApprovalWorkflow[]>([]);
+  readonly data = input<IApprovalWorkflowListItem[]>([]);
   readonly totalRecords = input(0);
   readonly pageIndex = input(0);
   readonly pageSize = input(10);
