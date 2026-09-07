@@ -68,11 +68,11 @@ export class OrganizationUnitDetailComponent {
   isBranchSelected = computed(() => {
     const typeId = this.organizationUnitForm.organizationUnitTypeId().value();
     if (!typeId) return false;
-  buttonText = computed(() => (this.organizationUnitId() === EMPTY_UUID ? 'Create' : 'Update'));
-
     const selectedType = this.organizationUnitTypes().find((x) => x.id === typeId);
     return selectedType?.name === 'Branch';
   });
+  buttonText = computed(() => (this.organizationUnitId() === EMPTY_UUID ? 'Create' : 'Update'));
+  
   constructor() {
     this.companyService.getAll().subscribe((companies: any) => {
       this.companies.set(
@@ -362,7 +362,7 @@ export class OrganizationUnitDetailComponent {
             this.cancel.emit();
           });
         },
-        error: (err: any) => {},
+        error: (err: any) => { },
       });
     } else {
       this.organizationUnitService.update(this.organizationUnitId(), dataToSave).subscribe({
@@ -373,7 +373,7 @@ export class OrganizationUnitDetailComponent {
             this.onCancel();
           });
         },
-        error: (err: any) => {},
+        error: (err: any) => { },
       });
     }
   }
