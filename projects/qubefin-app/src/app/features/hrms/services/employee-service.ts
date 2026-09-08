@@ -102,4 +102,10 @@ export class EmployeeService {
   getDisignationByOrganizationUnit(id: string) {
     return this.httpClient.get(`${ApiPaths.HRMS}/designations/${id}/organization-unit`);
   }
+  getEmployeeTransfer(id: string) {
+    return this.httpClient.get(`${ApiPaths.HRMS}/employees/transfer/${id}`);
+  }
+  transferEmployee(empTransfer: any) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/employees/transfer`, empTransfer);
+  }
 }

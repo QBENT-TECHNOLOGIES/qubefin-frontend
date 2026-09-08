@@ -4,6 +4,7 @@ import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import {
   IEmployeePersonalInfo,
   IEmployeesBySearchResult,
+  IEmpTransfer,
   IEmpTransferHistory,
   KycDocument,
   Utility,
@@ -42,12 +43,7 @@ export class EmployeeStore {
       companyId: this.companyId(),
     },
   }));
-  readonly empTransferHistoryResource = httpResource<{ empTransferHistory: IEmpTransferHistory[] }>(
-    () => {
-      const id = this.employeeComponentId();
-      return `${ApiPaths.HRMS}/employees/transfer-history/${id}`;
-    },
-  );
+
   // Safely extracts the employees array from the root response model
   readonly employeeListComponents = computed(
     () => this.employeeListComponentsResource.value()?.employees ?? [],
@@ -68,7 +64,7 @@ export class EmployeeStore {
     personalInfo: IEmployeePersonalInfo;
   }>(() => {
     const id = this.employeeComponentId();
-    console.log(id);
+    // console.log(id);
     if (!id || id === EMPTY_UUID) return undefined;
     return `${ApiPaths.HRMS}/employees/${id}`;
   });

@@ -634,9 +634,10 @@ export interface IEmpTransferHistory {
 }
 export interface IEmpTransfer {
   id: string;
-  organizationUnitTypeId: string;
-  organizationUnitId: string;
+  employeeId: string;
+  organisationUnitTypeId: string;
+  organisationUnitId: string;
   designationId: string;
-  gradeId: string;
+  salaryGradeId: string;
   grossSalary: number | null;
 }
