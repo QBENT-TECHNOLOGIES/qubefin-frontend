@@ -3,6 +3,7 @@ import { httpResource } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import { IAttendanceHistory } from '../models/attendance-history';
+import { CalendarDay } from '../models/attendance-calendar';
 @Injectable({
   providedIn: 'root',
 })
@@ -16,7 +17,17 @@ export class AttendanceHistoryStore {
   readonly pageSize = signal(10);
   readonly sortOn = signal('attendanceDate');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
+  readonly calendarYear = signal<number>(new Date().getFullYear());
+  readonly calendarMonth = signal<number>(new Date().getMonth() + 1);
+  readonly calendarDaysResource = httpResource<CalendarDay[]>(() => {
+    const year = this.calendarYear();
+    const month = this.calendarMonth();
+    if (!year || !month) return undefined;
 
+    return `${ApiPaths.HRMS}/holidays/calendar?year=${year}&month=${month}`;
+  });
+  readonly calendarDays = computed(() => this.calendarDaysResource.value() ?? []);
+  readonly isCalendarLoading = computed(() => this.calendarDaysResource.isLoading());
   readonly attendanceHistoryResource = httpResource<{
     results: IAttendanceHistory[];
     totalRecords: number;
@@ -70,6 +81,10 @@ export class AttendanceHistoryStore {
     this.sortOn.set(sort);
     this.sortDirection.set(direction);
     this.pageIndex.set(0);
+  }
+  setCalendarDate(year: number, month: number) {
+    this.calendarYear.set(year);
+    this.calendarMonth.set(month);
   }
 
   refreshList() {

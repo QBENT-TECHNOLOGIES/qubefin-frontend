@@ -18,6 +18,8 @@ import { AttendanceHistoryComponentList } from '../../components/attendance-hist
 import { EMPTY_UUID } from 'qubefin-core';
 import { AttendanceHistoryComponentView } from '../../components/attendance-history-components/attendance-history-component-view/attendance-history-component-view';
 import { IAttendanceHistory } from '../../models/attendance-history';
+import { AttendanceCalendarModal } from '../../components/attendance-history-components/attendance-calendar-modal/attendance-calendar-modal';
+import { MatDialog } from '@angular/material/dialog';
 export interface ISearchModel {
   tempSearch: string;
   fromDate: string;
@@ -44,6 +46,8 @@ export interface ISearchModel {
   providers: [provideNativeDateAdapter(), DatePipe],
 })
 export class AttendanceHistoryComponent {
+  private readonly dialog = inject(MatDialog);
+
   readonly attendanceHistoryStore = inject(AttendanceHistoryStore);
 
   public readonly EMPTY_UUID = EMPTY_UUID;
@@ -137,5 +141,13 @@ export class AttendanceHistoryComponent {
     }
 
     this.attendanceHistoryStore.setSort(sort.active, sort.direction as 'asc' | 'desc');
+  }
+  openCalender(): void {
+    this.dialog.open(AttendanceCalendarModal, {
+      width: '500px',
+      maxWidth: '105vw',
+      disableClose: true,
+      panelClass: 'glass-modal',
+    });
   }
 }
