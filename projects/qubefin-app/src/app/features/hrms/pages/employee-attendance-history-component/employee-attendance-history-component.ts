@@ -10,10 +10,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { CommonModule } from '@angular/common';
-import { form, FormField, readonly, Schema, schema } from '@angular/forms/signals';
+import { form, FormField, readonly, required, Schema, schema } from '@angular/forms/signals';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { EmployeeSearchByText } from '../../models/employee-search-by-text';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -21,11 +21,14 @@ import { EmployeeAttendanceHistoryList } from '../../components/employee-atendan
 import { EmployeeAttendanceHistoryStore } from '../../stores/employee-attendance-history-store';
 import { EmployeeAttendanceHistoryView } from '../../components/employee-atendance-history-component/employee-attendance-history-view/employee-attendance-history-view';
 import { IEmployeeAttendanceHistory } from '../../models/employee-attendance-history';
+import { CompanyStore } from '../../../global/stores/company-store';
+import { ReportService } from '../../../Report/Service/report-service';
 export interface ISearchModel {
   tempSearch: string;
   fromDate: string;
   toDate: string;
   status: string;
+  companyId: string;
 }
 @Component({
   selector: 'qfin-employee-attendance-history-component',
@@ -53,6 +56,10 @@ export class EmployeeAttendanceHistoryComponent {
   readonly iconMap = APP_ICONS_MAP;
 
   readonly employeeAttendanceHistoryStore = inject(EmployeeAttendanceHistoryStore);
+  readonly companyStore = inject(CompanyStore);
+  readonly reportService = inject(ReportService);
+  readonly alertService = inject(AlertService);
+
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
 
@@ -67,10 +74,12 @@ export class EmployeeAttendanceHistoryComponent {
     fromDate: '',
     toDate: '',
     status: '',
+    companyId: '',
   });
   readonly searchSchema: Schema<ISearchModel> = schema((path) => {
     readonly(path.fromDate, { when: () => true });
     readonly(path.toDate, { when: () => true });
+    required(path.companyId, {});
   });
   readonly statuses = signal<string[]>([
     'On Time',
@@ -99,6 +108,13 @@ export class EmployeeAttendanceHistoryComponent {
     this.showFilterArea.update((v) => !v);
   }
   protected applyFilters() {
+    const companyId = this.searchForm.companyId().value().trim();
+    if (!companyId) {
+      this.alertService.warning('Validation Error', 'Please select a company.');
+      return;
+    }
+
+    this.employeeAttendanceHistoryStore.setCompanyId(companyId);
     this.employeeAttendanceHistoryStore.setFromDate(
       this.dateFormatter(this.searchForm.fromDate().value()),
     );
@@ -117,6 +133,7 @@ export class EmployeeAttendanceHistoryComponent {
       fromDate: '',
       toDate: '',
       status: '',
+      companyId: '',
     }));
     this.employeeSearchText.set('');
     this.employeeOptions.set([]);
@@ -146,5 +163,23 @@ export class EmployeeAttendanceHistoryComponent {
       return null;
     }
     return this.datePipe.transform(date, 'yyyy-MM-dd');
+  }
+  exportAttengdanceHistory() {
+    const payload = this.searchForm().value;
+    // this.isDownloading.set(true);
+    this.reportService.exportAttendanceHistory(payload).subscribe({
+      next: (blob: Blob) => {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `export_attendance.xlsx`;
+        link.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        // this.isDownloading.set(false);
+      },
+      error: (err) => {
+        // this.isDownloading.set(false);
+      },
+    });
   }
 }

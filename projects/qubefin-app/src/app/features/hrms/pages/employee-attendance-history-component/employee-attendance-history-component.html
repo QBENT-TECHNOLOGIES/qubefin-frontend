@@ -3,10 +3,13 @@
         <div class="flex items-center gap-3"></div>
         <div class="headerBtn-area">
             @if (selectedAttendanceHistory() === null && isViewMode()) {
-            <button type="button" (click)="toggleFilterArea()"
-                class="filter-btn glass-input lift shine-sweep">
+            <button type="button" (click)="toggleFilterArea()" class="filter-btn glass-input lift shine-sweep">
                 <svg lucideIcon="funnel" class="w-4 h-4"></svg>
                 Filter
+            </button>
+            <button (click)="exportAttengdanceHistory()" class="global-btn ripple-btn shine-sweep lift">
+                <svg lucideIcon="file-down" class="w-4 h-4"></svg>
+                Export History
             </button>
             }
         </div>
@@ -25,6 +28,24 @@
             @if (showFilterArea()) {
             <div class="filter-area">
                 <div class="filter-container">
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Company</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select [formField]="searchForm.companyId" placeholder="Select Company">
+                                @for (company of companyStore.companies(); track company.id) {
+                                <mat-option [value]="company.id">
+                                    {{ company.name }}
+                                </mat-option>
+                                }
+                            </mat-select>
+                            @if (searchForm.companyId().invalid() && searchForm.companyId().touched()) {
+                            <mat-error>Please select a company.</mat-error>
+                            }
+                        </mat-form-field>
+                    </div>
                     <div class="flex-1 min-w-[200px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                             <mat-label>Employee Name,Code / Organization Unit</mat-label>
@@ -78,13 +99,11 @@
 
 
                     <div class="flex items-center gap-2.5 shrink-0">
-                        <button type="button" (click)="applyFilters()"
-                            class="global-btn shine-sweep lift">
+                        <button type="button" (click)="applyFilters()" class="global-btn shine-sweep lift">
                             <svg lucideIcon="search" class="w-4 h-4"></svg>
                             Search
                         </button>
-                        <button type="button" (click)="resetFilters()"
-                            class="reset-btn lift">
+                        <button type="button" (click)="resetFilters()" class="reset-btn lift">
                             <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
                             Reset
                         </button>
@@ -94,15 +113,12 @@
             }
             } @else {
             <div class="search-area">
-                <div
-                    class="search-input-area">
+                <div class="search-input-area">
                     <svg lucideIcon="user-search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
                     <input type="text" [formField]="searchForm.tempSearch" autocomplete="off"
-                        placeholder="Name, Code or Org Unit..."
-                        class="search-input-style" />
+                        placeholder="Name, Code or Org Unit..." class="search-input-style" />
                 </div>
-                <button (click)="applyFilters()"
-                    class="search-input-btn lift">
+                <button (click)="applyFilters()" class="search-input-btn lift">
                     <svg lucideIcon="search" class="w-4 h-4"></svg>
                 </button>
             </div>
@@ -130,8 +146,7 @@
         </div>
 
         @if (selectedAttendanceHistory() !== null) {
-        <div class="viewArea-container glass"
-            [ngClass]="{
+        <div class="viewArea-container glass" [ngClass]="{
            'w-3/4': isViewMode() && selectedAttendanceHistory() !== null,
             'w-full': !isViewMode()
         }">
@@ -144,8 +159,7 @@
                                 <h2 class="viewArea-title">
                                     Attendance History Details
                                 </h2>
-                                <div
-                                    class="viewArea-badge">
+                                <div class="viewArea-badge">
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                                     <span
                                         class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
@@ -160,8 +174,7 @@
                     </div>
                 </div>
 
-                <button aria-label="Close" matTooltip="Close" class="pannel-close"
-                    (click)="closePanel()">
+                <button aria-label="Close" matTooltip="Close" class="pannel-close" (click)="closePanel()">
                     <svg lucideIcon="x" class="w-4 h-4"></svg>
                 </button>
             </div>

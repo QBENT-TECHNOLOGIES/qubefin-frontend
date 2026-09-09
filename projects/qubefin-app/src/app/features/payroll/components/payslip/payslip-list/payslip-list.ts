@@ -7,6 +7,7 @@ import { DocumentModalService } from 'qubefin-core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { PayrollService } from '../../../services/payroll-service';
 import { AlertService } from 'qubefin-core';
+import { ReportService } from '../../../../Report/Service/report-service';
 
 @Component({
   selector: 'qfin-payslip-list',
@@ -18,6 +19,7 @@ export class PayslipList {
   readonly data = input<any[]>([]);
   readonly documentModalService = inject(DocumentModalService);
   readonly payrollService = inject(PayrollService);
+  readonly reportService = inject(ReportService);
   readonly alertService = inject(AlertService);
   readonly openingPayslipId = signal<string | null>(null);
 
@@ -36,7 +38,7 @@ export class PayslipList {
     this.openingPayslipId.set(element.payslipId);
 
     try {
-      const file = await firstValueFrom(this.payrollService.getPayslipById(element.payslipId));
+      const file = await firstValueFrom(this.reportService.getPayslipById(element.payslipId));
       const fileUrl = URL.createObjectURL(file);
 
       this.documentModalService.open({

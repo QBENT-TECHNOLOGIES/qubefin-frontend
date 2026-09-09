@@ -12,6 +12,7 @@ import { PayslipRptParam } from '../../models/payroll-model';
 import { DocumentModalService } from 'qubefin-core';
 import { AlertService } from 'qubefin-core';
 import { firstValueFrom } from 'rxjs';
+import { ReportService } from '../../../Report/Service/report-service';
 
 @Component({
   selector: 'qfin-monthly-payroll-detail',
@@ -22,6 +23,7 @@ export class MonthlyPayrollDetail {
   private readonly payrollStore = inject(PayrollStore);
   private readonly dialog = inject(MatDialog);
   private readonly PayrollService = inject(PayrollService);
+  private readonly reportService = inject(ReportService);
   private readonly documentModalService = inject(DocumentModalService);
   readonly payrollService = inject(PayrollService);
   readonly alertService = inject(AlertService);
@@ -76,7 +78,7 @@ export class MonthlyPayrollDetail {
   }
   async downloadPayslip(id: string, employeeId: string, empName: string) {
     try {
-      const file = await firstValueFrom(this.payrollService.getPayslipById(id));
+      const file = await firstValueFrom(this.reportService.getPayslipById(id));
       const fileUrl = URL.createObjectURL(file);
 
       this.documentModalService.open({
