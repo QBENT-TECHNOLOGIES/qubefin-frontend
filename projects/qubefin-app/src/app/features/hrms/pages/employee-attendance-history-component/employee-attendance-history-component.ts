@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
@@ -89,8 +89,15 @@ export class EmployeeAttendanceHistoryComponent {
   ]);
 
   readonly searchForm = form(this.searchModel, this.searchSchema);
-  readonly employeeAttendanceHistories =
-    this.employeeAttendanceHistoryStore.employeeAttendanceHistory;
+  readonly showAttendanceHistoryList = signal(true);
+  readonly employeeAttendanceHistories = computed(() =>
+    this.showAttendanceHistoryList()
+      ? this.employeeAttendanceHistoryStore.employeeAttendanceHistory()
+      : [],
+  );
+  readonly totalRecords = computed(() =>
+    this.showAttendanceHistoryList() ? this.employeeAttendanceHistoryStore.totalRecords() : 0,
+  );
   constructor() {
     this.dateAdapter.setLocale('en-GB');
   }
@@ -114,6 +121,7 @@ export class EmployeeAttendanceHistoryComponent {
       return;
     }
 
+    this.showAttendanceHistoryList.set(true);
     this.employeeAttendanceHistoryStore.setCompanyId(companyId);
     this.employeeAttendanceHistoryStore.setFromDate(
       this.dateFormatter(this.searchForm.fromDate().value()),
@@ -127,6 +135,8 @@ export class EmployeeAttendanceHistoryComponent {
   }
 
   protected resetFilters() {
+    this.showAttendanceHistoryList.set(false);
+    this.selectedAttendanceHistory.set(null);
     this.searchModel.update((m) => ({
       ...m,
       tempSearch: '',
@@ -138,6 +148,11 @@ export class EmployeeAttendanceHistoryComponent {
     this.employeeSearchText.set('');
     this.employeeOptions.set([]);
     this.applyFilters();
+  }
+
+  protected onCompanyChange() {
+    this.showAttendanceHistoryList.set(false);
+    this.selectedAttendanceHistory.set(null);
   }
 
   protected changePage(delta: number) {
@@ -165,7 +180,19 @@ export class EmployeeAttendanceHistoryComponent {
     return this.datePipe.transform(date, 'yyyy-MM-dd');
   }
   exportAttengdanceHistory() {
-    const payload = this.searchForm().value;
+    const formValue = this.searchForm().value();
+
+    const payload = {
+      companyId: formValue.companyId,
+      fromDate: this.dateFormatter(formValue.fromDate),
+      toDate: this.dateFormatter(formValue.toDate),
+      status: formValue.status,
+      searchText: formValue.tempSearch,
+      sortOn: this.employeeAttendanceHistoryStore.sortOn(),
+      sortDirection: this.employeeAttendanceHistoryStore.sortDirection(),
+      pageIndex: this.employeeAttendanceHistoryStore.pageIndex(),
+      pageSize: this.employeeAttendanceHistoryStore.pageSize(),
+    };
     // this.isDownloading.set(true);
     this.reportService.exportAttendanceHistory(payload).subscribe({
       next: (blob: Blob) => {
