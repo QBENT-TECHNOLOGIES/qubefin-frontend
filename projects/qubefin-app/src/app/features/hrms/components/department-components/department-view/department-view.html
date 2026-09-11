@@ -1,0 +1,131 @@
+@if (department(); as data) {
+<div class="view-container">
+    <div class="flex-1">
+        <div class="unit-box">
+            <!-- View Header -->
+            <div class="unit-box-header">
+                <div class="box-group">
+                    <div>
+                        <svg lucideIcon="wallet" class="w-6 h-6 text-primary-700 dark:text-primary-400"></svg>
+                    </div>
+                    <div>
+                        <div class="box-title-group">
+                            <h1 class="box-title">
+                                {{ data.name || 'Unknown Employee' }}
+                            </h1>
+                            <!-- @if(member.isLead){
+              <span
+                class="title-badge">
+                Committee Lead
+              </span>
+              } -->
+                            <div class="box-edit-btn" matTooltip="Edit" (click)="onEdit()">
+                                <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
+                            </div>
+                        </div>
+                        <p class="box-subTitle text-xs!">Department</p>
+                    </div>
+                </div>
+
+                <div class="box-group">
+                    <!-- Status Badge -->
+                    <div class="badge-group">
+                        <span class="badge" [class.text-emerald-600]="data.isActive"
+                            [class.dark:text-emerald-400]="data.isActive" [class.text-rose-600]="!data.isActive"
+                            [class.dark:text-rose-400]="!data.isActive">
+                            <span class="w-2 h-2 rounded-full relative flex">
+                                <span class="animate-circle" [class.bg-emerald-400]="data.isActive"
+                                    [class.bg-rose-400]="!data.isActive"></span>
+                                <span class="badge-status" [class.bg-emerald-500]="data.isActive"
+                                    [class.bg-rose-500]="!data.isActive"></span>
+                            </span>
+                            {{ data.isActive ? 'Active' : 'Inactive' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-self-start w-full gap-5 pt-0 p-4">
+                <div class="flex-1">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Committee Role -->
+                        <div class="gen-info">
+                            <div class="gen-icon">
+                                <svg lucideIcon="user" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label class="gen-label">HOD</label>
+                                <p class="gen-title">
+                                    {{ data.hodEmployeeName ?? 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Audit Information -->
+    <div class="unit-box p-4 pb-6">
+        <div class="flex flex-col gap-3">
+            <div>
+                <h4 class="box-content-heading">
+                    Audit Information
+                </h4>
+                <div class="green-line"></div>
+            </div>
+            <div class="audit-grid">
+                <div class="audit-small-box">
+                    <div class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
+                        <svg lucideIcon="user-check" class="w-4 h-4 text-primary-700"></svg>
+                    </div>
+                    <div>
+                        <p class="audit-label">
+                            Created By</p>
+                        <p class="audit-title">{{ data.auditInfo?.createdBy }}</p>
+                    </div>
+                </div>
+                <div class="audit-small-box">
+                    <div class="audit-icon-box bg-secondary-500/15 dark:bg-primary-300">
+                        <svg lucideIcon="calendar-plus" class="w-4 h-4 text-secondary-600"></svg>
+                    </div>
+                    <div>
+                        <p class="audit-label">
+                            Created On</p>
+                        <p class="audit-title">{{ data.auditInfo?.createdOn |
+                            date:'dd-MM-yyyy hh:mm a' }}</p>
+                    </div>
+                </div>
+                <div class="audit-small-box">
+                    <div class="audit-icon-box bg-accent-500/15 dark:bg-primary-300">
+                        <svg lucideIcon="user-cog" class="w-4 h-4 text-secondary-600"></svg>
+                    </div>
+                    <div>
+                        <p class="audit-label">
+                            Last Modified By</p>
+                        <p class="audit-title">{{ data.auditInfo?.lastModifiedBy ??
+                            '-' }}</p>
+                    </div>
+                </div>
+                <div class="audit-small-box">
+                    <div class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
+                        <svg lucideIcon="calendar-clock" class="w-4 h-4 text-primary-700"></svg>
+                    </div>
+                    <div>
+                        <p class="audit-label">
+                            Last Modified On</p>
+                        <p class="audit-title">{{ data.auditInfo?.lastModifiedOn ?
+                            (data.auditInfo?.lastModifiedOn | date:'dd-MM-yyyy hh:mm a') : '-' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+} @else {
+<!-- Interactive Skeleton Loading Card State -->
+<div
+    class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400 flex flex-col items-center justify-center gap-3 min-h-[300px]">
+    <div class="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+    <p class="text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400">Loading Department Details...</p>
+</div>
+}
