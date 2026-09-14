@@ -1,0 +1,106 @@
+<div class="page-container">
+    <div class="header-group">
+        <div class="flex items-center gap-3"></div>
+        <div class="headerBtn-area">
+            <button class="global-btn shine-sweep lift" (click)="onAdd()">
+                <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                Add Department
+            </button>
+        </div>
+    </div>
+
+    <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
+        <div class="mainCard-area glass" [ngClass]="{
+          'w-full max-w-full opacity-100 translate-x-0':
+              selectedDepartmentId() === EMPTY_UUID && isViewMode(),
+
+          'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]':
+              isViewMode() && selectedDepartmentId() !== EMPTY_UUID,
+
+          'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
+              !isViewMode()
+      }">
+
+
+            @if (departmentStore.departmentsLoading()) {
+            <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+                <svg lucideIcon="loader" class="w-5 h-5"></svg>
+                Loading Departments...
+            </div>
+            } @else if (departmentStore.departmentsError()) {
+            <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
+                <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
+                Unable to load Departments.
+            </div>
+            } @else {
+            <qfin-department-list [data]="departments()" [selectedId]="selectedDepartmentId()"
+                [isCollapsed]="selectedDepartmentId() !== EMPTY_UUID || !isViewMode()" (onViewDetail)="onView($event)">
+            </qfin-department-list>
+            }
+        </div>
+
+        @if (hasSelectedDepartment()) {
+        <div class="viewArea-container glass" [ngClass]="{
+        'w-3/4': isViewMode() && selectedDepartmentId() !== EMPTY_UUID,
+        'w-full': !isViewMode()
+      }">
+            <div class="viewArea-header">
+                <div class="viewArea-headerInner">
+                    <div class="flex items-center gap-4">
+
+                        <div>
+                            <div class="flex justify-start gap-2">
+                                <h2 class="viewArea-title">
+                                    @if (selectedDepartmentId() === EMPTY_UUID) {
+                                    Add Department
+                                    } @else if (isViewMode()) {
+                                    Department Details
+                                    } @else {
+                                    Edit Department
+                                    }
+                                </h2>
+                                <div class="viewArea-badge">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+                                    <span
+                                        class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                                        @if (selectedDepartmentId() === EMPTY_UUID) {
+                                        New Mode
+                                        } @else if (isViewMode()) {
+                                        View Mode
+                                        } @else {
+                                        Edit Mode
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="viewArea-description">
+                                @if (selectedDepartmentId() === EMPTY_UUID) {
+                                Add a department.
+                                } @else if (isViewMode()) {
+                                Review Department details.
+                                } @else {
+                                Update the selected Department.
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <button aria-label="Close" matTooltip="Close" class="pannel-close" (click)="closePanel()">
+                    <svg lucideIcon="x" class="w-4 h-4"></svg>
+                </button>
+            </div>
+
+            <div>
+                @if (isViewMode() && selectedDepartmentId() !== EMPTY_UUID) {
+                <qfin-department-view [departmentId]="selectedDepartmentId()" (showEdit)="onEdit()">
+                </qfin-department-view>
+                } @else {
+                <qfin-department-detail [departmentId]="selectedDepartmentId()" (cancel)="closePanel()"
+                    (save)="closePanel()">
+                </qfin-department-detail>
+                }
+            </div>
+        </div>
+        }
+    </div>
+</div>

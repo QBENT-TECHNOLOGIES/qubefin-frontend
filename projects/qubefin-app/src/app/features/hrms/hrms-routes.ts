@@ -116,6 +116,13 @@ export const HrmsRoutes: Routes = [
         loadComponent: () =>
           import('./pages/holiday-component/holiday-component').then((m) => m.HolidayComponent),
       },
+      {
+        path: 'department',
+        loadComponent: () =>
+          import('./pages/department-component/department-component').then(
+            (m) => m.DepartmentComponent,
+          ),
+      },
     ],
   },
 ];
