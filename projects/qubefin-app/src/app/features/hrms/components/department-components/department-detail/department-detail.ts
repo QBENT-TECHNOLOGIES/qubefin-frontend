@@ -5,7 +5,6 @@ import {
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,9 +15,8 @@ import { DepartmentStore } from '../../../stores/department-store';
 import { DepartmentService } from '../../../services/department-service';
 import { EmployeeSearchByText } from '../../../models/employee-search-by-text';
 import { IDepartment } from '../../../models/department';
-import { Subject, debounceTime, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { EmployeeService } from '../../../../hrms/services/employee-service';
-import { rxResource } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'qfin-department-detail',
   imports: [
@@ -66,6 +64,9 @@ export class DepartmentDetail {
 
   protected readonly departmentForm = form(this.formModel, this.departmentSchema);
 
+  readonly departmentLoading = this.departmentStore.departmentLoading;
+  readonly departmentError = this.departmentStore.departmentError;
+
   constructor() {
     this.employeeSearch$
       .pipe(
@@ -76,37 +77,37 @@ export class DepartmentDetail {
       .subscribe((resp: any) => {
         this.employeeOptions.set(resp ?? []);
       });
-  }
 
-  private readonly departmentResource = rxResource({
-    params: () => ({
-      id: this.departmentId(),
-      editMode: this.isEditMode(),
-    }),
+    effect(() => {
+      const id = this.departmentId();
+      const editMode = this.isEditMode();
 
-    stream: ({ params }) => {
-      if (params.editMode && params.id !== EMPTY_UUID) {
-        return this.departmentService.getDepartmentById(params.id).pipe(
-          tap((resp: any) => {
-            this.formModel.set({
-              id: resp.id,
-              name: resp.name || '',
-              isActive: resp.isActive ?? true,
-              hodEmployeeId: resp.hodEmployeeId || '',
-            });
+      this.departmentStore.setDepartmentId(editMode && id !== EMPTY_UUID ? id : undefined);
 
-            this.employeeSearchText.set(resp.hodEmployeeName || '');
-          }),
-        );
+      if (!editMode || id === EMPTY_UUID) {
+        this.formModel.set(this.createEmptyModel());
+        this.employeeSearchText.set('');
+        this.employeeOptions.set([]);
+      }
+    });
+
+    effect(() => {
+      const department = this.departmentStore.department();
+
+      if (!this.isEditMode() || !department) {
+        return;
       }
 
-      this.formModel.set(this.createEmptyModel());
-      this.employeeSearchText.set('');
-      this.employeeOptions.set([]);
+      this.formModel.set({
+        id: department.id,
+        name: department.name || '',
+        isActive: department.isActive ?? true,
+        hodEmployeeId: department.hodEmployeeId || '',
+      });
 
-      return of(null);
-    },
-  });
+      this.employeeSearchText.set((department as any).hodEmployeeName || '');
+    });
+  }
 
   private createEmptyModel(): IDepartment {
     return {
