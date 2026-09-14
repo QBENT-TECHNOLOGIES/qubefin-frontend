@@ -331,6 +331,7 @@ export interface IEmployeeOfficialInfo {
   companyName: string;
   designationId: string;
   salaryGrade: string;
+  salaryGradeId: string;
   grossSalary: number;
   isDesignationEditable: boolean;
 }
@@ -350,6 +351,7 @@ export class EmployeeOfficialInfo {
   companyName: string = '';
   designationId: string = '';
   salaryGrade: string = '';
+  salaryGradeId: string = '';
   grossSalary: number = 0;
   isDesignationEditable: boolean = true;
   constructor(init?: Partial<IEmployeeOfficialInfo>) {

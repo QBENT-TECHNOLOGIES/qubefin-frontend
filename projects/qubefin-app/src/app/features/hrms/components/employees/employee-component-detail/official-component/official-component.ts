@@ -181,6 +181,7 @@ export class OfficialComponentDetail {
       this.officialModel.update((state) => ({
         ...state,
         designationId: id,
+        salaryGradeId: selectedDesignation.salaryGradeId || '',
         salaryGrade: selectedDesignation.salaryGrade || '',
         grossSalary: selectedDesignation.grossSalary || 0,
       }));
@@ -221,11 +222,19 @@ export class OfficialComponentDetail {
                 .subscribe({
                   next: (res: any) => {
                     this.designations.set(res);
+
+                    const matched = res.find(
+                      (d: any) => d.id?.toLowerCase() === resp.designationId?.toLowerCase(),
+                    );
+
                     this.officialModel.update((state) => ({
                       ...state,
                       designationId: resp.designationId
                         ? resp.designationId.toLowerCase()
                         : state.designationId,
+                      salaryGradeId:
+                        matched?.salaryGradeId || resp.salaryGradeId || state.salaryGradeId,
+                      salaryGrade: matched?.salaryGrade || state.salaryGrade,
                     }));
                   },
                 });
@@ -272,6 +281,7 @@ export class OfficialComponentDetail {
     dataToSave.companyName = dataToSave.companyName == '' ? null : dataToSave.companyName;
     dataToSave.designationId = dataToSave.designationId == '' ? null : dataToSave.designationId;
     dataToSave.salaryGrade = dataToSave.salaryGrade == '' ? null : dataToSave.salaryGrade;
+    dataToSave.salaryGradeId = dataToSave.salaryGradeId == '' ? null : dataToSave.salaryGradeId;
 
     delete dataToSave.joiningDate;
     delete dataToSave.confirmationDate;
