@@ -9,6 +9,7 @@ export class EmployeeAttendanceHistoryStore {
   private readonly basePath = `${ApiPaths.HRMS}/attendances`;
 
   readonly searchEmployeeId = signal<string | null>(null);
+  readonly companyId = signal<string>('');
   readonly fromDate = signal<string | null>(null);
   readonly toDate = signal<string | null>(null);
   readonly status = signal<string | null>(null);
@@ -21,20 +22,28 @@ export class EmployeeAttendanceHistoryStore {
   readonly employeeAttendanceHistoryResource = httpResource<{
     results: IEmployeeAttendanceHistory[];
     totalRecords: number;
-  }>(() => ({
-    url: `${this.basePath}` + '/history-all',
-    method: 'POST',
-    body: {
-      fromDate: this.fromDate(),
-      toDate: this.toDate(),
-      status: this.status(),
-      searchText: this.searchQuery(),
-      sortOn: this.sortOn(),
-      sortDirection: this.sortDirection(),
-      pageIndex: this.pageIndex(),
-      pageSize: this.pageSize(),
-    },
-  }));
+  }>(() => {
+    const companyId = this.companyId();
+    if (!companyId) {
+      return undefined;
+    }
+
+    return {
+      url: `${this.basePath}` + '/history-all',
+      method: 'POST',
+      body: {
+        companyId,
+        fromDate: this.fromDate(),
+        toDate: this.toDate(),
+        status: this.status(),
+        searchText: this.searchQuery(),
+        sortOn: this.sortOn(),
+        sortDirection: this.sortDirection(),
+        pageIndex: this.pageIndex(),
+        pageSize: this.pageSize(),
+      },
+    };
+  });
 
   readonly employeeAttendanceHistory = computed(
     () => this.employeeAttendanceHistoryResource.value()?.results ?? [],
@@ -47,6 +56,10 @@ export class EmployeeAttendanceHistoryStore {
 
   setFromDate(date: string | null) {
     this.fromDate.set(date);
+    this.pageIndex.set(0);
+  }
+  setCompanyId(id: string) {
+    this.companyId.set(id);
     this.pageIndex.set(0);
   }
   setToDate(date: string | null) {

@@ -90,10 +90,10 @@ export class ApprovalWorkflowDetail {
       }
       return null;
     });
-    applyEach(path.approvalSteps, (step) => {
-      disabled(step.organizationUnitTypeId, { when: () => this.isEditMode() });
-      disabled(step.receiverPostId, { when: () => this.isEditMode() });
-    });
+    // applyEach(path.approvalSteps, (step) => {
+    //   disabled(step.organizationUnitTypeId, { when: () => this.isEditMode() });
+    //   disabled(step.receiverPostId, { when: () => this.isEditMode() });
+    // });
   });
 
   protected readonly approvalWorkflowForm = form(this.formModel, this.formSchema);

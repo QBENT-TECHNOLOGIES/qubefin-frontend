@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
 import { PayrollService } from '../../services/payroll-service';
 import { MatTableModule } from '@angular/material/table';
+import { ReportService } from '../../../Report/Service/report-service';
 @Component({
   selector: 'qfin-month-wise-payrolls',
   imports: [
@@ -30,6 +31,7 @@ import { MatTableModule } from '@angular/material/table';
 export class MonthWisePayrolls {
   private readonly payrollStore = inject(PayrollStore);
   private readonly payrollService = inject(PayrollService);
+  private readonly reportService = inject(ReportService);
   readonly iconMap = APP_ICONS_MAP;
   summaries = this.payrollStore.monthlyPayrollSummaries;
   loading = this.payrollStore.monthlyPayrollSummariesLoading;
@@ -70,7 +72,7 @@ export class MonthWisePayrolls {
   readonly isDownloading = signal<boolean>(false);
   onDownloadPfReport(month: number, year: number, companyId: string, companyName: string) {
     this.isDownloading.set(true);
-    this.payrollService.getPfReport(month, year, companyId).subscribe({
+    this.reportService.getPfReport(month, year, companyId).subscribe({
       next: (blob: Blob) => {
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -87,7 +89,7 @@ export class MonthWisePayrolls {
   }
   onDownloadPTaxReport(month: number, year: number, companyId: string, companyName: string) {
     this.isDownloading.set(true);
-    this.payrollService.getPTaxReport(month, year, companyId).subscribe({
+    this.reportService.getPTaxReport(month, year, companyId).subscribe({
       next: (blob: Blob) => {
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -104,7 +106,7 @@ export class MonthWisePayrolls {
   }
   onDownloadEsiReport(month: number, year: number, companyId: string, companyName: string) {
     this.isDownloading.set(true);
-    this.payrollService.getEsiReport(month, year, companyId).subscribe({
+    this.reportService.getEsiReport(month, year, companyId).subscribe({
       next: (blob: Blob) => {
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -126,7 +128,7 @@ export class MonthWisePayrolls {
     companyName: string,
   ) {
     this.isDownloading.set(true);
-    this.payrollService.getSalaryDisbursementReport(month, year, companyId).subscribe({
+    this.reportService.getSalaryDisbursementReport(month, year, companyId).subscribe({
       next: (blob: Blob) => {
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -148,7 +150,7 @@ export class MonthWisePayrolls {
     companyName: string,
   ) {
     this.isDownloading.set(true);
-    this.payrollService.getEmployeeSalaryRegisterReport(month, year, companyId).subscribe({
+    this.reportService.getEmployeeSalaryRegisterReport(month, year, companyId).subscribe({
       next: (blob: Blob) => {
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
