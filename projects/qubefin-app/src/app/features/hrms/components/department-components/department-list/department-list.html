@@ -3,7 +3,7 @@
   }">
     <table mat-table [dataSource]="data()" class="w-full table">
 
-        <!-- Sl -->
+
         <ng-container matColumnDef="sl">
             <th mat-header-cell *matHeaderCellDef>#</th>
             <td mat-cell *matCellDef="let row; let i = index"
@@ -24,7 +24,7 @@
             </td>
         </ng-container>
 
-        <!-- Status -->
+
         <ng-container matColumnDef="isActive">
             <th mat-header-cell *matHeaderCellDef>Status</th>
             <td mat-cell *matCellDef="let item"> <span class="px-2 py-1 text-xs rounded font-medium"

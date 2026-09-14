@@ -2,7 +2,7 @@
 <div class="view-container">
     <div class="flex-1">
         <div class="unit-box">
-            <!-- View Header -->
+
             <div class="unit-box-header">
                 <div class="box-group">
                     <div>
@@ -13,12 +13,7 @@
                             <h1 class="box-title">
                                 {{ data.name || 'Unknown Employee' }}
                             </h1>
-                            <!-- @if(member.isLead){
-              <span
-                class="title-badge">
-                Committee Lead
-              </span>
-              } -->
+
                             <div class="box-edit-btn" matTooltip="Edit" (click)="onEdit()">
                                 <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
                             </div>
@@ -28,7 +23,7 @@
                 </div>
 
                 <div class="box-group">
-                    <!-- Status Badge -->
+
                     <div class="badge-group">
                         <span class="badge" [class.text-emerald-600]="data.isActive"
                             [class.dark:text-emerald-400]="data.isActive" [class.text-rose-600]="!data.isActive"
@@ -47,7 +42,7 @@
             <div class="flex justify-self-start w-full gap-5 pt-0 p-4">
                 <div class="flex-1">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Committee Role -->
+
                         <div class="gen-info">
                             <div class="gen-icon">
                                 <svg lucideIcon="user" class="w-5 h-5 text-primary-700"></svg>
@@ -64,7 +59,7 @@
             </div>
         </div>
     </div>
-    <!-- Audit Information -->
+
     <div class="unit-box p-4 pb-6">
         <div class="flex flex-col gap-3">
             <div>
@@ -122,7 +117,7 @@
     </div>
 </div>
 } @else {
-<!-- Interactive Skeleton Loading Card State -->
+
 <div
     class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400 flex flex-col items-center justify-center gap-3 min-h-[300px]">
     <div class="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
