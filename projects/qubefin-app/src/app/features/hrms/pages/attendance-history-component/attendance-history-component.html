@@ -8,6 +8,11 @@
                 <svg lucideIcon="funnel" class="w-4 h-4"></svg>
                 Filter
             </button>
+            <button type="button" (click)="openCalender()"
+                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
+                Calendar
+            </button>
             }
         </div>
     </div>
@@ -70,13 +75,11 @@
                     </div>
 
                     <div class="flex items-center gap-2.5 shrink-0">
-                        <button type="button" (click)="applyFilters()"
-                            class="global-btn shine-sweep lift">
+                        <button type="button" (click)="applyFilters()" class="global-btn shine-sweep lift">
                             <svg lucideIcon="search" class="w-4 h-4"></svg>
                             Search
                         </button>
-                        <button type="button" (click)="resetFilters()"
-                            class="reset-btn lift">
+                        <button type="button" (click)="resetFilters()" class="reset-btn lift">
                             <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
                             Reset
                         </button>
@@ -86,8 +89,7 @@
             }
             } @else {
             <div class="search-area">
-                <div
-                    class="search-input-area">
+                <div class="search-input-area">
                     <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
                     <mat-select [formField]="searchForm.status" placeholder="Select Status"
                         class="bg-transparent outline-none text-sm w-full placeholder:text-slate-400">
@@ -97,8 +99,7 @@
                         }
                     </mat-select>
                 </div>
-                <button (click)="applyFilters()"
-                    class="search-input-btn lift">
+                <button (click)="applyFilters()" class="search-input-btn lift">
                     <svg lucideIcon="search" class="w-4 h-4"></svg>
                 </button>
             </div>
@@ -124,8 +125,7 @@
             }
         </div>
         @if (selectedAttendance() !== null) {
-        <div class="viewArea-container glass"
-            [ngClass]="{
+        <div class="viewArea-container glass" [ngClass]="{
                     'w-3/4': isViewMode() && selectedAttendance() !== null,
                     'w-full': !isViewMode()
                 }">
@@ -143,8 +143,7 @@
                         </div>
                     </div>
                 </div>
-                <button aria-label="Close" matTooltip="Close" class="pannel-close"
-                    (click)="closePanel()">
+                <button aria-label="Close" matTooltip="Close" class="pannel-close" (click)="closePanel()">
                     <svg lucideIcon="x" class="w-4 h-4"></svg>
                 </button>
             </div>
