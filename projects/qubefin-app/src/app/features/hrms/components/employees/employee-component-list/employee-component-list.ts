@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   EventEmitter,
+  inject,
   input,
   Input,
   output,
@@ -19,7 +20,8 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
-
+import { GrossSalaryModal } from '../gross-salary-modal/gross-salary-modal';
+import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'qfin-employee-component-list',
   imports: [
@@ -35,6 +37,7 @@ import { MatSortModule, Sort } from '@angular/material/sort';
   templateUrl: './employee-component-list.html',
 })
 export class EmployeeComponentList {
+  private readonly dialog = inject(MatDialog);
   onViewDetail = output<string>();
   data = input<IEmployeesBySearchResult[]>([]);
   isCollapsed = input<boolean>(false);
@@ -70,5 +73,12 @@ export class EmployeeComponentList {
   }
   onSortChange(sort: Sort) {
     this.sortChanged.emit(sort);
+  }
+  openGradeModal(id: string) {
+    this.dialog.open(GrossSalaryModal, {
+      data: { id: id },
+      maxWidth: '95vw',
+      panelClass: 'glass-modal',
+    });
   }
 }
