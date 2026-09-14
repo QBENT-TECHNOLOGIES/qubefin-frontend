@@ -42,6 +42,7 @@ import { OrganizationUnit } from '../../../../../global/models/organization-unit
 import { IDesignation } from '../../../../models/designation';
 import { CompanyService } from '../../../../../global/services/company-service';
 import { IComapnyList } from '../../../../../global/models/company';
+import { DepartmentStore } from '../../../../stores/department-store';
 
 @Component({
   selector: 'qfin-official-component',
@@ -66,6 +67,7 @@ export class OfficialComponentDetail {
   onOfficialUpdate = output<void>();
   private dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
+  private readonly departmentStore = inject(DepartmentStore);
   private readonly organizationUnitTypeStore = inject(OrganizationUnitTypeStore);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
@@ -74,10 +76,12 @@ export class OfficialComponentDetail {
   private readonly alertService = inject(AlertService);
 
   readonly iconMap = APP_ICONS_MAP;
+  readonly departments = this.departmentStore.departments;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
   organizationUnits = signal<OrganizationUnit[]>([]);
   designations = signal<IDesignation[]>([]);
   companies = signal<IComapnyList[]>([]);
+
   protected readonly officialModel = signal<IEmployeeOfficialInfo>(new EmployeeOfficialInfo());
 
   protected readonly officialSchema: Schema<IEmployeeOfficialInfo> = schema((path) => {
@@ -86,6 +90,7 @@ export class OfficialComponentDetail {
     });
     required(path.employementType, { message: 'Employement Type is required' });
     required(path.dateOfJoining, { message: 'Joining Date is required' });
+    required(path.departmentId, { message: 'Department is required' });
     required(path.designationId, { message: 'Designation is required' });
     required(path.salaryGrade, { message: 'Salary Grade is required' });
     required(path.grossSalary, { message: 'Gross Salary is required' });

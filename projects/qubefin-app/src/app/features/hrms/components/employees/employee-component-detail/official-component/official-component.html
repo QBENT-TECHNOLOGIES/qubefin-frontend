@@ -63,12 +63,28 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-sync" class="w-5 h-5"></svg>
             </div>
-            <input matInput [matDatepicker]="separationDate" [min]="officialForm.dateOfJoining().value()" autocomplete="off"
-                [formField]="officialForm.separationDate">
+            <input matInput [matDatepicker]="separationDate" [min]="officialForm.dateOfJoining().value()"
+                autocomplete="off" [formField]="officialForm.separationDate">
             <mat-datepicker-toggle matIconSuffix [for]="separationDate">
             </mat-datepicker-toggle>
 
             <mat-datepicker #separationDate></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Departments</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="officialForm.departmentId" placeholder="Select Department">
+                @for(item of departments(); track item.id){
+                <mat-option [value]="item.id">
+                    {{item.name}}
+                </mat-option>
+                }
+            </mat-select>
+            <!-- <mat-error class="cus-error">
+                {{ officialForm.departmentId().errors()[0]?.message }}
+            </mat-error> -->
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Organization Unit Type</mat-label>
@@ -116,7 +132,7 @@
                 <mat-option [value]="company.id">{{ company.name }}</mat-option>
                 }
             </mat-select>
-             <mat-error class="cus-error">
+            <mat-error class="cus-error">
                 {{ officialForm.companyId().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
@@ -158,6 +174,7 @@
                 {{ officialForm.grossSalary().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
+
     </div>
 
     <div class="step-footer-area">
