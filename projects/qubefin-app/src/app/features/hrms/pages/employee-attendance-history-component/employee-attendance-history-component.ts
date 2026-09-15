@@ -68,7 +68,7 @@ export class EmployeeAttendanceHistoryComponent {
   readonly employeeOptions = signal<EmployeeSearchByText[]>([]);
   readonly employeeSearchText = signal('');
   readonly selectedAttendanceHistory = signal<IEmployeeAttendanceHistory | null>(null);
-
+  readonly companies = this.companyStore.companies;
   readonly searchModel = signal<ISearchModel>({
     tempSearch: '',
     fromDate: '',
@@ -79,7 +79,7 @@ export class EmployeeAttendanceHistoryComponent {
   readonly searchSchema: Schema<ISearchModel> = schema((path) => {
     readonly(path.fromDate, { when: () => true });
     readonly(path.toDate, { when: () => true });
-    required(path.companyId, {});
+    required(path.companyId, { message: 'Please select a company' });
   });
   readonly statuses = signal<string[]>([
     'On Time',
@@ -143,7 +143,7 @@ export class EmployeeAttendanceHistoryComponent {
       fromDate: '',
       toDate: '',
       status: '',
-      companyId: '',
+      companyId: this.companies()[0].id,
     }));
     this.employeeSearchText.set('');
     this.employeeOptions.set([]);
