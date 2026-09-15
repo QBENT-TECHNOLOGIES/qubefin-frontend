@@ -59,7 +59,7 @@ export class GrossSalaryModal {
   readonly displayedColumns = computed(() => {
     return ['sl', 'grossSalary', 'fromDate', 'toDate', 'status'];
   });
-
+  readonly minEffectiveDate = signal<Date | null>(null);
   grossChangesHistoryList = signal<IEmpGrossChangeHistory[]>([]);
   readonly salaryGrades = this.approvalWorkflowStore.salaryGrades;
 
@@ -108,12 +108,12 @@ export class GrossSalaryModal {
 
               if (resp.currentGrossSalary) {
                 const officialInfo = resp.currentGrossSalary;
-
+                this.minEffectiveDate.set(new Date(officialInfo.effectiveFrom));
                 this.grossChangeModel.update((state) => ({
                   ...state,
                   grossSalary: officialInfo.grossSalary || null,
                   salaryGradeId: officialInfo.salaryGradeId || '',
-                  effectiveFrom: officialInfo.effectiveFrom || null,
+                  effectiveFrom: null,
                 }));
               }
             }

@@ -138,7 +138,8 @@
             <div class="field-icon" matPrefix>
                 <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
             </div>
-            <input matInput [matDatepicker]="picker" [formField]="grossChangeForm.effectiveFrom" />
+            <input matInput [matDatepicker]="picker" [formField]="grossChangeForm.effectiveFrom"
+                [min]="minEffectiveDate()" placeholder="Select Date" />
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
