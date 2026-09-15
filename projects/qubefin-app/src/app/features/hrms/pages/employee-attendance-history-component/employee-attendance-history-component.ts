@@ -115,12 +115,10 @@ export class EmployeeAttendanceHistoryComponent {
     this.showFilterArea.update((v) => !v);
   }
   protected applyFilters() {
-    const companyId = this.searchForm.companyId().value().trim();
-    if (!companyId) {
-      this.alertService.warning('Validation Error', 'Please select a company.');
-      return;
-    }
+    this.searchForm.companyId().markAsTouched();
+    if (!this.searchForm.companyId().valid()) return;
 
+    const companyId = this.searchForm.companyId().value().trim();
     this.showAttendanceHistoryList.set(true);
     this.employeeAttendanceHistoryStore.setCompanyId(companyId);
     this.employeeAttendanceHistoryStore.setFromDate(
