@@ -57,7 +57,7 @@ export class GrossSalaryModal {
   private readonly approvalWorkflowStore = inject(ApprovalWorkflowStore);
 
   readonly displayedColumns = computed(() => {
-    return ['sl', 'grossSalary', 'fromDate', 'toDate'];
+    return ['sl', 'grossSalary', 'fromDate', 'toDate', 'status'];
   });
 
   grossChangesHistoryList = signal<IEmpGrossChangeHistory[]>([]);
@@ -124,6 +124,26 @@ export class GrossSalaryModal {
       }
     },
   });
+  getSalaryStatus(effectiveFrom: string, effectiveTill: string | null): string {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const from = new Date(effectiveFrom);
+    from.setHours(0, 0, 0, 0);
+
+    if (from > today) {
+      return 'Upcoming';
+    }
+    if (effectiveTill) {
+      const till = new Date(effectiveTill);
+      till.setHours(0, 0, 0, 0);
+
+      if (till < today) {
+        return 'Inactive';
+      }
+    }
+    return 'Present';
+  }
   onSave() {
     this.grossChangeForm().markAsTouched();
     if (!this.grossChangeForm().valid()) {

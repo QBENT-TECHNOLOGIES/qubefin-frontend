@@ -59,9 +59,20 @@
                 <ng-container matColumnDef="toDate">
                     <th mat-header-cell *matHeaderCellDef>To Date</th>
                     <td mat-cell *matCellDef="let item">
-                        <span class="px-2 py-1 text-xs font-medium rounded" [class.bg-green-100]="!item.effectiveTill"
-                            [class.text-green-800]="!item.effectiveTill">
-                            {{ item.effectiveTill? (item.effectiveTill| date: 'dd-MM-yyyy'): 'Present' }}
+                        <span class="px-2 py-1 text-xs font-medium rounded">
+                            {{ item.effectiveTill? (item.effectiveTill| date: 'dd-MM-yyyy'): '-' }}
+                        </span>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>Status</th>
+                    <td mat-cell *matCellDef="let item">
+                        <span class="px-2 py-1 text-xs font-medium rounded" [ngClass]="{
+                                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': getSalaryStatus(item.effectiveFrom, item.effectiveTill) === 'Present',
+                                'text-rose-600 dark:text-rose-400 bg-red-100': getSalaryStatus(item.effectiveFrom, item.effectiveTill) === 'Inactive',
+                                'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400': getSalaryStatus(item.effectiveFrom, item.effectiveTill) === 'Upcoming'
+                            }">
+                            {{ getSalaryStatus(item.effectiveFrom, item.effectiveTill) }}
                         </span>
                     </td>
                 </ng-container>
