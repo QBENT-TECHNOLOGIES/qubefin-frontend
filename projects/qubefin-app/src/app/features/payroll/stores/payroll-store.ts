@@ -22,7 +22,7 @@ export class PayrollStore {
   private readonly payrollResource = httpResource<Payroll>(() => {
     const id = this.payrollId();
     if (!id) return undefined;
-    return `${ApiPaths.PAYROLL}/payroll/${id}`;
+    return `${ApiPaths.PAYROLL}/payroll-detail/${id}`;
   });
   readonly payroll = computed(() => this.payrollResource.value() ?? undefined);
   readonly payrollLoading = computed(() => this.payrollResource.isLoading());

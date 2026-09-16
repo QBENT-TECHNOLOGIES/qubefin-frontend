@@ -254,7 +254,7 @@
                 <td class="px-5 py-2 text-right">
                   @if (isEditMode()) {
                   <input type="number" [(ngModel)]="item.amount" (ngModelChange)="onEarningAmountChange(item, $event)"
-                    [disabled]="!item.isEditable"
+                    [disabled]="!item.isEditable" (wheel)="$event.preventDefault()"
                     class="glass-input w-full px-3 py-1.5 rounded-lg text-right font-semibold text-slate-700 dark:text-slate-200! focus:outline-none transition-all">
                   } @else {
                   <span class="text-slate-800 dark:text-slate-200 font-semibold">{{ item.amount }}</span>
@@ -309,7 +309,7 @@
                 <td class="px-5 py-2 text-right">
                   @if (isEditMode()) {
                   <input type="number" [(ngModel)]="item.amount" (ngModelChange)="onDeductionAmountChange(item, $event)"
-                    [disabled]="!item.isEditable"
+                    [disabled]="!item.isEditable" (wheel)="$event.preventDefault()"
                     class="glass-input w-full px-3 py-1.5 rounded-lg text-right font-semibold text-slate-700 dark:text-slate-200! focus:outline-none transition-all">
                   } @else {
                   <span class="text-slate-800 dark:text-slate-200 font-semibold">{{ item.amount }}</span>
