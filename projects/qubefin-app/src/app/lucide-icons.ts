@@ -1,3 +1,4 @@
+import { L } from '@angular/cdk/keycodes';
 import {
   LucideAlertCircle,
   LucideArrowLeft,
@@ -166,6 +167,7 @@ import {
   LucideClipboardList,
   LucideClock3,
   LucideRadar,
+  LucideVenusAndMars,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -334,6 +336,7 @@ export const APP_ICONS = [
   LucideClipboardList,
   LucideClock3,
   LucideRadar,
+  LucideVenusAndMars,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -502,4 +505,5 @@ export const APP_ICONS_MAP: Record<string, any> = {
   ClipboardList: LucideClipboardList,
   Clock3: LucideClock3,
   Radar: LucideRadar,
+  VenusAndMars: LucideVenusAndMars,
 };

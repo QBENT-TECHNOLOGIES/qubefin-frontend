@@ -123,6 +123,13 @@ export const HrmsRoutes: Routes = [
             (m) => m.DepartmentComponent,
           ),
       },
+      {
+        path: 'candidate',
+        loadComponent: () =>
+          import('./pages/candidate-component/candidate-component').then(
+            (m) => m.CandidateComponent,
+          ),
+      },
     ],
   },
 ];

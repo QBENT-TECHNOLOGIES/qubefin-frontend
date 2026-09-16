@@ -1,0 +1,123 @@
+<div class="space-y-4">
+
+    <div class="grid grid-cols-1 lg:grid-cols-1 gap-4">
+        <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                Candidate Information
+            </h3>
+            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>First Name</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="user" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [formField]="candidateForm.firstName" placeholder="Enter First name">
+                    <mat-error class="cus-error">
+                        {{ candidateForm.firstName().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Last Name</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="user" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [formField]="candidateForm.lastName" placeholder="Enter Last name">
+                    <mat-error class="cus-error">
+                        {{ candidateForm.lastName().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Gender</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="venus-and-mars" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="candidateForm.gender" placeholder="Select Gender">
+                        @for (gen of genders(); track gen) {
+                        <mat-option [value]="gen.sysVal">
+                            {{ gen.sysVal }}
+                        </mat-option>
+                        }
+                    </mat-select>
+                    <mat-error class="cus-error">
+                        {{ candidateForm.gender().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Mobile No</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="phone" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput autocomplete="off" [formField]="candidateForm.mobileNo"
+                        placeholder="Enter Mobile No">
+                    <mat-error class="cus-error">
+                        {{ candidateForm.mobileNo().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Company</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="candidateForm.companyId" placeholder="Select Company">
+                        @for (company of companies(); track company.id) {
+                        <mat-option [value]="company.id">{{ company.name }}</mat-option>
+                        }
+                    </mat-select>
+                    <mat-error class="cus-error">
+                        {{ candidateForm.companyId().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Interview Date</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [matDatepicker]="interDate" autocomplete="off" (keydown)="$event.preventDefault()"
+                        [formField]="candidateForm.interviewDate">
+                    <mat-datepicker-toggle matIconSuffix [for]="interDate">
+                    </mat-datepicker-toggle>
+
+                    <mat-datepicker #interDate></mat-datepicker>
+                    <mat-error class="cus-error">
+                        {{ candidateForm.interviewDate().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Post</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="candidateForm.interviewPost">
+                        @for(item of posts(); track item.id){
+                        <mat-option [value]="item.id">
+                            {{item.name}}
+                        </mat-option>
+                        }
+                    </mat-select>
+                    <mat-error class="cus-error">
+                        {{ candidateForm.interviewPost().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
+
+            </div>
+        </div>
+    </div>
+
+    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3">
+        <button type="button" (click)="onCancel()"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+            Cancel
+        </button>
+        <button type="button" (click)="onSubmit()"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
+            Save
+        </button>
+    </div>
+
+</div>
