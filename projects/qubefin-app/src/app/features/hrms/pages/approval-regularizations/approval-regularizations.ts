@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
@@ -58,6 +58,8 @@ export class ApprovalRegularizations {
   readonly approvalRegularizationsStore = inject(ApprovalRegularizationStore);
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
+  /** Set when hosted in a tab page that supplies one filter shared by every queue. */
+  readonly embedded = input<boolean>(false);
   readonly isViewMode = signal<boolean>(true);
   readonly showFilterArea = signal<boolean>(false);
   readonly employeeOptions = signal<EmployeeSearchByText[]>([]);

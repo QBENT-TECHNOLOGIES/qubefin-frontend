@@ -32,6 +32,18 @@ export const HrmsRoutes: Routes = [
         },
       },
       {
+        path: 'employee-approvals',
+        loadComponent: () =>
+          import('./pages/employee-approvals-component/employee-approvals-component').then(
+            (m) => m.EmployeeApprovalsComponent,
+          ),
+        data: {
+          title: 'Employee Approvals',
+          subTitle: 'Every pending employee approval in one place',
+          icon: 'clipboard-check',
+        },
+      },
+      {
         path: 'attendance-history',
         loadComponent: () =>
           import('./pages/attendance-history-component/attendance-history-component').then(
@@ -45,13 +57,13 @@ export const HrmsRoutes: Routes = [
             (m) => m.AttendanceRegularizations,
           ),
       },
-      {
-        path: 'approval-regularization',
-        loadComponent: () =>
-          import('./pages/approval-regularizations/approval-regularizations').then(
-            (m) => m.ApprovalRegularizations,
-          ),
-      },
+      // {
+      //   path: 'approval-regularization',
+      //   loadComponent: () =>
+      //     import('./pages/approval-regularizations/approval-regularizations').then(
+      //       (m) => m.ApprovalRegularizations,
+      //     ),
+      // },
       {
         path: 'leave-requests',
         loadComponent: () =>
@@ -64,18 +76,18 @@ export const HrmsRoutes: Routes = [
           icon: 'apartment',
         },
       },
-      {
-        path: 'leave-approvals',
-        loadComponent: () =>
-          import('./pages/leave-approval-component/leave-approval-component').then(
-            (m) => m.LeaveApprovalComponent,
-          ),
-        data: {
-          title: 'Leave Approval',
-          subTitle: 'Manage Leave Approvals',
-          icon: 'apartment',
-        },
-      },
+      // {
+      //   path: 'leave-approvals',
+      //   loadComponent: () =>
+      //     import('./pages/leave-approval-component/leave-approval-component').then(
+      //       (m) => m.LeaveApprovalComponent,
+      //     ),
+      //   data: {
+      //     title: 'Leave Approval',
+      //     subTitle: 'Manage Leave Approvals',
+      //     icon: 'apartment',
+      //   },
+      // },
       {
         path: 'leave-prayers',
         loadComponent: () =>
@@ -88,18 +100,18 @@ export const HrmsRoutes: Routes = [
           icon: 'zodiac-leo',
         },
       },
-      {
-        path: 'leave-prayer-approvals',
-        loadComponent: () =>
-          import('./pages/leave-prayer-approval-component/leave-prayer-approval-component').then(
-            (m) => m.LeavePrayerApprovalComponent,
-          ),
-        data: {
-          title: 'Leave Prayer Approvals',
-          subTitle: 'Manage Leave Prayer Approvals',
-          icon: 'zodiac-leo',
-        },
-      },
+      // {
+      //   path: 'leave-prayer-approvals',
+      //   loadComponent: () =>
+      //     import('./pages/leave-prayer-approval-component/leave-prayer-approval-component').then(
+      //       (m) => m.LeavePrayerApprovalComponent,
+      //     ),
+      //   data: {
+      //     title: 'Leave Prayer Approvals',
+      //     subTitle: 'Manage Leave Prayer Approvals',
+      //     icon: 'zodiac-leo',
+      //   },
+      // },
       {
         path: 'employee-attendance-history',
         loadComponent: () =>
@@ -115,14 +127,14 @@ export const HrmsRoutes: Routes = [
           ),
         data: { breadcrumb: 'Employee LOP Finalization' },
       },
-      {
-        path: 'leave-fitness',
-        loadComponent: () =>
-          import('./pages/leave-fitness-component/leave-fitness-component').then(
-            (c) => c.LeaveFitnessComponent,
-          ),
-        data: { breadcrumb: 'Leave Fitness' },
-      },
+      // {
+      //   path: 'leave-fitness',
+      //   loadComponent: () =>
+      //     import('./pages/leave-fitness-component/leave-fitness-component').then(
+      //       (c) => c.LeaveFitnessComponent,
+      //     ),
+      //   data: { breadcrumb: 'Leave Fitness' },
+      // },
       {
         path: 'holiday',
         loadComponent: () =>

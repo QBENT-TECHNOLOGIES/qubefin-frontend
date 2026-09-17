@@ -1,4 +1,5 @@
 <div class="page-container">
+    @if (!embedded()) {
     <div class="header-group">
         <div class="flex items-center gap-3"></div>
         <div class="headerBtn-area">
@@ -10,6 +11,7 @@
             }
         </div>
     </div>
+    }
 
     <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
         <div class="mainCard-area glass" [ngClass]="{
@@ -19,7 +21,7 @@
           }">
 
             @if (isViewMode() && selectedAttendanceRegularizationId() === EMPTY_UUID) {
-            @if (showFilterArea()) {
+            @if (!embedded() && showFilterArea()) {
             <div class="filter-area">
                 <div class="filter-container">
                     <div class="flex-1 min-w-[200px]">
