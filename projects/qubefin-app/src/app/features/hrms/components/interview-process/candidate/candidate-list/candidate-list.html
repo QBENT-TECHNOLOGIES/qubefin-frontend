@@ -1,0 +1,90 @@
+<div class="overflow-auto scroll-thin" [ngClass]="{
+    'h-[calc(100vh-170px-72px)] overflow-y-auto': isCollapsed()
+  }">
+    <table mat-table [dataSource]="data()" matSort matSortActive="interviewDate" (matSortChange)="onSortChange($event)"
+        class="w-full table">
+
+
+        <ng-container matColumnDef="sl">
+            <th mat-header-cell *matHeaderCellDef>#</th>
+            <td mat-cell *matCellDef="let row; let i = index"
+                class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                {{ pageIndex() * pageSize() + i + 1 }}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef> Candidate Name </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                {{ item.fullName }}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="ref">
+            <th mat-header-cell *matHeaderCellDef> Reference No </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                {{ item.referenceNo }}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="interviewPost">
+            <th mat-header-cell *matHeaderCellDef> Interview Post </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                {{ item.interviewPost }}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="interviewDate">
+            <th mat-header-cell *matHeaderCellDef> Interview Date </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                {{ item.interviewDate | date: 'dd/MM/yyyy' }}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="recommendationStatus">
+            <th mat-header-cell *matHeaderCellDef> Recommendation Status </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                {{ item.recommendationStatus }}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="totalRatingPoint">
+            <th mat-header-cell *matHeaderCellDef> Total Rating Point </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                {{ item.totalRatingPoint }}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="ratingStatus">
+            <th mat-header-cell *matHeaderCellDef> Rating Status </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                {{ item.ratingStatus }}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef class="text-right!"> Actions</th>
+            <td mat-cell *matCellDef="let item">
+                <div class="w-full flex justify-end">
+                    <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
+                        matTooltip="View" (click)="onDetailView(item.id)">
+                        <svg lucideIcon="chevron-right"
+                            class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
+                    </div>
+                </div>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns" [class.bg-primary-500]="selectedId() === row.id"
+            [class.bg-opacity-10]="selectedId() === row.id" class="transition-colors">
+        </tr>
+
+        <tr class="mat-row" *matNoDataRow colspan="7">
+            <td class="mat-cell px-8 text-center! text-slate-400 border-b-0" [attr.colspan]="columns.length">
+                <div class="flex justify-center items-center gap-2">
+                    <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>
+                    No candidates found.
+                </div>
+            </td>
+        </tr>
+    </table>
+    @if (!isCollapsed()) {
+
+    <mat-paginator [length]="totalRecords()" [pageSize]="pageSize()" [pageIndex]="pageIndex()"
+        [pageSizeOptions]="[10,20,50]" (page)="onPage($event)">
+    </mat-paginator>
+    }
+</div>

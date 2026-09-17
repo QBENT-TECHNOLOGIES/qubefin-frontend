@@ -124,6 +124,13 @@ export const HrmsRoutes: Routes = [
           ),
       },
       {
+        path: 'candidate',
+        loadComponent: () =>
+          import('./pages/candidate-component/candidate-component').then(
+            (m) => m.CandidateComponent,
+          ),
+      },
+      {
         path: 'interview-panel',
         loadComponent: () =>
           import('./pages/interview-panel-component/interview-panel-component').then(
@@ -133,9 +140,7 @@ export const HrmsRoutes: Routes = [
       {
         path: 'my-interviews',
         loadComponent: () =>
-          import('./pages/my-interviews/my-interviews.page').then(
-            (m) => m.MyInterviewsPage,
-          ),
+          import('./pages/my-interviews/my-interviews.page').then((m) => m.MyInterviewsPage),
       },
       {
         path: 'candidate-verification/:id',
@@ -147,9 +152,7 @@ export const HrmsRoutes: Routes = [
       {
         path: 'offer-letter/:id',
         loadComponent: () =>
-          import('./pages/offer-letter/offer-letter.page').then(
-            (m) => m.OfferLetterPage,
-          ),
+          import('./pages/offer-letter/offer-letter.page').then((m) => m.OfferLetterPage),
       },
       {
         path: 'appointment-joining/:id',
@@ -161,9 +164,7 @@ export const HrmsRoutes: Routes = [
       {
         path: 'induction/:id',
         loadComponent: () =>
-          import('./pages/induction/induction.page').then(
-            (m) => m.InductionPage,
-          ),
+          import('./pages/induction/induction.page').then((m) => m.InductionPage),
       },
     ],
   },
