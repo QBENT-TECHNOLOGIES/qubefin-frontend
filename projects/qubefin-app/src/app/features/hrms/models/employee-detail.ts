@@ -623,3 +623,18 @@ export class KycDocument {
   isDateValidate: boolean = false;
   sequence: number = 0;
 }
+export interface IEmpGrossChangeHistory {
+  id: string;
+  salaryGrade: string;
+  grossSalary: number;
+  effectiveFrom: string;
+  effectiveTill: string;
+  transferData: IGrossSalary;
+}
+export interface IGrossSalary {
+  id: string;
+  employeeId: string;
+  salaryGradeId: string;
+  grossSalary: number | null;
+  effectiveFrom: string | Date | null;
+}

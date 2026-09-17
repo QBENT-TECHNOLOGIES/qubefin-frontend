@@ -100,7 +100,7 @@ export class OfficialComponentDetail {
     readonly(path.dateOfJoining, { when: () => true });
     readonly(path.dateOfConfirmation, { when: () => true });
     readonly(path.separationDate, { when: () => true });
-    readonly(path.salaryGrade, { when: () => true });
+    // readonly(path.salaryGrade, { when: () => true });
     const isNotEditable = ({ valueOf }: any) => {
       return valueOf(path.isDesignationEditable) === false;
     };
