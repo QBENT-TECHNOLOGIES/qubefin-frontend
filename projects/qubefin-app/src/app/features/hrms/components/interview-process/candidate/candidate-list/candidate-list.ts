@@ -54,27 +54,6 @@ export class CandidateList {
     this.onViewDetail.emit(id);
   }
 
-  onCreatePanel(id: string) {
-    const dialogRef = this.dialog.open(InterviewPanelDetail, {
-      width: '800px',
-      disableClose: true,
-      panelClass: 'glass-modal'
-    });
-    
-    if (dialogRef.componentInstance) {
-      dialogRef.componentRef?.setInput('candidateIdForPanel', id);
-      dialogRef.componentRef?.setInput('isAssessmentMode', false);
-      
-      const sub1 = dialogRef.componentInstance.cancel.subscribe(() => dialogRef.close());
-      const sub2 = dialogRef.componentInstance.save.subscribe(() => dialogRef.close());
-      
-      dialogRef.afterClosed().subscribe(() => {
-        sub1.unsubscribe();
-        sub2.unsubscribe();
-      });
-    }
-  }
-
   onPage(event: PageEvent) {
     this.pageChanged.emit(event);
   }

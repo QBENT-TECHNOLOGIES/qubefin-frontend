@@ -1,3 +1,10 @@
+export interface IEmployeeByOrgUnit {
+  id: string;
+  name: string;
+  code: string;
+  currentDesignation?: string;
+}
+
 // export interface IEmployeeInfo {
 //   id: string; // Representing Guid
 //   salutation?: string;

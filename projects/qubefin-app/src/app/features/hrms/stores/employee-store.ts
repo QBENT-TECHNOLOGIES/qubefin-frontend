@@ -4,6 +4,7 @@ import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import {
   IEmployeePersonalInfo,
   IEmployeesBySearchResult,
+  IEmployeeByOrgUnit,
   KycDocument,
   Utility,
 } from '../models/employee-detail';
@@ -15,6 +16,17 @@ export class EmployeeStore {
   // --- Detail State ---
   private readonly employeeComponentId = signal<string | undefined>(undefined);
   // 1. Keep track of the active step index
+
+  // --- Org Unit State ---
+  readonly searchOrganizationUnitId = signal<string | null>(null);
+
+  readonly employeesByOrgUnitResource = httpResource<IEmployeeByOrgUnit[]>(() => {
+    const id = this.searchOrganizationUnitId();
+    if (!id || id === EMPTY_UUID) return undefined;
+    return `${ApiPaths.HRMS}/employees/by-organization-unit/${id}`;
+  });
+
+  readonly employeesByOrgUnit = computed(() => this.employeesByOrgUnitResource.value() ?? []);
 
   // --- Pagination & Filtering State ---
   readonly searchQuery = signal<string>('');
@@ -100,6 +112,10 @@ export class EmployeeStore {
   // readonly addressInfoComponentError = computed(() => this.addressInfoComponentResource.error());
 
   // --- State Setters ---
+  setSearchOrganizationUnitId(id: string | null) {
+    this.searchOrganizationUnitId.set(id);
+  }
+
   setSearchQuery(query: string) {
     this.searchQuery.set(query);
     this.pageIndex.set(0);

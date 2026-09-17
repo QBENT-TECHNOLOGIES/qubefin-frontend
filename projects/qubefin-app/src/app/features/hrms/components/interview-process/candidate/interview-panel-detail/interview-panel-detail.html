@@ -20,118 +20,104 @@
 <mat-dialog-content class="p-5!">
     <div class="space-y-6">
         @if (!isAssessmentMode()) {
-        <!-- Schedule Card -->
+        <!-- Organization Unit Selection Card -->
         <div class="bg-glass-light dark:bg-glass-dark rounded-lg border border-glass-light shadow-glass overflow-hidden flex flex-col">
             <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-500 bg-slate-50/80 dark:bg-slate-700 flex items-center justify-between">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div> Interview Schedule
+                    <div class="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div> Organization Select
                 </h3>
             </div>
             <div class="p-5">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
-                        <mat-label>Candidate</mat-label>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Organization Unit Type</mat-label>
                         <div class="w-10 flex justify-center text-slate-400" matPrefix>
-                            <svg lucideIcon="user" class="w-[16px] h-[16px]"></svg>
+                            <svg lucideIcon="building" class="w-[16px] h-[16px]"></svg>
                         </div>
-                        <input type="text" matInput [formControl]="candidateSearchControl" [matAutocomplete]="autoCandidate">
-                        <mat-autocomplete #autoCandidate="matAutocomplete" [displayWith]="displayCandidateName"
-                            (optionSelected)="onCandidateSelected($event)">
-                            @for (candidate of candidates(); track candidate.id) {
-                            <mat-option [value]="candidate.id">{{ candidate.displayName }}</mat-option>
+                        <mat-select [formControl]="organizationUnitTypeId">
+                            @for (type of organizationUnitTypes(); track type.id) {
+                            <mat-option [value]="type.id">{{ type.name }}</mat-option>
                             }
-                        </mat-autocomplete>
+                        </mat-select>
                     </mat-form-field>
+
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Scheduled Date</mat-label>
+                        <mat-label>Organization Unit</mat-label>
                         <div class="w-10 flex justify-center text-slate-400" matPrefix>
-                            <svg lucideIcon="calendar-plus" class="w-[16px] h-[16px]"></svg>
+                            <svg lucideIcon="building-2" class="w-[16px] h-[16px]"></svg>
                         </div>
-                        <input matInput [matDatepicker]="picker" [formField]="scheduleForm.scheduledDate">
-                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                        <mat-datepicker #picker></mat-datepicker>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Scheduled Time</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix>
-                            <svg lucideIcon="clock-3" class="w-[16px] h-[16px]"></svg>
-                        </div>
-                        <input matInput type="text" [value]="scheduleModel().scheduledTime || ''" readonly
-                            placeholder="Select time" />
-                        <button type="button" mat-icon-button matSuffix (click)="openTimePicker()"
-                            class="text-primary-600 bg-transparent border-none cursor-pointer p-2 rounded-full hover:bg-slate-100">
-                            <svg lucideIcon="clock-3" class="w-[16px] h-[16px]"></svg>
-                        </button>
+                        <mat-select [formControl]="organizationUnitId">
+                            @for (unit of organizationUnits(); track unit.id) {
+                            <mat-option [value]="unit.id">{{ unit.name }}</mat-option>
+                            }
+                        </mat-select>
                     </mat-form-field>
                 </div>
             </div>
         </div>
 
-        <!-- Panelists Card -->
+        @if (selectedPanelists().length > 0) {
+        <!-- Selected Panelists Card -->
+        <div class="bg-emerald-50/50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800 shadow-sm overflow-hidden flex flex-col">
+            <div class="px-5 py-3 border-b border-emerald-100 dark:border-emerald-800 bg-emerald-100/50 dark:bg-emerald-800/50 flex items-center justify-between">
+                <h3 class="text-sm font-bold text-emerald-800 dark:text-emerald-100 flex items-center gap-2">
+                    <svg lucideIcon="users-round" class="w-[16px] h-[16px] text-emerald-600 dark:text-emerald-400"></svg> Selected Panelists ({{ selectedPanelists().length }})
+                </h3>
+            </div>
+            <div class="p-4 flex flex-wrap gap-2">
+                @for (emp of selectedPanelists(); track emp.id) {
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-700 rounded-full shadow-sm">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight">{{ emp.name }}</span>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">{{ emp.currentDesignation || '-' }}</span>
+                    </div>
+                    <button type="button" (click)="togglePanelist(emp, false)" class="ml-1 text-slate-400 hover:text-rose-500 rounded-full transition-colors cursor-pointer outline-none flex items-center justify-center h-5 w-5 hover:bg-rose-50 dark:hover:bg-rose-900/30">
+                        <svg lucideIcon="x" class="w-3.5 h-3.5"></svg>
+                    </button>
+                </div>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- Panelists List Card -->
         <div class="bg-glass-light dark:bg-glass-dark rounded-lg border border-glass-light shadow-glass overflow-hidden flex flex-col">
             <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-500 bg-slate-50/80 dark:bg-slate-700 flex items-center justify-between">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div> Interview Panelists
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div> Select Panelists
                 </h3>
+                <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{{ selectedPanelists().length }} Selected</span>
             </div>
-            <div class="p-5">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Employee 1 (Respective HOD)</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix>
-                            <svg lucideIcon="user-check" class="w-[16px] h-[16px]"></svg>
-                        </div>
-                        <input type="text" matInput [formControl]="hodSearchControl" [matAutocomplete]="autoHod">
-                        <mat-autocomplete #autoHod="matAutocomplete" [displayWith]="displayEmployeeName"
-                            (optionSelected)="onPanelistSelected('hodEmployeeId', $event)">
-                            @for (emp of employeeOptions(); track emp.id) {
-                            <mat-option [value]="emp.id">{{ emp.employeeName }}</mat-option>
-                            }
-                        </mat-autocomplete>
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Employee 2 (Any Director)</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix>
-                            <svg lucideIcon="user" class="w-[16px] h-[16px]"></svg>
-                        </div>
-                        <input type="text" matInput [formControl]="directorSearchControl" [matAutocomplete]="autoDirector">
-                        <mat-autocomplete #autoDirector="matAutocomplete" [displayWith]="displayEmployeeName"
-                            (optionSelected)="onPanelistSelected('directorEmployeeId', $event)">
-                            @for (emp of employeeOptions(); track emp.id) {
-                            <mat-option [value]="emp.id">{{ emp.employeeName }}</mat-option>
-                            }
-                        </mat-autocomplete>
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Employee 3 (Any one)</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix>
-                            <svg lucideIcon="user" class="w-[16px] h-[16px]"></svg>
-                        </div>
-                        <input type="text" matInput [formControl]="anySearchControl" [matAutocomplete]="autoAny">
-                        <mat-autocomplete #autoAny="matAutocomplete" [displayWith]="displayEmployeeName"
-                            (optionSelected)="onPanelistSelected('anyEmployeeId', $event)">
-                            @for (emp of employeeOptions(); track emp.id) {
-                            <mat-option [value]="emp.id">{{ emp.employeeName }}</mat-option>
-                            }
-                        </mat-autocomplete>
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Employee 4 (HR HOD)</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix>
-                            <svg lucideIcon="user" class="w-[16px] h-[16px]"></svg>
-                        </div>
-                        <input type="text" matInput [formControl]="hrHodSearchControl" [matAutocomplete]="autoHrHod">
-                        <mat-autocomplete #autoHrHod="matAutocomplete" [displayWith]="displayEmployeeName"
-                            (optionSelected)="onPanelistSelected('hrHodEmployeeId', $event)">
-                            @for (emp of employeeOptions(); track emp.id) {
-                            <mat-option [value]="emp.id">{{ emp.employeeName }}</mat-option>
-                            }
-                        </mat-autocomplete>
-                    </mat-form-field>
+            <div class="p-0 overflow-y-auto max-h-[300px]">
+                @if (employeeList().length > 0) {
+                <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+                    <thead class="bg-slate-50 dark:bg-slate-800/50 text-xs uppercase font-bold sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-700">
+                        <tr>
+                            <th class="px-4 py-3 w-[60px] text-center">Select</th>
+                            <th class="px-4 py-3">Employee Name</th>
+                            <th class="px-4 py-3">Code</th>
+                            <th class="px-4 py-3">Designation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800/50">
+                        @for (emp of employeeList(); track emp.id) {
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors" [class.bg-emerald-50/50]="isPanelistSelected(emp.id)">
+                            <td class="px-4 py-2.5 text-center">
+                                <mat-checkbox [checked]="isPanelistSelected(emp.id)" (change)="togglePanelist(emp, $event.checked)" color="primary"></mat-checkbox>
+                            </td>
+                            <td class="px-4 py-2.5 font-semibold text-slate-800 dark:text-slate-200">{{ emp.name }}</td>
+                            <td class="px-4 py-2.5">{{ emp.code }}</td>
+                            <td class="px-4 py-2.5">{{ emp.currentDesignation || '-' }}</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+                } @else {
+                <div class="flex flex-col items-center justify-center p-8 text-slate-400">
+                    <svg lucideIcon="users-round" class="w-12 h-12 mb-3 text-slate-300"></svg>
+                    <p class="font-medium text-slate-500">No employees found. Please select an Organization Unit.</p>
                 </div>
+                }
             </div>
         </div>
         } @else {

@@ -3,23 +3,19 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, schema, Schema } from '@angular/forms/signals';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { EMPTY_UUID, AlertService, TimePickerDialogComponent } from 'qubefin-core';
+import { EMPTY_UUID, AlertService, ApiPaths } from 'qubefin-core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { HttpClient } from '@angular/common/http';
 
 export interface IScheduleModel {
   candidateId: string;
-  scheduledDate: string;
-  scheduledTime: string;
-  hodEmployeeId: string;
-  directorEmployeeId: string;
-  anyEmployeeId: string;
-  hrHodEmployeeId: string;
 }
 
 export interface IAssessmentModel {
@@ -49,11 +45,13 @@ export interface IAssessmentModel {
   negativeRemarks: string;
 }
 
-import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { InterviewPanelService } from '../../../../services/interview-panel-service';
 import { InterviewPanelStore } from '../../../../stores/interview-panel-store';
-import { EmployeeService } from '../../../../services/employee-service';
-import { EmployeeSearchByText } from '../../../../models/employee-search-by-text';
+import { OrganizationUnitTypeStore } from '../../../../../global/stores/organization-unit-type-store';
+import { OrganizationUnitService } from '../../../../../global/services/organization-unit-service';
+import { OrganizationUnit } from '../../../../../global/models/organization-unit';
+
+import { EmployeeStore } from '../../../../stores/employee-store';
 
 @Component({
   selector: 'qfin-interview-panel-detail',
@@ -63,6 +61,7 @@ import { EmployeeSearchByText } from '../../../../models/employee-search-by-text
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatCheckboxModule,
     MatAutocompleteModule,
     MatDatepickerModule,
     MatNativeDateModule,
@@ -79,24 +78,25 @@ export class InterviewPanelDetail {
   private readonly alertService = inject(AlertService);
   private readonly panelStore = inject(InterviewPanelStore);
   private readonly dialog = inject(MatDialog);
-  private readonly employeeService = inject(EmployeeService);
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
+  private readonly organizationUnitTypeStore = inject(OrganizationUnitTypeStore);
+  private readonly organizationUnitService = inject(OrganizationUnitService);
+  private readonly employeeStore = inject(EmployeeStore);
 
-  hodSearchControl = new FormControl('');
-  directorSearchControl = new FormControl('');
-  anySearchControl = new FormControl('');
-  hrHodSearchControl = new FormControl('');
+  readonly organizationUnitTypes = this.organizationUnitTypeStore.organizationUnitTypes;
+  organizationUnits = signal<OrganizationUnit[]>([]);
+  readonly employeeList = this.employeeStore.employeesByOrgUnit;
+  selectedPanelists = signal<any[]>([]);
 
-  readonly employeeOptions = signal<EmployeeSearchByText[]>([]);
-  private readonly employeeSearch$ = new Subject<string>();
-
-  candidates = signal<any[]>([]);
-  candidateSearchControl = new FormControl('');
+  organizationUnitTypeId = new FormControl('');
+  organizationUnitId = new FormControl('');
 
   readonly panelId = input<string>(EMPTY_UUID);
   readonly isAssessmentMode = input<boolean>(false);
   readonly candidateIdForPanel = input<string>('9a7c7f5a-5a41-4e3d-9b4e-123456789abc');
+  readonly interviewDate = input<string>('');
+  readonly interviewTime = input<string>('');
 
   readonly cancel = output<void>();
   readonly save = output<void>();
@@ -104,23 +104,9 @@ export class InterviewPanelDetail {
   // --- Schedule Panel Form ---
   protected readonly scheduleModel = signal<IScheduleModel>({
     candidateId: '',
-    scheduledDate: '',
-    scheduledTime: '',
-    hodEmployeeId: '',
-    directorEmployeeId: '',
-    anyEmployeeId: '',
-    hrHodEmployeeId: '',
   });
 
-  protected readonly scheduleSchema: Schema<IScheduleModel> = schema((path) => {
-    required(path.candidateId, { message: 'Candidate is required' });
-    required(path.scheduledDate, { message: 'Scheduled Date is required' });
-    required(path.scheduledTime, { message: 'Scheduled Time is required' });
-    required(path.hodEmployeeId, { message: 'HOD is required' });
-    required(path.directorEmployeeId, { message: 'Director is required' });
-    required(path.anyEmployeeId, { message: 'Member is required' });
-    required(path.hrHodEmployeeId, { message: 'HR HOD is required' });
-  });
+  protected readonly scheduleSchema: Schema<IScheduleModel> = schema((path) => {});
 
   protected readonly scheduleForm = form(this.scheduleModel, this.scheduleSchema);
 
@@ -152,9 +138,7 @@ export class InterviewPanelDetail {
     negativeRemarks: '',
   });
 
-  protected readonly assessmentSchema: Schema<IAssessmentModel> = schema((path) => {
-    // Optionally we can add required validators, but often ratings default to 0.
-  });
+  protected readonly assessmentSchema: Schema<IAssessmentModel> = schema((path) => {});
 
   protected readonly assessmentForm = form(this.assessmentModel, this.assessmentSchema);
 
@@ -168,152 +152,96 @@ export class InterviewPanelDetail {
             this.candidateIdForPanel() && this.candidateIdForPanel() !== EMPTY_UUID
               ? this.candidateIdForPanel()
               : '',
-          scheduledDate: '',
-          scheduledTime: '',
-          hodEmployeeId: '',
-          directorEmployeeId: '',
-          anyEmployeeId: '',
-          hrHodEmployeeId: '',
         });
       }
     });
 
-    this.employeeSearch$
-      .pipe(
-        debounceTime(250),
-        distinctUntilChanged(),
-        switchMap((searchText) => this.employeeService.getEmployeesBySearchText({ searchText })),
-      )
-      .subscribe((response) => {
-        this.employeeOptions.set((response as EmployeeSearchByText[]) ?? []);
-      });
-
-    [
-      this.hodSearchControl,
-      this.directorSearchControl,
-      this.anySearchControl,
-      this.hrHodSearchControl,
-    ].forEach((control) => {
-      control.valueChanges.subscribe((value) => {
-        if (typeof value === 'string' && !this.isUUID(value)) {
-          this.searchEmployees(value);
-        }
-      });
+    this.organizationUnitTypeId.valueChanges.subscribe((typeId) => {
+      if (typeId) {
+        this.onOrganizationUnitTypeChange(typeId);
+      } else {
+        this.organizationUnits.set([]);
+        this.employeeStore.setSearchOrganizationUnitId(null);
+      }
     });
 
-    this.candidateSearchControl.valueChanges.subscribe((value) => {
-      if (value && this.isUUID(value)) return;
-      this.searchCandidates(value || '');
+    this.organizationUnitId.valueChanges.subscribe((orgId) => {
+      if (orgId) {
+        this.onOrganizationUnitChange(orgId);
+      } else {
+        this.employeeStore.setSearchOrganizationUnitId(null);
+      }
     });
-    this.searchCandidates('');
   }
 
-  isUUID(str: string) {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    return uuidRegex.test(str);
-  }
-
-  searchCandidates(searchText: string) {
-    this.panelService.searchCandidates(searchText).subscribe({
-      next: (res) => {
-        this.candidates.set(res.items || res.data || res);
+  onOrganizationUnitTypeChange(typeId: string) {
+    if (!typeId || typeId === EMPTY_UUID) return;
+    this.organizationUnitService.getOrganizationUnitByType(typeId).subscribe({
+      next: (res: any) => {
+        this.organizationUnits.set(res);
+        this.organizationUnitId.setValue('');
       },
     });
   }
 
-  displayCandidateName = (candidateId: string): string => {
-    if (!candidateId) return '';
-    const candidate = this.candidates().find((c) => c.id === candidateId);
-    if (candidate) {
-      return candidate.displayName || '';
-    }
-    return candidateId;
-  };
-
-  displayEmployeeName = (employeeId: string): string => {
-    if (!employeeId) return '';
-    const emp = this.employeeOptions().find((e) => e.id === employeeId);
-    if (emp) {
-      return `${emp.employeeName || ''}`.trim();
-    }
-    return employeeId;
-  };
-
-  searchEmployees(searchText: string) {
-    if (!searchText.trim()) {
-      this.employeeOptions.set([]);
+  onOrganizationUnitChange(orgId: string) {
+    if (!orgId || orgId === EMPTY_UUID) {
+      this.employeeStore.setSearchOrganizationUnitId(null);
       return;
     }
 
-    this.employeeSearch$.next(searchText);
+    this.employeeStore.setSearchOrganizationUnitId(orgId);
   }
 
-  onCandidateSelected(event: any) {
-    this.scheduleModel.update((m) => ({ ...m, candidateId: event.option.value }));
+  togglePanelist(employee: any, isChecked: boolean) {
+    const current = this.selectedPanelists();
+    if (isChecked) {
+      if (!current.find((e) => e.id === employee.id)) {
+        this.selectedPanelists.set([...current, employee]);
+      }
+    } else {
+      this.selectedPanelists.set(current.filter((e) => e.id !== employee.id));
+    }
   }
 
-  onPanelistSelected(field: keyof IScheduleModel, event: any) {
-    this.scheduleModel.update((m) => ({ ...m, [field]: event.option.value }));
+  isPanelistSelected(employeeId: string): boolean {
+    return !!this.selectedPanelists().find((e) => e.id === employeeId);
   }
 
   onCancel() {
     this.cancel.emit();
   }
 
-  openTimePicker() {
-    let currentHour = 12;
-    let currentMinute = 0;
-    let currentPeriod: 'AM' | 'PM' = 'AM';
-
-    const currentTime = this.scheduleForm().value().scheduledTime;
-    if (currentTime) {
-      const parts = currentTime.split(' ');
-      const timeParts = parts[0].split(':');
-      currentHour = parseInt(timeParts[0], 10) || 12;
-      currentMinute = parseInt(timeParts[1], 10) || 0;
-      if (parts[1]) {
-        currentPeriod = parts[1].toUpperCase() as 'AM' | 'PM';
-      }
-    }
-
-    const dialogRef = this.dialog.open(TimePickerDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Scheduled Time',
-        initialHour: currentHour,
-        initialMinute: currentMinute,
-        initialPeriod: currentPeriod,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        const timeStr = `${result.hour.toString().padStart(2, '0')}:${result.minute
-          .toString()
-          .padStart(2, '0')} ${result.period}`;
-        this.scheduleModel.update((m) => ({ ...m, scheduledTime: timeStr }));
-      }
-    });
-  }
-
   onSubmitSchedule() {
     this.scheduleForm().markAsTouched();
     if (!this.scheduleForm().valid()) return;
 
+    if (this.selectedPanelists().length === 0) {
+      this.alertService.error('Error', 'Please select at least one panelist.');
+      return;
+    }
+
     const formValue = this.scheduleForm().value();
+
+    // Format internal date and time
+    const interviewDateRaw = this.interviewDate();
+    const formattedDate = interviewDateRaw
+      ? this.datePipe.transform(interviewDateRaw, 'yyyy-MM-dd')
+      : null;
+    console.log(this.interviewTime());
+    const formattedTime = this.normalizeTimeValue(this.interviewTime());
+
     const commonSchedule = {
-      scheduledDate: this.datePipe.transform(formValue.scheduledDate, 'yyyy-MM-dd'),
-      scheduledTime: this.normalizeTimeValue(formValue.scheduledTime),
+      scheduledDate: formattedDate,
+      scheduledTime: formattedTime,
     };
 
     const scheduleData = {
       candidateId: formValue.candidateId,
-      panelists: [
-        { employeeId: formValue.hodEmployeeId, ...commonSchedule },
-        { employeeId: formValue.directorEmployeeId, ...commonSchedule },
-        { employeeId: formValue.anyEmployeeId, ...commonSchedule },
-        { employeeId: formValue.hrHodEmployeeId, ...commonSchedule },
-      ].filter((p) => p.employeeId),
+      panelists: this.selectedPanelists().map((emp) => ({
+        employeeId: emp.id,
+        ...commonSchedule,
+      })),
     };
 
     (this.panelService.schedulePanel(scheduleData) as any).subscribe({
@@ -352,9 +280,11 @@ export class InterviewPanelDetail {
     }
 
     if (typeof value === 'string') {
-      // Handle 12-hour format: 02:30 PM
-      if (value.includes('AM') || value.includes('PM')) {
-        const parts = value.trim().split(/\s+/);
+      const normalizedValue = value.trim().replace(/\./g, ':');
+
+      // Handle 12-hour format: 10:30 AM / 02:30 PM
+      if (/\b(AM|PM)\b/i.test(normalizedValue)) {
+        const parts = normalizedValue.split(/\s+/);
         const timeParts = parts[0].split(':');
 
         let hour = parseInt(timeParts[0], 10);
@@ -373,7 +303,7 @@ export class InterviewPanelDetail {
       }
 
       // Handle HH:mm or HH:mm:ss
-      const timeParts = value.split(':');
+      const timeParts = normalizedValue.split(':');
 
       const hour = String(timeParts[0]).padStart(2, '0');
       const minute = String(timeParts[1] ?? '0').padStart(2, '0');

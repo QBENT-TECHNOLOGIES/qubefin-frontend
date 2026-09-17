@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { CandidateVerificationDetail } from '../../components/candidate-verification/candidate-verification-detail/candidate-verification-detail';
+import { CandidateVerificationDetail } from '../../components/interview-process/candidate/candidate-verification/candidate-verification-detail';
 
 @Component({
   selector: 'qfin-candidate-verification-page',

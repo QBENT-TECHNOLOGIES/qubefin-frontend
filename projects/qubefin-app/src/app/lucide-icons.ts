@@ -169,6 +169,9 @@ import {
   LucideRadar,
   LucideVenusAndMars,
   LucideUsersRound,
+  LucideHash,
+  LucideCalendar,
+  LucideUserPlus,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -339,6 +342,9 @@ export const APP_ICONS = [
   LucideRadar,
   LucideVenusAndMars,
   LucideUsersRound,
+  LucideHash,
+  LucideCalendar,
+  LucideUserPlus,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -509,4 +515,7 @@ export const APP_ICONS_MAP: Record<string, any> = {
   Radar: LucideRadar,
   VenusAndMars: LucideVenusAndMars,
   UsersRound: LucideUsersRound,
+  Hash: LucideHash,
+  Calendar: LucideCalendar,
+  UserPlus: LucideUserPlus,
 };
