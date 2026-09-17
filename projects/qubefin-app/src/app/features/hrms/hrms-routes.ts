@@ -123,6 +123,48 @@ export const HrmsRoutes: Routes = [
             (m) => m.DepartmentComponent,
           ),
       },
+      {
+        path: 'interview-panel',
+        loadComponent: () =>
+          import('./pages/interview-panel-component/interview-panel-component').then(
+            (m) => m.InterviewPanelComponent,
+          ),
+      },
+      {
+        path: 'my-interviews',
+        loadComponent: () =>
+          import('./pages/my-interviews/my-interviews.page').then(
+            (m) => m.MyInterviewsPage,
+          ),
+      },
+      {
+        path: 'candidate-verification/:id',
+        loadComponent: () =>
+          import('./pages/candidate-verification/candidate-verification.page').then(
+            (m) => m.CandidateVerificationPage,
+          ),
+      },
+      {
+        path: 'offer-letter/:id',
+        loadComponent: () =>
+          import('./pages/offer-letter/offer-letter.page').then(
+            (m) => m.OfferLetterPage,
+          ),
+      },
+      {
+        path: 'appointment-joining/:id',
+        loadComponent: () =>
+          import('./pages/appointment-joining/appointment-joining.page').then(
+            (m) => m.AppointmentJoiningPage,
+          ),
+      },
+      {
+        path: 'induction/:id',
+        loadComponent: () =>
+          import('./pages/induction/induction.page').then(
+            (m) => m.InductionPage,
+          ),
+      },
     ],
   },
 ];

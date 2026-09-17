@@ -1,0 +1,133 @@
+<div class="max-w-4xl mx-auto space-y-6 pb-20">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Appointment Letter Section -->
+        <div class="space-y-6">
+            <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Appointment Letter</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Ref: {{ joiningData().referenceNumber || 'Pending' }}</p>
+                </div>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold shadow-sm bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                    {{ joiningData().appointmentStatus }}
+                </span>
+            </div>
+
+            <form [formGroup]="appointmentForm" class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+                    <h4 class="text-base font-semibold text-slate-800 dark:text-white">Appointment Details</h4>
+                </div>
+                
+                <div class="p-5 grid grid-cols-1 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Designation</mat-label>
+                        <input matInput type="text" formControlName="designation">
+                    </mat-form-field>
+                    
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Department</mat-label>
+                        <input matInput type="text" formControlName="department">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Branch/Location</mat-label>
+                        <input matInput type="text" formControlName="branch">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Probation Period (Months)</mat-label>
+                        <input matInput type="number" formControlName="probationMonths">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Joining Date</mat-label>
+                        <input matInput [matDatepicker]="dojPicker" formControlName="joiningDate">
+                        <mat-datepicker-toggle matIconSuffix [for]="dojPicker"></mat-datepicker-toggle>
+                        <mat-datepicker #dojPicker></mat-datepicker>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Reporting Time</mat-label>
+                        <input matInput type="time" formControlName="reportingTime">
+                    </mat-form-field>
+                </div>
+
+                <div class="bg-slate-50 dark:bg-slate-900/50 p-4 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3">
+                    @if(joiningData().appointmentStatus === 'Pending') {
+                        <button type="button" class="ripple-btn shadow shine-sweep rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer"
+                                (click)="onGenerate()">
+                            Generate Letter
+                        </button>
+                    } @else if(joiningData().appointmentStatus === 'Generated') {
+                        <button type="button" class="bg-white shadow rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer"
+                                (click)="onSend()">
+                            Send Letter
+                        </button>
+                    } @else if(joiningData().appointmentStatus === 'Sent') {
+                        <button type="button" class="bg-white shadow rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer text-green-600"
+                                (click)="joiningData().appointmentStatus = 'Accepted'">
+                            <svg lucideIcon="check-circle" class="w-4 h-4"></svg>
+                            Mark as Accepted
+                        </button>
+                    }
+                </div>
+            </form>
+        </div>
+
+        <!-- Joining Report Section -->
+        <div class="space-y-6">
+            <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Joining Report</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">HR Verification Checklist</p>
+                </div>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold shadow-sm" [ngClass]="joiningData().joiningStatus === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'">
+                    {{ joiningData().joiningStatus }}
+                </span>
+            </div>
+
+            <form [formGroup]="checklistForm" class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+                    <h4 class="text-base font-semibold text-slate-800 dark:text-white">HR Checklist</h4>
+                </div>
+                
+                <div class="p-5 flex flex-col gap-4">
+                    <mat-checkbox formControlName="appointmentLetterVerified" color="primary">
+                        Appointment Letter Verified
+                    </mat-checkbox>
+                    <mat-checkbox formControlName="originalDocumentsVerified" color="primary">
+                        Original Documents Verified
+                    </mat-checkbox>
+                    <mat-checkbox formControlName="hrFormalitiesCompleted" color="primary">
+                        HR Formalities Completed
+                    </mat-checkbox>
+                    <mat-checkbox formControlName="payrollActivated" color="primary">
+                        Payroll Activated
+                    </mat-checkbox>
+                    <mat-checkbox formControlName="employeeIdCreated" color="primary">
+                        Employee ID Created
+                    </mat-checkbox>
+                </div>
+
+                <div class="bg-slate-50 dark:bg-slate-900/50 p-4 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+                    <button type="button" class="ripple-btn shadow shine-sweep rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:shadow-glow transition lift cursor-pointer disabled:opacity-50"
+                            [disabled]="joiningData().joiningStatus === 'Completed'"
+                            (click)="onSubmitJoining()">
+                        Complete Joining
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3 mt-8 border-t border-slate-200 dark:border-slate-700 pt-4">
+        @if(joiningData().joiningStatus === 'Completed') {
+            <button type="button" class="ripple-btn shadow shine-sweep rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer"
+                    (click)="proceedToInduction()">
+                Proceed to Induction
+                <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
+            </button>
+        }
+    </div>
+</div>

@@ -1,0 +1,366 @@
+<div class="space-y-4">
+    @if (!isAssessmentMode()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+            <h3 class="text-sm font-semibold text-slate-800 dark:text-white mb-3">Interview Schedule</h3>
+        </div>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
+            <mat-label>Candidate</mat-label>
+            <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                <svg lucideIcon="user" class="w-[16px] h-[16px]"></svg>
+            </div>
+            <input type="text" matInput [formControl]="candidateSearchControl" [matAutocomplete]="autoCandidate">
+            <mat-autocomplete #autoCandidate="matAutocomplete" [displayWith]="displayCandidateName"
+                (optionSelected)="onCandidateSelected($event)">
+                @for (candidate of candidates(); track candidate.id) {
+                <mat-option [value]="candidate.id">{{ candidate.displayName }}</mat-option>
+                }
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Scheduled Date</mat-label>
+            <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                <svg lucideIcon="calendar-plus" class="w-[16px] h-[16px]"></svg>
+            </div>
+            <input matInput [matDatepicker]="picker" [formField]="scheduleForm.scheduledDate">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Scheduled Time</mat-label>
+            <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                <svg lucideIcon="clock-3" class="w-[16px] h-[16px]"></svg>
+            </div>
+            <input matInput type="text" [value]="scheduleModel().scheduledTime || ''" readonly
+                placeholder="Select time" />
+            <button type="button" mat-icon-button matSuffix (click)="openTimePicker()"
+                class="text-primary-600 bg-transparent border-none cursor-pointer p-2 rounded-full hover:bg-slate-100">
+                <svg lucideIcon="clock-3" class="w-[16px] h-[16px]"></svg>
+            </button>
+        </mat-form-field>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        <div class="md:col-span-2">
+            <h3 class="text-sm font-semibold text-slate-800 dark:text-white mb-3">Interview Panelists</h3>
+        </div>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Employee 1 (Respective HOD)</mat-label>
+            <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                <svg lucideIcon="user-check" class="w-[16px] h-[16px]"></svg>
+            </div>
+            <input type="text" matInput [formControl]="hodSearchControl" [matAutocomplete]="autoHod">
+            <mat-autocomplete #autoHod="matAutocomplete" [displayWith]="displayEmployeeName"
+                (optionSelected)="onPanelistSelected('hodEmployeeId', $event)">
+                @for (emp of employeeOptions(); track emp.id) {
+                <mat-option [value]="emp.id">{{ emp.employeeName }}</mat-option>
+                }
+            </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Employee 2 (Any Director)</mat-label>
+            <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                <svg lucideIcon="user" class="w-[16px] h-[16px]"></svg>
+            </div>
+            <input type="text" matInput [formControl]="directorSearchControl" [matAutocomplete]="autoDirector">
+            <mat-autocomplete #autoDirector="matAutocomplete" [displayWith]="displayEmployeeName"
+                (optionSelected)="onPanelistSelected('directorEmployeeId', $event)">
+                @for (emp of employeeOptions(); track emp.id) {
+                <mat-option [value]="emp.id">{{ emp.employeeName }}</mat-option>
+                }
+            </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Employee 3 (Any one)</mat-label>
+            <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                <svg lucideIcon="user" class="w-[16px] h-[16px]"></svg>
+            </div>
+            <input type="text" matInput [formControl]="anySearchControl" [matAutocomplete]="autoAny">
+            <mat-autocomplete #autoAny="matAutocomplete" [displayWith]="displayEmployeeName"
+                (optionSelected)="onPanelistSelected('anyEmployeeId', $event)">
+                @for (emp of employeeOptions(); track emp.id) {
+                <mat-option [value]="emp.id">{{ emp.employeeName }}</mat-option>
+                }
+            </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Employee 4 (HR HOD)</mat-label>
+            <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                <svg lucideIcon="user" class="w-[16px] h-[16px]"></svg>
+            </div>
+            <input type="text" matInput [formControl]="hrHodSearchControl" [matAutocomplete]="autoHrHod">
+            <mat-autocomplete #autoHrHod="matAutocomplete" [displayWith]="displayEmployeeName"
+                (optionSelected)="onPanelistSelected('hrHodEmployeeId', $event)">
+                @for (emp of employeeOptions(); track emp.id) {
+                <mat-option [value]="emp.id">{{ emp.employeeName }}</mat-option>
+                }
+            </mat-autocomplete>
+        </mat-form-field>
+    </div>
+
+    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3">
+        <button type="button" (click)="onCancel()"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+            Cancel
+        </button>
+        <button type="button" (click)="onSubmitSchedule()"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
+            Schedule
+        </button>
+    </div>
+    } @else {
+    <div class="mb-6">
+        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Interview Assessment Form</h3>
+        <p class="text-sm text-slate-500">Rate from 0 (Not Acceptable) to 5 (Outstanding)</p>
+    </div>
+
+    <div class="space-y-6">
+        <!-- Appearance & Attitude -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+            <div class="md:col-span-1 flex flex-col justify-center">
+                <span class="font-medium text-slate-800 dark:text-slate-200">Appearance & Attitude</span>
+                <span class="text-xs text-slate-500">(grooming, courtesy, appropriate dress)</span>
+            </div>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Rating</mat-label>
+                <mat-select [formField]="assessmentForm.appearanceAttitudeRating">
+                    <mat-option [value]="0">0 - Not Acceptable (NA)</mat-option>
+                    <mat-option [value]="1">1 - Below Average (BA)</mat-option>
+                    <mat-option [value]="2">2 - Average (A)</mat-option>
+                    <mat-option [value]="3">3 - Good (G)</mat-option>
+                    <mat-option [value]="4">4 - Very Good (VG)</mat-option>
+                    <mat-option [value]="5">5 - Outstanding (O)</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Comments</mat-label>
+                <input matInput [formField]="assessmentForm.appearanceAttitudeRemarks" placeholder="Enter comments">
+            </mat-form-field>
+        </div>
+
+        <!-- Personality -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+            <div class="md:col-span-1 flex flex-col justify-center">
+                <span class="font-medium text-slate-800 dark:text-slate-200">Personality</span>
+                <span class="text-xs text-slate-500">(Dignity, bearing, rapport, process, manner)</span>
+            </div>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Rating</mat-label>
+                <mat-select [formField]="assessmentForm.personalityRating">
+                    <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
+                    <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
+                    <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Comments</mat-label>
+                <input matInput [formField]="assessmentForm.personalityRemarks">
+            </mat-form-field>
+        </div>
+
+        <!-- Communication -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+            <div class="md:col-span-1 flex flex-col justify-center">
+                <span class="font-medium text-slate-800 dark:text-slate-200">Communication</span>
+                <span class="text-xs text-slate-500">(ability to adequately express oneself)</span>
+            </div>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Rating</mat-label>
+                <mat-select [formField]="assessmentForm.communicationRating">
+                    <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
+                    <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
+                    <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Comments</mat-label>
+                <input matInput [formField]="assessmentForm.communicationRemarks">
+            </mat-form-field>
+        </div>
+
+        <!-- Education -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+            <div class="md:col-span-1 flex flex-col justify-center">
+                <span class="font-medium text-slate-800 dark:text-slate-200">Education</span>
+                <span class="text-xs text-slate-500">(appropriateness of degree and course work)</span>
+            </div>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Rating</mat-label>
+                <mat-select [formField]="assessmentForm.educationRating">
+                    <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
+                    <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
+                    <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Comments</mat-label>
+                <input matInput [formField]="assessmentForm.educationRemarks">
+            </mat-form-field>
+        </div>
+
+        <!-- Work Experience -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+            <div class="md:col-span-1 flex flex-col justify-center">
+                <span class="font-medium text-slate-800 dark:text-slate-200">Work Experience</span>
+                <span class="text-xs text-slate-500">(related work experience for the job)</span>
+            </div>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Rating</mat-label>
+                <mat-select [formField]="assessmentForm.workExperienceRating">
+                    <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
+                    <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
+                    <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Comments</mat-label>
+                <input matInput [formField]="assessmentForm.workExperienceRemarks">
+            </mat-form-field>
+        </div>
+
+        <!-- Technical Competence -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+            <div class="md:col-span-1 flex flex-col justify-center">
+                <span class="font-medium text-slate-800 dark:text-slate-200">Technical Competence</span>
+                <span class="text-xs text-slate-500">(appropriateness of technical skills)</span>
+            </div>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Rating</mat-label>
+                <mat-select [formField]="assessmentForm.technicalCompetenceRating">
+                    <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
+                    <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
+                    <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Comments</mat-label>
+                <input matInput [formField]="assessmentForm.technicalCompetenceRemarks">
+            </mat-form-field>
+        </div>
+
+        <!-- Flexibility -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+            <div class="md:col-span-1 flex flex-col justify-center">
+                <span class="font-medium text-slate-800 dark:text-slate-200">Flexibility</span>
+                <span class="text-xs text-slate-500">(responsive to change, tolerance for ambiguity)</span>
+            </div>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Rating</mat-label>
+                <mat-select [formField]="assessmentForm.flexibilityRating">
+                    <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
+                    <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
+                    <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Comments</mat-label>
+                <input matInput [formField]="assessmentForm.flexibilityRemarks">
+            </mat-form-field>
+        </div>
+
+        <!-- Ambition -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+            <div class="md:col-span-1 flex flex-col justify-center">
+                <span class="font-medium text-slate-800 dark:text-slate-200">Ambition</span>
+                <span class="text-xs text-slate-500">(in line with anticipated job program)</span>
+            </div>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Rating</mat-label>
+                <mat-select [formField]="assessmentForm.ambitionRating">
+                    <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
+                    <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
+                    <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Comments</mat-label>
+                <input matInput [formField]="assessmentForm.ambitionRemarks">
+            </mat-form-field>
+        </div>
+
+        <!-- Potential -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+            <div class="md:col-span-1 flex flex-col justify-center">
+                <span class="font-medium text-slate-800 dark:text-slate-200">Potential</span>
+                <span class="text-xs text-slate-500">(ability and motivation to grow)</span>
+            </div>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Rating</mat-label>
+                <mat-select [formField]="assessmentForm.potentialRating">
+                    <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
+                    <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
+                    <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Comments</mat-label>
+                <input matInput [formField]="assessmentForm.potentialRemarks">
+            </mat-form-field>
+        </div>
+
+        <!-- Others -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+            <div class="md:col-span-1 flex flex-col justify-center">
+                <span class="font-medium text-slate-800 dark:text-slate-200">Others</span>
+                <span class="text-xs text-slate-500">(if any)</span>
+            </div>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Rating</mat-label>
+                <mat-select [formField]="assessmentForm.othersRating">
+                    <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
+                    <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
+                    <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Comments</mat-label>
+                <input matInput [formField]="assessmentForm.othersRemarks">
+            </mat-form-field>
+        </div>
+
+        <!-- Final Recommendation -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
+                <mat-label>What other jobs (functional area) would he/she be suited for:</mat-label>
+                <input matInput [formField]="assessmentForm.anyOtherJobsSuitedRemarks">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Recommendation for the position</mat-label>
+                <mat-select [formField]="assessmentForm.isRecommendedForPosition">
+                    <mat-option [value]="true">Yes</mat-option>
+                    <mat-option [value]="false">No</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Positive Remarks</mat-label>
+                <input matInput [formField]="assessmentForm.positiveRemarks">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-start-2">
+                <mat-label>Negative Remarks</mat-label>
+                <input matInput [formField]="assessmentForm.negativeRemarks">
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3">
+        <button type="button" (click)="onCancel()"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+            Cancel
+        </button>
+        <button type="button" (click)="onSubmitAssessment()"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-purple-500 to-indigo-500 hover:shadow-glow transition lift cursor-pointer">
+            <svg lucideIcon="check" class="w-4 h-4"></svg>
+            Submit Assessment
+        </button>
+    </div>
+    }
+</div>

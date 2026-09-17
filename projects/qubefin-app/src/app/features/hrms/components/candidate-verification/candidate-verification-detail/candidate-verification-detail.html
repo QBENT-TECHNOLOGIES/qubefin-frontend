@@ -1,0 +1,153 @@
+<div class="max-w-4xl mx-auto space-y-6 pb-20">
+    
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Overall Verification Status</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Complete all mandatory checks before proceeding.</p>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold shadow-sm" [ngClass]="getStatusClass(verificationData().overallStatus)">
+            {{ verificationData().overallStatus }}
+        </span>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+            <h4 class="text-base font-semibold text-slate-800 dark:text-white">Identity & KYC Checks</h4>
+        </div>
+        <div class="divide-y divide-slate-100 dark:divide-slate-700/50">
+            <!-- Aadhaar -->
+            <div class="p-5 flex justify-between items-center">
+                <div>
+                    <h5 class="text-sm font-medium text-slate-800 dark:text-slate-200">Aadhaar Verification <span class="text-red-500">*</span></h5>
+                    <p class="text-xs text-slate-500 mt-1">Verify identity with UIDAI</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getStatusClass(verificationData().aadhaarStatus)">
+                        {{ verificationData().aadhaarStatus }}
+                    </span>
+                    <button type="button" class="text-primary-600 hover:text-primary-800 text-sm font-medium disabled:opacity-50" 
+                            (click)="onVerify('aadhaarStatus')" [disabled]="verificationData().aadhaarStatus === 'Verified' || verificationData().aadhaarStatus === 'In Progress'">
+                        Verify
+                    </button>
+                </div>
+            </div>
+
+            <!-- PAN -->
+            <div class="p-5 flex justify-between items-center">
+                <div>
+                    <h5 class="text-sm font-medium text-slate-800 dark:text-slate-200">PAN Verification <span class="text-red-500">*</span></h5>
+                    <p class="text-xs text-slate-500 mt-1">Verify with NSDL</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getStatusClass(verificationData().panStatus)">
+                        {{ verificationData().panStatus }}
+                    </span>
+                    <button type="button" class="text-primary-600 hover:text-primary-800 text-sm font-medium disabled:opacity-50" 
+                            (click)="onVerify('panStatus')" [disabled]="verificationData().panStatus === 'Verified' || verificationData().panStatus === 'In Progress'">
+                        Verify
+                    </button>
+                </div>
+            </div>
+
+            <!-- Voter ID -->
+            <div class="p-5 flex justify-between items-center">
+                <div>
+                    <h5 class="text-sm font-medium text-slate-800 dark:text-slate-200">Voter ID Verification</h5>
+                    <p class="text-xs text-slate-500 mt-1">Verify with ECI portal</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getStatusClass(verificationData().voterIdStatus)">
+                        {{ verificationData().voterIdStatus }}
+                    </span>
+                    <button type="button" class="text-primary-600 hover:text-primary-800 text-sm font-medium disabled:opacity-50" 
+                            (click)="onVerify('voterIdStatus')" [disabled]="verificationData().voterIdStatus === 'Verified' || verificationData().voterIdStatus === 'In Progress'">
+                        Verify
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile -->
+            <div class="p-5 flex justify-between items-center">
+                <div>
+                    <h5 class="text-sm font-medium text-slate-800 dark:text-slate-200">Mobile Number <span class="text-red-500">*</span></h5>
+                    <p class="text-xs text-slate-500 mt-1">OTP Verification</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getStatusClass(verificationData().mobileStatus)">
+                        {{ verificationData().mobileStatus }}
+                    </span>
+                    <button type="button" class="text-primary-600 hover:text-primary-800 text-sm font-medium disabled:opacity-50" 
+                            (click)="onVerify('mobileStatus')" [disabled]="verificationData().mobileStatus === 'Verified' || verificationData().mobileStatus === 'In Progress'">
+                        Send OTP
+                    </button>
+                </div>
+            </div>
+
+            <!-- UAN -->
+            <div class="p-5 flex justify-between items-center">
+                <div>
+                    <h5 class="text-sm font-medium text-slate-800 dark:text-slate-200">UAN Verification</h5>
+                    <p class="text-xs text-slate-500 mt-1">Verify with EPFO (Optional)</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getStatusClass(verificationData().uanStatus)">
+                        {{ verificationData().uanStatus }}
+                    </span>
+                    <button type="button" class="text-primary-600 hover:text-primary-800 text-sm font-medium disabled:opacity-50" 
+                            (click)="onVerify('uanStatus')" [disabled]="verificationData().uanStatus === 'Verified' || verificationData().uanStatus === 'In Progress'">
+                        Verify
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+            <h4 class="text-base font-semibold text-slate-800 dark:text-white">Bureau Checks</h4>
+        </div>
+        <div class="divide-y divide-slate-100 dark:divide-slate-700/50">
+            
+            <div class="p-5 flex justify-between items-center">
+                <div>
+                    <h5 class="text-sm font-medium text-slate-800 dark:text-slate-200">HR Bureau Report <span class="text-red-500">*</span></h5>
+                    <p class="text-xs text-slate-500 mt-1">Equifax HR Bureau</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getStatusClass(verificationData().hrBureauStatus)">
+                        {{ verificationData().hrBureauStatus }}
+                    </span>
+                    <button type="button" class="text-primary-600 hover:text-primary-800 text-sm font-medium disabled:opacity-50" 
+                            (click)="onVerify('hrBureauStatus')" [disabled]="verificationData().hrBureauStatus === 'Verified' || verificationData().hrBureauStatus === 'In Progress'">
+                        Fetch Report
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-5 flex justify-between items-center">
+                <div>
+                    <h5 class="text-sm font-medium text-slate-800 dark:text-slate-200">Credit Bureau Report <span class="text-red-500">*</span></h5>
+                    <p class="text-xs text-slate-500 mt-1">Equifax Credit Bureau</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getStatusClass(verificationData().creditBureauStatus)">
+                        {{ verificationData().creditBureauStatus }}
+                    </span>
+                    <button type="button" class="text-primary-600 hover:text-primary-800 text-sm font-medium disabled:opacity-50" 
+                            (click)="onVerify('creditBureauStatus')" [disabled]="verificationData().creditBureauStatus === 'Verified' || verificationData().creditBureauStatus === 'In Progress'">
+                        Fetch Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3 mt-8">
+        <button type="button" class="ripple-btn shadow shine-sweep rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
+                [disabled]="!isVerificationComplete()" (click)="proceedToOffer()">
+            Proceed to Offer Letter
+            <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
+        </button>
+    </div>
+</div>

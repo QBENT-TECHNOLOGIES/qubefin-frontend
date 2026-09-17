@@ -1,0 +1,150 @@
+<div class="max-w-4xl mx-auto space-y-6 pb-20">
+
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5 flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Induction Program</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Complete the checklist and provide feedback.</p>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold shadow-sm" [ngClass]="inductionData().inductionStatus === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'">
+            {{ inductionData().inductionStatus }}
+        </span>
+    </div>
+
+    <form [formGroup]="inductionForm" class="space-y-6">
+        
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30">
+                <h4 class="text-base font-semibold text-slate-800 dark:text-white">Induction Checklists</h4>
+            </div>
+            
+            <div class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                <!-- Welcome & Intro -->
+                <div class="p-5" formGroupName="welcomeChecklist">
+                    <h5 class="text-sm font-medium text-slate-800 dark:text-slate-200 mb-3">Welcome & Introduction</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <mat-checkbox formControlName="welcomeToOrg" color="primary">Welcome to organization</mat-checkbox>
+                        <mat-checkbox formControlName="introduceStaff" color="primary">Introduce colleagues/key staff</mat-checkbox>
+                        <mat-checkbox formControlName="confidentiality" color="primary">Confidentiality/professionalism</mat-checkbox>
+                        <mat-checkbox formControlName="equipmentUsage" color="primary">Telephone/computer/equipment usage</mat-checkbox>
+                    </div>
+                </div>
+
+                <!-- Role Clarity -->
+                <div class="p-5" formGroupName="roleChecklist">
+                    <h5 class="text-sm font-medium text-slate-800 dark:text-slate-200 mb-3">Role Clarity & Performance</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <mat-checkbox formControlName="workDuties" color="primary">Work duties</mat-checkbox>
+                        <mat-checkbox formControlName="performanceProcess" color="primary">Performance achievement process</mat-checkbox>
+                        <mat-checkbox formControlName="orgStructure" color="primary">Organizational structure/chart</mat-checkbox>
+                    </div>
+                </div>
+
+                <!-- Work Hours -->
+                <div class="p-5" formGroupName="workHoursChecklist">
+                    <h5 class="text-sm font-medium text-slate-800 dark:text-slate-200 mb-3">Work Hours & Entitlement</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <mat-checkbox formControlName="hoursAndBreaks" color="primary">Hours/breaks/attendance</mat-checkbox>
+                        <mat-checkbox formControlName="leaveProcedures" color="primary">Leave entitlement/procedures</mat-checkbox>
+                        <mat-checkbox formControlName="travelRequirements" color="primary">Travel requirements & expense claims</mat-checkbox>
+                    </div>
+                </div>
+
+                <!-- Security & Safety -->
+                <div class="p-5" formGroupName="securityChecklist">
+                    <h5 class="text-sm font-medium text-slate-800 dark:text-slate-200 mb-3">Security & Safety</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <mat-checkbox formControlName="identityCard" color="primary">Identity card</mat-checkbox>
+                        <mat-checkbox formControlName="passwords" color="primary">Passwords</mat-checkbox>
+                        <mat-checkbox formControlName="firstAid" color="primary">First aid box</mat-checkbox>
+                        <mat-checkbox formControlName="workplaceSafety" color="primary">Workplace safety/security</mat-checkbox>
+                    </div>
+                </div>
+
+                <!-- Policies -->
+                <div class="p-5" formGroupName="policiesChecklist">
+                    <h5 class="text-sm font-medium text-slate-800 dark:text-slate-200 mb-3">Policies / Procedures</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <mat-checkbox formControlName="termsAndConditions" color="primary">Terms and conditions</mat-checkbox>
+                        <mat-checkbox formControlName="attendance" color="primary">Attendance & Leave</mat-checkbox>
+                        <mat-checkbox formControlName="disciplinary" color="primary">Disciplinary / Grievance</mat-checkbox>
+                        <mat-checkbox formControlName="codeOfConduct" color="primary">Code of Conduct</mat-checkbox>
+                    </div>
+                </div>
+
+                <!-- Exposure -->
+                <div class="p-5" formGroupName="exposureChecklist">
+                    <h5 class="text-sm font-medium text-slate-800 dark:text-slate-200 mb-3">Field / Business Exposure</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <mat-checkbox formControlName="fieldVisit" color="primary">Field visit</mat-checkbox>
+                        <mat-checkbox formControlName="branchActivities" color="primary">Branch activities</mat-checkbox>
+                        <mat-checkbox formControlName="clientInteraction" color="primary">Client interaction / Service feedback</mat-checkbox>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30">
+                <h4 class="text-base font-semibold text-slate-800 dark:text-white">Inductee Feedback</h4>
+            </div>
+            
+            <div class="p-5" formGroupName="feedback">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-500 dark:text-slate-400">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-50 dark:bg-slate-700 dark:text-slate-300">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Criteria</th>
+                                @for(opt of feedbackOptions; track opt) {
+                                    <th scope="col" class="px-2 py-3 text-center font-normal">{{opt}}</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white border-b dark:bg-slate-800 dark:border-slate-700">
+                                <td class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap dark:text-white">Was informative</td>
+                                @for(opt of feedbackOptions; track opt) {
+                                    <td class="px-2 py-4 text-center"><mat-radio-button color="primary" formControlName="informative" [value]="opt"></mat-radio-button></td>
+                                }
+                            </tr>
+                            <tr class="bg-white border-b dark:bg-slate-800 dark:border-slate-700">
+                                <td class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap dark:text-white">Was well organized</td>
+                                @for(opt of feedbackOptions; track opt) {
+                                    <td class="px-2 py-4 text-center"><mat-radio-button color="primary" formControlName="wellOrganized" [value]="opt"></mat-radio-button></td>
+                                }
+                            </tr>
+                            <tr class="bg-white border-b dark:bg-slate-800 dark:border-slate-700">
+                                <td class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap dark:text-white">Felt more comfortable with colleagues</td>
+                                @for(opt of feedbackOptions; track opt) {
+                                    <td class="px-2 py-4 text-center"><mat-radio-button color="primary" formControlName="comfortable" [value]="opt"></mat-radio-button></td>
+                                }
+                            </tr>
+                            <tr class="bg-white border-b dark:bg-slate-800 dark:border-slate-700">
+                                <td class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap dark:text-white">Company rules were explained clearly</td>
+                                @for(opt of feedbackOptions; track opt) {
+                                    <td class="px-2 py-4 text-center"><mat-radio-button color="primary" formControlName="rulesExplained" [value]="opt"></mat-radio-button></td>
+                                }
+                            </tr>
+                            <tr class="bg-white dark:bg-slate-800">
+                                <td class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap dark:text-white">Overall, I feel satisfied with my induction</td>
+                                @for(opt of feedbackOptions; track opt) {
+                                    <td class="px-2 py-4 text-center"><mat-radio-button color="primary" formControlName="overallSatisfied" [value]="opt"></mat-radio-button></td>
+                                }
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+    </form>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3 mt-8 border-t border-slate-200 dark:border-slate-700 pt-4">
+        <button type="button" class="ripple-btn shadow shine-sweep rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:shadow-glow transition lift cursor-pointer disabled:opacity-50"
+                [disabled]="inductionData().inductionStatus === 'Completed'"
+                (click)="onSubmit()">
+            <svg lucideIcon="check" class="w-4 h-4"></svg>
+            Complete Induction
+        </button>
+    </div>
+</div>
