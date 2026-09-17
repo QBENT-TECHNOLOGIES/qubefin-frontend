@@ -75,13 +75,6 @@ export class AddressComponentDetail {
   );
 
   protected readonly employeeAddressSchema: Schema<IEmployeeAddressInfo> = schema((path) => {
-    // required(path.administrativeUnitId, { message: 'Location details required' });
-    //   custom(path.policeStationId, (value, model) => {
-    //   if (model.administrativeUnitId && model.administrativeUnitId !== '' && !value) {
-    //     return { message: 'Police Station is required' };
-    //   }
-    //   return null; // Valid
-    // });
     required(path.policeStationId, {
       message: 'Police Station required',
       when: (ctx) => !!ctx.valueOf(path.administrativeUnitId),
