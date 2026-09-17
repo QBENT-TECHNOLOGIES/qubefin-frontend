@@ -138,6 +138,7 @@
                     </div>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Rating</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
                         <mat-select [formField]="assessmentForm.appearanceAttitudeRating">
                             <mat-option [value]="0">0 - Not Acceptable (NA)</mat-option>
                             <mat-option [value]="1">1 - Below Average (BA)</mat-option>
@@ -149,6 +150,7 @@
                     </mat-form-field>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Comments</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
                         <input matInput [formField]="assessmentForm.appearanceAttitudeRemarks" placeholder="Enter comments">
                     </mat-form-field>
                 </div>
@@ -161,6 +163,7 @@
                     </div>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Rating</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
                         <mat-select [formField]="assessmentForm.personalityRating">
                             <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
                             <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
@@ -169,7 +172,8 @@
                     </mat-form-field>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Comments</mat-label>
-                        <input matInput [formField]="assessmentForm.personalityRemarks">
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [formField]="assessmentForm.personalityRemarks" placeholder="Enter comments">
                     </mat-form-field>
                 </div>
 
@@ -181,6 +185,7 @@
                     </div>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Rating</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
                         <mat-select [formField]="assessmentForm.communicationRating">
                             <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
                             <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
@@ -189,7 +194,8 @@
                     </mat-form-field>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Comments</mat-label>
-                        <input matInput [formField]="assessmentForm.communicationRemarks">
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [formField]="assessmentForm.communicationRemarks" placeholder="Enter comments">
                     </mat-form-field>
                 </div>
 
@@ -201,6 +207,7 @@
                     </div>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Rating</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
                         <mat-select [formField]="assessmentForm.educationRating">
                             <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
                             <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
@@ -209,7 +216,8 @@
                     </mat-form-field>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Comments</mat-label>
-                        <input matInput [formField]="assessmentForm.educationRemarks">
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [formField]="assessmentForm.educationRemarks" placeholder="Enter comments">
                     </mat-form-field>
                 </div>
 
@@ -221,6 +229,7 @@
                     </div>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Rating</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
                         <mat-select [formField]="assessmentForm.workExperienceRating">
                             <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
                             <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
@@ -229,7 +238,8 @@
                     </mat-form-field>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Comments</mat-label>
-                        <input matInput [formField]="assessmentForm.workExperienceRemarks">
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [formField]="assessmentForm.workExperienceRemarks" placeholder="Enter comments">
                     </mat-form-field>
                 </div>
 
@@ -241,6 +251,7 @@
                     </div>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Rating</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
                         <mat-select [formField]="assessmentForm.technicalCompetenceRating">
                             <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
                             <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
@@ -249,7 +260,8 @@
                     </mat-form-field>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Comments</mat-label>
-                        <input matInput [formField]="assessmentForm.technicalCompetenceRemarks">
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [formField]="assessmentForm.technicalCompetenceRemarks" placeholder="Enter comments">
                     </mat-form-field>
                 </div>
 
@@ -261,6 +273,7 @@
                     </div>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Rating</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
                         <mat-select [formField]="assessmentForm.flexibilityRating">
                             <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
                             <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
@@ -269,7 +282,8 @@
                     </mat-form-field>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Comments</mat-label>
-                        <input matInput [formField]="assessmentForm.flexibilityRemarks">
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [formField]="assessmentForm.flexibilityRemarks" placeholder="Enter comments">
                     </mat-form-field>
                 </div>
 
@@ -281,6 +295,7 @@
                     </div>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Rating</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
                         <mat-select [formField]="assessmentForm.ambitionRating">
                             <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
                             <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
@@ -289,7 +304,8 @@
                     </mat-form-field>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Comments</mat-label>
-                        <input matInput [formField]="assessmentForm.ambitionRemarks">
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [formField]="assessmentForm.ambitionRemarks" placeholder="Enter comments">
                     </mat-form-field>
                 </div>
 
@@ -301,6 +317,7 @@
                     </div>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Rating</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
                         <mat-select [formField]="assessmentForm.potentialRating">
                             <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
                             <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
@@ -309,7 +326,8 @@
                     </mat-form-field>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Comments</mat-label>
-                        <input matInput [formField]="assessmentForm.potentialRemarks">
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [formField]="assessmentForm.potentialRemarks" placeholder="Enter comments">
                     </mat-form-field>
                 </div>
 
@@ -321,6 +339,7 @@
                     </div>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Rating</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
                         <mat-select [formField]="assessmentForm.othersRating">
                             <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
                             <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
@@ -329,7 +348,8 @@
                     </mat-form-field>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Comments</mat-label>
-                        <input matInput [formField]="assessmentForm.othersRemarks">
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [formField]="assessmentForm.othersRemarks" placeholder="Enter comments">
                     </mat-form-field>
                 </div>
             </div>
@@ -346,11 +366,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
                         <mat-label>What other jobs (functional area) would he/she be suited for:</mat-label>
-                        <input matInput [formField]="assessmentForm.anyOtherJobsSuitedRemarks">
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="briefcase" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [formField]="assessmentForm.anyOtherJobsSuitedRemarks" placeholder="Enter remarks">
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Recommendation for the position</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="thumbs-up" class="w-[16px] h-[16px]"></svg></div>
                         <mat-select [formField]="assessmentForm.isRecommendedForPosition">
                             <mat-option [value]="true">Yes</mat-option>
                             <mat-option [value]="false">No</mat-option>
@@ -359,16 +381,19 @@
 
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Positive Remarks</mat-label>
-                        <input matInput [formField]="assessmentForm.positiveRemarks">
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="plus-circle" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [formField]="assessmentForm.positiveRemarks" placeholder="Enter remarks">
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-start-2">
                         <mat-label>Negative Remarks</mat-label>
-                        <input matInput [formField]="assessmentForm.negativeRemarks">
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="minus-circle" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [formField]="assessmentForm.negativeRemarks" placeholder="Enter remarks">
                     </mat-form-field>
                 </div>
             </div>
         </div>
+
         }
     </div>
 </mat-dialog-content>

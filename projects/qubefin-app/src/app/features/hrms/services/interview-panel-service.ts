@@ -17,19 +17,27 @@ export class InterviewPanelService {
   }
 
   searchCandidates(searchText: string = '', maxResults: number = 50) {
-    return this.httpClient.get<any>(`${ApiPaths.HRMS}/candidates/search?searchText=${searchText}&maxResults=${maxResults}`);
+    return this.httpClient.get<any>(
+      `${ApiPaths.HRMS}/candidates/search?searchText=${searchText}&maxResults=${maxResults}`,
+    );
   }
 
   schedulePanel(scheduleData: any) {
     return this.httpClient.post(`${ApiPaths.HRMS}/interview-panels/schedule`, scheduleData);
   }
 
-  acknowledgePanel(panelId: string) {
-    return this.httpClient.post(`${ApiPaths.HRMS}/interview-panels/${panelId}/acknowledge`, null);
+  acknowledgePanel(candidateId: string) {
+    return this.httpClient.post(
+      `${ApiPaths.HRMS}/interview-panels/${candidateId}/acknowledge`,
+      null,
+    );
   }
 
   markAttendance(panelId: string, attended: boolean) {
-    return this.httpClient.post(`${ApiPaths.HRMS}/interview-panels/${panelId}/attendance`, attended);
+    return this.httpClient.post(
+      `${ApiPaths.HRMS}/interview-panels/${panelId}/attendance`,
+      attended,
+    );
   }
 
   submitAssessment(assessmentData: any) {

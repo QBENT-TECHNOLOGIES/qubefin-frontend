@@ -1,393 +1,569 @@
 @if (candidate(); as data) {
 
-<div class="max-w-[1200px] mx-auto p-4 sm:p-6">
-  
-  <!-- Breadcrumbs -->
-  <div class="flex items-center gap-2 mb-4 text-[13px]">
-    <span class="text-slate-500 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300">Home</span>
-    <span class="text-slate-400">›</span>
-    <span class="text-slate-500 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300">HRMS</span>
-    <span class="text-slate-400">›</span>
-    <span class="text-slate-800 font-medium dark:text-slate-200">Candidate View</span>
-  </div>
+<div class="view-container">
 
-  <!-- 2-Column Grid -->
-  <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-    <!-- LEFT COLUMN (Main Content) -->
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
-      
-      <!-- Header -->
-      <div class="flex items-start justify-between mb-5 flex-wrap gap-4">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-            <svg lucideIcon="user" class="w-6 h-6"></svg>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <p class="font-medium text-lg m-0 text-slate-800 dark:text-slate-100">
-                {{ data.candidateFullName || data.firstName + ' ' + data.lastName || '-' }}
-              </p>
+        <!-- =====================================================
+             MAIN CARD
+        ====================================================== -->
+
+        <div class="lg:col-span-2 unit-box p-5">
+
+
+            <!-- =================================================
+                 HEADER
+            ================================================== -->
+
+            <div class="flex items-start justify-between mb-5 flex-wrap gap-3">
+
+                <div class="flex items-center gap-3">
+
+                    <div
+                        class="w-12 h-12 rounded-full flex items-center justify-center
+                               bg-green-50 dark:bg-green-900/20">
+
+                        <svg
+                            lucideIcon="user"
+                            class="w-6 h-6 text-green-700 dark:text-green-400">
+                        </svg>
+
+                    </div>
+
+                    <div>
+
+                        <h1 class="text-lg font-medium text-slate-800 dark:text-white">
+                            {{ data.candidateFullName || '-' }}
+                        </h1>
+
+                        <p class="text-xs text-slate-500 dark:text-slate-400">
+                            Candidate
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =============================================
+                     STATUS PILL
+                ============================================== -->
+
+                @if (data.isInterviewLetterReceived) {
+
+                    <span
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
+                               text-xs font-medium whitespace-nowrap
+                               bg-green-50 text-green-700
+                               dark:bg-green-900/20 dark:text-green-400">
+
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>
+
+                        Letter Received
+
+                    </span>
+
+                } @else {
+
+                    <span
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
+                               text-xs font-medium whitespace-nowrap
+                               bg-red-50 text-red-600
+                               dark:bg-red-900/20 dark:text-red-400">
+
+                        <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+
+                        Letter Not Received
+
+                    </span>
+
+                }
+
             </div>
-            <p class="text-[13px] text-slate-500 m-0">Candidate</p>
-          </div>
-        </div>
 
-        @if (data.isInterviewLetterReceived) {
-          <span class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 whitespace-nowrap h-fit">
-            <svg lucideIcon="circle-check" class="w-3 h-3"></svg>
-            Letter received
-          </span>
-        } @else {
-          <span class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 whitespace-nowrap h-fit">
-            <svg lucideIcon="circle-x" class="w-3 h-3"></svg>
-            Letter not received
-          </span>
-        }
-      </div>
 
-      <!-- Action Buttons -->
-      <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-100 dark:border-slate-800 pb-5">
-        
-        @if (data.isHR) {
-          <button type="button" class="filter-btn glass-input lift shine-sweep" (click)="fileInput.click()">
-            <svg lucideIcon="upload" class="w-4 h-4"></svg>
-            Interview Upload
-          </button>
-          <input type="file" #fileInput (change)="onInterviewUpload($event)" class="hidden" accept=".pdf,.doc,.docx" />
-        }
+            <!-- =================================================
+                 ACTION BUTTONS
+            ================================================== -->
 
-        <button type="button" class="filter-btn glass-input lift shine-sweep" (click)="onPrintInterviewLetter()">
-          <svg lucideIcon="printer" class="w-4 h-4"></svg>
-          Print Letter
-        </button>
+            <div class="flex flex-wrap items-center gap-2 mb-6">
 
-        @if (data.isHR) {
-          <button type="button" class="filter-btn glass-input lift shine-sweep" (click)="onSendMail()">
-            <svg lucideIcon="mail" class="w-4 h-4"></svg>
-            Send Mail
-          </button>
-        }
 
-        @if (data.isInterviewLetterReceived && !data.isInterviewerAcknowledged) {
-          <button type="button" class="global-btn shine-sweep lift" (click)="onAcknowledge()">
-            <svg lucideIcon="badge-check" class="w-4 h-4"></svg>
-            Acknowledge
-          </button>
-        }
+                <!-- ACKNOWLEDGE -->
+                @if (
+                    data.isInterviewLetterReceived &&
+                    !data.isInterviewerAcknowledged && data.canAcknowledgePanel
+                ) {
 
-        @if (data.showCreatePanelButton) {
-          <button type="button" class="global-btn shine-sweep lift" (click)="onCreatePanel()">
-            <svg lucideIcon="users-round" class="w-4 h-4"></svg>
-            Create Panel
-          </button>
-        }
-        
-        @if (data.isPanelCreated && data.showViewPanelButton) {
-          <button type="button" class="filter-btn glass-input lift shine-sweep" (click)="onViewPanel()">
-            <svg lucideIcon="users-round" class="w-4 h-4"></svg>
-            View Panel
-          </button>
-        }
+                    <button
+                        type="button"
+                        class="global-btn ripple-btn shine-sweep lift"
+                        (click)="onAcknowledge()">
 
-        @if (data.isCurrentEmployeePanelMember && !data.isCurrentEmployeeAssessmentSubmitted) {
-          <button type="button" class="filter-btn glass-input lift shine-sweep" (click)="onStartAssessment()">
-            <svg lucideIcon="clipboard-check" class="w-4 h-4"></svg>
-            Start Assessment
-          </button>
-        }
+                        <svg lucideIcon="badge-check" class="w-4 h-4 mr-2"></svg>
 
-        @if (data.isShowCandidateVerificationButton) {
-          <button type="button" class="filter-btn glass-input lift shine-sweep" (click)="onCandidateVerification()">
-            <svg lucideIcon="shield-check" class="w-4 h-4"></svg>
-            Candidate Verification
-          </button>
-        }
+                        Acknowledge
 
-        @if (data.isShowHrAssessmentButton) {
-          <button type="button" class="filter-btn glass-input lift shine-sweep" (click)="onHrAssessment()">
-            <svg lucideIcon="user-check" class="w-4 h-4"></svg>
-            HR Assessment
-          </button>
-        }
+                    </button>
 
-        @if (data.canGenerateOfferLetter) {
-          <button type="button" class="global-btn shine-sweep lift">
-            <svg lucideIcon="file-check" class="w-4 h-4"></svg>
-            Generate Offer Letter
-          </button>
-        }
-      </div>
+                }
 
-      <!-- General Information -->
-      <p class="font-medium text-[15px] m-0 mb-1.5 text-slate-800 dark:text-slate-100">General information</p>
-      <div class="h-[3px] w-10 bg-emerald-500 rounded-full mb-4"></div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-        
-        <!-- Ref No -->
-        <div class="bg-emerald-50/50 dark:bg-emerald-900/10 rounded-lg p-2.5 px-3 flex gap-3 items-center border border-emerald-100/50 dark:border-emerald-900/30">
-          <svg lucideIcon="hash" class="w-5 h-5 text-emerald-600 dark:text-emerald-500 shrink-0"></svg>
-          <div class="min-w-0">
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 m-0 leading-tight">Reference no</p>
-            <p class="text-[13px] font-medium text-slate-800 dark:text-slate-200 m-0 truncate">{{ data.referenceNo || '-' }}</p>
-          </div>
-        </div>
+                <!-- ALREADY ACKNOWLEDGED -->
+                @if (data.isInterviewerAcknowledged && data.canAcknowledgePanel) {
 
-        <!-- Date & Time -->
-        <div class="bg-emerald-50/50 dark:bg-emerald-900/10 rounded-lg p-2.5 px-3 flex gap-3 items-center border border-emerald-100/50 dark:border-emerald-900/30">
-          <svg lucideIcon="calendar-check" class="w-5 h-5 text-emerald-600 dark:text-emerald-500 shrink-0"></svg>
-          <div class="min-w-0">
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 m-0 leading-tight">Interview date & time</p>
-            <p class="text-[13px] font-medium text-slate-800 dark:text-slate-200 m-0 truncate">
-              {{ data.interviewDate | date:'dd-MM-yyyy' }} @if(data.interviewTime) { at {{ data.interviewTime }} }
+                    <div
+                        class="flex items-center gap-2 px-3 py-2 rounded-lg
+                               bg-green-50 dark:bg-green-900/20">
+
+                        <svg lucideIcon="badge-check" class="w-4 h-4 text-green-600"></svg>
+
+                        <span class="text-sm font-medium text-green-700 dark:text-green-400">
+                            Acknowledge
+                        </span>
+
+                    </div>
+
+                }
+
+
+                <!-- INTERVIEW UPLOAD -->
+                @if (data.isHR) {
+
+                    <button type="button" class="reset-btn shine-sweep lift" (click)="fileInput.click()">
+
+                        <svg lucideIcon="upload" class="w-4 h-4 mr-2"></svg>
+
+                        Interview Upload
+
+                    </button>
+
+
+                    <input
+                        type="file"
+                        #fileInput
+                        (change)="onInterviewUpload($event)"
+                        class="hidden"
+                        accept=".pdf,.doc,.docx" />
+
+                    <!-- PRINT LETTER -->
+                    <button type="button" class="reset-btn shine-sweep lift" (click)="onPrintInterviewLetter()">
+
+                        <svg lucideIcon="printer" class="w-4 h-4 mr-2"></svg>
+
+                        Print Letter
+
+                    </button>
+
+                }
+
+
+
+                <!-- SEND MAIL -->
+                @if (data.isHR) {
+
+                    <button type="button" class="reset-btn shine-sweep lift" (click)="onSendMail()">
+
+                        <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
+
+                        Send Mail
+
+                    </button>
+
+                }
+
+
+                <!-- START ASSESSMENT -->
+                @if (
+                    data.isCurrentEmployeePanelMember && data.isInterviewerAcknowledged &&
+                    !data.isCurrentEmployeeAssessmentSubmitted
+                ) {
+
+                    <button
+                        type="button"
+                        class="global-btn ripple-btn shine-sweep lift"
+                        (click)="onStartAssessment()">
+
+                        <svg lucideIcon="clipboard-check" class="w-4 h-4 mr-2"></svg>
+
+                        Start Assessment
+
+                    </button>
+
+                }
+
+
+                <!-- PANEL ASSESSMENT COMPLETED -->
+                @if (
+                    data.isCurrentEmployeePanelMember &&
+                    data.isCurrentEmployeeAssessmentSubmitted
+                ) {
+
+                    <div
+                        class="flex items-center gap-2 px-3 py-2 rounded-lg
+                               bg-green-50 dark:bg-green-900/20">
+
+                        <svg lucideIcon="circle-check" class="w-4 h-4 text-green-600"></svg>
+
+                        <span class="text-sm font-medium text-green-700 dark:text-green-400">
+                            Assessment Submitted
+                        </span>
+
+                    </div>
+
+                }
+
+
+                <!-- CANDIDATE VERIFICATION -->
+                @if (data.isShowCandidateVerificationButton) {
+
+                    <button
+                        type="button"
+                        class="reset-btn shine-sweep lift"
+                        (click)="onCandidateVerification()">
+
+                        <svg lucideIcon="shield-check" class="w-4 h-4 mr-2"></svg>
+
+                        Candidate Verification
+
+                    </button>
+
+                }
+
+
+                <!-- VERIFICATION COMPLETED -->
+                @if (data.isCandidateVerificationCompleted) {
+
+                    <div
+                        class="flex items-center gap-2 px-3 py-2 rounded-lg
+                               bg-green-50 dark:bg-green-900/20">
+
+                        <svg lucideIcon="shield-check" class="w-4 h-4 text-green-600"></svg>
+
+                        <span class="text-sm font-medium text-green-700 dark:text-green-400">
+                            Verification Completed
+                        </span>
+
+                    </div>
+
+                }
+
+
+                <!-- HR ASSESSMENT -->
+                @if (data.isShowHrAssessmentButton) {
+
+                    <button
+                        type="button"
+                        class="reset-btn shine-sweep lift"
+                        (click)="onHrAssessment()">
+
+                        <svg lucideIcon="user-check" class="w-4 h-4 mr-2"></svg>
+
+                        HR Assessment
+
+                    </button>
+
+                }
+
+
+                <!-- HR ASSESSMENT COMPLETED -->
+                @if (data.isHrAssessmentCompleted) {
+
+                    <div
+                        class="flex items-center gap-2 px-3 py-2 rounded-lg
+                               bg-green-50 dark:bg-green-900/20">
+
+                        <svg lucideIcon="circle-check" class="w-4 h-4 text-green-600"></svg>
+
+                        <span class="text-sm font-medium text-green-700 dark:text-green-400">
+                            HR Assessment Completed
+                        </span>
+
+                    </div>
+
+                }
+
+
+                <!-- CREATE PANEL -->
+                @if (data.showCreatePanelButton) {
+
+                    <button
+                        type="button"
+                        class="global-btn ripple-btn shine-sweep lift"
+                        (click)="onCreatePanel()">
+
+                        <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
+
+                        Create Panel
+
+                    </button>
+
+                }
+
+
+                <!-- VIEW PANEL -->
+                @if (
+                    data.isPanelCreated &&
+                    data.showViewPanelButton
+                ) {
+
+                    <button
+                        type="button"
+                        class="reset-btn shine-sweep lift"
+                        (click)="onViewPanel()">
+
+                        <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
+
+                        View Panel
+
+                    </button>
+
+                }
+
+
+                <!-- OFFER LETTER -->
+                @if (data.canGenerateOfferLetter) {
+
+                    <button type="button" class="global-btn ripple-btn shine-sweep lift">
+
+                        <svg lucideIcon="file-check" class="w-4 h-4 mr-2"></svg>
+
+                        Generate Offer Letter
+
+                    </button>
+
+                }
+
+
+                <!-- OFFER LETTER GENERATED -->
+                @if (data.isOfferLetterGenerated) {
+
+                    <div
+                        class="flex items-center gap-2 px-3 py-2 rounded-lg
+                               bg-green-50 dark:bg-green-900/20">
+
+                        <svg lucideIcon="file-check" class="w-4 h-4 text-green-600"></svg>
+
+                        <span class="text-sm font-medium text-green-700 dark:text-green-400">
+                            Offer Letter Generated
+                        </span>
+
+                    </div>
+
+                }
+
+            </div>
+
+
+            <!-- =================================================
+                 GENERAL INFORMATION
+            ================================================== -->
+
+            <p class="text-sm font-medium text-slate-800 dark:text-white mb-1.5">
+                General Information
             </p>
-          </div>
+
+            <div class="h-[3px] w-10 bg-green-600 rounded-full mb-3"></div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 mb-6">
+
+                <div class="gen-info bg-green-50 dark:bg-green-900/10 rounded-lg p-2.5">
+                    <div class="gen-icon">
+                        <svg lucideIcon="hash" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Reference No</label>
+                        <p class="gen-title">{{ data.referenceNo || '-' }}</p>
+                    </div>
+                </div>
+
+                <div class="gen-info bg-green-50 dark:bg-green-900/10 rounded-lg p-2.5">
+                    <div class="gen-icon">
+                        <svg lucideIcon="calendar-check" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Interview Date &amp; Time</label>
+                        <p class="gen-title">
+                            {{ data.interviewDate | date:'dd MMM yyyy' }}
+                            @if (data.interviewTime) {
+                                , {{ data.interviewTime }}
+                            }
+                        </p>
+                    </div>
+                </div>
+
+                <div class="gen-info bg-green-50 dark:bg-green-900/10 rounded-lg p-2.5">
+                    <div class="gen-icon">
+                        <svg lucideIcon="briefcase" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Interview Post</label>
+                        <p class="gen-title">{{ data.interviewPostName || '-' }}</p>
+                    </div>
+                </div>
+
+                <div class="gen-info bg-green-50 dark:bg-green-900/10 rounded-lg p-2.5">
+                    <div class="gen-icon">
+                        <svg lucideIcon="phone" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Mobile No</label>
+                        <p class="gen-title">{{ data.mobileNo || '-' }}</p>
+                    </div>
+                </div>
+
+                <div class="gen-info bg-green-50 dark:bg-green-900/10 rounded-lg p-2.5">
+                    <div class="gen-icon">
+                        <svg lucideIcon="mail" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Email</label>
+                        <p class="gen-title">{{ data.email || '-' }}</p>
+                    </div>
+                </div>
+
+                <div class="gen-info bg-green-50 dark:bg-green-900/10 rounded-lg p-2.5">
+                    <div class="gen-icon">
+                        <svg lucideIcon="user-plus" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Father's Name</label>
+                        <p class="gen-title">{{ data.fatherName || '-' }}</p>
+                    </div>
+                </div>
+
+                <div class="gen-info bg-green-50 dark:bg-green-900/10 rounded-lg p-2.5">
+                    <div class="gen-icon">
+                        <svg lucideIcon="venus-and-mars" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Gender</label>
+                        <p class="gen-title">{{ data.gender || '-' }}</p>
+                    </div>
+                </div>
+
+                <div class="gen-info bg-green-50 dark:bg-green-900/10 rounded-lg p-2.5">
+                    <div class="gen-icon">
+                        <svg lucideIcon="map-pin" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Address</label>
+                        <p class="gen-title line-clamp-2">
+                            @if (data.houseNo) { {{ data.houseNo }}, }
+                            @if (data.roadName) { {{ data.roadName }}, }
+                            @if (data.landMark) { {{ data.landMark }} }
+                            @if (!data.houseNo && !data.roadName && !data.landMark) { - }
+                        </p>
+                    </div>
+                </div>
+
+                <div class="gen-info bg-green-50 dark:bg-green-900/10 rounded-lg p-2.5">
+                    <div class="gen-icon">
+                        <svg lucideIcon="badge-check" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Recommendation Status</label>
+                        <p class="gen-title">{{ data.recommendationStatus || 'Pending' }}</p>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
 
-        <!-- Post -->
-        <div class="bg-emerald-50/50 dark:bg-emerald-900/10 rounded-lg p-2.5 px-3 flex gap-3 items-center border border-emerald-100/50 dark:border-emerald-900/30">
-          <svg lucideIcon="briefcase" class="w-5 h-5 text-emerald-600 dark:text-emerald-500 shrink-0"></svg>
-          <div class="min-w-0">
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 m-0 leading-tight">Interview post</p>
-            <p class="text-[13px] font-medium text-slate-800 dark:text-slate-200 m-0 truncate">{{ data.interviewPostName || data.interviewPost || '-' }}</p>
-          </div>
-        </div>
 
-        <!-- Mobile -->
-        <div class="bg-emerald-50/50 dark:bg-emerald-900/10 rounded-lg p-2.5 px-3 flex gap-3 items-center border border-emerald-100/50 dark:border-emerald-900/30">
-          <svg lucideIcon="phone" class="w-5 h-5 text-emerald-600 dark:text-emerald-500 shrink-0"></svg>
-          <div class="min-w-0">
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 m-0 leading-tight">Mobile no</p>
-            <p class="text-[13px] font-medium text-slate-800 dark:text-slate-200 m-0 truncate">{{ data.mobileNo || '-' }}</p>
-          </div>
-        </div>
+        <!-- =====================================================
+             WORKFLOW PATH PANEL
+        ====================================================== -->
 
-        <!-- Email -->
-        <div class="bg-emerald-50/50 dark:bg-emerald-900/10 rounded-lg p-2.5 px-3 flex gap-3 items-center border border-emerald-100/50 dark:border-emerald-900/30">
-          <svg lucideIcon="mail" class="w-5 h-5 text-emerald-600 dark:text-emerald-500 shrink-0"></svg>
-          <div class="min-w-0">
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 m-0 leading-tight">Email</p>
-            <p class="text-[13px] font-medium text-slate-800 dark:text-slate-200 m-0 truncate" [title]="data.email || ''">{{ data.email || '-' }}</p>
-          </div>
-        </div>
+        <div class="unit-box p-5 h-fit">
 
-        <!-- Address -->
-        <div class="bg-emerald-50/50 dark:bg-emerald-900/10 rounded-lg p-2.5 px-3 flex gap-3 items-center border border-emerald-100/50 dark:border-emerald-900/30">
-          <svg lucideIcon="map-pin" class="w-5 h-5 text-emerald-600 dark:text-emerald-500 shrink-0"></svg>
-          <div class="min-w-0">
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 m-0 leading-tight">Address</p>
-            <p class="text-[13px] font-medium text-slate-800 dark:text-slate-200 m-0 truncate">
-              @if (data.houseNo) { {{ data.houseNo }}, }
-              @if (data.roadName) { {{ data.roadName }}, }
-              @if (data.landMark) { {{ data.landMark }} }
-              @if (!data.houseNo && !data.roadName && !data.landMark) { - }
+            <p class="text-sm font-medium text-slate-800 dark:text-white mb-1.5">
+                Workflow Path
             </p>
-          </div>
-        </div>
 
-        <!-- Father Name -->
-        <div class="bg-emerald-50/50 dark:bg-emerald-900/10 rounded-lg p-2.5 px-3 flex gap-3 items-center border border-emerald-100/50 dark:border-emerald-900/30">
-          <svg lucideIcon="user-plus" class="w-5 h-5 text-emerald-600 dark:text-emerald-500 shrink-0"></svg>
-          <div class="min-w-0">
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 m-0 leading-tight">Father's Name</p>
-            <p class="text-[13px] font-medium text-slate-800 dark:text-slate-200 m-0 truncate">{{ data.fatherName || '-' }}</p>
-          </div>
-        </div>
+            <div class="h-[3px] w-10 bg-green-600 rounded-full mb-3.5"></div>
 
-        <!-- Gender -->
-        <div class="bg-emerald-50/50 dark:bg-emerald-900/10 rounded-lg p-2.5 px-3 flex gap-3 items-center border border-emerald-100/50 dark:border-emerald-900/30">
-          <svg lucideIcon="venus-and-mars" class="w-5 h-5 text-emerald-600 dark:text-emerald-500 shrink-0"></svg>
-          <div class="min-w-0">
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 m-0 leading-tight">Gender</p>
-            <p class="text-[13px] font-medium text-slate-800 dark:text-slate-200 m-0 truncate">{{ data.gender || '-' }}</p>
-          </div>
-        </div>
+            <div class="flex flex-col">
 
-        <!-- Recommendation -->
-        <div class="bg-emerald-50/50 dark:bg-emerald-900/10 rounded-lg p-2.5 px-3 flex gap-3 items-center border border-emerald-100/50 dark:border-emerald-900/30">
-          <svg lucideIcon="badge-check" class="w-5 h-5 text-emerald-600 dark:text-emerald-500 shrink-0"></svg>
-          <div class="min-w-0">
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 m-0 leading-tight">Recommendation Status</p>
-            <p class="text-[13px] font-medium text-slate-800 dark:text-slate-200 m-0 truncate">{{ data.recommendationStatus || 'Pending' }}</p>
-          </div>
-        </div>
-      </div>
+                @for (stage of workflowStages(); track stage.label; let last = $last) {
 
-      <!-- Audit Information -->
-      <p class="font-medium text-[15px] m-0 mb-1.5 text-slate-800 dark:text-slate-100">Audit information</p>
-      <div class="h-[3px] w-10 bg-emerald-500 rounded-full mb-4"></div>
+                    <div class="flex gap-2.5" [class.pb-0]="last" [class.pb-4]="!last">
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- Created By -->
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500">
-            <svg lucideIcon="user-check" class="w-4 h-4"></svg>
-          </div>
-          <div>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 m-0 tracking-wide uppercase">Created By</p>
-            <p class="text-[13px] font-medium text-slate-800 dark:text-slate-200 m-0">{{ data.createdBy || 'System' }}</p>
-          </div>
-        </div>
+                        <div class="flex flex-col items-center w-4 shrink-0">
 
-        <!-- Created On -->
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
-            <svg lucideIcon="calendar" class="w-4 h-4"></svg>
-          </div>
-          <div>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 m-0 tracking-wide uppercase">Created On</p>
-            <p class="text-[13px] font-medium text-slate-800 dark:text-slate-200 m-0">{{ (data.createdOn | date:'dd-MM-yyyy hh:mm a') || '-' }}</p>
-          </div>
+                            <div
+                                class="w-3.5 h-3.5 rounded-full border-2 shrink-0"
+                                [class.bg-green-600]="stage.done"
+                                [class.border-green-600]="stage.done || stage.current"
+                                [class.bg-white]="!stage.done"
+                                [class.dark:bg-slate-800]="!stage.done"
+                                [class.border-slate-300]="!stage.done && !stage.current"
+                                [class.dark:border-slate-600]="!stage.done && !stage.current">
+                            </div>
+
+                            @if (!last) {
+
+                                <div
+                                    class="w-[1.5px] flex-1 mt-0.5"
+                                    [class.bg-green-600]="stage.done"
+                                    [class.bg-slate-200]="!stage.done"
+                                    [class.dark:bg-slate-700]="!stage.done">
+                                </div>
+
+                            }
+
+                        </div>
+
+                        <p
+                            class="text-sm leading-tight"
+                            [class.font-medium]="stage.current"
+                            [class.text-slate-800]="stage.current"
+                            [class.dark:text-white]="stage.current"
+                            [class.text-slate-500]="stage.done && !stage.current"
+                            [class.dark:text-slate-400]="stage.done && !stage.current"
+                            [class.text-slate-400]="!stage.done && !stage.current"
+                            [class.dark:text-slate-500]="!stage.done && !stage.current">
+
+                            {{ stage.label }}
+
+                        </p>
+
+                    </div>
+
+                }
+
+            </div>
+
         </div>
-      </div>
 
     </div>
-
-
-    <!-- RIGHT COLUMN (Sidebar Workflow Path) -->
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm sticky top-4">
-      
-      <p class="font-medium text-[15px] m-0 mb-1.5 text-slate-800 dark:text-slate-100">Workflow path</p>
-      <div class="h-[3px] w-10 bg-emerald-500 rounded-full mb-5"></div>
-
-      <div class="flex flex-col relative">
-
-        <!-- STAGE 1: Interview Letter -->
-        <div class="flex gap-3 pb-6 relative">
-          <div class="flex flex-col items-center w-4 relative z-10">
-            <div class="w-3.5 h-3.5 rounded-full border-2 shrink-0 transition-colors" 
-                 [class.border-emerald-500]="data.isInterviewLetterReceived" [class.bg-emerald-500]="data.isInterviewLetterReceived"
-                 [class.border-slate-300]="!data.isInterviewLetterReceived" [class.bg-white]="!data.isInterviewLetterReceived" [class.dark:bg-slate-900]="!data.isInterviewLetterReceived"></div>
-            <div class="w-[1.5px] flex-1 mt-1 rounded transition-colors"
-                 [class.bg-emerald-500]="data.isInterviewLetterReceived" [class.bg-slate-200]="!data.isInterviewLetterReceived" [class.dark:bg-slate-700]="!data.isInterviewLetterReceived"></div>
-          </div>
-          <div class="-mt-0.5">
-            <p class="text-[13px] m-0 transition-colors" 
-               [class.font-medium]="!data.isInterviewLetterReceived" [class.text-slate-800]="!data.isInterviewLetterReceived" [class.dark:text-slate-200]="!data.isInterviewLetterReceived"
-               [class.text-slate-500]="data.isInterviewLetterReceived">Interview letter</p>
-          </div>
-        </div>
-
-        <!-- STAGE 2: Acknowledge -->
-        <div class="flex gap-3 pb-6 relative">
-          <div class="flex flex-col items-center w-4 relative z-10">
-            <div class="w-3.5 h-3.5 rounded-full border-2 shrink-0 transition-colors" 
-                 [class.border-emerald-500]="data.isInterviewerAcknowledged || (!data.isInterviewerAcknowledged && data.isInterviewLetterReceived)"
-                 [class.bg-emerald-500]="data.isInterviewerAcknowledged"
-                 [class.bg-white]="!data.isInterviewerAcknowledged" [class.dark:bg-slate-900]="!data.isInterviewerAcknowledged"
-                 [class.border-slate-300]="!data.isInterviewerAcknowledged && !data.isInterviewLetterReceived"></div>
-            <div class="w-[1.5px] flex-1 mt-1 rounded transition-colors"
-                 [class.bg-emerald-500]="data.isInterviewerAcknowledged" [class.bg-slate-200]="!data.isInterviewerAcknowledged" [class.dark:bg-slate-700]="!data.isInterviewerAcknowledged"></div>
-          </div>
-          <div class="-mt-0.5">
-            <p class="text-[13px] m-0 transition-colors"
-               [class.font-medium]="!data.isInterviewerAcknowledged && data.isInterviewLetterReceived" [class.text-slate-800]="!data.isInterviewerAcknowledged && data.isInterviewLetterReceived" [class.dark:text-slate-200]="!data.isInterviewerAcknowledged && data.isInterviewLetterReceived"
-               [class.text-slate-500]="data.isInterviewerAcknowledged" [class.text-slate-400]="!data.isInterviewerAcknowledged && !data.isInterviewLetterReceived">Acknowledge</p>
-          </div>
-        </div>
-
-        <!-- STAGE 3: Panel creation -->
-        <div class="flex gap-3 pb-6 relative">
-          <div class="flex flex-col items-center w-4 relative z-10">
-            <div class="w-3.5 h-3.5 rounded-full border-2 shrink-0 transition-colors" 
-                 [class.border-emerald-500]="data.isPanelCreated || (!data.isPanelCreated && data.isInterviewerAcknowledged)"
-                 [class.bg-emerald-500]="data.isPanelCreated"
-                 [class.bg-white]="!data.isPanelCreated" [class.dark:bg-slate-900]="!data.isPanelCreated"
-                 [class.border-slate-300]="!data.isPanelCreated && !data.isInterviewerAcknowledged"></div>
-            <div class="w-[1.5px] flex-1 mt-1 rounded transition-colors"
-                 [class.bg-emerald-500]="data.isPanelCreated" [class.bg-slate-200]="!data.isPanelCreated" [class.dark:bg-slate-700]="!data.isPanelCreated"></div>
-          </div>
-          <div class="-mt-0.5">
-            <p class="text-[13px] m-0 transition-colors"
-               [class.font-medium]="!data.isPanelCreated && data.isInterviewerAcknowledged" [class.text-slate-800]="!data.isPanelCreated && data.isInterviewerAcknowledged" [class.dark:text-slate-200]="!data.isPanelCreated && data.isInterviewerAcknowledged"
-               [class.text-slate-500]="data.isPanelCreated" [class.text-slate-400]="!data.isPanelCreated && !data.isInterviewerAcknowledged">Panel creation</p>
-          </div>
-        </div>
-
-        <!-- STAGE 4: Panel acknowledgement -->
-        <div class="flex gap-3 pb-6 relative">
-          <div class="flex flex-col items-center w-4 relative z-10">
-            <div class="w-3.5 h-3.5 rounded-full border-2 shrink-0 transition-colors" 
-                 [class.border-emerald-500]="false || (data.isPanelCreated && !data.isAllPanelAssessmentSubmitted)"
-                 [class.bg-emerald-500]="false"
-                 [class.bg-white]="true" [class.dark:bg-slate-900]="true"
-                 [class.border-slate-300]="!data.isPanelCreated"></div>
-            <div class="w-[1.5px] flex-1 mt-1 rounded transition-colors"
-                 [class.bg-emerald-500]="false" [class.bg-slate-200]="true" [class.dark:bg-slate-700]="true"></div>
-          </div>
-          <div class="-mt-0.5">
-            <p class="text-[13px] m-0 transition-colors"
-               [class.font-medium]="data.isPanelCreated && !data.isAllPanelAssessmentSubmitted" [class.text-slate-800]="data.isPanelCreated && !data.isAllPanelAssessmentSubmitted" [class.dark:text-slate-200]="data.isPanelCreated && !data.isAllPanelAssessmentSubmitted"
-               [class.text-slate-500]="false" [class.text-slate-400]="!data.isPanelCreated">Panel acknowledgement</p>
-          </div>
-        </div>
-
-        <!-- STAGE 5: Panel assessment -->
-        <div class="flex gap-3 pb-6 relative">
-          <div class="flex flex-col items-center w-4 relative z-10">
-            <div class="w-3.5 h-3.5 rounded-full border-2 shrink-0 transition-colors" 
-                 [class.border-emerald-500]="data.isAllPanelAssessmentSubmitted || (!data.isAllPanelAssessmentSubmitted && data.isPanelCreated)"
-                 [class.bg-emerald-500]="data.isAllPanelAssessmentSubmitted"
-                 [class.bg-white]="!data.isAllPanelAssessmentSubmitted" [class.dark:bg-slate-900]="!data.isAllPanelAssessmentSubmitted"
-                 [class.border-slate-300]="!data.isAllPanelAssessmentSubmitted && !data.isPanelCreated"></div>
-            <div class="w-[1.5px] flex-1 mt-1 rounded transition-colors"
-                 [class.bg-emerald-500]="data.isAllPanelAssessmentSubmitted" [class.bg-slate-200]="!data.isAllPanelAssessmentSubmitted" [class.dark:bg-slate-700]="!data.isAllPanelAssessmentSubmitted"></div>
-          </div>
-          <div class="-mt-0.5">
-            <p class="text-[13px] m-0 transition-colors"
-               [class.font-medium]="!data.isAllPanelAssessmentSubmitted && data.isPanelCreated" [class.text-slate-800]="!data.isAllPanelAssessmentSubmitted && data.isPanelCreated" [class.dark:text-slate-200]="!data.isAllPanelAssessmentSubmitted && data.isPanelCreated"
-               [class.text-slate-500]="data.isAllPanelAssessmentSubmitted" [class.text-slate-400]="!data.isAllPanelAssessmentSubmitted && !data.isPanelCreated">Panel assessment</p>
-          </div>
-        </div>
-
-        <!-- STAGE 6: HR assessment -->
-        <div class="flex gap-3 pb-6 relative">
-          <div class="flex flex-col items-center w-4 relative z-10">
-            <div class="w-3.5 h-3.5 rounded-full border-2 shrink-0 transition-colors" 
-                 [class.border-emerald-500]="data.isHrAssessmentCompleted || (!data.isHrAssessmentCompleted && data.isAllPanelAssessmentSubmitted)"
-                 [class.bg-emerald-500]="data.isHrAssessmentCompleted"
-                 [class.bg-white]="!data.isHrAssessmentCompleted" [class.dark:bg-slate-900]="!data.isHrAssessmentCompleted"
-                 [class.border-slate-300]="!data.isHrAssessmentCompleted && !data.isAllPanelAssessmentSubmitted"></div>
-            <div class="w-[1.5px] flex-1 mt-1 rounded transition-colors"
-                 [class.bg-emerald-500]="data.isHrAssessmentCompleted" [class.bg-slate-200]="!data.isHrAssessmentCompleted" [class.dark:bg-slate-700]="!data.isHrAssessmentCompleted"></div>
-          </div>
-          <div class="-mt-0.5">
-            <p class="text-[13px] m-0 transition-colors"
-               [class.font-medium]="!data.isHrAssessmentCompleted && data.isAllPanelAssessmentSubmitted" [class.text-slate-800]="!data.isHrAssessmentCompleted && data.isAllPanelAssessmentSubmitted" [class.dark:text-slate-200]="!data.isHrAssessmentCompleted && data.isAllPanelAssessmentSubmitted"
-               [class.text-slate-500]="data.isHrAssessmentCompleted" [class.text-slate-400]="!data.isHrAssessmentCompleted && !data.isAllPanelAssessmentSubmitted">HR assessment</p>
-          </div>
-        </div>
-
-        <!-- STAGE 7: Candidate verification -->
-        <div class="flex gap-3 relative">
-          <div class="flex flex-col items-center w-4 relative z-10">
-            <div class="w-3.5 h-3.5 rounded-full border-2 shrink-0 transition-colors" 
-                 [class.border-emerald-500]="data.isCandidateVerificationCompleted || (!data.isCandidateVerificationCompleted && data.isHrAssessmentCompleted)"
-                 [class.bg-emerald-500]="data.isCandidateVerificationCompleted"
-                 [class.bg-white]="!data.isCandidateVerificationCompleted" [class.dark:bg-slate-900]="!data.isCandidateVerificationCompleted"
-                 [class.border-slate-300]="!data.isCandidateVerificationCompleted && !data.isHrAssessmentCompleted"></div>
-          </div>
-          <div class="-mt-0.5">
-            <p class="text-[13px] m-0 transition-colors"
-               [class.font-medium]="!data.isCandidateVerificationCompleted && data.isHrAssessmentCompleted" [class.text-slate-800]="!data.isCandidateVerificationCompleted && data.isHrAssessmentCompleted" [class.dark:text-slate-200]="!data.isCandidateVerificationCompleted && data.isHrAssessmentCompleted"
-               [class.text-slate-500]="data.isCandidateVerificationCompleted" [class.text-slate-400]="!data.isCandidateVerificationCompleted && !data.isHrAssessmentCompleted">Candidate verification</p>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
 
 </div>
 
+
 } @else {
 
-<div class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400 flex flex-col items-center justify-center gap-3 min-h-[300px]">
-    <div class="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-    <p class="text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400">Loading candidate details...</p>
+<div
+    class="glass rounded-xl shadow-glass dark:shadow
+           p-8 text-center text-slate-400
+           flex flex-col items-center justify-center
+           gap-3 min-h-[300px]">
+
+    <div
+        class="w-10 h-10 border-4
+               border-primary-500 border-t-transparent
+               rounded-full animate-spin">
+    </div>
+
+    <p
+        class="text-sm font-medium tracking-wide
+               text-slate-500 dark:text-slate-400">
+
+        Loading candidate Details...
+
+    </p>
+
 </div>
 
 }
