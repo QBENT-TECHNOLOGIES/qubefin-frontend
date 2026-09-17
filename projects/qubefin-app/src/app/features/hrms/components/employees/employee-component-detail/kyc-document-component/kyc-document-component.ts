@@ -91,7 +91,7 @@ export class KycDocumentComponentDetail {
           const name = valueOf(docPath.documentName)?.toLowerCase() || '';
           return name.includes('pan');
         },
-        message: 'Enter a valid PAN number (e.g. ABCDE1234F)',
+        message: 'Invalid PAN number',
       });
 
       pattern(docPath.documentNo, /^\d{12}$/, {
@@ -99,7 +99,7 @@ export class KycDocumentComponentDetail {
           const name = valueOf(docPath.documentName)?.toLowerCase() || '';
           return name.includes('aadhaar') || name.includes('adhar');
         },
-        message: 'Enter a valid 12-digit Aadhaar number',
+        message: 'Invalid Aadhaar number',
       });
 
       pattern(docPath.documentNo, /^[A-Z]{3}[0-9]{7}$/, {
@@ -107,7 +107,7 @@ export class KycDocumentComponentDetail {
           const name = valueOf(docPath.documentName)?.toLowerCase() || '';
           return name.includes('voter');
         },
-        message: 'Enter a valid Voter ID (e.g. ABC1234567)',
+        message: 'Invalid Voter ID ',
       });
 
       pattern(docPath.documentNo, /^[A-Z]{2}[0-9]{13}$/, {
@@ -115,7 +115,7 @@ export class KycDocumentComponentDetail {
           const name = valueOf(docPath.documentName)?.toLowerCase() || '';
           return name.includes('driving');
         },
-        message: 'Enter a valid 15-character Driving License',
+        message: 'Invalid Driving License',
       });
     });
   });
