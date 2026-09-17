@@ -20,6 +20,18 @@ export const HrmsRoutes: Routes = [
         },
       },
       {
+        path: 'employee-records',
+        loadComponent: () =>
+          import('./pages/employee-records-component/employee-records-component').then(
+            (m) => m.EmployeeRecordsComponent,
+          ),
+        data: {
+          title: 'Employee Records',
+          subTitle: 'Leave, attendance and approval history in one place',
+          icon: 'users',
+        },
+      },
+      {
         path: 'attendance-history',
         loadComponent: () =>
           import('./pages/attendance-history-component/attendance-history-component').then(
