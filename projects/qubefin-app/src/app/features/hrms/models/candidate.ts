@@ -3,9 +3,9 @@ export interface ICandidateList {
   fullName: string;
   interviewPost: string;
   interviewDate: string;
+  interviewTime: string;
   recommendationStatus: string;
-  totalRatingPoint: number;
-  ratingStatus: string;
+  referenceNo: string;
 }
 export interface ICandidateSearchModel {
   tempSearch: string;
@@ -67,11 +67,26 @@ export interface ICandidate {
   creditBureauReportLink?: string;
 }
 export interface ICandidateDetail {
-  companyId: string;
   firstName: string;
+  middleName: string;
   lastName: string;
   gender: string;
   mobileNo: string;
-  interviewDate: string;
+  email: string;
+  fatherName: string;
+
+  companyId: string;
   interviewPost: string;
+  departmentId: string;
+  VenueOrganizationUnitId: string;
+  interviewDate: string;
+  interviewTime: string;
+
+  houseNo: string;
+  roadName: string;
+  landMark: string;
+  administrativeUnitId: string;
+  policeStationId: string;
+  postOfficeId: string;
+  pinCode: string;
 }

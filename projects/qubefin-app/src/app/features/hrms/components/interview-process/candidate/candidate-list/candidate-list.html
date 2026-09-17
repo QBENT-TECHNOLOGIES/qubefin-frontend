@@ -36,28 +36,27 @@
                 {{ item.interviewDate | date: 'dd/MM/yyyy' }}
             </td>
         </ng-container>
+        <ng-container matColumnDef="interviewTime">
+            <th mat-header-cell *matHeaderCellDef> Interview Time </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                {{ item.interviewTime }}
+            </td>
+        </ng-container>
         <ng-container matColumnDef="recommendationStatus">
             <th mat-header-cell *matHeaderCellDef> Recommendation Status </th>
             <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
                 {{ item.recommendationStatus }}
             </td>
         </ng-container>
-        <ng-container matColumnDef="totalRatingPoint">
-            <th mat-header-cell *matHeaderCellDef> Total Rating Point </th>
-            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
-                {{ item.totalRatingPoint }}
-            </td>
-        </ng-container>
-        <ng-container matColumnDef="ratingStatus">
-            <th mat-header-cell *matHeaderCellDef> Rating Status </th>
-            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
-                {{ item.ratingStatus }}
-            </td>
-        </ng-container>
         <ng-container matColumnDef="action">
             <th mat-header-cell *matHeaderCellDef class="text-right!"> Actions</th>
             <td mat-cell *matCellDef="let item">
-                <div class="w-full flex justify-end">
+                <div class="w-full flex justify-end gap-2">
+                    <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-secondary-400/10"
+                        matTooltip="Create Panel" (click)="onCreatePanel(item.id)">
+                        <svg lucideIcon="users-round"
+                            class="w-5 h-5 text-secondary-500 dark:text-secondary-500 hover:text-secondary-600"></svg>
+                    </div>
                     <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
                         matTooltip="View" (click)="onDetailView(item.id)">
                         <svg lucideIcon="chevron-right"

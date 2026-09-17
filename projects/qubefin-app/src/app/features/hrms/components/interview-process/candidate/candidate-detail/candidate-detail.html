@@ -1,11 +1,22 @@
-<div class="space-y-4">
+<mat-stepper linear #stepper class="scrollable-stepper-header bg-transparent"[disableRipple]="true">
+            <!-- Completed -->
+            <ng-template matStepperIcon="done">
+                <svg
+                lucideIcon="check"
+                    class="w-3 h-3 text-white-600">
+                </svg>
+            </ng-template>
 
-    <div class="grid grid-cols-1 lg:grid-cols-1 gap-4">
-        <div>
-            <h3 class="text-base font-bold text-slate-800 dark:text-white">
-                Candidate Information
-            </h3>
-            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+            <!-- Editable -->
+            <ng-template matStepperIcon="edit">
+                <svg
+                lucideIcon="pencil"
+                class="w-3 h-3 text-white-600">
+                </svg>
+            </ng-template>
+    <mat-step>
+        <ng-template matStepLabel>Candidate Information</ng-template>
+        <div class="space-y-4 animate-fade-in pt-4">
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 
@@ -18,6 +29,13 @@
                     <mat-error class="cus-error">
                         {{ candidateForm.firstName().errors()?.[0]?.message }}
                     </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>MIddle Name</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="user" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [formField]="candidateForm.middleName" placeholder="Enter Middle name">
                 </mat-form-field>
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Last Name</mat-label>
@@ -43,6 +61,28 @@
                     </mat-select>
                     <mat-error class="cus-error">
                         {{ candidateForm.gender().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Email</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="mail" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput autocomplete="off" [formField]="candidateForm.email"
+                        placeholder="Enter Email">
+                    <mat-error class="cus-error">
+                        {{ candidateForm.email().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Father's Name</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="user" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput autocomplete="off" [formField]="candidateForm.fatherName"
+                        placeholder="Enter Father's Name">
+                    <mat-error class="cus-error">
+                        {{ candidateForm.fatherName().errors()?.[0]?.message }}
                     </mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -86,6 +126,21 @@
                     </mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Interview Time</mat-label>
+                    <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                        <svg lucideIcon="clock-3" class="w-[16px] h-[16px]"></svg>
+                    </div>
+                    <input matInput type="text" [value]="formModel().interviewTime || ''" readonly
+                        placeholder="Select time" />
+                    <button type="button" mat-icon-button matSuffix (click)="openInterviewTimePicker()"
+                        class="text-primary-600">
+                        <svg lucideIcon="clock-3" class="w-[16px] h-[16px]"></svg>
+                    </button>
+                    <mat-error class="cus-error">
+                        {{ candidateForm.interviewTime().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Post</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="tag" class="w-5 h-5"></svg>
@@ -102,22 +157,152 @@
                     </mat-error>
                 </mat-form-field>
 
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Department</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="candidateForm.departmentId" placeholder="Select Department">
+                        @for(item of departments(); track item.id){
+                        <mat-option [value]="item.id">
+                            {{item.name}}
+                        </mat-option>
+                        }
+                    </mat-select>
+                    <mat-error class="cus-error">
+                        {{ candidateForm.departmentId().errors()[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Venue Organization Unit </mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="building" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="candidateForm.VenueOrganizationUnitId" placeholder="Select Venue">
+                        @for(item of organizationUnits(); track item.id){
+                        <mat-option [value]="item.id">
+                            {{item.name}}
+                        </mat-option>
+                        }
+                    </mat-select>
+                    <mat-error class="cus-error">
+                        {{ candidateForm.VenueOrganizationUnitId().errors()[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
 
             </div>
         </div>
-    </div>
 
-    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3">
-        <button type="button" (click)="onCancel()"
-            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
-            <svg lucideIcon="x" class="w-4 h-4"></svg>
-            Cancel
-        </button>
-        <button type="button" (click)="onSubmit()"
-            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
-            <svg lucideIcon="save" class="w-4 h-4"></svg>
-            Save
-        </button>
-    </div>
+        
+        <div class="step-footer-area">
+             <div class="flex flex-1 justify-end items-center gap-3">
+            <!-- <button type="button" (click)="onCancel()"
+                class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                <svg lucideIcon="x" class="w-4 h-4"></svg>
+                Cancel
+            </button> -->
+            <button type="button" matStepperNext class="global-btn ripple-btn shadow shine-sweep lift">
+                Next
+                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+            </button>
+             </div>
+        </div>
+    </mat-step>
 
-</div>
+    <mat-step>
+        <ng-template matStepLabel>Address Information</ng-template>
+        <div class="space-y-4 animate-fade-in pt-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>House/Plot No</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="house" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" [formField]="candidateForm.houseNo"
+                    placeholder="Enter House/Plot No">
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Road/Street Name</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="road" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" [formField]="candidateForm.roadName"
+                    placeholder="Enter Road/Street Name">
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Landmark</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="map-pin-house" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" [formField]="candidateForm.landMark" placeholder="Enter Landmark">
+            </mat-form-field>
+        </div>
+        <qfin-administrative-unit-cascade [columns]="4" [administrativeUnitId]="formModel().administrativeUnitId"
+            (selectedIdChanged)="updateAddressField('administrativeUnitId', $event)"
+            (districtChanged)="onDistrictChangeForPoliceStation($event)">
+        </qfin-administrative-unit-cascade>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Police Station</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="siren" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="candidateForm.policeStationId" placeholder="Select Police Station">
+                    @for (police of policeStations(); track police.id) {
+                    <mat-option [value]="police.id">
+                        {{ police.name }}
+                    </mat-option>
+                    }
+                </mat-select>
+                <mat-error class="cus-error">
+                    {{ candidateForm.policeStationId().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Pin Code</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [formField]="candidateForm.pinCode" placeholder="Enter Pin Code"
+                    (input)="onPinCodeChange($event)">
+                <mat-error class="cus-error">
+                    {{ candidateForm.pinCode().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Post Office</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="candidateForm.postOfficeId" placeholder="Select Post Office">
+                    @for (post of postOffices(); track post.id) {
+                    <mat-option [value]="post.id">
+                        {{ post.name }}
+                    </mat-option>
+                    }
+                </mat-select>
+                <mat-error class="cus-error">
+                    {{ candidateForm.postOfficeId().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+        </div>
+        </div>
+
+        <div class="step-footer-area">
+             <div class="flex flex-1 justify-end items-center gap-3">
+            <button type="button" matStepperPrevious
+                class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                <svg lucideIcon="chevron-left" class="w-4 h-4"></svg>
+                Previous
+            </button>
+            <button type="button" (click)="onSubmit()"
+                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                <svg lucideIcon="save" class="w-4 h-4"></svg>
+                Save
+            </button>
+            </div>
+        </div>
+    </mat-step>
+</mat-stepper>
