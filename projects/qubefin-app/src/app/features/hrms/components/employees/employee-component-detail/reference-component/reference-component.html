@@ -61,9 +61,6 @@
                 </div>
                 <input matInput rows="2" placeholder="Enter Address"
                     [formField]="referenceForm.references[$index].address">
-                <mat-error class="cus-error">
-                    {{ referenceForm.references[$index].address().errors()[0]?.message }}
-                </mat-error>
             </mat-form-field>
             <!-- Relationship -->
 

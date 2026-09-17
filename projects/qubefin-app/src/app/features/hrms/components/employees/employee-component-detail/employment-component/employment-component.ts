@@ -65,7 +65,7 @@ export class EmploymentComponentDetail {
       required(refPath.designation, { message: 'Designation is required' });
       required(refPath.fromDate);
       required(refPath.toDate);
-      required(refPath.lastDrawnSalary, { message: 'Last Drawn Salary is required' });
+      required(refPath.lastDrawnSalary, { message: 'Last Drawn Salary required' });
       readonly(refPath.fromDate, { when: () => true });
       readonly(refPath.toDate, { when: () => true });
     });

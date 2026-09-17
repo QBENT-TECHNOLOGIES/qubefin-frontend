@@ -14,7 +14,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { form, FormField, pattern, required, schema, Schema } from '@angular/forms/signals';
@@ -75,16 +75,18 @@ export class AddressComponentDetail {
   );
 
   protected readonly employeeAddressSchema: Schema<IEmployeeAddressInfo> = schema((path) => {
-    required(path.administrativeUnitId, { message: 'Location details are required' });
-    required(path.policeStationId, { message: 'Police Station is required' });
+    required(path.policeStationId, {
+      message: 'Police Station required',
+      when: (ctx) => !!ctx.valueOf(path.administrativeUnitId),
+    });
     required(path.pinCode, { message: 'Pin Code is required' });
     pattern(path.pinCode, /^\d{6}$/, {
-      message: 'Pin code must be exactly 6 digits (Characters are not allowed)',
+      message: 'Invalid Pin Code',
     });
 
     required(path.postOfficeId, { message: 'Post Office is required' });
     required(path.ownerShipOfHouse, { message: 'Ownership is required' });
-    required(path.durationOfStayInMonths, { message: 'Duration of Stay is required' });
+    required(path.durationOfStayInMonths, { message: 'Duration of Stay required' });
   });
 
   protected readonly presentAddressForm = form(
@@ -98,19 +100,31 @@ export class AddressComponentDetail {
   readonly sameAsPresentAddress = signal(false);
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
-  onSameAddressChange(checked: boolean): void {
+  onSameAddressChange(event: MatCheckboxChange): void {
+    const checked = event.checked;
+
+    if (checked && !this.presentAddressModel().administrativeUnitId) {
+      event.source.checked = false;
+      this.sameAsPresentAddress.set(false);
+
+      this.alertService.error(
+        'Incomplete Address',
+        'Please select up to Village/Ward in the Present Address before marking Permanent Address as same.',
+      );
+
+      return;
+    }
+
     this.sameAsPresentAddress.set(checked);
 
     if (checked) {
       this.permanentAddressModel.set(
         new EmployeeAddressInfo({
-          ...this.presentAddressForm().value(),
+          ...this.presentAddressModel(),
         }),
       );
+
       this.permanentPostOffices.set(this.presentPostOffices());
-      // this.permanentAddressForm.disable();
-    } else {
-      // this.permanentAddressForm.enable();
     }
   }
   constructor() {

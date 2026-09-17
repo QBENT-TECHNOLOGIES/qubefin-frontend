@@ -68,20 +68,20 @@ export class BankingComponentDetail {
     required(path.ifscCode, { message: 'IFSC Code is required' });
     required(path.esiIpNumber, {
       when: () => this.bankingModel().hasEsiEligible,
-      message: 'ESI No. required if ESI Eligible.',
+      message: 'ESI No. required.',
     });
     required(path.bankAccountNo, { message: 'Account Number is required' });
-    pattern(path.bankAccountNo as any, /^\d{9,15}$/, {
-      message: 'Acc no. must be between 9 and 15 digits',
+    pattern(path.bankAccountNo as any, /^\d{9,20}$/, {
+      message: 'Invalid Acc no.',
     });
     pattern(path.universalAccountNumber, /^\d{12}$/, {
-      message: 'UAN no. must be 12 digits',
+      message: 'Invalid UAN no',
     });
     pattern(path.ifscCode, /^[A-Z]{4}0[A-Z0-9]{6}$/, {
       message: 'Invalid IFSC Code',
     });
     pattern(path.pfAccountNo, /^\d{7,15}$/, {
-      message: 'PF Acc No. must be 7-15 digits.',
+      message: 'InvalidPF Acc No',
     });
   });
 

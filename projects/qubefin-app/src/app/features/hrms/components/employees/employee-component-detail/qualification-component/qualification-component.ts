@@ -58,9 +58,9 @@ export class QualificationComponentDetail {
       required(refPath.academicStream, { message: 'Academic Stream is required' });
       required(refPath.specialization, { message: 'Specialization is required' });
       required(refPath.yearOfPassing, { message: 'Year of Passing is required' });
-      required(refPath.universityOrBoard, { message: 'University or Board is required' });
-      required(refPath.schoolOrCollege, { message: 'School or College is required' });
-      required(refPath.gradeOrMarks, { message: 'Grade or Marks is required' });
+      required(refPath.universityOrBoard, { message: 'University/Board is required' });
+      required(refPath.schoolOrCollege, { message: 'School/College is required' });
+      required(refPath.gradeOrMarks, { message: 'Grade/Marks is required' });
     });
   });
 

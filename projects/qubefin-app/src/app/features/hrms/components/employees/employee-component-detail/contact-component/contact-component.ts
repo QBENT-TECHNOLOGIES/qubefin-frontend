@@ -65,16 +65,16 @@ export class ContactComponentDetail {
 
   protected readonly contactSchema: Schema<IEmployeeContactInfo> = schema((path) => {
     required(path.mobileNo, { message: 'Mobile No is required' });
-    pattern(path.mobileNo, /^[6-9]\d{9}$/, { message: 'Enter a valid 10-digit mobile number' });
+    pattern(path.mobileNo, /^[6-9]\d{9}$/, { message: 'Invalid mobile number' });
     pattern(path.personalEmail, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
-      message: 'Enter a valid email address',
+      message: 'Invalid email address',
     });
     pattern(path.primaryEmergencyMobile, /^[6-9]\d{9}$/, {
-      message: 'Enter a valid 10-digit mobile number',
+      message: 'Invalid mobile number',
     });
 
     pattern(path.secondaryEmergencyMobile, /^[6-9]\d{9}$/, {
-      message: 'Enter a valid 10-digit mobile number',
+      message: 'Invalid mobile number',
     });
   });
 
