@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { AttendanceHistoryStore } from '../../../stores/attendance-history-store';
@@ -22,6 +22,13 @@ export class AttendanceCalendarModal {
 
   // Inject the Store instead of the Service
   private readonly store = inject(AttendanceHistoryStore);
+
+  private readonly destroyRef = inject(DestroyRef);
+
+  /** When set, the calendar is loaded for this employee instead of the logged in user. */
+  readonly employeeId = this.data?.employeeId ?? null;
+
+  readonly employeeName = this.data?.employeeName ?? null;
 
   // Directly bind to the Store's computed signals for data and loading state
   readonly days = this.store.calendarDays;
@@ -130,7 +137,12 @@ export class AttendanceCalendarModal {
   });
 
   constructor() {
+    this.store.setCalendarEmployee(this.employeeId);
+
     this.updateStoreDate();
+
+    // The store is shared, so reset the employee scope when the modal is closed.
+    this.destroyRef.onDestroy(() => this.store.setCalendarEmployee(null));
   }
 
   private updateStoreDate(): void {

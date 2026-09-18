@@ -77,6 +77,13 @@
                     <input matInput [formField]="menuForm.target" autocomplete="name" placeholder="Enter name">
                 </mat-form-field>
             </div>
+
+            <!-- Active flag: a new menu is always created active, so this is edit only -->
+            @if (isEditMode()) {
+            <div class="checkbox-area">
+                <mat-checkbox [formField]="menuForm.isActive" color="primary">Is Active?</mat-checkbox>
+            </div>
+            }
         </div>
         <div class="space-y-4">
             <div>

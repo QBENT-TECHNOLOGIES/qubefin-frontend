@@ -1,4 +1,4 @@
-<div class="w-full bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col">
+<div class="w-full bg-white shadow-sm overflow-hidden flex flex-col">
   <!-- Header -->
   <div class="flex items-center justify-between px-6 pt-6 pb-4">
     <div class="flex items-center gap-3">
@@ -11,7 +11,7 @@
           Attendance Calendar
         </h2>
         <p class="text-[11px] text-slate-400 -mt-0.5">
-          Track your daily status
+          {{ employeeName ?? (employeeId ? 'Employee daily status' : 'Track your daily status') }}
         </p>
       </div>
     </div>

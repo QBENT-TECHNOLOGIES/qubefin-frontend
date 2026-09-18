@@ -13,4 +13,6 @@ export interface CalendarStatusConfig {
 export interface AttendanceCalendarModalData {
   year?: number;
   month?: number;
+  employeeId?: string;
+  employeeName?: string;
 }

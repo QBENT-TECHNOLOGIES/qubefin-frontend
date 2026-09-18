@@ -83,3 +83,9 @@ export interface ParentMenu {
   name: string;
   icon: string;
 }
+
+export interface CreateMenuResponse {
+  created: boolean;
+  /** Id of the menu just created, so the tree can select it once it reloads. */
+  id: string;
+}
