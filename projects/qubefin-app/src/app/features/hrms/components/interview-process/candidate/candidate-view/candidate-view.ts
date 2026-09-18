@@ -50,6 +50,7 @@ export class CandidateView {
 
   readonly sendingInterviewLetterMail = signal(false);
   readonly sendingOfferLetterMail = signal(false);
+  readonly uploadingInterviewFormat = signal(false);
 
   constructor() {
     effect(() => {
@@ -366,6 +367,30 @@ export class CandidateView {
   // INTERVIEW UPLOAD
   // ============================================================
 
+  /** Downloads the blank WeGrow personality/written-interview form and opens it in the document modal. */
+  async onDownloadInterviewFormat() {
+    const candidate = this.getCandidate();
+
+    if (!candidate) return;
+
+    try {
+      const file = await firstValueFrom(this.hrReportService.getWegrowPersonalityForm(candidate.id));
+      const fileUrl = URL.createObjectURL(file);
+
+      this.documentModalService.open({
+        url: fileUrl,
+        documentName: `interview_format_${candidate.referenceNo}`,
+        extension: 'pdf',
+        downloadAccess: true,
+      });
+    } catch (error: any) {
+      this.alertService.error(
+        'Failed',
+        error?.error?.message ?? 'Unable to load interview format.',
+      );
+    }
+  }
+
   onInterviewUpload(event: Event) {
     const element = event.currentTarget as HTMLInputElement;
 
@@ -376,11 +401,41 @@ export class CandidateView {
     }
 
     const file = fileList[0];
+    const candidate = this.getCandidate();
 
-    console.log('File selected for Interview Upload:', file.name);
+    if (!candidate) {
+      element.value = '';
+      return;
+    }
 
-    // TODO:
-    // Upload interview letter/document
+    // Preview the selected file straight away so the user can confirm it before it finishes uploading.
+    const previewUrl = URL.createObjectURL(file);
+    const extension = file.name.split('.').pop()?.toLowerCase() || 'pdf';
+
+    this.documentModalService.open({
+      url: previewUrl,
+      documentName: file.name,
+      extension,
+      downloadAccess: true,
+    });
+
+    this.uploadingInterviewFormat.set(true);
+
+    this.candidateService.uploadInterviewFormat(candidate.id, file).subscribe({
+      next: () => {
+        this.alertService.success('Success', 'Interview format uploaded successfully');
+        this.candidateStore.refreshDetail();
+      },
+      error: (error: any) =>
+        this.alertService.error(
+          'Failed',
+          error?.error?.message ?? 'Unable to upload interview format.',
+        ),
+      complete: () => {
+        this.uploadingInterviewFormat.set(false);
+        element.value = '';
+      },
+    });
   }
 
   // ============================================================

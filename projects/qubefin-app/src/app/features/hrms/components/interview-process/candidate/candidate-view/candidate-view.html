@@ -75,14 +75,15 @@
 
                 <!-- INTERVIEW UPLOAD -->
                 @if (data.isHR && data.isAllPanelAcknowledged) {
-                <button type="button" class="reset-btn shine-sweep lift" (click)="fileInput.click()">
-                    <svg lucideIcon="upload" class="w-4 h-4 mr-2"></svg>
+                <button type="button" class="reset-btn shine-sweep lift" (click)="onDownloadInterviewFormat()">
+                    <svg lucideIcon="download" class="w-4 h-4 mr-2"></svg>
                     Interview Format Download
                 </button>
 
-                <button type="button" class="reset-btn shine-sweep lift" (click)="fileInput.click()">
+                <button type="button" class="reset-btn shine-sweep lift" [disabled]="uploadingInterviewFormat()"
+                    (click)="fileInput.click()">
                     <svg lucideIcon="upload" class="w-4 h-4 mr-2"></svg>
-                    Interview Upload
+                    {{ uploadingInterviewFormat() ? 'Uploading...' : 'Interview Upload' }}
                 </button>
 
 
