@@ -20,6 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganizationUnitTypeStore } from '../../../../global/stores/organization-unit-type-store';
 
 @Component({
@@ -33,6 +34,7 @@ import { OrganizationUnitTypeStore } from '../../../../global/stores/organizatio
     LucideDynamicIcon,
     FormField,
     MatCheckboxModule,
+    MatTooltipModule,
   ],
   templateUrl: './approval-workflow-detail.html',
 })
@@ -205,6 +207,23 @@ export class ApprovalWorkflowDetail {
         }
       });
   }
+  
+  protected moveApprovalStep(index: number, direction: -1 | 1) {
+    this.formModel.update((current) => {
+      const steps = [...(current.approvalSteps || [])];
+      const target = index + direction;
+
+      if (index < 0 || index >= steps.length || target < 0 || target >= steps.length) {
+        return current;
+      }
+
+      [steps[index], steps[target]] = [steps[target], steps[index]];
+
+      const resequencedSteps = steps.map((step, i) => ({ ...step, sequenceNo: i + 1 }));
+
+      return { ...current, approvalSteps: resequencedSteps };
+    });
+  }
 
   protected updateApprovalStep(
     index: number,
@@ -322,7 +341,6 @@ export class ApprovalWorkflowDetail {
             next: (resp: any) => {
               this.alertService.success(null, resp).then(() => {
                 this.approvalWorkflowstore.refreshList();
-                this.approvalWorkflowstore.refreshDetail();
                 this.onSave.emit();
               });
             },

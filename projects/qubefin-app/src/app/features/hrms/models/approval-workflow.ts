@@ -34,6 +34,8 @@ export interface IApprovalWorkflowDetail {
   // legacy field still present on the backend model — see note in detail component
   steps: IApprovalWorkflowStepLegacy[] | null;
   stepPost: string | null;
+  // Server-formatted one-liner, e.g. "Branch Manager → Area Manager"
+  approvalPath: string;
   approvalSteps: IApprovalStep[];
 }
 
@@ -64,6 +66,7 @@ export interface IApprovalStep {
   eventButtonText: string;
   sequenceNo: number;
   organizationUnitTypeName: string | null;
+  receiverPostName: string | null;
 }
 
 // ============================================================================

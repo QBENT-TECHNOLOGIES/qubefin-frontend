@@ -99,6 +99,7 @@ import {
   LucideMars,
   LucideStickyNote,
   LucideChevronLeft,
+  LucideChevronUp,
   LucideIdCardLanyard,
   LucideSwatchBook,
   LucideClipboardCheck,
@@ -182,6 +183,7 @@ export const APP_ICONS = [
   LucideChevronDown,
   LucideChevronRight,
   LucideChevronLeft,
+  LucideChevronUp,
   LucideCircleQuestionMark,
   LucideCoins,
   LucideCombine,
@@ -334,6 +336,7 @@ export const APP_ICONS = [
   LucideClipboardList,
   LucideClock3,
   LucideRadar,
+  LucideWorkflow,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -350,6 +353,7 @@ export const APP_ICONS_MAP: Record<string, any> = {
   CalendarPlus: LucideCalendarPlus,
   ChevronDown: LucideChevronDown,
   ChevronRight: LucideChevronRight,
+  ChevronUp: LucideChevronUp,
   CircleQuestionMark: LucideCircleQuestionMark,
   Coins: LucideCoins,
   Combine: LucideCombine,

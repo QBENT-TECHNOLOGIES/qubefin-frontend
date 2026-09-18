@@ -1,4 +1,15 @@
 <div class="view-container">
+    @if (loading()) {
+    <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="loader" class="w-5 h-5 animate-spin"></svg>
+        Loading workflow details...
+    </div>
+    } @else if (!approvalWorkflow()) {
+    <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>
+        Approval workflow details are not available.
+    </div>
+    } @else {
     <div class="section-container">
         <div class="unit-box">
             <!-- View Header -->
@@ -88,6 +99,16 @@
                             </p>
                         </div>
                     </div>
+
+                    <div class="gen-info md:col-span-2">
+                        <div class="gen-icon">
+                            <svg lucideIcon="workflow" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="gen-label">Approval Path</label>
+                            <p class="gen-title">{{ approvalWorkflow()?.approvalPath || '-' }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -101,6 +122,11 @@
                 <div class="blue-line"></div>
                 <div class="flex-1 overflow-y-auto pr-2">
                     <div class="space-y-0 pl-1">
+                        @if (!approvalWorkflow()?.approvalSteps?.length) {
+                        <p class="text-[13px] italic text-slate-500 dark:text-slate-400 py-2">
+                            No approval step configured.
+                        </p>
+                        }
                         @for (step of approvalWorkflow()?.approvalSteps; track $index; let last = $last) {
                         <div class="relative flex gap-4" [class.pb-3]="!last">
                             <div class="relative flex flex-col items-center">
@@ -118,12 +144,35 @@
                                 }
                             </div>
 
-                            <div class="flex flex-col">
-                                <!-- ApprovalStep has no receiverPostName field yet — see note below.
-                                     Falls back to eventStatus so the timeline isn't blank. -->
-                                <h4 class="path-title">
-                                    {{ step.eventStatus || ('Step ' + (($index ?? 0) + 1)) }}
-                                </h4>
+                            <div class="flex flex-col pb-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h4 class="path-title">
+                                        {{ step.receiverPostName || step.eventStatus || ('Step ' + ($index + 1)) }}
+                                    </h4>
+                                    @if (step.isApprovalEvent) {
+                                    <span
+                                        class="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                        Approve
+                                    </span>
+                                    } @else if (step.isRecommendEvent) {
+                                    <span
+                                        class="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                                        Recommend
+                                    </span>
+                                    }
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                    Step {{ step.sequenceNo }}
+                                    @if (step.organizationUnitTypeName) {
+                                    <span> &middot; {{ step.organizationUnitTypeName }}</span>
+                                    }
+                                    @if (step.eventStatus) {
+                                    <span> &middot; Status: {{ step.eventStatus }}</span>
+                                    }
+                                    @if (step.eventButtonText) {
+                                    <span> &middot; Button: {{ step.eventButtonText }}</span>
+                                    }
+                                </p>
                             </div>
                         </div>
                         }
@@ -185,4 +234,5 @@
             </div>
         </div>
     </div>
+    }
 </div>
