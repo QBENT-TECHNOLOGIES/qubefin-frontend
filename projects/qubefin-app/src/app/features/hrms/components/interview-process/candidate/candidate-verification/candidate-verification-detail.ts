@@ -1,6 +1,6 @@
 import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
@@ -108,6 +108,34 @@ export class CandidateVerificationDetail implements OnInit {
 
   @Input() candidateId: string = this.data?.candidateId ?? '';
   @Input() candidateName: string = this.data?.candidateName ?? '';
+
+  readonly documentFieldMap: Partial<Record<keyof IVerificationModel, string>> = {
+    aadhaarStatus: 'aadhaar',
+    panStatus: 'pan',
+    voterIdStatus: 'voterId',
+    mobileStatus: 'mobile',
+    uanStatus: 'uan',
+  };
+
+  readonly documentForm = new FormGroup({
+    aadhaar: new FormControl('', {
+      validators: [Validators.pattern(/^\d{12}$/)],
+      nonNullable: true,
+    }),
+    pan: new FormControl('', {
+      validators: [Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/)],
+      nonNullable: true,
+    }),
+    voterId: new FormControl('', {
+      validators: [Validators.pattern(/^[A-Z]{3}[A-Z0-9]{7,10}$/)],
+      nonNullable: true,
+    }),
+    mobile: new FormControl('', {
+      validators: [Validators.pattern(/^[6-9]\d{9}$/)],
+      nonNullable: true,
+    }),
+    uan: new FormControl('', { validators: [Validators.pattern(/^\d{12}$/)], nonNullable: true }),
+  });
 
   readonly identityItems = VERIFICATION_ITEMS.filter((i) => i.group === 'identity');
   readonly bureauItems = VERIFICATION_ITEMS.filter((i) => i.group === 'bureau');
@@ -238,6 +266,62 @@ export class CandidateVerificationDetail implements OnInit {
       default:
         return 'clock';
     }
+  }
+
+  getDocumentControlName(key: keyof IVerificationModel): string {
+    return this.documentFieldMap[key] ?? '';
+  }
+
+  getDocumentControl(key: keyof IVerificationModel): FormControl<string> | null {
+    const controlName = this.getDocumentControlName(key);
+    const control = controlName ? this.documentForm.get(controlName) : null;
+    return control instanceof FormControl ? control : null;
+  }
+
+  isDocumentInputVisible(key: keyof IVerificationModel): boolean {
+    return !!this.getDocumentControlName(key);
+  }
+
+  hasDocumentError(key: keyof IVerificationModel): boolean {
+    const control = this.getDocumentControl(key);
+    return !!control && control.invalid && (control.dirty || control.touched);
+  }
+
+  isDocumentInvalid(key: keyof IVerificationModel): boolean {
+    return !!this.getDocumentControl(key)?.invalid;
+  }
+
+  getDocumentLabel(key: keyof IVerificationModel): string {
+    const nameMap: Partial<Record<keyof IVerificationModel, string>> = {
+      aadhaarStatus: 'Aadhaar Number',
+      panStatus: 'PAN Number',
+      voterIdStatus: 'Voter ID',
+      mobileStatus: 'Mobile Number',
+      uanStatus: 'UAN Number',
+    };
+    return nameMap[key] ?? 'Document Number';
+  }
+
+  getDocumentPlaceholder(key: keyof IVerificationModel): string {
+    const placeholderMap: Partial<Record<keyof IVerificationModel, string>> = {
+      aadhaarStatus: '12-digit Aadhaar number',
+      panStatus: 'ABCDE1234F',
+      voterIdStatus: 'ABC1234567',
+      mobileStatus: '10-digit mobile no.',
+      uanStatus: '12-digit UAN',
+    };
+    return placeholderMap[key] ?? 'Enter number';
+  }
+
+  getDocumentErrorMessage(key: keyof IVerificationModel): string {
+    const messageMap: Partial<Record<keyof IVerificationModel, string>> = {
+      aadhaarStatus: 'Aadhaar must be 12 digits.',
+      panStatus: 'PAN must be 5 letters + 4 digits + 1 letter.',
+      voterIdStatus: 'Voter ID must match the expected format.',
+      mobileStatus: 'Mobile number must be 10 digits starting with 6-9.',
+      uanStatus: 'UAN must be 12 digits.',
+    };
+    return messageMap[key] ?? 'Invalid document number.';
   }
 
   getInitials(name: string | undefined | null): string {
