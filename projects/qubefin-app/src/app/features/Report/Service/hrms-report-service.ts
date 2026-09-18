@@ -101,4 +101,20 @@ export class HrmsReportService {
       },
     );
   }
+  getWegrowJobApplication(candidateId: string) {
+    return this.httpClient.get(
+      `${ApiPaths.REPORT}/interview/wegrow-jobapplication-form/${candidateId}`,
+      {
+        responseType: 'blob',
+      },
+    );
+  }
+  getWeegroBcJobApplication(candidateId: string) {
+    return this.httpClient.get(
+      `${ApiPaths.REPORT}/interview/weegrobc-jobapplication-form/${candidateId}`,
+      {
+        responseType: 'blob',
+      },
+    );
+  }
 }
