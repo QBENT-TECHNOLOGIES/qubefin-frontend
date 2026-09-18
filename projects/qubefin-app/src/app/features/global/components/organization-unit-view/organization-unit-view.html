@@ -26,18 +26,12 @@
                 <div class="badge-container">
                     <!-- Status Badge -->
                     <div class="badge-group">
-                        <!-- <span class="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Status</span> -->
-                        <span class="badge" [class.text-emerald-600]="organizationUnit()?.isActive"
-                            [class.dark:text-emerald-400]="organizationUnit()?.isActive"
-                            [class.text-rose-600]="!organizationUnit()?.isActive"
-                            [class.dark:text-rose-400]="!organizationUnit()?.isActive">
+                        <span class="badge text-emerald-600 dark:text-emerald-400">
                             <span class="w-2 h-2 rounded-full relative flex">
-                                <span class="animate-circle" [class.bg-emerald-400]="organizationUnit()?.isActive"
-                                    [class.bg-rose-400]="!organizationUnit()?.isActive"></span>
-                                <span class="badge-status" [class.bg-emerald-500]="organizationUnit()?.isActive"
-                                    [class.bg-rose-500]="!organizationUnit()?.isActive"></span>
+                                <span class="animate-circle bg-emerald-400"></span>
+                                <span class="badge-status bg-emerald-500"></span>
                             </span>
-                            {{organizationUnit()?.isActive ? 'Active' : 'Inactive'}}
+                            Active
                         </span>
                     </div>
 

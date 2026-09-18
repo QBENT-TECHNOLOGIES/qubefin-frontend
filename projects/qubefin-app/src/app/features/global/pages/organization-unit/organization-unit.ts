@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { EMPTY_UUID, PermissionStore } from 'qubefin-core';
 import { OrganizationUnitStore } from '../../stores/organization-unit-store';
 import { OrganizationUnitTreeComponent } from '../../components/organization-unit-tree/organization-unit-tree';
@@ -26,24 +26,34 @@ export class OrganizationUnitPage {
 
   isViewMode = signal<boolean>(true);
   selectedOrganizationUnitId = signal<string>(EMPTY_UUID);
+  protected editingOrganizationUnitId = signal<string>(EMPTY_UUID);
+
   organizationUnitTreeNodes = this.organizationUnitStore.organizationUnitTree;
+  protected searchText = signal<string>('');
+  protected appliedSearchText = signal<string>('');
+
+  protected readonly filteredOrganizationUnitTreeNodes = computed(() => {
+    const term = this.appliedSearchText().trim().toLowerCase();
+    const nodes = this.organizationUnitTreeNodes();
+
+    return term ? this.filterNodes(nodes, term) : nodes;
+  });
 
   constructor() {
     effect(() => {
       const nodes = this.organizationUnitTreeNodes();
       if (!nodes.length) return;
 
-      const selectedId = this.selectedOrganizationUnitId();
+      const selectedId = untracked(this.selectedOrganizationUnitId);
+      if (this.containsNode(nodes, selectedId)) return;
 
-      if (!this.containsNode(nodes, selectedId)) {
-        this.selectedOrganizationUnitId.set(nodes[0].id);
-      }
+      this.selectedOrganizationUnitId.set(nodes[0].id);
     });
   }
 
   protected onAdd() {
+    this.editingOrganizationUnitId.set(EMPTY_UUID);
     this.isViewMode.set(false);
-    this.selectedOrganizationUnitId.set(EMPTY_UUID);
   }
 
   protected viewDetail(id: string) {
@@ -51,6 +61,7 @@ export class OrganizationUnitPage {
   }
 
   protected onEdit() {
+    this.editingOrganizationUnitId.set(this.selectedOrganizationUnitId());
     this.isViewMode.set(false);
   }
 
@@ -58,7 +69,47 @@ export class OrganizationUnitPage {
     this.isViewMode.set(true);
   }
 
+  protected onSaved() {
+    this.isViewMode.set(true);
+  }
+
+  protected onSearch(event: Event) {
+    this.searchText.set((event.target as HTMLInputElement).value);
+  }
+
+  protected applyFilter() {
+    this.appliedSearchText.set(this.searchText());
+  }
+
   private containsNode(nodes: OrganizationUnitTreeNode[], id: string): boolean {
     return nodes.some((node) => node.id === id || this.containsNode(node.children ?? [], id));
+  }
+
+  private filterNodes(
+    nodes: OrganizationUnitTreeNode[],
+    term: string,
+  ): OrganizationUnitTreeNode[] {
+    const matches: OrganizationUnitTreeNode[] = [];
+
+    for (const node of nodes) {
+      if (this.matchesTerm(node, term)) {
+        matches.push(node);
+        continue;
+      }
+
+      const children = this.filterNodes(node.children ?? [], term);
+      if (children.length) {
+        matches.push({ ...node, children });
+      }
+    }
+
+    return matches;
+  }
+
+  private matchesTerm(node: OrganizationUnitTreeNode, term: string): boolean {
+    return (
+      node.name.toLowerCase().includes(term) ||
+      (node.organizationUnitTypeName ?? '').toLowerCase().includes(term)
+    );
   }
 }
