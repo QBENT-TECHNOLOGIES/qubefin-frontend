@@ -18,16 +18,7 @@ export class InterviewPanelView {
   readonly panelId = input<string>(EMPTY_UUID);
   readonly showAssessment = output<boolean>();
 
-  onAcknowledge() {
-    if (this.panelId() === EMPTY_UUID) return;
-    (this.panelService.acknowledgePanel(this.panelId()) as any).subscribe({
-      next: () => {
-        this.alertService.success('Success', 'Panel Acknowledged');
-        this.panelStore.refreshPanels();
-      },
-      error: () => this.alertService.error('Error', 'Failed to acknowledge panel')
-    });
-  }
+  onAcknowledge() {}
 
   onMarkAttendance(attended: boolean) {
     if (this.panelId() === EMPTY_UUID) return;
@@ -36,7 +27,7 @@ export class InterviewPanelView {
         this.alertService.success('Success', 'Attendance Marked');
         this.panelStore.refreshPanels();
       },
-      error: () => this.alertService.error('Error', 'Failed to mark attendance')
+      error: () => this.alertService.error('Error', 'Failed to mark attendance'),
     });
   }
 

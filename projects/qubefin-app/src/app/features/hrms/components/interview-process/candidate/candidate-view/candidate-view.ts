@@ -10,6 +10,8 @@ import { AlertService, EMPTY_UUID } from 'qubefin-core';
 
 import { CandidateStore } from '../../../../stores/candidate-store';
 import { InterviewPanelDetail } from '../interview-panel-detail/interview-panel-detail';
+import { HrAssessmentForm } from '../hr-assessment-form/hr-assessment-form';
+import { CandidateVerificationDetail } from '../candidate-verification/candidate-verification-detail';
 import { InterviewPanelService } from '../../../../services/interview-panel-service';
 import { InterviewPanelStore } from '../../../../stores/interview-panel-store';
 
@@ -218,8 +220,21 @@ export class CandidateView {
 
     console.log('Candidate Verification:', candidate.id);
 
-    // TODO:
-    // Navigate to candidate verification page/dialog
+    const dialogRef = this.dialog.open(CandidateVerificationDetail, {
+      width: '1000px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      panelClass: ['glass-modal', 'slide-in-up'],
+    });
+
+    if (dialogRef.componentInstance) {
+      dialogRef.componentRef?.setInput('candidateId', candidate.id);
+    }
+
+    dialogRef.afterClosed().subscribe(() => {
+      // Optional: Refresh if needed
+      // this.candidateStore.setCandidateId(this.candidateId());
+    });
   }
 
   // ============================================================
@@ -233,8 +248,27 @@ export class CandidateView {
 
     console.log('HR Assessment:', candidate.id);
 
-    // TODO:
-    // Navigate to HR assessment
+    const dialogRef = this.dialog.open(HrAssessmentForm, {
+      width: '900px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: ['glass-modal', 'slide-in-up'],
+      data: {
+        candidateId: candidate.id,
+        candidateName:
+          candidate.firstName +
+          ' ' +
+          (candidate.middleName ? candidate.middleName + ' ' : '') +
+          candidate.lastName,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((res) => {
+      if (res) {
+        this.alertService.success('Success', 'HR Assessment completed');
+        this.candidateStore.setCandidateId(this.candidateId()); // Refresh view
+      }
+    });
   }
 
   // ============================================================
@@ -313,7 +347,22 @@ export class CandidateView {
 
     console.log('View Interview Panel:', candidateData.id);
 
-    // TODO:
-    // Open panel in view mode
+    const dialogRef = this.dialog.open(InterviewPanelDetail, {
+      width: '900px',
+      maxWidth: '75vw',
+      disableClose: true,
+      panelClass: 'glass-modal',
+    });
+
+    if (dialogRef.componentInstance) {
+      dialogRef.componentRef?.setInput('candidateIdForPanel', candidateData.id);
+      dialogRef.componentRef?.setInput('isViewMode', true);
+
+      const sub1 = dialogRef.componentInstance.cancel.subscribe(() => dialogRef.close());
+
+      dialogRef.afterClosed().subscribe(() => {
+        sub1.unsubscribe();
+      });
+    }
   }
 }

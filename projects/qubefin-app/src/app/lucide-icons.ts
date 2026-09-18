@@ -177,6 +177,10 @@ import {
   LucideThumbsUp,
   LucidePlusCircle,
   LucideMinusCircle,
+  LucideHourglass,
+  LucideChevronUp,
+  LucideGauge,
+  LucideThumbsDown,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -355,6 +359,10 @@ export const APP_ICONS = [
   LucideThumbsUp,
   LucidePlusCircle,
   LucideMinusCircle,
+  LucideHourglass,
+  LucideChevronUp,
+  LucideGauge,
+  LucideThumbsDown,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -533,4 +541,8 @@ export const APP_ICONS_MAP: Record<string, any> = {
   ThumbsUp: LucideThumbsUp,
   PlusCircle: LucidePlusCircle,
   MinusCircle: LucideMinusCircle,
+  Hourglass: LucideHourglass,
+  ChevronUp: LucideChevronUp,
+  Gauge: LucideGauge,
+  ThumbsDown: LucideThumbsDown,
 };

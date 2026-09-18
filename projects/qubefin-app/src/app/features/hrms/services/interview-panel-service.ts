@@ -43,4 +43,8 @@ export class InterviewPanelService {
   submitAssessment(assessmentData: any) {
     return this.httpClient.post(`${ApiPaths.HRMS}/interview-panels/assessment`, assessmentData);
   }
+
+  deletePanel(panelId: string) {
+    return this.httpClient.delete(`${ApiPaths.HRMS}/interview-panels/${panelId}`);
+  }
 }

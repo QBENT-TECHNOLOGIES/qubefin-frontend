@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, output, signal } from '@angular/core';
+import { Component, effect, inject, input, output, signal, OnInit, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -45,6 +45,35 @@ export interface IAssessmentModel {
   negativeRemarks: string;
 }
 
+/** Config-driven rating rows so the template doesn't repeat 10 near-identical blocks */
+export interface IRatingFieldConfig {
+  key: string; // base key, e.g. 'appearanceAttitude'
+  label: string;
+  desc: string;
+}
+
+export const RATING_FIELDS: IRatingFieldConfig[] = [
+  { key: 'appearanceAttitude', label: 'Appearance & Attitude', desc: 'Grooming, courtesy, appropriate dress' },
+  { key: 'personality', label: 'Personality', desc: 'Dignity, bearing, rapport, process, manner' },
+  { key: 'communication', label: 'Communication', desc: 'Ability to adequately express oneself' },
+  { key: 'education', label: 'Education', desc: 'Appropriateness of degree and course work' },
+  { key: 'workExperience', label: 'Work Experience', desc: 'Related work experience for the job' },
+  { key: 'technicalCompetence', label: 'Technical Competence', desc: 'Appropriateness of technical skills' },
+  { key: 'flexibility', label: 'Flexibility', desc: 'Responsive to change, tolerance for ambiguity' },
+  { key: 'ambition', label: 'Ambition', desc: 'In line with anticipated job program' },
+  { key: 'potential', label: 'Potential', desc: 'Ability and motivation to grow' },
+  { key: 'others', label: 'Others', desc: 'Anything else worth noting' },
+];
+
+export const RATING_OPTIONS = [
+  { value: 0, label: 'NA', full: 'Not Acceptable' },
+  { value: 1, label: 'BA', full: 'Below Average' },
+  { value: 2, label: 'A', full: 'Average' },
+  { value: 3, label: 'G', full: 'Good' },
+  { value: 4, label: 'VG', full: 'Very Good' },
+  { value: 5, label: 'O', full: 'Outstanding' },
+];
+
 import { InterviewPanelService } from '../../../../services/interview-panel-service';
 import { InterviewPanelStore } from '../../../../stores/interview-panel-store';
 import { OrganizationUnitTypeStore } from '../../../../../global/stores/organization-unit-type-store';
@@ -73,7 +102,7 @@ import { EmployeeStore } from '../../../../stores/employee-store';
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './interview-panel-detail.html',
 })
-export class InterviewPanelDetail {
+export class InterviewPanelDetail implements OnInit {
   private readonly panelService = inject(InterviewPanelService);
   private readonly alertService = inject(AlertService);
   private readonly panelStore = inject(InterviewPanelStore);
@@ -89,14 +118,46 @@ export class InterviewPanelDetail {
   readonly employeeList = this.employeeStore.employeesByOrgUnit;
   selectedPanelists = signal<any[]>([]);
 
+  // --- Employee search filter (interactive) ---
+  employeeSearchTerm = signal<string>('');
+  readonly filteredEmployeeList = computed(() => {
+    const term = this.employeeSearchTerm().trim().toLowerCase();
+    const list = this.employeeList() ?? [];
+    if (!term) return list;
+    return list.filter(
+      (e: any) =>
+        e.name?.toLowerCase().includes(term) ||
+        e.code?.toLowerCase().includes(term) ||
+        e.currentDesignation?.toLowerCase().includes(term)
+    );
+  });
+
+  onEmployeeSearchChange(value: string) {
+    this.employeeSearchTerm.set(value);
+  }
+
   organizationUnitTypeId = new FormControl('');
   organizationUnitId = new FormControl('');
 
   readonly panelId = input<string>(EMPTY_UUID);
   readonly isAssessmentMode = input<boolean>(false);
+  readonly isViewMode = input<boolean>(false);
   readonly candidateIdForPanel = input<string>('9a7c7f5a-5a41-4e3d-9b4e-123456789abc');
   readonly interviewDate = input<string>('');
   readonly interviewTime = input<string>('');
+
+  panelDetails = signal<any[]>([]);
+  loadingPanels = signal<boolean>(false);
+
+  readonly canModifyPanel = computed(() => {
+    return !this.panelDetails().some((p: any) => p.isAttened);
+  });
+
+  // --- Toggle for "Add More Panelists" section (interactive, collapsed by default) ---
+  showAddPanelists = signal<boolean>(false);
+  toggleAddPanelists() {
+    this.showAddPanelists.update((v) => !v);
+  }
 
   readonly cancel = output<void>();
   readonly save = output<void>();
@@ -106,7 +167,7 @@ export class InterviewPanelDetail {
     candidateId: '',
   });
 
-  protected readonly scheduleSchema: Schema<IScheduleModel> = schema((path) => {});
+  protected readonly scheduleSchema: Schema<IScheduleModel> = schema((path) => { });
 
   protected readonly scheduleForm = form(this.scheduleModel, this.scheduleSchema);
 
@@ -138,15 +199,58 @@ export class InterviewPanelDetail {
     negativeRemarks: '',
   });
 
-  protected readonly assessmentSchema: Schema<IAssessmentModel> = schema((path) => {});
+  protected readonly assessmentSchema: Schema<IAssessmentModel> = schema((path) => { });
 
   protected readonly assessmentForm = form(this.assessmentModel, this.assessmentSchema);
+
+  readonly ratingFields = RATING_FIELDS;
+  readonly ratingOptions = RATING_OPTIONS;
+
+  /** Live running total out of 50, drives the header progress indicator */
+  readonly totalRatingScore = computed(() => {
+    const m: any = this.assessmentModel();
+    return this.ratingFields.reduce((sum, f) => sum + (Number(m[`${f.key}Rating`]) || 0), 0);
+  });
+  readonly maxRatingScore = computed(() => this.ratingFields.length * 5);
+  readonly totalRatingPercent = computed(() =>
+    Math.round((this.totalRatingScore() / this.maxRatingScore()) * 100)
+  );
+
+  getRating(key: string): number {
+    return (this.assessmentModel() as any)[`${key}Rating`] ?? 0;
+  }
+
+  getRemarks(key: string): string {
+    return (this.assessmentModel() as any)[`${key}Remarks`] ?? '';
+  }
+
+  setRating(key: string, value: number) {
+    this.assessmentModel.update((m) => {
+      const current = (m as any)[`${key}Rating`];
+      // clicking the already-selected value clears the rating back to unset (0)
+      const next = current === value ? 0 : value;
+      return { ...m, [`${key}Rating`]: next };
+    });
+  }
+
+  setRemarks(key: string, value: string) {
+    this.assessmentModel.update((m) => ({ ...m, [`${key}Remarks`]: value }));
+  }
+
+  getInitials(name: string | undefined | null): string {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    return parts
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase())
+      .join('');
+  }
 
   constructor() {
     this.dateAdapter.setLocale('en-GB');
     effect(() => {
       const id = this.panelId();
-      if (!this.isAssessmentMode() && id === EMPTY_UUID) {
+      if (!this.isAssessmentMode() && id === EMPTY_UUID && !this.isViewMode()) {
         this.scheduleModel.set({
           candidateId:
             this.candidateIdForPanel() && this.candidateIdForPanel() !== EMPTY_UUID
@@ -171,6 +275,42 @@ export class InterviewPanelDetail {
       } else {
         this.employeeStore.setSearchOrganizationUnitId(null);
       }
+    });
+  }
+
+  ngOnInit() {
+    if (this.isViewMode() && this.candidateIdForPanel()) {
+      this.fetchPanelDetails();
+    }
+  }
+
+  fetchPanelDetails() {
+    this.loadingPanels.set(true);
+    (this.panelService.getPanelsByCandidate(this.candidateIdForPanel()) as any).subscribe({
+      next: (res: any) => {
+        this.panelDetails.set(res || []);
+        this.loadingPanels.set(false);
+      },
+      error: () => {
+        this.loadingPanels.set(false);
+        this.alertService.error('Error', 'Failed to fetch panel details');
+      },
+    });
+  }
+
+  onDeletePanelist(panelId: string) {
+    if (!confirm('Are you sure you want to remove this panelist?')) return;
+
+    (this.panelService.deletePanel(panelId) as any).subscribe({
+      next: () => {
+        this.alertService.success('Success', 'Panelist removed');
+        this.fetchPanelDetails(); // refresh list
+        this.panelStore.refreshPanels();
+        this.save.emit();
+      },
+      error: () => {
+        this.alertService.error('Error', 'Failed to remove panelist');
+      },
     });
   }
 
@@ -228,7 +368,6 @@ export class InterviewPanelDetail {
     const formattedDate = interviewDateRaw
       ? this.datePipe.transform(interviewDateRaw, 'yyyy-MM-dd')
       : null;
-    console.log(this.interviewTime());
     const formattedTime = this.normalizeTimeValue(this.interviewTime());
 
     const commonSchedule = {

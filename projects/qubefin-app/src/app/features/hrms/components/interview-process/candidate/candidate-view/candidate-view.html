@@ -19,13 +19,10 @@
 
                 <div class="flex items-center gap-3">
 
-                    <div
-                        class="w-12 h-12 rounded-full flex items-center justify-center
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center
                                bg-green-50 dark:bg-green-900/20">
 
-                        <svg
-                            lucideIcon="user"
-                            class="w-6 h-6 text-green-700 dark:text-green-400">
+                        <svg lucideIcon="user" class="w-6 h-6 text-green-700 dark:text-green-400">
                         </svg>
 
                     </div>
@@ -51,31 +48,29 @@
 
                 @if (data.isInterviewLetterReceived) {
 
-                    <span
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
                                text-xs font-medium whitespace-nowrap
                                bg-green-50 text-green-700
                                dark:bg-green-900/20 dark:text-green-400">
 
-                        <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>
 
-                        Letter Received
+                    Letter Received
 
-                    </span>
+                </span>
 
                 } @else {
 
-                    <span
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
                                text-xs font-medium whitespace-nowrap
                                bg-red-50 text-red-600
                                dark:bg-red-900/20 dark:text-red-400">
 
-                        <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
 
-                        Letter Not Received
+                    Letter Not Received
 
-                    </span>
+                </span>
 
                 }
 
@@ -91,20 +86,17 @@
 
                 <!-- ACKNOWLEDGE -->
                 @if (
-                    data.isInterviewLetterReceived &&
-                    !data.isInterviewerAcknowledged && data.canAcknowledgePanel
+                data.isInterviewLetterReceived &&
+                !data.isInterviewerAcknowledged && data.canAcknowledgePanel
                 ) {
 
-                    <button
-                        type="button"
-                        class="global-btn ripple-btn shine-sweep lift"
-                        (click)="onAcknowledge()">
+                <button type="button" class="global-btn ripple-btn shine-sweep lift" (click)="onAcknowledge()">
 
-                        <svg lucideIcon="badge-check" class="w-4 h-4 mr-2"></svg>
+                    <svg lucideIcon="badge-check" class="w-4 h-4 mr-2"></svg>
 
-                        Acknowledge
+                    Acknowledge
 
-                    </button>
+                </button>
 
                 }
 
@@ -112,48 +104,43 @@
                 <!-- ALREADY ACKNOWLEDGED -->
                 @if (data.isInterviewerAcknowledged && data.canAcknowledgePanel) {
 
-                    <div
-                        class="flex items-center gap-2 px-3 py-2 rounded-lg
+                <div class="flex items-center gap-2 px-3 py-2 rounded-lg
                                bg-green-50 dark:bg-green-900/20">
 
-                        <svg lucideIcon="badge-check" class="w-4 h-4 text-green-600"></svg>
+                    <svg lucideIcon="badge-check" class="w-4 h-4 text-green-600"></svg>
 
-                        <span class="text-sm font-medium text-green-700 dark:text-green-400">
-                            Acknowledge
-                        </span>
+                    <span class="text-sm font-medium text-green-700 dark:text-green-400">
+                        Acknowledge
+                    </span>
 
-                    </div>
+                </div>
 
                 }
 
 
                 <!-- INTERVIEW UPLOAD -->
-                @if (data.isHR) {
+                @if (data.isHR && data.isAllPanelAcknowledged) {
 
-                    <button type="button" class="reset-btn shine-sweep lift" (click)="fileInput.click()">
+                <button type="button" class="reset-btn shine-sweep lift" (click)="fileInput.click()">
 
-                        <svg lucideIcon="upload" class="w-4 h-4 mr-2"></svg>
+                    <svg lucideIcon="upload" class="w-4 h-4 mr-2"></svg>
 
-                        Interview Upload
+                    Interview Upload
 
-                    </button>
+                </button>
 
 
-                    <input
-                        type="file"
-                        #fileInput
-                        (change)="onInterviewUpload($event)"
-                        class="hidden"
-                        accept=".pdf,.doc,.docx" />
+                <input type="file" #fileInput (change)="onInterviewUpload($event)" class="hidden"
+                    accept=".pdf,.doc,.docx" />
 
-                    <!-- PRINT LETTER -->
-                    <button type="button" class="reset-btn shine-sweep lift" (click)="onPrintInterviewLetter()">
+                <!-- PRINT LETTER -->
+                <button type="button" class="reset-btn shine-sweep lift" (click)="onPrintInterviewLetter()">
 
-                        <svg lucideIcon="printer" class="w-4 h-4 mr-2"></svg>
+                    <svg lucideIcon="printer" class="w-4 h-4 mr-2"></svg>
 
-                        Print Letter
+                    Print Letter
 
-                    </button>
+                </button>
 
                 }
 
@@ -162,89 +149,81 @@
                 <!-- SEND MAIL -->
                 @if (data.isHR) {
 
-                    <button type="button" class="reset-btn shine-sweep lift" (click)="onSendMail()">
+                <button type="button" class="reset-btn shine-sweep lift" (click)="onSendMail()">
 
-                        <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
+                    <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
 
-                        Send Mail
+                    Send Interview Letter Mail
 
-                    </button>
+                </button>
 
                 }
 
 
                 <!-- START ASSESSMENT -->
                 @if (
-                    data.isCurrentEmployeePanelMember && data.isInterviewerAcknowledged &&
-                    !data.isCurrentEmployeeAssessmentSubmitted
+                data.isCurrentEmployeePanelMember && data.isInterviewerAcknowledged &&
+                !data.isCurrentEmployeeAssessmentSubmitted
                 ) {
 
-                    <button
-                        type="button"
-                        class="global-btn ripple-btn shine-sweep lift"
-                        (click)="onStartAssessment()">
+                <button type="button" class="global-btn ripple-btn shine-sweep lift" (click)="onStartAssessment()">
 
-                        <svg lucideIcon="clipboard-check" class="w-4 h-4 mr-2"></svg>
+                    <svg lucideIcon="clipboard-check" class="w-4 h-4 mr-2"></svg>
 
-                        Start Assessment
+                    Start Assessment
 
-                    </button>
+                </button>
 
                 }
 
 
                 <!-- PANEL ASSESSMENT COMPLETED -->
                 @if (
-                    data.isCurrentEmployeePanelMember &&
-                    data.isCurrentEmployeeAssessmentSubmitted
+                data.isCurrentEmployeePanelMember &&
+                data.isCurrentEmployeeAssessmentSubmitted
                 ) {
 
-                    <div
-                        class="flex items-center gap-2 px-3 py-2 rounded-lg
+                <div class="flex items-center gap-2 px-3 py-2 rounded-lg
                                bg-green-50 dark:bg-green-900/20">
 
-                        <svg lucideIcon="circle-check" class="w-4 h-4 text-green-600"></svg>
+                    <svg lucideIcon="circle-check" class="w-4 h-4 text-green-600"></svg>
 
-                        <span class="text-sm font-medium text-green-700 dark:text-green-400">
-                            Assessment Submitted
-                        </span>
+                    <span class="text-sm font-medium text-green-700 dark:text-green-400">
+                        Assessment Submitted
+                    </span>
 
-                    </div>
+                </div>
 
                 }
 
 
                 <!-- CANDIDATE VERIFICATION -->
-                @if (data.isShowCandidateVerificationButton) {
+                <!-- @if (data.isShowCandidateVerificationButton) { -->
 
-                    <button
-                        type="button"
-                        class="reset-btn shine-sweep lift"
-                        (click)="onCandidateVerification()">
+                <button type="button" class="reset-btn shine-sweep lift" (click)="onCandidateVerification()">
 
-                        <svg lucideIcon="shield-check" class="w-4 h-4 mr-2"></svg>
+                    <svg lucideIcon="shield-check" class="w-4 h-4 mr-2"></svg>
 
-                        Candidate Verification
+                    Candidate Verification
 
-                    </button>
+                </button>
 
-                }
+                <!-- } -->
 
 
                 <!-- VERIFICATION COMPLETED -->
                 @if (data.isCandidateVerificationCompleted) {
 
-                    <div
-                        class="flex items-center gap-2 px-3 py-2 rounded-lg
+                <div class="flex items-center gap-2 px-3 py-2 rounded-lg
                                bg-green-50 dark:bg-green-900/20">
 
-                        <svg lucideIcon="shield-check" class="w-4 h-4 text-green-600"></svg>
+                    <svg lucideIcon="shield-check" class="w-4 h-4 text-green-600"></svg>
 
-                        <span class="text-sm font-medium text-green-700 dark:text-green-400">
-                            Verification Completed
-                        </span>
+                    <span class="text-sm font-medium text-green-700 dark:text-green-400">
+                        Verification Completed
+                    </span>
 
-                    </div>
+                </div>
 
                 }
 
@@ -252,16 +231,13 @@
                 <!-- HR ASSESSMENT -->
                 @if (data.isShowHrAssessmentButton) {
 
-                    <button
-                        type="button"
-                        class="reset-btn shine-sweep lift"
-                        (click)="onHrAssessment()">
+                <button type="button" class="reset-btn shine-sweep lift" (click)="onHrAssessment()">
 
-                        <svg lucideIcon="user-check" class="w-4 h-4 mr-2"></svg>
+                    <svg lucideIcon="user-check" class="w-4 h-4 mr-2"></svg>
 
-                        HR Assessment
+                    HR Assessment
 
-                    </button>
+                </button>
 
                 }
 
@@ -269,17 +245,16 @@
                 <!-- HR ASSESSMENT COMPLETED -->
                 @if (data.isHrAssessmentCompleted) {
 
-                    <div
-                        class="flex items-center gap-2 px-3 py-2 rounded-lg
+                <div class="flex items-center gap-2 px-3 py-2 rounded-lg
                                bg-green-50 dark:bg-green-900/20">
 
-                        <svg lucideIcon="circle-check" class="w-4 h-4 text-green-600"></svg>
+                    <svg lucideIcon="circle-check" class="w-4 h-4 text-green-600"></svg>
 
-                        <span class="text-sm font-medium text-green-700 dark:text-green-400">
-                            HR Assessment Completed
-                        </span>
+                    <span class="text-sm font-medium text-green-700 dark:text-green-400">
+                        HR Assessment Completed
+                    </span>
 
-                    </div>
+                </div>
 
                 }
 
@@ -287,36 +262,30 @@
                 <!-- CREATE PANEL -->
                 @if (data.showCreatePanelButton) {
 
-                    <button
-                        type="button"
-                        class="global-btn ripple-btn shine-sweep lift"
-                        (click)="onCreatePanel()">
+                <button type="button" class="global-btn ripple-btn shine-sweep lift" (click)="onCreatePanel()">
 
-                        <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
+                    <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
 
-                        Create Panel
+                    Create Panel
 
-                    </button>
+                </button>
 
                 }
 
 
                 <!-- VIEW PANEL -->
                 @if (
-                    data.isPanelCreated &&
-                    data.showViewPanelButton
+                data.isPanelCreated &&
+                data.showViewPanelButton
                 ) {
 
-                    <button
-                        type="button"
-                        class="reset-btn shine-sweep lift"
-                        (click)="onViewPanel()">
+                <button type="button" class="reset-btn shine-sweep lift" (click)="onViewPanel()">
 
-                        <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
+                    <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
 
-                        View Panel
+                    View Panel
 
-                    </button>
+                </button>
 
                 }
 
@@ -324,13 +293,13 @@
                 <!-- OFFER LETTER -->
                 @if (data.canGenerateOfferLetter) {
 
-                    <button type="button" class="global-btn ripple-btn shine-sweep lift">
+                <button type="button" class="global-btn ripple-btn shine-sweep lift">
 
-                        <svg lucideIcon="file-check" class="w-4 h-4 mr-2"></svg>
+                    <svg lucideIcon="file-check" class="w-4 h-4 mr-2"></svg>
 
-                        Generate Offer Letter
+                    Generate Offer Letter
 
-                    </button>
+                </button>
 
                 }
 
@@ -338,17 +307,16 @@
                 <!-- OFFER LETTER GENERATED -->
                 @if (data.isOfferLetterGenerated) {
 
-                    <div
-                        class="flex items-center gap-2 px-3 py-2 rounded-lg
+                <div class="flex items-center gap-2 px-3 py-2 rounded-lg
                                bg-green-50 dark:bg-green-900/20">
 
-                        <svg lucideIcon="file-check" class="w-4 h-4 text-green-600"></svg>
+                    <svg lucideIcon="file-check" class="w-4 h-4 text-green-600"></svg>
 
-                        <span class="text-sm font-medium text-green-700 dark:text-green-400">
-                            Offer Letter Generated
-                        </span>
+                    <span class="text-sm font-medium text-green-700 dark:text-green-400">
+                        Offer Letter Generated
+                    </span>
 
-                    </div>
+                </div>
 
                 }
 
@@ -386,7 +354,7 @@
                         <p class="gen-title">
                             {{ data.interviewDate | date:'dd MMM yyyy' }}
                             @if (data.interviewTime) {
-                                , {{ data.interviewTime }}
+                            , {{ data.interviewTime }}
                             }
                         </p>
                     </div>
@@ -488,48 +456,39 @@
 
                 @for (stage of workflowStages(); track stage.label; let last = $last) {
 
-                    <div class="flex gap-2.5" [class.pb-0]="last" [class.pb-4]="!last">
+                <div class="flex gap-2.5" [class.pb-0]="last" [class.pb-4]="!last">
 
-                        <div class="flex flex-col items-center w-4 shrink-0">
+                    <div class="flex flex-col items-center w-4 shrink-0">
 
-                            <div
-                                class="w-3.5 h-3.5 rounded-full border-2 shrink-0"
-                                [class.bg-green-600]="stage.done"
-                                [class.border-green-600]="stage.done || stage.current"
-                                [class.bg-white]="!stage.done"
-                                [class.dark:bg-slate-800]="!stage.done"
-                                [class.border-slate-300]="!stage.done && !stage.current"
-                                [class.dark:border-slate-600]="!stage.done && !stage.current">
-                            </div>
-
-                            @if (!last) {
-
-                                <div
-                                    class="w-[1.5px] flex-1 mt-0.5"
-                                    [class.bg-green-600]="stage.done"
-                                    [class.bg-slate-200]="!stage.done"
-                                    [class.dark:bg-slate-700]="!stage.done">
-                                </div>
-
-                            }
-
+                        <div class="w-3.5 h-3.5 rounded-full border-2 shrink-0" [class.bg-green-600]="stage.done"
+                            [class.border-green-600]="stage.done || stage.current" [class.bg-white]="!stage.done"
+                            [class.dark:bg-slate-800]="!stage.done"
+                            [class.border-slate-300]="!stage.done && !stage.current"
+                            [class.dark:border-slate-600]="!stage.done && !stage.current">
                         </div>
 
-                        <p
-                            class="text-sm leading-tight"
-                            [class.font-medium]="stage.current"
-                            [class.text-slate-800]="stage.current"
-                            [class.dark:text-white]="stage.current"
-                            [class.text-slate-500]="stage.done && !stage.current"
-                            [class.dark:text-slate-400]="stage.done && !stage.current"
-                            [class.text-slate-400]="!stage.done && !stage.current"
-                            [class.dark:text-slate-500]="!stage.done && !stage.current">
+                        @if (!last) {
 
-                            {{ stage.label }}
+                        <div class="w-[1.5px] flex-1 mt-0.5" [class.bg-green-600]="stage.done"
+                            [class.bg-slate-200]="!stage.done" [class.dark:bg-slate-700]="!stage.done">
+                        </div>
 
-                        </p>
+                        }
 
                     </div>
+
+                    <p class="text-sm leading-tight" [class.font-medium]="stage.current"
+                        [class.text-slate-800]="stage.current" [class.dark:text-white]="stage.current"
+                        [class.text-slate-500]="stage.done && !stage.current"
+                        [class.dark:text-slate-400]="stage.done && !stage.current"
+                        [class.text-slate-400]="!stage.done && !stage.current"
+                        [class.dark:text-slate-500]="!stage.done && !stage.current">
+
+                        {{ stage.label }}
+
+                    </p>
+
+                </div>
 
                 }
 
@@ -544,20 +503,17 @@
 
 } @else {
 
-<div
-    class="glass rounded-xl shadow-glass dark:shadow
+<div class="glass rounded-xl shadow-glass dark:shadow
            p-8 text-center text-slate-400
            flex flex-col items-center justify-center
            gap-3 min-h-[300px]">
 
-    <div
-        class="w-10 h-10 border-4
+    <div class="w-10 h-10 border-4
                border-primary-500 border-t-transparent
                rounded-full animate-spin">
     </div>
 
-    <p
-        class="text-sm font-medium tracking-wide
+    <p class="text-sm font-medium tracking-wide
                text-slate-500 dark:text-slate-400">
 
         Loading candidate Details...

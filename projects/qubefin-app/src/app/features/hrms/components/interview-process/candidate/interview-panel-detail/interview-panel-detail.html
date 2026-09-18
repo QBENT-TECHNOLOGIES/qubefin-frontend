@@ -1,30 +1,48 @@
-<div class="flex items-center justify-between px-5 py-3 bg-white/60 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+<div
+    class="flex items-center justify-between px-5 py-3 bg-white/60 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
     <div class="flex items-center gap-4">
-        <div class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50 dark:bg-secondary-600/50 text-indigo-600 dark:text-indigo-500 border border-indigo-100 dark:border-0">
-            <svg [lucideIcon]="!isAssessmentMode() ? 'calendar-clock' : 'clipboard-check'" class="w-6 h-6"></svg>
+        <div
+            class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50 dark:bg-secondary-600/50 text-indigo-600 dark:text-indigo-500 border border-indigo-100 dark:border-0">
+            <svg [lucideIcon]="isViewMode() ? 'users-round' : (!isAssessmentMode() ? 'calendar-clock' : 'clipboard-check')"
+                class="w-6 h-6"></svg>
         </div>
         <div>
             <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 leading-tight">
-                {{ !isAssessmentMode() ? 'Schedule Interview Panel' : 'Interview Assessment Form' }}
+                {{ isViewMode() ? 'View Interview Panel' : (!isAssessmentMode() ? 'Schedule Interview Panel' :
+                'Interview Assessment Form') }}
             </h2>
             <p class="text-sm text-slate-500 font-medium mt-1 flex items-center gap-1.5">
-                {{ !isAssessmentMode() ? 'Select panelists and schedule time' : 'Rate from 0 (Not Acceptable) to 5 (Outstanding)' }}
+                {{ isViewMode() ? 'Interview panel details' : (!isAssessmentMode() ? 'Select panelists and schedule
+                time' : 'Rate from 0 (Not Acceptable) to 5 (Outstanding)') }}
             </p>
         </div>
     </div>
-    <button (click)="onCancel()" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer focus:outline-none">
+
+    <!-- Live score badge, only while filling the assessment -->
+    @if (isAssessmentMode()) {
+    <div class="hidden sm:flex flex-col items-end mr-2">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Score</span>
+        <span class="text-lg font-extrabold text-indigo-600 dark:text-indigo-400 leading-none">{{ totalRatingScore() }}
+            <span class="text-xs font-semibold text-slate-400">/ {{ maxRatingScore() }}</span></span>
+    </div>
+    }
+
+    <button (click)="onCancel()"
+        class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer focus:outline-none">
         <svg lucideIcon="x" class="w-5 h-5"></svg>
     </button>
 </div>
 
 <mat-dialog-content class="p-5!">
-    <div class="space-y-6">
-        @if (!isAssessmentMode()) {
+    <ng-template #scheduleFormTemplate>
         <!-- Organization Unit Selection Card -->
-        <div class="bg-glass-light dark:bg-glass-dark rounded-lg border border-glass-light shadow-glass overflow-hidden flex flex-col">
-            <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-500 bg-slate-50/80 dark:bg-slate-700 flex items-center justify-between">
+        <div
+            class="bg-glass-light dark:bg-glass-dark rounded-lg border border-glass-light shadow-glass overflow-hidden flex flex-col mb-6">
+            <div
+                class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-500 bg-slate-50/80 dark:bg-slate-700 flex items-center justify-between">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div> Organization Select
+                    <div class="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
+                    Organization Select
                 </h3>
             </div>
             <div class="p-5">
@@ -58,20 +76,32 @@
 
         @if (selectedPanelists().length > 0) {
         <!-- Selected Panelists Card -->
-        <div class="bg-emerald-50/50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800 shadow-sm overflow-hidden flex flex-col">
-            <div class="px-5 py-3 border-b border-emerald-100 dark:border-emerald-800 bg-emerald-100/50 dark:bg-emerald-800/50 flex items-center justify-between">
+        <div
+            class="bg-emerald-50/50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800 shadow-sm overflow-hidden flex flex-col mb-6">
+            <div
+                class="px-5 py-3 border-b border-emerald-100 dark:border-emerald-800 bg-emerald-100/50 dark:bg-emerald-800/50 flex items-center justify-between">
                 <h3 class="text-sm font-bold text-emerald-800 dark:text-emerald-100 flex items-center gap-2">
-                    <svg lucideIcon="users-round" class="w-[16px] h-[16px] text-emerald-600 dark:text-emerald-400"></svg> Selected Panelists ({{ selectedPanelists().length }})
+                    <svg lucideIcon="users-round"
+                        class="w-[16px] h-[16px] text-emerald-600 dark:text-emerald-400"></svg> Selected Panelists ({{
+                    selectedPanelists().length }})
                 </h3>
             </div>
             <div class="p-4 flex flex-wrap gap-2">
                 @for (emp of selectedPanelists(); track emp.id) {
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-700 rounded-full shadow-sm">
-                    <div class="flex flex-col">
-                        <span class="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight">{{ emp.name }}</span>
-                        <span class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">{{ emp.currentDesignation || '-' }}</span>
+                <div
+                    class="inline-flex items-center gap-2 pl-1.5 pr-3 py-1.5 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-700 rounded-full shadow-sm">
+                    <div
+                        class="w-7 h-7 rounded-full bg-emerald-500 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0">
+                        {{ getInitials(emp.name) }}
                     </div>
-                    <button type="button" (click)="togglePanelist(emp, false)" class="ml-1 text-slate-400 hover:text-rose-500 rounded-full transition-colors cursor-pointer outline-none flex items-center justify-center h-5 w-5 hover:bg-rose-50 dark:hover:bg-rose-900/30">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight">{{ emp.name
+                            }}</span>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">{{
+                            emp.currentDesignation || '-' }}</span>
+                    </div>
+                    <button type="button" (click)="togglePanelist(emp, false)"
+                        class="ml-1 text-slate-400 hover:text-rose-500 rounded-full transition-colors cursor-pointer outline-none flex items-center justify-center h-5 w-5 hover:bg-rose-50 dark:hover:bg-rose-900/30">
                         <svg lucideIcon="x" class="w-3.5 h-3.5"></svg>
                     </button>
                 </div>
@@ -81,31 +111,59 @@
         }
 
         <!-- Panelists List Card -->
-        <div class="bg-glass-light dark:bg-glass-dark rounded-lg border border-glass-light shadow-glass overflow-hidden flex flex-col">
-            <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-500 bg-slate-50/80 dark:bg-slate-700 flex items-center justify-between">
+        <div
+            class="bg-glass-light dark:bg-glass-dark rounded-lg border border-glass-light shadow-glass overflow-hidden flex flex-col">
+            <div
+                class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-500 bg-slate-50/80 dark:bg-slate-700 flex items-center justify-between gap-3 flex-wrap">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div> Select Panelists
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div> Select
+                    Panelists
                 </h3>
-                <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{{ selectedPanelists().length }} Selected</span>
+
+                <div class="flex items-center gap-3">
+                    <!-- Interactive live search -->
+                    <div class="relative">
+                        <svg lucideIcon="search"
+                            class="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></svg>
+                        <input type="text" placeholder="Search name, code, designation..."
+                            [value]="employeeSearchTerm()" (input)="onEmployeeSearchChange($any($event.target).value)"
+                            class="pl-8 pr-3 py-1.5 text-xs rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-300 w-52" />
+                    </div>
+                    <span
+                        class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full whitespace-nowrap">{{
+                        selectedPanelists().length }} Selected</span>
+                </div>
             </div>
             <div class="p-0 overflow-y-auto max-h-[300px]">
-                @if (employeeList().length > 0) {
+                @if (filteredEmployeeList().length > 0) {
                 <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-                    <thead class="bg-slate-50 dark:bg-slate-800/50 text-xs uppercase font-bold sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-700">
+                    <thead
+                        class="bg-slate-50 dark:bg-slate-800/50 text-xs uppercase font-bold sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-700">
                         <tr>
                             <th class="px-4 py-3 w-[60px] text-center">Select</th>
-                            <th class="px-4 py-3">Employee Name</th>
+                            <th class="px-4 py-3">Employee</th>
                             <th class="px-4 py-3">Code</th>
                             <th class="px-4 py-3">Designation</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800/50">
-                        @for (emp of employeeList(); track emp.id) {
-                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors" [class.bg-emerald-50/50]="isPanelistSelected(emp.id)">
-                            <td class="px-4 py-2.5 text-center">
-                                <mat-checkbox [checked]="isPanelistSelected(emp.id)" (change)="togglePanelist(emp, $event.checked)" color="primary"></mat-checkbox>
+                        @for (emp of filteredEmployeeList(); track emp.id) {
+                        <tr (click)="togglePanelist(emp, !isPanelistSelected(emp.id))"
+                            class="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
+                            [class.bg-emerald-50/60]="isPanelistSelected(emp.id)">
+                            <td class="px-4 py-2.5 text-center" (click)="$event.stopPropagation()">
+                                <mat-checkbox [checked]="isPanelistSelected(emp.id)"
+                                    (change)="togglePanelist(emp, $event.checked)" color="primary"></mat-checkbox>
                             </td>
-                            <td class="px-4 py-2.5 font-semibold text-slate-800 dark:text-slate-200">{{ emp.name }}</td>
+                            <td class="px-4 py-2.5">
+                                <div class="flex items-center gap-2.5">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300 text-[11px] font-bold flex items-center justify-center flex-shrink-0">
+                                        {{ getInitials(emp.name) }}
+                                    </div>
+                                    <span class="font-semibold text-slate-800 dark:text-slate-200">{{ emp.name }}</span>
+                                </div>
+                            </td>
                             <td class="px-4 py-2.5">{{ emp.code }}</td>
                             <td class="px-4 py-2.5">{{ emp.currentDesignation || '-' }}</td>
                         </tr>
@@ -115,279 +173,315 @@
                 } @else {
                 <div class="flex flex-col items-center justify-center p-8 text-slate-400">
                     <svg lucideIcon="users-round" class="w-12 h-12 mb-3 text-slate-300"></svg>
-                    <p class="font-medium text-slate-500">No employees found. Please select an Organization Unit.</p>
+                    <p class="font-medium text-slate-500">
+                        {{ employeeList().length === 0 ? 'No employees found. Please select an Organization Unit.' : 'No
+                        employees match your search.' }}
+                    </p>
                 </div>
                 }
             </div>
         </div>
+    </ng-template>
+
+    <div class="space-y-6">
+        @if (isViewMode()) {
+        @if (loadingPanels()) {
+        <div class="flex flex-col items-center justify-center py-10">
+            <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="mt-4 text-slate-500">Loading panel details...</p>
+        </div>
+        } @else {
+        <div class="space-y-4">
+            @for (panel of panelDetails(); track panel.id; let i = $index) {
+            <div
+                class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <!-- Header (compact) -->
+                <div class="px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
+                    <div class="flex items-center gap-2.5">
+                        <div
+                            class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                            {{ getInitials(panel.employeeName) }}
+                        </div>
+                        <div class="flex flex-col leading-tight">
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Panelist {{
+                                i + 1 }}</span>
+                            <span class="text-sm font-bold text-slate-800 dark:text-slate-100">{{ panel.employeeName ||
+                                '-' }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        @if (panel.isSubmitted) {
+                        <span
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-50 text-green-700 border border-green-200">
+                            <svg lucideIcon="check-circle-2" class="w-3 h-3"></svg> Submitted
+                        </span>
+                        } @else if (panel.isAttened && !panel.isSubmitted) {
+                        <span
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">
+                            <svg lucideIcon="pencil-line" class="w-3 h-3"></svg> Started
+                        </span>
+                        } @else if (!panel.isAttened && panel.isAcknowledged) {
+                        <span
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200">
+                            <svg lucideIcon="clock" class="w-3 h-3"></svg> Not Started
+                        </span>
+                        } @else {
+                        <span
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
+                            <svg lucideIcon="hourglass" class="w-3 h-3"></svg> Pending Acknowledge
+                        </span>
+                        }
+
+                        @if (!panel.isAcknowledged) {
+                        <button (click)="onDeletePanelist(panel.id)"
+                            class="text-slate-400 hover:text-rose-600 border border-slate-200 dark:border-slate-700 hover:border-rose-200 hover:bg-rose-50 dark:hover:bg-rose-900/20 p-1.5 rounded-md transition-colors cursor-pointer"
+                            title="Delete Panelist">
+                            <svg lucideIcon="trash-2" class="w-3.5 h-3.5"></svg>
+                        </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="border-t border-slate-100 dark:border-slate-800"></div>
+
+                <!-- Info rows -->
+                <div class="px-4 py-3 divide-y divide-slate-100 dark:divide-slate-800">
+                    <div class="flex items-center justify-between py-2.5">
+                        <span
+                            class="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                            <svg lucideIcon="calendar-clock" class="w-4 h-4"></svg> Date & Time
+                        </span>
+                        <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {{ panel.scheduledDate | date:'mediumDate' }} &middot; {{ panel.scheduledTime }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between py-2.5">
+                        <span
+                            class="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                            <svg lucideIcon="hash" class="w-4 h-4"></svg> Code
+                        </span>
+                        <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ panel.employeeCode ||
+                            '-' }}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2.5">
+                        <span
+                            class="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                            <svg lucideIcon="briefcase" class="w-4 h-4"></svg> Designation
+                        </span>
+                        <span class="text-sm font-semibold text-slate-700 dark:text-slate-200 text-right">{{
+                            panel.designation || '-' }}</span>
+                    </div>
+
+                    @if (panel.isSubmitted) {
+                    <div class="flex items-center justify-between py-2.5">
+                        <span
+                            class="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                            <svg [lucideIcon]="panel.isRecommendedForPosition ? 'thumbs-up' : 'thumbs-down'"
+                                class="w-4 h-4"></svg> Recommendation
+                        </span>
+                        <span class="text-sm font-semibold" [class.text-emerald-600]="panel.isRecommendedForPosition"
+                            [class.text-rose-600]="!panel.isRecommendedForPosition">
+                            {{ panel.isRecommendedForPosition ? 'Recommended' : 'Not Recommended' }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between py-2.5 gap-4">
+                        <span
+                            class="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                            <svg lucideIcon="gauge" class="w-4 h-4"></svg> Total Rating
+                        </span>
+                        <div class="flex items-center gap-2 flex-1 justify-end">
+                            <div class="w-24 h-1.5 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-indigo-500 to-primary-500 rounded-full"
+                                    [style.width.%]="((panel.totalRatingPoint || 0) / 50) * 100"></div>
+                            </div>
+                            <span class="text-sm font-bold text-indigo-600 dark:text-indigo-400 whitespace-nowrap">{{
+                                panel.totalRatingPoint || 0 }} / 50</span>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+            @if (panelDetails().length === 0) {
+            <div
+                class="flex flex-col items-center justify-center p-8 text-slate-400 bg-glass-light dark:bg-glass-dark rounded-lg border border-glass-light shadow-glass">
+                <svg lucideIcon="users-round" class="w-12 h-12 mb-3 text-slate-300"></svg>
+                <p class="font-medium text-slate-500">No panel details found for this candidate.</p>
+            </div>
+            }
+        </div>
+
+        @if (canModifyPanel()) {
+        <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+            <button type="button" (click)="toggleAddPanelists()"
+                class="w-full flex items-center justify-between gap-2 px-4 py-3 rounded-lg border border-dashed transition-colors cursor-pointer"
+                [class.border-indigo-300]="!showAddPanelists()" [class.hover:bg-indigo-50/50]="!showAddPanelists()"
+                [class.border-slate-200]="showAddPanelists()" [class.bg-slate-50]="showAddPanelists()">
+                <span class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center">
+                        <svg lucideIcon="user-plus" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></svg>
+                    </div>
+                    <span class="text-sm font-bold text-slate-800 dark:text-slate-100">Add More Panelists</span>
+                </span>
+                <svg [lucideIcon]="showAddPanelists() ? 'chevron-up' : 'chevron-down'"
+                    class="w-4 h-4 text-slate-400"></svg>
+            </button>
+
+            @if (showAddPanelists()) {
+            <div class="mt-4 space-y-4">
+                <ng-container *ngTemplateOutlet="scheduleFormTemplate"></ng-container>
+            </div>
+            }
+        </div>
+        }
+        }
+        } @else if (!isAssessmentMode()) {
+        <ng-container *ngTemplateOutlet="scheduleFormTemplate"></ng-container>
         } @else {
         <!-- Assessment Forms -->
-        <div class="bg-glass-light dark:bg-glass-dark rounded-lg border border-glass-light shadow-glass overflow-hidden flex flex-col">
-            <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-500 bg-slate-50/80 dark:bg-slate-700 flex items-center justify-between">
-                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div> Assessment Ratings
-                </h3>
+
+        <!-- Sticky score summary -->
+        <div
+            class="bg-gradient-to-r from-indigo-50 to-primary-50 dark:from-slate-800 dark:to-slate-800 rounded-lg border border-indigo-100 dark:border-slate-700 p-4 flex items-center gap-4">
+            <div
+                class="w-12 h-12 rounded-full bg-white dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0">
+                <svg lucideIcon="gauge" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></svg>
             </div>
-            
-            <div class="p-5 space-y-4">
-                <!-- Appearance & Attitude -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-glass-light dark:bg-slate-800 rounded-lg border border-glass-light dark:border-0 shadow-glass">
-                    <div class="md:col-span-1 flex flex-col justify-center">
-                        <span class="font-bold text-slate-700 dark:text-slate-200">Appearance & Attitude</span>
-                        <span class="text-xs text-slate-500 font-medium">(grooming, courtesy, appropriate dress)</span>
-                    </div>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Rating</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
-                        <mat-select [formField]="assessmentForm.appearanceAttitudeRating">
-                            <mat-option [value]="0">0 - Not Acceptable (NA)</mat-option>
-                            <mat-option [value]="1">1 - Below Average (BA)</mat-option>
-                            <mat-option [value]="2">2 - Average (A)</mat-option>
-                            <mat-option [value]="3">3 - Good (G)</mat-option>
-                            <mat-option [value]="4">4 - Very Good (VG)</mat-option>
-                            <mat-option [value]="5">5 - Outstanding (O)</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Comments</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
-                        <input matInput [formField]="assessmentForm.appearanceAttitudeRemarks" placeholder="Enter comments">
-                    </mat-form-field>
+            <div class="flex-1">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Overall
+                        Score</span>
+                    <span class="text-sm font-extrabold text-indigo-700 dark:text-indigo-300">{{ totalRatingScore() }} /
+                        {{ maxRatingScore() }}</span>
                 </div>
-
-                <!-- Personality -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-glass-light dark:bg-slate-800 rounded-lg border border-glass-light dark:border-0 shadow-glass">
-                    <div class="md:col-span-1 flex flex-col justify-center">
-                        <span class="font-bold text-slate-700 dark:text-slate-200">Personality</span>
-                        <span class="text-xs text-slate-500 font-medium">(Dignity, bearing, rapport, process, manner)</span>
-                    </div>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Rating</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
-                        <mat-select [formField]="assessmentForm.personalityRating">
-                            <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
-                            <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
-                            <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Comments</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
-                        <input matInput [formField]="assessmentForm.personalityRemarks" placeholder="Enter comments">
-                    </mat-form-field>
-                </div>
-
-                <!-- Communication -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-glass-light dark:bg-slate-800 rounded-lg border border-glass-light dark:border-0 shadow-glass">
-                    <div class="md:col-span-1 flex flex-col justify-center">
-                        <span class="font-bold text-slate-700 dark:text-slate-200">Communication</span>
-                        <span class="text-xs text-slate-500 font-medium">(ability to adequately express oneself)</span>
-                    </div>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Rating</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
-                        <mat-select [formField]="assessmentForm.communicationRating">
-                            <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
-                            <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
-                            <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Comments</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
-                        <input matInput [formField]="assessmentForm.communicationRemarks" placeholder="Enter comments">
-                    </mat-form-field>
-                </div>
-
-                <!-- Education -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-glass-light dark:bg-slate-800 rounded-lg border border-glass-light dark:border-0 shadow-glass">
-                    <div class="md:col-span-1 flex flex-col justify-center">
-                        <span class="font-bold text-slate-700 dark:text-slate-200">Education</span>
-                        <span class="text-xs text-slate-500 font-medium">(appropriateness of degree and course work)</span>
-                    </div>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Rating</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
-                        <mat-select [formField]="assessmentForm.educationRating">
-                            <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
-                            <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
-                            <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Comments</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
-                        <input matInput [formField]="assessmentForm.educationRemarks" placeholder="Enter comments">
-                    </mat-form-field>
-                </div>
-
-                <!-- Work Experience -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-glass-light dark:bg-slate-800 rounded-lg border border-glass-light dark:border-0 shadow-glass">
-                    <div class="md:col-span-1 flex flex-col justify-center">
-                        <span class="font-bold text-slate-700 dark:text-slate-200">Work Experience</span>
-                        <span class="text-xs text-slate-500 font-medium">(related work experience for the job)</span>
-                    </div>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Rating</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
-                        <mat-select [formField]="assessmentForm.workExperienceRating">
-                            <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
-                            <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
-                            <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Comments</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
-                        <input matInput [formField]="assessmentForm.workExperienceRemarks" placeholder="Enter comments">
-                    </mat-form-field>
-                </div>
-
-                <!-- Technical Competence -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-glass-light dark:bg-slate-800 rounded-lg border border-glass-light dark:border-0 shadow-glass">
-                    <div class="md:col-span-1 flex flex-col justify-center">
-                        <span class="font-bold text-slate-700 dark:text-slate-200">Technical Competence</span>
-                        <span class="text-xs text-slate-500 font-medium">(appropriateness of technical skills)</span>
-                    </div>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Rating</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
-                        <mat-select [formField]="assessmentForm.technicalCompetenceRating">
-                            <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
-                            <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
-                            <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Comments</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
-                        <input matInput [formField]="assessmentForm.technicalCompetenceRemarks" placeholder="Enter comments">
-                    </mat-form-field>
-                </div>
-
-                <!-- Flexibility -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-glass-light dark:bg-slate-800 rounded-lg border border-glass-light dark:border-0 shadow-glass">
-                    <div class="md:col-span-1 flex flex-col justify-center">
-                        <span class="font-bold text-slate-700 dark:text-slate-200">Flexibility</span>
-                        <span class="text-xs text-slate-500 font-medium">(responsive to change, tolerance for ambiguity)</span>
-                    </div>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Rating</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
-                        <mat-select [formField]="assessmentForm.flexibilityRating">
-                            <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
-                            <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
-                            <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Comments</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
-                        <input matInput [formField]="assessmentForm.flexibilityRemarks" placeholder="Enter comments">
-                    </mat-form-field>
-                </div>
-
-                <!-- Ambition -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-glass-light dark:bg-slate-800 rounded-lg border border-glass-light dark:border-0 shadow-glass">
-                    <div class="md:col-span-1 flex flex-col justify-center">
-                        <span class="font-bold text-slate-700 dark:text-slate-200">Ambition</span>
-                        <span class="text-xs text-slate-500 font-medium">(in line with anticipated job program)</span>
-                    </div>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Rating</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
-                        <mat-select [formField]="assessmentForm.ambitionRating">
-                            <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
-                            <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
-                            <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Comments</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
-                        <input matInput [formField]="assessmentForm.ambitionRemarks" placeholder="Enter comments">
-                    </mat-form-field>
-                </div>
-
-                <!-- Potential -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-glass-light dark:bg-slate-800 rounded-lg border border-glass-light dark:border-0 shadow-glass">
-                    <div class="md:col-span-1 flex flex-col justify-center">
-                        <span class="font-bold text-slate-700 dark:text-slate-200">Potential</span>
-                        <span class="text-xs text-slate-500 font-medium">(ability and motivation to grow)</span>
-                    </div>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Rating</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
-                        <mat-select [formField]="assessmentForm.potentialRating">
-                            <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
-                            <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
-                            <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Comments</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
-                        <input matInput [formField]="assessmentForm.potentialRemarks" placeholder="Enter comments">
-                    </mat-form-field>
-                </div>
-
-                <!-- Others -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-glass-light dark:bg-slate-800 rounded-lg border border-glass-light dark:border-0 shadow-glass">
-                    <div class="md:col-span-1 flex flex-col justify-center">
-                        <span class="font-bold text-slate-700 dark:text-slate-200">Others</span>
-                        <span class="text-xs text-slate-500 font-medium">(if any)</span>
-                    </div>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Rating</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="star" class="w-[16px] h-[16px]"></svg></div>
-                        <mat-select [formField]="assessmentForm.othersRating">
-                            <mat-option [value]="0">0 - NA</mat-option><mat-option [value]="1">1 - BA</mat-option>
-                            <mat-option [value]="2">2 - A</mat-option><mat-option [value]="3">3 - G</mat-option>
-                            <mat-option [value]="4">4 - VG</mat-option><mat-option [value]="5">5 - O</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Comments</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="message-square" class="w-[16px] h-[16px]"></svg></div>
-                        <input matInput [formField]="assessmentForm.othersRemarks" placeholder="Enter comments">
-                    </mat-form-field>
+                <div class="h-2 rounded-full bg-white/70 dark:bg-slate-700 overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-indigo-500 to-primary-500 rounded-full transition-all duration-300"
+                        [style.width.%]="totalRatingPercent()"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Final Recommendation Card -->
-        <div class="bg-glass-light dark:bg-glass-dark rounded-lg border border-glass-light shadow-glass overflow-hidden flex flex-col">
-            <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-500 bg-slate-50/80 dark:bg-slate-700 flex items-center justify-between">
+        <div
+            class="bg-glass-light dark:bg-glass-dark rounded-lg border border-glass-light shadow-glass overflow-hidden flex flex-col">
+            <div
+                class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-500 bg-slate-50/80 dark:bg-slate-700 flex items-center justify-between">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div> Final Recommendation
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                    Assessment Ratings
+                </h3>
+            </div>
+
+            <div class="p-5 space-y-4">
+                @for (field of ratingFields; track field.key) {
+                <div
+                    class="p-4 bg-glass-light dark:bg-slate-800 rounded-lg border border-glass-light dark:border-0 shadow-glass">
+                    <div class="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-6">
+                        <div class="lg:w-56 flex-shrink-0">
+                            <span class="font-bold text-slate-700 dark:text-slate-200 block">{{ field.label }}</span>
+                            <span class="text-xs text-slate-500 font-medium">{{ field.desc }}</span>
+                        </div>
+
+                        <!-- Segmented rating buttons: click to set, click again to clear -->
+                        <div class="flex flex-wrap gap-1.5">
+                            @for (opt of ratingOptions; track opt.value) {
+                            <button type="button" (click)="setRating(field.key, opt.value)" [title]="opt.full"
+                                class="w-11 h-11 rounded-lg border text-xs font-bold flex flex-col items-center justify-center transition-all cursor-pointer leading-none"
+                                [class.bg-indigo-600]="getRating(field.key) === opt.value"
+                                [class.border-indigo-600]="getRating(field.key) === opt.value"
+                                [class.text-white]="getRating(field.key) === opt.value"
+                                [class.shadow-md]="getRating(field.key) === opt.value"
+                                [class.scale-105]="getRating(field.key) === opt.value"
+                                [class.bg-white]="getRating(field.key) !== opt.value"
+                                [class.dark:bg-slate-900]="getRating(field.key) !== opt.value"
+                                [class.border-slate-200]="getRating(field.key) !== opt.value"
+                                [class.dark:border-slate-600]="getRating(field.key) !== opt.value"
+                                [class.text-slate-600]="getRating(field.key) !== opt.value"
+                                [class.dark:text-slate-300]="getRating(field.key) !== opt.value"
+                                [class.hover:border-indigo-300]="getRating(field.key) !== opt.value">
+                                <span>{{ opt.value }}</span>
+                                <span class="text-[9px] font-semibold opacity-80">{{ opt.label }}</span>
+                            </button>
+                            }
+                        </div>
+
+                        <div class="flex-1 min-w-[180px]">
+                            <div class="relative">
+                                <svg lucideIcon="message-square"
+                                    class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></svg>
+                                <input type="text" placeholder="Comments (optional)" [value]="getRemarks(field.key)"
+                                    (input)="setRemarks(field.key, $any($event.target).value)"
+                                    class="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Final Recommendation Card -->
+        <div
+            class="bg-glass-light dark:bg-glass-dark rounded-lg border border-glass-light shadow-glass overflow-hidden flex flex-col">
+            <div
+                class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-500 bg-slate-50/80 dark:bg-slate-700 flex items-center justify-between">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div> Final
+                    Recommendation
                 </h3>
             </div>
             <div class="p-5">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
                         <mat-label>What other jobs (functional area) would he/she be suited for:</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="briefcase" class="w-[16px] h-[16px]"></svg></div>
-                        <input matInput [formField]="assessmentForm.anyOtherJobsSuitedRemarks" placeholder="Enter remarks">
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="briefcase"
+                                class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [formField]="assessmentForm.anyOtherJobsSuitedRemarks"
+                            placeholder="Enter remarks">
                     </mat-form-field>
 
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Recommendation for the position</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="thumbs-up" class="w-[16px] h-[16px]"></svg></div>
-                        <mat-select [formField]="assessmentForm.isRecommendedForPosition">
-                            <mat-option [value]="true">Yes</mat-option>
-                            <mat-option [value]="false">No</mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                    <div class="md:col-span-2">
+                        <span
+                            class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Recommendation
+                            for the position</span>
+                        <div class="flex gap-3">
+                            <button type="button"
+                                (click)="assessmentModel.update(m => ({ ...m, isRecommendedForPosition: true }))"
+                                class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-semibold transition-colors cursor-pointer"
+                                [class.bg-emerald-500]="assessmentModel().isRecommendedForPosition"
+                                [class.border-emerald-500]="assessmentModel().isRecommendedForPosition"
+                                [class.text-white]="assessmentModel().isRecommendedForPosition"
+                                [class.bg-white]="!assessmentModel().isRecommendedForPosition"
+                                [class.text-slate-600]="!assessmentModel().isRecommendedForPosition"
+                                [class.border-slate-200]="!assessmentModel().isRecommendedForPosition">
+                                <svg lucideIcon="thumbs-up" class="w-4 h-4"></svg> Recommended
+                            </button>
+                            <button type="button"
+                                (click)="assessmentModel.update(m => ({ ...m, isRecommendedForPosition: false }))"
+                                class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-semibold transition-colors cursor-pointer"
+                                [class.bg-rose-500]="!assessmentModel().isRecommendedForPosition"
+                                [class.border-rose-500]="!assessmentModel().isRecommendedForPosition"
+                                [class.text-white]="!assessmentModel().isRecommendedForPosition"
+                                [class.bg-white]="assessmentModel().isRecommendedForPosition"
+                                [class.text-slate-600]="assessmentModel().isRecommendedForPosition"
+                                [class.border-slate-200]="assessmentModel().isRecommendedForPosition">
+                                <svg lucideIcon="thumbs-down" class="w-4 h-4"></svg> Not Recommended
+                            </button>
+                        </div>
+                    </div>
 
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Positive Remarks</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="plus-circle" class="w-[16px] h-[16px]"></svg></div>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="plus-circle"
+                                class="w-[16px] h-[16px]"></svg></div>
                         <input matInput [formField]="assessmentForm.positiveRemarks" placeholder="Enter remarks">
                     </mat-form-field>
 
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-start-2">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Negative Remarks</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="minus-circle" class="w-[16px] h-[16px]"></svg></div>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="minus-circle"
+                                class="w-[16px] h-[16px]"></svg></div>
                         <input matInput [formField]="assessmentForm.negativeRemarks" placeholder="Enter remarks">
                     </mat-form-field>
                 </div>
@@ -402,9 +496,10 @@
     <button (click)="onCancel()"
         class="cursor-pointer px-5 py-2.5 flex items-center gap-2 bg-white border border-slate-300 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 text-slate-700 text-sm font-semibold rounded-lg shadow-sm transition-all">
         <svg lucideIcon="x" class="w-4 h-4"></svg>
-        Cancel
+        {{ isViewMode() ? 'Close' : 'Cancel' }}
     </button>
 
+    @if (!isViewMode()) {
     @if (!isAssessmentMode()) {
     <button (click)="onSubmitSchedule()"
         class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
@@ -415,5 +510,13 @@
         class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
         <svg lucideIcon="check" class="w-4 h-4"></svg> Submit Assessment
     </button>
+    }
+    } @else {
+    @if (canModifyPanel() && selectedPanelists().length > 0) {
+    <button (click)="onSubmitSchedule()"
+        class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-indigo-500 to-primary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
+        <svg lucideIcon="plus" class="w-4 h-4"></svg> Schedule Added Panelists
+    </button>
+    }
     }
 </mat-dialog-actions>

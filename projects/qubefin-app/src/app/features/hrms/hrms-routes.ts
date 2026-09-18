@@ -137,11 +137,11 @@ export const HrmsRoutes: Routes = [
             (m) => m.InterviewPanelComponent,
           ),
       },
-      {
-        path: 'my-interviews',
-        loadComponent: () =>
-          import('./pages/my-interviews/my-interviews.page').then((m) => m.MyInterviewsPage),
-      },
+      // {
+      //   path: 'my-interviews',
+      //   loadComponent: () =>
+      //     import('./pages/my-interviews/my-interviews.page').then((m) => m.MyInterviewsPage),
+      // },
       {
         path: 'candidate-verification/:id',
         loadComponent: () =>
@@ -149,18 +149,18 @@ export const HrmsRoutes: Routes = [
             (m) => m.CandidateVerificationPage,
           ),
       },
-      {
-        path: 'offer-letter/:id',
-        loadComponent: () =>
-          import('./pages/offer-letter/offer-letter.page').then((m) => m.OfferLetterPage),
-      },
-      {
-        path: 'appointment-joining/:id',
-        loadComponent: () =>
-          import('./pages/appointment-joining/appointment-joining.page').then(
-            (m) => m.AppointmentJoiningPage,
-          ),
-      },
+      // {
+      //   path: 'offer-letter/:id',
+      //   loadComponent: () =>
+      //     import('./pages/offer-letter/offer-letter.page').then((m) => m.OfferLetterPage),
+      // },
+      // {
+      //   path: 'appointment-joining/:id',
+      //   loadComponent: () =>
+      //     import('./pages/appointment-joining/appointment-joining.page').then(
+      //       (m) => m.AppointmentJoiningPage,
+      //     ),
+      // },
       {
         path: 'induction/:id',
         loadComponent: () =>
