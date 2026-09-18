@@ -16,147 +16,96 @@
             ================================================== -->
 
             <div class="flex items-start justify-between mb-5 flex-wrap gap-3">
-
                 <div class="flex items-center gap-3">
-
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center
-                               bg-green-50 dark:bg-green-900/20">
-
-                        <svg lucideIcon="user" class="w-6 h-6 text-green-700 dark:text-green-400">
-                        </svg>
-
+                    <div
+                        class="w-12 h-12 rounded-full flex items-center justify-center bg-green-50 dark:bg-green-900/20">
+                        <svg lucideIcon="user" class="w-6 h-6 text-green-700 dark:text-green-400"></svg>
                     </div>
-
                     <div>
-
-                        <h1 class="text-lg font-medium text-slate-800 dark:text-white">
-                            {{ data.candidateFullName || '-' }}
-                        </h1>
-
+                        <h1 class="text-lg font-medium text-slate-800 dark:text-white">{{ data.candidateFullName || '-'
+                            }}</h1>
                         <p class="text-xs text-slate-500 dark:text-slate-400">
                             Candidate
                         </p>
-
                     </div>
-
                 </div>
-
 
                 <!-- =============================================
                      STATUS PILL
                 ============================================== -->
 
                 @if (data.isInterviewLetterReceived) {
-
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
-                               text-xs font-medium whitespace-nowrap
-                               bg-green-50 text-green-700
-                               dark:bg-green-900/20 dark:text-green-400">
-
+                <span
+                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full                               text-xs font-medium whitespace-nowrap                               bg-green-50 text-green-700                               dark:bg-green-900/20 dark:text-green-400">
                     <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>
-
                     Letter Received
-
                 </span>
-
                 } @else {
-
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
-                               text-xs font-medium whitespace-nowrap
-                               bg-red-50 text-red-600
-                               dark:bg-red-900/20 dark:text-red-400">
-
+                <span
+                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full                               text-xs font-medium whitespace-nowrap                               bg-red-50 text-red-600                               dark:bg-red-900/20 dark:text-red-400">
                     <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-
                     Letter Not Received
-
                 </span>
-
                 }
-
             </div>
-
 
             <!-- =================================================
                  ACTION BUTTONS
             ================================================== -->
 
             <div class="flex flex-wrap items-center gap-2 mb-6">
-
-
                 <!-- ACKNOWLEDGE -->
-                @if (
-                data.isInterviewLetterReceived &&
-                !data.isInterviewerAcknowledged && data.canAcknowledgePanel
-                ) {
-
+                @if ( data.isInterviewLetterReceived && !data.isInterviewerAcknowledged && data.canAcknowledgePanel ) {
                 <button type="button" class="global-btn ripple-btn shine-sweep lift" (click)="onAcknowledge()">
-
                     <svg lucideIcon="badge-check" class="w-4 h-4 mr-2"></svg>
-
                     Acknowledge
-
                 </button>
-
                 }
 
 
                 <!-- ALREADY ACKNOWLEDGED -->
                 @if (data.isInterviewerAcknowledged && data.canAcknowledgePanel) {
-
-                <div class="flex items-center gap-2 px-3 py-2 rounded-lg
-                               bg-green-50 dark:bg-green-900/20">
-
+                <div
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg                               bg-green-50 dark:bg-green-900/20">
                     <svg lucideIcon="badge-check" class="w-4 h-4 text-green-600"></svg>
-
-                    <span class="text-sm font-medium text-green-700 dark:text-green-400">
-                        Acknowledge
-                    </span>
-
+                    <span class="text-sm font-medium text-green-700 dark:text-green-400"> Acknowledge </span>
                 </div>
-
                 }
 
 
                 <!-- INTERVIEW UPLOAD -->
                 @if (data.isHR && data.isAllPanelAcknowledged) {
+                <button type="button" class="reset-btn shine-sweep lift" (click)="fileInput.click()">
+                    <svg lucideIcon="upload" class="w-4 h-4 mr-2"></svg>
+                    Interview Format Download
+                </button>
 
                 <button type="button" class="reset-btn shine-sweep lift" (click)="fileInput.click()">
-
                     <svg lucideIcon="upload" class="w-4 h-4 mr-2"></svg>
-
                     Interview Upload
-
                 </button>
 
 
                 <input type="file" #fileInput (change)="onInterviewUpload($event)" class="hidden"
                     accept=".pdf,.doc,.docx" />
-
                 <!-- PRINT LETTER -->
                 <button type="button" class="reset-btn shine-sweep lift" (click)="onPrintInterviewLetter()">
-
                     <svg lucideIcon="printer" class="w-4 h-4 mr-2"></svg>
-
                     Print Letter
-
                 </button>
-
                 }
 
-
-
                 <!-- SEND MAIL -->
-                @if (data.isHR) {
-
-                <button type="button" class="reset-btn shine-sweep lift" (click)="onSendMail()">
-
+                @if (data.isHR && !data.isAllPanelAcknowledged) {
+                <button type="button" class="reset-btn shine-sweep lift" (click)="onViewInterviewLetterMail()">
                     <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
-
-                    Send Interview Letter Mail
-
+                   View & Print Interview Letter
                 </button>
-
+                <button type="button" class="reset-btn shine-sweep lift" [disabled]="sendingInterviewLetterMail()"
+                    (click)="onSendInterviewLetterMail()">
+                    <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
+                    {{ sendingInterviewLetterMail() ? 'Sending...' : 'Send Interview Letter Mail' }}
+                </button>
                 }
 
 
@@ -198,7 +147,7 @@
 
 
                 <!-- CANDIDATE VERIFICATION -->
-                <!-- @if (data.isShowCandidateVerificationButton) { -->
+                @if (data.isShowCandidateVerificationButton) {
 
                 <button type="button" class="reset-btn shine-sweep lift" (click)="onCandidateVerification()">
 
@@ -208,7 +157,7 @@
 
                 </button>
 
-                <!-- } -->
+                }
 
 
                 <!-- VERIFICATION COMPLETED -->
@@ -318,6 +267,30 @@
 
                 </div>
 
+                }
+
+                <!-- OFFER LETTER: VIEW & SEND MAIL -->
+                @if (data.isOfferLetterGenerated && !data.isOfferLetterReceived) {
+                <button type="button" class="reset-btn shine-sweep lift" (click)="onViewOfferLetterMail()">
+                    <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
+                    View & Print Offer Letter
+                </button>
+                <button type="button" class="reset-btn shine-sweep lift" [disabled]="sendingOfferLetterMail()"
+                    (click)="onSendOfferLetterMail()">
+                    <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
+                    {{ sendingOfferLetterMail() ? 'Sending...' : 'Send Offer Letter Mail' }}
+                </button>
+                }
+
+                <!-- OFFER LETTER RECEIVED -->
+                @if (data.isOfferLetterReceived) {
+                <div class="flex items-center gap-2 px-3 py-2 rounded-lg
+                               bg-green-50 dark:bg-green-900/20">
+                    <svg lucideIcon="mail" class="w-4 h-4 text-green-600"></svg>
+                    <span class="text-sm font-medium text-green-700 dark:text-green-400">
+                        Offer Letter Sent
+                    </span>
+                </div>
                 }
 
             </div>

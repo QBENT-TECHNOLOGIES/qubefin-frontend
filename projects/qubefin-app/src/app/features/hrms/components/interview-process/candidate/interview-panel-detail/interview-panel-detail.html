@@ -233,7 +233,7 @@
                         }
 
                         @if (!panel.isAcknowledged) {
-                        <button (click)="onDeletePanelist(panel.id)"
+                        <button (click)="onDeletePanelist(panel.employeeId)"
                             class="text-slate-400 hover:text-rose-600 border border-slate-200 dark:border-slate-700 hover:border-rose-200 hover:bg-rose-50 dark:hover:bg-rose-900/20 p-1.5 rounded-md transition-colors cursor-pointer"
                             title="Delete Panelist">
                             <svg lucideIcon="trash-2" class="w-3.5 h-3.5"></svg>
@@ -342,6 +342,22 @@
         } @else {
         <!-- Assessment Forms -->
 
+        @if (loadingAssessment()) {
+        <div class="flex items-center gap-3 py-3 text-slate-500">
+            <div class="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+            <span class="text-sm font-medium">Loading your assessment...</span>
+        </div>
+        }
+
+        @if (isAssessmentLocked()) {
+        <div
+            class="flex items-center gap-2 px-4 py-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400">
+            <svg lucideIcon="lock" class="w-4 h-4 flex-shrink-0"></svg>
+            <span class="text-sm font-semibold">This assessment has already been submitted and can no longer be
+                changed.</span>
+        </div>
+        }
+
         <!-- Sticky score summary -->
         <div
             class="bg-gradient-to-r from-indigo-50 to-primary-50 dark:from-slate-800 dark:to-slate-800 rounded-lg border border-indigo-100 dark:border-slate-700 p-4 flex items-center gap-4">
@@ -387,7 +403,8 @@
                         <div class="flex flex-wrap gap-1.5">
                             @for (opt of ratingOptions; track opt.value) {
                             <button type="button" (click)="setRating(field.key, opt.value)" [title]="opt.full"
-                                class="w-11 h-11 rounded-lg border text-xs font-bold flex flex-col items-center justify-center transition-all cursor-pointer leading-none"
+                                [disabled]="isAssessmentLocked()"
+                                class="w-11 h-11 rounded-lg border text-xs font-bold flex flex-col items-center justify-center transition-all cursor-pointer leading-none disabled:opacity-50 disabled:cursor-not-allowed"
                                 [class.bg-indigo-600]="getRating(field.key) === opt.value"
                                 [class.border-indigo-600]="getRating(field.key) === opt.value"
                                 [class.text-white]="getRating(field.key) === opt.value"
@@ -412,7 +429,8 @@
                                     class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></svg>
                                 <input type="text" placeholder="Comments (optional)" [value]="getRemarks(field.key)"
                                     (input)="setRemarks(field.key, $any($event.target).value)"
-                                    class="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+                                    [disabled]="isAssessmentLocked()"
+                                    class="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 disabled:opacity-50 disabled:cursor-not-allowed" />
                             </div>
                         </div>
                     </div>
@@ -448,7 +466,8 @@
                         <div class="flex gap-3">
                             <button type="button"
                                 (click)="assessmentModel.update(m => ({ ...m, isRecommendedForPosition: true }))"
-                                class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-semibold transition-colors cursor-pointer"
+                                [disabled]="isAssessmentLocked()"
+                                class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 [class.bg-emerald-500]="assessmentModel().isRecommendedForPosition"
                                 [class.border-emerald-500]="assessmentModel().isRecommendedForPosition"
                                 [class.text-white]="assessmentModel().isRecommendedForPosition"
@@ -459,7 +478,8 @@
                             </button>
                             <button type="button"
                                 (click)="assessmentModel.update(m => ({ ...m, isRecommendedForPosition: false }))"
-                                class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-semibold transition-colors cursor-pointer"
+                                [disabled]="isAssessmentLocked()"
+                                class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 [class.bg-rose-500]="!assessmentModel().isRecommendedForPosition"
                                 [class.border-rose-500]="!assessmentModel().isRecommendedForPosition"
                                 [class.text-white]="!assessmentModel().isRecommendedForPosition"
@@ -506,10 +526,16 @@
         <svg lucideIcon="save" class="w-4 h-4"></svg> Schedule
     </button>
     } @else {
+    @if (!isAssessmentLocked()) {
+    <button (click)="onSaveAssessmentDraft()" [disabled]="savingDraft()"
+        class="cursor-pointer px-5 py-2.5 flex items-center gap-2 bg-white border border-slate-300 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 text-slate-700 text-sm font-semibold rounded-lg shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+        <svg lucideIcon="save" class="w-4 h-4"></svg> {{ savingDraft() ? 'Saving...' : 'Save as Draft' }}
+    </button>
     <button (click)="onSubmitAssessment()"
         class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift">
         <svg lucideIcon="check" class="w-4 h-4"></svg> Submit Assessment
     </button>
+    }
     }
     } @else {
     @if (canModifyPanel() && selectedPanelists().length > 0) {

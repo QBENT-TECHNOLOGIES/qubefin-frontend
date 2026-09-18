@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, model } from '@angular/core';
+import { Component, computed, effect, inject, model, signal } from '@angular/core';
 
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { LucideDynamicIcon } from '@lucide/angular';
 
-import { AlertService, EMPTY_UUID } from 'qubefin-core';
+import { AlertService, DocumentModalService, EMPTY_UUID } from 'qubefin-core';
 
 import { CandidateStore } from '../../../../stores/candidate-store';
 import { InterviewPanelDetail } from '../interview-panel-detail/interview-panel-detail';
@@ -14,6 +14,9 @@ import { HrAssessmentForm } from '../hr-assessment-form/hr-assessment-form';
 import { CandidateVerificationDetail } from '../candidate-verification/candidate-verification-detail';
 import { InterviewPanelService } from '../../../../services/interview-panel-service';
 import { InterviewPanelStore } from '../../../../stores/interview-panel-store';
+import { HrmsReportService } from '../../../../../Report/Service/hrms-report-service';
+import { CandidateService } from '../../../../services/candidate-service';
+import { firstValueFrom } from 'rxjs';
 
 interface WorkflowStage {
   label: string;
@@ -32,6 +35,9 @@ export class CandidateView {
   readonly datePipe = inject(DatePipe);
   readonly candidateStore = inject(CandidateStore);
   private readonly panelService = inject(InterviewPanelService);
+  private readonly documentModalService = inject(DocumentModalService);
+  private readonly hrReportService = inject(HrmsReportService);
+  private readonly candidateService = inject(CandidateService);
   private readonly panelStore = inject(InterviewPanelStore);
   private readonly alertService = inject(AlertService);
   readonly dialog = inject(MatDialog);
@@ -41,6 +47,9 @@ export class CandidateView {
   readonly candidate = this.candidateStore.candidate;
   readonly loading = this.candidateStore.candidateLoading;
   readonly error = this.candidateStore.candidateError;
+
+  readonly sendingInterviewLetterMail = signal(false);
+  readonly sendingOfferLetterMail = signal(false);
 
   constructor() {
     effect(() => {
@@ -140,15 +149,97 @@ export class CandidateView {
     // Call print interview letter API
   }
 
-  onSendMail() {
+  async onViewInterviewLetterMail() {
     const candidate = this.getCandidate();
 
     if (!candidate) return;
 
-    console.log('Send Interview Letter Mail:', candidate.id);
+    try {
+      const file = await firstValueFrom(
+        this.hrReportService.getWegrowInterviewLetter(candidate.id),
+      );
+      const fileUrl = URL.createObjectURL(file);
 
-    // TODO:
-    // Call send mail API
+      this.documentModalService.open({
+        url: fileUrl,
+        documentName: `interview_letter_${candidate.referenceNo}`,
+        extension: 'pdf',
+        downloadAccess: true,
+      });
+    } catch (error: any) {
+      this.alertService.error('Failed', error?.error?.message ?? 'Unable to load payslip.');
+    } finally {
+    }
+  }
+
+  onSendInterviewLetterMail() {
+    const candidate = this.getCandidate();
+
+    if (!candidate) return;
+
+    this.sendingInterviewLetterMail.set(true);
+
+    this.candidateService
+      .updateLetterStatus(candidate.id, { isInterviewLetterReceived: true })
+      .subscribe({
+        next: () => {
+          this.alertService.success('Success', 'Interview letter mail sent');
+          this.candidateStore.refreshDetail();
+        },
+        error: (error: any) =>
+          this.alertService.error(
+            'Failed',
+            error?.error?.message ?? 'Unable to send interview letter mail.',
+          ),
+        complete: () => this.sendingInterviewLetterMail.set(false),
+      });
+  }
+
+  // ============================================================
+  // OFFER LETTER
+  // ============================================================
+
+  async onViewOfferLetterMail() {
+    const candidate = this.getCandidate();
+
+    if (!candidate) return;
+
+    try {
+      const file = await firstValueFrom(this.hrReportService.getWegrowOfferLetter(candidate.id));
+      const fileUrl = URL.createObjectURL(file);
+
+      this.documentModalService.open({
+        url: fileUrl,
+        documentName: `offer_letter_${candidate.referenceNo}`,
+        extension: 'pdf',
+        downloadAccess: true,
+      });
+    } catch (error: any) {
+      this.alertService.error('Failed', error?.error?.message ?? 'Unable to load offer letter.');
+    }
+  }
+
+  onSendOfferLetterMail() {
+    const candidate = this.getCandidate();
+
+    if (!candidate) return;
+
+    this.sendingOfferLetterMail.set(true);
+
+    this.candidateService
+      .updateLetterStatus(candidate.id, { isOfferLetterReceived: true })
+      .subscribe({
+        next: () => {
+          this.alertService.success('Success', 'Offer letter mail sent');
+          this.candidateStore.refreshDetail();
+        },
+        error: (error: any) =>
+          this.alertService.error(
+            'Failed',
+            error?.error?.message ?? 'Unable to send offer letter mail.',
+          ),
+        complete: () => this.sendingOfferLetterMail.set(false),
+      });
   }
 
   onAcknowledge() {
@@ -161,6 +252,7 @@ export class CandidateView {
       next: () => {
         this.alertService.success('Success', 'Panel Acknowledged');
         this.panelStore.refreshPanels();
+        this.candidateStore.refreshDetail();
       },
       error: () => this.alertService.error('Error', 'Failed to acknowledge panel'),
     });
@@ -199,12 +291,12 @@ export class CandidateView {
       const sub1 = dialogRef.componentInstance.cancel.subscribe(() => dialogRef.close());
       const sub2 = dialogRef.componentInstance.save.subscribe(() => {
         dialogRef.close();
-        this.candidateStore.setCandidateId(this.candidateId());
       });
 
       dialogRef.afterClosed().subscribe(() => {
         sub1.unsubscribe();
         sub2.unsubscribe();
+        this.candidateStore.refreshDetail();
       });
     }
   }
@@ -232,8 +324,7 @@ export class CandidateView {
     }
 
     dialogRef.afterClosed().subscribe(() => {
-      // Optional: Refresh if needed
-      // this.candidateStore.setCandidateId(this.candidateId());
+      this.candidateStore.refreshDetail();
     });
   }
 
@@ -266,8 +357,8 @@ export class CandidateView {
     dialogRef.afterClosed().subscribe((res) => {
       if (res) {
         this.alertService.success('Success', 'HR Assessment completed');
-        this.candidateStore.setCandidateId(this.candidateId()); // Refresh view
       }
+      this.candidateStore.refreshDetail();
     });
   }
 
@@ -357,6 +448,8 @@ export class CandidateView {
     if (dialogRef.componentInstance) {
       dialogRef.componentRef?.setInput('candidateIdForPanel', candidateData.id);
       dialogRef.componentRef?.setInput('isViewMode', true);
+      dialogRef.componentRef?.setInput('interviewDate', candidateData.interviewDate);
+      dialogRef.componentRef?.setInput('interviewTime', candidateData.interviewTime);
 
       const sub1 = dialogRef.componentInstance.cancel.subscribe(() => dialogRef.close());
 

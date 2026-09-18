@@ -11,6 +11,16 @@ export interface ICandidateSearchModel {
   tempSearch: string;
   companyId: string;
 }
+
+// Send exactly one non-null flag per request; the rest should be left undefined.
+// Mirrors backend `CandidateLetterStatusRequest`.
+export interface ICandidateLetterStatusRequest {
+  isInterviewLetterReceived?: boolean;
+  isOfferLetterReceived?: boolean;
+  isAppointmentLetterReceived?: boolean;
+  isWelcomeLetterReceived?: boolean;
+}
+
 export interface ICandidate {
   // ============================================================
   // BASIC INFORMATION

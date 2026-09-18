@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, output, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, input, output, signal, OnInit, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -8,15 +8,11 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { form, FormField, schema, Schema } from '@angular/forms/signals';
+import { disabled, form, FormField, schema, Schema } from '@angular/forms/signals';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { EMPTY_UUID, AlertService, ApiPaths } from 'qubefin-core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
-
-export interface IScheduleModel {
-  candidateId: string;
-}
 
 export interface IAssessmentModel {
   appearanceAttitudeRating: number;
@@ -53,13 +49,25 @@ export interface IRatingFieldConfig {
 }
 
 export const RATING_FIELDS: IRatingFieldConfig[] = [
-  { key: 'appearanceAttitude', label: 'Appearance & Attitude', desc: 'Grooming, courtesy, appropriate dress' },
+  {
+    key: 'appearanceAttitude',
+    label: 'Appearance & Attitude',
+    desc: 'Grooming, courtesy, appropriate dress',
+  },
   { key: 'personality', label: 'Personality', desc: 'Dignity, bearing, rapport, process, manner' },
   { key: 'communication', label: 'Communication', desc: 'Ability to adequately express oneself' },
   { key: 'education', label: 'Education', desc: 'Appropriateness of degree and course work' },
   { key: 'workExperience', label: 'Work Experience', desc: 'Related work experience for the job' },
-  { key: 'technicalCompetence', label: 'Technical Competence', desc: 'Appropriateness of technical skills' },
-  { key: 'flexibility', label: 'Flexibility', desc: 'Responsive to change, tolerance for ambiguity' },
+  {
+    key: 'technicalCompetence',
+    label: 'Technical Competence',
+    desc: 'Appropriateness of technical skills',
+  },
+  {
+    key: 'flexibility',
+    label: 'Flexibility',
+    desc: 'Responsive to change, tolerance for ambiguity',
+  },
   { key: 'ambition', label: 'Ambition', desc: 'In line with anticipated job program' },
   { key: 'potential', label: 'Potential', desc: 'Ability and motivation to grow' },
   { key: 'others', label: 'Others', desc: 'Anything else worth noting' },
@@ -79,6 +87,8 @@ import { InterviewPanelStore } from '../../../../stores/interview-panel-store';
 import { OrganizationUnitTypeStore } from '../../../../../global/stores/organization-unit-type-store';
 import { OrganizationUnitService } from '../../../../../global/services/organization-unit-service';
 import { OrganizationUnit } from '../../../../../global/models/organization-unit';
+import { IInterviewAssessmentDto } from '../../../../models/interview-panel';
+import { SessionService } from '../../../../../../services/session.service';
 
 import { EmployeeStore } from '../../../../stores/employee-store';
 
@@ -112,6 +122,7 @@ export class InterviewPanelDetail implements OnInit {
   private readonly organizationUnitTypeStore = inject(OrganizationUnitTypeStore);
   private readonly organizationUnitService = inject(OrganizationUnitService);
   private readonly employeeStore = inject(EmployeeStore);
+  private readonly sessionService = inject(SessionService);
 
   readonly organizationUnitTypes = this.organizationUnitTypeStore.organizationUnitTypes;
   organizationUnits = signal<OrganizationUnit[]>([]);
@@ -128,7 +139,7 @@ export class InterviewPanelDetail implements OnInit {
       (e: any) =>
         e.name?.toLowerCase().includes(term) ||
         e.code?.toLowerCase().includes(term) ||
-        e.currentDesignation?.toLowerCase().includes(term)
+        e.currentDesignation?.toLowerCase().includes(term),
     );
   });
 
@@ -139,10 +150,10 @@ export class InterviewPanelDetail implements OnInit {
   organizationUnitTypeId = new FormControl('');
   organizationUnitId = new FormControl('');
 
-  readonly panelId = input<string>(EMPTY_UUID);
+  // readonly panelId = input<string>(EMPTY_UUID);
   readonly isAssessmentMode = input<boolean>(false);
   readonly isViewMode = input<boolean>(false);
-  readonly candidateIdForPanel = input<string>('9a7c7f5a-5a41-4e3d-9b4e-123456789abc');
+  readonly candidateIdForPanel = input<string>(EMPTY_UUID);
   readonly interviewDate = input<string>('');
   readonly interviewTime = input<string>('');
 
@@ -161,15 +172,6 @@ export class InterviewPanelDetail implements OnInit {
 
   readonly cancel = output<void>();
   readonly save = output<void>();
-
-  // --- Schedule Panel Form ---
-  protected readonly scheduleModel = signal<IScheduleModel>({
-    candidateId: '',
-  });
-
-  protected readonly scheduleSchema: Schema<IScheduleModel> = schema((path) => { });
-
-  protected readonly scheduleForm = form(this.scheduleModel, this.scheduleSchema);
 
   // --- Assessment Form ---
   protected readonly assessmentModel = signal<IAssessmentModel>({
@@ -199,12 +201,24 @@ export class InterviewPanelDetail implements OnInit {
     negativeRemarks: '',
   });
 
-  protected readonly assessmentSchema: Schema<IAssessmentModel> = schema((path) => { });
+  protected readonly assessmentSchema: Schema<IAssessmentModel> = schema((path) => {
+    disabled(path.anyOtherJobsSuitedRemarks, { when: () => this.isAssessmentLocked() });
+    disabled(path.positiveRemarks, { when: () => this.isAssessmentLocked() });
+    disabled(path.negativeRemarks, { when: () => this.isAssessmentLocked() });
+  });
 
   protected readonly assessmentForm = form(this.assessmentModel, this.assessmentSchema);
 
   readonly ratingFields = RATING_FIELDS;
   readonly ratingOptions = RATING_OPTIONS;
+
+  // --- Existing assessment (own draft/submission), loaded by CandidateId + EmployeeId ---
+  readonly existingAssessment = signal<IInterviewAssessmentDto | null>(null);
+  readonly loadingAssessment = signal<boolean>(false);
+  readonly savingDraft = signal<boolean>(false);
+
+  /** Once the panelist has finally submitted, the form is read-only - matches the backend rule. */
+  readonly isAssessmentLocked = computed(() => !!this.existingAssessment()?.isSubmitted);
 
   /** Live running total out of 50, drives the header progress indicator */
   readonly totalRatingScore = computed(() => {
@@ -213,7 +227,7 @@ export class InterviewPanelDetail implements OnInit {
   });
   readonly maxRatingScore = computed(() => this.ratingFields.length * 5);
   readonly totalRatingPercent = computed(() =>
-    Math.round((this.totalRatingScore() / this.maxRatingScore()) * 100)
+    Math.round((this.totalRatingScore() / this.maxRatingScore()) * 100),
   );
 
   getRating(key: string): number {
@@ -248,17 +262,6 @@ export class InterviewPanelDetail implements OnInit {
 
   constructor() {
     this.dateAdapter.setLocale('en-GB');
-    effect(() => {
-      const id = this.panelId();
-      if (!this.isAssessmentMode() && id === EMPTY_UUID && !this.isViewMode()) {
-        this.scheduleModel.set({
-          candidateId:
-            this.candidateIdForPanel() && this.candidateIdForPanel() !== EMPTY_UUID
-              ? this.candidateIdForPanel()
-              : '',
-        });
-      }
-    });
 
     this.organizationUnitTypeId.valueChanges.subscribe((typeId) => {
       if (typeId) {
@@ -282,6 +285,59 @@ export class InterviewPanelDetail implements OnInit {
     if (this.isViewMode() && this.candidateIdForPanel()) {
       this.fetchPanelDetails();
     }
+
+    if (this.isAssessmentMode() && this.candidateIdForPanel()) {
+      this.fetchExistingAssessment();
+    }
+  }
+
+  /** Loads the current panelist's own assessment (draft or submitted) so re-opening the form doesn't lose progress. */
+  fetchExistingAssessment() {
+    const employeeId = this.sessionService.employeeId;
+    if (!employeeId) return;
+
+    this.loadingAssessment.set(true);
+    this.panelService
+      .getAssessmentByCandidateAndEmployee(this.candidateIdForPanel(), employeeId)
+      .subscribe({
+        next: (res) => {
+          this.existingAssessment.set(res);
+          this.loadingAssessment.set(false);
+
+          if (!res) return;
+
+          this.assessmentModel.set({
+            appearanceAttitudeRating: res.appearanceAttitudeRating ?? 0,
+            appearanceAttitudeRemarks: res.appearanceAttitudeRemarks ?? '',
+            personalityRating: res.personalityRating ?? 0,
+            personalityRemarks: res.personalityRemarks ?? '',
+            communicationRating: res.communicationRating ?? 0,
+            communicationRemarks: res.communicationRemarks ?? '',
+            educationRating: res.educationRating ?? 0,
+            educationRemarks: res.educationRemarks ?? '',
+            workExperienceRating: res.workExperienceRating ?? 0,
+            workExperienceRemarks: res.workExperienceRemarks ?? '',
+            technicalCompetenceRating: res.technicalCompetenceRating ?? 0,
+            technicalCompetenceRemarks: res.technicalCompetenceRemarks ?? '',
+            flexibilityRating: res.flexibilityRating ?? 0,
+            flexibilityRemarks: res.flexibilityRemarks ?? '',
+            ambitionRating: res.ambitionRating ?? 0,
+            ambitionRemarks: res.ambitionRemarks ?? '',
+            potentialRating: res.potentialRating ?? 0,
+            potentialRemarks: res.potentialRemarks ?? '',
+            othersRating: res.othersRating ?? 0,
+            othersRemarks: res.othersRemarks ?? '',
+            anyOtherJobsSuitedRemarks: res.anyOtherJobsSuitedRemarks ?? '',
+            isRecommendedForPosition: res.isRecommendedForPosition ?? true,
+            positiveRemarks: res.positiveRemarks ?? '',
+            negativeRemarks: res.negativeRemarks ?? '',
+          });
+        },
+        error: () => {
+          // No assessment entry yet for this panelist - keep the blank defaults.
+          this.loadingAssessment.set(false);
+        },
+      });
   }
 
   fetchPanelDetails() {
@@ -298,20 +354,26 @@ export class InterviewPanelDetail implements OnInit {
     });
   }
 
-  onDeletePanelist(panelId: string) {
-    if (!confirm('Are you sure you want to remove this panelist?')) return;
+  onDeletePanelist(employeeId: string) {
+    this.alertService
+      .confirm(null, 'Are you sure you want to remove this panelist?')
+      .then((result) => {
+        if (result.isConfirmed) {
+          const candidateId = this.candidateIdForPanel();
 
-    (this.panelService.deletePanel(panelId) as any).subscribe({
-      next: () => {
-        this.alertService.success('Success', 'Panelist removed');
-        this.fetchPanelDetails(); // refresh list
-        this.panelStore.refreshPanels();
-        this.save.emit();
-      },
-      error: () => {
-        this.alertService.error('Error', 'Failed to remove panelist');
-      },
-    });
+          this.panelService.removePanelist(candidateId, employeeId).subscribe({
+            next: () => {
+              this.alertService.success('Success', 'Panelist removed');
+              this.fetchPanelDetails(); // refresh list
+              this.panelStore.refreshPanels();
+              this.save.emit();
+            },
+            error: () => {
+              this.alertService.error('Error', 'Failed to remove panelist');
+            },
+          });
+        }
+      });
   }
 
   onOrganizationUnitTypeChange(typeId: string) {
@@ -353,15 +415,10 @@ export class InterviewPanelDetail implements OnInit {
   }
 
   onSubmitSchedule() {
-    this.scheduleForm().markAsTouched();
-    if (!this.scheduleForm().valid()) return;
-
     if (this.selectedPanelists().length === 0) {
       this.alertService.error('Error', 'Please select at least one panelist.');
       return;
     }
-
-    const formValue = this.scheduleForm().value();
 
     // Format internal date and time
     const interviewDateRaw = this.interviewDate();
@@ -375,12 +432,26 @@ export class InterviewPanelDetail implements OnInit {
       scheduledTime: formattedTime,
     };
 
+    const panelists = this.selectedPanelists().map((emp) => ({
+      employeeId: emp.id,
+      ...commonSchedule,
+    }));
+
+    // View mode + "Add More Panelists" -> adding to an already-existing panel.
+    if (this.isViewMode()) {
+      this.onAddPanelists(panelists);
+      return;
+    }
+
+    const candidateId = this.candidateIdForPanel();
+    if (!candidateId || candidateId === EMPTY_UUID) {
+      this.alertService.error('Error', 'Candidate is required.');
+      return;
+    }
+
     const scheduleData = {
-      candidateId: formValue.candidateId,
-      panelists: this.selectedPanelists().map((emp) => ({
-        employeeId: emp.id,
-        ...commonSchedule,
-      })),
+      candidateId,
+      panelists,
     };
 
     (this.panelService.schedulePanel(scheduleData) as any).subscribe({
@@ -394,13 +465,41 @@ export class InterviewPanelDetail implements OnInit {
     });
   }
 
+  /** Adds the currently selected employees as panelists on a candidate that already has a panel. */
+  onAddPanelists(
+    panelists: { employeeId: string; scheduledDate: string | null; scheduledTime: string | null }[],
+  ) {
+    const candidateId = this.candidateIdForPanel();
+
+    this.panelService.addPanelists(candidateId, panelists as any).subscribe({
+      next: () => {
+        this.alertService.success('Success', 'Panelist(s) added').then(() => {
+          this.selectedPanelists.set([]);
+          this.showAddPanelists.set(false);
+          this.fetchPanelDetails();
+          this.panelStore.refreshPanels();
+          this.save.emit();
+        });
+      },
+      error: () => this.alertService.error('Error', 'Failed to add panelist(s)'),
+    });
+  }
+
   onSubmitAssessment() {
+    if (this.isAssessmentLocked()) {
+      this.alertService.error(
+        'Error',
+        'This assessment has already been submitted and cannot be changed.',
+      );
+      return;
+    }
+
     this.assessmentForm().markAsTouched();
     if (!this.assessmentForm().valid()) return;
 
     const assessmentData = {
-      panelId: this.panelId(),
-      ...this.assessmentForm().value(),
+      candidateId: this.candidateIdForPanel(),
+      assessment: this.assessmentForm().value(),
     };
 
     (this.panelService.submitAssessment(assessmentData) as any).subscribe({
@@ -411,6 +510,37 @@ export class InterviewPanelDetail implements OnInit {
         });
       },
       error: () => this.alertService.error('Error', 'Failed to submit assessment'),
+    });
+  }
+
+  /** Saves the in-progress assessment without locking it. Unlike Submit, this keeps the dialog open
+   * and marks the panelist as attended on the backend. */
+  onSaveAssessmentDraft() {
+    if (this.isAssessmentLocked()) {
+      this.alertService.error(
+        'Error',
+        'This assessment has already been submitted and cannot be changed.',
+      );
+      return;
+    }
+
+    const assessmentData = {
+      candidateId: this.candidateIdForPanel(),
+      assessment: this.assessmentForm().value(),
+    };
+
+    this.savingDraft.set(true);
+    (this.panelService.saveAssessmentDraft(assessmentData) as any).subscribe({
+      next: () => {
+        this.savingDraft.set(false);
+        this.alertService.success('Success', 'Assessment saved as draft');
+        this.panelStore.refreshPanels();
+        this.fetchExistingAssessment();
+      },
+      error: () => {
+        this.savingDraft.set(false);
+        this.alertService.error('Error', 'Failed to save draft');
+      },
     });
   }
   private normalizeTimeValue(value: string | Date | null): string | null {

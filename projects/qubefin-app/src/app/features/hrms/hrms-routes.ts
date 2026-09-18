@@ -130,13 +130,13 @@ export const HrmsRoutes: Routes = [
             (m) => m.CandidateComponent,
           ),
       },
-      {
-        path: 'interview-panel',
-        loadComponent: () =>
-          import('./pages/interview-panel-component/interview-panel-component').then(
-            (m) => m.InterviewPanelComponent,
-          ),
-      },
+      // {
+      //   path: 'interview-panel',
+      //   loadComponent: () =>
+      //     import('./pages/interview-panel-component/interview-panel-component').then(
+      //       (m) => m.InterviewPanelComponent,
+      //     ),
+      // },
       // {
       //   path: 'my-interviews',
       //   loadComponent: () =>
@@ -161,11 +161,11 @@ export const HrmsRoutes: Routes = [
       //       (m) => m.AppointmentJoiningPage,
       //     ),
       // },
-      {
-        path: 'induction/:id',
-        loadComponent: () =>
-          import('./pages/induction/induction.page').then((m) => m.InductionPage),
-      },
+      // {
+      //   path: 'induction/:id',
+      //   loadComponent: () =>
+      //     import('./pages/induction/induction.page').then((m) => m.InductionPage),
+      // },
     ],
   },
 ];

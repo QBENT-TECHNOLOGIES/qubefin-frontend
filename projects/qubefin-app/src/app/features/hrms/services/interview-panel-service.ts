@@ -1,6 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ApiPaths } from 'qubefin-core';
+import {
+  IAssessmentRequest,
+  IInterviewAssessmentDto,
+  IPanelistScheduleDto,
+} from '../models/interview-panel';
 
 @Injectable({
   providedIn: 'root',
@@ -40,11 +45,37 @@ export class InterviewPanelService {
     );
   }
 
-  submitAssessment(assessmentData: any) {
+  submitAssessment(assessmentData: IAssessmentRequest) {
     return this.httpClient.post(`${ApiPaths.HRMS}/interview-panels/assessment`, assessmentData);
   }
 
-  deletePanel(panelId: string) {
-    return this.httpClient.delete(`${ApiPaths.HRMS}/interview-panels/${panelId}`);
+  /** Saves an in-progress assessment without locking it. Marks the panelist as attended. */
+  saveAssessmentDraft(assessmentData: IAssessmentRequest) {
+    return this.httpClient.post(
+      `${ApiPaths.HRMS}/interview-panels/assessment/draft`,
+      assessmentData,
+    );
+  }
+
+  /** Full assessment (ratings, remarks, attendance/submission status) for one panelist against a candidate. */
+  getAssessmentByCandidateAndEmployee(candidateId: string, employeeId: string) {
+    return this.httpClient.get<IInterviewAssessmentDto>(
+      `${ApiPaths.HRMS}/interview-panels/assessment/${candidateId}/${employeeId}`,
+    );
+  }
+
+  /** Adds one or more panelists to a candidate's existing interview panel. */
+  addPanelists(candidateId: string, panelists: IPanelistScheduleDto[]) {
+    return this.httpClient.post(
+      `${ApiPaths.HRMS}/interview-panels/${candidateId}/panelists`,
+      panelists,
+    );
+  }
+
+  /** Removes an existing panelist from a candidate's interview panel. */
+  removePanelist(candidateId: string, employeeId: string) {
+    return this.httpClient.delete(
+      `${ApiPaths.HRMS}/interview-panels/${candidateId}/panelists/${employeeId}`,
+    );
   }
 }
