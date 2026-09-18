@@ -1,12 +1,89 @@
-import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { Router } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { IVerificationModel } from '../../../../services/candidate-verification.service';
+
+export interface IVerificationItemConfig {
+  key: keyof IVerificationModel;
+  label: string;
+  desc: string;
+  icon: string;
+  mandatory: boolean;
+  actionLabel: string;
+  group: 'identity' | 'bureau';
+}
+
+export const VERIFICATION_ITEMS: IVerificationItemConfig[] = [
+  {
+    key: 'aadhaarStatus',
+    label: 'Aadhaar Verification',
+    desc: 'Verify identity with UIDAI',
+    icon: 'fingerprint',
+    mandatory: true,
+    actionLabel: 'Verify',
+    group: 'identity',
+  },
+  {
+    key: 'panStatus',
+    label: 'PAN Verification',
+    desc: 'Verify with NSDL',
+    icon: 'credit-card',
+    mandatory: true,
+    actionLabel: 'Verify',
+    group: 'identity',
+  },
+  {
+    key: 'voterIdStatus',
+    label: 'Voter ID Verification',
+    desc: 'Verify with ECI portal',
+    icon: 'vote',
+    mandatory: false,
+    actionLabel: 'Verify',
+    group: 'identity',
+  },
+  {
+    key: 'mobileStatus',
+    label: 'Mobile Number',
+    desc: 'OTP Verification',
+    icon: 'smartphone',
+    mandatory: true,
+    actionLabel: 'Send OTP',
+    group: 'identity',
+  },
+  {
+    key: 'uanStatus',
+    label: 'UAN Verification',
+    desc: 'Verify with EPFO (Optional)',
+    icon: 'building-2',
+    mandatory: false,
+    actionLabel: 'Verify',
+    group: 'identity',
+  },
+  {
+    key: 'hrBureauStatus',
+    label: 'HR Bureau Report',
+    desc: 'Equifax HR Bureau',
+    icon: 'shield-check',
+    mandatory: true,
+    actionLabel: 'Fetch Report',
+    group: 'bureau',
+  },
+  {
+    key: 'creditBureauStatus',
+    label: 'Credit Bureau Report',
+    desc: 'Equifax Credit Bureau',
+    icon: 'file-bar-chart',
+    mandatory: true,
+    actionLabel: 'Fetch Report',
+    group: 'bureau',
+  },
+];
 
 @Component({
   selector: 'qfin-candidate-verification-detail',
@@ -16,16 +93,25 @@ import { IVerificationModel } from '../../../../services/candidate-verification.
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-    LucideAngularModule,
+    LucideDynamicIcon,
+    MatDialogModule,
   ],
   templateUrl: './candidate-verification-detail.html',
 })
 export class CandidateVerificationDetail implements OnInit {
-  candidateId = input.required<string>();
+  // --- Mat Dialog wiring, same pattern as HrAssessmentForm ---
+  dialogRef = inject(MatDialogRef<CandidateVerificationDetail>);
+  data = inject(MAT_DIALOG_DATA);
 
-  // private verificationService = inject(CandidateVerificationService);
   private alertService = inject(AlertService);
   private router = inject(Router);
+
+  @Input() candidateId: string = this.data?.candidateId ?? '';
+  @Input() candidateName: string = this.data?.candidateName ?? '';
+
+  readonly identityItems = VERIFICATION_ITEMS.filter((i) => i.group === 'identity');
+  readonly bureauItems = VERIFICATION_ITEMS.filter((i) => i.group === 'bureau');
+  private readonly mandatoryItems = VERIFICATION_ITEMS.filter((i) => i.mandatory);
 
   verificationData = signal<IVerificationModel>({
     candidateId: '',
@@ -50,14 +136,30 @@ export class CandidateVerificationDetail implements OnInit {
     );
   });
 
+  /** How many mandatory checks are Verified, drives the progress bar */
+  readonly mandatoryCompletedCount = computed(() => {
+    const data: any = this.verificationData();
+    return this.mandatoryItems.filter((i) => data[i.key] === 'Verified').length;
+  });
+  readonly mandatoryTotalCount = this.mandatoryItems.length;
+  readonly mandatoryPercent = computed(() =>
+    Math.round((this.mandatoryCompletedCount() / this.mandatoryTotalCount) * 100),
+  );
+
   ngOnInit() {
+    if (!this.candidateId && this.data?.candidateId) {
+      this.candidateId = this.data.candidateId;
+    }
+    if (!this.candidateName && this.data?.candidateName) {
+      this.candidateName = this.data.candidateName;
+    }
     this.loadVerificationData();
   }
 
   loadVerificationData() {
-    if (this.candidateId() === EMPTY_UUID || !this.candidateId()) return;
+    if (!this.candidateId || this.candidateId === EMPTY_UUID) return;
 
-    // this.verificationService.getVerificationStatus(this.candidateId()).subscribe({
+    // this.verificationService.getVerificationStatus(this.candidateId).subscribe({
     //   next: (res) => {
     //     if (res) this.verificationData.set(res);
     //   },
@@ -65,7 +167,7 @@ export class CandidateVerificationDetail implements OnInit {
     //     // Pending backend, stub gracefully
     //     this.verificationData.set({
     //         ...this.verificationData(),
-    //         candidateId: this.candidateId()
+    //         candidateId: this.candidateId
     //     });
     //   }
     // });
@@ -75,7 +177,7 @@ export class CandidateVerificationDetail implements OnInit {
     this.verificationData.update((v) => ({ ...v, [documentType]: 'In Progress' }));
 
     // Simulate API call for now (pending backend)
-    // this.verificationService.verifyDocument(this.candidateId(), documentType, {}).subscribe({
+    // this.verificationService.verifyDocument(this.candidateId, documentType, {}).subscribe({
     //   next: () => {
     //     this.verificationData.update(v => ({...v, [documentType]: 'Verified'}));
     //     this.checkOverallStatus();
@@ -98,7 +200,8 @@ export class CandidateVerificationDetail implements OnInit {
 
   proceedToOffer() {
     if (this.isVerificationComplete()) {
-      this.router.navigate(['/offer-letter', this.candidateId()]);
+      this.dialogRef.close(true);
+      this.router.navigate(['/offer-letter', this.candidateId]);
     } else {
       this.alertService.error(
         'Verification Incomplete',
@@ -107,16 +210,46 @@ export class CandidateVerificationDetail implements OnInit {
     }
   }
 
+  getStatus(key: keyof IVerificationModel): string {
+    return (this.verificationData() as any)[key];
+  }
+
   getStatusClass(status: string) {
     switch (status) {
       case 'Verified':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800';
       case 'Failed':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800';
       case 'In Progress':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800';
       default:
-        return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300';
+        return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
     }
+  }
+
+  getStatusIcon(status: string): string {
+    switch (status) {
+      case 'Verified':
+        return 'check-circle-2';
+      case 'Failed':
+        return 'x-circle';
+      case 'In Progress':
+        return 'loader-circle';
+      default:
+        return 'clock';
+    }
+  }
+
+  getInitials(name: string | undefined | null): string {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    return parts
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase())
+      .join('');
+  }
+
+  onCancel() {
+    this.dialogRef.close();
   }
 }

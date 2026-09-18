@@ -181,6 +181,12 @@ import {
   LucideChevronUp,
   LucideGauge,
   LucideThumbsDown,
+  LucideFingerprint,
+  LucideCreditCard,
+  LucideVote,
+  LucideLoaderCircle,
+  LucideSmartphone,
+  LucideFileBarChart,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -363,6 +369,12 @@ export const APP_ICONS = [
   LucideChevronUp,
   LucideGauge,
   LucideThumbsDown,
+  LucideFingerprint,
+  LucideCreditCard,
+  LucideVote,
+  LucideLoaderCircle,
+  LucideSmartphone,
+  LucideFileBarChart,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -545,4 +557,10 @@ export const APP_ICONS_MAP: Record<string, any> = {
   ChevronUp: LucideChevronUp,
   Gauge: LucideGauge,
   ThumbsDown: LucideThumbsDown,
+  Fingerprint: LucideFingerprint,
+  CreditCard: LucideCreditCard,
+  Vote: LucideVote,
+  LoaderCircle: LucideLoaderCircle,
+  Smartphone: LucideSmartphone,
+  FileBarChart: LucideFileBarChart,
 };
