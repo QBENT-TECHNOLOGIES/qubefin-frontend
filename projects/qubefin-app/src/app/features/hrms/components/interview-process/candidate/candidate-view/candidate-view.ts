@@ -48,8 +48,8 @@ export class CandidateView {
   readonly loading = this.candidateStore.candidateLoading;
   readonly error = this.candidateStore.candidateError;
 
-  readonly sendingInterviewLetterMail = signal(false);
-  readonly sendingOfferLetterMail = signal(false);
+  readonly sendingMail = signal(false);
+  readonly recievingMail = signal(false);
   readonly uploadingInterviewFormat = signal(false);
 
   constructor() {
@@ -139,26 +139,13 @@ export class CandidateView {
   // INTERVIEW LETTER
   // ============================================================
 
-  onPrintInterviewLetter() {
-    const candidate = this.getCandidate();
-
-    if (!candidate) return;
-
-    console.log('Print Interview Letter:', candidate.id);
-
-    // TODO:
-    // Call print interview letter API
-  }
-
   async onViewInterviewLetterMail() {
     const candidate = this.getCandidate();
 
     if (!candidate) return;
 
     try {
-      const file = await firstValueFrom(
-        this.hrReportService.getWegrowInterviewLetter(candidate.id),
-      );
+      const file = await firstValueFrom(this.hrReportService.getInterviewLetter(candidate.id));
       const fileUrl = URL.createObjectURL(file);
 
       this.documentModalService.open({
@@ -173,27 +160,110 @@ export class CandidateView {
     }
   }
 
-  onSendInterviewLetterMail() {
-    const candidate = this.getCandidate();
+  onSendLetterMail(letter: string) {
+    if (!letter) return;
 
+    const candidate = this.getCandidate();
     if (!candidate) return;
 
-    this.sendingInterviewLetterMail.set(true);
+    const payload: any = {};
 
-    this.candidateService
-      .updateLetterStatus(candidate.id, { isInterviewLetterReceived: true })
-      .subscribe({
-        next: () => {
-          this.alertService.success('Success', 'Interview letter mail sent');
-          this.candidateStore.refreshDetail();
-        },
-        error: (error: any) =>
-          this.alertService.error(
-            'Failed',
-            error?.error?.message ?? 'Unable to send interview letter mail.',
-          ),
-        complete: () => this.sendingInterviewLetterMail.set(false),
-      });
+    switch (letter) {
+      case 'interview':
+        payload.isInterviewLetterReceived = true;
+        break;
+
+      case 'offer':
+        payload.isOfferLetterReceived = true;
+        break;
+
+      case 'appointment':
+        payload.isAppointmentLetterReceived = true;
+        break;
+
+      case 'welcome':
+        payload.isWelcomeLetterReceived = true;
+        break;
+
+      default:
+        return;
+    }
+
+    this.sendingMail.set(true);
+
+    this.candidateService.sendLetterToCandidate(candidate.id, payload).subscribe({
+      next: () => {
+        this.alertService.success('Success', `${this.getLetterName(letter)} letter mail sent`);
+
+        this.candidateStore.refreshDetail();
+      },
+      error: (error: any) =>
+        this.alertService.error(
+          'Failed',
+          error?.error?.message ?? `Unable to send ${letter} letter mail.`,
+        ),
+      complete: () => this.sendingMail.set(false),
+    });
+  }
+  onRecieveLetter(letter: string) {
+    if (!letter) return;
+
+    const candidate = this.getCandidate();
+    if (!candidate) return;
+
+    const payload: any = {};
+
+    switch (letter) {
+      case 'interview':
+        payload.isInterviewLetterReceived = true;
+        break;
+
+      case 'offer':
+        payload.isOfferLetterReceived = true;
+        break;
+
+      case 'appointment':
+        payload.isAppointmentLetterReceived = true;
+        break;
+
+      case 'welcome':
+        payload.isWelcomeLetterReceived = true;
+        break;
+
+      default:
+        return;
+    }
+
+    this.recievingMail.set(true);
+
+    this.candidateService.updateLetterStatus(candidate.id, payload).subscribe({
+      next: () => {
+        this.alertService.success('Success', `${this.getLetterName(letter)} letter mail sent`);
+
+        this.candidateStore.refreshDetail();
+      },
+      error: (error: any) =>
+        this.alertService.error(
+          'Failed',
+          error?.error?.message ?? `Unable to send ${letter} letter mail.`,
+        ),
+      complete: () => this.recievingMail.set(false),
+    });
+  }
+
+  private getLetterName(letter: string): string {
+    switch (letter) {
+      case 'interview':
+        return 'Interview';
+      case 'offer':
+        return 'Offer';
+      case 'appointment':
+        return 'Appointment';
+      case 'welcome':
+        return 'Welcome';
+      default:
+        return '';
+    }
   }
 
   // ============================================================
@@ -206,7 +276,7 @@ export class CandidateView {
     if (!candidate) return;
 
     try {
-      const file = await firstValueFrom(this.hrReportService.getWegrowOfferLetter(candidate.id));
+      const file = await firstValueFrom(this.hrReportService.getOfferLetter(candidate.id));
       const fileUrl = URL.createObjectURL(file);
 
       this.documentModalService.open({
@@ -218,29 +288,6 @@ export class CandidateView {
     } catch (error: any) {
       this.alertService.error('Failed', error?.error?.message ?? 'Unable to load offer letter.');
     }
-  }
-
-  onSendOfferLetterMail() {
-    const candidate = this.getCandidate();
-
-    if (!candidate) return;
-
-    this.sendingOfferLetterMail.set(true);
-
-    this.candidateService
-      .updateLetterStatus(candidate.id, { isOfferLetterReceived: true })
-      .subscribe({
-        next: () => {
-          this.alertService.success('Success', 'Offer letter mail sent');
-          this.candidateStore.refreshDetail();
-        },
-        error: (error: any) =>
-          this.alertService.error(
-            'Failed',
-            error?.error?.message ?? 'Unable to send offer letter mail.',
-          ),
-        complete: () => this.sendingOfferLetterMail.set(false),
-      });
   }
 
   onAcknowledge() {
@@ -374,7 +421,7 @@ export class CandidateView {
     if (!candidate) return;
 
     try {
-      const file = await firstValueFrom(this.hrReportService.getWegrowPersonalityForm(candidate.id));
+      const file = await firstValueFrom(this.hrReportService.getPersonalityForm(candidate.id));
       const fileUrl = URL.createObjectURL(file);
 
       this.documentModalService.open({

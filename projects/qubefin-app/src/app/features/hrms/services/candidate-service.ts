@@ -19,6 +19,9 @@ export class CandidateService {
   updateLetterStatus(id: string, request: ICandidateLetterStatusRequest) {
     return this.httpClient.post(`${ApiPaths.HRMS}/candidates/${id}/letter-status`, request);
   }
+  sendLetterToCandidate(id: string, request: ICandidateLetterStatusRequest) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/candidates/${id}/send-letter`, request);
+  }
   // Uploads the candidate's filled written-interview/personality form (multipart) and stores the
   // returned file reference on the candidate record.
   uploadInterviewFormat(id: string, file: File) {

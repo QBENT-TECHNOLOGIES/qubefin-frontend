@@ -89,11 +89,6 @@
 
                 <input type="file" #fileInput (change)="onInterviewUpload($event)" class="hidden"
                     accept=".pdf,.doc,.docx" />
-                <!-- PRINT LETTER -->
-                <button type="button" class="reset-btn shine-sweep lift" (click)="onPrintInterviewLetter()">
-                    <svg lucideIcon="printer" class="w-4 h-4 mr-2"></svg>
-                    Print Letter
-                </button>
                 }
 
                 <!-- SEND MAIL -->
@@ -102,10 +97,15 @@
                     <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
                    View & Print Interview Letter
                 </button>
-                <button type="button" class="reset-btn shine-sweep lift" [disabled]="sendingInterviewLetterMail()"
-                    (click)="onSendInterviewLetterMail()">
+                <button type="button" class="reset-btn shine-sweep lift" [disabled]="sendingMail()"
+                    (click)="onSendLetterMail('interview')">
                     <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
-                    {{ sendingInterviewLetterMail() ? 'Sending...' : 'Send Interview Letter Mail' }}
+                    {{ sendingMail() ? 'Sending...' : 'Send Interview Letter Mail' }}
+                </button>
+                <button type="button" class="reset-btn shine-sweep lift" [disabled]="recievingMail()"
+                    (click)="onRecieveLetter('interview')">
+                    <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
+                    {{ recievingMail() ? 'Receiving...' : 'Recieve Interview Letter Mail' }}
                 </button>
                 }
 
@@ -276,10 +276,15 @@
                     <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
                     View & Print Offer Letter
                 </button>
-                <button type="button" class="reset-btn shine-sweep lift" [disabled]="sendingOfferLetterMail()"
-                    (click)="onSendOfferLetterMail()">
+                <button type="button" class="reset-btn shine-sweep lift" [disabled]="sendingMail()"
+                    (click)="onSendLetterMail('offer')">
                     <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
-                    {{ sendingOfferLetterMail() ? 'Sending...' : 'Send Offer Letter Mail' }}
+                    {{ sendingMail() ? 'Sending...' : 'Send Offer Letter Mail' }}
+                </button>
+                <button type="button" class="reset-btn shine-sweep lift" [disabled]="recievingMail()"
+                    (click)="onRecieveLetter('offer')">
+                    <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
+                    {{ recievingMail() ? 'Receiving...' : 'Received Offer Letter Mail' }}
                 </button>
                 }
 
