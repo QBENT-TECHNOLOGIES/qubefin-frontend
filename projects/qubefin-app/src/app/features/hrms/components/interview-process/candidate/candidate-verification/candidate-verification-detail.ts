@@ -213,18 +213,6 @@ export class CandidateVerificationDetail implements OnInit {
     });
   }
 
-  proceedToOffer() {
-    if (this.isVerificationComplete()) {
-      this.dialogRef.close(true);
-      this.router.navigate(['/offer-letter', this.candidateId]);
-    } else {
-      this.alertService.error(
-        'Verification Incomplete',
-        'Please complete all mandatory verifications and save before proceeding to offer.',
-      );
-    }
-  }
-
   isChecked(key: BooleanVerificationKey): boolean {
     return !!this.verificationData()[key];
   }

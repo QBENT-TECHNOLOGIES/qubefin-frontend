@@ -28,6 +28,17 @@ export interface IHrAssessmentFormDto {
   candidateId: string;
   isSubmitted: boolean;
 
+  // True when HR has already submitted their own individual interviewer assessment (genuinely scheduled
+  // on the panel, not just holding the administrative HR row).
+  hrIsInterviewer: boolean;
+
+  // True when hrIsInterviewer is true AND HR is the only interviewer on the panel - the fields shared with
+  // the interviewer assessment form (ratings, isRecommendedForPosition, positiveRemarks, negativeRemarks,
+  // anyOtherJobsSuitedRemarks) should render disabled, sourced from HR's own single submission. When
+  // hrIsInterviewer is true but this is false, HR is one of several interviewers - those same fields stay
+  // enabled/live (the average keeps updating as other panelists submit).
+  isHrOnlyInterviewer: boolean;
+
   // Read-only: average of the submitted panelists' ratings per category.
   averageAppearanceAttitudeRating?: number;
   averagePersonalityRating?: number;

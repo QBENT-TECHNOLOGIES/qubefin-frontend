@@ -164,7 +164,13 @@
                 class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-500 bg-slate-50/80 dark:bg-slate-700 flex items-center justify-between">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                     <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                    @if (isHrOnlyInterviewer()) {
+                    Assessment Parameters (Your Interview Assessment - Read Only)
+                    } @else if (hrIsInterviewer()) {
+                    Assessment Parameters (Live Panel Average, Includes Your Own Score)
+                    } @else {
                     Assessment Parameters (Panel Average - Read Only)
+                    }
                 </h3>
             </div>
 
@@ -351,12 +357,21 @@
                     <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="compass"
                             class="w-[16px] h-[16px]"></svg></div>
                     <input matInput formControlName="anyOtherJobsSuitedRemarks" placeholder="Enter remarks">
+                    @if (isHrOnlyInterviewer() && !isLocked()) {
+                    <mat-hint>Locked - from your own interviewer assessment (you are the only interviewer).</mat-hint>
+                    }
                 </mat-form-field>
 
                 <div>
                     <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Recommendation for the position</span>
+                    @if (isHrOnlyInterviewer() && !isLocked()) {
+                    <p class="text-xs text-slate-400 italic mb-2 flex items-center gap-1.5">
+                        <svg lucideIcon="lock" class="w-3 h-3"></svg>
+                        Locked - this is your own answer from the interviewer assessment (you are the only interviewer).
+                    </p>
+                    }
                     <div class="flex gap-3">
-                        <button type="button" [disabled]="isLocked()"
+                        <button type="button" [disabled]="isSharedFieldsDisabled()"
                             (click)="setRecommendedForPosition(true)"
                             class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-semibold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                             [class.bg-emerald-500]="decisionForm.get('isRecommendedForPosition')?.value === true"
@@ -367,7 +382,7 @@
                             [class.border-slate-200]="decisionForm.get('isRecommendedForPosition')?.value !== true">
                             <svg lucideIcon="thumbs-up" class="w-4 h-4"></svg> Yes
                         </button>
-                        <button type="button" [disabled]="isLocked()"
+                        <button type="button" [disabled]="isSharedFieldsDisabled()"
                             (click)="setRecommendedForPosition(false)"
                             class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-semibold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                             [class.bg-rose-500]="decisionForm.get('isRecommendedForPosition')?.value === false"
@@ -387,6 +402,9 @@
                         <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="plus-circle"
                                 class="w-[16px] h-[16px]"></svg></div>
                         <textarea matInput formControlName="positiveRemarks" placeholder="Enter remarks" rows="2"></textarea>
+                        @if (isHrOnlyInterviewer() && !isLocked()) {
+                        <mat-hint>Locked - from your own interviewer assessment.</mat-hint>
+                        }
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -394,6 +412,9 @@
                         <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="minus-circle"
                                 class="w-[16px] h-[16px]"></svg></div>
                         <textarea matInput formControlName="negativeRemarks" placeholder="Enter remarks" rows="2"></textarea>
+                        @if (isHrOnlyInterviewer() && !isLocked()) {
+                        <mat-hint>Locked - from your own interviewer assessment.</mat-hint>
+                        }
                     </mat-form-field>
                 </div>
             </div>

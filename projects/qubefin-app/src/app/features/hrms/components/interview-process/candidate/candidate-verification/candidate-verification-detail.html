@@ -165,11 +165,4 @@
         <svg lucideIcon="save" class="w-4 h-4" [class.animate-spin]="isSaving()"></svg>
         {{ isSaving() ? 'Saving...' : 'Save Verification' }}
     </button>
-
-    <button type="button"
-        class="ripple-btn shine-sweep rounded-lg px-6 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
-        [disabled]="!isVerificationComplete()" (click)="proceedToOffer()">
-        Proceed to Offer Letter
-        <svg lucideIcon="arrow-right" class="w-4 h-4"></svg>
-    </button>
 </mat-dialog-actions>

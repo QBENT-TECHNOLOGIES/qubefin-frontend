@@ -82,6 +82,27 @@ export class HrAssessmentForm implements OnInit {
   assessment = signal<IHrAssessmentFormDto | null>(null);
   isLocked = computed(() => !!this.assessment()?.isSubmitted);
 
+  /** HR has already submitted their own interviewer assessment (genuinely on the panel, not just holding
+   * the administrative HR row). */
+  hrIsInterviewer = computed(() => !!this.assessment()?.hrIsInterviewer);
+
+  /** HR is the ONLY interviewer on the panel - the fields shared with the interviewer assessment form
+   * (ratings, isRecommendedForPosition, positiveRemarks, negativeRemarks, anyOtherJobsSuitedRemarks) render
+   * disabled here, sourced from HR's own single submission. When HR is one of several interviewers those
+   * same fields stay enabled/live instead. */
+  isHrOnlyInterviewer = computed(() => !!this.assessment()?.isHrOnlyInterviewer);
+
+  /** The four fields this form shares with the interviewer assessment form. */
+  private readonly sharedFieldNames = [
+    'anyOtherJobsSuitedRemarks',
+    'positiveRemarks',
+    'negativeRemarks',
+  ] as const;
+
+  /** Whether the shared fields (including the isRecommendedForPosition Yes/No buttons, which aren't plain
+   * inputs) should render disabled - either the whole form is locked, or HR is the sole interviewer. */
+  isSharedFieldsDisabled = computed(() => this.isLocked() || this.isHrOnlyInterviewer());
+
   readonly totalAverage = computed(() => this.assessment()?.averageTotalRatingPoint ?? null);
   readonly totalAveragePercent = computed(() => {
     const total = this.totalAverage();
@@ -132,6 +153,14 @@ export class HrAssessmentForm implements OnInit {
 
         if (res.isSubmitted) {
           this.decisionForm.disable();
+        } else if (res.isHrOnlyInterviewer) {
+          // HR is the sole interviewer - these fields are HR's own already-submitted interviewer answers,
+          // shown for reference only. The rest of the form (OverallPerformance onward) stays editable.
+          this.sharedFieldNames.forEach((name) => this.decisionForm.get(name)?.disable());
+        } else {
+          // Re-enable in case the panel composition changed since this form was last loaded (e.g. another
+          // interviewer was added after HR had been the sole one).
+          this.sharedFieldNames.forEach((name) => this.decisionForm.get(name)?.enable());
         }
       },
       error: (error: any) => {

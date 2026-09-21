@@ -12,6 +12,7 @@ import { CandidateStore } from '../../../../stores/candidate-store';
 import { InterviewPanelDetail } from '../interview-panel-detail/interview-panel-detail';
 import { HrAssessmentForm } from '../hr-assessment-form/hr-assessment-form';
 import { CandidateVerificationDetail } from '../candidate-verification/candidate-verification-detail';
+import { LetterActions } from '../letter-actions/letter-actions';
 import { InterviewPanelService } from '../../../../services/interview-panel-service';
 import { InterviewPanelStore } from '../../../../stores/interview-panel-store';
 import { HrmsReportService } from '../../../../../Report/Service/hrms-report-service';
@@ -27,7 +28,7 @@ interface WorkflowStage {
 
 @Component({
   selector: 'qfin-candidate-view',
-  imports: [DatePipe, LucideDynamicIcon, MatButtonModule, MatCheckboxModule],
+  imports: [DatePipe, LucideDynamicIcon, MatButtonModule, MatCheckboxModule, LetterActions],
   templateUrl: './candidate-view.html',
   styles: ``,
 })
@@ -51,12 +52,99 @@ export class CandidateView {
   readonly sendingMail = signal(false);
   readonly recievingMail = signal(false);
   readonly uploadingInterviewFormat = signal(false);
+  readonly addingAdditionalInfo = signal(false);
+  readonly uploadingJoiningLetter = signal(false);
 
   constructor() {
     effect(() => {
       this.candidateStore.setCandidateId(this.candidateId());
     });
   }
+
+  // ============================================================
+  // ACTION VISIBILITY
+  //
+  // Role on a candidate comes from Tbl_InterviewPanel.AssessmentType, surfaced
+  // by the GetById SP as isCurrentEmployeePanelMember ('INTERVIEWER' row) and
+  // isCurrentEmployeeHrAssessor ('HR' row). `isHR` is a PERMISSION flag only -
+  // never treat it as "this person is an interviewer", and never treat holding
+  // the HR assessment row as panel membership.
+  // ============================================================
+
+  /** The signed-in employee is scheduled on this candidate's panel as an interviewer. */
+  readonly isPanelInterviewer = computed(() => !!this.candidate()?.isCurrentEmployeePanelMember);
+
+  /** The signed-in employee owns this candidate's HR Assessment row. Can be true at the same time as
+   * isPanelInterviewer() - HR sitting on the panel holds both rows. */
+  readonly isHrAssessor = computed(() => !!this.candidate()?.isCurrentEmployeeHrAssessor);
+
+  readonly showAcknowledgeButton = computed(() => {
+    const data = this.candidate();
+    return (
+      !!data?.isCurrentEmployeePanelMember &&
+      !!data.isInterviewLetterReceived &&
+      !!data.canAcknowledgePanel
+    );
+  });
+
+  /** The interviewer assessment is still outstanding for the signed-in panel member. */
+  private readonly interviewerAssessmentPending = computed(() => {
+    const data = this.candidate();
+    return (
+      !!data?.isCurrentEmployeePanelMember &&
+      !!data.isInterviewerAcknowledged &&
+      !data.isCurrentEmployeeAssessmentSubmitted
+    );
+  });
+
+  readonly showStartAssessmentButton = computed(
+    () => this.interviewerAssessmentPending() && !!this.candidate()?.isAssessmentDate,
+  );
+
+  /** "Interview is tomorrow" / "Interview after N days" - shown instead of the button off the day. */
+  readonly showAssessmentDateMessage = computed(
+    () => this.interviewerAssessmentPending() && !this.candidate()?.isAssessmentDate,
+  );
+
+  /** Sequenced server-side. The old client-side gate ("HR Assessment button hidden") was also true
+   * AFTER the assessment completed, which brought these buttons back at the end of the workflow. */
+  readonly showInterviewFormatActions = computed(() => !!this.candidate()?.showInterviewFormatActions);
+
+
+  /** Sequenced server-side, like the rest of the letter chain. */
+  readonly showInterviewLetterActions = computed(() => !!this.candidate()?.showInterviewLetterActions);
+
+  /** A saved-but-unsubmitted HR Assessment reopens the same form, so say so on the button. */
+  readonly hrAssessmentButtonLabel = computed(() =>
+    this.candidate()?.isHrAssessmentDraftSaved ? 'Continue HR Assessment' : 'HR Assessment',
+  );
+
+  /** Is there anything at all for this user to do on this candidate? The Actions card carries no status
+   * badges - completed steps are reported by the Workflow Path panel - so when every gate is closed the
+   * card would otherwise render empty. */
+  readonly hasAnyAction = computed(() => {
+    const data = this.candidate();
+    if (!data) {
+      return false;
+    }
+
+    return (
+      this.showAcknowledgeButton() ||
+      this.showInterviewFormatActions() ||
+      this.showInterviewLetterActions() ||
+      this.showStartAssessmentButton() ||
+      this.showAssessmentDateMessage() ||
+      !!data.showCreatePanelButton ||
+      (!!data.isPanelCreated && !!data.showViewPanelButton) ||
+      !!data.isShowHrAssessmentButton ||
+      !!data.isShowCandidateVerificationButton ||
+      !!data.showOfferLetterActions ||
+      !!data.showAddAdditionalInfoButton ||
+      !!data.showAppointmentLetterActions ||
+      !!data.showJoiningLetterActions ||
+      !!data.showWelcomeLetterActions
+    );
+  });
 
   // ============================================================
   // WORKFLOW PATH
@@ -103,7 +191,22 @@ export class CandidateView {
       {
         label: 'Offer Letter',
         icon: 'file-check',
-        done: !!data.isOfferLetterGenerated,
+        done: !!data.isOfferLetterReceived,
+      },
+      {
+        label: 'Appointment Letter',
+        icon: 'file-check',
+        done: !!data.isAppointmentLetterReceived,
+      },
+      {
+        label: 'Joining Letter',
+        icon: 'file-check',
+        done: !!data.isJoiningLetterUploaded,
+      },
+      {
+        label: 'Welcome Letter',
+        icon: 'file-check',
+        done: !!data.isWelcomeLetterRecieved,
       },
     ];
 
@@ -301,6 +404,143 @@ export class CandidateView {
       });
     } catch (error: any) {
       this.alertService.error('Failed', error?.error?.message ?? 'Unable to load offer letter.');
+    }
+  }
+
+  // ============================================================
+  // ADDITIONAL INFO (placeholder - backend method is empty for now)
+  // ============================================================
+
+  onAddAdditionalInfo() {
+    const candidate = this.getCandidate();
+
+    if (!candidate) return;
+
+    this.addingAdditionalInfo.set(true);
+
+    this.candidateService.addAdditionalInfo(candidate.id).subscribe({
+      next: () => {
+        this.alertService.success('Success', 'Additional info saved');
+        this.candidateStore.refreshDetail();
+      },
+      error: (error: any) =>
+        this.alertService.error('Failed', error?.error?.message ?? 'Unable to save additional info.'),
+      complete: () => this.addingAdditionalInfo.set(false),
+    });
+  }
+
+  // ============================================================
+  // APPOINTMENT LETTER
+  // ============================================================
+
+  async onViewAppointmentLetterMail() {
+    const candidate = this.getCandidate();
+
+    if (!candidate) return;
+
+    try {
+      const file = await firstValueFrom(this.hrReportService.getAppointmentLetter(candidate.id));
+      const fileUrl = URL.createObjectURL(file);
+
+      this.documentModalService.open({
+        url: fileUrl,
+        documentName: `appointment_letter_${candidate.referenceNo}`,
+        extension: 'pdf',
+        downloadAccess: true,
+      });
+    } catch (error: any) {
+      this.alertService.error('Failed', error?.error?.message ?? 'Unable to load appointment letter.');
+    }
+  }
+
+  // ============================================================
+  // JOINING LETTER
+  // ============================================================
+
+  async onDownloadJoiningLetter() {
+    const candidate = this.getCandidate();
+
+    if (!candidate) return;
+
+    try {
+      const file = await firstValueFrom(this.hrReportService.getJoiningLetter(candidate.id));
+      const fileUrl = URL.createObjectURL(file);
+
+      this.documentModalService.open({
+        url: fileUrl,
+        documentName: `joining_letter_${candidate.referenceNo}`,
+        extension: 'pdf',
+        downloadAccess: true,
+      });
+    } catch (error: any) {
+      this.alertService.error('Failed', error?.error?.message ?? 'Unable to load joining letter.');
+    }
+  }
+
+  onJoiningLetterUpload(event: Event) {
+    const element = event.currentTarget as HTMLInputElement;
+
+    const fileList = element.files;
+
+    if (!fileList || fileList.length === 0) {
+      return;
+    }
+
+    const file = fileList[0];
+    const candidate = this.getCandidate();
+
+    if (!candidate) {
+      element.value = '';
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    const extension = file.name.split('.').pop()?.toLowerCase() || 'pdf';
+
+    this.documentModalService.open({
+      url: previewUrl,
+      documentName: file.name,
+      extension,
+      downloadAccess: true,
+    });
+
+    this.uploadingJoiningLetter.set(true);
+
+    this.candidateService.uploadJoiningLetter(candidate.id, file).subscribe({
+      next: () => {
+        this.alertService.success('Success', 'Joining letter uploaded successfully');
+        this.candidateStore.refreshDetail();
+      },
+      error: (error: any) =>
+        this.alertService.error('Failed', error?.error?.message ?? 'Unable to upload joining letter.'),
+      complete: () => {
+        this.uploadingJoiningLetter.set(false);
+        element.value = '';
+      },
+    });
+  }
+
+  // ============================================================
+  // WELCOME LETTER
+  // ============================================================
+
+  async onViewWelcomeLetterMail() {
+    const candidate = this.getCandidate();
+
+    if (!candidate) return;
+
+    try {
+      const file = await firstValueFrom(this.hrReportService.getWelcomeLetter(candidate.id));
+      const fileUrl = URL.createObjectURL(file);
+
+      this.documentModalService.open({
+        url: fileUrl,
+        documentName: `welcome_letter_${candidate.referenceNo}`,
+        extension: 'pdf',
+        downloadAccess: true,
+      });
+    } catch (error: any) {
+      this.alertService.error('Failed', error?.error?.message ?? 'Unable to load welcome letter.');
     }
   }
 

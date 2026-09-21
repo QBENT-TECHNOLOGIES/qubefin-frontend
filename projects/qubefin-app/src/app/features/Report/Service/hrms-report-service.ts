@@ -47,6 +47,12 @@ export class HrmsReportService {
     });
   }
 
+  getWelcomeLetter(candidateId: string) {
+    return this.httpClient.get(`${ApiPaths.REPORT}/interview/welcome-letter/${candidateId}`, {
+      responseType: 'blob',
+    });
+  }
+
   getPersonalityForm(candidateId: string) {
     return this.httpClient.get(`${ApiPaths.REPORT}/interview/personality-form/${candidateId}`, {
       responseType: 'blob',

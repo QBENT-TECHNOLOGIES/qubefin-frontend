@@ -21,6 +21,13 @@ export interface ICandidateLetterStatusRequest {
   isWelcomeLetterReceived?: boolean;
 }
 
+// Response of GET candidates/{id}/joining-letter-status. Read separately from ICandidate since it's not
+// part of USP_GetInterviewCandidateById's output.
+export interface ICandidateJoiningLetterStatus {
+  isUploaded: boolean;
+  fileUrl?: string | null;
+}
+
 export interface ICandidate {
   // ============================================================
   // BASIC INFORMATION
@@ -169,13 +176,16 @@ export interface ICandidate {
   // LETTER STATUS
   // ============================================================
 
-  isInterviewLetterRecieved?: boolean;
-
   isOfferLetterReceived?: boolean;
 
   isAppointmentLetterReceived?: boolean;
 
   isWelcomeLetterRecieved?: boolean;
+
+  /** Candidate's signed/returned joining letter has been uploaded (backend
+   * SignedJoiningLetterFile is set). Drives Appointment Letter -> Joining Letter ->
+   * Welcome Letter visibility together with isAppointmentLetterReceived / isWelcomeLetterRecieved. */
+  isJoiningLetterUploaded?: boolean;
 
   // ============================================================
   // AUDIT
@@ -240,8 +250,55 @@ export interface ICandidate {
    * stays true in this state - use this to label the button "Continue HR Assessment". */
   isHrAssessmentDraftSaved?: boolean;
 
-  /** HR's own row in the interview panel table has been finalised. */
+  /** The candidate's `AssessmentType = 'HR'` row has been finalised. Distinct from any interviewer
+   * submission made by the same HR employee. */
   isHrAssessmentSubmitted?: boolean;
+
+  /** The signed-in employee owns the candidate's `AssessmentType = 'HR'` row. Independent of
+   * `isCurrentEmployeePanelMember` - an HR employee who also sits on the panel is both. */
+  isCurrentEmployeeHrAssessor?: boolean;
+
+  /** What the signed-in employee is on this candidate, straight from `Tbl_InterviewPanel.AssessmentType`:
+   * `'INTERVIEWER'`, `'HR'`, `'BOTH'`, or undefined when they hold no row. Always branch on this (or on
+   * `isCurrentEmployeePanelMember` / `isCurrentEmployeeHrAssessor`) rather than on `isHR`, which only says
+   * the user has HR permissions. */
+  currentEmployeeAssessmentType?: 'INTERVIEWER' | 'HR' | 'BOTH';
+
+  // ============================================================
+  // POST-OFFER DOCUMENT CHAIN
+  //
+  // Sequenced server-side - each flag turns on only once the previous step's
+  // letter has been received, so the template never re-derives the order:
+  //   verification done -> offer -> (additional info + appointment)
+  //   -> joining letter -> welcome letter.
+  // ============================================================
+
+  /** HR may view/print, send and mark received the interview letter. */
+  showInterviewLetterActions?: boolean;
+
+  /** The filled-in written interview form is on file. */
+  isWrittenAssessmentUploaded?: boolean;
+
+  /** Show the interview format download/upload pair: all interviewers acknowledged, the form is not on
+   * file yet, and the HR Assessment is not complete. */
+  showInterviewFormatActions?: boolean;
+
+  /** Candidate verification is complete and the offer letter is not yet received. */
+  showOfferLetterActions?: boolean;
+
+  /** The offer letter is with the candidate - "Add Additional Info" is available. */
+  showAddAdditionalInfoButton?: boolean;
+
+  /** Offer received, appointment letter not yet received. */
+  showAppointmentLetterActions?: boolean;
+
+  /** Appointment letter received - joining letter download/upload is available. */
+  showJoiningLetterActions?: boolean;
+
+  /** Signed joining letter uploaded, welcome letter not yet received.
+   * (isJoiningLetterUploaded and the three received flags are declared under
+   * LETTER STATUS above.) */
+  showWelcomeLetterActions?: boolean;
 
   /** Total of the ten averaged category ratings stored on HR's assessment row. */
   hrAssessmentTotalRatingPoint?: number;
@@ -258,31 +315,17 @@ export interface ICandidate {
 
   // ============================================================
   // OFFER LETTER
+  //
+  // There is no "generated" state - every letter is rendered on demand by
+  // View & Print. A letter's only state is "received", so the offer letter is
+  // driven by showOfferLetterActions / isOfferLetterReceived (LETTER STATUS).
   // ============================================================
-
-  canGenerateOfferLetter?: boolean;
-
-  isOfferLetterGenerated?: boolean;
-
-  // ============================================================
-  // APPOINTMENT LETTER
-  // ============================================================
-
-  canGenerateAppointmentLetter?: boolean;
 
   // ============================================================
   // CURRENT WORKFLOW
   // ============================================================
 
   currentWorkflowStage?: string;
-
-  // ============================================================
-  // LEGACY FLAGS
-  // ============================================================
-
-  isInterviewerAcknowledgedOld?: boolean;
-
-  oldIsShowHrAssessmentButton?: boolean;
 
   showViewPanelButton?: boolean;
 }
