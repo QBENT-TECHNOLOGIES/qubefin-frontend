@@ -1,0 +1,147 @@
+<div class="space-y-4 animate-fade-in pt-4">
+    <div>
+        <h3 class="box-content-heading mb-2!">Basic Information</h3>
+        <div class="green-line"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- First Name -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>First Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="basicForm.firstName" placeholder="Enter First Name">
+            <mat-error class="cus-error">
+                {{ basicForm.firstName().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Middle Name -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Middle Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="basicForm.middleName" placeholder="Enter Middle Name">
+        </mat-form-field>
+
+        <!-- Last Name -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Last Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="basicForm.lastName" placeholder="Enter Last Name">
+            <mat-error class="cus-error">
+                {{ basicForm.lastName().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Gender -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Gender</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="venus-and-mars" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="basicForm.gender" placeholder="Select Gender">
+                <mat-option value="Male">Male</mat-option>
+                <mat-option value="Female">Female</mat-option>
+                <mat-option value="Other">Other</mat-option>
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ basicForm.gender().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Date of Birth -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Date of Birth</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [matDatepicker]="dobPicker" autocomplete="off" [formField]="basicForm.dateOfBirth"
+                placeholder="DD/MM/YYYY">
+            <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
+            <mat-datepicker #dobPicker></mat-datepicker>
+        </mat-form-field>
+
+        <!-- Blood Group -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Blood Group</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="droplet" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="basicForm.bloodGroup" placeholder="Select Blood Group">
+                <mat-option value="A+">A+</mat-option>
+                <mat-option value="A-">A-</mat-option>
+                <mat-option value="B+">B+</mat-option>
+                <mat-option value="B-">B-</mat-option>
+                <mat-option value="O+">O+</mat-option>
+                <mat-option value="O-">O-</mat-option>
+                <mat-option value="AB+">AB+</mat-option>
+                <mat-option value="AB-">AB-</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <!-- Marital Status -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Marital Status</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="heart" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="basicForm.maritalStatus" placeholder="Select Status">
+                <mat-option value="Single">Single</mat-option>
+                <mat-option value="Married">Married</mat-option>
+                <mat-option value="Divorced">Divorced</mat-option>
+                <mat-option value="Widowed">Widowed</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <!-- Father's Name -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Father's Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="users" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="basicForm.fatherName" placeholder="Enter Father's Name">
+        </mat-form-field>
+
+        <!-- Mother's Name -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Mother's Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="users" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="basicForm.motherName" placeholder="Enter Mother's Name">
+        </mat-form-field>
+
+        <!-- Religion -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Religion</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="book" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="basicForm.religion" placeholder="Enter Religion">
+        </mat-form-field>
+
+        <!-- Nationality -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Nationality</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="globe" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="basicForm.nationality" placeholder="Enter Nationality">
+        </mat-form-field>
+    </div>
+
+    <!-- Actions -->
+    <div class="step-footer-area">
+        <div class="flex flex-1 justify-end items-center gap-3">
+            <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">
+                Save &amp; Next
+                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+            </button>
+        </div>
+    </div>
+</div>

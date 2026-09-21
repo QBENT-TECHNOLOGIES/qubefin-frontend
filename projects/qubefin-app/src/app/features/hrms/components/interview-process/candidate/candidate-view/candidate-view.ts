@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, model, signal } from '@angular/core';
+import { Component, computed, effect, inject, model, output, signal } from '@angular/core';
 
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,6 +17,7 @@ import { InterviewPanelStore } from '../../../../stores/interview-panel-store';
 import { HrmsReportService } from '../../../../../Report/Service/hrms-report-service';
 import { CandidateService } from '../../../../services/candidate-service';
 import { firstValueFrom } from 'rxjs';
+import { ICandidate, ICandidateUpdate } from '../../../../models/candidate';
 
 interface WorkflowStage {
   label: string;
@@ -41,7 +42,7 @@ export class CandidateView {
   private readonly panelStore = inject(InterviewPanelStore);
   private readonly alertService = inject(AlertService);
   readonly dialog = inject(MatDialog);
-
+  onUpdateAction = output<ICandidateUpdate>();
   readonly candidateId = model<string>(EMPTY_UUID);
 
   readonly candidate = this.candidateStore.candidate;
@@ -559,5 +560,14 @@ export class CandidateView {
         sub1.unsubscribe();
       });
     }
+  }
+  onOpenUpdatePage() {
+    const candidate = this.getCandidate();
+
+    if (!candidate) {
+      return;
+    }
+
+    // this.onUpdateAction.emit(candidate);
   }
 }

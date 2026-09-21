@@ -38,6 +38,7 @@ export interface ICandidate {
 
   gender: string;
   fatherName?: string;
+  motherName?: string;
 
   mobileNo: string;
   email?: string;
@@ -284,4 +285,159 @@ export interface ICandidateDetail {
   policeStationId: string;
   postOfficeId: string;
   pinCode: string;
+}
+// Replace the old ICandidateUpdate at the bottom of candidate.ts with this:
+
+export interface ICandidateUpdate {
+  id: string;
+  // ============================================================
+  // 1. BASIC INFORMATION
+  // ============================================================
+  prefix: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  employeeName: string;
+  fatherName: string;
+  motherName: string;
+  dateOfBirth: string | null;
+  gender: string;
+  religion: string;
+  caste: string;
+  bloodGroup: string;
+  disabilityType: string;
+  nationality: string;
+  // ============================================================
+  // 2. KYC DETAILS
+  // ============================================================
+  panNumber: string;
+  aadharNumber: string;
+  voterIdNumber: string;
+  passportNumber: string;
+  passportValidityFrom: string | null;
+  passportValidityTo: string | null;
+  drivingLicenseNumber: string;
+  drivingLicenseExpiryDate: string | null;
+
+  // ============================================================
+  // 3. CONTACT DETAILS
+  // ============================================================
+  mobileNo: string;
+  personalEmail: string;
+  primaryEmergencyRelation: string;
+  primaryEmergencyName: string;
+  primaryEmergencyMobile: string; // maps to nullable string
+  secondaryEmergencyRelation: string;
+  secondaryEmergencyName: string;
+  secondaryEmergencyMobile: string;
+
+  // ============================================================
+  // 4. ADDRESS DETAILS
+  // ============================================================
+  presentAddressInfo: ICandidateAddressInfo;
+  permanentAddressInfo: ICandidateAddressInfo;
+  isSameAsPresentAddress: boolean;
+
+  // ============================================================
+  // 5. EDUCATION DETAILS
+  // ============================================================
+  latestQualification: string;
+  academicStream: string;
+  specialization: string;
+  yearOfPassing: string | number | null;
+  universityOrBoard: string;
+  collegeOrSchool: string;
+  gradeOrCgpaOrPercentage: string;
+
+  // ============================================================
+  // 6. PROFESSIONAL EXPERIENCE
+  // ============================================================
+  experiences: IExperienceInfo[];
+
+  // ============================================================
+  // 7. FAMILY DETAILS
+  // ============================================================
+  maritalStatus: string;
+  spouseName: string;
+
+  // ============================================================
+  // 8. DEPENDENT & NOMINEE DETAILS
+  // ============================================================
+  nominees: INomineeInfo[];
+
+  // ============================================================
+  // 9. BANK DETAILS
+  // ============================================================
+  accountNumber: string;
+  ifscCode: string;
+  bankHolderName: string;
+  bankName: string;
+  branchName: string;
+  accountType: string;
+
+  // ============================================================
+  // 10. REFERENCE DETAILS
+  // ============================================================
+  references: IReferenceInfo[];
+
+  // ============================================================
+  // 11. EMPLOYEE REFERRAL INFORMATION
+  // ============================================================
+  isReferred: boolean;
+  referralEmployeeName: string;
+  referralDesignation: string;
+  referralEmployeeCode: string;
+  referralHowDoYouKnow: string;
+}
+
+// ============================================================
+// REQUIRED SUB-INTERFACES FOR NESTED/ARRAY DATA
+// ============================================================
+
+export interface ICandidateAddressInfo {
+  houseNo: string;
+  roadName: string;
+  landMark: string;
+  administrativeUnitId: string;
+  policeStationId: string;
+  postOfficeId: string;
+  pinCode: string;
+  ownerShipOfHouse: string;
+  durationOfStayInMonths: number;
+}
+
+export interface IExperienceInfo {
+  id?: string;
+  previousEmployer: string;
+  designation: string;
+  fromDate: string | null;
+  toDate: string | null;
+  jobTitle: string;
+  hasExperienceCertificate: boolean | null;
+  hasNoc: boolean | null;
+}
+
+export interface INomineeInfo {
+  id?: string;
+  name: string;
+  relation: string;
+  dateOfBirth: string | null;
+  uhidOrAbhaNumber: string;
+  abhaAddress: string;
+  uan: string;
+  aadharNumber: string;
+  voterIdNumber: string;
+  isResidingWithIp: boolean | null;
+  state: string;
+  district: string;
+  percentage: number | null;
+}
+
+export interface IReferenceInfo {
+  id?: string;
+  name: string;
+  contactNumber: string;
+  address: string;
+  occupation: string;
+  howDoYouKnowHimHer: string;
 }

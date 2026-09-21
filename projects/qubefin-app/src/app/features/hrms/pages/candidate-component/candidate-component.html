@@ -136,12 +136,24 @@
             </div>
             <div>
                 @if (isViewMode() && selectedCandidateId() !== EMPTY_UUID) {
-                <qfin-candidate-view [candidateId]="selectedCandidateId()">
+
+                <!-- VIEW -->
+                <qfin-candidate-view [candidateId]="selectedCandidateId()" (onUpdateAction)="onEdit($event)">
                 </qfin-candidate-view>
+
+                } @else if (isUpdateMode()) {
+
+                <qfin-candidate-joining-info [candidateData]="selectedCandidateData()!"
+                    (onProcessComplete)="closePanel()">
+                </qfin-candidate-joining-info>
+
                 } @else {
+
+                <!-- CREATE -->
                 <qfin-candidate-detail [candidateId]="selectedCandidateId()" (cancel)="closePanel()"
                     (save)="closePanel()">
                 </qfin-candidate-detail>
+
                 }
             </div>
         </div>

@@ -27,7 +27,12 @@
                         <p class="text-xs text-slate-500 dark:text-slate-400">
                             Candidate
                         </p>
+                        <div class="p-2 rounded-4xl cursor-pointer hover:bg-secondary-500/10" matTooltip="Edit"
+                            (click)="onOpenUpdatePage()">
+                            <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
+                        </div>
                     </div>
+
                 </div>
 
                 <!-- =============================================
@@ -95,7 +100,7 @@
                 @if (data.isHR && !data.isAllPanelAcknowledged) {
                 <button type="button" class="reset-btn shine-sweep lift" (click)="onViewInterviewLetterMail()">
                     <svg lucideIcon="mail" class="w-4 h-4 mr-2"></svg>
-                   View & Print Interview Letter
+                    View & Print Interview Letter
                 </button>
                 <button type="button" class="reset-btn shine-sweep lift" [disabled]="sendingMail()"
                     (click)="onSendLetterMail('interview')">

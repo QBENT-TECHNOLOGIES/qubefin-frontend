@@ -12,12 +12,13 @@ import { form, FormField } from '@angular/forms/signals';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ICandidateSearchModel } from '../../models/candidate';
+import { ICandidate, ICandidateSearchModel, ICandidateUpdate } from '../../models/candidate';
 import { Sort } from '@angular/material/sort';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { CompanyStore } from '../../../global/stores/company-store';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
+import { CandidateJoiningInfo } from '../../components/interview-process/candidate/candidate-joining-info/candidate-joining-info';
 @Component({
   selector: 'qfin-candidate-component',
   imports: [
@@ -33,6 +34,7 @@ import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
     CandidateList,
     CandidateView,
     CandidateDetail,
+    CandidateJoiningInfo,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './candidate-component.html',
@@ -43,10 +45,12 @@ export class CandidateComponent {
   public readonly EMPTY_UUID = EMPTY_UUID;
   readonly candidateStore = inject(CandidateStore);
   readonly companyStore = inject(CompanyStore);
+  readonly isUpdateMode = signal<boolean>(false);
   readonly isViewMode = signal<boolean>(true);
   readonly showFilterArea = signal<boolean>(false);
   readonly selectedCandidateId = signal<string>(EMPTY_UUID);
   readonly candidates = this.candidateStore.candidates;
+  readonly selectedCandidateData = signal<ICandidateUpdate | null>(null);
   readonly hasSelectedCandidate = computed(
     () => this.selectedCandidateId() !== EMPTY_UUID || !this.isViewMode(),
   );
@@ -60,17 +64,24 @@ export class CandidateComponent {
   protected onView(id: string) {
     this.selectedCandidateId.set(id);
     this.isViewMode.set(true);
+    this.isUpdateMode.set(false);
   }
-  protected onEdit() {
+  protected onEdit(candidate: ICandidateUpdate) {
+    this.selectedCandidateId.set(candidate.id);
+    this.selectedCandidateData.set(candidate);
+
     this.isViewMode.set(false);
+    this.isUpdateMode.set(true);
   }
   protected onAdd() {
     this.isViewMode.set(false);
     this.selectedCandidateId.set(EMPTY_UUID);
+    this.isUpdateMode.set(false);
   }
   protected closePanel() {
     this.selectedCandidateId.set(EMPTY_UUID);
     this.isViewMode.set(true);
+    this.isUpdateMode.set(false);
   }
   protected toggleFilterArea() {
     this.showFilterArea.update((v) => !v);
