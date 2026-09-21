@@ -14,11 +14,13 @@ export class CandidateService {
   updateCandidate(id: any, candidate: any) {
     return this.httpClient.put(`${ApiPaths.HRMS}/candidates/${id}`, candidate);
   }
-  // Send exactly one non-null flag per call - the backend finds the candidate,
-  // fires the (currently stubbed) letter email, and updates that one flag.
+  // Send exactly one non-null flag per call. This only records that the flag changed - it does not
+  // send any email (see sendLetterToCandidate for that).
   updateLetterStatus(id: string, request: ICandidateLetterStatusRequest) {
     return this.httpClient.post(`${ApiPaths.HRMS}/candidates/${id}/letter-status`, request);
   }
+  // Send exactly one non-null flag per call, identifying which letter to email - actually sends the
+  // letter email to the candidate via SMTP.
   sendLetterToCandidate(id: string, request: ICandidateLetterStatusRequest) {
     return this.httpClient.post(`${ApiPaths.HRMS}/candidates/${id}/send-letter`, request);
   }
@@ -28,5 +30,9 @@ export class CandidateService {
     const formData = new FormData();
     formData.append('Attachment', file, file.name);
     return this.httpClient.post(`${ApiPaths.HRMS}/candidates/${id}/interview-upload`, formData);
+  }
+  // Sets whether the candidate's interview was conducted Online or Offline.
+  updateInterviewMode(id: string, interviewMode: 'Online' | 'Offline') {
+    return this.httpClient.post(`${ApiPaths.HRMS}/candidates/${id}/interview-mode`, { interviewMode });
   }
 }

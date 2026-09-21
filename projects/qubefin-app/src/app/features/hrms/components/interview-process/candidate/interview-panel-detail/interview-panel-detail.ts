@@ -461,7 +461,7 @@ export class InterviewPanelDetail implements OnInit {
           this.save.emit();
         });
       },
-      error: () => this.alertService.error('Error', 'Failed to schedule panel'),
+      error: () => {},
     });
   }
 

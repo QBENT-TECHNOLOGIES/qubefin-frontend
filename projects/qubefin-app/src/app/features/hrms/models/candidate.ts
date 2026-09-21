@@ -214,10 +214,19 @@ export interface ICandidate {
   isCurrentEmployeeAttended?: boolean;
 
   isCurrentEmployeeAssessmentSubmitted?: boolean;
+  isAssessmentDate?: boolean;
 
   isAllPanelAcknowledged?: boolean;
 
   isAllPanelAssessmentSubmitted?: boolean;
+
+  /** How many interviewers have acknowledged so far. Excludes HR's own assessment row, so it can be
+   * compared directly against `panelMemberCount`. */
+  interviewerAcknowledgedCount?: number;
+
+  /** How many interviewers have submitted their assessment so far. Excludes HR's own assessment row, so
+   * it can be compared directly against `panelMemberCount`. */
+  interviewerSubmittedCount?: number;
 
   // ============================================================
   // HR ASSESSMENT
@@ -226,6 +235,16 @@ export interface ICandidate {
   isShowHrAssessmentButton?: boolean;
 
   isHrAssessmentCompleted?: boolean;
+
+  /** HR opened the HR Assessment and saved it as a draft without submitting. `isShowHrAssessmentButton`
+   * stays true in this state - use this to label the button "Continue HR Assessment". */
+  isHrAssessmentDraftSaved?: boolean;
+
+  /** HR's own row in the interview panel table has been finalised. */
+  isHrAssessmentSubmitted?: boolean;
+
+  /** Total of the ten averaged category ratings stored on HR's assessment row. */
+  hrAssessmentTotalRatingPoint?: number;
 
   isCandidateQualified?: boolean;
 
@@ -244,6 +263,12 @@ export interface ICandidate {
   canGenerateOfferLetter?: boolean;
 
   isOfferLetterGenerated?: boolean;
+
+  // ============================================================
+  // APPOINTMENT LETTER
+  // ============================================================
+
+  canGenerateAppointmentLetter?: boolean;
 
   // ============================================================
   // CURRENT WORKFLOW

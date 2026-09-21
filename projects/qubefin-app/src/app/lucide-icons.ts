@@ -187,6 +187,14 @@ import {
   LucideLoaderCircle,
   LucideSmartphone,
   LucideFileBarChart,
+  LucideCompass,
+  LucideMailCheck,
+  LucideMailWarning,
+  LucideIdCard,
+  LucideRoute,
+  LucideFileCheck,
+  LucideSquare,
+  LucideFileCheck2,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -375,6 +383,14 @@ export const APP_ICONS = [
   LucideLoaderCircle,
   LucideSmartphone,
   LucideFileBarChart,
+  LucideCompass,
+  LucideMailCheck,
+  LucideMailWarning,
+  LucideIdCard,
+  LucideRoute,
+  LucideFileCheck,
+  LucideSquare,
+  LucideFileCheck2,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -563,4 +579,12 @@ export const APP_ICONS_MAP: Record<string, any> = {
   LoaderCircle: LucideLoaderCircle,
   Smartphone: LucideSmartphone,
   FileBarChart: LucideFileBarChart,
+  Compass: LucideCompass,
+  MailCheck: LucideMailCheck,
+  MailWarning: LucideMailWarning,
+  IdCard: LucideIdCard,
+  Route: LucideRoute,
+  FileCheck: LucideFileCheck,
+  Square: LucideSquare,
+  FileCheck2: LucideFileCheck2,
 };

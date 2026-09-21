@@ -21,20 +21,41 @@ export class CandidateStore {
   readonly posts = computed(() => this.postsResource.value() ?? []);
   readonly postsLoading = computed(() => this.postsResource.isLoading());
   readonly postsError = computed(() => this.postsResource.error());
-  private readonly candidatesResource = httpResource<{
+  // private readonly candidatesResource = httpResource<{
+  //   candidates: ICandidateList[];
+  //   totalRecords: number;
+  // }>(() => {
+  //   const search = encodeURIComponent(this.searchQuery());
+
+  //   let url = `${this.basePath}?searchText=${search}&sortOn=${this.sortOn()}&sortDirection=${this.sortDirection()}&pageIndex=${this.pageIndex()}&pageSize=${this.pageSize()}`;
+
+  //   if (this.companyId()) {
+  //     url += `&companyId=${this.companyId()}`;
+  //   }
+
+  //   return url;
+  // });
+
+  readonly candidatesResource = httpResource<{
     candidates: ICandidateList[];
     totalRecords: number;
-  }>(() => {
-    const search = encodeURIComponent(this.searchQuery());
-
-    let url = `${this.basePath}?searchText=${search}&sortOn=${this.sortOn()}&sortDirection=${this.sortDirection()}&pageIndex=${this.pageIndex()}&pageSize=${this.pageSize()}`;
-
-    if (this.companyId()) {
-      url += `&companyId=${this.companyId()}`;
-    }
-
-    return url;
-  });
+  }>(() => ({
+    url: `${this.basePath}` + '/filter',
+    method: 'POST',
+    body: {
+      companyId: this.checkStringOrNull(this.companyId()),
+      searchText: encodeURIComponent(this.searchQuery()),
+      // toDate: this.checkStringOrNull(this.toDateQuery()),
+      // searchEmployeeId: this.checkStringOrNull(this.searchedEmployeeIdQuery()),
+      sortOn: this.sortOn(),
+      sortDirection: this.sortDirection(),
+      pageIndex: this.pageIndex(),
+      pageSize: this.pageSize(),
+    },
+  }));
+  private checkStringOrNull(value: any): any {
+    return value === '' || value === null ? null : value;
+  }
   readonly candidates = computed(() => this.candidatesResource.value()?.candidates ?? []);
   readonly totalRecords = computed(() => this.candidatesResource.value()?.totalRecords ?? 0);
   readonly candidatesLoading = computed(() => this.candidatesResource.isLoading());

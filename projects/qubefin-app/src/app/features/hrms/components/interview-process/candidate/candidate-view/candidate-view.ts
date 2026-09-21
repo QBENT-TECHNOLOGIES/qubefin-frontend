@@ -78,7 +78,7 @@ export class CandidateView {
       {
         label: 'Acknowledge',
         icon: 'badge-check',
-        done: !!data.isInterviewerAcknowledged,
+        done: !!data.isAllPanelAcknowledged,
       },
       {
         label: 'Panel Creation',
@@ -120,6 +120,20 @@ export class CandidateView {
 
     return stages.find((s) => s.current)?.label ?? stages.at(-1)?.label ?? '-';
   });
+
+  readonly isWorkflowComplete = computed(() => {
+    const stages = this.workflowStages();
+    return stages.length > 0 && stages.every((s) => s.done);
+  });
+
+  getInitials(name: string | undefined | null): string {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    return parts
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase())
+      .join('');
+  }
 
   // ============================================================
   // HELPER
@@ -399,6 +413,10 @@ export class CandidateView {
           ' ' +
           (candidate.middleName ? candidate.middleName + ' ' : '') +
           candidate.lastName,
+        interviewPostName: candidate.interviewPostName,
+        departmentName: candidate.departmentName,
+        interviewDate: candidate.interviewDate,
+        interviewMode: candidate.interviewMode,
       },
     });
 
@@ -525,6 +543,30 @@ export class CandidateView {
         sub2.unsubscribe();
       });
     }
+  }
+  getAssessmentMessage(interviewDate: string | Date): string {
+    const today = new Date();
+    const interview = new Date(interviewDate);
+
+    today.setHours(0, 0, 0, 0);
+    interview.setHours(0, 0, 0, 0);
+
+    const diffTime = interview.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 0) {
+      if (diffDays === 1) {
+        return 'Interview is tomorrow.';
+      }
+
+      return `Interview after ${diffDays} days.`;
+    }
+
+    if (diffDays < 0) {
+      return 'Interview date has passed.';
+    }
+
+    return '';
   }
 
   // ============================================================

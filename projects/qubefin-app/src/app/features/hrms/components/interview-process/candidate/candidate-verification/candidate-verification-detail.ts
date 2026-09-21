@@ -1,86 +1,92 @@
 import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { Router } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { IVerificationModel } from '../../../../services/candidate-verification.service';
+import {
+  CandidateVerificationService,
+  ICandidateVerification,
+  ICandidateVerificationUpdateRequest,
+} from '../../../../services/candidate-verification.service';
+
+type BooleanVerificationKey =
+  | 'isAadharValidated'
+  | 'isVoterValited'
+  | 'isPanValidated'
+  | 'isMobileValidated'
+  | 'isUanVerified'
+  | 'isCreditBureauChecked';
 
 export interface IVerificationItemConfig {
-  key: keyof IVerificationModel;
+  key: BooleanVerificationKey;
+  /** Field on `ICandidateVerification` holding the document number/value to display next to this check, if any. */
+  numberField?: keyof ICandidateVerification;
   label: string;
   desc: string;
   icon: string;
   mandatory: boolean;
-  actionLabel: string;
   group: 'identity' | 'bureau';
 }
 
+// Mirrors the six flags on backend `CandidateVerificationDto` / `UpdateCandidateVerificationCommand`.
+// There is no external verification API - HR/Admin ticks each box after checking it themselves, so
+// these are plain checkboxes, not an async "Verify" action with a Pending/In Progress/Failed lifecycle.
 export const VERIFICATION_ITEMS: IVerificationItemConfig[] = [
   {
-    key: 'aadhaarStatus',
+    key: 'isAadharValidated',
+    numberField: 'aadharNumber',
     label: 'Aadhaar Verification',
-    desc: 'Verify identity with UIDAI',
+    desc: 'Identity verified against Aadhaar',
     icon: 'fingerprint',
     mandatory: true,
-    actionLabel: 'Verify',
     group: 'identity',
   },
   {
-    key: 'panStatus',
+    key: 'isPanValidated',
+    numberField: 'pan',
     label: 'PAN Verification',
-    desc: 'Verify with NSDL',
+    desc: 'Identity verified against PAN',
     icon: 'credit-card',
     mandatory: true,
-    actionLabel: 'Verify',
     group: 'identity',
   },
   {
-    key: 'voterIdStatus',
+    key: 'isVoterValited',
+    numberField: 'voterNumber',
     label: 'Voter ID Verification',
-    desc: 'Verify with ECI portal',
+    desc: 'Identity verified against Voter ID',
     icon: 'vote',
-    mandatory: false,
-    actionLabel: 'Verify',
+    mandatory: true,
     group: 'identity',
   },
   {
-    key: 'mobileStatus',
+    key: 'isMobileValidated',
+    numberField: 'mobileNo',
     label: 'Mobile Number',
-    desc: 'OTP Verification',
+    desc: 'Mobile number confirmed',
     icon: 'smartphone',
     mandatory: true,
-    actionLabel: 'Send OTP',
     group: 'identity',
   },
   {
-    key: 'uanStatus',
+    key: 'isUanVerified',
+    numberField: 'uan',
     label: 'UAN Verification',
-    desc: 'Verify with EPFO (Optional)',
+    desc: 'Verified with EPFO (Optional)',
     icon: 'building-2',
     mandatory: false,
-    actionLabel: 'Verify',
     group: 'identity',
   },
   {
-    key: 'hrBureauStatus',
-    label: 'HR Bureau Report',
-    desc: 'Equifax HR Bureau',
-    icon: 'shield-check',
-    mandatory: true,
-    actionLabel: 'Fetch Report',
-    group: 'bureau',
-  },
-  {
-    key: 'creditBureauStatus',
+    key: 'isCreditBureauChecked',
     label: 'Credit Bureau Report',
-    desc: 'Equifax Credit Bureau',
+    desc: 'Credit bureau report reviewed',
     icon: 'file-bar-chart',
     mandatory: true,
-    actionLabel: 'Fetch Report',
     group: 'bureau',
   },
 ];
@@ -105,69 +111,42 @@ export class CandidateVerificationDetail implements OnInit {
 
   private alertService = inject(AlertService);
   private router = inject(Router);
+  private verificationService = inject(CandidateVerificationService);
 
   @Input() candidateId: string = this.data?.candidateId ?? '';
   @Input() candidateName: string = this.data?.candidateName ?? '';
-
-  readonly documentFieldMap: Partial<Record<keyof IVerificationModel, string>> = {
-    aadhaarStatus: 'aadhaar',
-    panStatus: 'pan',
-    voterIdStatus: 'voterId',
-    mobileStatus: 'mobile',
-    uanStatus: 'uan',
-  };
-
-  readonly documentForm = new FormGroup({
-    aadhaar: new FormControl('', {
-      validators: [Validators.pattern(/^\d{12}$/)],
-      nonNullable: true,
-    }),
-    pan: new FormControl('', {
-      validators: [Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/)],
-      nonNullable: true,
-    }),
-    voterId: new FormControl('', {
-      validators: [Validators.pattern(/^[A-Z]{3}[A-Z0-9]{7,10}$/)],
-      nonNullable: true,
-    }),
-    mobile: new FormControl('', {
-      validators: [Validators.pattern(/^[6-9]\d{9}$/)],
-      nonNullable: true,
-    }),
-    uan: new FormControl('', { validators: [Validators.pattern(/^\d{12}$/)], nonNullable: true }),
-  });
 
   readonly identityItems = VERIFICATION_ITEMS.filter((i) => i.group === 'identity');
   readonly bureauItems = VERIFICATION_ITEMS.filter((i) => i.group === 'bureau');
   private readonly mandatoryItems = VERIFICATION_ITEMS.filter((i) => i.mandatory);
 
-  verificationData = signal<IVerificationModel>({
+  readonly creditBureauReportLink = new FormControl('', {
+    validators: [Validators.maxLength(500)],
+    nonNullable: true,
+  });
+
+  isLoading = signal(false);
+  isSaving = signal(false);
+
+  verificationData = signal<ICandidateVerification>({
     candidateId: '',
-    aadhaarStatus: 'Pending',
-    panStatus: 'Pending',
-    voterIdStatus: 'Pending',
-    mobileStatus: 'Pending',
-    uanStatus: 'Pending',
-    hrBureauStatus: 'Pending',
-    creditBureauStatus: 'Pending',
+    isAadharValidated: false,
+    isVoterValited: false,
+    isPanValidated: false,
+    isMobileValidated: false,
+    isUanVerified: false,
+    isCreditBureauChecked: false,
     overallStatus: 'Pending',
   });
 
-  isVerificationComplete = computed(() => {
-    const data = this.verificationData();
-    return (
-      data.aadhaarStatus === 'Verified' &&
-      data.panStatus === 'Verified' &&
-      data.mobileStatus === 'Verified' &&
-      data.hrBureauStatus === 'Verified' &&
-      data.creditBureauStatus === 'Verified'
-    );
-  });
+  // Backend computes `overallStatus` the same way (Aadhar && Voter && Pan && Mobile && CreditBureau);
+  // trust that value rather than recomputing it here so the two never drift apart.
+  isVerificationComplete = computed(() => this.verificationData().overallStatus === 'Verified');
 
-  /** How many mandatory checks are Verified, drives the progress bar */
+  /** How many mandatory checks are ticked, drives the progress bar */
   readonly mandatoryCompletedCount = computed(() => {
-    const data: any = this.verificationData();
-    return this.mandatoryItems.filter((i) => data[i.key] === 'Verified').length;
+    const data = this.verificationData();
+    return this.mandatoryItems.filter((i) => !!data[i.key]).length;
   });
   readonly mandatoryTotalCount = this.mandatoryItems.length;
   readonly mandatoryPercent = computed(() =>
@@ -187,43 +166,51 @@ export class CandidateVerificationDetail implements OnInit {
   loadVerificationData() {
     if (!this.candidateId || this.candidateId === EMPTY_UUID) return;
 
-    // this.verificationService.getVerificationStatus(this.candidateId).subscribe({
-    //   next: (res) => {
-    //     if (res) this.verificationData.set(res);
-    //   },
-    //   error: () => {
-    //     // Pending backend, stub gracefully
-    //     this.verificationData.set({
-    //         ...this.verificationData(),
-    //         candidateId: this.candidateId
-    //     });
-    //   }
-    // });
+    this.isLoading.set(true);
+    this.verificationService.getVerificationStatus(this.candidateId).subscribe({
+      next: (res) => {
+        this.isLoading.set(false);
+        if (res) {
+          this.verificationData.set(res);
+          this.creditBureauReportLink.setValue(res.creditBureauReportLink ?? '');
+        }
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.verificationData.update((v) => ({ ...v, candidateId: this.candidateId }));
+      },
+    });
   }
 
-  onVerify(documentType: string) {
-    this.verificationData.update((v) => ({ ...v, [documentType]: 'In Progress' }));
-
-    // Simulate API call for now (pending backend)
-    // this.verificationService.verifyDocument(this.candidateId, documentType, {}).subscribe({
-    //   next: () => {
-    //     this.verificationData.update(v => ({...v, [documentType]: 'Verified'}));
-    //     this.checkOverallStatus();
-    //   },
-    //   error: () => {
-    //     // Mock successful verification if API is down
-    //     setTimeout(() => {
-    //         this.verificationData.update(v => ({...v, [documentType]: 'Verified'}));
-    //         this.checkOverallStatus();
-    //     }, 1000);
-    //   }
-    // });
+  /** HR/Admin ticks or unticks a check after personally verifying it. Not persisted until Save. */
+  toggleItem(key: BooleanVerificationKey) {
+    this.verificationData.update((v) => ({ ...v, [key]: !v[key] }));
   }
 
-  checkOverallStatus() {
-    if (this.isVerificationComplete()) {
-      this.verificationData.update((v) => ({ ...v, overallStatus: 'Verified' }));
-    }
+  saveVerification() {
+    const data = this.verificationData();
+    const request: ICandidateVerificationUpdateRequest = {
+      isAadharValidated: data.isAadharValidated,
+      isVoterValited: data.isVoterValited,
+      isPanValidated: data.isPanValidated,
+      isMobileValidated: data.isMobileValidated,
+      isUanVerified: data.isUanVerified,
+      isCreditBureauChecked: data.isCreditBureauChecked,
+      creditBureauReportLink: this.creditBureauReportLink.value || undefined,
+    };
+
+    this.isSaving.set(true);
+    this.verificationService.updateVerification(this.candidateId, request).subscribe({
+      next: (res) => {
+        this.isSaving.set(false);
+        this.verificationData.set(res);
+        this.alertService.success('Success', 'Verification status saved.');
+      },
+      error: () => {
+        this.isSaving.set(false);
+        this.alertService.error('Error', 'Could not save verification status. Please try again.');
+      },
+    });
   }
 
   proceedToOffer() {
@@ -233,95 +220,29 @@ export class CandidateVerificationDetail implements OnInit {
     } else {
       this.alertService.error(
         'Verification Incomplete',
-        'Please complete all mandatory verifications before proceeding to offer.',
+        'Please complete all mandatory verifications and save before proceeding to offer.',
       );
     }
   }
 
-  getStatus(key: keyof IVerificationModel): string {
-    return (this.verificationData() as any)[key];
+  isChecked(key: BooleanVerificationKey): boolean {
+    return !!this.verificationData()[key];
   }
 
-  getStatusClass(status: string) {
-    switch (status) {
-      case 'Verified':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800';
-      case 'Failed':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800';
-      case 'In Progress':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800';
-      default:
-        return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
-    }
+  getNumberValue(item: IVerificationItemConfig): string {
+    if (!item.numberField) return '';
+    const value = this.verificationData()[item.numberField];
+    return typeof value === 'string' ? value : '';
   }
 
-  getStatusIcon(status: string): string {
-    switch (status) {
-      case 'Verified':
-        return 'check-circle-2';
-      case 'Failed':
-        return 'x-circle';
-      case 'In Progress':
-        return 'loader-circle';
-      default:
-        return 'clock';
-    }
+  getStatusClass(isVerified: boolean) {
+    return isVerified
+      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800'
+      : 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
   }
 
-  getDocumentControlName(key: keyof IVerificationModel): string {
-    return this.documentFieldMap[key] ?? '';
-  }
-
-  getDocumentControl(key: keyof IVerificationModel): FormControl<string> | null {
-    const controlName = this.getDocumentControlName(key);
-    const control = controlName ? this.documentForm.get(controlName) : null;
-    return control instanceof FormControl ? control : null;
-  }
-
-  isDocumentInputVisible(key: keyof IVerificationModel): boolean {
-    return !!this.getDocumentControlName(key);
-  }
-
-  hasDocumentError(key: keyof IVerificationModel): boolean {
-    const control = this.getDocumentControl(key);
-    return !!control && control.invalid && (control.dirty || control.touched);
-  }
-
-  isDocumentInvalid(key: keyof IVerificationModel): boolean {
-    return !!this.getDocumentControl(key)?.invalid;
-  }
-
-  getDocumentLabel(key: keyof IVerificationModel): string {
-    const nameMap: Partial<Record<keyof IVerificationModel, string>> = {
-      aadhaarStatus: 'Aadhaar Number',
-      panStatus: 'PAN Number',
-      voterIdStatus: 'Voter ID',
-      mobileStatus: 'Mobile Number',
-      uanStatus: 'UAN Number',
-    };
-    return nameMap[key] ?? 'Document Number';
-  }
-
-  getDocumentPlaceholder(key: keyof IVerificationModel): string {
-    const placeholderMap: Partial<Record<keyof IVerificationModel, string>> = {
-      aadhaarStatus: '12-digit Aadhaar number',
-      panStatus: 'ABCDE1234F',
-      voterIdStatus: 'ABC1234567',
-      mobileStatus: '10-digit mobile no.',
-      uanStatus: '12-digit UAN',
-    };
-    return placeholderMap[key] ?? 'Enter number';
-  }
-
-  getDocumentErrorMessage(key: keyof IVerificationModel): string {
-    const messageMap: Partial<Record<keyof IVerificationModel, string>> = {
-      aadhaarStatus: 'Aadhaar must be 12 digits.',
-      panStatus: 'PAN must be 5 letters + 4 digits + 1 letter.',
-      voterIdStatus: 'Voter ID must match the expected format.',
-      mobileStatus: 'Mobile number must be 10 digits starting with 6-9.',
-      uanStatus: 'UAN must be 12 digits.',
-    };
-    return messageMap[key] ?? 'Invalid document number.';
+  getStatusIcon(isVerified: boolean): string {
+    return isVerified ? 'check-circle-2' : 'clock';
   }
 
   getInitials(name: string | undefined | null): string {
