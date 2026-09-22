@@ -99,7 +99,7 @@ export class PersonalComponentDetail {
   protected readonly castes = computed(() => this.filterUtility('CASTE'));
   protected readonly religions = computed(() => this.filterUtility('RELIGION'));
   protected readonly salutations = computed(() => this.filterUtility('SALUTAION')); // Kept matching typo from original code
-
+  protected readonly disabilityTypes = ['Yes', 'No'];
   private filterUtility(sysKey: string) {
     const list = this.utilities();
     return list.length > 0 ? list.filter((m: any) => m.sysKey === sysKey) : [];

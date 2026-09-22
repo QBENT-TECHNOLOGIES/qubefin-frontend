@@ -191,8 +191,13 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="accessibility" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="employeeForm.disablityType" autocomplete="off"
-                placeholder="Enter Disablity Type">
+            <mat-select [formField]="employeeForm.disablityType" placeholder="Select Disability Type">
+                @for (item of disabilityTypes; track item) {
+                <mat-option [value]="item">
+                    {{ item }}
+                </mat-option>
+                }
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Marital Status</mat-label>
