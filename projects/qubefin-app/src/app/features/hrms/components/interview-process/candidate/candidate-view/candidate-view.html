@@ -103,21 +103,11 @@
                     </button>
                     }
 
-                    <!-- INTERVIEW FORMAT: DOWNLOAD / UPLOAD -->
+                    <!-- INTERVIEW FORMAT: DOWNLOAD / UPLOAD - one split button, like the letters. -->
                     @if (showInterviewFormatActions()) {
-                    <button type="button" class="reset-btn shine-sweep lift" (click)="onDownloadInterviewFormat()">
-                        <svg lucideIcon="download" class="w-4 h-4 mr-2"></svg>
-                        Interview Format Download
-                    </button>
-
-                    <button type="button" class="reset-btn shine-sweep lift" [disabled]="uploadingInterviewFormat()"
-                        (click)="fileInput.click()">
-                        <svg lucideIcon="upload" class="w-4 h-4 mr-2"></svg>
-                        {{ uploadingInterviewFormat() ? 'Uploading...' : 'Interview Upload' }}
-                    </button>
-
-                    <input type="file" #fileInput (change)="onInterviewUpload($event)" class="hidden"
-                        accept=".pdf,.doc,.docx" />
+                    <qfin-file-actions actionName="Interview Format" uploadLabel="Interview Upload"
+                        [uploading]="uploadingInterviewFormat()" (download)="onDownloadInterviewFormat()"
+                        (upload)="onInterviewUpload($event)" />
                     }
 
                     <!-- INTERVIEW LETTER -->
@@ -180,7 +170,7 @@
                     }
 
                     <!-- ADD ADDITIONAL INFO - unlocked by the received offer letter -->
-                    @if (data.showAddAdditionalInfoButton) {
+                    @if (data.showAddAdditionalInfoButton && data.isJoiningLetterUploaded) {
                     <button type="button" class="reset-btn shine-sweep lift" [disabled]="addingAdditionalInfo()"
                         (click)="onAddAdditionalInfo()">
                         <svg lucideIcon="file-plus" class="w-4 h-4 mr-2"></svg>
@@ -195,22 +185,14 @@
                         (send)="onSendLetterMail('appointment')" (receive)="onRecieveLetter('appointment')" />
                     }
 
-                    <!-- JOINING LETTER - unlocked by the received appointment letter -->
+                    <!-- JOINING LETTER - unlocked by the received appointment letter. One split button,
+                         like the letters: download the blank letter, upload the signed one back. -->
                     @if (data.showJoiningLetterActions && !data.isJoiningLetterUploaded) {
-                    <button type="button" class="reset-btn shine-sweep lift" (click)="onDownloadJoiningLetter()">
-                        <svg lucideIcon="download" class="w-4 h-4 mr-2"></svg>
-                        Download Joining Letter
-                    </button>
-
-                    @if (!data.isJoiningLetterUploaded) {
-                    <button type="button" class="reset-btn shine-sweep lift" [disabled]="uploadingJoiningLetter()"
-                        (click)="joiningLetterFileInput.click()">
-                        <svg lucideIcon="upload" class="w-4 h-4 mr-2"></svg>
-                        {{ uploadingJoiningLetter() ? 'Uploading...' : 'Joining Letter Upload' }}
-                    </button>
-                    <input type="file" #joiningLetterFileInput (change)="onJoiningLetterUpload($event)"
-                        class="hidden" accept=".pdf,.doc,.docx" />
-                    }
+                    <qfin-file-actions actionName="Joining Letter" downloadLabel="Download Joining Letter"
+                        uploadLabel="Joining Letter Upload"
+                        uploadDialogDescription="Drag the signed joining letter here, or browse to pick it."
+                        [uploading]="uploadingJoiningLetter()" (download)="onDownloadJoiningLetter()"
+                        (upload)="onJoiningLetterUpload($event)" />
                     }
 
                     <!-- WELCOME LETTER - unlocked by the uploaded joining letter -->
@@ -495,6 +477,62 @@
 
                         </div>
                     </div>
+
+                    <!-- Documents. Each row appears only once its file is on record - an
+                         uploaded document is never reported as a dash. -->
+                    @if (data.writtenInterviewFIleUrl || data.signedJoiningLetterFileUrl) {
+                    <div>
+                        <p
+                            class="text-[11px] font-bold text-green-700 dark:text-green-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                            <svg lucideIcon="paperclip" class="w-3.5 h-3.5"></svg> Documents
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+
+                            @if (data.writtenInterviewFIleUrl) {
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="paperclip" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div class="flex-1 flex items-center justify-between gap-3 min-w-0">
+                                    <div class="min-w-0">
+                                        <label class="gen-label">Written Interview File</label>
+                                        <p class="gen-title truncate">
+                                            {{ getFileName(data.writtenInterviewFIleUrl) }}
+                                        </p>
+                                    </div>
+                                    <button type="button" matTooltip="View Document"
+                                        (click)="openDocument(data.writtenInterviewFIleUrl, getFileName(data.writtenInterviewFIleUrl))"
+                                        class="text-primary-600 dark:text-primary-400 px-2 py-1.5 rounded-lg cursor-pointer shrink-0">
+                                        <svg lucideIcon="eye" class="w-5 h-5"></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            }
+
+                            @if (data.signedJoiningLetterFileUrl) {
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="paperclip" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div class="flex-1 flex items-center justify-between gap-3 min-w-0">
+                                    <div class="min-w-0">
+                                        <label class="gen-label">Signed Joining Letter</label>
+                                        <p class="gen-title truncate">
+                                            {{ getFileName(data.signedJoiningLetterFileUrl) }}
+                                        </p>
+                                    </div>
+                                    <button type="button" matTooltip="View Document"
+                                        (click)="openDocument(data.signedJoiningLetterFileUrl, getFileName(data.signedJoiningLetterFileUrl))"
+                                        class="text-primary-600 dark:text-primary-400 px-2 py-1.5 rounded-lg cursor-pointer shrink-0">
+                                        <svg lucideIcon="eye" class="w-5 h-5"></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            }
+
+                        </div>
+                    </div>
+                    }
 
                 </div>
             </div>

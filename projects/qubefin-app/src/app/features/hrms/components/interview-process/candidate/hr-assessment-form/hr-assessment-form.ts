@@ -1,9 +1,11 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { AlertService } from 'qubefin-core';
@@ -41,10 +43,13 @@ export const RECOMMENDATION_OPTIONS = [
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     MatDialogModule,
     ReactiveFormsModule,
     LucideDynamicIcon,
   ],
+  providers: [DatePipe],
   templateUrl: './hr-assessment-form.html',
 })
 export class HrAssessmentForm implements OnInit {
@@ -54,6 +59,7 @@ export class HrAssessmentForm implements OnInit {
   private payrollService = inject(PayrollService);
   private candidateService = inject(CandidateService);
   private alertService = inject(AlertService);
+  private datePipe = inject(DatePipe);
 
   candidateId: string = this.data?.candidateId ?? '';
   candidateName: string = this.data?.candidateName ?? '';
@@ -111,6 +117,14 @@ export class HrAssessmentForm implements OnInit {
   readonly panelists = computed<IPanelistRatingSummaryDto[]>(() => this.assessment()?.panelists ?? []);
 
   readonly decisionForm = new FormGroup({
+    // Salary & joining - facts about the candidate, confirmed here by HR.
+    currentSalary: new FormControl<number | null>(null),
+    expectedSalary: new FormControl<number | null>(null),
+    noticePeriodInDays: new FormControl<number | null>(null),
+    earliestJoiningDate: new FormControl<Date | null>(null),
+    isWillingRelocate: new FormControl(false, { nonNullable: true }),
+    preferredLocation: new FormControl('', { nonNullable: true }),
+
     overallPerformance: new FormControl('', { nonNullable: true }),
     suitableRoleDepartment: new FormControl('', { nonNullable: true }),
     recommendedGradeId: new FormControl<string | null>(null),
@@ -140,6 +154,13 @@ export class HrAssessmentForm implements OnInit {
         this.isLoading.set(false);
         this.assessment.set(res);
         this.decisionForm.reset({
+          currentSalary: res.currentSalary ?? null,
+          expectedSalary: res.expectedSalary ?? null,
+          noticePeriodInDays: res.noticePeriodInDays ?? null,
+          earliestJoiningDate: res.earliestJoiningDate ? new Date(res.earliestJoiningDate) : null,
+          isWillingRelocate: res.isWillingRelocate ?? false,
+          preferredLocation: res.preferredLocation ?? '',
+
           overallPerformance: res.overallPerformance ?? '',
           suitableRoleDepartment: res.suitableRoleDepartment ?? '',
           recommendedGradeId: res.recommendedGradeId ?? null,
@@ -210,6 +231,11 @@ export class HrAssessmentForm implements OnInit {
     });
   }
 
+  setWillingRelocate(value: boolean) {
+    if (this.isLocked()) return;
+    this.decisionForm.get('isWillingRelocate')?.setValue(value);
+  }
+
   setRecommendationStatus(value: string) {
     this.decisionForm.get('recommendationStatus')?.setValue(value);
   }
@@ -270,6 +296,15 @@ export class HrAssessmentForm implements OnInit {
   private buildDecision(): IHrAssessmentDecisionDto {
     const v = this.decisionForm.getRawValue();
     return {
+      currentSalary: v.currentSalary ?? undefined,
+      expectedSalary: v.expectedSalary ?? undefined,
+      noticePeriodInDays: v.noticePeriodInDays ?? undefined,
+      // The API takes a DateOnly - send the calendar date, never an ISO instant that can shift a day.
+      earliestJoiningDate:
+        this.datePipe.transform(v.earliestJoiningDate, 'yyyy-MM-dd') ?? undefined,
+      isWillingRelocate: v.isWillingRelocate,
+      preferredLocation: v.preferredLocation || undefined,
+
       overallPerformance: v.overallPerformance || undefined,
       suitableRoleDepartment: v.suitableRoleDepartment || undefined,
       recommendedGradeId: v.recommendedGradeId || undefined,

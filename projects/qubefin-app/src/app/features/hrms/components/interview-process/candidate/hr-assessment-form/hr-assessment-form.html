@@ -260,6 +260,103 @@
         </div>
         }
 
+        <!-- Salary & Joining Details - candidate facts HR confirms, not part of the recommendation.
+             Bound to the same decisionForm, so it saves with the draft and the submit. -->
+        <div [formGroup]="decisionForm"
+            class="bg-glass-light dark:bg-glass-dark rounded-lg border border-glass-light shadow-glass overflow-hidden flex flex-col">
+            <div
+                class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-500 bg-slate-50/80 dark:bg-slate-700 flex items-center justify-between">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div>
+                    Salary & Joining Details
+                </h3>
+            </div>
+
+            <div class="p-5 grid grid-cols-1 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Current Salary</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg
+                                lucideIcon="badge-indian-rupee" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput type="number" min="0" formControlName="currentSalary"
+                            placeholder="Enter current salary">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Expected Salary</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg
+                                lucideIcon="hand-coins" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput type="number" min="0" formControlName="expectedSalary"
+                            placeholder="Enter expected salary">
+                    </mat-form-field>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Notice Period (days)</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="hourglass"
+                                class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput type="number" min="0" formControlName="noticePeriodInDays"
+                            placeholder="Enter notice period in days">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Earliest Joining Date</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg
+                                lucideIcon="calendar-plus" class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput [matDatepicker]="joiningPicker" autocomplete="off"
+                            formControlName="earliestJoiningDate" placeholder="Select earliest joining date"
+                            readonly>
+                        <mat-datepicker-toggle matIconSuffix [for]="joiningPicker"></mat-datepicker-toggle>
+                        <mat-datepicker #joiningPicker></mat-datepicker>
+                    </mat-form-field>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                    <!-- Yes/No rather than a bare checkbox, matching the recommendation buttons below. -->
+                    <div>
+                        <span
+                            class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block flex items-center gap-1.5">
+                            <svg lucideIcon="map-pin" class="w-3.5 h-3.5"></svg> Willing to Relocate
+                        </span>
+                        <div class="flex gap-3">
+                            <button type="button" [disabled]="isLocked()" (click)="setWillingRelocate(true)"
+                                class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-semibold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                                [class.bg-emerald-500]="decisionForm.get('isWillingRelocate')?.value === true"
+                                [class.border-emerald-500]="decisionForm.get('isWillingRelocate')?.value === true"
+                                [class.text-white]="decisionForm.get('isWillingRelocate')?.value === true"
+                                [class.bg-white]="decisionForm.get('isWillingRelocate')?.value !== true"
+                                [class.dark:bg-slate-900]="decisionForm.get('isWillingRelocate')?.value !== true"
+                                [class.text-slate-600]="decisionForm.get('isWillingRelocate')?.value !== true"
+                                [class.border-slate-200]="decisionForm.get('isWillingRelocate')?.value !== true"
+                                [class.dark:border-slate-600]="decisionForm.get('isWillingRelocate')?.value !== true">
+                                <svg lucideIcon="thumbs-up" class="w-4 h-4"></svg> Yes
+                            </button>
+                            <button type="button" [disabled]="isLocked()" (click)="setWillingRelocate(false)"
+                                class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-semibold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                                [class.bg-rose-500]="decisionForm.get('isWillingRelocate')?.value === false"
+                                [class.border-rose-500]="decisionForm.get('isWillingRelocate')?.value === false"
+                                [class.text-white]="decisionForm.get('isWillingRelocate')?.value === false"
+                                [class.bg-white]="decisionForm.get('isWillingRelocate')?.value !== false"
+                                [class.dark:bg-slate-900]="decisionForm.get('isWillingRelocate')?.value !== false"
+                                [class.text-slate-600]="decisionForm.get('isWillingRelocate')?.value !== false"
+                                [class.border-slate-200]="decisionForm.get('isWillingRelocate')?.value !== false"
+                                [class.dark:border-slate-600]="decisionForm.get('isWillingRelocate')?.value !== false">
+                                <svg lucideIcon="thumbs-down" class="w-4 h-4"></svg> No
+                            </button>
+                        </div>
+                    </div>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Preferred Location</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="map-pinned"
+                                class="w-[16px] h-[16px]"></svg></div>
+                        <input matInput formControlName="preferredLocation" placeholder="Enter preferred location">
+                    </mat-form-field>
+                </div>
+            </div>
+        </div>
+
         <!-- HR Decision Section - editable -->
         <form [formGroup]="decisionForm"
             class="bg-glass-light dark:bg-glass-dark rounded-lg border border-glass-light shadow-glass overflow-hidden flex flex-col">

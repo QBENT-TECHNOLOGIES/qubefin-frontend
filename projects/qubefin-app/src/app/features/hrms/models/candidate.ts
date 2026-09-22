@@ -82,6 +82,9 @@ export interface ICandidate {
 
   writtenInterviewFIle?: string;
 
+  /** Stored location of the uploaded, filled-in written interview form. Null until it is uploaded. */
+  writtenInterviewFIleUrl?: string | null;
+
   departmentId?: string;
   departmentName?: string;
 
@@ -187,6 +190,9 @@ export interface ICandidate {
    * SignedJoiningLetterFile is set). Drives Appointment Letter -> Joining Letter ->
    * Welcome Letter visibility together with isAppointmentLetterReceived / isWelcomeLetterRecieved. */
   isJoiningLetterUploaded?: boolean;
+
+  /** Stored location of the candidate's signed joining letter. Null until it is uploaded. */
+  signedJoiningLetterFileUrl?: string | null;
 
   // ============================================================
   // AUDIT

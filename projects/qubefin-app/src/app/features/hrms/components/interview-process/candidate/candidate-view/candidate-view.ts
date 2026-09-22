@@ -4,6 +4,7 @@ import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
 
 import { AlertService, DocumentModalService, EMPTY_UUID } from 'qubefin-core';
@@ -13,11 +14,12 @@ import { InterviewPanelDetail } from '../interview-panel-detail/interview-panel-
 import { HrAssessmentForm } from '../hr-assessment-form/hr-assessment-form';
 import { CandidateVerificationDetail } from '../candidate-verification/candidate-verification-detail';
 import { LetterActions } from '../letter-actions/letter-actions';
+import { FileActions } from '../file-actions/file-actions';
 import { InterviewPanelService } from '../../../../services/interview-panel-service';
 import { InterviewPanelStore } from '../../../../stores/interview-panel-store';
 import { HrmsReportService } from '../../../../../Report/Service/hrms-report-service';
 import { CandidateService } from '../../../../services/candidate-service';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { ICandidate, ICandidateUpdate } from '../../../../models/candidate';
 
 interface WorkflowStage {
@@ -29,7 +31,15 @@ interface WorkflowStage {
 
 @Component({
   selector: 'qfin-candidate-view',
-  imports: [DatePipe, LucideDynamicIcon, MatButtonModule, MatCheckboxModule, LetterActions],
+  imports: [
+    DatePipe,
+    LucideDynamicIcon,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatTooltipModule,
+    LetterActions,
+    FileActions,
+  ],
   templateUrl: './candidate-view.html',
   styles: ``,
 })
@@ -109,11 +119,14 @@ export class CandidateView {
 
   /** Sequenced server-side. The old client-side gate ("HR Assessment button hidden") was also true
    * AFTER the assessment completed, which brought these buttons back at the end of the workflow. */
-  readonly showInterviewFormatActions = computed(() => !!this.candidate()?.showInterviewFormatActions);
-
+  readonly showInterviewFormatActions = computed(
+    () => !!this.candidate()?.showInterviewFormatActions,
+  );
 
   /** Sequenced server-side, like the rest of the letter chain. */
-  readonly showInterviewLetterActions = computed(() => !!this.candidate()?.showInterviewLetterActions);
+  readonly showInterviewLetterActions = computed(
+    () => !!this.candidate()?.showInterviewLetterActions,
+  );
 
   /** A saved-but-unsubmitted HR Assessment reopens the same form, so say so on the button. */
   readonly hrAssessmentButtonLabel = computed(() =>
@@ -165,14 +178,14 @@ export class CandidateView {
         done: !!data.isInterviewLetterReceived,
       },
       {
-        label: 'Acknowledge',
-        icon: 'badge-check',
-        done: !!data.isAllPanelAcknowledged,
-      },
-      {
         label: 'Panel Creation',
         icon: 'users-round',
         done: !!data.isPanelCreated,
+      },
+      {
+        label: 'Panel Acknowledge',
+        icon: 'badge-check',
+        done: !!data.isAllPanelAcknowledged,
       },
       {
         label: 'Panel Assessment',
@@ -240,6 +253,35 @@ export class CandidateView {
   }
 
   // ============================================================
+  // DOCUMENTS
+  // ============================================================
+
+  /** The file's own name, taken off the stored URL - the API hands back a path, not a display name. */
+  getFileName(url: string | null | undefined): string {
+    if (!url) {
+      return '-';
+    }
+
+    const name = url.split(/[?#]/)[0].split(/[\\/]/).pop();
+
+    return name ? decodeURIComponent(name) : '-';
+  }
+
+  /** Opens a stored document in the shared viewer. */
+  openDocument(url: string | null | undefined, name: string) {
+    if (!url) {
+      return;
+    }
+
+    this.documentModalService.open({
+      url,
+      documentName: name,
+      extension: name.split('.').pop()?.toLowerCase() || '',
+      downloadAccess: true,
+    });
+  }
+
+  // ============================================================
   // HELPER
   // ============================================================
 
@@ -278,7 +320,29 @@ export class CandidateView {
     }
   }
 
-  onSendLetterMail(letter: string) {
+  /** The rendered letter for a given step - the same report View & Print opens. */
+  private getLetterReport(letter: string, candidateId: string): Observable<Blob> | null {
+    switch (letter) {
+      case 'interview':
+        return this.hrReportService.getInterviewLetter(candidateId) as Observable<Blob>;
+
+      case 'offer':
+        return this.hrReportService.getOfferLetter(candidateId) as Observable<Blob>;
+
+      case 'appointment':
+        return this.hrReportService.getAppointmentLetter(candidateId) as Observable<Blob>;
+
+      case 'welcome':
+        return this.hrReportService.getWelcomeLetter(candidateId) as Observable<Blob>;
+
+      default:
+        return null;
+    }
+  }
+
+  /** The send endpoint mails the PDF it is given rather than rendering one itself, so the report is
+   * fetched here first and posted with the flag as the `File` part. */
+  async onSendLetterMail(letter: string) {
     if (!letter) return;
 
     const candidate = this.getCandidate();
@@ -307,19 +371,35 @@ export class CandidateView {
         return;
     }
 
+    const report = this.getLetterReport(letter, candidate.id);
+    if (!report) return;
+
     this.sendingMail.set(true);
 
-    this.candidateService.sendLetterToCandidate(candidate.id, payload).subscribe({
+    let file: File;
+
+    try {
+      const blob = await firstValueFrom(report);
+      const name = `${letter}_letter_${candidate.referenceNo ?? candidate.id}.pdf`;
+      file = new File([blob], name, { type: blob.type || 'application/pdf' });
+    } catch (error: any) {
+      this.sendingMail.set(false);
+      this.alertService.error(
+        'Failed',
+        error?.error?.message ?? `Unable to generate the ${this.getLetterName(letter)} letter.`,
+      );
+      return;
+    }
+
+    this.candidateService.sendLetterToCandidate(candidate.id, payload, file).subscribe({
       next: () => {
         this.alertService.success('Success', `${this.getLetterName(letter)} letter mail sent`);
 
         this.candidateStore.refreshDetail();
       },
-      error: (error: any) =>
-        this.alertService.error(
-          'Failed',
-          error?.error?.message ?? `Unable to send ${letter} letter mail.`,
-        ),
+      error: (error: any) => {
+        this.sendingMail.set(false);
+      },
       complete: () => this.sendingMail.set(false),
     });
   }
@@ -425,7 +505,10 @@ export class CandidateView {
         this.candidateStore.refreshDetail();
       },
       error: (error: any) =>
-        this.alertService.error('Failed', error?.error?.message ?? 'Unable to save additional info.'),
+        this.alertService.error(
+          'Failed',
+          error?.error?.message ?? 'Unable to save additional info.',
+        ),
       complete: () => this.addingAdditionalInfo.set(false),
     });
   }
@@ -450,7 +533,10 @@ export class CandidateView {
         downloadAccess: true,
       });
     } catch (error: any) {
-      this.alertService.error('Failed', error?.error?.message ?? 'Unable to load appointment letter.');
+      this.alertService.error(
+        'Failed',
+        error?.error?.message ?? 'Unable to load appointment letter.',
+      );
     }
   }
 
@@ -478,32 +564,13 @@ export class CandidateView {
     }
   }
 
-  onJoiningLetterUpload(event: Event) {
-    const element = event.currentTarget as HTMLInputElement;
-
-    const fileList = element.files;
-
-    if (!fileList || fileList.length === 0) {
-      return;
-    }
-
-    const file = fileList[0];
+  /** The file arrives already picked and previewed in qfin-file-actions' upload dialog. */
+  onJoiningLetterUpload(file: File) {
     const candidate = this.getCandidate();
 
     if (!candidate) {
-      element.value = '';
       return;
     }
-
-    const previewUrl = URL.createObjectURL(file);
-    const extension = file.name.split('.').pop()?.toLowerCase() || 'pdf';
-
-    this.documentModalService.open({
-      url: previewUrl,
-      documentName: file.name,
-      extension,
-      downloadAccess: true,
-    });
 
     this.uploadingJoiningLetter.set(true);
 
@@ -513,11 +580,11 @@ export class CandidateView {
         this.candidateStore.refreshDetail();
       },
       error: (error: any) =>
-        this.alertService.error('Failed', error?.error?.message ?? 'Unable to upload joining letter.'),
-      complete: () => {
-        this.uploadingJoiningLetter.set(false);
-        element.value = '';
-      },
+        this.alertService.error(
+          'Failed',
+          error?.error?.message ?? 'Unable to upload joining letter.',
+        ),
+      complete: () => this.uploadingJoiningLetter.set(false),
     });
   }
 
@@ -697,33 +764,13 @@ export class CandidateView {
     }
   }
 
-  onInterviewUpload(event: Event) {
-    const element = event.currentTarget as HTMLInputElement;
-
-    const fileList = element.files;
-
-    if (!fileList || fileList.length === 0) {
-      return;
-    }
-
-    const file = fileList[0];
+  /** The file arrives already picked and previewed in qfin-file-actions' upload dialog. */
+  onInterviewUpload(file: File) {
     const candidate = this.getCandidate();
 
     if (!candidate) {
-      element.value = '';
       return;
     }
-
-    // Preview the selected file straight away so the user can confirm it before it finishes uploading.
-    const previewUrl = URL.createObjectURL(file);
-    const extension = file.name.split('.').pop()?.toLowerCase() || 'pdf';
-
-    this.documentModalService.open({
-      url: previewUrl,
-      documentName: file.name,
-      extension,
-      downloadAccess: true,
-    });
 
     this.uploadingInterviewFormat.set(true);
 
@@ -737,10 +784,7 @@ export class CandidateView {
           'Failed',
           error?.error?.message ?? 'Unable to upload interview format.',
         ),
-      complete: () => {
-        this.uploadingInterviewFormat.set(false);
-        element.value = '';
-      },
+      complete: () => this.uploadingInterviewFormat.set(false),
     });
   }
 
@@ -763,15 +807,11 @@ export class CandidateView {
 
     if (dialogRef.componentInstance) {
       dialogRef.componentRef?.setInput('candidateIdForPanel', candidateData.id);
-
       dialogRef.componentRef?.setInput('interviewDate', candidateData.interviewDate);
-
       dialogRef.componentRef?.setInput('interviewTime', candidateData.interviewTime);
-
       dialogRef.componentRef?.setInput('isAssessmentMode', false);
 
       const sub1 = dialogRef.componentInstance.cancel.subscribe(() => dialogRef.close());
-
       const sub2 = dialogRef.componentInstance.save.subscribe(() => {
         dialogRef.close();
 
@@ -782,6 +822,7 @@ export class CandidateView {
       dialogRef.afterClosed().subscribe(() => {
         sub1.unsubscribe();
         sub2.unsubscribe();
+        this.candidateStore.refreshDetail();
       });
     }
   }
@@ -840,6 +881,7 @@ export class CandidateView {
 
       dialogRef.afterClosed().subscribe(() => {
         sub1.unsubscribe();
+        this.candidateStore.refreshDetail();
       });
     }
   }

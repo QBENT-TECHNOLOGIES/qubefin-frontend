@@ -63,6 +63,15 @@ export interface IHrAssessmentFormDto {
   positiveRemarks?: string;
   negativeRemarks?: string;
 
+  // Salary & joining expectations. These live on the candidate, not the HR row - they may already have
+  // been captured when the candidate was created, and HR confirms/corrects them on this form.
+  currentSalary?: number;
+  expectedSalary?: number;
+  noticePeriodInDays?: number;
+  earliestJoiningDate?: string;
+  isWillingRelocate: boolean;
+  preferredLocation?: string;
+
   // For reference - the individual panelists these averages were computed from.
   panelists: IPanelistRatingSummaryDto[];
 }
@@ -80,4 +89,13 @@ export interface IHrAssessmentDecisionDto {
   isRecommendedForPosition?: boolean;
   positiveRemarks?: string;
   negativeRemarks?: string;
+
+  // Salary & joining expectations, written straight to the candidate by both the draft and the submit.
+  currentSalary?: number;
+  expectedSalary?: number;
+  noticePeriodInDays?: number;
+  /** yyyy-MM-dd - the API takes a DateOnly. */
+  earliestJoiningDate?: string;
+  isWillingRelocate: boolean;
+  preferredLocation?: string;
 }

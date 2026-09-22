@@ -142,13 +142,13 @@ export const HrmsRoutes: Routes = [
       //   loadComponent: () =>
       //     import('./pages/my-interviews/my-interviews.page').then((m) => m.MyInterviewsPage),
       // },
-      {
-        path: 'candidate-verification/:id',
-        loadComponent: () =>
-          import('./pages/candidate-verification/candidate-verification.page').then(
-            (m) => m.CandidateVerificationPage,
-          ),
-      },
+      // {
+      //   path: 'candidate-verification/:id',
+      //   loadComponent: () =>
+      //     import('./pages/candidate-verification/candidate-verification.page').then(
+      //       (m) => m.CandidateVerificationPage,
+      //     ),
+      // },
       // {
       //   path: 'offer-letter/:id',
       //   loadComponent: () =>
