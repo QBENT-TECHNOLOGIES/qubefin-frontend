@@ -32,7 +32,8 @@
         </mat-form-field>
     </div>
     <qfin-administrative-unit-cascade [columns]="4" [administrativeUnitId]="presentAddressModel().administrativeUnitId"
-        (selectedIdChanged)="updatePresentAddressField('administrativeUnitId', $event)"
+        [emitAtEveryLevel]="true" (selectedIdChanged)="updatePresentAddressField('administrativeUnitId', $event)"
+        (districtChangedByUser)="onAdministrativeAreaChangedByUser('present')"
         (districtChanged)="onDistrictChangeForPoliceStation('present', $event)">
     </qfin-administrative-unit-cascade>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
@@ -111,8 +112,8 @@
     </div>
     <!-- Same Address Checkbox -->
     <div class="my-4 flex items-center">
-        <mat-checkbox [checked]="sameAsPresentAddress()" (change)="onSameAddressChange($event)">
-            same as Present Address
+        <mat-checkbox [checked]="sameAsPresentAddress()" (change)="onSameAddressChange($event.checked)">
+            Permanent Address is same as Present Address
         </mat-checkbox>
     </div>
 
@@ -148,8 +149,9 @@
         </mat-form-field>
     </div>
     <qfin-administrative-unit-cascade [columns]="4"
-        [administrativeUnitId]="permanentAddressModel().administrativeUnitId"
+        [administrativeUnitId]="permanentAddressModel().administrativeUnitId" [emitAtEveryLevel]="true"
         (selectedIdChanged)="updatePermanentAddressField('administrativeUnitId', $event)"
+        (districtChangedByUser)="onAdministrativeAreaChangedByUser('permanent')"
         (districtChanged)="onDistrictChangeForPoliceStation('permanent', $event)">
     </qfin-administrative-unit-cascade>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">

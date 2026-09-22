@@ -168,7 +168,7 @@ export class PersonalComponentDetail {
     const formValue = this.employeeForm().value();
     const dataToSave: any = {
       ...formValue,
-      code: 'WGDEMO123',
+      // code: 'WGDEMO123',
       dateOfBirth: this.datePipe.transform(formValue.dateOfBirth, 'yyyy-MM-dd'),
       middleName: formValue.middleName?.trim() === '' ? null : formValue.middleName,
       fatherName: formValue.fatherName?.trim() === '' ? null : formValue.fatherName,
