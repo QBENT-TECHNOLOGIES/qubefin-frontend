@@ -79,13 +79,13 @@ export class PersonalComponentDetail {
 
   protected readonly employeeSchema: Schema<IEmployeePersonalInfo> = schema((path) => {
     required(path.firstName, { message: 'First name is required' });
-    required(path.code, { message: 'code is required' });
     required(path.bloodGroup, { message: 'Blood group is required' });
     required(path.nationality, { message: 'Nationality is required' });
     required(path.lastName, { message: 'Last name is required' });
     required(path.dateOfBirth, { message: 'Date of birth is required' });
     required(path.gender, { message: 'Gender is required' });
     required(path.religion, { message: 'Religion is required' });
+    required(path.age, { message: 'Age is required' });
     readonly(path.dateOfBirth, { when: () => true });
   });
 

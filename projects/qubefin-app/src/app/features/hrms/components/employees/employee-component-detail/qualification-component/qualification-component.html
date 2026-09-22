@@ -81,6 +81,11 @@
                     {{ qualificationForm.qualifications[$index].gradeOrMarks().errors()[0]?.message }}
                 </mat-error>
             </mat-form-field>
+            <!-- Is Latest Qualification -->
+            <mat-checkbox [formField]="qualificationForm.qualifications[$index].isLatestQualification"
+                (change)="onIsLatestQualificationChange($index, $event.checked)" color="primary">
+                Is Latest Qualification?
+            </mat-checkbox>
         </div>
         <!-- Delete -->
         <div (click)="removeQualification($index)" matTooltip="Delete"

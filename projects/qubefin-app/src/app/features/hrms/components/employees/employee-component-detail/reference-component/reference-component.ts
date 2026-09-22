@@ -12,12 +12,16 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeService } from '../../../../services/employee-service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
-import { EmployeeReference, IEmployeeReference } from '../../../../models/employee-detail';
+import {
+  EmployeeReference,
+  IEmployeeReference,
+  IEmployeeReferralInfo,
+} from '../../../../models/employee-detail';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import { AttendanceRegularizationsStore } from '../../../../stores/attendance-regularizations-store';
 
-interface ReferenceFormModel {
+interface ReferenceFormModel extends IEmployeeReferralInfo {
   references: IEmployeeReference[];
 }
 
@@ -40,20 +44,19 @@ export class ReferenceComponentDetail {
   empId = input<string>(EMPTY_UUID);
 
   onRefUpdate = output<void>();
-  private readonly attendRegularizationsStore = inject(AttendanceRegularizationsStore);
+
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
   readonly iconMap = APP_ICONS_MAP;
-
-  readonly reasons = computed(() => {
-    const list = this.attendRegularizationsStore.utilities();
-    return list.length > 0 ? list.filter((m) => m.sysKey === 'RELATION') : [];
-  });
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
   protected readonly referenceModel = signal<ReferenceFormModel>({
     references: [],
+    referralEmpName: '',
+    designation: '',
+    emploeeCode: '',
+    emphowDoYouKnow: '',
   });
 
   protected readonly referenceSchema = schema<ReferenceFormModel>((path) => {
@@ -63,7 +66,6 @@ export class ReferenceComponentDetail {
       required(refPath.personName, { message: 'Person Name is required' });
       required(refPath.mobile, { message: 'Mobile No. is required' });
       pattern(refPath.mobile, /^[6-9]\d{9}$/, { message: 'Invalid mobile number' });
-      required(refPath.email, { message: 'Email is required' });
       pattern(refPath.email, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
         message: 'Invalid email',
       });
@@ -79,7 +81,10 @@ export class ReferenceComponentDetail {
         model.id = EMPTY_UUID;
         model.employeeId = this.empId();
 
-        this.referenceModel.set({ references: [model] });
+        this.referenceModel.update((state) => ({
+          ...state,
+          references: [model],
+        }));
       }
     });
   }
@@ -88,12 +93,14 @@ export class ReferenceComponentDetail {
     const model = new EmployeeReference();
     model.employeeId = this.empId();
     this.referenceModel.update((state) => ({
+      ...state,
       references: [...state.references, model],
     }));
   }
 
   removeReference(index: number) {
     this.referenceModel.update((state) => ({
+      ...state,
       references: state.references.filter((_, i) => i !== index),
     }));
   }
@@ -103,7 +110,9 @@ export class ReferenceComponentDetail {
     if (!this.referenceForm().valid()) {
       return;
     }
-    const dataToSave = [...this.referenceForm().value().references].map((ref) => {
+    const formValue = this.referenceForm().value();
+
+    const references = [...formValue.references].map((ref) => {
       const cleanedRef = { ...ref };
 
       (Object.keys(cleanedRef) as Array<keyof typeof cleanedRef>).forEach((key) => {
@@ -114,6 +123,14 @@ export class ReferenceComponentDetail {
 
       return cleanedRef;
     });
+
+    const dataToSave = {
+      references,
+      referralEmpName: formValue.referralEmpName || null,
+      emploeeCode: formValue.emploeeCode || null,
+      designation: formValue.designation || null,
+      emphowDoYouKnow: formValue.emphowDoYouKnow || null,
+    };
     this.employeeService.updateReferenceInfo(this.empId(), dataToSave).subscribe({
       next: (resp: any) => {
         this.alertService.success('Success', resp).then(() => {
@@ -132,19 +149,31 @@ export class ReferenceComponentDetail {
       if (params.editMode && params.id !== EMPTY_UUID) {
         return this.employeeService.getReferenceData(params.id).pipe(
           tap((resp: any) => {
-            this.referenceModel.update((state) => ({
-              references: (resp || []).map(
-                (doc: IEmployeeReference) =>
-                  new EmployeeReference({
-                    ...doc,
-                  }),
+            const referencesArray: IEmployeeReference[] = Array.isArray(resp)
+              ? resp
+              : (resp?.references ?? []);
+
+            const referralInfo: Partial<IEmployeeReferralInfo> =
+              (!Array.isArray(resp) && (resp?.referralInfo ?? resp)) || {};
+
+            this.referenceModel.set({
+              references: referencesArray.map(
+                (doc: IEmployeeReference) => new EmployeeReference({ ...doc }),
               ),
-            }));
+              referralEmpName: referralInfo.referralEmpName ?? '',
+              emploeeCode: referralInfo.emploeeCode ?? '',
+              designation: referralInfo.designation ?? '',
+              emphowDoYouKnow: referralInfo.emphowDoYouKnow ?? '',
+            });
           }),
         );
       } else {
         this.referenceModel.set({
           references: [],
+          referralEmpName: '',
+          designation: '',
+          emploeeCode: '',
+          emphowDoYouKnow: '',
         });
         return of(null);
       }

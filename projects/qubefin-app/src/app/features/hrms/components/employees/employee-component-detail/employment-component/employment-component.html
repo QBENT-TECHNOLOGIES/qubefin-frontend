@@ -71,16 +71,93 @@
                     {{ employmentForm.employments[$index].lastDrawnSalary().errors()[0]?.message }}
                 </mat-error>
             </mat-form-field>
-            <!-- Relationship -->
+            <!-- Job Title -->
 
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Job Title</mat-label>
                 <div class="w-12 flex justify-center" matPrefix>
                     <svg lucideIcon="user-lock" class="w-5 h-5"></svg>
                 </div>
-                <input matInput autocomplete="off" placeholder="Relationship"
+                <input matInput autocomplete="off" placeholder="Job Title"
                     [formField]="employmentForm.employments[$index].jobTitle">
             </mat-form-field>
+            <!-- <div class="col-span-1 md:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-4"> -->
+            <!-- Experience Certificate -->
+            <!-- <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"> -->
+
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Upload Experience Certificate</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="paperclip" class="w-5 h-5 text-slate-500"></svg>
+                </div>
+                <input matInput [value]="ref.expCertFileName || 'No file chosen'" readonly />
+                <input hidden (change)="onFileSelected($event, $index, 'expCert')" #expCertFileInput
+                    accept="image/jpeg,image/png,image/jpg,image/webp,application/pdf" type="file">
+
+                <div matSuffix class="flex items-center gap-2 pr-1.5 py-1">
+                    @if (ref.expCertFileName) {
+                    <button type="button" mat-icon-button (click)="removeFile($index, 'expCert')" class="text-rose-500">
+                        <svg lucideIcon="x" class="w-4 h-4"></svg>
+                    </button>
+                    }
+
+                    <button type="button"
+                        class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
+                        (click)="expCertFileInput.click()">
+                        <svg lucideIcon="upload" class="w-3.5 h-3.5"></svg>
+                        Choose File
+                    </button>
+
+                    @if (ref.expCertFileName) {
+                    <button type="button" (click)="openDocument($index, 'expCert')"
+                        class="bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-primary-200 dark:border-primary-800/30 cursor-pointer">
+                        <svg lucideIcon="eye" class="w-3.5 h-3.5"></svg>
+                        View
+                    </button>
+                    }
+                </div>
+            </mat-form-field>
+            <!-- </div> -->
+
+            <!-- NOC -->
+            <!-- <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"> -->
+
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Upload NOC</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="paperclip" class="w-5 h-5 text-slate-500"></svg>
+                </div>
+                <input matInput [value]="ref.nocFileName || 'No file chosen'" readonly />
+                <input hidden (change)="onFileSelected($event, $index, 'noc')" #nocFileInput
+                    accept="image/jpeg,image/png,image/jpg,image/webp,application/pdf" type="file">
+
+                <div matSuffix class="flex items-center gap-2 pr-1.5 py-1">
+                    @if (ref.nocFileName) {
+                    <button type="button" mat-icon-button (click)="removeFile($index, 'noc')" class="text-rose-500">
+                        <svg lucideIcon="x" class="w-4 h-4"></svg>
+                    </button>
+                    }
+
+                    <button type="button"
+                        class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
+                        (click)="nocFileInput.click()">
+                        <svg lucideIcon="upload" class="w-3.5 h-3.5"></svg>
+                        Choose File
+                    </button>
+
+                    @if (ref.nocFileName) {
+                    <button type="button" (click)="openDocument($index, 'noc')"
+                        class="bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-primary-200 dark:border-primary-800/30 cursor-pointer">
+                        <svg lucideIcon="eye" class="w-3.5 h-3.5"></svg>
+                        View
+                    </button>
+                    }
+                </div>
+            </mat-form-field>
+            <!-- </div> -->
+            <!-- </div> -->
         </div>
         <!-- Delete -->
         <div (click)="removeEmployment($index)" matTooltip="Delete"

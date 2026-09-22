@@ -11,7 +11,7 @@
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Bank</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+                <svg lucideIcon="landmark" class="w-5 h-5"></svg>
             </div>
             <mat-select [formField]="bankingForm.bankId">
                 @for(bank of banks(); track bank.id){
@@ -22,6 +22,22 @@
             </mat-select>
             <mat-error class="cus-error">
                 {{ bankingForm.bankId().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Account Type</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="bankingForm.accountType">
+                @for(type of acTypes; track type){
+                <mat-option [value]="type">
+                    {{type}}
+                </mat-option>
+                }
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ bankingForm.accountType().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
 

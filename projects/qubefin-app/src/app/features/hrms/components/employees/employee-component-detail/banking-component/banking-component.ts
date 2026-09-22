@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { AlertService, EMPTY_UUID } from 'qubefin-core';
+import { accountType, AlertService, EMPTY_UUID } from 'qubefin-core';
 import { form, FormField, pattern, required, schema, Schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -57,6 +57,7 @@ export class BankingComponentDetail {
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
   readonly iconMap = APP_ICONS_MAP;
+  readonly acTypes = accountType;
 
   readonly banks = this.companyStore.banks;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
@@ -65,6 +66,7 @@ export class BankingComponentDetail {
 
   protected readonly bankingSchema: Schema<IEmployeePayrollInfo> = schema((path) => {
     required(path.bankId, { message: 'Bank is required' });
+    required(path.accountType, { message: 'Account Type is required' });
     required(path.ifscCode, { message: 'IFSC Code is required' });
     required(path.esiIpNumber, {
       when: () => this.bankingModel().hasEsiEligible,
