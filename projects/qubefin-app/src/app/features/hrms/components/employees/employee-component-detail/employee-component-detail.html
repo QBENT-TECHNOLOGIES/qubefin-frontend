@@ -19,7 +19,7 @@
                 <ng-template matStepLabel>Personal Info</ng-template>
                 @if (activeStepIndex() == 0) {
                 <qfin-personal-component [utilities]="utilityComponents()" [empId]="employeeId()"
-                    (onSave)="handleSave()" (onUpdate)="handlePersonal()" [activeIndex]="activeStepIndex()">
+                    (onSave)="handleSave($event)" (onUpdate)="handlePersonal()" [activeIndex]="activeStepIndex()">
                 </qfin-personal-component>
                 }
             </mat-step>

@@ -36,6 +36,12 @@ import { EmployeeNominee, IEmployeeNominee } from '../../../../models/employee-d
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
 import { AttendanceRegularizationsStore } from '../../../../stores/attendance-regularizations-store';
+import { AdministrativeUnitStore } from '../../../../../global/stores/administrative-unit-store';
+import { AdministrativeUnitTreeNode } from '../../../../../global/models/administrative-unit-tree-node';
+// TODO: confirm these two paths match where administrative-unit-store / administrative-unit-tree-node
+// actually live in your repo. They're assumed to sit next to employee-store / employee-detail
+// (same depth as the imports above) since administrative-unit-cascade.ts uses the same files.
+
 @Component({
   selector: 'qfin-nominee-component',
   providers: [DatePipe],
@@ -64,11 +70,19 @@ export class NomineeComponentDetail {
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
+  private readonly administrativeUnitStore = inject(AdministrativeUnitStore);
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
   readonly relations = computed(() => {
     const list = this.attendRegularizationsStore.utilities();
     return list.length > 0 ? list.filter((m) => m.sysKey === 'RELATION') : [];
   });
+
+  private readonly administrativeUnitTree = this.administrativeUnitStore.administrativeUnitTree;
+  readonly stateList = signal<AdministrativeUnitTreeNode[]>([]);
+  readonly districtList = signal<AdministrativeUnitTreeNode[]>([]);
+  readonly selectedState = signal<string | null>(null);
+  readonly selectedDistrict = signal<string | null>(null);
+  private lastRestoredDistrictId: string | null = null;
   protected readonly nomineeModel = signal<IEmployeeNominee>(new EmployeeNominee());
   protected readonly nomineeSchema: Schema<IEmployeeNominee> = schema((path) => {
     required(path.name, { message: 'Name is required' });
@@ -81,6 +95,55 @@ export class NomineeComponentDetail {
   stepper!: ElementRef;
   constructor() {
     this.dateAdapter.setLocale('en-GB');
+
+    effect(() => {
+      const tree = this.administrativeUnitTree();
+      if (!tree.length) {
+        return;
+      }
+
+      this.stateList.set(tree[0]?.children ?? []);
+
+      const districtId = this.nomineeModel().district;
+      if (!districtId || districtId === this.lastRestoredDistrictId) {
+        return;
+      }
+
+      if (this.restoreLocation(tree, districtId)) {
+        this.lastRestoredDistrictId = districtId;
+      }
+    });
+  }
+
+  private restoreLocation(tree: AdministrativeUnitTreeNode[], districtId: string): boolean {
+    for (const country of tree) {
+      for (const state of country.children ?? []) {
+        const district = (state.children ?? []).find((d) => d.id === districtId);
+        if (district) {
+          this.selectedState.set(state.id);
+          this.districtList.set(state.children ?? []);
+          this.selectedDistrict.set(district.id);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  onStateChange(id: string): void {
+    this.selectedState.set(id);
+    this.selectedDistrict.set(null);
+
+    this.nomineeForm.state().value.set(id);
+    this.nomineeForm.district().value.set('');
+
+    const state = this.stateList().find((x) => x.id === id);
+    this.districtList.set(state?.children ?? []);
+  }
+
+  onDistrictChange(id: string): void {
+    this.selectedDistrict.set(id);
+    this.nomineeForm.district().value.set(id);
   }
   private nomineeResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),

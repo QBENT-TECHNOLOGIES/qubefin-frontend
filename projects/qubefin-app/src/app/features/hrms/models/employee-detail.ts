@@ -98,6 +98,8 @@ export interface IEmployeeNominee {
   voterIdNumber: string;
   isResidingWithIp: boolean;
   percentage: number | null;
+  state: string;
+  district: string;
 }
 export class EmployeeNominee {
   id: string = '';
@@ -112,6 +114,8 @@ export class EmployeeNominee {
   voterIdNumber: string = '';
   isResidingWithIp: boolean = false;
   percentage: number | null = null;
+  state: string = '';
+  district: string = '';
 
   constructor(init?: Partial<IEmployeeNominee>) {
     if (!init) return;

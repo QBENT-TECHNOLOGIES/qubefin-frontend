@@ -76,6 +76,7 @@
             </mat-error>
         </mat-form-field>
 
+
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>UHID/ABHA Number</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -132,13 +133,42 @@
         </mat-form-field>
         <mat-checkbox [formField]="nomineeForm.isResidingWithIp" color="primary">Is Residing With Ip?</mat-checkbox>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>State</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="map" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [value]="selectedState()" (selectionChange)="onStateChange($event.value)"
+                placeholder="Select State">
+                @for (item of stateList(); track item.id) {
+                <mat-option [value]="item.id">
+                    {{ item.name }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>District</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [value]="selectedDistrict()" (selectionChange)="onDistrictChange($event.value)"
+                placeholder="Select District" [disabled]="!selectedState()">
+                @for (item of districtList(); track item.id) {
+                <mat-option [value]="item.id">
+                    {{ item.name }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Percentage</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="percent" class="w-5 h-5"></svg>
             </div>
             <input matInput [formField]="nomineeForm.percentage" autocomplete="off" placeholder="Enter percentage">
-
         </mat-form-field>
+
     </div>
 
     <div class="step-footer-area">

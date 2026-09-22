@@ -57,7 +57,7 @@ import { NomineeComponentDetail } from './nominee-component/nominee-component';
 export class EmployeeComponentDetail {
   emptyGuid = EMPTY_UUID;
   employeeId = input<string>(EMPTY_UUID);
-  onChildSave = output<void>();
+  onChildSave = output<string>();
 
   readonly activeStepIndex = signal(0);
   private readonly employeeStore = inject(EmployeeStore);
@@ -119,8 +119,15 @@ export class EmployeeComponentDetail {
   handlePayroll() {
     this.onStepChange(0);
   }
-  handleSave() {
-    this.onChildSave.emit();
+  handleSave(newId?: string) {
+    this.onChildSave.emit(newId as string);
+
+    // Optional UX enhancement: Automatically step forward to "Address Info" after creation
+    if (newId && newId.length > 20) {
+      setTimeout(() => {
+        this.activeStepIndex.set(1);
+      }, 100);
+    }
   }
 
   ngAfterViewInit() {

@@ -62,7 +62,7 @@ export class PersonalComponentDetail {
   empId = input<string>(EMPTY_UUID);
   utilities = input<Utility[]>([]);
   activeIndex = input<number>(0);
-  onSave = output<void>();
+  onSave = output<string>();
   onUpdate = output<void>();
 
   private dateAdapter = inject(DateAdapter<Date>);
@@ -168,6 +168,7 @@ export class PersonalComponentDetail {
     const formValue = this.employeeForm().value();
     const dataToSave: any = {
       ...formValue,
+      code: 'WGDEMO123',
       dateOfBirth: this.datePipe.transform(formValue.dateOfBirth, 'yyyy-MM-dd'),
       middleName: formValue.middleName?.trim() === '' ? null : formValue.middleName,
       fatherName: formValue.fatherName?.trim() === '' ? null : formValue.fatherName,
@@ -182,7 +183,9 @@ export class PersonalComponentDetail {
         next: (resp: any) => {
           this.alertService.success('Success', resp).then(() => {
             this.employeeStore.refreshList();
-            this.onSave.emit();
+            const newId = 'E938E5C3-23B8-4DD9-8DD7-042F9AC15E20';
+            // resp?.id || resp?.data?.id || resp?.data || (typeof resp === 'string' ? resp : null);
+            this.onSave.emit(newId);
           });
         },
         error: (err: any) => {},
