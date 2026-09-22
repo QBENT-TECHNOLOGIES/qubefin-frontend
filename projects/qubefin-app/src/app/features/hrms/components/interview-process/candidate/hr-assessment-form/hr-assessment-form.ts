@@ -1,45 +1,36 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { FormControl, FormGroup, ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
+import { AlertService } from 'qubefin-core';
 
-export interface IHrAssessmentRatingField {
-  key: string;
-  label: string;
-  desc?: string;
+import { RATING_FIELDS, RATING_OPTIONS } from '../interview-panel-detail/interview-panel-detail';
+import { HrAssessmentService } from '../../../../services/hr-assessment.service';
+import {
+  IHrAssessmentDecisionDto,
+  IHrAssessmentFormDto,
+  IPanelistRatingSummaryDto,
+} from '../../../../models/hr-assessment';
+import { PayrollService } from '../../../../../payroll/services/payroll-service';
+import { CandidateService } from '../../../../services/candidate-service';
+
+interface ISalaryGrade {
+  id: string;
+  name: string;
+  code: string;
+  isActive: boolean;
 }
 
-export const HR_RATING_FIELDS: IHrAssessmentRatingField[] = [
-  { key: 'appearance', label: 'Appearance & Professional Grooming' },
-  { key: 'confidence', label: 'Confidence & Personality' },
-  { key: 'communication', label: 'Communication Skills' },
-  { key: 'education', label: 'Educational Qualification' },
-  { key: 'experience', label: 'Relevant Work Experience' },
-  { key: 'technical', label: 'Technical / Functional Knowledge' },
-  { key: 'problemSolving', label: 'Problem Solving Ability' },
-  { key: 'leadership', label: 'Leadership & Team Handling Skills' },
-  { key: 'decisionMaking', label: 'Decision Making Ability' },
-  { key: 'adaptability', label: 'Adaptability & Flexibility' },
-  { key: 'behaviour', label: 'Behaviour & Attitude' },
-  { key: 'knowledgeOrg', label: 'Knowledge about the Organization' },
-  { key: 'careerGoals', label: 'Career Goals & Ambition' },
-  { key: 'stability', label: 'Stability & Commitment' },
-  { key: 'overallSuitability', label: 'Overall Suitability for the Role' },
-];
-
-/** Same 0-5 label scale used across the interview-panel forms, for a consistent rating UI */
-export const HR_RATING_OPTIONS = [
-  { value: 0, label: 'NA', full: 'Not Acceptable' },
-  { value: 1, label: 'BA', full: 'Below Average' },
-  { value: 2, label: 'A', full: 'Average' },
-  { value: 3, label: 'G', full: 'Good' },
-  { value: 4, label: 'VG', full: 'Very Good' },
-  { value: 5, label: 'O', full: 'Outstanding' },
+export const RECOMMENDATION_OPTIONS = [
+  { value: 'Strongly Recommended', tone: 'emerald' },
+  { value: 'Recommended', tone: 'emerald' },
+  { value: 'Recommended with Training', tone: 'amber' },
+  { value: 'Hold for Future Opportunity', tone: 'slate' },
+  { value: 'Not Recommended', tone: 'rose' },
 ];
 
 @Component({
@@ -50,66 +41,245 @@ export const HR_RATING_OPTIONS = [
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatCheckboxModule,
     MatDialogModule,
     ReactiveFormsModule,
-    LucideAngularModule
+    LucideDynamicIcon,
   ],
-  providers: [DatePipe],
   templateUrl: './hr-assessment-form.html',
 })
 export class HrAssessmentForm implements OnInit {
   dialogRef = inject(MatDialogRef<HrAssessmentForm>);
   data = inject(MAT_DIALOG_DATA);
-  fb = inject(FormBuilder);
+  private hrAssessmentService = inject(HrAssessmentService);
+  private payrollService = inject(PayrollService);
+  private candidateService = inject(CandidateService);
+  private alertService = inject(AlertService);
 
-  candidateId = this.data?.candidateId;
-  candidateName = this.data?.candidateName;
+  candidateId: string = this.data?.candidateId ?? '';
+  candidateName: string = this.data?.candidateName ?? '';
 
-  ratingFields = HR_RATING_FIELDS;
-  ratingOptions = HR_RATING_OPTIONS;
+  // Candidate snapshot shown at the top of the form - passed straight from the Candidate View page
+  // (already loaded there), so this form doesn't need its own query for it.
+  interviewPostName: string = this.data?.interviewPostName ?? '';
+  departmentName: string = this.data?.departmentName ?? '';
+  interviewDate: string = this.data?.interviewDate ?? '';
 
-  assessmentForm: FormGroup = this.fb.group({});
+  interviewMode = signal<'Online' | 'Offline' | null>(this.data?.interviewMode ?? null);
+  isSavingInterviewMode = signal(false);
 
-  salaryForm = this.fb.group({
-    currentSalary: [''],
-    expectedSalary: [''],
-    noticePeriod: [''],
-    earliestJoiningDate: [''],
-    willingToRelocate: [false],
-    preferredLocation: ['']
-  });
-
-  evaluationForm = this.fb.group({
-    overallPerformanceRemarks: [''],
-    suitableRoleDepartment: [''],
-    recommendedGrade: [''],
-    trainingRequired: [''],
-    recommendationStatus: ['']
-  });
-
-  recommendationOptions = [
-    { value: 'Strongly Recommended', tone: 'emerald' },
-    { value: 'Recommended', tone: 'emerald' },
-    { value: 'Recommended with Training', tone: 'amber' },
-    { value: 'Hold for Future Opportunity', tone: 'slate' },
-    { value: 'Not Recommended', tone: 'rose' },
-  ];
-
-  totalRatingScore = 0;
+  // Same 10 categories / 0-5 scale as the interviewer assessment form - HR sees the average of these,
+  // never types them in directly.
+  ratingFields = RATING_FIELDS;
+  ratingOptions = RATING_OPTIONS;
+  recommendationOptions = RECOMMENDATION_OPTIONS;
   maxScore = this.ratingFields.length * 5;
 
+  isLoading = signal(false);
+  isSaving = signal(false);
+  isSubmitting = signal(false);
+  salaryGrades = signal<ISalaryGrade[]>([]);
+
+  assessment = signal<IHrAssessmentFormDto | null>(null);
+  isLocked = computed(() => !!this.assessment()?.isSubmitted);
+
+  /** HR has already submitted their own interviewer assessment (genuinely on the panel, not just holding
+   * the administrative HR row). */
+  hrIsInterviewer = computed(() => !!this.assessment()?.hrIsInterviewer);
+
+  /** HR is the ONLY interviewer on the panel - the fields shared with the interviewer assessment form
+   * (ratings, isRecommendedForPosition, positiveRemarks, negativeRemarks, anyOtherJobsSuitedRemarks) render
+   * disabled here, sourced from HR's own single submission. When HR is one of several interviewers those
+   * same fields stay enabled/live instead. */
+  isHrOnlyInterviewer = computed(() => !!this.assessment()?.isHrOnlyInterviewer);
+
+  /** The four fields this form shares with the interviewer assessment form. */
+  private readonly sharedFieldNames = [
+    'anyOtherJobsSuitedRemarks',
+    'positiveRemarks',
+    'negativeRemarks',
+  ] as const;
+
+  /** Whether the shared fields (including the isRecommendedForPosition Yes/No buttons, which aren't plain
+   * inputs) should render disabled - either the whole form is locked, or HR is the sole interviewer. */
+  isSharedFieldsDisabled = computed(() => this.isLocked() || this.isHrOnlyInterviewer());
+
+  readonly totalAverage = computed(() => this.assessment()?.averageTotalRatingPoint ?? null);
+  readonly totalAveragePercent = computed(() => {
+    const total = this.totalAverage();
+    return total == null ? 0 : Math.round((total / this.maxScore) * 100);
+  });
+  readonly panelists = computed<IPanelistRatingSummaryDto[]>(() => this.assessment()?.panelists ?? []);
+
+  readonly decisionForm = new FormGroup({
+    overallPerformance: new FormControl('', { nonNullable: true }),
+    suitableRoleDepartment: new FormControl('', { nonNullable: true }),
+    recommendedGradeId: new FormControl<string | null>(null),
+    isTrainingRequired: new FormControl(false, { nonNullable: true }),
+    recommendationStatus: new FormControl<string | null>(null, { validators: [Validators.required] }),
+    anyOtherJobsSuitedRemarks: new FormControl('', { nonNullable: true }),
+    isRecommendedForPosition: new FormControl<boolean | null>(null),
+    positiveRemarks: new FormControl('', { nonNullable: true }),
+    negativeRemarks: new FormControl('', { nonNullable: true }),
+  });
+
   ngOnInit() {
-    this.ratingFields.forEach(field => {
-      this.assessmentForm.addControl(`${field.key}Rating`, new FormControl(0));
-      this.assessmentForm.addControl(`${field.key}Remarks`, new FormControl(''));
+    this.payrollService.getSalaryGrade().subscribe({
+      next: (grades) => this.salaryGrades.set((grades as ISalaryGrade[]) ?? []),
+      error: () => this.salaryGrades.set([]),
     });
 
-    this.assessmentForm.valueChanges.subscribe(val => {
-      this.totalRatingScore = this.ratingFields.reduce((sum, f) => {
-        return sum + (Number(val[`${f.key}Rating`]) || 0);
-      }, 0);
+    this.loadAssessment();
+  }
+
+  private loadAssessment() {
+    if (!this.candidateId) return;
+
+    this.isLoading.set(true);
+    this.hrAssessmentService.getAssessmentForm(this.candidateId).subscribe({
+      next: (res) => {
+        this.isLoading.set(false);
+        this.assessment.set(res);
+        this.decisionForm.reset({
+          overallPerformance: res.overallPerformance ?? '',
+          suitableRoleDepartment: res.suitableRoleDepartment ?? '',
+          recommendedGradeId: res.recommendedGradeId ?? null,
+          isTrainingRequired: res.isTrainingRequired,
+          recommendationStatus: res.recommendationStatus ?? null,
+          anyOtherJobsSuitedRemarks: res.anyOtherJobsSuitedRemarks ?? '',
+          isRecommendedForPosition: res.isRecommendedForPosition ?? null,
+          positiveRemarks: res.positiveRemarks ?? '',
+          negativeRemarks: res.negativeRemarks ?? '',
+        });
+
+        if (res.isSubmitted) {
+          this.decisionForm.disable();
+        } else if (res.isHrOnlyInterviewer) {
+          // HR is the sole interviewer - these fields are HR's own already-submitted interviewer answers,
+          // shown for reference only. The rest of the form (OverallPerformance onward) stays editable.
+          this.sharedFieldNames.forEach((name) => this.decisionForm.get(name)?.disable());
+        } else {
+          // Re-enable in case the panel composition changed since this form was last loaded (e.g. another
+          // interviewer was added after HR had been the sole one).
+          this.sharedFieldNames.forEach((name) => this.decisionForm.get(name)?.enable());
+        }
+      },
+      error: (error: any) => {
+        this.isLoading.set(false);
+        this.alertService.error('Error', error?.error?.message ?? 'Unable to load HR Assessment.');
+      },
     });
+  }
+
+  /** Read-only average for a rating field, e.g. 'appearanceAttitude' -> averageAppearanceAttitudeRating */
+  getAverageRating(key: string): number | null {
+    const dto = this.assessment();
+    if (!dto) return null;
+    const propName = `average${key.charAt(0).toUpperCase()}${key.slice(1)}Rating` as keyof IHrAssessmentFormDto;
+    const value = dto[propName];
+    return typeof value === 'number' ? value : null;
+  }
+
+  getRatingLabel(value: number | null): string {
+    if (value == null) return 'Not yet rated';
+    return this.ratingOptions.find((o) => o.value === value)?.full ?? '-';
+  }
+
+  /** One panelist's rating for a field, e.g. 'appearanceAttitude' -> appearanceAttitudeRating */
+  getPanelistRating(panelist: IPanelistRatingSummaryDto, key: string): number | null {
+    const propName = `${key}Rating` as keyof IPanelistRatingSummaryDto;
+    const value = panelist[propName];
+    return typeof value === 'number' ? value : null;
+  }
+
+  /** Interview mode belongs to the candidate record, not the HR decision - persisted immediately on
+   * click rather than only when the assessment draft/submit is saved. */
+  setInterviewMode(value: 'Online' | 'Offline') {
+    if (this.isLocked() || this.isSavingInterviewMode() || this.interviewMode() === value) return;
+
+    const previous = this.interviewMode();
+    this.interviewMode.set(value);
+    this.isSavingInterviewMode.set(true);
+
+    this.candidateService.updateInterviewMode(this.candidateId, value).subscribe({
+      next: () => this.isSavingInterviewMode.set(false),
+      error: (error: any) => {
+        this.isSavingInterviewMode.set(false);
+        this.interviewMode.set(previous);
+        this.alertService.error('Error', error?.error?.message ?? 'Unable to update interview mode.');
+      },
+    });
+  }
+
+  setRecommendationStatus(value: string) {
+    this.decisionForm.get('recommendationStatus')?.setValue(value);
+  }
+
+  setRecommendedForPosition(value: boolean) {
+    this.decisionForm.get('isRecommendedForPosition')?.setValue(value);
+  }
+
+  saveDraft() {
+    if (!this.candidateId || this.isLocked()) return;
+
+    if (!this.interviewMode()) {
+      this.alertService.error('Incomplete', 'Please select the interview mode (Online/Offline) before saving.');
+      return;
+    }
+
+    this.isSaving.set(true);
+    this.hrAssessmentService.saveDraft(this.candidateId, this.buildDecision()).subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.alertService.success('Success', 'HR Assessment saved as draft.');
+        this.loadAssessment();
+      },
+      error: (error: any) => {
+        this.isSaving.set(false);
+        this.alertService.error('Error', error?.error?.message ?? 'Unable to save draft.');
+      },
+    });
+  }
+
+  submit() {
+    if (!this.candidateId || this.isLocked()) return;
+
+    if (!this.interviewMode()) {
+      this.alertService.error('Incomplete', 'Please select the interview mode (Online/Offline) before submitting.');
+      return;
+    }
+
+    if (this.decisionForm.invalid) {
+      this.decisionForm.markAllAsTouched();
+      this.alertService.error('Incomplete', 'Please select a recommendation before submitting.');
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    this.hrAssessmentService.submit(this.candidateId, this.buildDecision()).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.dialogRef.close(true);
+      },
+      error: (error: any) => {
+        this.isSubmitting.set(false);
+        this.alertService.error('Error', error?.error?.message ?? 'Unable to submit HR Assessment.');
+      },
+    });
+  }
+
+  private buildDecision(): IHrAssessmentDecisionDto {
+    const v = this.decisionForm.getRawValue();
+    return {
+      overallPerformance: v.overallPerformance || undefined,
+      suitableRoleDepartment: v.suitableRoleDepartment || undefined,
+      recommendedGradeId: v.recommendedGradeId || undefined,
+      isTrainingRequired: v.isTrainingRequired,
+      recommendationStatus: v.recommendationStatus || undefined,
+      anyOtherJobsSuitedRemarks: v.anyOtherJobsSuitedRemarks || undefined,
+      isRecommendedForPosition: v.isRecommendedForPosition ?? undefined,
+      positiveRemarks: v.positiveRemarks || undefined,
+      negativeRemarks: v.negativeRemarks || undefined,
+    };
   }
 
   getInitials(name: string | undefined | null): string {
@@ -121,35 +291,7 @@ export class HrAssessmentForm implements OnInit {
       .join('');
   }
 
-  get totalRatingPercent(): number {
-    return Math.round((this.totalRatingScore / this.maxScore) * 100);
-  }
-
-  /** Current rating value for a field, used to highlight the selected segmented button */
-  getRating(key: string): number {
-    return this.assessmentForm.get(`${key}Rating`)?.value ?? 0;
-  }
-
-  /** Click a rating button: set it, or clear back to 0 if it's already selected */
-  setRating(key: string, value: number) {
-    const control = this.assessmentForm.get(`${key}Rating`);
-    if (!control) return;
-    control.setValue(control.value === value ? 0 : value);
-  }
-
   onCancel() {
     this.dialogRef.close();
-  }
-
-  onSubmit() {
-    const payload = {
-      candidateId: this.candidateId,
-      ratings: this.assessmentForm.value,
-      salary: this.salaryForm.value,
-      evaluation: this.evaluationForm.value
-    };
-
-    console.log('HR Assessment Payload', payload);
-    this.dialogRef.close(payload);
   }
 }

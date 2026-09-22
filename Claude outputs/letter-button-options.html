@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Letter Action Group</title>
+<style>
+  :root{
+    --bg:#f6faf8; --card:#ffffff; --ink:#1e293b; --ink-2:#475569; --ink-3:#94a3b8;
+    --line:#e2e8f0; --line-2:#eef2f6; --accent:#16a34a; --accent-ink:#15803d;
+    --accent-bg:#f0fdf4; --shadow:0 1px 2px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.04);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b1220; --card:#0f172a; --ink:#e2e8f0; --ink-2:#cbd5e1; --ink-3:#64748b;
+      --line:#1e293b; --line-2:#172033; --accent:#4ade80; --accent-ink:#4ade80;
+      --accent-bg:rgba(22,163,74,.12); --shadow:none;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1220; --card:#0f172a; --ink:#e2e8f0; --ink-2:#cbd5e1; --ink-3:#64748b;
+    --line:#1e293b; --line-2:#172033; --accent:#4ade80; --accent-ink:#4ade80;
+    --accent-bg:rgba(22,163,74,.12); --shadow:none;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:400 15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:900px; margin:0 auto; padding:32px 16px 72px}
+  header{margin-bottom:28px}
+  h1{font-size:20px; font-weight:700; margin:0 0 6px; letter-spacing:-.01em}
+  .sub{color:var(--ink-3); font-size:13.5px; margin:0}
+  .toggle{
+    float:right; font-size:12px; color:var(--ink-2); background:var(--card);
+    border:1px solid var(--line); border-radius:999px; padding:6px 12px; cursor:pointer;
+  }
+  section{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:22px 22px 24px; margin-bottom:18px; box-shadow:var(--shadow);
+  }
+  .tag{
+    display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--accent-ink); background:var(--accent-bg);
+    border-radius:999px; padding:3px 9px; margin-bottom:10px;
+  }
+  h2{font-size:15.5px; font-weight:650; margin:0 0 4px}
+  .note{color:var(--ink-3); font-size:13px; margin:0 0 18px; max-width:62ch}
+  .stage{
+    background:linear-gradient(180deg,rgba(240,253,244,.55),transparent);
+    border:1px dashed var(--line); border-radius:12px; padding:20px 18px;
+    display:flex; flex-wrap:wrap; gap:14px; align-items:center;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .stage{background:rgba(22,163,74,.04)}
+  }
+  :root[data-theme="dark"] .stage{background:rgba(22,163,74,.04)}
+  .stage + .stage{margin-top:10px}
+  svg{width:15px; height:15px; flex:none; stroke:currentColor; fill:none;
+      stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round}
+
+  /* ---------- shared pill ---------- */
+  .pill{
+    display:inline-flex; align-items:stretch; background:var(--card);
+    border:1px solid var(--line); border-radius:12px; overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  .pill .lead{
+    display:flex; align-items:center; gap:8px; padding:0 14px;
+    font-size:13px; font-weight:650; color:var(--ink);
+    background:var(--line-2); border-right:1px solid var(--line);
+  }
+  .pill .lead svg{color:var(--accent-ink)}
+  .seg{
+    appearance:none; background:none; border:0; cursor:pointer; font:inherit;
+    display:inline-flex; align-items:center; gap:7px; padding:11px 15px;
+    font-size:13.5px; color:var(--ink-2); white-space:nowrap;
+    transition:background .14s ease, color .14s ease;
+  }
+  .seg + .seg{border-left:1px solid var(--line)}
+  .seg:hover{background:var(--accent-bg); color:var(--accent-ink)}
+  .seg.primary{color:var(--accent-ink); font-weight:600}
+  .seg[disabled]{opacity:.45; cursor:not-allowed}
+  .seg[disabled]:hover{background:none; color:var(--ink-2)}
+
+  /* ---------- option 3 card ---------- */
+  .lcard{
+    display:flex; align-items:center; gap:16px; background:var(--card);
+    border:1px solid var(--line); border-radius:14px; padding:12px 14px;
+    box-shadow:var(--shadow); flex-wrap:wrap;
+  }
+  .lcard .title{display:flex; align-items:center; gap:9px; font-size:13.5px; font-weight:650; padding-right:4px}
+  .lcard .title svg{width:16px;height:16px;color:var(--accent-ink)}
+  .lcard .acts{display:flex; margin-left:auto; border:1px solid var(--line); border-radius:10px; overflow:hidden}
+
+  /* ---------- option 4 icon rail ---------- */
+  .rail{display:inline-flex; align-items:center; gap:10px}
+  .rail .name{font-size:13.5px; font-weight:600; color:var(--ink)}
+  .iconset{display:inline-flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--card); box-shadow:var(--shadow)}
+  .ico{appearance:none;background:none;border:0;cursor:pointer;padding:9px 12px;color:var(--ink-2);display:inline-flex;position:relative}
+  .ico + .ico{border-left:1px solid var(--line)}
+  .ico:hover{background:var(--accent-bg); color:var(--accent-ink)}
+  .ico::after{
+    content:attr(data-tip); position:absolute; bottom:calc(100% + 7px); left:50%;
+    transform:translateX(-50%) translateY(3px); background:#0f172a; color:#fff;
+    font-size:11px; padding:4px 8px; border-radius:6px; white-space:nowrap;
+    opacity:0; pointer-events:none; transition:.15s;
+  }
+  .ico:hover::after{opacity:1; transform:translateX(-50%) translateY(0)}
+
+  /* ---------- split button ---------- */
+  .split{display:inline-flex; position:relative}
+  .split .main{
+    display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;
+    border:0;border-radius:12px 0 0 12px;padding:11px 16px;font:inherit;font-size:13.5px;
+    font-weight:600;cursor:pointer;
+  }
+  .split .caret{
+    background:var(--accent); color:#fff; border:0; border-left:1px solid rgba(255,255,255,.28);
+    border-radius:0 12px 12px 0; padding:11px 11px; cursor:pointer; display:inline-flex;
+  }
+  .menu{
+    position:absolute; top:calc(100% + 6px); left:0; min-width:220px; background:var(--card);
+    border:1px solid var(--line); border-radius:12px; padding:5px; z-index:5;
+    box-shadow:0 10px 26px rgba(15,23,42,.12); display:none;
+  }
+  .split.open .menu{display:block}
+  .menu button{
+    width:100%; text-align:left; appearance:none; background:none; border:0; font:inherit;
+    font-size:13.5px; color:var(--ink-2); padding:9px 11px; border-radius:8px; cursor:pointer;
+    display:flex; align-items:center; gap:9px;
+  }
+  .menu button:hover{background:var(--accent-bg); color:var(--accent-ink)}
+  .verdict{
+    margin-top:26px; border-left:3px solid var(--accent); background:var(--accent-bg);
+    border-radius:0 10px 10px 0; padding:14px 16px; font-size:13.5px; color:var(--ink-2);
+  }
+  .verdict b{color:var(--ink)}
+  .small{font-size:12.5px;color:var(--ink-3);margin:12px 0 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <button class="toggle" onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark'">light / dark</button>
+  <header>
+    <h1>Letter actions — merged</h1>
+    <p class="sub">Four ways to collapse View&nbsp;&amp;&nbsp;Print / Send / Received into one control. Same three handlers behind each.</p>
+  </header>
+
+  <!-- 1 -->
+  <section>
+    <span class="tag">Option 1</span>
+    <h2>Segmented pill with a name plate</h2>
+    <p class="note">The letter name is stated once, on the left, so the three actions shrink to verbs. One object per letter instead of three loose pills — the Actions card reads as a list of letters, not a wall of buttons.</p>
+    <div class="stage">
+      <div class="pill">
+        <span class="lead"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>Welcome Letter</span>
+        <button class="seg"><svg viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>View &amp; Print</button>
+        <button class="seg"><svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Send</button>
+        <button class="seg"><svg viewBox="0 0 24 24"><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9"/><path d="m22 7-10 6L2 7"/><path d="m16 19 2 2 4-4"/></svg>Mark Received</button>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="pill">
+        <span class="lead"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>Offer Letter</span>
+        <button class="seg"><svg viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>View &amp; Print</button>
+        <button class="seg" disabled><svg viewBox="0 0 24 24"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/></svg>Sending…</button>
+        <button class="seg" disabled><svg viewBox="0 0 24 24"><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9"/><path d="m22 7-10 6L2 7"/><path d="m16 19 2 2 4-4"/></svg>Mark Received</button>
+      </div>
+      <span class="small" style="margin:0">↖ in-flight state</span>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section>
+    <span class="tag">Option 2</span>
+    <h2>Split button — one obvious next step</h2>
+    <p class="note">Send is the action you actually want 90% of the time, so it gets the weight. View&nbsp;&amp;&nbsp;Print and Mark Received move into the caret menu. Smallest footprint, but it hides two actions behind a click.</p>
+    <div class="stage">
+      <div class="split" id="sp">
+        <button class="main" onclick="document.getElementById('sp').classList.toggle('open')"><svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Send Welcome Letter</button>
+        <button class="caret" onclick="document.getElementById('sp').classList.toggle('open')"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="menu">
+          <button><svg viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>View &amp; Print</button>
+          <button><svg viewBox="0 0 24 24"><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9"/><path d="m22 7-10 6L2 7"/><path d="m16 19 2 2 4-4"/></svg>Mark Received</button>
+        </div>
+      </div>
+      <span class="small" style="margin:0">↖ click to open</span>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section>
+    <span class="tag">Option 3</span>
+    <h2>Letter row — name left, actions right</h2>
+    <p class="note">A full-width row per letter. Costs vertical space, but it scales best if two letters are ever open at once, and leaves room for a due date or a "sent 3 days ago" line under the name later.</p>
+    <div class="stage" style="display:block">
+      <div class="lcard">
+        <span class="title"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>Welcome Letter</span>
+        <div class="acts">
+          <button class="seg"><svg viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>View &amp; Print</button>
+          <button class="seg"><svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Send</button>
+          <button class="seg"><svg viewBox="0 0 24 24"><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9"/><path d="m22 7-10 6L2 7"/><path d="m16 19 2 2 4-4"/></svg>Received</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section>
+    <span class="tag">Option 4</span>
+    <h2>Icon rail — most compact</h2>
+    <p class="note">Name as plain text, three icon buttons with tooltips. Tightest of the four, and the riskiest: "print" and "mark received" are not obvious from an icon alone to someone using this once a month.</p>
+    <div class="stage">
+      <div class="rail">
+        <span class="name">Welcome Letter</span>
+        <div class="iconset">
+          <button class="ico" data-tip="View &amp; Print"><svg viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+          <button class="ico" data-tip="Send mail"><svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
+          <button class="ico" data-tip="Mark received"><svg viewBox="0 0 24 24"><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9"/><path d="m22 7-10 6L2 7"/><path d="m16 19 2 2 4-4"/></svg></button>
+        </div>
+      </div>
+      <span class="small" style="margin:0">↖ hover an icon</span>
+    </div>
+  </section>
+
+  <div class="verdict">
+    <b>My pick: Option 1.</b> It's the only one that keeps all three actions visible while still reading as a single object, and it drops from ~62 characters of button text to ~34 by saying the letter's name once. It also survives the disabled/“Sending…” states you already have, which Option 2 would have to reproduce inside a menu. Option 3 is the better choice only if you later want per-letter metadata under the name.
+  </div>
+  <p class="small">Same three click handlers in every option — only the markup around them changes.</p>
+</div>
+</body>
+</html>
