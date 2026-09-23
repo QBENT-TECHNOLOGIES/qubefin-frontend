@@ -66,7 +66,7 @@ export class BankingComponentDetail {
 
   protected readonly bankingSchema: Schema<IEmployeePayrollInfo> = schema((path) => {
     required(path.bankId, { message: 'Bank is required' });
-    required(path.accountType, { message: 'Account Type is required' });
+    required(path.bankAccountType, { message: 'Account Type is required' });
     required(path.ifscCode, { message: 'IFSC Code is required' });
     required(path.esiIpNumber, {
       when: () => this.bankingModel().hasEsiEligible,

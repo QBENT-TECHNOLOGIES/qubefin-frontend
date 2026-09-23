@@ -87,7 +87,8 @@ export class NomineeComponentDetail {
   protected readonly nomineeSchema: Schema<IEmployeeNominee> = schema((path) => {
     required(path.name, { message: 'Name is required' });
     readonly(path.dateOfBirth, { when: () => true });
-    pattern(path.aadhaarNumber, /^[2-9][0-9]{11}$/, { message: 'Invalid Aadhaar number' });
+    readonly(path.age, { when: () => true });
+    pattern(path.aadharNumber, /^[2-9][0-9]{11}$/, { message: 'Invalid Aadhaar number' });
     pattern(path.voterIdNumber, /^[A-Z]{3}[0-9]{7}$/, { message: 'Invalid Voter Id number' });
   });
   protected readonly nomineeForm = form(this.nomineeModel, this.nomineeSchema);
@@ -95,7 +96,21 @@ export class NomineeComponentDetail {
   stepper!: ElementRef;
   constructor() {
     this.dateAdapter.setLocale('en-GB');
-
+    effect(() => {
+      const dobValue = this.nomineeForm.dateOfBirth().value();
+      if (dobValue) {
+        const dob = new Date(dobValue);
+        const today = new Date();
+        let calculatedAge = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+          calculatedAge--;
+        }
+        this.nomineeForm.age().value.set(calculatedAge);
+      } else {
+        this.nomineeForm.age().value.set(null);
+      }
+    });
     effect(() => {
       const tree = this.administrativeUnitTree();
       if (!tree.length) {
@@ -104,7 +119,7 @@ export class NomineeComponentDetail {
 
       this.stateList.set(tree[0]?.children ?? []);
 
-      const districtId = this.nomineeModel().district;
+      const districtId = this.nomineeModel().districtId;
       if (!districtId || districtId === this.lastRestoredDistrictId) {
         return;
       }
@@ -134,8 +149,8 @@ export class NomineeComponentDetail {
     this.selectedState.set(id);
     this.selectedDistrict.set(null);
 
-    this.nomineeForm.state().value.set(id);
-    this.nomineeForm.district().value.set('');
+    this.nomineeForm.stateId().value.set(id);
+    this.nomineeForm.districtId().value.set('');
 
     const state = this.stateList().find((x) => x.id === id);
     this.districtList.set(state?.children ?? []);
@@ -143,7 +158,7 @@ export class NomineeComponentDetail {
 
   onDistrictChange(id: string): void {
     this.selectedDistrict.set(id);
-    this.nomineeForm.district().value.set(id);
+    this.nomineeForm.districtId().value.set(id);
   }
   private nomineeResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
@@ -151,11 +166,28 @@ export class NomineeComponentDetail {
       if (params.editMode && params.id !== EMPTY_UUID) {
         return this.employeeService.getNomineeData(params.id).pipe(
           tap((resp: any) => {
-            this.employeeStore.setEmployeeComponentId(resp.id);
-            this.nomineeModel.set(new EmployeeNominee(resp));
-            this.nomineeModel.update((state) => ({
-              ...state,
-            }));
+            const data = Array.isArray(resp) && resp.length > 0 ? resp[0] : null;
+
+            if (data) {
+              this.employeeStore.setEmployeeComponentId(data.employeeId);
+
+              this.nomineeModel.set(
+                new EmployeeNominee({
+                  name: data.nomineeName,
+                  relationWithInsuredPerson: data.relationWithInsuredPerson,
+                  dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+                  age: data.age,
+                  uhidAbhaNumber: data.uhidAbhaNumber,
+                  abhaAddress: data.abhaAddress,
+                  uan: data.uan,
+                  aadharNumber: data.aadharNumber,
+                  voterIdNumber: data.voterIdnumber,
+                  isResidingWithIp: data.isResidingWithIp,
+                  stateId: data.stateId,
+                  districtId: data.districtId,
+                }),
+              );
+            }
           }),
         );
       } else {
@@ -170,9 +202,27 @@ export class NomineeComponentDetail {
     if (!this.nomineeForm().valid()) {
       return;
     }
-    const data = this.nomineeForm().value();
+    const formValue = this.nomineeForm().value();
+    const nomineeObject = {
+      nomineeName: formValue.name || null,
+      relationWithInsuredPerson: formValue.relationWithInsuredPerson || null,
+      dateOfBirth: formValue.dateOfBirth
+        ? this.datePipe.transform(formValue.dateOfBirth, 'yyyy-MM-dd')
+        : null,
+      age: formValue.age,
+      uhidAbhaNumber: formValue.uhidAbhaNumber || null,
+      abhaAddress: formValue.abhaAddress || null,
+      uan: formValue.uan || null,
+      aadharNumber: formValue.aadharNumber || null,
+      voterIdnumber: formValue.voterIdNumber || null,
+      isResidingWithIp: formValue.isResidingWithIp,
+      stateId: formValue.stateId || null,
+      districtId: formValue.districtId || null,
+    };
+
+    const dataToSave = [nomineeObject];
     if (this.isEditMode()) {
-      this.employeeService.updateNomineeInfo(this.empId(), data).subscribe({
+      this.employeeService.updateNomineeInfo(this.empId(), dataToSave).subscribe({
         next: (resp: any) => {
           this.alertService.success('Success', resp).then(() => {
             this.employeeStore.refreshList();

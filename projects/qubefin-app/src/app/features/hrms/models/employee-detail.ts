@@ -88,34 +88,34 @@ export class EmployeeDesignation {
 export interface IEmployeeNominee {
   id: string;
   name: string;
-  relation: string;
+  relationWithInsuredPerson: string;
   dateOfBirth: Date | null;
   age: number | null;
-  abhaNumber: string;
+  uhidAbhaNumber: string;
   abhaAddress: string;
   uan: string;
-  aadhaarNumber: string;
+  aadharNumber: string;
   voterIdNumber: string;
   isResidingWithIp: boolean;
   percentage: number | null;
-  state: string;
-  district: string;
+  stateId: string;
+  districtId: string;
 }
 export class EmployeeNominee {
   id: string = '';
   name: string = '';
-  relation: string = '';
+  relationWithInsuredPerson: string = '';
   dateOfBirth: Date | null = null;
   age: number | null = null;
-  abhaNumber: string = '';
+  uhidAbhaNumber: string = '';
   abhaAddress: string = '';
   uan: string = '';
-  aadhaarNumber: string = '';
+  aadharNumber: string = '';
   voterIdNumber: string = '';
   isResidingWithIp: boolean = false;
   percentage: number | null = null;
-  state: string = '';
-  district: string = '';
+  stateId: string = '';
+  districtId: string = '';
 
   constructor(init?: Partial<IEmployeeNominee>) {
     if (!init) return;
@@ -178,7 +178,7 @@ export interface IEmployeeEmployment {
   designation: string; // Required non-nullable string
   fromDate: Date; // DateOnly maps to string (YYYY-MM-DD)
   toDate: Date; // DateOnly maps to string (YYYY-MM-DD)
-  lastDrawnSalary: number; // decimal maps to required number
+  lastDrawnSalary: number | null; // decimal maps to required number
   jobTitle: string; // Nullable string
   nocFileName: string; // Nullable string
   nocFileNo: string; // Nullable string
@@ -194,7 +194,7 @@ export class EmployeeEmployment {
   designation: string = '';
   fromDate: Date = defaultDate();
   toDate: Date = defaultDate();
-  lastDrawnSalary: number = 0;
+  lastDrawnSalary: number | null = null;
   jobTitle: string = '';
   nocFileName: string = '';
   nocFileNo: string = '';
@@ -289,17 +289,19 @@ export class EmployeeReference {
   }
 }
 export interface IEmployeeReferralInfo {
-  referralEmpName: string;
-  emploeeCode: string;
+  referedBy: string;
+  employeeName: string;
+  employeeCode: string;
   designation: string;
-  emphowDoYouKnow: string;
+  howYouKnow: string;
 }
 
 export class EmployeeReferralInfo {
-  referralEmpName: string = '';
-  emploeeCode: string = '';
+  referedBy: string = '';
+  employeeName: string = '';
+  employeeCode: string = '';
   designation: string = '';
-  emphowDoYouKnow: string = '';
+  howYouKnow: string = '';
 
   constructor(init?: Partial<IEmployeeReferralInfo>) {
     if (!init) return;
@@ -537,7 +539,6 @@ export class EmployeeAddressInfo {
 // --- PayrollInfo ---
 
 export interface IEmployeePayrollInfo {
-  accountType: string;
   bankId: string; // Guid? maps to nullable string
   bankAccountNo: number; // long? maps to nullable number
   bankHolderName: string;
@@ -551,7 +552,6 @@ export interface IEmployeePayrollInfo {
   ifscCode: string;
 }
 export class EmployeePayrollInfo {
-  accountType: string = '';
   bankId: string = '';
   bankAccountNo: number = 0;
   bankHolderName: string = '';

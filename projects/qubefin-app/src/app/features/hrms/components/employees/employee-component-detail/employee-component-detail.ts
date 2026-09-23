@@ -30,6 +30,7 @@ import { EmploymentComponentDetail } from './employment-component/employment-com
 import { QualificationComponentDetail } from './qualification-component/qualification-component';
 import { BankingComponentDetail } from './banking-component/banking-component';
 import { NomineeComponentDetail } from './nominee-component/nominee-component';
+import { ReferralComponentDetail } from './referral-component/referral-component';
 
 @Component({
   selector: 'qfin-employee-component-detail',
@@ -52,6 +53,7 @@ import { NomineeComponentDetail } from './nominee-component/nominee-component';
     QualificationComponentDetail,
     BankingComponentDetail,
     NomineeComponentDetail,
+    ReferralComponentDetail,
   ],
   templateUrl: './employee-component-detail.html',
 })
@@ -119,10 +121,13 @@ export class EmployeeComponentDetail {
   handleQualification() {
     this.onStepChange(8);
   }
-  handleNominee() {
+  handlePayroll() {
     this.onStepChange(9);
   }
-  handlePayroll() {
+  handleNominee() {
+    this.onStepChange(10);
+  }
+  handleReferral() {
     this.onStepChange(0);
   }
   handleSave(newId?: string) {

@@ -36,14 +36,8 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="users" class="w-5 h-5"></svg>
             </div>
-            <mat-select [formField]="nomineeForm.relation">
-                @for (item of relations(); track item.sysVal) {
-                <mat-option [value]="item.sysVal">
-                    {{ item.sysVal }}
-                </mat-option>
-                }
-            </mat-select>
-
+            <input matInput [formField]="nomineeForm.relationWithInsuredPerson" autocomplete="off"
+                placeholder="Enter relation">
         </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -82,9 +76,9 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="id-card" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="nomineeForm.abhaNumber" autocomplete="off" placeholder="Enter number">
+            <input matInput [formField]="nomineeForm.uhidAbhaNumber" autocomplete="off" placeholder="Enter number">
             <mat-error class="cus-error">
-                {{ nomineeForm.abhaNumber().errors()[0]?.message }}
+                {{ nomineeForm.uhidAbhaNumber().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
 
@@ -114,10 +108,10 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="id-card" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="nomineeForm.aadhaarNumber" autocomplete="off"
+            <input matInput [formField]="nomineeForm.aadharNumber" autocomplete="off"
                 placeholder="Enter aadhaar number">
             <mat-error class="cus-error">
-                {{ nomineeForm.aadhaarNumber().errors()[0]?.message }}
+                {{ nomineeForm.aadharNumber().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -173,10 +167,9 @@
     </div>
 
     <div class="step-footer-area">
-
         <div class="flex flex-1 justify-end items-center gap-3">
             <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">
-                Save &amp; Next
+                Save
                 <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
             </button>
         </div>

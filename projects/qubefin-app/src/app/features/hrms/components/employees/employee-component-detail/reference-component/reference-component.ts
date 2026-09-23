@@ -21,7 +21,7 @@ import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import { AttendanceRegularizationsStore } from '../../../../stores/attendance-regularizations-store';
 
-interface ReferenceFormModel extends IEmployeeReferralInfo {
+interface ReferenceFormModel {
   references: IEmployeeReference[];
 }
 
@@ -53,10 +53,6 @@ export class ReferenceComponentDetail {
 
   protected readonly referenceModel = signal<ReferenceFormModel>({
     references: [],
-    referralEmpName: '',
-    designation: '',
-    emploeeCode: '',
-    emphowDoYouKnow: '',
   });
 
   protected readonly referenceSchema = schema<ReferenceFormModel>((path) => {
@@ -81,10 +77,7 @@ export class ReferenceComponentDetail {
         model.id = EMPTY_UUID;
         model.employeeId = this.empId();
 
-        this.referenceModel.update((state) => ({
-          ...state,
-          references: [model],
-        }));
+        this.referenceModel.set({ references: [model] });
       }
     });
   }
@@ -93,14 +86,12 @@ export class ReferenceComponentDetail {
     const model = new EmployeeReference();
     model.employeeId = this.empId();
     this.referenceModel.update((state) => ({
-      ...state,
       references: [...state.references, model],
     }));
   }
 
   removeReference(index: number) {
     this.referenceModel.update((state) => ({
-      ...state,
       references: state.references.filter((_, i) => i !== index),
     }));
   }
@@ -110,9 +101,7 @@ export class ReferenceComponentDetail {
     if (!this.referenceForm().valid()) {
       return;
     }
-    const formValue = this.referenceForm().value();
-
-    const references = [...formValue.references].map((ref) => {
+    const dataToSave = [...this.referenceForm().value().references].map((ref) => {
       const cleanedRef = { ...ref };
 
       (Object.keys(cleanedRef) as Array<keyof typeof cleanedRef>).forEach((key) => {
@@ -123,14 +112,6 @@ export class ReferenceComponentDetail {
 
       return cleanedRef;
     });
-
-    const dataToSave = {
-      references,
-      referralEmpName: formValue.referralEmpName || null,
-      emploeeCode: formValue.emploeeCode || null,
-      designation: formValue.designation || null,
-      emphowDoYouKnow: formValue.emphowDoYouKnow || null,
-    };
     this.employeeService.updateReferenceInfo(this.empId(), dataToSave).subscribe({
       next: (resp: any) => {
         this.alertService.success('Success', resp).then(() => {
@@ -149,31 +130,19 @@ export class ReferenceComponentDetail {
       if (params.editMode && params.id !== EMPTY_UUID) {
         return this.employeeService.getReferenceData(params.id).pipe(
           tap((resp: any) => {
-            const referencesArray: IEmployeeReference[] = Array.isArray(resp)
-              ? resp
-              : (resp?.references ?? []);
-
-            const referralInfo: Partial<IEmployeeReferralInfo> =
-              (!Array.isArray(resp) && (resp?.referralInfo ?? resp)) || {};
-
-            this.referenceModel.set({
-              references: referencesArray.map(
-                (doc: IEmployeeReference) => new EmployeeReference({ ...doc }),
+            this.referenceModel.update((state) => ({
+              references: (resp || []).map(
+                (doc: IEmployeeReference) =>
+                  new EmployeeReference({
+                    ...doc,
+                  }),
               ),
-              referralEmpName: referralInfo.referralEmpName ?? '',
-              emploeeCode: referralInfo.emploeeCode ?? '',
-              designation: referralInfo.designation ?? '',
-              emphowDoYouKnow: referralInfo.emphowDoYouKnow ?? '',
-            });
+            }));
           }),
         );
       } else {
         this.referenceModel.set({
           references: [],
-          referralEmpName: '',
-          designation: '',
-          emploeeCode: '',
-          emphowDoYouKnow: '',
         });
         return of(null);
       }

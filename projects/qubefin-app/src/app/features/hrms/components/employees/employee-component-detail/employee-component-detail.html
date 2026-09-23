@@ -161,6 +161,13 @@
                 </qfin-nominee-component>
                 }
             </mat-step>
+            <mat-step>
+                <ng-template matStepLabel>Refferal Info</ng-template>
+                @if (activeStepIndex() == 10) {
+                <qfin-referral-component [empId]="employeeId()" (onRefferalUpdate)="handleReferral()">
+                </qfin-referral-component>
+                }
+            </mat-step>
 
 
             }

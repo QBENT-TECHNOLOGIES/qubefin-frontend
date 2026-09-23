@@ -90,55 +90,7 @@
             Add Reference
         </button>
     </div>
-    <!-- Employee Referral Information -->
-    <div class="pt-4 border-t border-slate-200 mt-6">
-        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
-            Employee Referral Information
-        </h3>
-        <div class="w-10 h-1 rounded-full bg-primary-500 mt-1 mb-4"></div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <!-- Referral Employee Name -->
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-label>Employee Name</mat-label>
-                <div class="w-12 flex justify-center" matPrefix>
-                    <svg lucideIcon="user" class="w-5 h-5"></svg>
-                </div>
-                <input matInput autocomplete="off" placeholder="Enter Employee Name"
-                    [formField]="referenceForm.referralEmpName">
-            </mat-form-field>
-
-            <!-- Employee Code -->
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-label>Employee Code</mat-label>
-                <div class="w-12 flex justify-center" matPrefix>
-                    <svg lucideIcon="hash" class="w-5 h-5"></svg>
-                </div>
-                <input matInput autocomplete="off" placeholder="Enter Employee Code"
-                    [formField]="referenceForm.emploeeCode">
-            </mat-form-field>
-
-            <!-- Designation -->
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-label>Designation</mat-label>
-                <div class="w-12 flex justify-center" matPrefix>
-                    <svg lucideIcon="user-check" class="w-5 h-5"></svg>
-                </div>
-                <input matInput autocomplete="off" placeholder="Enter Designation"
-                    [formField]="referenceForm.designation">
-            </mat-form-field>
-
-            <!-- How Do You Know -->
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-label>How Do You Know</mat-label>
-                <div class="w-12 flex justify-center" matPrefix>
-                    <svg lucideIcon="user-lock" class="w-5 h-5"></svg>
-                </div>
-                <input matInput autocomplete="off" placeholder="Enter How Do You Know"
-                    [formField]="referenceForm.emphowDoYouKnow">
-            </mat-form-field>
-        </div>
-    </div>
     <!-- Save -->
 
     <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-end">

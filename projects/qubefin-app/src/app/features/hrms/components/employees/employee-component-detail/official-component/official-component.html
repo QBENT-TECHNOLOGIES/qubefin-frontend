@@ -7,16 +7,7 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Code</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="id-card-lanyard" class="w-5 h-5"></svg>
-            </div>
-            <input matInput [formField]="officialForm.code" autocomplete="off" placeholder="Enter code">
-            <mat-error class="cus-error">
-                {{ officialForm.code().errors()[0]?.message }}
-            </mat-error>
-        </mat-form-field>
+
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Official Email</mat-label>
             <div class="w-12 flex justify-center" matPrefix>

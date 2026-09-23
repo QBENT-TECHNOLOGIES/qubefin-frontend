@@ -168,6 +168,7 @@ export class EmploymentComponentDetail {
   }
   onSubmit() {
     this.employmentForm().markAsTouched();
+
     if (!this.employmentForm().valid()) {
       return;
     }
@@ -176,25 +177,37 @@ export class EmploymentComponentDetail {
     const formData = new FormData();
 
     employments.forEach((emp: any, index: number) => {
-      formData.append(`employments[${index}].id`, emp.id || '');
-      formData.append(`employments[${index}].employerName`, emp.employerName || '');
-      formData.append(`employments[${index}].designation`, emp.designation || '');
-      formData.append(`employments[${index}].jobTitle`, emp.jobTitle || '');
-      formData.append(`employments[${index}].lastDrawnSalary`, String(emp.lastDrawnSalary ?? ''));
+      // 1. Only append ID if it's a valid string and NOT the empty UUID
+      if (emp.id && emp.id !== '' && emp.id !== EMPTY_UUID) {
+        formData.append(`employments[${index}].id`, emp.id);
+      }
 
+      // 2. Append standard strings if they exist
+      if (emp.employerName) formData.append(`employments[${index}].employerName`, emp.employerName);
+      if (emp.designation) formData.append(`employments[${index}].designation`, emp.designation);
+      if (emp.jobTitle) formData.append(`employments[${index}].jobTitle`, emp.jobTitle);
+
+      // 3. Only append decimal if it has an actual number (avoid sending "")
+      if (
+        emp.lastDrawnSalary !== null &&
+        emp.lastDrawnSalary !== undefined &&
+        emp.lastDrawnSalary !== ''
+      ) {
+        formData.append(`employments[${index}].lastDrawnSalary`, String(emp.lastDrawnSalary));
+      }
+
+      // 4. Handle dates properly
       if (emp.fromDate) {
-        formData.append(
-          `employments[${index}].fromDate`,
-          this.datePipe.transform(emp.fromDate, 'yyyy-MM-dd') || '',
-        );
-      }
-      if (emp.toDate) {
-        formData.append(
-          `employments[${index}].toDate`,
-          this.datePipe.transform(emp.toDate, 'yyyy-MM-dd') || '',
-        );
+        const fromStr = this.datePipe.transform(emp.fromDate, 'yyyy-MM-dd');
+        if (fromStr) formData.append(`employments[${index}].fromDate`, fromStr);
       }
 
+      if (emp.toDate) {
+        const toStr = this.datePipe.transform(emp.toDate, 'yyyy-MM-dd');
+        if (toStr) formData.append(`employments[${index}].toDate`, toStr);
+      }
+
+      // 5. Append files and their names
       if (emp.expCertFileName) {
         formData.append(`employments[${index}].expCertFileName`, emp.expCertFileName);
       }
@@ -218,7 +231,9 @@ export class EmploymentComponentDetail {
           this.onEmpUpdate.emit();
         });
       },
-      error: (err: any) => {},
+      error: (err: any) => {
+        console.error('Error updating employment:', err);
+      },
     });
   }
 

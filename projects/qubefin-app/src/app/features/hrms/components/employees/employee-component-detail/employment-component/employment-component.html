@@ -8,7 +8,7 @@
 
     @for (ref of employmentModel().employments; track $index) {
     <div class="flex items-start gap-3 border-b border-slate-200 pb-3">
-        <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
             <!-- Employer Name -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Employer Name</mat-label>
@@ -66,7 +66,7 @@
                     <svg lucideIcon="contact" class="w-5 h-5"></svg>
                 </div>
                 <input matInput type="number" autocomplete="off" placeholder="Enter Last Drawn Salary"
-                    [formField]="employmentForm.employments[$index].lastDrawnSalary">
+                    (wheel)="$event.preventDefault()" [formField]="employmentForm.employments[$index].lastDrawnSalary">
                 <mat-error class="cus-error">
                     {{ employmentForm.employments[$index].lastDrawnSalary().errors()[0]?.message }}
                 </mat-error>

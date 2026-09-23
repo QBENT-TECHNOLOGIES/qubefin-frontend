@@ -29,7 +29,7 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
             </div>
-            <mat-select [formField]="bankingForm.accountType">
+            <mat-select [formField]="bankingForm.bankAccountType">
                 @for(type of acTypes; track type){
                 <mat-option [value]="type">
                     {{type}}
@@ -37,7 +37,7 @@
                 }
             </mat-select>
             <mat-error class="cus-error">
-                {{ bankingForm.accountType().errors()[0]?.message }}
+                {{ bankingForm.bankAccountType().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
 

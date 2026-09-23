@@ -78,6 +78,7 @@ export class PersonalComponentDetail {
   protected readonly employeeModel = signal<IEmployeePersonalInfo>(new EmployeePersonalInfo());
 
   protected readonly employeeSchema: Schema<IEmployeePersonalInfo> = schema((path) => {
+    required(path.code, { message: 'Code is required' });
     required(path.firstName, { message: 'First name is required' });
     required(path.bloodGroup, { message: 'Blood group is required' });
     required(path.nationality, { message: 'Nationality is required' });
@@ -85,7 +86,7 @@ export class PersonalComponentDetail {
     required(path.dateOfBirth, { message: 'Date of birth is required' });
     required(path.gender, { message: 'Gender is required' });
     required(path.religion, { message: 'Religion is required' });
-    required(path.age, { message: 'Age is required' });
+    readonly(path.age, { when: () => true });
     readonly(path.dateOfBirth, { when: () => true });
   });
 
@@ -168,7 +169,6 @@ export class PersonalComponentDetail {
     const formValue = this.employeeForm().value();
     const dataToSave: any = {
       ...formValue,
-      // code: 'WGDEMO123',
       dateOfBirth: this.datePipe.transform(formValue.dateOfBirth, 'yyyy-MM-dd'),
       middleName: formValue.middleName?.trim() === '' ? null : formValue.middleName,
       fatherName: formValue.fatherName?.trim() === '' ? null : formValue.fatherName,
