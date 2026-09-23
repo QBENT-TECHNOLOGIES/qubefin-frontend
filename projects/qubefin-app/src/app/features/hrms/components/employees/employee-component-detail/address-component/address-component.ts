@@ -76,7 +76,6 @@ export class AddressComponentDetail {
 
   protected readonly employeeAddressSchema: Schema<IEmployeeAddressInfo> = schema((path) => {
     required(path.administrativeUnitId, { message: 'Location details are required' });
-    required(path.policeStationId, { message: 'Police Station is required' });
     required(path.pinCode, { message: 'Pin Code is required' });
     pattern(path.pinCode, /^\d{6}$/, {
       message: 'Pin code must be exactly 6 digits (Characters are not allowed)',
