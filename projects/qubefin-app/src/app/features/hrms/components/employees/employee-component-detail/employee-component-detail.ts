@@ -100,31 +100,31 @@ export class EmployeeComponentDetail {
   handlePersonal() {
     this.onStepChange(1);
   }
-  handleAddress() {
+  handleContact() {
     this.onStepChange(2);
   }
-  handleContact() {
+  handleAddress() {
     this.onStepChange(3);
   }
-  handleOfficial() {
+  handleKyc() {
     this.onStepChange(4);
   }
-  handleKyc() {
+  handleOfficial() {
     this.onStepChange(5);
   }
-  handleReference() {
+  handleQualification() {
     this.onStepChange(6);
   }
   handleEmployment() {
     this.onStepChange(7);
   }
-  handleQualification() {
+  handlePayroll() {
     this.onStepChange(8);
   }
-  handlePayroll() {
+  handleNominee() {
     this.onStepChange(9);
   }
-  handleNominee() {
+  handleReference() {
     this.onStepChange(10);
   }
   handleReferral() {
@@ -134,7 +134,7 @@ export class EmployeeComponentDetail {
     this.onChildSave.emit(newId as string);
 
     if (newId && newId.length > 20) {
-      this.pendingAdvance = true; // just mark intent; timing is handled by afterRenderEffect
+      this.pendingAdvance = true;
     }
   }
 

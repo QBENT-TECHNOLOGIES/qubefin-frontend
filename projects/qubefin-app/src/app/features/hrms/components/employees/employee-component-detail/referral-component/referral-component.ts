@@ -58,7 +58,6 @@ export class ReferralComponentDetail {
 
   public readonly referralModel = signal<IEmployeeReferralInfo>(new EmployeeReferralInfo());
   public readonly referralSchema: Schema<IEmployeeReferralInfo> = schema((path) => {
-    required(path.designation, { message: 'Designation is required' });
     required(path.referedBy, { message: 'Referral Employee Name is required' });
     readonly(path.employeeCode, { when: () => true });
     readonly(path.designation, { when: () => true });

@@ -23,34 +23,29 @@
                 </qfin-personal-component>
                 }
             </mat-step>
+
+
             @if (employeeId() != emptyGuid) {
-
-            <!-- Step 2: Address Info -->
-            <mat-step>
-                <ng-template matStepLabel>Address Info</ng-template>
-                @if (activeStepIndex() == 1) {
-                <qfin-address-component [empId]="employeeId()" (onAddressUpdate)="handleAddress()">
-                </qfin-address-component>
-                }
-            </mat-step>
-
             <!-- Step 3: Contact Info -->
             <mat-step>
                 <ng-template matStepLabel>Contact Info</ng-template>
-                @if (activeStepIndex() == 2) {
+                @if (activeStepIndex() == 1) {
                 <qfin-contact-component [empId]="employeeId()" (onContactUpdate)="handleContact()">
                 </qfin-contact-component>
                 }
             </mat-step>
 
-            <!-- Step 4: Official Info -->
+            <!-- Step 2: Address Info -->
             <mat-step>
-                <ng-template matStepLabel>Official Info</ng-template>
-                @if (activeStepIndex() == 3) {
-                <qfin-official-component [empId]="employeeId()" (onOfficialUpdate)="handleOfficial()">
-                </qfin-official-component>
+                <ng-template matStepLabel>Address Info</ng-template>
+                @if (activeStepIndex() == 2) {
+                <qfin-address-component [empId]="employeeId()" (onAddressUpdate)="handleAddress()">
+                </qfin-address-component>
                 }
             </mat-step>
+
+
+
 
             <!-- Step 5: KYC Info -->
             <!-- <mat-step>
@@ -111,20 +106,27 @@
             <mat-step>
                 <!-- <ng-template matStepLabel>Documents Info</ng-template> -->
                 <ng-template matStepLabel>KYC</ng-template>
-                @if (activeStepIndex() == 4) {
+                @if (activeStepIndex() == 3) {
                 <qfin-kyc-document-component [kycDocs]="kycComponents()" [empId]="employeeId()"
                     (onKycUpdate)="handleKyc()">
                 </qfin-kyc-document-component>
                 }
 
             </mat-step>
-
-            <!-- Step 7: Reference Info -->
+            <!-- Step 2: Official Info -->
             <mat-step>
-                <ng-template matStepLabel>Reference Info</ng-template>
+                <ng-template matStepLabel>Official Info</ng-template>
+                @if (activeStepIndex() == 4) {
+                <qfin-official-component [empId]="employeeId()" (onOfficialUpdate)="handleOfficial()">
+                </qfin-official-component>
+                }
+            </mat-step>
+            <!-- Step 9: Qualification Info -->
+            <mat-step>
+                <ng-template matStepLabel>Qualification Info</ng-template>
                 @if (activeStepIndex() == 5) {
-                <qfin-reference-component [empId]="employeeId()" (onRefUpdate)="handleReference()">
-                </qfin-reference-component>
+                <qfin-qualification-component [empId]="employeeId()" (onQualifyUpdate)="handleQualification()">
+                </qfin-qualification-component>
                 }
             </mat-step>
 
@@ -137,30 +139,34 @@
                 }
             </mat-step>
 
-            <!-- Step 9: Qualification Info -->
-            <mat-step>
-                <ng-template matStepLabel>Qualification Info</ng-template>
-                @if (activeStepIndex() == 7) {
-                <qfin-qualification-component [empId]="employeeId()" (onQualifyUpdate)="handleQualification()">
-                </qfin-qualification-component>
-                }
-            </mat-step>
+
 
             <!-- Step 10: Bank Details Info -->
             <mat-step>
                 <ng-template matStepLabel>Bank Details Info</ng-template>
-                @if (activeStepIndex() == 8) {
+                @if (activeStepIndex() == 7) {
                 <qfin-banking-component [empId]="employeeId()" (onBankingUpdate)="handlePayroll()">
                 </qfin-banking-component>
                 }
             </mat-step>
+
             <mat-step>
                 <ng-template matStepLabel>Nominee Info</ng-template>
-                @if (activeStepIndex() == 9) {
+                @if (activeStepIndex() == 8) {
                 <qfin-nominee-component [empId]="employeeId()" (onNomineeUpdate)="handleNominee()">
                 </qfin-nominee-component>
                 }
             </mat-step>
+
+            <!-- Step 7: Reference Info -->
+            <mat-step>
+                <ng-template matStepLabel>Reference Info</ng-template>
+                @if (activeStepIndex() == 9) {
+                <qfin-reference-component [empId]="employeeId()" (onRefUpdate)="handleReference()">
+                </qfin-reference-component>
+                }
+            </mat-step>
+
             <mat-step>
                 <ng-template matStepLabel>Refferal Info</ng-template>
                 @if (activeStepIndex() == 10) {

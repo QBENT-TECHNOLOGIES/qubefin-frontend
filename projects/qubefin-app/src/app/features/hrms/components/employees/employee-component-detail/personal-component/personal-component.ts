@@ -126,6 +126,21 @@ export class PersonalComponentDetail {
   });
   constructor() {
     this.dateAdapter.setLocale('en-GB');
+    effect(() => {
+      const dobValue = this.employeeForm.dateOfBirth().value();
+      if (dobValue) {
+        const dob = new Date(dobValue);
+        const today = new Date();
+        let calculatedAge = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+          calculatedAge--;
+        }
+        this.employeeForm.age().value.set(calculatedAge);
+      } else {
+        this.employeeForm.age().value.set(null);
+      }
+    });
   }
   loadBloodGroups() {
     return this.utilities().length > 0
@@ -179,9 +194,9 @@ export class PersonalComponentDetail {
     if (!this.isEditMode()) {
       this.employeeService.create(dataToSave).subscribe({
         next: (resp: any) => {
-          this.alertService.success('Success', resp).then(() => {
+          this.alertService.success('Success', resp.message).then(() => {
             this.employeeStore.refreshList();
-            const newId = 'E938E5C3-23B8-4DD9-8DD7-042F9AC15E20';
+            const newId = resp.id;
             // resp?.id || resp?.data?.id || resp?.data || (typeof resp === 'string' ? resp : null);
             this.onSave.emit(newId);
           });
