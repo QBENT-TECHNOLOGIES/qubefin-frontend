@@ -83,10 +83,10 @@
                 <svg lucideIcon="id-card" class="w-5 h-5"></svg>
             </div>
             <input matInput [formField]="nomineeForm.abhaNumber" autocomplete="off" placeholder="Enter number">
+            <mat-error class="cus-error">
+                {{ nomineeForm.abhaNumber().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
-        <mat-error class="cus-error">
-            {{ nomineeForm.abhaNumber().errors()[0]?.message }}
-        </mat-error>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>ABHA Address</mat-label>
@@ -166,7 +166,8 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="percent" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="nomineeForm.percentage" autocomplete="off" placeholder="Enter percentage">
+            <input matInput type="number" [formField]="nomineeForm.percentage" autocomplete="off"
+                placeholder="Enter percentage" (wheel)="$event.preventDefault()">
         </mat-form-field>
 
     </div>

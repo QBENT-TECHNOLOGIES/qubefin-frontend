@@ -9,6 +9,7 @@ import {
   ElementRef,
   effect,
   untracked,
+  afterRenderEffect,
 } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -59,6 +60,7 @@ export class EmployeeComponentDetail {
   employeeId = input<string>(EMPTY_UUID);
   onChildSave = output<string>();
 
+  private pendingAdvance = false;
   readonly activeStepIndex = signal(0);
   private readonly employeeStore = inject(EmployeeStore);
   utilityComponents = this.employeeStore.utilityComponent;
@@ -69,22 +71,26 @@ export class EmployeeComponentDetail {
   @ViewChild('stepper')
   matStepper!: MatStepper;
   constructor() {
-    effect(
-      () => {
-        const id = this.employeeId();
+    effect(() => {
+      const id = this.employeeId();
 
-        if (id === EMPTY_UUID) {
-          untracked(() => {
-            this.activeStepIndex.set(0);
+      if (id === EMPTY_UUID) {
+        untracked(() => {
+          this.activeStepIndex.set(0);
 
-            if (this.matStepper) {
-              this.matStepper.reset();
-            }
-          });
-        }
-      },
-      { allowSignalWrites: true },
-    );
+          if (this.matStepper) {
+            this.matStepper.reset();
+          }
+        });
+      }
+    });
+    afterRenderEffect(() => {
+      const id = this.employeeId();
+      if (id !== EMPTY_UUID && this.pendingAdvance) {
+        this.pendingAdvance = false;
+        this.activeStepIndex.set(1);
+      }
+    });
   }
   onStepChange(index: number) {
     this.activeStepIndex.set(index);
@@ -122,11 +128,8 @@ export class EmployeeComponentDetail {
   handleSave(newId?: string) {
     this.onChildSave.emit(newId as string);
 
-    // Optional UX enhancement: Automatically step forward to "Address Info" after creation
     if (newId && newId.length > 20) {
-      setTimeout(() => {
-        this.activeStepIndex.set(1);
-      }, 100);
+      this.pendingAdvance = true; // just mark intent; timing is handled by afterRenderEffect
     }
   }
 
