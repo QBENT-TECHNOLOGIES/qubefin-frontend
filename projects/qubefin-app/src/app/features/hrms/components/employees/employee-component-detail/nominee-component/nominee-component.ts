@@ -89,7 +89,7 @@ export class NomineeComponentDetail {
     readonly(path.dateOfBirth, { when: () => true });
     readonly(path.age, { when: () => true });
     pattern(path.aadharNumber, /^[2-9][0-9]{11}$/, { message: 'Invalid Aadhaar number' });
-    pattern(path.voterIdNumber, /^[A-Z]{3}[0-9]{7}$/, { message: 'Invalid Voter Id number' });
+    // pattern(path.voterIdNumber, /^[A-Z]{3}[0-9]{7}$/, { message: 'Invalid Voter Id number' });
   });
   protected readonly nomineeForm = form(this.nomineeModel, this.nomineeSchema);
   @ViewChild('stepper', { read: ElementRef })
