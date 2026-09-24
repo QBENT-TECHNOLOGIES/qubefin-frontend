@@ -27,8 +27,33 @@ export class AdministrativeUnitCascade {
 
   columns = input<1 | 2 | 3 | 4>(3);
   administrativeUnitId = input<string>('');
+
+  /**
+   * Opt-in (currently used only by the Employee address form).
+   *
+   * false (default) — the cascade only reports a value once a leaf
+   * (Ward / Village) is picked; every level above it clears the value.
+   *
+   * true — the cascade reports whichever level the user last picked as the
+   * selected administrative unit id: pick a Country and the Country id is
+   * emitted, pick a State and the State id is emitted, pick a District and
+   * the District id is emitted, and so on down to Ward / Village.
+   */
+  emitAtEveryLevel = input<boolean>(false);
+
   selectedIdChanged = output<string>();
+
+  /** Fires whenever the District selection changes, including during restore. */
   districtChanged = output<string>();
+
+  /**
+   * Fires only when the USER changes the area (a new District, or a Country /
+   * State change that clears the District) — never while the cascade is being
+   * restored from a saved id or switched between Rural / Urban.
+   * Emits the new District id, or '' when the District was cleared.
+   * Consumers use it to drop anything that hung off the old District.
+   */
+  districtChangedByUser = output<string>();
   // ────────────────────────────────────────────────
   // Host bindings — grid column span based on `columns`
   // ────────────────────────────────────────────────
@@ -165,9 +190,7 @@ export class AdministrativeUnitCascade {
   // ────────────────────────────────────────────────
 
   onCountryChange(id: string): void {
-    if (!this.restoring) {
-      this.selectedIdChanged.emit('');
-    }
+    this.emitSelectedId(id, false);
 
     this.selectedCountry.set(id);
     this.resetState();
@@ -177,9 +200,7 @@ export class AdministrativeUnitCascade {
   }
 
   onStateChange(id: string): void {
-    if (!this.restoring) {
-      this.selectedIdChanged.emit('');
-    }
+    this.emitSelectedId(id, false);
 
     this.selectedState.set(id);
     this.resetDistrict();
@@ -189,9 +210,12 @@ export class AdministrativeUnitCascade {
   }
 
   onDistrictChange(id: string): void {
+    this.emitSelectedId(id, false);
+
     if (!this.restoring) {
-      this.selectedIdChanged.emit('');
+      this.districtChangedByUser.emit(id);
     }
+
     this.districtChanged.emit(id);
     this.selectedDistrict.set(id);
     this.resetArea();
@@ -206,9 +230,7 @@ export class AdministrativeUnitCascade {
   }
 
   onBlockChange(id: string): void {
-    if (!this.restoring) {
-      this.selectedIdChanged.emit('');
-    }
+    this.emitSelectedId(id, false);
 
     this.selectedBlock.set(id);
     this.selectedGramPanchayat.set(null);
@@ -220,9 +242,7 @@ export class AdministrativeUnitCascade {
   }
 
   onMunicipalityChange(id: string): void {
-    if (!this.restoring) {
-      this.selectedIdChanged.emit('');
-    }
+    this.emitSelectedId(id, false);
 
     this.selectedMunicipality.set(id);
     this.selectedWard.set(null);
@@ -232,9 +252,7 @@ export class AdministrativeUnitCascade {
   }
 
   onGramPanchayatChange(id: string): void {
-    if (!this.restoring) {
-      this.selectedIdChanged.emit('');
-    }
+    this.emitSelectedId(id, false);
 
     this.selectedGramPanchayat.set(id);
     this.selectedVillage.set(null);
@@ -246,17 +264,44 @@ export class AdministrativeUnitCascade {
   onWardChange(id: string): void {
     this.selectedWard.set(id);
 
-    if (!this.restoring) {
-      this.selectedIdChanged.emit(id);
-    }
+    this.emitSelectedId(id, true);
   }
 
   onVillageChange(id: string): void {
     this.selectedVillage.set(id);
 
-    if (!this.restoring) {
-      this.selectedIdChanged.emit(id);
+    this.emitSelectedId(id, true);
+  }
+
+  // ────────────────────────────────────────────────
+  // Emission helper
+  // ────────────────────────────────────────────────
+
+  /**
+   * Reports the current selection upward.
+   *
+   * With `emitAtEveryLevel` off this keeps the original behaviour: only a
+   * leaf (Ward / Village) produces an id, any level above it clears it.
+   * With `emitAtEveryLevel` on, the id of the level just picked is emitted,
+   * so a Country / State / District selection is itself a valid value.
+   *
+   * Emissions are suppressed while the cascade is being driven
+   * programmatically (restore from an id, or Rural/Urban switch).
+   */
+  private emitSelectedId(id: string, isLeaf: boolean): void {
+    if (this.restoring) {
+      return;
     }
+
+    if (this.emitAtEveryLevel()) {
+      // Remember what we just emitted: the parent will feed this same id back
+      // in through `administrativeUnitId`, and there is nothing to restore.
+      this.lastRestoredId = id || null;
+      this.selectedIdChanged.emit(id ?? '');
+      return;
+    }
+
+    this.selectedIdChanged.emit(isLeaf ? id : '');
   }
 
   /** Toggle between Rural and Urban branches, re-deriving Block/Municipality lists for the current district. */
@@ -284,6 +329,12 @@ export class AdministrativeUnitCascade {
     } finally {
       this.restoring = false;
     }
+
+    // Everything below District was just cleared, so District (if any) is now
+    // the deepest selected level.
+    if (this.emitAtEveryLevel()) {
+      this.emitSelectedId(this.selectedDistrict() ?? '', false);
+    }
   }
 
   // ────────────────────────────────────────────────
@@ -298,6 +349,12 @@ export class AdministrativeUnitCascade {
   }
 
   private resetDistrict(): void {
+    // A Country / State change wipes the District, so tell consumers the area
+    // changed even though `onDistrictChange` was never called.
+    if (!this.restoring) {
+      this.districtChangedByUser.emit('');
+    }
+
     this.selectedDistrict.set(null);
     this.resetArea();
     this.districtList.set([]);

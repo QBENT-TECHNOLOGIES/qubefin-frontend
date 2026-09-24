@@ -69,13 +69,8 @@
                 <div class="w-12 flex justify-center" matPrefix>
                     <svg lucideIcon="user-lock" class="w-5 h-5"></svg>
                 </div>
-                <mat-select [formField]="referenceForm.references[$index].howDoYouKnow">
-                    @for (item of reasons(); track item.sysVal) {
-                    <mat-option [value]="item.sysVal">
-                        {{ item.sysVal }}
-                    </mat-option>
-                    }
-                </mat-select>
+                <input matInput [formField]="referenceForm.references[$index].howDoYouKnow"
+                    placeholder="Enter How Do You Know">
 
             </mat-form-field>
         </div>
@@ -95,6 +90,7 @@
             Add Reference
         </button>
     </div>
+
     <!-- Save -->
 
     <div class="mt-2 border-t border-slate-200/20 dark:border-white/10 px-3 py-4 bg-slate-400/5 flex justify-end">

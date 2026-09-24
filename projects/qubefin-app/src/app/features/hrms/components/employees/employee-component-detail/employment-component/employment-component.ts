@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { AlertService, EMPTY_UUID } from 'qubefin-core';
+import { AlertService, DocumentModalService, EMPTY_UUID } from 'qubefin-core';
 import { applyEach, form, FormField, readonly, required, schema } from '@angular/forms/signals';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -21,7 +21,9 @@ import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
 interface EmploymentFormModel {
   employments: EmployeeEmployment[];
 }
+type EmploymentDocField = 'expCert' | 'noc';
 
+const ALLOWED_DOC_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 @Component({
   selector: 'qfin-employment-component',
   providers: [DatePipe],
@@ -51,6 +53,7 @@ export class EmploymentComponentDetail {
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
+  readonly documentModal = inject(DocumentModalService);
   readonly iconMap = APP_ICONS_MAP;
 
   protected readonly employmentModel = signal<EmploymentFormModel>({
@@ -65,7 +68,9 @@ export class EmploymentComponentDetail {
       required(refPath.designation, { message: 'Designation is required' });
       required(refPath.fromDate);
       required(refPath.toDate);
-      required(refPath.lastDrawnSalary, { message: 'Last Drawn Salary required' });
+      // required(refPath.lastDrawnSalary, { message: 'Last Drawn Salary required' });
+      // required(refPath.nocFileName, { message: 'NOC File Name is required' });
+      // required(refPath.expCertFileName, { message: 'Expense Cert File Name is required' });
       readonly(refPath.fromDate, { when: () => true });
       readonly(refPath.toDate, { when: () => true });
     });
@@ -100,20 +105,122 @@ export class EmploymentComponentDetail {
       employments: state.employments.filter((_, i) => i !== index),
     }));
   }
+  onFileSelected(event: Event, index: number, field: EmploymentDocField) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
 
+    if (!ALLOWED_DOC_TYPES.includes(file.type)) {
+      input.value = '';
+      this.alertService.warning(null, 'Only image/PDF file can be selected.');
+      return;
+    }
+
+    this.employmentModel.update((state) => {
+      const employments = [...state.employments];
+      const current = employments[index] as any;
+      const updated = { ...current, [`${field}FileName`]: file.name };
+      updated[`${field}RawFile`] = file;
+      employments[index] = updated;
+      return { employments };
+    });
+  }
+
+  removeFile(index: number, field: EmploymentDocField) {
+    this.employmentModel.update((state) => {
+      const employments = [...state.employments];
+      const current = employments[index] as any;
+      const updated = { ...current, [`${field}FileName`]: '' };
+      updated[`${field}RawFile`] = null;
+      updated[`${field}FileUrl`] = '';
+      employments[index] = updated;
+      return { employments };
+    });
+  }
+
+  openDocument(index: number, field: EmploymentDocField) {
+    const emp = this.employmentModel().employments[index] as any;
+    if (!emp) return;
+
+    const rawFile = emp[`${field}RawFile`];
+    const fileUrl = emp[`${field}FileUrl`];
+    const fileName =
+      emp[`${field}FileName`] || (field === 'expCert' ? 'Experience Certificate' : 'NOC');
+
+    let url = '';
+    if (rawFile) {
+      url = URL.createObjectURL(rawFile);
+    } else if (fileUrl) {
+      url = fileUrl;
+    }
+
+    if (!url) {
+      this.alertService.warning('Oops!', 'Document preview is not available.');
+      return;
+    }
+
+    this.documentModal.open({
+      url,
+      documentName: fileName,
+      extension: fileName.split('.').pop()?.toLowerCase() || '',
+      downloadAccess: true,
+    });
+  }
   onSubmit() {
     this.employmentForm().markAsTouched();
+
     if (!this.employmentForm().valid()) {
       return;
     }
-    const dataToSave = this.employmentForm()
-      .value()
-      .employments.map((emp: any) => ({
-        ...emp,
-        fromDate: emp.fromDate ? this.datePipe.transform(emp.fromDate, 'yyyy-MM-dd') : null,
-        toDate: emp.toDate ? this.datePipe.transform(emp.toDate, 'yyyy-MM-dd') : null,
-      }));
-    this.employeeService.updateEmploymentInfo(this.empId(), dataToSave).subscribe({
+
+    const employments = this.employmentForm().value().employments;
+    const formData = new FormData();
+
+    employments.forEach((emp: any, index: number) => {
+      if (emp.id && emp.id !== '' && emp.id !== EMPTY_UUID) {
+        formData.append(`employments[${index}].id`, emp.id);
+      }
+
+      if (emp.employerName) formData.append(`employments[${index}].employerName`, emp.employerName);
+      if (emp.designation) formData.append(`employments[${index}].designation`, emp.designation);
+      if (emp.jobTitle) formData.append(`employments[${index}].jobTitle`, emp.jobTitle);
+
+      if (
+        emp.lastDrawnSalary !== null &&
+        emp.lastDrawnSalary !== undefined &&
+        emp.lastDrawnSalary !== ''
+      ) {
+        formData.append(`employments[${index}].lastDrawnSalary`, String(emp.lastDrawnSalary));
+      }
+
+      // 4. Handle dates properly
+      if (emp.fromDate) {
+        const fromStr = this.datePipe.transform(emp.fromDate, 'yyyy-MM-dd');
+        if (fromStr) formData.append(`employments[${index}].fromDate`, fromStr);
+      }
+
+      if (emp.toDate) {
+        const toStr = this.datePipe.transform(emp.toDate, 'yyyy-MM-dd');
+        if (toStr) formData.append(`employments[${index}].toDate`, toStr);
+      }
+
+      // 5. Append files and their names
+      if (emp.expCertFileName) {
+        formData.append(`employments[${index}].expCertFileName`, emp.expCertFileName);
+      }
+      if (emp.expCertRawFile) {
+        formData.append(`employments[${index}].expCertFile`, emp.expCertRawFile);
+      }
+
+      if (emp.nocFileName) {
+        formData.append(`employments[${index}].nocFileName`, emp.nocFileName);
+      }
+      if (emp.nocRawFile) {
+        formData.append(`employments[${index}].nocFile`, emp.nocRawFile);
+      }
+    });
+
+    this.employeeService.updateEmploymentInfo(this.empId(), formData).subscribe({
       next: (resp: any) => {
         this.alertService.success('Success', resp).then(() => {
           this.employeeStore.refreshList();
@@ -121,7 +228,9 @@ export class EmploymentComponentDetail {
           this.onEmpUpdate.emit();
         });
       },
-      error: (err: any) => {},
+      error: (err: any) => {
+        console.error('Error updating employment:', err);
+      },
     });
   }
 

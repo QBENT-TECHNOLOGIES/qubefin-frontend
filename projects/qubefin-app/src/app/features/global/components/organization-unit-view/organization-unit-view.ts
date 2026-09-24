@@ -30,7 +30,7 @@ export class OrganizationUnitViewComponent {
   //   { id: '3', name: 'Designation 3', post: 'post3', grade: 'grade3', role: 'role3' },
   // ];
   displayedColumns = computed(() => {
-    return ['sl', 'name', 'post', 'grade', 'role', 'isActive'];
+    return ['sl', 'name', 'post', 'grade', 'employee', 'isActive'];
   });
   constructor() {
     effect(() => {

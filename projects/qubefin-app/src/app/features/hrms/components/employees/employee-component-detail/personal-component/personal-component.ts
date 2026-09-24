@@ -62,7 +62,7 @@ export class PersonalComponentDetail {
   empId = input<string>(EMPTY_UUID);
   utilities = input<Utility[]>([]);
   activeIndex = input<number>(0);
-  onSave = output<void>();
+  onSave = output<string>();
   onUpdate = output<void>();
 
   private dateAdapter = inject(DateAdapter<Date>);
@@ -78,14 +78,13 @@ export class PersonalComponentDetail {
   protected readonly employeeModel = signal<IEmployeePersonalInfo>(new EmployeePersonalInfo());
 
   protected readonly employeeSchema: Schema<IEmployeePersonalInfo> = schema((path) => {
+    required(path.code, { message: 'Code is required' });
     required(path.firstName, { message: 'First name is required' });
-    required(path.code, { message: 'code is required' });
-    required(path.bloodGroup, { message: 'Blood group is required' });
     required(path.nationality, { message: 'Nationality is required' });
     required(path.lastName, { message: 'Last name is required' });
     required(path.dateOfBirth, { message: 'Date of birth is required' });
     required(path.gender, { message: 'Gender is required' });
-    required(path.religion, { message: 'Religion is required' });
+    readonly(path.age, { when: () => true });
     readonly(path.dateOfBirth, { when: () => true });
   });
 
@@ -99,7 +98,7 @@ export class PersonalComponentDetail {
   protected readonly castes = computed(() => this.filterUtility('CASTE'));
   protected readonly religions = computed(() => this.filterUtility('RELIGION'));
   protected readonly salutations = computed(() => this.filterUtility('SALUTAION')); // Kept matching typo from original code
-
+  protected readonly disabilityTypes = ['Yes', 'No'];
   private filterUtility(sysKey: string) {
     const list = this.utilities();
     return list.length > 0 ? list.filter((m: any) => m.sysKey === sysKey) : [];
@@ -127,6 +126,21 @@ export class PersonalComponentDetail {
   });
   constructor() {
     this.dateAdapter.setLocale('en-GB');
+    effect(() => {
+      const dobValue = this.employeeForm.dateOfBirth().value();
+      if (dobValue) {
+        const dob = new Date(dobValue);
+        const today = new Date();
+        let calculatedAge = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+          calculatedAge--;
+        }
+        this.employeeForm.age().value.set(calculatedAge);
+      } else {
+        this.employeeForm.age().value.set(null);
+      }
+    });
   }
   loadBloodGroups() {
     return this.utilities().length > 0
@@ -180,9 +194,11 @@ export class PersonalComponentDetail {
     if (!this.isEditMode()) {
       this.employeeService.create(dataToSave).subscribe({
         next: (resp: any) => {
-          this.alertService.success('Success', resp).then(() => {
+          this.alertService.success('Success', resp.message).then(() => {
             this.employeeStore.refreshList();
-            this.onSave.emit();
+            const newId = resp.id;
+            // resp?.id || resp?.data?.id || resp?.data || (typeof resp === 'string' ? resp : null);
+            this.onSave.emit(newId);
           });
         },
         error: (err: any) => {},
