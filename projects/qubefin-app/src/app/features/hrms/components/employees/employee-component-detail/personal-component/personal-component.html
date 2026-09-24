@@ -225,6 +225,39 @@
                 {{ employeeForm.maritalStatus().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
+            <!-- md:col-span-2 -->
+            <mat-label>Photo Upload</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="paperclip" class="w-5 h-5 text-slate-500"></svg>
+            </div>
+            <input matInput [value]="photoFileName() || (photoFileUrl() ? 'Current document available' : '')" readonly
+                placeholder="No file chosen" />
+            <input hidden accept="image/*" (change)="onFileSelect($event)" #fileInput type="file">
+
+            <div matSuffix class="flex items-center gap-2 pr-1.5 py-1">
+                @if (photoFile()) {
+                <button type="button" mat-icon-button (click)="removeFile()" class="text-rose-500">
+                    <svg lucideIcon="x" class="w-4 h-4"></svg>
+                </button>
+                }
+
+                <button type="button"
+                    class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
+                    (click)="fileInput.click()">
+                    <svg lucideIcon="upload" class="w-3.5 h-3.5"></svg>
+                    Choose File
+                </button>
+
+                @if (photoFileUrl()) {
+                <button type="button" (click)="openFile()"
+                    class="bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-primary-200 dark:border-primary-800/30 cursor-pointer">
+                    <svg lucideIcon="eye" class="w-3.5 h-3.5"></svg>
+                    View
+                </button>
+                }
+            </div>
+        </mat-form-field>
     </div>
 
     <div class="step-footer-area">

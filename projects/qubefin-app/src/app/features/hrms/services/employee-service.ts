@@ -56,7 +56,7 @@ export class EmployeeService {
   create(personalInfo: any) {
     return this.httpClient.post(`${ApiPaths.HRMS}/employees`, personalInfo);
   }
-  updatePersonalInfo(employeeId: string, personalInfo: EmployeePersonalInfo) {
+  updatePersonalInfo(employeeId: string, personalInfo: any) {
     return this.httpClient.put(
       `${ApiPaths.HRMS}/employees/update/personal/` + employeeId,
       personalInfo,

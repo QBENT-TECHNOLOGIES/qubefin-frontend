@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { AlertService, EMPTY_UUID, nationalities } from 'qubefin-core';
+import { AlertService, DocumentModalService, EMPTY_UUID, nationalities } from 'qubefin-core';
 import {
   form,
   FormField,
@@ -72,6 +72,7 @@ export class PersonalComponentDetail {
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
+  readonly documentModal = inject(DocumentModalService);
   readonly iconMap = APP_ICONS_MAP;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
@@ -89,6 +90,10 @@ export class PersonalComponentDetail {
   });
 
   protected readonly employeeForm = form(this.employeeModel, this.employeeSchema);
+
+  protected readonly photoFileName = signal<string>('');
+  protected readonly photoFileUrl = signal<string>('');
+  protected readonly photoFile = signal<File | null>(null);
 
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
@@ -174,37 +179,87 @@ export class PersonalComponentDetail {
       ? this.utilities().filter((m: any) => m.sysKey == 'SALUTAION')
       : [];
   }
+  onFileSelect(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const file = inputElement.files?.[0];
+    if (file) {
+      const isImage = file.type.startsWith('image/');
+      if (!isImage) {
+        inputElement.value = '';
+        this.alertService.warning(null, 'Only image file can be selected.');
+        return;
+      }
+      this.photoFile.set(file);
+      this.photoFileUrl.set(URL.createObjectURL(file));
+      this.photoFileName.set(file.name);
+    }
+  }
+  openFile() {
+    if (!this.photoFileUrl() || !this.photoFileName()) {
+      return;
+    }
+    this.documentModal.open({
+      url: this.photoFileUrl(),
+      documentName: this.photoFileName(),
+      extension: this.photoFileName().split('.').pop()?.toLowerCase() || '',
+      downloadAccess: true,
+    });
+  }
+  removeFile() {
+    this.photoFile.set(null);
+    if (this.photoFileUrl().startsWith('blob:')) {
+      URL.revokeObjectURL(this.photoFileUrl());
+    }
+    this.photoFileUrl.set('');
+    this.photoFileName.set('');
+  }
   onSubmit() {
     this.employeeForm().markAsTouched();
     if (!this.employeeForm().valid()) {
       return;
     }
     const formValue = this.employeeForm().value();
-    const dataToSave: any = {
-      ...formValue,
-      dateOfBirth: this.datePipe.transform(formValue.dateOfBirth, 'yyyy-MM-dd'),
-      middleName: formValue.middleName?.trim() === '' ? null : formValue.middleName,
-      fatherName: formValue.fatherName?.trim() === '' ? null : formValue.fatherName,
-      husbandName: formValue.husbandName?.trim() === '' ? null : formValue.husbandName,
-      motherName: formValue.motherName?.trim() === '' ? null : formValue.motherName,
-      caste: formValue.caste?.trim() === '' ? null : formValue.caste,
-      disabilityType: formValue.disablityType?.trim() === '' ? null : formValue.disablityType,
-      salutation: formValue.salutation?.trim() === '' ? null : formValue.salutation,
-    };
+
+    const formData = new FormData();
+
+    formData.append('code', formValue.code ?? '');
+    formData.append('salutation', formValue.salutation ?? '');
+    formData.append('firstName', formValue.firstName ?? '');
+    formData.append('middleName', formValue.middleName ?? '');
+    formData.append('lastName', formValue.lastName ?? '');
+    formData.append('gender', formValue.gender ?? '');
+    formData.append('fatherName', formValue.fatherName ?? '');
+    formData.append('motherName', formValue.motherName ?? '');
+    formData.append('husbandName', formValue.husbandName ?? '');
+    formData.append('religion', formValue.religion ?? '');
+    formData.append('caste', formValue.caste ?? '');
+    formData.append('nationality', formValue.nationality ?? '');
+    formData.append('bloodGroup', formValue.bloodGroup ?? '');
+    formData.append('disablityType', formValue.disablityType ?? '');
+    formData.append('maritalStatus', formValue.maritalStatus ?? '');
+    const dateOfBirth = this.datePipe.transform(formValue.dateOfBirth, 'yyyy-MM-dd');
+    formData.append('dateOfBirth', dateOfBirth ?? '');
+
+    const photoFile = this.photoFile();
+    const photoFileName = this.photoFileName();
+
+    if (photoFile) {
+      formData.append('photoFile', photoFile);
+    }
+    formData.append('photoName', photoFileName ?? '');
     if (!this.isEditMode()) {
-      this.employeeService.create(dataToSave).subscribe({
+      this.employeeService.create(formData).subscribe({
         next: (resp: any) => {
           this.alertService.success('Success', resp.message).then(() => {
             this.employeeStore.refreshList();
             const newId = resp.id;
-            // resp?.id || resp?.data?.id || resp?.data || (typeof resp === 'string' ? resp : null);
             this.onSave.emit(newId);
           });
         },
         error: (err: any) => {},
       });
     } else {
-      this.employeeService.updatePersonalInfo(this.empId(), dataToSave).subscribe({
+      this.employeeService.updatePersonalInfo(this.empId(), formData).subscribe({
         next: (resp: any) => {
           this.alertService.success('Success', resp).then(() => {
             this.employeeStore.refreshList();
