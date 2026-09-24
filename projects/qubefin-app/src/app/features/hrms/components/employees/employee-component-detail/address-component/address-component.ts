@@ -78,12 +78,11 @@ export class AddressComponentDetail {
     required(path.administrativeUnitId, { message: 'Location details are required' });
     required(path.pinCode, { message: 'Pin Code is required' });
     pattern(path.pinCode, /^\d{6}$/, {
-      message: 'Pin code must be exactly 6 digits (Characters are not allowed)',
+      message: 'Invalid pin code ',
     });
 
     required(path.postOfficeId, { message: 'Post Office is required' });
     required(path.ownerShipOfHouse, { message: 'Ownership is required' });
-    required(path.durationOfStayInMonths, { message: 'Duration of Stay is required' });
   });
 
   protected readonly presentAddressForm = form(

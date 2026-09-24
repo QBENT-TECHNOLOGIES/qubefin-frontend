@@ -104,7 +104,7 @@
                 <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
             </div>
             <input matInput type="number" autocomplete="off" [formField]="presentAddressForm.durationOfStayInMonths"
-                placeholder="Enter duration in months">
+                (wheel)="$event.preventDefault()" placeholder="Enter duration in months">
             <mat-error class="cus-error">
                 {{ presentAddressForm.durationOfStayInMonths().errors()[0]?.message }}
             </mat-error>
@@ -219,7 +219,7 @@
                 <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
             </div>
             <input matInput type="number" autocomplete="off" [formField]="permanentAddressForm.durationOfStayInMonths"
-                placeholder="Enter duration in months">
+                (wheel)="$event.preventDefault()" placeholder="Enter duration in months">
             <mat-error class="cus-error">
                 {{ permanentAddressForm.durationOfStayInMonths().errors()[0]?.message }}
             </mat-error>

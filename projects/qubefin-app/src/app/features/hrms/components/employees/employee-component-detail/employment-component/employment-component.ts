@@ -177,17 +177,14 @@ export class EmploymentComponentDetail {
     const formData = new FormData();
 
     employments.forEach((emp: any, index: number) => {
-      // 1. Only append ID if it's a valid string and NOT the empty UUID
       if (emp.id && emp.id !== '' && emp.id !== EMPTY_UUID) {
         formData.append(`employments[${index}].id`, emp.id);
       }
 
-      // 2. Append standard strings if they exist
       if (emp.employerName) formData.append(`employments[${index}].employerName`, emp.employerName);
       if (emp.designation) formData.append(`employments[${index}].designation`, emp.designation);
       if (emp.jobTitle) formData.append(`employments[${index}].jobTitle`, emp.jobTitle);
 
-      // 3. Only append decimal if it has an actual number (avoid sending "")
       if (
         emp.lastDrawnSalary !== null &&
         emp.lastDrawnSalary !== undefined &&

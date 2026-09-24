@@ -19,9 +19,6 @@ import {
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
 
-// search-by-text doesn't return `designation` yet, but it's expected to soon —
-// this local extension lets us read it optimistically without touching the
-// shared EmployeeSearchByText model blind.
 interface IReferralEmployeeOption extends EmployeeSearchByText {
   designation?: string;
 }
@@ -58,7 +55,7 @@ export class ReferralComponentDetail {
 
   public readonly referralModel = signal<IEmployeeReferralInfo>(new EmployeeReferralInfo());
   public readonly referralSchema: Schema<IEmployeeReferralInfo> = schema((path) => {
-    required(path.referedBy, { message: 'Referral Employee Name is required' });
+    required(path.referedBy, { message: 'Referral Emp Name is required' });
     readonly(path.employeeCode, { when: () => true });
     readonly(path.designation, { when: () => true });
   });
@@ -76,9 +73,6 @@ export class ReferralComponentDetail {
       });
   }
 
-  // Mirrors officialResource in official-component.ts: fetch the reference
-  // tab's own data via getById-style call whenever we're editing an existing
-  // employee, and reset to a blank model otherwise.
   private readonly referralResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
@@ -92,8 +86,6 @@ export class ReferralComponentDetail {
               }),
             );
 
-            // Adjust the field name below to whatever the API actually
-            // returns for the referral employee's display name.
             this.employeeSearchText.set(resp.referralEmployeeName || resp.employeeName || '');
           }),
         );

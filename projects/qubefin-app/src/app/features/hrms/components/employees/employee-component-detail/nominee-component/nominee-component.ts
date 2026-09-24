@@ -185,6 +185,7 @@ export class NomineeComponentDetail {
                   isResidingWithIp: data.isResidingWithIp,
                   stateId: data.stateId,
                   districtId: data.districtId,
+                  percentage: data.percentage,
                 }),
               );
             }
@@ -218,6 +219,7 @@ export class NomineeComponentDetail {
       isResidingWithIp: formValue.isResidingWithIp,
       stateId: formValue.stateId || null,
       districtId: formValue.districtId || null,
+      percentage: formValue.percentage || null,
     };
 
     const dataToSave = [nomineeObject];

@@ -511,7 +511,7 @@ export interface IEmployeeAddressInfo {
   postOfficeId: string; // Guid? maps to nullable string
   pinCode: string;
   ownerShipOfHouse: string;
-  durationOfStayInMonths: number; // int? maps to nullable number
+  durationOfStayInMonths: number | null; // int? maps to nullable number
 }
 export class EmployeeAddressInfo {
   houseNo = '';
@@ -522,7 +522,7 @@ export class EmployeeAddressInfo {
   postOfficeId = '';
   pinCode = '';
   ownerShipOfHouse = '';
-  durationOfStayInMonths = 0;
+  durationOfStayInMonths = null;
 
   constructor(init?: Partial<IEmployeeAddressInfo>) {
     if (!init) return;
