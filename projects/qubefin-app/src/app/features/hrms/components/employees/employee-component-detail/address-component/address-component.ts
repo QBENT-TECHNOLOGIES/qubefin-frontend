@@ -76,15 +76,13 @@ export class AddressComponentDetail {
 
   protected readonly employeeAddressSchema: Schema<IEmployeeAddressInfo> = schema((path) => {
     required(path.administrativeUnitId, { message: 'Location details are required' });
-    required(path.policeStationId, { message: 'Police Station is required' });
     required(path.pinCode, { message: 'Pin Code is required' });
     pattern(path.pinCode, /^\d{6}$/, {
-      message: 'Pin code must be exactly 6 digits (Characters are not allowed)',
+      message: 'Invalid pin code ',
     });
 
     required(path.postOfficeId, { message: 'Post Office is required' });
     required(path.ownerShipOfHouse, { message: 'Ownership is required' });
-    required(path.durationOfStayInMonths, { message: 'Duration of Stay is required' });
   });
 
   protected readonly presentAddressForm = form(
@@ -143,6 +141,34 @@ export class AddressComponentDetail {
       } else {
         this.permanentPostOffices.set([]);
       }
+    }
+  }
+
+  /**
+   * Fires only on a user-driven Country / State / District change (never while
+   * a saved address is being restored). The Police Station, Pin Code and Post
+   * Office all hang off the selected area, so they are cleared here — the new
+   * Police Station list is then loaded by `onDistrictChangeForPoliceStation`.
+   */
+  onAdministrativeAreaChangedByUser(type: 'present' | 'permanent') {
+    if (type === 'present') {
+      this.presentPoliceStations.set([]);
+      this.presentPostOffices.set([]);
+      this.presentAddressModel.update((current) => ({
+        ...current,
+        policeStationId: '',
+        pinCode: '',
+        postOfficeId: '',
+      }));
+    } else {
+      this.permanentPoliceStations.set([]);
+      this.permanentPostOffices.set([]);
+      this.permanentAddressModel.update((current) => ({
+        ...current,
+        policeStationId: '',
+        pinCode: '',
+        postOfficeId: '',
+      }));
     }
   }
 

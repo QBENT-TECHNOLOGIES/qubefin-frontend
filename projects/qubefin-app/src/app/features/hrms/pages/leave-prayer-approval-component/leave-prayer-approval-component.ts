@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { LeavePrayerApprovalStore } from '../../stores/leave-prayer-approval-store';
 import { EMPTY_UUID } from 'qubefin-core';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
@@ -52,6 +52,9 @@ export class LeavePrayerApprovalComponent {
   private readonly employeeService = inject(EmployeeService);
   private readonly datePipe = inject(DatePipe);
   private readonly dateAdapter = inject(DateAdapter<Date>);
+
+  /** Set when hosted in a tab page that supplies one filter shared by every queue. */
+  readonly embedded = input<boolean>(false);
 
   readonly isViewMode = signal<boolean>(true);
   readonly showFilterArea = signal<boolean>(false);

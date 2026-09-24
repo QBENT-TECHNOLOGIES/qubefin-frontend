@@ -12,7 +12,11 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { EmployeeService } from '../../../../services/employee-service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
-import { EmployeeReference, IEmployeeReference } from '../../../../models/employee-detail';
+import {
+  EmployeeReference,
+  IEmployeeReference,
+  IEmployeeReferralInfo,
+} from '../../../../models/employee-detail';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { EmployeeStore } from '../../../../stores/employee-store';
 import { AttendanceRegularizationsStore } from '../../../../stores/attendance-regularizations-store';
@@ -40,16 +44,11 @@ export class ReferenceComponentDetail {
   empId = input<string>(EMPTY_UUID);
 
   onRefUpdate = output<void>();
-  private readonly attendRegularizationsStore = inject(AttendanceRegularizationsStore);
+
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
   readonly iconMap = APP_ICONS_MAP;
-
-  readonly reasons = computed(() => {
-    const list = this.attendRegularizationsStore.utilities();
-    return list.length > 0 ? list.filter((m) => m.sysKey === 'RELATION') : [];
-  });
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
   protected readonly referenceModel = signal<ReferenceFormModel>({
@@ -60,13 +59,11 @@ export class ReferenceComponentDetail {
     required(path.references);
 
     applyEach(path.references, (refPath) => {
-      required(refPath.address, { message: 'Address is required' });
       required(refPath.personName, { message: 'Person Name is required' });
       required(refPath.mobile, { message: 'Mobile No. is required' });
-      pattern(refPath.mobile, /^[6-9]\d{9}$/, { message: 'Enter a valid 10-digit mobile number' });
-      required(refPath.email, { message: 'Email is required' });
+      pattern(refPath.mobile, /^[6-9]\d{9}$/, { message: 'Invalid mobile number' });
       pattern(refPath.email, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
-        message: 'Enter a valid email',
+        message: 'Invalid email',
       });
     });
   });

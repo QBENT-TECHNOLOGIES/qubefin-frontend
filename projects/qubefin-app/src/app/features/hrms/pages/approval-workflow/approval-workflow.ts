@@ -76,7 +76,6 @@ export class ApprovalWorkflow {
     this.showFilterArea.update((v) => !v);
   }
   protected applyFilters() {
-    this.approvalWorkflowStore.setSearchQuery(this.searchText());
     this.approvalWorkflowStore.setCategory(this.categoryFilter() || null);
     this.approvalWorkflowStore.setOrganizationUnitTypeId(this.organizationUnitTypeFilter() || null);
   }
@@ -105,6 +104,7 @@ export class ApprovalWorkflow {
     this.approvalWorkflowStore.setSort(sort.active, sort.direction as 'asc' | 'desc');
   }
   protected onSave() {
+    this.approvalWorkflowStore.setApprovalWorkflowId(undefined);
     this.closePanel();
   }
 }

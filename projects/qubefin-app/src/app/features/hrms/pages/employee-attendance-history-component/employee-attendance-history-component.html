@@ -36,15 +36,18 @@
                             </div>
                             <mat-select [formField]="searchForm.companyId" placeholder="Select Company"
                                 (selectionChange)="onCompanyChange()">
-                                @for (company of companyStore.companies(); track company.id) {
+                                @for (company of companies(); track company.id) {
                                 <mat-option [value]="company.id">
                                     {{ company.name }}
                                 </mat-option>
                                 }
                             </mat-select>
-                            @if (searchForm.companyId().invalid() && searchForm.companyId().touched()) {
+                            <mat-error class="cus-error">
+                                {{ searchForm.companyId().errors()[0]?.message}}
+                            </mat-error>
+                            <!-- @if (searchForm.companyId().invalid() && searchForm.companyId().touched()) {
                             <mat-error>Please select a company.</mat-error>
-                            }
+                            } -->
                         </mat-form-field>
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                             <mat-label>Employee Name,Code / Organization Unit</mat-label>
@@ -130,8 +133,7 @@
             } @else {
             <qfin-employee-attendance-history-list [data]="employeeAttendanceHistories()"
                 [isCollapsed]="selectedAttendanceHistory() !== null" [selectedRow]="selectedAttendanceHistory()"
-                [totalRecords]="totalRecords()"
-                [pageIndex]="employeeAttendanceHistoryStore.pageIndex()"
+                [totalRecords]="totalRecords()" [pageIndex]="employeeAttendanceHistoryStore.pageIndex()"
                 [pageSize]="employeeAttendanceHistoryStore.pageSize()" (pageChanged)="pageChanged($event)"
                 (onViewDetail)="onView($event)">
             </qfin-employee-attendance-history-list>

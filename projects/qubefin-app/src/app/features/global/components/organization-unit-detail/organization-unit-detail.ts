@@ -12,7 +12,15 @@ import { OrganizationUnitStore } from '../../stores/organization-unit-store';
 import { OrganizationUnitTypeStore } from '../../stores/organization-unit-type-store';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { OrganizationUnit } from '../../models/organization-unit';
-import { form, FormField, readonly, required, schema, Schema } from '@angular/forms/signals';
+import {
+  form,
+  FormField,
+  maxLength,
+  readonly,
+  required,
+  schema,
+  Schema,
+} from '@angular/forms/signals';
 import { OrganizationUnitBasic } from '../../models/organization-unit-tree-node';
 import { AlertService, EMPTY_UUID, TimePickerDialogComponent } from 'qubefin-core';
 import { OrganizationUnitType } from '../../models/organization-unit-type';
@@ -58,8 +66,9 @@ export class OrganizationUnitDetailComponent {
 
   companies = signal<IComapnyList[]>([]);
 
-  organizationUnitId = model<string>('');
+  organizationUnitId = model<string>(EMPTY_UUID);
   cancel = output<void>();
+  saved = output<void>();
   private readonly hierarchyInitialized = signal(false);
   readonly iconMap = APP_ICONS_MAP;
 
@@ -185,6 +194,10 @@ export class OrganizationUnitDetailComponent {
   });
   protected readonly organizationUnitSchema: Schema<OrganizationUnit> = schema((path) => {
     required(path.name, { message: 'Organization Unit Name is required' });
+    // The column is nvarchar(50); without this the save fails server side.
+    maxLength(path.name, 50, {
+      message: 'Organization Unit Name cannot exceed 50 characters',
+    });
     required(path.organizationUnitTypeId, { message: 'Organization Unit Type is required' });
     required(path.companyId, {
       message: 'Company is required',
@@ -346,7 +359,7 @@ export class OrganizationUnitDetailComponent {
       }
     }
     const dataToSave = this.organizationUnitForm().value() as any;
-    dataToSave.parentId = this.parentTypes().at(-1)?.value()!;
+    dataToSave.parentId = this.parentTypes().at(-1)?.value() ?? null;
     dataToSave.companyId = dataToSave.companyId ? dataToSave.companyId : null;
     dataToSave.attendanceInTime = dataToSave.attendanceInTime
       ? this.formatTimeForApi(dataToSave.attendanceInTime)
@@ -359,7 +372,7 @@ export class OrganizationUnitDetailComponent {
         next: (resp: any) => {
           this.alertService.success('Success', resp).then(() => {
             this.organizationUnitStore.refreshTree();
-            this.cancel.emit();
+            this.saved.emit();
           });
         },
         error: (err: any) => { },
@@ -370,7 +383,7 @@ export class OrganizationUnitDetailComponent {
           this.alertService.success('Success', resp).then(() => {
             this.organizationUnitStore.refreshTree();
             this.organizationUnitStore.refresh();
-            this.onCancel();
+            this.saved.emit();
           });
         },
         error: (err: any) => { },
@@ -430,7 +443,7 @@ export class OrganizationUnitDetailComponent {
   }
 
   private populateLevel(index: number) {
-    const hierarchy = this.organizationUnitModel().hierarchy;
+    const parentHierarchy = this.organizationUnitModel().hierarchy.slice(0, -1);
     const fields = this.parentTypes();
 
     if (index >= fields.length) return;
@@ -440,17 +453,18 @@ export class OrganizationUnitDetailComponent {
     this.organizationUnitService.loadChildren(field.parentId()).subscribe({
       next: (result) => {
         field.options.set(result);
+        const hierarchyItem = parentHierarchy[index];
 
-        if (hierarchy.length > 0) {
-          // Set selected value from model
-          field.value.set(hierarchy[index].id ?? null);
+        if (!hierarchyItem) return;
 
-          // Set parent for next dropdown
-          if (index + 1 < fields.length) {
-            fields[index + 1].parentId.set(hierarchy[index].id);
+        // Set selected value from model
+        field.value.set(hierarchyItem.id ?? null);
 
-            this.populateLevel(index + 1);
-          }
+        // Set parent for next dropdown
+        if (index + 1 < fields.length) {
+          fields[index + 1].parentId.set(hierarchyItem.id);
+
+          this.populateLevel(index + 1);
         }
       },
     });

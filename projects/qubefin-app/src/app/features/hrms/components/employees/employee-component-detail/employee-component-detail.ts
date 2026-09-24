@@ -9,6 +9,7 @@ import {
   ElementRef,
   effect,
   untracked,
+  afterRenderEffect,
 } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,6 +29,8 @@ import { ReferenceComponentDetail } from './reference-component/reference-compon
 import { EmploymentComponentDetail } from './employment-component/employment-component';
 import { QualificationComponentDetail } from './qualification-component/qualification-component';
 import { BankingComponentDetail } from './banking-component/banking-component';
+import { NomineeComponentDetail } from './nominee-component/nominee-component';
+import { ReferralComponentDetail } from './referral-component/referral-component';
 
 @Component({
   selector: 'qfin-employee-component-detail',
@@ -49,14 +52,17 @@ import { BankingComponentDetail } from './banking-component/banking-component';
     EmploymentComponentDetail,
     QualificationComponentDetail,
     BankingComponentDetail,
+    NomineeComponentDetail,
+    ReferralComponentDetail,
   ],
   templateUrl: './employee-component-detail.html',
 })
 export class EmployeeComponentDetail {
   emptyGuid = EMPTY_UUID;
   employeeId = input<string>(EMPTY_UUID);
-  onChildSave = output<void>();
+  onChildSave = output<string>();
 
+  private pendingAdvance = false;
   readonly activeStepIndex = signal(0);
   private readonly employeeStore = inject(EmployeeStore);
   utilityComponents = this.employeeStore.utilityComponent;
@@ -67,22 +73,26 @@ export class EmployeeComponentDetail {
   @ViewChild('stepper')
   matStepper!: MatStepper;
   constructor() {
-    effect(
-      () => {
-        const id = this.employeeId();
+    effect(() => {
+      const id = this.employeeId();
 
-        if (id === EMPTY_UUID) {
-          untracked(() => {
-            this.activeStepIndex.set(0);
+      if (id === EMPTY_UUID) {
+        untracked(() => {
+          this.activeStepIndex.set(0);
 
-            if (this.matStepper) {
-              this.matStepper.reset();
-            }
-          });
-        }
-      },
-      { allowSignalWrites: true },
-    );
+          if (this.matStepper) {
+            this.matStepper.reset();
+          }
+        });
+      }
+    });
+    afterRenderEffect(() => {
+      const id = this.employeeId();
+      if (id !== EMPTY_UUID && this.pendingAdvance) {
+        this.pendingAdvance = false;
+        this.activeStepIndex.set(1);
+      }
+    });
   }
   onStepChange(index: number) {
     this.activeStepIndex.set(index);
@@ -90,32 +100,42 @@ export class EmployeeComponentDetail {
   handlePersonal() {
     this.onStepChange(1);
   }
-  handleAddress() {
+  handleContact() {
     this.onStepChange(2);
   }
-  handleContact() {
+  handleAddress() {
     this.onStepChange(3);
   }
-  handleOfficial() {
+  handleKyc() {
     this.onStepChange(4);
   }
-  handleKyc() {
+  handleOfficial() {
     this.onStepChange(5);
   }
-  handleReference() {
+  handleQualification() {
     this.onStepChange(6);
   }
   handleEmployment() {
     this.onStepChange(7);
   }
-  handleQualification() {
+  handlePayroll() {
     this.onStepChange(8);
   }
-  handlePayroll() {
+  handleNominee() {
+    this.onStepChange(9);
+  }
+  handleReference() {
+    this.onStepChange(10);
+  }
+  handleReferral() {
     this.onStepChange(0);
   }
-  handleSave() {
-    this.onChildSave.emit();
+  handleSave(newId?: string) {
+    this.onChildSave.emit(newId as string);
+
+    if (newId && newId.length > 20) {
+      this.pendingAdvance = true;
+    }
   }
 
   ngAfterViewInit() {

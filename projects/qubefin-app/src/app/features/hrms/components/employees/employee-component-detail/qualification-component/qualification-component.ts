@@ -58,9 +58,9 @@ export class QualificationComponentDetail {
       required(refPath.academicStream, { message: 'Academic Stream is required' });
       required(refPath.specialization, { message: 'Specialization is required' });
       required(refPath.yearOfPassing, { message: 'Year of Passing is required' });
-      required(refPath.universityOrBoard, { message: 'University or Board is required' });
-      required(refPath.schoolOrCollege, { message: 'School or College is required' });
-      required(refPath.gradeOrMarks, { message: 'Grade or Marks is required' });
+      required(refPath.universityOrBoard, { message: 'University/Board is required' });
+      required(refPath.schoolOrCollege, { message: 'School/College is required' });
+      required(refPath.gradeOrMarks, { message: 'Grade/Marks is required' });
     });
   });
 
@@ -72,6 +72,7 @@ export class QualificationComponentDetail {
         const model = new EmployeeQualification();
         model.id = EMPTY_UUID;
         model.employeeId = this.empId();
+        model.isLatestQualification = true;
 
         this.qualificationModel.set({ qualifications: [model] });
       }
@@ -92,8 +93,32 @@ export class QualificationComponentDetail {
     }));
   }
 
+  onIsLatestQualificationChange(index: number, checked: boolean) {
+    this.qualificationModel.update((state) => ({
+      qualifications: state.qualifications.map((q, i) => {
+        if (i === index) {
+          return { ...q, isLatestQualification: checked };
+        }
+        return checked ? { ...q, isLatestQualification: false } : q;
+      }),
+    }));
+  }
+
+  hasNoLatestQualificationSelected(): boolean {
+    return !this.qualificationModel().qualifications.some((q) => q.isLatestQualification);
+  }
+
   onSubmit() {
     this.qualificationForm().markAsTouched();
+
+    if (this.hasNoLatestQualificationSelected()) {
+      this.alertService.warning(
+        null,
+        'Please mark exactly one qualification as the latest qualification.',
+      );
+      return;
+    }
+
     if (!this.qualificationForm().valid()) {
       return;
     }
@@ -110,7 +135,7 @@ export class QualificationComponentDetail {
     });
   }
 
-  private kycResource = rxResource({
+  private qualificationResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
       if (params.editMode && params.id !== EMPTY_UUID) {

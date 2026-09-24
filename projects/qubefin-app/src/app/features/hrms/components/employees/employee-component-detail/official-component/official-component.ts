@@ -86,21 +86,23 @@ export class OfficialComponentDetail {
 
   protected readonly officialSchema: Schema<IEmployeeOfficialInfo> = schema((path) => {
     pattern(path.officialEmail, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
-      message: 'Enter a valid email address',
+      message: 'Invalid email address',
     });
+
     required(path.employementType, { message: 'Employement Type is required' });
     required(path.dateOfJoining, { message: 'Joining Date is required' });
     required(path.departmentId, { message: 'Department is required' });
     required(path.designationId, { message: 'Designation is required' });
     required(path.salaryGrade, { message: 'Salary Grade is required' });
     required(path.grossSalary, { message: 'Gross Salary is required' });
-    required(path.organizationUnitTypeId, { message: 'Organization Unit Type is required' });
-    required(path.organizationUnitId, { message: 'Organization Unit is required' });
+    required(path.organizationUnitTypeId, { message: 'Org. Unit Type required' });
+    required(path.organizationUnitId, { message: 'Org. Unit is required' });
     required(path.companyId, { message: 'Company Name is required' });
     readonly(path.dateOfJoining, { when: () => true });
     readonly(path.dateOfConfirmation, { when: () => true });
     readonly(path.separationDate, { when: () => true });
-    readonly(path.salaryGrade, { when: () => true });
+    readonly(path.retirementDate, { when: () => true });
+    // readonly(path.salaryGrade, { when: () => true });
     const isNotEditable = ({ valueOf }: any) => {
       return valueOf(path.isDesignationEditable) === false;
     };

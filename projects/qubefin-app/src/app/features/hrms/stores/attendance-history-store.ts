@@ -19,12 +19,18 @@ export class AttendanceHistoryStore {
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
   readonly calendarYear = signal<number>(new Date().getFullYear());
   readonly calendarMonth = signal<number>(new Date().getMonth() + 1);
+  readonly calendarEmployeeId = signal<string | null>(null);
   readonly calendarDaysResource = httpResource<CalendarDay[]>(() => {
     const year = this.calendarYear();
     const month = this.calendarMonth();
+    const employeeId = this.calendarEmployeeId();
     if (!year || !month) return undefined;
 
-    return `${ApiPaths.HRMS}/holidays/calendar?year=${year}&month=${month}`;
+    const path = employeeId
+      ? `${ApiPaths.HRMS}/holidays/calendar/${employeeId}`
+      : `${ApiPaths.HRMS}/holidays/calendar`;
+
+    return `${path}?year=${year}&month=${month}`;
   });
   readonly calendarDays = computed(() => this.calendarDaysResource.value() ?? []);
   readonly isCalendarLoading = computed(() => this.calendarDaysResource.isLoading());
@@ -85,6 +91,10 @@ export class AttendanceHistoryStore {
   setCalendarDate(year: number, month: number) {
     this.calendarYear.set(year);
     this.calendarMonth.set(month);
+  }
+
+  setCalendarEmployee(employeeId: string | null) {
+    this.calendarEmployeeId.set(employeeId);
   }
 
   refreshList() {

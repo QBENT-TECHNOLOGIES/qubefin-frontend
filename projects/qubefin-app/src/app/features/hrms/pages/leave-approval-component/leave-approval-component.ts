@@ -1,5 +1,5 @@
 import { EMPTY_UUID } from 'qubefin-core';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -53,6 +53,9 @@ export class LeaveApprovalComponent {
   private readonly employeeService = inject(EmployeeService);
   private readonly datePipe = inject(DatePipe);
   private readonly dateAdapter = inject(DateAdapter<Date>);
+
+  /** Set when hosted in a tab page that supplies one filter shared by every queue. */
+  readonly embedded = input<boolean>(false);
 
   readonly isViewMode = signal<boolean>(true);
   readonly showFilterArea = signal<boolean>(false);

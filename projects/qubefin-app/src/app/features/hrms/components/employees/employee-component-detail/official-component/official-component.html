@@ -7,6 +7,7 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Official Email</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -69,6 +70,18 @@
             </mat-datepicker-toggle>
 
             <mat-datepicker #separationDate></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Retirement Date</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-sync" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [matDatepicker]="retirementDate" [min]="officialForm.dateOfJoining().value()"
+                autocomplete="off" [formField]="officialForm.retirementDate">
+            <mat-datepicker-toggle matIconSuffix [for]="retirementDate">
+            </mat-datepicker-toggle>
+
+            <mat-datepicker #retirementDate></mat-datepicker>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Departments</mat-label>

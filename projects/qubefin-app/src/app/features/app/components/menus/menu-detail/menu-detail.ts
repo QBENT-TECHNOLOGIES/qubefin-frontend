@@ -5,6 +5,7 @@ import { MenuStore } from '../../../stores/menu-store';
 import { MenuField } from '../../../models/menu';
 import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -19,6 +20,7 @@ import { MenuService } from '../../../services/menu-service';
   imports: [
     FormField,
     CommonModule,
+    MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -35,14 +37,18 @@ export class MenuDetailComponent {
 
   menuId = model<string>('');
   cancel = output<void>();
+  /** Emits the id of the menu just saved, so the page keeps it selected in the tree. */
+  saved = output<string>();
   readonly iconMap = APP_ICONS_MAP;
 
   //   parentMenus = this.menuStore.parentMenusByUser;
   parentMenus = this.menuStore.parentMenus;
   permissions = signal<PermissionField[]>([]); //this.permissionStore.permissions;
   menu = this.menuStore.menu;
-  mode = computed(() => (this.menuId() === EMPTY_UUID ? 'Add' : 'Edit'));
-  buttonText = computed(() => (this.menuId() === EMPTY_UUID ? 'Create' : 'Update'));
+  /** An existing menu is being edited; drives the header and the active-flag checkbox. */
+  isEditMode = computed(() => this.menuId() !== EMPTY_UUID);
+  mode = computed(() => (this.isEditMode() ? 'Edit' : 'Add'));
+  buttonText = computed(() => (this.isEditMode() ? 'Update' : 'Create'));
 
   enabledPermissionsCount = computed(
     () => this.menuModel().permissions.filter((p) => p.checked).length,
@@ -138,6 +144,8 @@ export class MenuDetailComponent {
     const dataToSave = {
       ...this.menuForm().value(),
       //target: this.menuForm().value().target || null,
+      // The active flag is only editable on update; a new menu is always created active.
+      isActive: this.isEditMode() ? this.menuForm.isActive().value() : true,
       permissions: this.menuForm()
         .value()
         .permissions.filter((p) => p.checked),
@@ -145,11 +153,11 @@ export class MenuDetailComponent {
 
     if (this.menuId() === EMPTY_UUID) {
       this.menuService.create(dataToSave).subscribe({
-        next: (resp: any) => {
+        next: (resp) => {
           this.alertService.success('Success!', 'Menu saved successfully !');
           this.menuStore.refreshTree();
           this.menuStore.refreshMenu();
-          this.onCancel();
+          this.saved.emit(resp?.id ?? EMPTY_UUID);
         },
         error: (err: any) => {
           if (err.error.isError) {
@@ -157,12 +165,13 @@ export class MenuDetailComponent {
         },
       });
     } else {
-      this.menuService.update(this.menuId(), dataToSave).subscribe({
-        next: (resp: any) => {
+      const savedId = this.menuId();
+      this.menuService.update(savedId, dataToSave).subscribe({
+        next: () => {
           this.alertService.success('Success!', 'Menu updated successfully !');
           this.menuStore.refreshTree();
           this.menuStore.refreshMenu();
-          this.onCancel();
+          this.saved.emit(savedId);
         },
         error: (err: any) => {
           if (err.error.isError) {

@@ -71,6 +71,7 @@ export interface PayrollComponent {
   categoryName?: string;
   percentage: number;
   amount: number;
+  isEditable: boolean;
 }
 export interface UpdatePayrollCommand {
   payrollId: string;

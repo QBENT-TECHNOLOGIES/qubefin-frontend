@@ -12,11 +12,12 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="id-card-lanyard" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="$any(employeeForm)['code']" autocomplete="off" placeholder="Enter code">
+            <input matInput [formField]="employeeForm.code" autocomplete="off" placeholder="Enter code">
             <mat-error class="cus-error">
                 {{ employeeForm.code().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
+
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Salutation</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -79,6 +80,16 @@
                 {{ employeeForm.dateOfBirth().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Age</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="employeeForm.age" autocomplete="off" placeholder="Enter Age">
+            <mat-error class="cus-error">
+                {{ employeeForm.age().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Gender</mat-label>
@@ -114,7 +125,7 @@
                 placeholder="Enter Mother Name">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Husband Name</mat-label>
+            <mat-label>Spouse Name</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="user" class="w-5 h-5"></svg>
             </div>
@@ -190,8 +201,13 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="accessibility" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="employeeForm.disablityType" autocomplete="off"
-                placeholder="Enter Disablity Type">
+            <mat-select [formField]="employeeForm.disablityType" placeholder="Select Disability Type">
+                @for (item of disabilityTypes; track item) {
+                <mat-option [value]="item">
+                    {{ item }}
+                </mat-option>
+                }
+            </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Marital Status</mat-label>
