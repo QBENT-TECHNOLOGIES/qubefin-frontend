@@ -6,7 +6,18 @@ export interface ICandidateList {
   interviewTime: string;
   recommendationStatus: string;
   referenceNo: string;
+  interviewStatus: CandidateInterviewStatus;
 }
+
+// Stages shown in the candidate list, in order: HR assessment submitted -> offer letter received -> signed
+// joining letter uploaded. A candidate HR did not recommend stops at 'Rejected'. Must match
+// CandidateInterviewStatus on the API.
+export type CandidateInterviewStatus =
+  | 'Interview in Progress'
+  | 'Rejected'
+  | 'Candidate Verification in Progress'
+  | 'Joining in Progress'
+  | 'Joined';
 export interface ICandidateSearchModel {
   tempSearch: string;
   companyId: string;
@@ -26,6 +37,104 @@ export interface ICandidateLetterStatusRequest {
 export interface ICandidateJoiningLetterStatus {
   isUploaded: boolean;
   fileUrl?: string | null;
+}
+
+// Which employee the candidate's joining information is saved into - null until the Personal step is saved -
+// plus what the candidate record already holds. Once the employee exists the joining steps use the employee APIs;
+// they fill the blanks from these values and show what Candidate Verification confirmed read-only.
+export interface ICandidateJoiningInfo {
+  candidateId: string;
+  employeeId: string | null;
+  employeeCode: string | null;
+  mobileNo: string;
+  isMobileValidated: boolean;
+  email: string | null;
+  aadharNumber: string | null;
+  isAadharValidated: boolean;
+  voterNumber: string | null;
+  isVoterValidated: boolean;
+  pan: string | null;
+  isPanValidated: boolean;
+  uan: string | null;
+  isUanVerified: boolean;
+  address: any | null;
+  companyId: string | null;
+  organizationUnitTypeId: string | null;
+  organizationUnitId: string | null;
+  departmentId: string | null;
+  dateOfJoining: string | null;
+  designationId: string | null;
+}
+
+// The candidate's number for a KYC document and whether it was verified. KYC document names come from
+// configuration, so they are matched the same way the KYC step matches them for its number patterns.
+export function candidateKycDocument(
+  info: ICandidateJoiningInfo | null,
+  documentName: string | null | undefined,
+): { documentNo: string | null; isVerified: boolean } | null {
+  if (!info) return null;
+  const name = documentName?.toLowerCase() || '';
+  if (name.includes('aadhaar') || name.includes('adhar')) {
+    return { documentNo: info.aadharNumber, isVerified: info.isAadharValidated };
+  }
+  if (name.includes('pan')) {
+    return { documentNo: info.pan, isVerified: info.isPanValidated };
+  }
+  if (name.includes('voter')) {
+    return { documentNo: info.voterNumber, isVerified: info.isVoterValidated };
+  }
+  return null;
+}
+
+// Employee contact read model with the candidate's mobile/email where the employee has none; a verified
+// mobile always wins.
+export function withCandidateContact(resp: any, info: ICandidateJoiningInfo | null) {
+  if (!info) return resp;
+  return {
+    ...resp,
+    mobileNo: info.isMobileValidated || !resp?.mobileNo ? info.mobileNo : resp.mobileNo,
+    personalEmail: resp?.personalEmail || info.email || '',
+  };
+}
+
+// Employee address read model with the candidate's address (as both present and permanent) until an address
+// has been saved on the employee.
+export function withCandidateAddress(resp: any, info: ICandidateJoiningInfo | null) {
+  const hasAddress =
+    !!resp?.presentAddressInfo?.administrativeUnitId || !!resp?.permanentAddressInfo?.administrativeUnitId;
+  if (!info?.address || hasAddress) return resp;
+  return {
+    ...resp,
+    sameAsPresentAddress: true,
+    presentAddressInfo: { ...info.address },
+    permanentAddressInfo: { ...info.address },
+  };
+}
+
+// Employee official read model with the candidate's company, posted office, department, joining date and
+// designation until official info has been saved on the employee.
+export function withCandidateOfficial(resp: any, info: ICandidateJoiningInfo | null) {
+  if (!info || resp?.organizationUnitId) return resp;
+  return {
+    ...resp,
+    companyId: resp?.companyId || info.companyId,
+    organizationUnitTypeId: info.organizationUnitTypeId,
+    organizationUnitId: info.organizationUnitId,
+    departmentId: resp?.departmentId || info.departmentId,
+    joiningDate: resp?.joiningDate || info.dateOfJoining,
+    designationId:
+      resp?.isDesignationEditable && !resp?.designationId ? info.designationId : resp?.designationId,
+  };
+}
+
+// Employee payroll read model with the candidate's UAN where the employee has none; a verified UAN always wins.
+export function withCandidateBanking(resp: any, info: ICandidateJoiningInfo | null) {
+  if (!info?.uan) return resp;
+  return {
+    ...resp,
+    universalAccountNumber:
+      info.isUanVerified || !resp?.universalAccountNumber ? info.uan : resp.universalAccountNumber,
+  };
 }
 
 export interface ICandidate {
@@ -307,6 +416,9 @@ export interface ICandidate {
    * LETTER STATUS above.) */
   showWelcomeLetterActions?: boolean;
 
+  /** An employee has been created from the candidate's joining information - the welcome letter opens only then. */
+  isEmployeeCreated?: boolean;
+
   /** Total of the ten averaged category ratings stored on HR's assessment row. */
   hrAssessmentTotalRatingPoint?: number;
 
@@ -359,159 +471,4 @@ export interface ICandidateDetail {
   policeStationId: string;
   postOfficeId: string;
   pinCode: string;
-}
-// Replace the old ICandidateUpdate at the bottom of candidate.ts with this:
-
-export interface ICandidateUpdate {
-  id: string;
-  // ============================================================
-  // 1. BASIC INFORMATION
-  // ============================================================
-  prefix: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  employeeName: string;
-  fatherName: string;
-  motherName: string;
-  dateOfBirth: string | null;
-  gender: string;
-  religion: string;
-  caste: string;
-  bloodGroup: string;
-  disabilityType: string;
-  nationality: string;
-  // ============================================================
-  // 2. KYC DETAILS
-  // ============================================================
-  panNumber: string;
-  aadharNumber: string;
-  voterIdNumber: string;
-  passportNumber: string;
-  passportValidityFrom: string | null;
-  passportValidityTo: string | null;
-  drivingLicenseNumber: string;
-  drivingLicenseExpiryDate: string | null;
-
-  // ============================================================
-  // 3. CONTACT DETAILS
-  // ============================================================
-  mobileNo: string;
-  personalEmail: string;
-  primaryEmergencyRelation: string;
-  primaryEmergencyName: string;
-  primaryEmergencyMobile: string; // maps to nullable string
-  secondaryEmergencyRelation: string;
-  secondaryEmergencyName: string;
-  secondaryEmergencyMobile: string;
-
-  // ============================================================
-  // 4. ADDRESS DETAILS
-  // ============================================================
-  presentAddressInfo: ICandidateAddressInfo;
-  permanentAddressInfo: ICandidateAddressInfo;
-  isSameAsPresentAddress: boolean;
-
-  // ============================================================
-  // 5. EDUCATION DETAILS
-  // ============================================================
-  latestQualification: string;
-  academicStream: string;
-  specialization: string;
-  yearOfPassing: string | number | null;
-  universityOrBoard: string;
-  collegeOrSchool: string;
-  gradeOrCgpaOrPercentage: string;
-
-  // ============================================================
-  // 6. PROFESSIONAL EXPERIENCE
-  // ============================================================
-  experiences: IExperienceInfo[];
-
-  // ============================================================
-  // 7. FAMILY DETAILS
-  // ============================================================
-  maritalStatus: string;
-  spouseName: string;
-
-  // ============================================================
-  // 8. DEPENDENT & NOMINEE DETAILS
-  // ============================================================
-  nominees: INomineeInfo[];
-
-  // ============================================================
-  // 9. BANK DETAILS
-  // ============================================================
-  accountNumber: string;
-  ifscCode: string;
-  bankHolderName: string;
-  bankName: string;
-  branchName: string;
-  accountType: string;
-
-  // ============================================================
-  // 10. REFERENCE DETAILS
-  // ============================================================
-  references: IReferenceInfo[];
-
-  // ============================================================
-  // 11. EMPLOYEE REFERRAL INFORMATION
-  // ============================================================
-  isReferred: boolean;
-  referralEmployeeName: string;
-  referralDesignation: string;
-  referralEmployeeCode: string;
-  referralHowDoYouKnow: string;
-}
-
-// ============================================================
-// REQUIRED SUB-INTERFACES FOR NESTED/ARRAY DATA
-// ============================================================
-
-export interface ICandidateAddressInfo {
-  houseNo: string;
-  roadName: string;
-  landMark: string;
-  administrativeUnitId: string;
-  policeStationId: string;
-  postOfficeId: string;
-  pinCode: string;
-  ownerShipOfHouse: string;
-  durationOfStayInMonths: number;
-}
-
-export interface IExperienceInfo {
-  id?: string;
-  previousEmployer: string;
-  designation: string;
-  fromDate: string | null;
-  toDate: string | null;
-  jobTitle: string;
-  hasExperienceCertificate: boolean | null;
-  hasNoc: boolean | null;
-}
-
-export interface INomineeInfo {
-  id?: string;
-  name: string;
-  relation: string;
-  dateOfBirth: string | null;
-  uhidOrAbhaNumber: string;
-  abhaAddress: string;
-  uan: string;
-  aadharNumber: string;
-  voterIdNumber: string;
-  isResidingWithIp: boolean | null;
-  state: string;
-  district: string;
-  percentage: number | null;
-}
-
-export interface IReferenceInfo {
-  id?: string;
-  name: string;
-  contactNumber: string;
-  address: string;
-  occupation: string;
-  howDoYouKnowHimHer: string;
 }

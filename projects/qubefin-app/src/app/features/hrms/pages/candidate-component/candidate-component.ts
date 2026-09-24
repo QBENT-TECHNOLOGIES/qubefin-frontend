@@ -12,7 +12,7 @@ import { form, FormField } from '@angular/forms/signals';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ICandidate, ICandidateSearchModel, ICandidateUpdate } from '../../models/candidate';
+import { ICandidate, ICandidateSearchModel } from '../../models/candidate';
 import { Sort } from '@angular/material/sort';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
@@ -50,7 +50,6 @@ export class CandidateComponent {
   readonly showFilterArea = signal<boolean>(false);
   readonly selectedCandidateId = signal<string>(EMPTY_UUID);
   readonly candidates = this.candidateStore.candidates;
-  readonly selectedCandidateData = signal<ICandidateUpdate | null>(null);
   readonly hasSelectedCandidate = computed(
     () => this.selectedCandidateId() !== EMPTY_UUID || !this.isViewMode(),
   );
@@ -66,9 +65,9 @@ export class CandidateComponent {
     this.isViewMode.set(true);
     this.isUpdateMode.set(false);
   }
-  protected onEdit(candidate: ICandidateUpdate) {
+  // Opens the joining information form for the candidate (Add Additional Info).
+  protected onEdit(candidate: ICandidate) {
     this.selectedCandidateId.set(candidate.id);
-    this.selectedCandidateData.set(candidate);
 
     this.isViewMode.set(false);
     this.isUpdateMode.set(true);

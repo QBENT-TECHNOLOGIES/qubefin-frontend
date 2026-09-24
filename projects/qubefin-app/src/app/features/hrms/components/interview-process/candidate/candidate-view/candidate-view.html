@@ -169,12 +169,11 @@
                         (send)="onSendLetterMail('offer')" (receive)="onRecieveLetter('offer')" />
                     }
 
-                    <!-- ADD ADDITIONAL INFO - unlocked by the received offer letter -->
-                    @if (data.showAddAdditionalInfoButton && data.isJoiningLetterUploaded) {
-                    <button type="button" class="reset-btn shine-sweep lift" [disabled]="addingAdditionalInfo()"
-                        (click)="onAddAdditionalInfo()">
+                    <!-- ADD ADDITIONAL INFO - unlocked by the uploaded joining letter -->
+                    @if (data.isJoiningLetterUploaded) {
+                    <button type="button" class="reset-btn shine-sweep lift" (click)="onAddAdditionalInfo()">
                         <svg lucideIcon="file-plus" class="w-4 h-4 mr-2"></svg>
-                        {{ addingAdditionalInfo() ? 'Saving...' : 'Add Additional Info' }}
+                        Add Additional Info
                     </button>
                     }
 
@@ -195,8 +194,8 @@
                         (upload)="onJoiningLetterUpload($event)" />
                     }
 
-                    <!-- WELCOME LETTER - unlocked by the uploaded joining letter -->
-                    @if (data.showWelcomeLetterActions) {
+                    <!-- WELCOME LETTER - unlocked once the employee is created from the joining information -->
+                    @if (data.showWelcomeLetterActions && data.isEmployeeCreated) {
                     <qfin-letter-actions letterName="Welcome" [sending]="sendingMail()"
                         [receiving]="recievingMail()" (view)="onViewWelcomeLetterMail()"
                         (send)="onSendLetterMail('welcome')" (receive)="onRecieveLetter('welcome')" />

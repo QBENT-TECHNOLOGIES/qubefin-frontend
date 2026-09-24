@@ -1,0 +1,201 @@
+<div class="space-y-4 animate-fade-in">
+    <div>
+        <h3 class="box-content-heading mb-2!">
+            Official Info
+        </h3>
+        <div class="green-line"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Official Email</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="mail" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="email" autocomplete="off" [formField]="officialForm.officialEmail"
+                placeholder="Enter Official Email">
+            <mat-error class="cus-error">
+                {{ officialForm.officialEmail().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Employment Type</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user-cog" class="w-5 h-5"></svg>
+            </div>
+            <mat-select placeholder="Select Type" [formField]="officialForm.employementType">
+                <mat-option value="Permanent">Permanent</mat-option>
+                <mat-option value="Contractual">Contractual</mat-option>
+                <mat-option value="Probation">Probation</mat-option>
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ officialForm.employementType().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Joining Date</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [matDatepicker]="dateOfJoining" autocomplete="off" [formField]="officialForm.dateOfJoining">
+            <mat-datepicker-toggle matIconSuffix [for]="dateOfJoining">
+            </mat-datepicker-toggle>
+
+            <mat-datepicker #dateOfJoining></mat-datepicker>
+            <mat-error class="cus-error">
+                {{ officialForm.dateOfJoining().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Confirmation Date</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [matDatepicker]="dateOfConfirmation" autocomplete="off"
+                [formField]="officialForm.dateOfConfirmation">
+            <mat-datepicker-toggle matIconSuffix [for]="dateOfConfirmation">
+            </mat-datepicker-toggle>
+
+            <mat-datepicker #dateOfConfirmation></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Separation Date</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-sync" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [matDatepicker]="separationDate" [min]="officialForm.dateOfJoining().value()"
+                autocomplete="off" [formField]="officialForm.separationDate">
+            <mat-datepicker-toggle matIconSuffix [for]="separationDate">
+            </mat-datepicker-toggle>
+
+            <mat-datepicker #separationDate></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Retirement Date</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-sync" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [matDatepicker]="retirementDate" [min]="officialForm.dateOfJoining().value()"
+                autocomplete="off" [formField]="officialForm.retirementDate">
+            <mat-datepicker-toggle matIconSuffix [for]="retirementDate">
+            </mat-datepicker-toggle>
+
+            <mat-datepicker #retirementDate></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Departments</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="officialForm.departmentId" placeholder="Select Department">
+                @for(item of departments(); track item.id){
+                <mat-option [value]="item.id">
+                    {{item.name}}
+                </mat-option>
+                }
+            </mat-select>
+            <!-- <mat-error class="cus-error">
+                {{ officialForm.departmentId().errors()[0]?.message }}
+            </mat-error> -->
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Organization Unit Type</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="officialForm.organizationUnitTypeId"
+                (selectionChange)="onOrganizationUnitTypeChange($event.value)">
+                @for(item of organizationUnitTypes(); track item.id){
+                <mat-option [value]="item.id">
+                    {{item.name}}
+                </mat-option>
+                }
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ officialForm.organizationUnitTypeId().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Organization Unit </mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="officialForm.organizationUnitId"
+                (selectionChange)="onOrganizationUnitChange($event.value)">
+                @for(item of organizationUnits(); track item.id){
+                <mat-option [value]="item.id">
+                    {{item.name}}
+                </mat-option>
+                }
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ officialForm.organizationUnitId().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Company</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="officialForm.companyId" placeholder="Select Company"
+                (selectionChange)="onCompanyChange($event.value)">
+                @for (company of companies(); track company.id) {
+                <mat-option [value]="company.id">{{ company.name }}</mat-option>
+                }
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ officialForm.companyId().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Designations</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="officialForm.designationId" (selectionChange)="onDesignationChange($event.value)">
+                @for(item of designations(); track item.id){
+                <mat-option [value]="item.id">
+                    {{item.name}}
+                </mat-option>
+                }
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ officialForm.designationId().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Salary Grade</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="text" autocomplete="off" [formField]="officialForm.salaryGrade"
+                placeholder="Salary Grade">
+            <mat-error class="cus-error">
+                {{ officialForm.salaryGrade().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Gross Salary</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="piggy-bank" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="number" autocomplete="off" [formField]="officialForm.grossSalary"
+                placeholder="Gross Salary">
+            <mat-error class="cus-error">
+                {{ officialForm.grossSalary().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+    </div>
+
+    <div class="step-footer-area">
+        <div class="flex flex-1 justify-end items-center gap-3">
+            <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">
+                Save
+                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+            </button>
+        </div>
+    </div>
+</div>

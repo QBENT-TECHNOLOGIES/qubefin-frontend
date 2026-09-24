@@ -1,33 +1,132 @@
-<div class="flex-1 overflow-y-auto overflow-x-hidden scroll-thin min-h-0 min-w-0">
-    <mat-stepper linear #stepper class="scrollable-stepper-header bg-transparent" [selectedIndex]="activeStepIndex()"
-        (selectedIndexChange)="onStepChange($event)">
+<div class="">
 
-        <ng-template matStepperIcon="done">
-            <svg lucideIcon="check" class="w-3 h-3 text-white-600"></svg>
-        </ng-template>
+    <div class="flex-1 overflow-y-auto overflow-x-hidden scroll-thin min-h-0 min-w-0">
+        <mat-stepper #stepper class="scrollable-stepper-header bg-transparent" [selectedIndex]="activeStepIndex()"
+            (selectedIndexChange)="onStepChange($event)">
+            <!-- Completed -->
+            <ng-template matStepperIcon="done">
+                <svg lucideIcon="check" class="w-3 h-3 text-white-600">
+                </svg>
+            </ng-template>
 
-        <ng-template matStepperIcon="edit">
-            <svg lucideIcon="pencil" class="w-3 h-3 text-white-600"></svg>
-        </ng-template>
+            <!-- Editable -->
+            <ng-template matStepperIcon="edit">
+                <svg lucideIcon="pencil" class="w-3 h-3 text-white-600">
+                </svg>
+            </ng-template>
+            <!-- Step 1: Personal Info (creates the employee on first save) -->
+            <mat-step>
+                <ng-template matStepLabel>Personal Info</ng-template>
+                @if (activeStepIndex() == 0) {
+                <qfin-joining-personal-component [utilities]="utilityComponents()" [candidateId]="candidateId()"
+                    (onSave)="handleSave($event)" (onUpdate)="handlePersonal()" [activeIndex]="activeStepIndex()">
+                </qfin-joining-personal-component>
+                }
+            </mat-step>
 
-        <!-- Step 1: Basic Info -->
-        <mat-step>
-            <ng-template matStepLabel>Basic Info</ng-template>
-            @if (activeStepIndex() === 0 && candidateMasterData()) {
-            <qfin-basic-component [masterData]="candidateMasterData()!" (onSaveStep)="handleStepSave($event, 1)">
-            </qfin-basic-component>
+
+            @if (employeeId() != emptyGuid) {
+            <!-- Step 2: Contact Info -->
+            <mat-step>
+                <ng-template matStepLabel>Contact Info</ng-template>
+                @if (activeStepIndex() == 1) {
+                <qfin-joining-contact-component [employeeId]="employeeId()"
+                    [joiningInfo]="joiningInfo()" (onContactUpdate)="handleContact()">
+                </qfin-joining-contact-component>
+                }
+            </mat-step>
+
+            <!-- Step 3: Address Info -->
+            <mat-step>
+                <ng-template matStepLabel>Address Info</ng-template>
+                @if (activeStepIndex() == 2) {
+                <qfin-joining-address-component [employeeId]="employeeId()" [joiningInfo]="joiningInfo()"
+                    (onAddressUpdate)="handleAddress()">
+                </qfin-joining-address-component>
+                }
+            </mat-step>
+
+            <!-- Step 4: KYC Info -->
+            <mat-step>
+                <ng-template matStepLabel>KYC</ng-template>
+                @if (activeStepIndex() == 3) {
+                <qfin-joining-kyc-document-component [kycDocs]="kycComponents()" [employeeId]="employeeId()"
+                    [joiningInfo]="joiningInfo()" (onKycUpdate)="handleKyc()">
+                </qfin-joining-kyc-document-component>
+                }
+            </mat-step>
+
+            <!-- Step 5: Official Info (onboarding) -->
+            <mat-step>
+                <ng-template matStepLabel>Official Info</ng-template>
+                @if (activeStepIndex() == 4) {
+                <qfin-joining-official-component [employeeId]="employeeId()" [joiningInfo]="joiningInfo()"
+                    (onOfficialUpdate)="handleOfficial()">
+                </qfin-joining-official-component>
+                }
+            </mat-step>
+
+            <!-- Step 6: Qualification Info -->
+            <mat-step>
+                <ng-template matStepLabel>Qualification Info</ng-template>
+                @if (activeStepIndex() == 5) {
+                <qfin-joining-qualification-component [employeeId]="employeeId()"
+                    (onQualifyUpdate)="handleQualification()">
+                </qfin-joining-qualification-component>
+                }
+            </mat-step>
+
+            <!-- Step 7: Previous Employment -->
+            <mat-step>
+                <ng-template matStepLabel>Previous Employment</ng-template>
+                @if (activeStepIndex() == 6) {
+                <qfin-joining-employment-component [employeeId]="employeeId()"
+                    (onEmpUpdate)="handleEmployment()">
+                </qfin-joining-employment-component>
+                }
+            </mat-step>
+
+            <!-- Step 8: Bank Details Info -->
+            <mat-step>
+                <ng-template matStepLabel>Bank Details Info</ng-template>
+                @if (activeStepIndex() == 7) {
+                <qfin-joining-banking-component [employeeId]="employeeId()"
+                    [joiningInfo]="joiningInfo()" (onBankingUpdate)="handlePayroll()">
+                </qfin-joining-banking-component>
+                }
+            </mat-step>
+
+            <!-- Step 9: Nominee Info -->
+            <mat-step>
+                <ng-template matStepLabel>Nominee Info</ng-template>
+                @if (activeStepIndex() == 8) {
+                <qfin-joining-nominee-component [employeeId]="employeeId()"
+                    (onNomineeUpdate)="handleNominee()">
+                </qfin-joining-nominee-component>
+                }
+            </mat-step>
+
+            <!-- Step 10: Reference Info -->
+            <mat-step>
+                <ng-template matStepLabel>Reference Info</ng-template>
+                @if (activeStepIndex() == 9) {
+                <qfin-joining-reference-component [employeeId]="employeeId()"
+                    (onRefUpdate)="handleReference()">
+                </qfin-joining-reference-component>
+                }
+            </mat-step>
+
+            <!-- Step 11: Referral Info -->
+            <mat-step>
+                <ng-template matStepLabel>Refferal Info</ng-template>
+                @if (activeStepIndex() == 10) {
+                <qfin-joining-referral-component [employeeId]="employeeId()"
+                    (onRefferalUpdate)="handleReferral()">
+                </qfin-joining-referral-component>
+                }
+            </mat-step>
+
             }
-        </mat-step>
-
-        <!-- Step 2: Address Info -->
-        <mat-step>
-            <ng-template matStepLabel>Address Info</ng-template>
-            @if (activeStepIndex() === 1 && candidateMasterData()) {
-            <!-- Address component goes here -->
-            }
-        </mat-step>
-
-        <!-- Add remaining steps sequentially -->
-
-    </mat-stepper>
+        </mat-stepper>
+    </div>
 </div>

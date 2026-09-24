@@ -1,0 +1,306 @@
+import { CommonModule, DatePipe } from '@angular/common';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSelectModule } from '@angular/material/select';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
+import {
+  disabled,
+  form,
+  FormField,
+  pattern,
+  readonly,
+  required,
+  schema,
+  Schema,
+} from '@angular/forms/signals';
+import { LucideDynamicIcon } from '@lucide/angular';
+import { MatStepperModule } from '@angular/material/stepper';
+import { EmployeeService } from '../../../../../services/employee-service';
+import { ICandidateJoiningInfo, withCandidateOfficial } from '../../../../../models/candidate';
+import { APP_ICONS_MAP } from '../../../../../../../lucide-icons';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { of, tap } from 'rxjs';
+import { EmployeeOfficialInfo, IEmployeeOfficialInfo } from '../../../../../models/employee-detail';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
+import { OrganizationUnitTypeStore } from '../../../../../../global/stores/organization-unit-type-store';
+import { OrganizationUnitService } from '../../../../../../global/services/organization-unit-service';
+import { OrganizationUnit } from '../../../../../../global/models/organization-unit';
+import { IDesignation } from '../../../../../models/designation';
+import { CompanyService } from '../../../../../../global/services/company-service';
+import { IComapnyList } from '../../../../../../global/models/company';
+import { DepartmentStore } from '../../../../../stores/department-store';
+
+@Component({
+  selector: 'qfin-joining-official-component',
+  providers: [DatePipe],
+  imports: [
+    CommonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    FormField,
+    MatStepperModule,
+    LucideDynamicIcon,
+    MatDatepickerModule,
+    MatNativeDateModule,
+  ],
+  templateUrl: './official-component.html',
+})
+export class JoiningOfficialComponent {
+  employeeId = input<string>(EMPTY_UUID);
+  // Candidate details - fill what the employee doesn't have yet and lock what Candidate Verification confirmed.
+  joiningInfo = input<ICandidateJoiningInfo | null>(null);
+  onOfficialUpdate = output<void>();
+  private dateAdapter = inject(DateAdapter<Date>);
+  private readonly datePipe = inject(DatePipe);
+  private readonly departmentStore = inject(DepartmentStore);
+  private readonly organizationUnitTypeStore = inject(OrganizationUnitTypeStore);
+  private readonly employeeService = inject(EmployeeService);
+  private readonly organizationUnitService = inject(OrganizationUnitService);
+  private readonly companyService = inject(CompanyService);
+  private readonly alertService = inject(AlertService);
+
+  readonly iconMap = APP_ICONS_MAP;
+  readonly departments = this.departmentStore.departments;
+  isEditMode = computed(() => !!this.employeeId() && this.employeeId() !== EMPTY_UUID);
+  organizationUnits = signal<OrganizationUnit[]>([]);
+  designations = signal<IDesignation[]>([]);
+  companies = signal<IComapnyList[]>([]);
+
+  protected readonly officialModel = signal<IEmployeeOfficialInfo>(new EmployeeOfficialInfo());
+
+  protected readonly officialSchema: Schema<IEmployeeOfficialInfo> = schema((path) => {
+    pattern(path.officialEmail, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
+      message: 'Invalid email address',
+    });
+
+    required(path.employementType, { message: 'Employement Type is required' });
+    required(path.dateOfJoining, { message: 'Joining Date is required' });
+    required(path.departmentId, { message: 'Department is required' });
+    required(path.designationId, { message: 'Designation is required' });
+    required(path.salaryGrade, { message: 'Salary Grade is required' });
+    required(path.grossSalary, { message: 'Gross Salary is required' });
+    required(path.organizationUnitTypeId, { message: 'Org. Unit Type required' });
+    required(path.organizationUnitId, { message: 'Org. Unit is required' });
+    required(path.companyId, { message: 'Company Name is required' });
+    readonly(path.dateOfJoining, { when: () => true });
+    readonly(path.dateOfConfirmation, { when: () => true });
+    readonly(path.separationDate, { when: () => true });
+    readonly(path.retirementDate, { when: () => true });
+    // readonly(path.salaryGrade, { when: () => true });
+    const isNotEditable = ({ valueOf }: any) => {
+      return valueOf(path.isDesignationEditable) === false;
+    };
+    disabled(path.organizationUnitTypeId, { when: isNotEditable });
+    disabled(path.organizationUnitId, { when: isNotEditable });
+    disabled(path.designationId, { when: isNotEditable });
+    disabled(path.grossSalary, { when: isNotEditable });
+  });
+
+  readonly organizationUnitTypes = this.organizationUnitTypeStore.organizationUnitTypes;
+  protected readonly officialForm = form(this.officialModel, this.officialSchema);
+  @ViewChild('stepper', { read: ElementRef })
+  stepper!: ElementRef;
+  constructor() {
+    this.dateAdapter.setLocale('en-GB');
+    this.companyService.getAll().subscribe((companies: any) => {
+      this.companies.set(
+        companies.map((company: any) => ({ ...company, name: company.name.trim() })),
+      );
+    });
+  }
+
+  onCompanyChange(companyId: string) {
+    const company = this.companies().find((item) => item.id === companyId);
+    if (!company) {
+      return;
+    }
+
+    this.officialModel.update((state) => ({
+      ...state,
+      companyId: company.id,
+      companyName: company.name,
+    }));
+  }
+  onOrganizationUnitTypeChange(typeId: string) {
+    if (!typeId || typeId === EMPTY_UUID) {
+      return;
+    }
+
+    this.organizationUnitService.getOrganizationUnitByType(typeId).subscribe({
+      next: (res: any) => {
+        this.organizationUnits.set(res);
+      },
+    });
+  }
+
+  onOrganizationUnitChange(id: string) {
+    if (!id || id === EMPTY_UUID) {
+      return;
+    }
+
+    const units = this.organizationUnits();
+    const selectedUnit = units.find((x: any) => x.id === id);
+
+    if (selectedUnit) {
+      this.officialModel.update((state) => ({
+        ...state,
+        organizationUnitId: id,
+        companyName: selectedUnit.companyName || '',
+        companyId: selectedUnit.companyId || '',
+      }));
+    }
+    this.employeeService.getDisignationByOrganizationUnit(id).subscribe({
+      next: (res: any) => {
+        this.designations.set(res);
+      },
+    });
+  }
+  onDesignationChange(id: string) {
+    if (!id || id === EMPTY_UUID) {
+      return;
+    }
+
+    const designations = this.designations();
+    const selectedDesignation = designations.find((x: any) => x.id === id);
+
+    if (selectedDesignation) {
+      this.officialModel.update((state) => ({
+        ...state,
+        designationId: id,
+        salaryGradeId: selectedDesignation.salaryGradeId || '',
+        salaryGrade: selectedDesignation.salaryGrade || '',
+        grossSalary: selectedDesignation.grossSalary || 0,
+      }));
+    }
+  }
+  private officialResource = rxResource({
+    params: () => ({ id: this.employeeId(), editMode: this.isEditMode() }),
+    stream: ({ params }) => {
+      if (params.editMode && params.id !== EMPTY_UUID) {
+        return this.employeeService.getOfficialData(params.id).pipe(
+          tap((resp: any) => {
+            resp = withCandidateOfficial(resp, this.joiningInfo());
+            this.officialModel.set(new EmployeeOfficialInfo(resp));
+
+            this.officialModel.update((state) => ({
+              ...state,
+              dateOfJoining: resp.joiningDate == null ? null : new Date(resp.joiningDate),
+              dateOfConfirmation:
+                resp.confirmationDate == null ? null : new Date(resp.confirmationDate),
+              separationDate: resp.separationDate == null ? null : new Date(resp.separationDate),
+              isDesignationEditable: resp.isDesignationEditable,
+              companyId: resp.companyId,
+            }));
+
+            if (resp.organizationUnitTypeId) {
+              this.organizationUnitService
+                .getOrganizationUnitByType(resp.organizationUnitTypeId)
+                .subscribe({
+                  next: (res: any) => {
+                    this.organizationUnits.set(res);
+                  },
+                });
+            }
+
+            if (resp.organizationUnitId) {
+              this.employeeService
+                .getDisignationByOrganizationUnit(resp.organizationUnitId)
+                .subscribe({
+                  next: (res: any) => {
+                    this.designations.set(res);
+
+                    const matched = res.find(
+                      (d: any) => d.id?.toLowerCase() === resp.designationId?.toLowerCase(),
+                    );
+
+                    this.officialModel.update((state) => ({
+                      ...state,
+                      designationId: resp.designationId
+                        ? resp.designationId.toLowerCase()
+                        : state.designationId,
+                      salaryGradeId:
+                        matched?.salaryGradeId || resp.salaryGradeId || state.salaryGradeId,
+                      salaryGrade: matched?.salaryGrade || state.salaryGrade,
+                      grossSalary: state.grossSalary || matched?.grossSalary || 0,
+                    }));
+                  },
+                });
+            }
+          }),
+        );
+      } else {
+        this.officialModel.set(new EmployeeOfficialInfo());
+        return of(null);
+      }
+    },
+  });
+
+  onSubmit() {
+    this.officialForm().markAsTouched();
+    if (!this.officialForm().valid()) {
+      return;
+    }
+
+    const data = this.officialForm().value();
+    const dataToSave: any = this.officialForm().value();
+    dataToSave.companyId = dataToSave.companyId == '' ? null : dataToSave.companyId;
+    dataToSave.organizationUnitId =
+      dataToSave.organizationUnitId == '' ? null : dataToSave.organizationUnitId;
+    dataToSave.departmentId = dataToSave.departmentId == '' ? null : dataToSave.departmentId;
+    dataToSave.employementType =
+      dataToSave.employementType == '' ? null : dataToSave.employementType;
+    dataToSave.dateOfJoining =
+      dataToSave.dateOfJoining == ''
+        ? null
+        : this.datePipe.transform(dataToSave.dateOfJoining, 'yyyy-MM-dd');
+    dataToSave.dateOfConfirmation =
+      dataToSave.dateOfConfirmation == ''
+        ? null
+        : this.datePipe.transform(dataToSave.dateOfConfirmation, 'yyyy-MM-dd');
+    dataToSave.separationDate =
+      dataToSave.separationDate == ''
+        ? null
+        : this.datePipe.transform(dataToSave.separationDate, 'yyyy-MM-dd');
+    dataToSave.referedBy = dataToSave.referedBy == '' ? null : dataToSave.referedBy;
+    dataToSave.howYouKnow = dataToSave.howYouKnow == '' ? null : dataToSave.howYouKnow;
+    dataToSave.officialEmail = dataToSave.officialEmail == '' ? null : dataToSave.officialEmail;
+    dataToSave.isActive = dataToSave.isActive == '' ? false : dataToSave.isActive;
+    dataToSave.companyName = dataToSave.companyName == '' ? null : dataToSave.companyName;
+    dataToSave.designationId = dataToSave.designationId == '' ? null : dataToSave.designationId;
+    dataToSave.salaryGrade = dataToSave.salaryGrade == '' ? null : dataToSave.salaryGrade;
+    dataToSave.salaryGradeId = dataToSave.salaryGradeId == '' ? null : dataToSave.salaryGradeId;
+
+    delete dataToSave.joiningDate;
+    delete dataToSave.confirmationDate;
+    if (this.isEditMode()) {
+      this.employeeService.updateOfficialInfo(this.employeeId(), dataToSave).subscribe({
+        next: (resp: any) => {
+          this.alertService.success('Success', resp).then(() => {
+            this.onOfficialUpdate.emit();
+          });
+        },
+        error: (err: any) => {
+          if (err.error?.isError) {
+          }
+        },
+      });
+    }
+  }
+}

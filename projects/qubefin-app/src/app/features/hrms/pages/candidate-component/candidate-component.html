@@ -113,18 +113,19 @@
                         <div>
                             <div class="flex justify-start gap-2">
                                 <h2 class="viewArea-title">
-                                    Candidate Details
+                                    {{ isUpdateMode() ? 'Joining Information' : 'Candidate Details' }}
                                 </h2>
                                 <div class="viewArea-badge">
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                                     <span
                                         class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                                        View Mode
+                                        {{ isUpdateMode() ? 'Edit Mode' : 'View Mode' }}
                                     </span>
                                 </div>
                             </div>
                             <p class="viewArea-description">
-                                Review Candidate details.
+                                {{ isUpdateMode() ? 'Capture joining information of the candidate as an employee.' :
+                                'Review Candidate details.' }}
                             </p>
                         </div>
                     </div>
@@ -143,7 +144,7 @@
 
                 } @else if (isUpdateMode()) {
 
-                <qfin-candidate-joining-info [candidateData]="selectedCandidateData()!"
+                <qfin-candidate-joining-info [candidateId]="selectedCandidateId()"
                     (onProcessComplete)="closePanel()">
                 </qfin-candidate-joining-info>
 

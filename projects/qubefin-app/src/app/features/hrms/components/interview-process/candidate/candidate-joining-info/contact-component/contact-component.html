@@ -1,1 +1,123 @@
-<p>contact-component works!</p>
+<div class="space-y-4 animate-fade-in">
+    <div>
+        <h3 class="box-content-heading mb-2!">
+            Contact Info
+        </h3>
+        <div class="green-line"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Mobile No</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="phone" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="contactForm.mobileNo" placeholder="Enter Mobile No">
+            @if (isMobileVerified()) {
+            <mat-hint class="text-emerald-600!">Verified in Candidate Verification</mat-hint>
+            }
+            <mat-error class="cus-error">
+                {{ contactForm.mobileNo().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Personal Email</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="mail" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="email" autocomplete="off" [formField]="contactForm.personalEmail"
+                placeholder="Enter Personal Email">
+            <mat-error class="cus-error">
+                {{ contactForm.personalEmail().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+    </div>
+    <div>
+        <h3 class="box-content-heading mb-2!">
+            Primary Emergency Contact Info
+        </h3>
+        <div class="blue-line"></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Emergency Contact Person</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user-round" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="contactForm.primaryEmergencyName" placeholder="Enter Name">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Relation</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="notebook-tabs" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="contactForm.primaryEmergencyRelation">
+                @for (item of reasons(); track item.sysVal) {
+                <mat-option [value]="item.sysVal">
+                    {{ item.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+            <!-- <input matInput autocomplete="off" [formField]="contactForm.primaryEmergencyRelation" placeholder="Enter Relation"> -->
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Emergency Contact Mobile</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="headset" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="contactForm.primaryEmergencyMobile"
+                placeholder="Enter Mobile No">
+            <mat-error class="cus-error">
+                {{ contactForm.primaryEmergencyMobile().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+    </div>
+    <div>
+        <h3 class="box-content-heading mb-2!">
+            Secondary Emergency Contact Info
+        </h3>
+        <div class="blue-line"></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Emergency Contact Person</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user-round" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="contactForm.secondaryEmergencyName"
+                placeholder="Enter Name">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Relation</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="notebook-tabs" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="contactForm.secondaryEmergencyRelation">
+                @for (item of reasons(); track item.sysVal) {
+                <mat-option [value]="item.sysVal">
+                    {{ item.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Emergency Contact Mobile</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="headset" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" [formField]="contactForm.secondaryEmergencyMobile"
+                placeholder="Enter Mobile No">
+            <mat-error class="cus-error">
+                {{ contactForm.secondaryEmergencyMobile().errors()[0]?.message }} </mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="step-footer-area">
+        <div class="flex flex-1 justify-end items-center gap-3">
+            <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">
+                Save
+                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+            </button>
+        </div>
+    </div>
+</div>

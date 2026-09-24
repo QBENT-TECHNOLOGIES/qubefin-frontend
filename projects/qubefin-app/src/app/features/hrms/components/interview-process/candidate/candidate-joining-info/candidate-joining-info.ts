@@ -9,80 +9,162 @@ import {
   ElementRef,
   effect,
   untracked,
-  AfterViewInit,
 } from '@angular/core';
-import { MatStepper, MatStepperModule } from '@angular/material/stepper';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSelectModule } from '@angular/material/select';
+import { EMPTY_UUID } from 'qubefin-core';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { AlertService, EMPTY_UUID } from 'qubefin-core';
-
+import { rxResource } from '@angular/core/rxjs-interop';
+import { of, tap } from 'rxjs';
+import { EmployeeStore } from '../../../../stores/employee-store';
 import { CandidateStore } from '../../../../stores/candidate-store';
-import { CandidateService } from '../../../../services/candidate-service';
-import { ICandidate, ICandidateUpdate } from '../../../../models/candidate';
-import { BasicComponent } from './basic-component/basic-component';
+import { CandidateJoiningService } from '../../../../services/candidate-joining.service';
+import { ICandidateJoiningInfo } from '../../../../models/candidate';
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
+import { JoiningPersonalComponent } from './personal-component/personal-component';
+import { JoiningAddressComponent } from './address-component/address-component';
+import { JoiningContactComponent } from './contact-component/contact-component';
+import { JoiningOfficialComponent } from './official-component/official-component';
+import { JoiningKycDocumentComponent } from './kyc-document-component/kyc-document-component';
+import { JoiningReferenceComponent } from './reference-component/reference-component';
+import { JoiningEmploymentComponent } from './employment-component/employment-component';
+import { JoiningQualificationComponent } from './qualification-component/qualification-component';
+import { JoiningBankingComponent } from './banking-component/banking-component';
+import { JoiningNomineeComponent } from './nominee-component/nominee-component';
+import { JoiningReferralComponent } from './referral-component/referral-component';
 
-// Import your child step components here as you build them
-// import { BasicComponent } from './basic-component/basic-component';
-// import { ContactComponent } from './contact-component/contact-component';
-// import { AddressComponent } from './address-component/address-component';
-// import { KycComponent } from './kyc-component/kyc-component';
-// import { BankingComponent } from './banking-component/banking-component';
-// import { EmployeeReferralComponent } from './employee-referral-component/employee-referral-component';
-// import { EducationComponent } from './education-component/education-component';
-// import { ExperienceComponent } from './experience-component/experience-component';
-// import { FamilyComponent } from './family-component/family-component';
-// import { NomineeComponent } from './nominee-component/nominee-component';
-// import { ReferenceComponent } from './reference-component/reference-component';
-
+// Joining information of a candidate, captured the same way as the employee detail. The Personal step creates
+// the employee from the candidate; the remaining steps open once it exists and write into that employee.
 @Component({
   selector: 'qfin-candidate-joining-info',
   imports: [
     CommonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatSelectModule,
+    MatCheckboxModule,
     MatStepperModule,
     LucideDynamicIcon,
-    BasicComponent,
-    // Add child components to imports once created
-    // BasicComponent, ContactComponent, AddressComponent, etc.
+    JoiningPersonalComponent,
+    JoiningAddressComponent,
+    JoiningContactComponent,
+    JoiningOfficialComponent,
+    JoiningKycDocumentComponent,
+    JoiningReferenceComponent,
+    JoiningEmploymentComponent,
+    JoiningQualificationComponent,
+    JoiningBankingComponent,
+    JoiningNomineeComponent,
+    JoiningReferralComponent,
   ],
   templateUrl: './candidate-joining-info.html',
 })
-export class CandidateJoiningInfo implements AfterViewInit {
+export class CandidateJoiningInfo {
+  emptyGuid = EMPTY_UUID;
   candidateId = input<string>(EMPTY_UUID);
-  candidateData = input.required<ICandidateUpdate>();
   onProcessComplete = output<void>();
 
   readonly activeStepIndex = signal(0);
-
-  // Master state holding the unified interface data
-  readonly candidateMasterData = signal<ICandidateUpdate | null>(null);
-  // readonly candidateData = signal<ICandidate | null>(null);
-
+  // The employee created from the candidate - empty until the Personal step is saved.
+  readonly employeeId = signal<string>(EMPTY_UUID);
+  // The candidate's identity details and verification flags - drive prefill and the read-only verified fields.
+  readonly joiningInfo = signal<ICandidateJoiningInfo | null>(null);
+  private readonly employeeStore = inject(EmployeeStore);
   private readonly candidateStore = inject(CandidateStore);
-  private readonly candidateService = inject(CandidateService);
-  private readonly alertService = inject(AlertService);
+  private readonly candidateJoiningService = inject(CandidateJoiningService);
+  utilityComponents = this.employeeStore.utilityComponent;
+  kycComponents = this.employeeStore.kycComponent;
 
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
-
   @ViewChild('stepper')
   matStepper!: MatStepper;
 
-  constructor() {
-    // 1. Fetch data once by setting the ID in the store
-    effect(
-      () => {
-        const data = this.candidateData();
+  private joiningInfoResource = rxResource({
+    params: () => ({ id: this.candidateId() }),
+    stream: ({ params }) => {
+      if (params.id && params.id !== EMPTY_UUID) {
+        return this.candidateJoiningService.getJoiningInfo(params.id).pipe(
+          tap((resp) => {
+            this.joiningInfo.set(resp ?? null);
+            this.employeeId.set(resp?.employeeId ?? EMPTY_UUID);
+          }),
+        );
+      }
+      this.joiningInfo.set(null);
+      this.employeeId.set(EMPTY_UUID);
+      return of(null);
+    },
+  });
 
-        if (data) {
-          this.candidateMasterData.set(this.mapToUpdateModel(data));
-        }
-      },
-      { allowSignalWrites: true },
-    );
+  constructor() {
+    effect(() => {
+      const id = this.candidateId();
+
+      if (id === EMPTY_UUID) {
+        untracked(() => {
+          this.activeStepIndex.set(0);
+
+          if (this.matStepper) {
+            this.matStepper.reset();
+          }
+        });
+      }
+    });
+  }
+  onStepChange(index: number) {
+    this.activeStepIndex.set(index);
+  }
+  handlePersonal() {
+    this.onStepChange(1);
+  }
+  handleContact() {
+    this.onStepChange(2);
+  }
+  handleAddress() {
+    this.onStepChange(3);
+  }
+  handleKyc() {
+    this.onStepChange(4);
+  }
+  handleOfficial() {
+    this.onStepChange(5);
+  }
+  handleQualification() {
+    this.onStepChange(6);
+  }
+  handleEmployment() {
+    this.onStepChange(7);
+  }
+  handlePayroll() {
+    this.onStepChange(8);
+  }
+  handleNominee() {
+    this.onStepChange(9);
+  }
+  handleReference() {
+    this.onStepChange(10);
+  }
+  // Last step - the joining information is complete.
+  handleReferral() {
+    this.candidateStore.refreshDetail();
+    this.onProcessComplete.emit();
+  }
+  // First save of the Personal step - the employee now exists, so the other steps render; move on once they have.
+  handleSave(newId?: string) {
+    if (newId && newId.length > 20) {
+      this.employeeId.set(newId);
+      this.candidateStore.refreshDetail();
+      setTimeout(() => this.onStepChange(1));
+    }
   }
 
   ngAfterViewInit() {
-    // Enables horizontal scrolling on the stepper header (replicated from employee-component-detail)
-    const header = this.stepper?.nativeElement?.querySelector(
+    const header = this.stepper.nativeElement.querySelector(
       '.mat-horizontal-stepper-header-container',
     );
 
@@ -92,6 +174,7 @@ export class CandidateJoiningInfo implements AfterViewInit {
       'wheel',
       (event: WheelEvent) => {
         event.preventDefault();
+
         header.scrollBy({
           left: event.deltaY,
           behavior: 'smooth',
@@ -99,184 +182,5 @@ export class CandidateJoiningInfo implements AfterViewInit {
       },
       { passive: false },
     );
-  }
-
-  onStepChange(index: number) {
-    this.activeStepIndex.set(index);
-  }
-
-  /**
-   * Receives partial data from a specific child step component,
-   * merges it into the master payload, and triggers the single API call.
-   */
-  handleStepSave(stepPartialData: Partial<ICandidateUpdate>, nextStepIndex: number) {
-    const currentMaster = this.candidateMasterData();
-    if (!currentMaster) return;
-
-    // Dynamically construct payload: Master data overwritten by specific step updates
-    const updatedPayload: ICandidateUpdate = {
-      ...currentMaster,
-      ...stepPartialData,
-    };
-
-    // Single Update API Call
-    this.candidateService.updateCandidate(this.candidateId(), updatedPayload).subscribe({
-      next: (res: any) => {
-        this.alertService.success('Success', 'Information updated successfully').then(() => {
-          // 1. Update the local master state to reflect the saved changes
-          this.candidateMasterData.set(updatedPayload);
-
-          // 2. Refresh the store so the view gets the latest data globally
-          this.candidateStore.refreshDetail();
-
-          // 3. Move to the next step
-          if (nextStepIndex > -1) {
-            this.activeStepIndex.set(nextStepIndex);
-            if (this.matStepper) {
-              this.matStepper.selectedIndex = nextStepIndex;
-            }
-          } else {
-            // If nextStepIndex is -1 (or similar logic), it means we're done
-            this.onProcessComplete.emit();
-          }
-        });
-      },
-      error: (err: any) => {
-        this.alertService.error('Error', err?.error?.message || 'Failed to update information');
-      },
-    });
-  }
-
-  /**
-   * Safely maps the incoming GET API read model to your strict ICandidateUpdate form model.
-   * Ensures no 'undefined' values cause strict type errors in child forms.
-   */
-  /**
-   * Safely maps the incoming GET API read model to your strict ICandidateUpdate form model.
-   */
-  private mapToUpdateModel(data: any): ICandidateUpdate {
-    return {
-      id: data.id || '',
-
-      // ============================================================
-      // 1. BASIC INFORMATION
-      // ============================================================
-      prefix: data.prefix || '',
-      firstName: data.firstName || '',
-      middleName: data.middleName || '',
-      lastName: data.lastName || '',
-      employeeName: data.employeeName || '',
-      fatherName: data.fatherName || '',
-      motherName: data.motherName || '',
-      dateOfBirth: data.dateOfBirth || null,
-      gender: data.gender || '',
-      religion: data.religion || '',
-      caste: data.caste || '',
-      bloodGroup: data.bloodGroup || '',
-      disabilityType: data.disabilityType || '',
-      nationality: data.nationality || '',
-
-      // ============================================================
-      // 2. KYC DETAILS
-      // ============================================================
-      panNumber: data.panNumber || '',
-      aadharNumber: data.aadharNumber || '',
-      voterIdNumber: data.voterIdNumber || '',
-      passportNumber: data.passportNumber || '',
-      passportValidityFrom: data.passportValidityFrom || null,
-      passportValidityTo: data.passportValidityTo || null,
-      drivingLicenseNumber: data.drivingLicenseNumber || '',
-      drivingLicenseExpiryDate: data.drivingLicenseExpiryDate || null,
-
-      // ============================================================
-      // 3. CONTACT DETAILS
-      // ============================================================
-      mobileNo: data.mobileNo || '',
-      personalEmail: data.personalEmail || '',
-      primaryEmergencyRelation: data.primaryEmergencyRelation || '',
-      primaryEmergencyName: data.primaryEmergencyName || '',
-      primaryEmergencyMobile: data.primaryEmergencyMobile || '',
-      secondaryEmergencyRelation: data.secondaryEmergencyRelation || '',
-      secondaryEmergencyName: data.secondaryEmergencyName || '',
-      secondaryEmergencyMobile: data.secondaryEmergencyMobile || '',
-
-      // ============================================================
-      // 4. ADDRESS DETAILS
-      // ============================================================
-      presentAddressInfo: data.presentAddressInfo || {
-        houseNo: '',
-        roadName: '',
-        landMark: '',
-        administrativeUnitId: '',
-        policeStationId: '',
-        postOfficeId: '',
-        pinCode: '',
-        ownerShipOfHouse: '',
-        durationOfStayInMonths: 0,
-      },
-      permanentAddressInfo: data.permanentAddressInfo || {
-        houseNo: '',
-        roadName: '',
-        landMark: '',
-        administrativeUnitId: '',
-        policeStationId: '',
-        postOfficeId: '',
-        pinCode: '',
-        ownerShipOfHouse: '',
-        durationOfStayInMonths: 0,
-      },
-      isSameAsPresentAddress: data.isSameAsPresentAddress || false,
-
-      // ============================================================
-      // 5. EDUCATION DETAILS
-      // ============================================================
-      latestQualification: data.latestQualification || '',
-      academicStream: data.academicStream || '',
-      specialization: data.specialization || '',
-      yearOfPassing: data.yearOfPassing || null,
-      universityOrBoard: data.universityOrBoard || '',
-      collegeOrSchool: data.collegeOrSchool || '',
-      gradeOrCgpaOrPercentage: data.gradeOrCgpaOrPercentage || '',
-
-      // ============================================================
-      // 6. PROFESSIONAL EXPERIENCE
-      // ============================================================
-      experiences: data.experiences || [],
-
-      // ============================================================
-      // 7. FAMILY DETAILS
-      // ============================================================
-      maritalStatus: data.maritalStatus || '',
-      spouseName: data.spouseName || '',
-
-      // ============================================================
-      // 8. DEPENDENT & NOMINEE DETAILS
-      // ============================================================
-      nominees: data.nominees || [],
-
-      // ============================================================
-      // 9. BANK DETAILS
-      // ============================================================
-      accountNumber: data.accountNumber || '',
-      ifscCode: data.ifscCode || '',
-      bankHolderName: data.bankHolderName || '',
-      bankName: data.bankName || '',
-      branchName: data.branchName || '',
-      accountType: data.accountType || '',
-
-      // ============================================================
-      // 10. REFERENCE DETAILS
-      // ============================================================
-      references: data.references || [],
-
-      // ============================================================
-      // 11. EMPLOYEE REFERRAL INFORMATION
-      // ============================================================
-      isReferred: data.isReferred || false,
-      referralEmployeeName: data.referralEmployeeName || '',
-      referralDesignation: data.referralDesignation || '',
-      referralEmployeeCode: data.referralEmployeeCode || '',
-      referralHowDoYouKnow: data.referralHowDoYouKnow || '',
-    };
   }
 }

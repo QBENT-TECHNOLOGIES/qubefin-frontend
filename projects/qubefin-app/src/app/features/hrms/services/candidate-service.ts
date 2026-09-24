@@ -48,11 +48,6 @@ export class CandidateService {
       interviewMode,
     });
   }
-  // Placeholder action shown once the Offer Letter is received - the backend method is intentionally
-  // empty for now.
-  addAdditionalInfo(id: string) {
-    return this.httpClient.post(`${ApiPaths.HRMS}/candidates/${id}/additional-info`, {});
-  }
   // Uploads the candidate's signed/returned joining letter (multipart) and stores the returned file
   // reference on the candidate record. Distinct from HrmsReportService.getJoiningLetter, which generates
   // a blank copy rather than reading back what was uploaded here.

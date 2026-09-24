@@ -20,7 +20,7 @@ import { InterviewPanelStore } from '../../../../stores/interview-panel-store';
 import { HrmsReportService } from '../../../../../Report/Service/hrms-report-service';
 import { CandidateService } from '../../../../services/candidate-service';
 import { Observable, firstValueFrom } from 'rxjs';
-import { ICandidate, ICandidateUpdate } from '../../../../models/candidate';
+import { ICandidate } from '../../../../models/candidate';
 
 interface WorkflowStage {
   label: string;
@@ -53,7 +53,7 @@ export class CandidateView {
   private readonly panelStore = inject(InterviewPanelStore);
   private readonly alertService = inject(AlertService);
   readonly dialog = inject(MatDialog);
-  onUpdateAction = output<ICandidateUpdate>();
+  onUpdateAction = output<ICandidate>();
   readonly candidateId = model<string>(EMPTY_UUID);
 
   readonly candidate = this.candidateStore.candidate;
@@ -63,7 +63,6 @@ export class CandidateView {
   readonly sendingMail = signal(false);
   readonly recievingMail = signal(false);
   readonly uploadingInterviewFormat = signal(false);
-  readonly addingAdditionalInfo = signal(false);
   readonly uploadingJoiningLetter = signal(false);
 
   constructor() {
@@ -489,7 +488,7 @@ export class CandidateView {
   }
 
   // ============================================================
-  // ADDITIONAL INFO (placeholder - backend method is empty for now)
+  // ADDITIONAL INFO - opens the joining information form, which saves the candidate as an employee
   // ============================================================
 
   onAddAdditionalInfo() {
@@ -497,20 +496,7 @@ export class CandidateView {
 
     if (!candidate) return;
 
-    this.addingAdditionalInfo.set(true);
-
-    this.candidateService.addAdditionalInfo(candidate.id).subscribe({
-      next: () => {
-        this.alertService.success('Success', 'Additional info saved');
-        this.candidateStore.refreshDetail();
-      },
-      error: (error: any) =>
-        this.alertService.error(
-          'Failed',
-          error?.error?.message ?? 'Unable to save additional info.',
-        ),
-      complete: () => this.addingAdditionalInfo.set(false),
-    });
+    this.onUpdateAction.emit(candidate);
   }
 
   // ============================================================
