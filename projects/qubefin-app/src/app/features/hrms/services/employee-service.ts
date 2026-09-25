@@ -127,6 +127,6 @@ export class EmployeeService {
   }
 
   getGrossSalaryPreview(data: any) {
-    return this.httpClient.post(`${ApiPaths.HRMS}/employees/gross-salary-preview`, data);
+    return this.httpClient.post(`${ApiPaths.HRMS}/employees/get-salary-structure-by-gross`, data);
   }
 }

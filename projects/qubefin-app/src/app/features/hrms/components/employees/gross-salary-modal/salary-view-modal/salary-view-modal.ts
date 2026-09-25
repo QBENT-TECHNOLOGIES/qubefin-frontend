@@ -10,32 +10,6 @@ import {
 } from '../../../../models/employee-detail';
 import { EmployeeService } from '../../../../services/employee-service';
 
-/**
- * TEMPORARY: set this to false once the real `gross-salary-preview` backend
- * endpoint is ready. While true, the modal ignores the API and renders the
- * static MOCK_SALARY_PREVIEW below - just for checking the UI/layout.
- */
-// const DEMO_MODE = true;
-
-// const MOCK_SALARY_PREVIEW: IEmployeeSalaryPreview = {
-//   employeeCode: 'WGCBO083',
-//   employeeName: 'Tapas Barman',
-//   organizationUnitName: 'Mathabhanga Branch',
-//   designationTitle: 'Credit Officer II',
-//   salaryGradeName: 'VI',
-//   earningHeads: [
-//     { id: '1', salaryComponentName: 'Basic Salary', amount: 7750 },
-//     { id: '2', salaryComponentName: 'House Rent Allowance (HRA)', amount: 3100 },
-//     { id: '3', salaryComponentName: 'Conveyance Allowance', amount: 2325 },
-//     { id: '4', salaryComponentName: 'Medical Allowance', amount: 2325 },
-//   ],
-//   deductionHeads: [
-//     { id: '1', salaryComponentName: 'Employee PF', amount: 1488 },
-//     { id: '2', salaryComponentName: 'ESI', amount: 117 },
-//     { id: '3', salaryComponentName: 'Professional Tax (P.F.)', amount: 130 },
-//   ],
-// };
-
 @Component({
   selector: 'qfin-salary-view-modal',
   imports: [CommonModule, MatDialogModule, LucideDynamicIcon],
@@ -59,9 +33,9 @@ export class SalaryViewModal {
       //   return of(MOCK_SALARY_PREVIEW).pipe(delay(600));
       // }
 
-      if (!params.employeeId || params.grossSalary == null || params.pfAmount == null) {
-        return of(null);
-      }
+      // if (!params.employeeId || !params.salaryGradeId || params.grossSalary == null || params.pfAmount == null) {
+      //   return of(null);
+      // }
       return this.employeeService.getGrossSalaryPreview(params);
     },
   });

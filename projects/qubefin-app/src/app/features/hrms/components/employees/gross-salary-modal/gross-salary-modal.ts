@@ -76,7 +76,7 @@ export class GrossSalaryModal {
   protected readonly grossChangeSchema: Schema<IGrossSalary> = schema((path) => {
     required(path.salaryGradeId, { message: 'Grade is required' });
     required(path.grossSalary, { message: 'Gross Salary is required' });
-    required(path.pfAmount, { message: 'PF Amount is required' });
+    // required(path.pFamount, { message: 'PF Amount is required' });
     required(path.effectiveFrom, { message: 'Effective From is required' });
     readonly(path.effectiveFrom, { when: () => true });
   });
@@ -116,7 +116,7 @@ export class GrossSalaryModal {
                 this.grossChangeModel.update((state) => ({
                   ...state,
                   grossSalary: officialInfo.grossSalary || null,
-                  pfAmount: officialInfo.pfAmount || null,
+                  pfAmount: officialInfo.pFamount || null,
                   salaryGradeId: officialInfo.salaryGradeId || '',
                   effectiveFrom: null,
                 }));
@@ -189,14 +189,11 @@ export class GrossSalaryModal {
     }
   }
   onView(): void {
+    this.grossChangeForm().markAsTouched();
+    if (!this.grossChangeForm().valid()) {
+      return;
+    }
     const formValue = this.grossChangeForm().value();
-
-    // if (!formValue.grossSalary || !formValue.pfAmount) {
-    //   this.alertService.error(
-    //     'Please enter Gross Salary and PF Amount before viewing the salary breakup.',
-    //   );
-    //   return;
-    // }
 
     this.dialog.open(SalaryViewModal, {
       data: {
