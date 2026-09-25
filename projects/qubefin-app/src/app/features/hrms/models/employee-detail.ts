@@ -728,6 +728,7 @@ export interface IEmployeeSalaryPreview {
 }
 export interface IGrossSalaryPreviewRequest {
   employeeId: string;
+  salaryGradeId: string;
   grossSalary: number;
   pfAmount: number;
 }

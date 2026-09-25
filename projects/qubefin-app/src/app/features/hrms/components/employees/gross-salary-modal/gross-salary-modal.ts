@@ -201,6 +201,7 @@ export class GrossSalaryModal {
     this.dialog.open(SalaryViewModal, {
       data: {
         employeeId: this.empId(),
+        salaryGradeId: formValue.salaryGradeId,
         grossSalary: formValue.grossSalary,
         pfAmount: formValue.pfAmount,
       },

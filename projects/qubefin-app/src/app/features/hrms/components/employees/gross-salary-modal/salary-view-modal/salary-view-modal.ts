@@ -50,6 +50,7 @@ export class SalaryViewModal {
   private readonly previewResource = rxResource({
     params: (): IGrossSalaryPreviewRequest => ({
       employeeId: this.dialogData?.employeeId,
+      salaryGradeId: this.dialogData?.salaryGradeId,
       grossSalary: this.dialogData?.grossSalary,
       pfAmount: this.dialogData?.pfAmount,
     }),
