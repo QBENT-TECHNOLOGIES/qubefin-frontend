@@ -49,6 +49,9 @@
             </div>
             <input matInput type="text" [formField]="$any(employeeForm)['middleName']" autocomplete="off"
                 placeholder="Enter middle name">
+            <mat-error class="cus-error">
+                {{ employeeForm.middleName().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Last Name</mat-label>
@@ -125,6 +128,23 @@
                 placeholder="Enter Mother Name">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Marital Status</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="employeeForm.maritalStatus" placeholder="Select Marital">
+                @for (mrst of maritalStatuses(); track mrst) {
+                <mat-option [value]="mrst.sysVal">
+                    {{ mrst.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ employeeForm.maritalStatus().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        @if(employeeForm.maritalStatus()?.value()==="Married"){
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Spouse Name</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="user" class="w-5 h-5"></svg>
@@ -149,6 +169,7 @@
                 {{ employeeForm.religion().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
+        }
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Caste</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -208,22 +229,6 @@
                 </mat-option>
                 }
             </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Marital Status</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="tag" class="w-5 h-5"></svg>
-            </div>
-            <mat-select [formField]="employeeForm.maritalStatus" placeholder="Select Marital">
-                @for (mrst of maritalStatuses(); track mrst) {
-                <mat-option [value]="mrst.sysVal">
-                    {{ mrst.sysVal }}
-                </mat-option>
-                }
-            </mat-select>
-            <mat-error class="cus-error">
-                {{ employeeForm.maritalStatus().errors()[0]?.message }}
-            </mat-error>
         </mat-form-field>
     </div>
 
