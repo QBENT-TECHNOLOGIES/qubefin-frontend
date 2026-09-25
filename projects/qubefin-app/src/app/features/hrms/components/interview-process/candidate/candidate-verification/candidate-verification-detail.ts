@@ -1,6 +1,5 @@
 import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
@@ -8,9 +7,9 @@ import { Router } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import {
+  CandidateVerificationCheck,
   CandidateVerificationService,
   ICandidateVerification,
-  ICandidateVerificationUpdateRequest,
 } from '../../../../services/candidate-verification.service';
 
 type BooleanVerificationKey =
@@ -23,22 +22,33 @@ type BooleanVerificationKey =
 
 export interface IVerificationItemConfig {
   key: BooleanVerificationKey;
-  /** Field on `ICandidateVerification` holding the document number/value to display next to this check, if any. */
-  numberField?: keyof ICandidateVerification;
+  /** Check name the verify endpoint takes for this row. */
+  check: CandidateVerificationCheck;
+  /** Field on `ICandidateVerification` holding the value entered and saved for this check. */
+  valueField: keyof ICandidateVerification;
   label: string;
+  placeholder: string;
+  maxLength: number;
+  /** Format the value must match before it can be verified. Mirrors VerifyCandidateCheckCommandValidator. */
+  pattern: RegExp;
+  patternMessage: string;
   desc: string;
   icon: string;
   mandatory: boolean;
   group: 'identity' | 'bureau';
 }
 
-// Mirrors the six flags on backend `CandidateVerificationDto` / `UpdateCandidateVerificationCommand`.
-// There is no external verification API - HR/Admin ticks each box after checking it themselves, so
-// these are plain checkboxes, not an async "Verify" action with a Pending/In Progress/Failed lifecycle.
+// Mirrors the six flags on backend `CandidateVerificationDto`. There is no external verification API - HR/Admin
+// checks the value themselves, then "Verify" sets the flag and saves the value on the candidate.
 export const VERIFICATION_ITEMS: IVerificationItemConfig[] = [
   {
     key: 'isAadharValidated',
-    numberField: 'aadharNumber',
+    check: 'Aadhar',
+    pattern: /^\d{12}$/,
+    patternMessage: 'Aadhaar number must be exactly 12 digits',
+    valueField: 'aadharNumber',
+    placeholder: '12-digit Aadhaar number',
+    maxLength: 12,
     label: 'Aadhaar Verification',
     desc: 'Identity verified against Aadhaar',
     icon: 'fingerprint',
@@ -47,7 +57,12 @@ export const VERIFICATION_ITEMS: IVerificationItemConfig[] = [
   },
   {
     key: 'isPanValidated',
-    numberField: 'pan',
+    check: 'Pan',
+    pattern: /^[A-Z]{5}\d{4}[A-Z]$/i,
+    patternMessage: 'PAN must be in the format ABCDE1234F',
+    valueField: 'pan',
+    placeholder: 'e.g. ABCDE1234F',
+    maxLength: 10,
     label: 'PAN Verification',
     desc: 'Identity verified against PAN',
     icon: 'credit-card',
@@ -56,7 +71,12 @@ export const VERIFICATION_ITEMS: IVerificationItemConfig[] = [
   },
   {
     key: 'isVoterValited',
-    numberField: 'voterNumber',
+    check: 'Voter',
+    pattern: /^[A-Z]{3}\d{7}$/i,
+    patternMessage: 'Voter ID must be 3 letters followed by 7 digits',
+    valueField: 'voterNumber',
+    placeholder: 'Voter ID number',
+    maxLength: 20,
     label: 'Voter ID Verification',
     desc: 'Identity verified against Voter ID',
     icon: 'vote',
@@ -65,7 +85,12 @@ export const VERIFICATION_ITEMS: IVerificationItemConfig[] = [
   },
   {
     key: 'isMobileValidated',
-    numberField: 'mobileNo',
+    check: 'Mobile',
+    pattern: /^[6-9]\d{9}$/,
+    patternMessage: 'Enter a valid 10-digit mobile number',
+    valueField: 'mobileNo',
+    placeholder: '10-digit mobile number',
+    maxLength: 10,
     label: 'Mobile Number',
     desc: 'Mobile number confirmed',
     icon: 'smartphone',
@@ -74,7 +99,12 @@ export const VERIFICATION_ITEMS: IVerificationItemConfig[] = [
   },
   {
     key: 'isUanVerified',
-    numberField: 'uan',
+    check: 'Uan',
+    pattern: /^\d{12}$/,
+    patternMessage: 'UAN must be exactly 12 digits',
+    valueField: 'uan',
+    placeholder: '12-digit UAN',
+    maxLength: 12,
     label: 'UAN Verification',
     desc: 'Verified with EPFO (Optional)',
     icon: 'building-2',
@@ -83,6 +113,12 @@ export const VERIFICATION_ITEMS: IVerificationItemConfig[] = [
   },
   {
     key: 'isCreditBureauChecked',
+    check: 'CreditBureau',
+    pattern: /^https?:\/\/\S+$/i,
+    patternMessage: 'Enter a valid link starting with http:// or https://',
+    valueField: 'creditBureauReportLink',
+    placeholder: 'https://...',
+    maxLength: 500,
     label: 'Credit Bureau Report',
     desc: 'Credit bureau report reviewed',
     icon: 'file-bar-chart',
@@ -96,7 +132,6 @@ export const VERIFICATION_ITEMS: IVerificationItemConfig[] = [
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     LucideDynamicIcon,
@@ -120,13 +155,11 @@ export class CandidateVerificationDetail implements OnInit {
   readonly bureauItems = VERIFICATION_ITEMS.filter((i) => i.group === 'bureau');
   private readonly mandatoryItems = VERIFICATION_ITEMS.filter((i) => i.mandatory);
 
-  readonly creditBureauReportLink = new FormControl('', {
-    validators: [Validators.maxLength(500)],
-    nonNullable: true,
-  });
-
   isLoading = signal(false);
-  isSaving = signal(false);
+  /** Key of the row whose Verify call is in flight. */
+  verifyingKey = signal<BooleanVerificationKey | null>(null);
+  /** What HR has typed in each row's input, seeded from the saved values. */
+  inputValues = signal<Partial<Record<BooleanVerificationKey, string>>>({});
 
   verificationData = signal<ICandidateVerification>({
     candidateId: '',
@@ -172,7 +205,7 @@ export class CandidateVerificationDetail implements OnInit {
         this.isLoading.set(false);
         if (res) {
           this.verificationData.set(res);
-          this.creditBureauReportLink.setValue(res.creditBureauReportLink ?? '');
+          this.seedInputs(res);
         }
       },
       error: () => {
@@ -182,45 +215,63 @@ export class CandidateVerificationDetail implements OnInit {
     });
   }
 
-  /** HR/Admin ticks or unticks a check after personally verifying it. Not persisted until Save. */
-  toggleItem(key: BooleanVerificationKey) {
-    this.verificationData.update((v) => ({ ...v, [key]: !v[key] }));
+  private seedInputs(data: ICandidateVerification) {
+    const values: Partial<Record<BooleanVerificationKey, string>> = {};
+    for (const item of VERIFICATION_ITEMS) {
+      const value = data[item.valueField];
+      values[item.key] = typeof value === 'string' ? value : '';
+    }
+    this.inputValues.set(values);
   }
 
-  saveVerification() {
-    const data = this.verificationData();
-    const request: ICandidateVerificationUpdateRequest = {
-      isAadharValidated: data.isAadharValidated,
-      isVoterValited: data.isVoterValited,
-      isPanValidated: data.isPanValidated,
-      isMobileValidated: data.isMobileValidated,
-      isUanVerified: data.isUanVerified,
-      isCreditBureauChecked: data.isCreditBureauChecked,
-      creditBureauReportLink: this.creditBureauReportLink.value || undefined,
-    };
+  /** Rows whose format error is shown - after the first edit or a Verify attempt. */
+  readonly touchedKeys = signal<Set<BooleanVerificationKey>>(new Set());
 
-    this.isSaving.set(true);
-    this.verificationService.updateVerification(this.candidateId, request).subscribe({
+  /** Format error for the row's current value, or '' when it is empty or valid. */
+  getPatternError(item: IVerificationItemConfig): string {
+    if (this.isChecked(item.key) || !this.touchedKeys().has(item.key)) return '';
+    const value = this.getInputValue(item).trim();
+    return value && !item.pattern.test(value) ? item.patternMessage : '';
+  }
+
+  getInputValue(item: IVerificationItemConfig): string {
+    return this.inputValues()[item.key] ?? '';
+  }
+
+  onInputChange(item: IVerificationItemConfig, value: string) {
+    this.inputValues.update((v) => ({ ...v, [item.key]: value }));
+    this.touchedKeys.update((keys) => new Set(keys).add(item.key));
+  }
+
+  /** Sets this check's flag on the candidate and saves the entered value. */
+  verifyItem(item: IVerificationItemConfig) {
+    const value = this.getInputValue(item).trim();
+    if (!value) {
+      this.alertService.error('Required', `Enter the ${item.label.replace(' Verification', '')} value before verifying.`);
+      return;
+    }
+    if (!item.pattern.test(value)) {
+      this.touchedKeys.update((keys) => new Set(keys).add(item.key));
+      return;
+    }
+
+    this.verifyingKey.set(item.key);
+    this.verificationService.verifyCheck(this.candidateId, item.check, value).subscribe({
       next: (res) => {
-        this.isSaving.set(false);
+        this.verifyingKey.set(null);
         this.verificationData.set(res);
-        this.alertService.success('Success', 'Verification status saved.');
+        this.seedInputs(res);
+        this.alertService.success('Verified', `${item.label} marked as verified.`);
       },
       error: () => {
-        this.isSaving.set(false);
-        this.alertService.error('Error', 'Could not save verification status. Please try again.');
+        this.verifyingKey.set(null);
+        this.alertService.error('Error', `Could not verify ${item.label}. Please try again.`);
       },
     });
   }
 
   isChecked(key: BooleanVerificationKey): boolean {
     return !!this.verificationData()[key];
-  }
-
-  getNumberValue(item: IVerificationItemConfig): string {
-    if (!item.numberField) return '';
-    const value = this.verificationData()[item.numberField];
-    return typeof value === 'string' ? value : '';
   }
 
   getStatusClass(isVerified: boolean) {

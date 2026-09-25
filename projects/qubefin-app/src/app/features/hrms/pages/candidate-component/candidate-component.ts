@@ -47,6 +47,8 @@ export class CandidateComponent {
   readonly companyStore = inject(CompanyStore);
   readonly isUpdateMode = signal<boolean>(false);
   readonly isViewMode = signal<boolean>(true);
+  /** Candidate form is open on an existing candidate (basic details edit). */
+  readonly isEditDetailsMode = signal<boolean>(false);
   readonly showFilterArea = signal<boolean>(false);
   readonly selectedCandidateId = signal<string>(EMPTY_UUID);
   readonly candidates = this.candidateStore.candidates;
@@ -64,6 +66,20 @@ export class CandidateComponent {
     this.selectedCandidateId.set(id);
     this.isViewMode.set(true);
     this.isUpdateMode.set(false);
+    this.isEditDetailsMode.set(false);
+  }
+  // Opens the candidate form on the selected candidate to edit its basic details.
+  protected onEditDetails(id: string) {
+    this.selectedCandidateId.set(id);
+    this.isViewMode.set(false);
+    this.isUpdateMode.set(false);
+    this.isEditDetailsMode.set(true);
+  }
+  // Leaving the edit form goes back to that candidate's view, not the list.
+  protected onEditDetailsDone() {
+    const id = this.selectedCandidateId();
+    this.candidateStore.refreshDetail();
+    this.onView(id);
   }
   // Opens the joining information form for the candidate (Add Additional Info).
   protected onEdit(candidate: ICandidate) {
@@ -74,10 +90,12 @@ export class CandidateComponent {
   }
   protected onAdd() {
     this.isViewMode.set(false);
+    this.isEditDetailsMode.set(false);
     this.selectedCandidateId.set(EMPTY_UUID);
     this.isUpdateMode.set(false);
   }
   protected closePanel() {
+    this.isEditDetailsMode.set(false);
     this.selectedCandidateId.set(EMPTY_UUID);
     this.isViewMode.set(true);
     this.isUpdateMode.set(false);

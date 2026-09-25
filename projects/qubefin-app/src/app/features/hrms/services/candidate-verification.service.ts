@@ -37,6 +37,9 @@ export interface ICandidateVerificationUpdateRequest {
   creditBureauReportLink?: string;
 }
 
+// Mirrors backend `CandidateVerificationCheck` (sent as its string name).
+export type CandidateVerificationCheck = 'Aadhar' | 'Voter' | 'Pan' | 'Mobile' | 'Uan' | 'CreditBureau';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -51,6 +54,14 @@ export class CandidateVerificationService {
   // checks HR/Admin performed manually. All six flags are sent together in one call.
   updateVerification(candidateId: string, request: ICandidateVerificationUpdateRequest) {
     return this.httpClient.put<ICandidateVerification>(`${ApiPaths.HRMS}/candidate-verifications/${candidateId}`, request);
+  }
+
+  /** Verifies one check: sets its flag on the candidate and saves the value entered for it. */
+  verifyCheck(candidateId: string, check: CandidateVerificationCheck, value: string | null) {
+    return this.httpClient.post<ICandidateVerification>(
+      `${ApiPaths.HRMS}/candidate-verifications/${candidateId}/verify`,
+      { check, value },
+    );
   }
 
   // NOTE: removed `verifyDocument` - it called a `.../verify/{documentType}` route that does not exist

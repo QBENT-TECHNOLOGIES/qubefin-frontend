@@ -4,10 +4,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { CandidateInterviewStatus, ICandidateList } from '../../../../models/candidate';
+import { CandidateInterviewStatus, ICandidateDownloadFile, ICandidateList } from '../../../../models/candidate';
 import { MatMenuModule } from '@angular/material/menu';
 import { Observable } from 'rxjs';
-import { AlertService } from 'qubefin-core';
+import { AlertService, DocumentModalService } from 'qubefin-core';
 import { HrmsReportService } from '../../../../../Report/Service/hrms-report-service';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
@@ -47,6 +47,7 @@ export class CandidateList {
   private readonly dialog = inject(MatDialog);
   private readonly hrReportService = inject(HrmsReportService);
   private readonly alertService = inject(AlertService);
+  private readonly documentModalService = inject(DocumentModalService);
   readonly downloadingReport = signal<string | null>(null);
 
   // Reports each stage makes available; a candidate gets every report up to and including their stage.
@@ -149,22 +150,35 @@ export class CandidateList {
     }
   }
 
-  onDownloadReport(item: ICandidateList, report: CandidateReport) {
+  /** Generates the report and shows it in the shared document viewer, which offers the download. */
+  onOpenReport(item: ICandidateList, report: CandidateReport) {
     this.downloadingReport.set(item.id);
     report.download(item.id).subscribe({
       next: (blob) => {
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = `${report.fileName}_${item.referenceNo}.pdf`;
-        link.click();
-        window.URL.revokeObjectURL(downloadUrl);
+        this.documentModalService.open({
+          url: URL.createObjectURL(blob),
+          documentName: `${report.fileName}_${item.referenceNo}`,
+          extension: 'pdf',
+          downloadAccess: true,
+        });
         this.downloadingReport.set(null);
       },
       error: () => {
         this.downloadingReport.set(null);
-        this.alertService.error('Failed', `Unable to download ${report.name}.`);
+        this.alertService.error('Failed', `Unable to open ${report.name}.`);
       },
+    });
+  }
+
+  /** Opens an uploaded candidate file (already a URL from the API) in the shared document viewer. */
+  onOpenFile(item: ICandidateList, file: ICandidateDownloadFile) {
+    const path = file.url.split('?')[0];
+    const extension = path.includes('.') ? path.split('.').pop()!.toLowerCase() : '';
+    this.documentModalService.open({
+      url: file.url,
+      documentName: `${file.name.toLowerCase().replace(/\s+/g, '_')}_${item.referenceNo}`,
+      extension,
+      downloadAccess: true,
     });
   }
 

@@ -13,6 +13,8 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { EMPTY_UUID, AlertService, ApiPaths } from 'qubefin-core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
+import { catchError, of } from 'rxjs';
+import { HrmsReportService } from '../../../../../Report/Service/hrms-report-service';
 
 export interface IAssessmentModel {
   appearanceAttitudeRating: number;
@@ -114,6 +116,7 @@ import { EmployeeStore } from '../../../../stores/employee-store';
 })
 export class InterviewPanelDetail implements OnInit {
   private readonly panelService = inject(InterviewPanelService);
+  private readonly hrReportService = inject(HrmsReportService);
   private readonly alertService = inject(AlertService);
   private readonly panelStore = inject(InterviewPanelStore);
   private readonly dialog = inject(MatDialog);
@@ -449,20 +452,27 @@ export class InterviewPanelDetail implements OnInit {
       return;
     }
 
-    const scheduleData = {
-      candidateId,
-      panelists,
-    };
+    this.withAcknowledgement(candidateId, (acknowledgement) =>
+      this.panelService.schedulePanel(candidateId, panelists as any, acknowledgement).subscribe({
+        next: (message: any) => {
+          this.alertService
+            .success('Success', typeof message === 'string' ? message : 'Panel Scheduled')
+            .then(() => {
+              this.panelStore.refreshPanels();
+              this.save.emit();
+            });
+        },
+        error: () => {},
+      }),
+    );
+  }
 
-    (this.panelService.schedulePanel(scheduleData) as any).subscribe({
-      next: () => {
-        this.alertService.success('Success', 'Panel Scheduled').then(() => {
-          this.panelStore.refreshPanels();
-          this.save.emit();
-        });
-      },
-      error: () => {},
-    });
+  /** Fetches the interview panel acknowledgement PDF that the API mails to the panelists. If the report fails,
+   * the panel is still saved - the mail just goes without the attachment. */
+  private withAcknowledgement(candidateId: string, send: (acknowledgement: Blob | null) => void) {
+    (this.hrReportService.getInterviewPanelAcknowledgement(candidateId) as any)
+      .pipe(catchError(() => of(null)))
+      .subscribe((file: Blob | null) => send(file));
   }
 
   /** Adds the currently selected employees as panelists on a candidate that already has a panel. */
@@ -471,18 +481,22 @@ export class InterviewPanelDetail implements OnInit {
   ) {
     const candidateId = this.candidateIdForPanel();
 
-    this.panelService.addPanelists(candidateId, panelists as any).subscribe({
-      next: () => {
-        this.alertService.success('Success', 'Panelist(s) added').then(() => {
-          this.selectedPanelists.set([]);
-          this.showAddPanelists.set(false);
-          this.fetchPanelDetails();
-          this.panelStore.refreshPanels();
-          this.save.emit();
-        });
-      },
-      error: () => this.alertService.error('Error', 'Failed to add panelist(s)'),
-    });
+    this.withAcknowledgement(candidateId, (acknowledgement) =>
+      this.panelService.addPanelists(candidateId, panelists as any, acknowledgement).subscribe({
+        next: (message: any) => {
+          this.alertService
+            .success('Success', typeof message === 'string' ? message : 'Panelist(s) added')
+            .then(() => {
+              this.selectedPanelists.set([]);
+              this.showAddPanelists.set(false);
+              this.fetchPanelDetails();
+              this.panelStore.refreshPanels();
+              this.save.emit();
+            });
+        },
+        error: () => this.alertService.error('Error', 'Failed to add panelist(s)'),
+      }),
+    );
   }
 
   onSubmitAssessment() {

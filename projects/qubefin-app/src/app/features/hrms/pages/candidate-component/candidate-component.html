@@ -119,7 +119,7 @@
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                                     <span
                                         class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                                        {{ isUpdateMode() ? 'Edit Mode' : 'View Mode' }}
+                                        {{ isUpdateMode() || isEditDetailsMode() ? 'Edit Mode' : 'View Mode' }}
                                     </span>
                                 </div>
                             </div>
@@ -139,7 +139,8 @@
                 @if (isViewMode() && selectedCandidateId() !== EMPTY_UUID) {
 
                 <!-- VIEW -->
-                <qfin-candidate-view [candidateId]="selectedCandidateId()" (onUpdateAction)="onEdit($event)">
+                <qfin-candidate-view [candidateId]="selectedCandidateId()" (onUpdateAction)="onEdit($event)"
+                    (onEditDetails)="onEditDetails($event)">
                 </qfin-candidate-view>
 
                 } @else if (isUpdateMode()) {
@@ -148,10 +149,17 @@
                     (onProcessComplete)="closePanel()">
                 </qfin-candidate-joining-info>
 
+                } @else if (isEditDetailsMode()) {
+
+                <!-- EDIT BASIC DETAILS -->
+                <qfin-candidate-detail [candidateId]="selectedCandidateId()" (cancel)="onEditDetailsDone()"
+                    (save)="onEditDetailsDone()">
+                </qfin-candidate-detail>
+
                 } @else {
 
                 <!-- CREATE -->
-                <qfin-candidate-detail [candidateId]="selectedCandidateId()" (cancel)="closePanel()"
+                <qfin-candidate-detail [candidateId]="EMPTY_UUID" (cancel)="closePanel()"
                     (save)="closePanel()">
                 </qfin-candidate-detail>
 

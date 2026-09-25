@@ -5,7 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { DateAdapter, MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { AlertService } from 'qubefin-core';
@@ -49,10 +49,11 @@ export const RECOMMENDATION_OPTIONS = [
     ReactiveFormsModule,
     LucideDynamicIcon,
   ],
-  providers: [DatePipe],
+  providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './hr-assessment-form.html',
 })
 export class HrAssessmentForm implements OnInit {
+  readonly dateAdapter = inject(DateAdapter<Date>);
   dialogRef = inject(MatDialogRef<HrAssessmentForm>);
   data = inject(MAT_DIALOG_DATA);
   private hrAssessmentService = inject(HrAssessmentService);
@@ -114,7 +115,9 @@ export class HrAssessmentForm implements OnInit {
     const total = this.totalAverage();
     return total == null ? 0 : Math.round((total / this.maxScore) * 100);
   });
-  readonly panelists = computed<IPanelistRatingSummaryDto[]>(() => this.assessment()?.panelists ?? []);
+  readonly panelists = computed<IPanelistRatingSummaryDto[]>(
+    () => this.assessment()?.panelists ?? [],
+  );
 
   readonly decisionForm = new FormGroup({
     // Salary & joining - facts about the candidate, confirmed here by HR.
@@ -129,7 +132,9 @@ export class HrAssessmentForm implements OnInit {
     suitableRoleDepartment: new FormControl('', { nonNullable: true }),
     recommendedGradeId: new FormControl<string | null>(null),
     isTrainingRequired: new FormControl(false, { nonNullable: true }),
-    recommendationStatus: new FormControl<string | null>(null, { validators: [Validators.required] }),
+    recommendationStatus: new FormControl<string | null>(null, {
+      validators: [Validators.required],
+    }),
     anyOtherJobsSuitedRemarks: new FormControl('', { nonNullable: true }),
     isRecommendedForPosition: new FormControl<boolean | null>(null),
     positiveRemarks: new FormControl('', { nonNullable: true }),
@@ -145,6 +150,9 @@ export class HrAssessmentForm implements OnInit {
     this.loadAssessment();
   }
 
+  constructor() {
+    this.dateAdapter.setLocale('en-GB');
+  }
   private loadAssessment() {
     if (!this.candidateId) return;
 
@@ -195,7 +203,8 @@ export class HrAssessmentForm implements OnInit {
   getAverageRating(key: string): number | null {
     const dto = this.assessment();
     if (!dto) return null;
-    const propName = `average${key.charAt(0).toUpperCase()}${key.slice(1)}Rating` as keyof IHrAssessmentFormDto;
+    const propName =
+      `average${key.charAt(0).toUpperCase()}${key.slice(1)}Rating` as keyof IHrAssessmentFormDto;
     const value = dto[propName];
     return typeof value === 'number' ? value : null;
   }
@@ -226,7 +235,10 @@ export class HrAssessmentForm implements OnInit {
       error: (error: any) => {
         this.isSavingInterviewMode.set(false);
         this.interviewMode.set(previous);
-        this.alertService.error('Error', error?.error?.message ?? 'Unable to update interview mode.');
+        this.alertService.error(
+          'Error',
+          error?.error?.message ?? 'Unable to update interview mode.',
+        );
       },
     });
   }
@@ -248,7 +260,10 @@ export class HrAssessmentForm implements OnInit {
     if (!this.candidateId || this.isLocked()) return;
 
     if (!this.interviewMode()) {
-      this.alertService.error('Incomplete', 'Please select the interview mode (Online/Offline) before saving.');
+      this.alertService.error(
+        'Incomplete',
+        'Please select the interview mode (Online/Offline) before saving.',
+      );
       return;
     }
 
@@ -270,7 +285,10 @@ export class HrAssessmentForm implements OnInit {
     if (!this.candidateId || this.isLocked()) return;
 
     if (!this.interviewMode()) {
-      this.alertService.error('Incomplete', 'Please select the interview mode (Online/Offline) before submitting.');
+      this.alertService.error(
+        'Incomplete',
+        'Please select the interview mode (Online/Offline) before submitting.',
+      );
       return;
     }
 
@@ -288,7 +306,10 @@ export class HrAssessmentForm implements OnInit {
       },
       error: (error: any) => {
         this.isSubmitting.set(false);
-        this.alertService.error('Error', error?.error?.message ?? 'Unable to submit HR Assessment.');
+        this.alertService.error(
+          'Error',
+          error?.error?.message ?? 'Unable to submit HR Assessment.',
+        );
       },
     });
   }

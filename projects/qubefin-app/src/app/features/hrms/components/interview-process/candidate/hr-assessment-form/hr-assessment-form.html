@@ -373,8 +373,8 @@
                     <mat-label>Overall Performance Remarks</mat-label>
                     <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="file-text"
                             class="w-[16px] h-[16px]"></svg></div>
-                    <textarea matInput formControlName="overallPerformance" placeholder="Enter remarks"
-                        rows="2"></textarea>
+                    <input matInput formControlName="overallPerformance" placeholder="Enter remarks"
+                        rows="2">
                 </mat-form-field>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -392,7 +392,7 @@
                                 class="w-[16px] h-[16px]"></svg></div>
                         <mat-select formControlName="recommendedGradeId" placeholder="Select grade">
                             @for (grade of salaryGrades(); track grade.id) {
-                            <mat-option [value]="grade.id">{{ grade.name }} ({{ grade.code }})</mat-option>
+                            <mat-option [value]="grade.id">{{ grade.name }}</mat-option>
                             }
                         </mat-select>
                     </mat-form-field>
@@ -498,7 +498,7 @@
                         <mat-label>Positive Remarks</mat-label>
                         <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="plus-circle"
                                 class="w-[16px] h-[16px]"></svg></div>
-                        <textarea matInput formControlName="positiveRemarks" placeholder="Enter remarks" rows="2"></textarea>
+                        <input matInput formControlName="positiveRemarks" placeholder="Enter remarks" rows="2">
                         @if (isHrOnlyInterviewer() && !isLocked()) {
                         <mat-hint>Locked - from your own interviewer assessment.</mat-hint>
                         }
@@ -508,7 +508,7 @@
                         <mat-label>Negative Remarks</mat-label>
                         <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="minus-circle"
                                 class="w-[16px] h-[16px]"></svg></div>
-                        <textarea matInput formControlName="negativeRemarks" placeholder="Enter remarks" rows="2"></textarea>
+                        <input matInput formControlName="negativeRemarks" placeholder="Enter remarks" rows="2">
                         @if (isHrOnlyInterviewer() && !isLocked()) {
                         <mat-hint>Locked - from your own interviewer assessment.</mat-hint>
                         }

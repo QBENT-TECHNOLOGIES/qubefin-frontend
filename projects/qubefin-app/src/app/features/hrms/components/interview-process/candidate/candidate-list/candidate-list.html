@@ -66,7 +66,7 @@
                         <svg lucideIcon="loader" class="w-5 h-5 animate-spin text-secondary-600/80"></svg>
                     </div>
                     } @else {
-                    <div matTooltip="Download" [matMenuTriggerFor]="reportsList"
+                    <div matTooltip="Reports" [matMenuTriggerFor]="reportsList"
                         class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-gray-500/8">
                         <svg lucideIcon="download" class="w-5 h-5 text-secondary-600/80 dark:text-primary-600"></svg>
                     </div>
@@ -74,9 +74,17 @@
                 </div>
                 <mat-menu #reportsList="matMenu" class="menus-area">
                     @for (report of reportsFor(item.interviewStatus); track report.fileName) {
-                    <button mat-menu-item (click)="onDownloadReport(item, report)">
-                        <svg lucideIcon="file-down" class="w-5 h-5 text-teal-600 dark:text-teal-500 hover:text-teal-700"></svg>
-                        <span>{{ report.name }}</span>
+                    <button mat-menu-item class="!h-auto !min-h-12 !py-1.5" [matTooltip]="report.name"
+                        matTooltipPosition="left" (click)="onOpenReport(item, report)">
+                        <svg lucideIcon="file-text" class="w-5 h-5 shrink-0 text-teal-600 dark:text-teal-500"></svg>
+                        <span class="block max-w-44 whitespace-normal break-words leading-4 line-clamp-2">{{ report.name }}</span>
+                    </button>
+                    }
+                    @for (file of item.downloads ?? []; track file.name) {
+                    <button mat-menu-item class="!h-auto !min-h-12 !py-1.5" [matTooltip]="file.name"
+                        matTooltipPosition="left" (click)="onOpenFile(item, file)">
+                        <svg lucideIcon="paperclip" class="w-5 h-5 shrink-0 text-sky-600 dark:text-sky-500"></svg>
+                        <span class="block max-w-44 whitespace-normal break-words leading-4 line-clamp-2">{{ file.name }}</span>
                     </button>
                     }
                 </mat-menu>

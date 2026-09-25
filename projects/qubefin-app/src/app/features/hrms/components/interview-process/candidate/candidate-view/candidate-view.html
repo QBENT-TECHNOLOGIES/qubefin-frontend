@@ -18,6 +18,12 @@
                 <div>
                     <div class="box-title-group">
                         <h1 class="box-title">{{ data.candidateFullName || '-' }}</h1>
+                        <!-- EDIT DETAILS - until the offer letter is received (the API rejects edits after that) -->
+                        @if (!data.isOfferLetterReceived && data.isHR) {
+                        <div class="box-edit-btn" matTooltip="Edit Details" (click)="onEditCandidateDetails()">
+                            <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
+                        </div>
+                        }
                     </div>
                     <p class="box-subTitle text-xs! flex items-center gap-1.5 flex-wrap">
                         <span class="inline-flex items-center gap-1">
@@ -104,7 +110,7 @@
                     }
 
                     <!-- INTERVIEW FORMAT: DOWNLOAD / UPLOAD - one split button, like the letters. -->
-                    @if (showInterviewFormatActions()) {
+                    @if (showInterviewFormatActions() && data.isHR) {
                     <qfin-file-actions actionName="Interview Format" uploadLabel="Interview Upload"
                         [uploading]="uploadingInterviewFormat()" (download)="onDownloadInterviewFormat()"
                         (upload)="onInterviewUpload($event)" />
@@ -170,10 +176,10 @@
                     }
 
                     <!-- ADD ADDITIONAL INFO - unlocked by the uploaded joining letter -->
-                    @if (data.isJoiningLetterUploaded) {
+                    @if (data.isJoiningLetterUploaded && data.isHR) {
                     <button type="button" class="reset-btn shine-sweep lift" (click)="onAddAdditionalInfo()">
                         <svg lucideIcon="file-plus" class="w-4 h-4 mr-2"></svg>
-                        Add Additional Info
+                        {{data.isEmployeeCreated ? "Update " : "Add "}} Additional Info
                     </button>
                     }
 

@@ -297,6 +297,95 @@
                 <svg lucideIcon="chevron-left" class="w-4 h-4"></svg>
                 Previous
             </button>
+            @if (isEditMode()) {
+            <button type="button" matStepperNext class="global-btn ripple-btn shadow shine-sweep lift">
+                Next
+                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+            </button>
+            } @else {
+            <button type="button" (click)="onSubmit()"
+                class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                <svg lucideIcon="save" class="w-4 h-4"></svg>
+                Save
+            </button>
+            }
+            </div>
+        </div>
+    </mat-step>
+
+    <!-- Joining details - only on an existing candidate (Edit Details) -->
+    @if (isEditMode()) {
+    <mat-step>
+        <ng-template matStepLabel>Joining Details</ng-template>
+        <div class="space-y-4 animate-fade-in pt-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Organization Unit Type</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="building" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="candidateForm.postedOrganizationUnitTypeId" placeholder="Select Type"
+                    (selectionChange)="onPostedOrganizationUnitTypeChange($event.value)">
+                    @for (type of organizationUnitTypes(); track type.id) {
+                    <mat-option [value]="type.id">{{ type.name }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Posted Organization Unit</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="candidateForm.postedOrganizationUnitId"
+                    [placeholder]="formModel().postedOrganizationUnitTypeId ? 'Select Organization Unit' : 'Select a type first'">
+                    @for (unit of postedOrganizationUnits(); track unit.id) {
+                    <mat-option [value]="unit.id">{{ unit.name }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Date of Joining</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [matDatepicker]="joiningDate" autocomplete="off" (keydown)="$event.preventDefault()"
+                    [formField]="candidateForm.dateOfJoining">
+                <mat-datepicker-toggle matIconSuffix [for]="joiningDate"></mat-datepicker-toggle>
+                <mat-datepicker #joiningDate></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Reporting Time</mat-label>
+                <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                    <svg lucideIcon="clock-3" class="w-[16px] h-[16px]"></svg>
+                </div>
+                <input matInput type="text" [value]="formModel().reportingTime || ''" readonly
+                    placeholder="Select time" />
+                <button type="button" mat-icon-button matSuffix (click)="openReportingTimePicker()"
+                    class="text-primary-600">
+                    <svg lucideIcon="clock-3" class="w-[16px] h-[16px]"></svg>
+                </button>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Monthly Cost to Company</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="badge-indian-rupee" class="w-5 h-5"></svg>
+                </div>
+                <input matInput inputmode="decimal" autocomplete="off" [formField]="candidateForm.monthlyCostCompany"
+                    placeholder="Enter Monthly CTC">
+                <mat-error class="cus-error">
+                    {{ candidateForm.monthlyCostCompany().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+        </div>
+        </div>
+
+        <div class="step-footer-area">
+             <div class="flex flex-1 justify-end items-center gap-3">
+            <button type="button" matStepperPrevious
+                class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+                <svg lucideIcon="chevron-left" class="w-4 h-4"></svg>
+                Previous
+            </button>
             <button type="button" (click)="onSubmit()"
                 class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                 <svg lucideIcon="save" class="w-4 h-4"></svg>
@@ -305,4 +394,5 @@
             </div>
         </div>
     </mat-step>
+    }
 </mat-stepper>

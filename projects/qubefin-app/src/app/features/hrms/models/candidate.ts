@@ -7,6 +7,13 @@ export interface ICandidateList {
   recommendationStatus: string;
   referenceNo: string;
   interviewStatus: CandidateInterviewStatus;
+  /** Uploaded files (written interview form, credit bureau report, signed joining letter) the API offers at this stage. */
+  downloads?: ICandidateDownloadFile[];
+}
+
+export interface ICandidateDownloadFile {
+  name: string;
+  url: string;
 }
 
 // Stages shown in the candidate list, in order: HR assessment submitted -> offer letter received -> signed
@@ -471,4 +478,12 @@ export interface ICandidateDetail {
   policeStationId: string;
   postOfficeId: string;
   pinCode: string;
+
+  // Joining details - edited on an existing candidate only.
+  /** UI only: narrows the posted organization unit dropdown. Not stored on the candidate. */
+  postedOrganizationUnitTypeId: string;
+  postedOrganizationUnitId: string;
+  dateOfJoining: string;
+  reportingTime: string;
+  monthlyCostCompany: string;
 }

@@ -54,6 +54,8 @@ export class CandidateView {
   private readonly alertService = inject(AlertService);
   readonly dialog = inject(MatDialog);
   onUpdateAction = output<ICandidate>();
+  /** Opens the candidate form to edit the basic details - offered until the offer letter is received. */
+  onEditDetails = output<string>();
   readonly candidateId = model<string>(EMPTY_UUID);
 
   readonly candidate = this.candidateStore.candidate;
@@ -491,6 +493,14 @@ export class CandidateView {
   // ADDITIONAL INFO - opens the joining information form, which saves the candidate as an employee
   // ============================================================
 
+  onEditCandidateDetails() {
+    const candidate = this.getCandidate();
+
+    if (!candidate) return;
+
+    this.onEditDetails.emit(candidate.id);
+  }
+
   onAddAdditionalInfo() {
     const candidate = this.getCandidate();
 
@@ -692,6 +702,14 @@ export class CandidateView {
     const candidate = this.getCandidate();
 
     if (!candidate) return;
+
+    if (!candidate.isWrittenAssessmentUploaded) {
+      this.alertService.warning(
+        'Written Assessment Required',
+        'Please upload the written assessment before starting the assessment.',
+      );
+      return;
+    }
 
     console.log('HR Assessment:', candidate.id);
 

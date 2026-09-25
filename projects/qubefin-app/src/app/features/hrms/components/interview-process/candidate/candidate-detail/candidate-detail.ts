@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  disabled,
   form,
   FormField,
   pattern,
@@ -26,13 +27,14 @@ import { CompanyStore } from '../../../../../global/stores/company-store';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { ApprovalWorkflowStore } from '../../../../stores/approval-workflow-store';
-import { DateAdapter } from '@angular/material/core';
+import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { AdministrativeUnitCascade } from '../../../../../global/components/administrative-unit-cascade/administrative-unit-cascade';
 import { AdministrativeUnitService } from '../../../../../global/services/administrative-unit-service';
 import { IPoliceStationList } from '../../../../../global/models/police-sation';
 import { IPostOfficeList } from '../../../../../global/models/post-office';
 import { DepartmentStore } from '../../../../stores/department-store';
 import { OrganizationUnitService } from '../../../../../global/services/organization-unit-service';
+import { OrganizationUnitTypeStore } from '../../../../../global/stores/organization-unit-type-store';
 @Component({
   selector: 'qfin-candidate-detail',
   imports: [
@@ -48,7 +50,7 @@ import { OrganizationUnitService } from '../../../../../global/services/organiza
     AdministrativeUnitCascade,
     MatStepperModule,
   ],
-  providers: [DatePipe],
+  providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './candidate-detail.html',
   styles: ``,
 })
@@ -69,6 +71,10 @@ export class CandidateDetail {
 
   readonly departments = this.departmentStore.departments;
   readonly organizationUnits = signal<any[]>([]);
+  private readonly organizationUnitTypeStore = inject(OrganizationUnitTypeStore);
+  readonly organizationUnitTypes = this.organizationUnitTypeStore.organizationUnitTypes;
+  /** Units of the selected type, for the Posted Organization Unit dropdown. */
+  readonly postedOrganizationUnits = signal<any[]>([]);
   readonly postOffices = signal<IPostOfficeList[]>([]);
   readonly policeStations = signal<IPoliceStationList[]>([]);
 
@@ -111,6 +117,8 @@ export class CandidateDetail {
     required(path.companyId, {
       message: 'Company is required',
     });
+    // The reference number is issued per company, so the company is fixed once the candidate exists.
+    disabled(path.companyId, () => this.isEditMode());
     required(path.interviewPost, {
       message: 'Interview Post is required',
     });
@@ -133,6 +141,9 @@ export class CandidateDetail {
     required(path.postOfficeId, { message: 'Post Office is required' });
 
     pattern(path.mobileNo, /^[6-9]\d{9}$/, { message: 'Enter a valid 10-digit mobile number' });
+    pattern(path.monthlyCostCompany, /^\d+(\.\d{1,2})?$/, {
+      message: 'Enter a valid amount',
+    });
     pattern(path.pinCode, /^\d{6}$/, {
       message: 'Pin code must be exactly 6 digits (Characters are not allowed)',
     });
@@ -141,8 +152,43 @@ export class CandidateDetail {
     });
   });
   protected readonly candidateForm = form(this.formModel, this.candidateSchema);
+  /** Edit mode fills the form once, from the candidate the view already loaded. */
+  private loadedCandidateId: string | null = null;
+
   constructor() {
     this.dateAdapter.setLocale('en-GB');
+    effect(() => {
+      if (this.isEditMode()) {
+        this.candidateStore.setCandidateId(this.candidateId());
+      }
+    });
+    effect(() => {
+      const candidate: any = this.candidateStore.candidate();
+      if (!this.isEditMode() || !candidate || candidate.id !== this.candidateId()) return;
+      if (this.loadedCandidateId === candidate.id) return;
+      this.loadedCandidateId = candidate.id;
+      this.populateForm(candidate);
+    });
+    // The saved posted unit only carries its id - take its type from the full unit list (which loads
+    // independently) so both dropdowns show the saved selection.
+    effect(() => {
+      const model = this.formModel();
+      const units = this.organizationUnits();
+      if (
+        !model.postedOrganizationUnitId ||
+        model.postedOrganizationUnitTypeId ||
+        units.length === 0
+      )
+        return;
+      const unit = units.find((u: any) => u.id === model.postedOrganizationUnitId);
+      if (unit?.organizationUnitTypeId) {
+        this.formModel.update((m) => ({
+          ...m,
+          postedOrganizationUnitTypeId: unit.organizationUnitTypeId,
+        }));
+        this.loadPostedOrganizationUnits(unit.organizationUnitTypeId);
+      }
+    });
     this.organizationUnitService.getAll().subscribe((res: any) => {
       this.organizationUnits.set(res);
     });
@@ -190,6 +236,27 @@ export class CandidateDetail {
     });
   }
 
+  openReportingTimePicker() {
+    this.openTimePicker('Reporting Time', this.formModel().reportingTime, (time: string) => {
+      this.formModel.update((m) => ({ ...m, reportingTime: time }));
+    });
+  }
+
+  onPostedOrganizationUnitTypeChange(typeId: string) {
+    this.formModel.update((m) => ({ ...m, postedOrganizationUnitId: '' }));
+    this.loadPostedOrganizationUnits(typeId);
+  }
+
+  private loadPostedOrganizationUnits(typeId: string) {
+    if (!typeId) {
+      this.postedOrganizationUnits.set([]);
+      return;
+    }
+    this.organizationUnitService.getOrganizationUnitByType(typeId).subscribe({
+      next: (res: any) => this.postedOrganizationUnits.set(res ?? []),
+    });
+  }
+
   onCancel() {
     this.cancel.emit();
   }
@@ -199,11 +266,19 @@ export class CandidateDetail {
     if (!this.candidateForm().valid()) {
       return;
     }
-    const formValue = this.candidateForm().value();
+    const { postedOrganizationUnitTypeId, ...formValue } = this.candidateForm().value();
     const dataToSave: any = {
       ...formValue,
       interviewDate: this.datePipe.transform(formValue.interviewDate, 'yyyy-MM-dd'),
       interviewTime: this.normalizeTimeValue(formValue.interviewTime),
+      postedOrganizationUnitId: formValue.postedOrganizationUnitId || null,
+      dateOfJoining: formValue.dateOfJoining
+        ? this.datePipe.transform(formValue.dateOfJoining, 'yyyy-MM-dd')
+        : null,
+      reportingTime: this.normalizeTimeValue(formValue.reportingTime),
+      monthlyCostCompany: formValue.monthlyCostCompany
+        ? Number(formValue.monthlyCostCompany)
+        : null,
     };
 
     dataToSave.administrativeUnitId =
@@ -214,10 +289,16 @@ export class CandidateDetail {
     dataToSave.departmentId = dataToSave.departmentId == '' ? null : dataToSave.departmentId;
     dataToSave.VenueOrganizationUnitId =
       dataToSave.VenueOrganizationUnitId == '' ? null : dataToSave.VenueOrganizationUnitId;
-    this.candidateService.createCandidate(dataToSave).subscribe({
+    const request = this.isEditMode()
+      ? this.candidateService.updateCandidate(this.candidateId(), dataToSave)
+      : this.candidateService.createCandidate(dataToSave);
+    request.subscribe({
       next: (resp: any) => {
         this.alertService.success('Success', resp).then(() => {
           this.candidateStore.refreshList();
+          if (this.isEditMode()) {
+            this.candidateStore.refreshDetail();
+          }
           this.save.emit();
         });
       },
@@ -297,6 +378,59 @@ export class CandidateDetail {
     });
   }
 
+  private populateForm(candidate: any) {
+    this.formModel.set({
+      companyId: candidate.companyId ?? '',
+      firstName: candidate.firstName ?? '',
+      middleName: candidate.middleName ?? '',
+      lastName: candidate.lastName ?? '',
+      gender: candidate.gender ?? '',
+      mobileNo: candidate.mobileNo ?? '',
+      email: candidate.email ?? '',
+      fatherName: candidate.fatherName ?? '',
+      interviewDate: this.toLocalDate(candidate.interviewDate) as any,
+      interviewTime: this.toDisplayTime(candidate.interviewTime),
+      interviewPost: candidate.interviewPost ?? '',
+      departmentId: candidate.departmentId ?? '',
+      VenueOrganizationUnitId: candidate.venueOrganizationUnitId ?? '',
+      houseNo: candidate.houseNo ?? '',
+      roadName: candidate.roadName ?? '',
+      landMark: candidate.landMark ?? '',
+      administrativeUnitId: candidate.administrativeUnitId ?? '',
+      policeStationId: candidate.policeStationId ?? '',
+      postOfficeId: candidate.postOfficeId ?? '',
+      pinCode: candidate.pinCode ?? '',
+      postedOrganizationUnitTypeId: '',
+      postedOrganizationUnitId: candidate.postedOrganizationUnitId ?? '',
+      dateOfJoining: this.toLocalDate(candidate.dateOfJoining) as any,
+      reportingTime: this.toDisplayTime(candidate.reportingTime),
+      monthlyCostCompany:
+        candidate.monthlyCostCompany != null ? String(candidate.monthlyCostCompany) : '',
+    });
+
+    // Load the dropdown options the saved selections belong to.
+    if (candidate.pinCode) {
+      this.onPinCodeChange({ target: { value: candidate.pinCode } });
+    }
+  }
+
+  /** "2026-09-25" -> local-midnight Date (new Date("yyyy-MM-dd") would be UTC and can shift a day). */
+  private toLocalDate(value: string | null | undefined): Date | '' {
+    if (!value) return '';
+    const [y, m, d] = value.split('T')[0].split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  /** "14:30:00" -> "02:30 PM", the format the time picker writes. */
+  private toDisplayTime(value: string | null | undefined): string {
+    if (!value) return '';
+    const [h, m] = value.split(':').map((part) => parseInt(part, 10));
+    if (isNaN(h)) return '';
+    const period = h >= 12 ? 'PM' : 'AM';
+    const hour = h % 12 || 12;
+    return `${String(hour).padStart(2, '0')}:${String(m || 0).padStart(2, '0')} ${period}`;
+  }
+
   private createEmptyModel(): ICandidateDetail {
     return {
       companyId: '',
@@ -319,6 +453,11 @@ export class CandidateDetail {
       policeStationId: '',
       postOfficeId: '',
       pinCode: '',
+      postedOrganizationUnitTypeId: '',
+      postedOrganizationUnitId: '',
+      dateOfJoining: '',
+      reportingTime: '',
+      monthlyCostCompany: '',
     };
   }
 }

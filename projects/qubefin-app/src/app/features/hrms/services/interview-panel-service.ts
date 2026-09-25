@@ -27,8 +27,11 @@ export class InterviewPanelService {
     );
   }
 
-  schedulePanel(scheduleData: any) {
-    return this.httpClient.post(`${ApiPaths.HRMS}/interview-panels/schedule`, scheduleData);
+  /** Schedules the panel; the API emails each panelist with the acknowledgement PDF attached. */
+  schedulePanel(candidateId: string, panelists: IPanelistScheduleDto[], acknowledgement: Blob | null) {
+    const formData = this.toPanelFormData(panelists, acknowledgement);
+    formData.append('CandidateId', candidateId);
+    return this.httpClient.post(`${ApiPaths.HRMS}/interview-panels/schedule`, formData);
   }
 
   acknowledgePanel(candidateId: string) {
@@ -64,12 +67,25 @@ export class InterviewPanelService {
     );
   }
 
-  /** Adds one or more panelists to a candidate's existing interview panel. */
-  addPanelists(candidateId: string, panelists: IPanelistScheduleDto[]) {
+  /** Adds one or more panelists to a candidate's existing interview panel and emails the new panelists. */
+  addPanelists(candidateId: string, panelists: IPanelistScheduleDto[], acknowledgement: Blob | null) {
     return this.httpClient.post(
       `${ApiPaths.HRMS}/interview-panels/${candidateId}/panelists`,
-      panelists,
+      this.toPanelFormData(panelists, acknowledgement),
     );
+  }
+
+  private toPanelFormData(panelists: IPanelistScheduleDto[], acknowledgement: Blob | null) {
+    const formData = new FormData();
+    panelists.forEach((p, i) => {
+      formData.append(`Panelists[${i}].EmployeeId`, p.employeeId);
+      formData.append(`Panelists[${i}].ScheduledDate`, p.scheduledDate);
+      formData.append(`Panelists[${i}].ScheduledTime`, p.scheduledTime);
+    });
+    if (acknowledgement) {
+      formData.append('File', acknowledgement, 'interview_panel_acknowledgement.pdf');
+    }
+    return formData;
   }
 
   /** Removes an existing panelist from a candidate's interview panel. */
