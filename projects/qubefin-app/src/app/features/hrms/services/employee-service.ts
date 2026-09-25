@@ -125,4 +125,8 @@ export class EmployeeService {
   getSalaryByGradeId(id: string) {
     return this.httpClient.get(`${ApiPaths.HRMS}/employees/salary-by-grade/${id}`);
   }
+
+  getGrossSalaryPreview(data: any) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/employees/gross-salary-preview`, data);
+  }
 }

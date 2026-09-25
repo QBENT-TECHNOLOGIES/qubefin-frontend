@@ -128,9 +128,20 @@
                 <svg lucideIcon="badge-indian-rupee" class="w-5 h-5"></svg>
             </div>
             <input matInput type="number" autocomplete="off" [formField]="grossChangeForm.grossSalary"
-                placeholder="Gross Salary">
+                (wheel)="$event.preventDefault()" placeholder="Gross Salary">
             <mat-error class="cus-error">
                 {{ grossChangeForm.grossSalary().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>PF Amount</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="badge-indian-rupee" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="number" autocomplete="off" [formField]="grossChangeForm.pfAmount"
+                (wheel)="$event.preventDefault()" placeholder="PF Amount">
+            <mat-error class="cus-error">
+                {{ grossChangeForm.pfAmount().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -150,6 +161,11 @@
             <button (click)="onSave()" class="global-btn shine-sweep lift">
                 <!-- <svg lucideIcon="loader-2" class="w-4 h-4 animate-spin"></svg> Saving... -->
                 <svg lucideIcon="save" class="w-4 h-4"></svg> Save
+            </button>
+            <button (click)="onView()"
+                class="cursor-pointer px-5 py-2.5 flex items-center gap-2 bg-white border border-slate-300 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 text-slate-700 text-sm font-semibold rounded-lg shadow-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed">
+                <svg lucideIcon="eye" class="w-4 h-4"></svg>
+                View
             </button>
 
             <button (click)="onCancel()"

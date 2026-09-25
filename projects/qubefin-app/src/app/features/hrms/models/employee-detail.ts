@@ -714,5 +714,26 @@ export interface IGrossSalary {
   employeeId: string;
   salaryGradeId: string;
   grossSalary: number | null;
+  pfAmount: number | null;
   effectiveFrom: string | Date | null;
+}
+export interface IEmployeeSalaryPreview {
+  employeeCode: string;
+  employeeName: string;
+  organizationUnitName: string;
+  designationTitle: string;
+  salaryGradeName: string;
+  earningHeads: ISalaryPreviewComponent[];
+  deductionHeads: ISalaryPreviewComponent[];
+}
+export interface IGrossSalaryPreviewRequest {
+  employeeId: string;
+  grossSalary: number;
+  pfAmount: number;
+}
+
+export interface ISalaryPreviewComponent {
+  id: string;
+  salaryComponentName: string;
+  amount: number;
 }
