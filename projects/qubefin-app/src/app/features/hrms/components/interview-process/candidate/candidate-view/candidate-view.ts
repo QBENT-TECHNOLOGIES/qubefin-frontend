@@ -66,6 +66,7 @@ export class CandidateView {
   readonly recievingMail = signal(false);
   readonly uploadingInterviewFormat = signal(false);
   readonly uploadingJoiningLetter = signal(false);
+  readonly rejecting = signal(false);
 
   constructor() {
     effect(() => {
@@ -82,6 +83,23 @@ export class CandidateView {
   // never treat it as "this person is an interviewer", and never treat holding
   // the HR assessment row as panel membership.
   // ============================================================
+
+  /** HR rejected the candidate, or submitted the HR Assessment as 'Not Recommended'. Nothing further can be
+   * done - every action is hidden (the API refuses them too) and the Workflow Path stops where it was. */
+  readonly isWorkflowStopped = computed(() => {
+    const data = this.candidate();
+    return !!data?.isRejected || !!data?.isNotRecommended;
+  });
+
+  readonly stoppedStatusLabel = computed(() =>
+    this.candidate()?.isRejected ? 'Rejected' : 'Not Recommended',
+  );
+
+  /** HR can reject at any stage until an employee has been created from the candidate. */
+  readonly showRejectButton = computed(() => {
+    const data = this.candidate();
+    return !!data?.isHR && !data.isEmployeeCreated && !this.isWorkflowStopped();
+  });
 
   /** The signed-in employee is scheduled on this candidate's panel as an interviewer. */
   readonly isPanelInterviewer = computed(() => !!this.candidate()?.isCurrentEmployeePanelMember);
@@ -139,11 +157,12 @@ export class CandidateView {
    * card would otherwise render empty. */
   readonly hasAnyAction = computed(() => {
     const data = this.candidate();
-    if (!data) {
+    if (!data || this.isWorkflowStopped()) {
       return false;
     }
 
     return (
+      this.showRejectButton() ||
       this.showAcknowledgeButton() ||
       this.showInterviewFormatActions() ||
       this.showInterviewLetterActions() ||
@@ -606,6 +625,40 @@ export class CandidateView {
     } catch (error: any) {
       this.alertService.error('Failed', error?.error?.message ?? 'Unable to load welcome letter.');
     }
+  }
+
+  async onReject() {
+    const candidate = this.getCandidate();
+
+    if (!candidate || this.candidateId() === EMPTY_UUID || this.rejecting()) return;
+
+    const result = await this.alertService.confirm(
+      'Reject Candidate?',
+      `${candidate.candidateFullName || 'This candidate'} will be rejected and the interview process will stop. This cannot be undone.`,
+      'Yes, reject',
+      'Cancel',
+    );
+
+    if (!result.isConfirmed) return;
+
+    this.rejecting.set(true);
+    this.candidateService.rejectCandidate(this.candidateId()).subscribe({
+      next: (message: any) => {
+        this.rejecting.set(false);
+        this.alertService.success('Rejected', typeof message === 'string' ? message : 'Candidate rejected.');
+        this.candidateStore.refreshDetail();
+        this.candidateStore.refreshList();
+      },
+      error: (error) => {
+        this.rejecting.set(false);
+        // A 403 carries no body - only HR can reject.
+        const message =
+          error?.status === 403
+            ? 'Only HR can reject a candidate.'
+            : (error?.error?.message ?? error?.error?.detail ?? 'Failed to reject the candidate.');
+        this.alertService.error('Failed', message);
+      },
+    });
   }
 
   onAcknowledge() {

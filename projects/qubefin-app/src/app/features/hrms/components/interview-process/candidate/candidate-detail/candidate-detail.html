@@ -297,7 +297,7 @@
                 <svg lucideIcon="chevron-left" class="w-4 h-4"></svg>
                 Previous
             </button>
-            @if (isEditMode()) {
+            @if (showJoiningStep()) {
             <button type="button" matStepperNext class="global-btn ripple-btn shadow shine-sweep lift">
                 Next
                 <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
@@ -313,8 +313,8 @@
         </div>
     </mat-step>
 
-    <!-- Joining details - only on an existing candidate (Edit Details) -->
-    @if (isEditMode()) {
+    <!-- Joining details - only on an existing candidate whose signed joining letter is uploaded -->
+    @if (showJoiningStep()) {
     <mat-step>
         <ng-template matStepLabel>Joining Details</ng-template>
         <div class="space-y-4 animate-fade-in pt-4">

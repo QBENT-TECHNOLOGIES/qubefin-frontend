@@ -48,6 +48,10 @@ export class CandidateService {
       interviewMode,
     });
   }
+  // HR only. Stops the candidate's workflow for good - every later action is refused by the API.
+  rejectCandidate(id: string) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/candidates/${id}/reject`, {});
+  }
   // Uploads the candidate's signed/returned joining letter (multipart) and stores the returned file
   // reference on the candidate record. Distinct from HrmsReportService.getJoiningLetter, which generates
   // a blank copy rather than reading back what was uploaded here.

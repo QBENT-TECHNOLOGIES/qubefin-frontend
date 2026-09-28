@@ -20,7 +20,7 @@ interface CandidateReport {
   download: (candidateId: string) => Observable<Blob>;
 }
 
-const STAGE_ORDER: Exclude<CandidateInterviewStatus, 'Rejected'>[] = [
+const STAGE_ORDER: Exclude<CandidateInterviewStatus, 'Rejected' | 'Not Recommended'>[] = [
   'Interview in Progress',
   'Candidate Verification in Progress',
   'Joining in Progress',
@@ -51,7 +51,7 @@ export class CandidateList {
   readonly downloadingReport = signal<string | null>(null);
 
   // Reports each stage makes available; a candidate gets every report up to and including their stage.
-  private readonly reportsByStage: Record<Exclude<CandidateInterviewStatus, 'Rejected'>, CandidateReport[]> = {
+  private readonly reportsByStage: Record<Exclude<CandidateInterviewStatus, 'Rejected' | 'Not Recommended'>, CandidateReport[]> = {
     'Interview in Progress': [
       {
         name: 'Job Application',
@@ -127,8 +127,8 @@ export class CandidateList {
     return this.isCollapsed() ? ['name', 'interviewPost', 'action'] : this.displayedColumns;
   }
   reportsFor(status: CandidateInterviewStatus): CandidateReport[] {
-    // Rejected (HR did not recommend) - the flow ended after the interview, so only the interview reports apply.
-    if (status === 'Rejected') {
+    // Rejected / Not Recommended - the workflow stopped, so only the interview reports apply.
+    if (status === 'Rejected' || status === 'Not Recommended') {
       return this.reportsByStage['Interview in Progress'];
     }
     const stage = Math.max(STAGE_ORDER.indexOf(status), 0);
@@ -138,6 +138,7 @@ export class CandidateList {
   statusClass(status: CandidateInterviewStatus): string {
     switch (status) {
       case 'Rejected':
+      case 'Not Recommended':
         return 'bg-rose-500/10 text-rose-600';
       case 'Candidate Verification in Progress':
         return 'bg-amber-500/10 text-amber-600';

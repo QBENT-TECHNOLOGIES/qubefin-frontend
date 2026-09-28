@@ -18,8 +18,9 @@
                 <div>
                     <div class="box-title-group">
                         <h1 class="box-title">{{ data.candidateFullName || '-' }}</h1>
-                        <!-- EDIT DETAILS - until the offer letter is received (the API rejects edits after that) -->
-                        @if (!data.isOfferLetterReceived && data.isHR) {
+                        <!-- EDIT DETAILS - until the offer letter is received (the API rejects edits after that), and
+                             never on a stopped workflow -->
+                        @if (!data.isOfferLetterReceived && data.isHR && !isWorkflowStopped()) {
                         <div class="box-edit-btn" matTooltip="Edit Details" (click)="onEditCandidateDetails()">
                             <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
                         </div>
@@ -38,7 +39,15 @@
             </div>
 
             <div class="box-group flex-wrap gap-2.5">
-                <!-- Current workflow stage -->
+                <!-- Current workflow stage - or where it stopped -->
+                @if (isWorkflowStopped()) {
+                <div class="badge-group">
+                    <span class="badge text-rose-600 dark:text-rose-400">
+                        <svg lucideIcon="x-circle" class="w-3.5 h-3.5"></svg>
+                        {{ stoppedStatusLabel() }}
+                    </span>
+                </div>
+                } @else {
                 <div class="badge-group">
                     <span class="badge" [class.text-emerald-600]="isWorkflowComplete()"
                         [class.dark:text-emerald-400]="isWorkflowComplete()"
@@ -54,6 +63,7 @@
                         {{ isWorkflowComplete() ? 'Process Completed' : currentStageLabel() }}
                     </span>
                 </div>
+                }
 
                 <!-- Interview letter status -->
                 <div class="badge-group">
@@ -100,6 +110,16 @@
                          Visibility is sequenced by USP_GetInterviewCandidateById
                          (the show* flags), never re-derived in the template.
                     =========================================================== -->
+
+                    <!-- STOPPED - rejected, or HR submitted 'Not Recommended'. Nothing further can be done, and the
+                         API refuses it anyway. -->
+                    @if (isWorkflowStopped()) {
+                    <span class="inline-flex items-center gap-2 text-sm font-medium text-rose-600 dark:text-rose-400">
+                        <svg lucideIcon="x-circle" class="w-4 h-4"></svg>
+                        {{ data.isRejected ? 'This candidate has been rejected.' : 'This candidate was not recommended by HR.' }}
+                        No further action can be taken.
+                    </span>
+                    } @else {
 
                     <!-- ACKNOWLEDGE - panel interviewers only -->
                     @if (showAcknowledgeButton()) {
@@ -207,12 +227,22 @@
                         (send)="onSendLetterMail('welcome')" (receive)="onRecieveLetter('welcome')" />
                     }
 
+                    <!-- REJECT - HR only, at any stage until the employee is created. Stops the workflow. -->
+                    @if (showRejectButton()) {
+                    <button type="button" [disabled]="rejecting()" (click)="onReject()"
+                        class="rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition cursor-pointer shine-sweep lift disabled:opacity-60 disabled:cursor-not-allowed">
+                        <svg lucideIcon="x-circle" class="w-4 h-4"></svg>
+                        {{ rejecting() ? 'Rejecting...' : 'Reject' }}
+                    </button>
+                    }
+
                     <!-- Nothing to do right now - the Workflow Path says where
                          the candidate stands. -->
                     @if (!hasAnyAction()) {
                     <span class="text-sm text-slate-400 dark:text-slate-500">
                         No action is pending for you on this candidate.
                     </span>
+                    }
                     }
                 </div>
             </div>
@@ -602,7 +632,10 @@
 
                             {{ stage.label }}
                         </p>
-                        @if (stage.current) {
+                        @if (stage.current && isWorkflowStopped()) {
+                        <span class="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wide">
+                            Stopped - {{ stoppedStatusLabel() }}</span>
+                        } @else if (stage.current) {
                         <span
                             class="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase tracking-wide">In
                             Progress</span>

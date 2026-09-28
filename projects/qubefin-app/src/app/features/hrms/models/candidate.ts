@@ -17,11 +17,13 @@ export interface ICandidateDownloadFile {
 }
 
 // Stages shown in the candidate list, in order: HR assessment submitted -> offer letter received -> signed
-// joining letter uploaded. A candidate HR did not recommend stops at 'Rejected'. Must match
-// CandidateInterviewStatus on the API.
+// joining letter uploaded. The workflow stops at 'Rejected' when HR rejects the candidate, or at
+// 'Not Recommended' when HR submits the assessment as Not Recommended. Must match CandidateInterviewStatus
+// on the API.
 export type CandidateInterviewStatus =
   | 'Interview in Progress'
   | 'Rejected'
+  | 'Not Recommended'
   | 'Candidate Verification in Progress'
   | 'Joining in Progress'
   | 'Joined';
@@ -425,6 +427,13 @@ export interface ICandidate {
 
   /** An employee has been created from the candidate's joining information - the welcome letter opens only then. */
   isEmployeeCreated?: boolean;
+
+  /** HR rejected the candidate. The workflow is stopped - the API refuses every further action. */
+  isRejected?: boolean;
+
+  /** HR submitted the assessment as 'Not Recommended'. The workflow is stopped - the API refuses every
+   * further action. */
+  isNotRecommended?: boolean;
 
   /** Total of the ten averaged category ratings stored on HR's assessment row. */
   hrAssessmentTotalRatingPoint?: number;

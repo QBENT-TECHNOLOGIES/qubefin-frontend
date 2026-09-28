@@ -92,6 +92,17 @@ export class CandidateDetail {
 
   readonly isEditMode = computed(() => !!this.candidateId() && this.candidateId() !== EMPTY_UUID);
 
+  /** Joining details only apply once the candidate's signed joining letter is back - until then the
+   *  Address step is the last one and saves the form itself. */
+  readonly showJoiningStep = computed(() => {
+    const candidate = this.candidateStore.candidate();
+    return (
+      this.isEditMode() &&
+      candidate?.id === this.candidateId() &&
+      !!candidate?.isAllPanelAssessmentSubmitted
+    );
+  });
+
   readonly formModel = signal<ICandidateDetail>(this.createEmptyModel());
 
   readonly candidateSchema: Schema<ICandidateDetail> = schema((path) => {
