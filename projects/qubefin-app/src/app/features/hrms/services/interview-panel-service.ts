@@ -28,17 +28,18 @@ export class InterviewPanelService {
   }
 
   /** Schedules the panel; the API emails each panelist with the acknowledgement PDF attached. */
-  schedulePanel(candidateId: string, panelists: IPanelistScheduleDto[], acknowledgement: Blob | null) {
+  schedulePanel(
+    candidateId: string,
+    panelists: IPanelistScheduleDto[],
+    acknowledgement: Blob | null,
+  ) {
     const formData = this.toPanelFormData(panelists, acknowledgement);
     formData.append('CandidateId', candidateId);
     return this.httpClient.post(`${ApiPaths.HRMS}/interview-panels/schedule`, formData);
   }
 
   acknowledgePanel(candidateId: string) {
-    return this.httpClient.post(
-      `${ApiPaths.HRMS}/interview-panels/${candidateId}/acknowledge`,
-      null,
-    );
+    return this.httpClient.get(`${ApiPaths.HRMS}/interview-panels/acknowledge/${candidateId}`);
   }
 
   markAttendance(panelId: string, attended: boolean) {
@@ -68,7 +69,11 @@ export class InterviewPanelService {
   }
 
   /** Adds one or more panelists to a candidate's existing interview panel and emails the new panelists. */
-  addPanelists(candidateId: string, panelists: IPanelistScheduleDto[], acknowledgement: Blob | null) {
+  addPanelists(
+    candidateId: string,
+    panelists: IPanelistScheduleDto[],
+    acknowledgement: Blob | null,
+  ) {
     return this.httpClient.post(
       `${ApiPaths.HRMS}/interview-panels/${candidateId}/panelists`,
       this.toPanelFormData(panelists, acknowledgement),
