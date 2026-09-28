@@ -320,7 +320,7 @@ export interface IEmployeePersonalInfo {
   code: string;
   salutation: string;
   firstName: string;
-  middleName: string | null;
+  middleName: string;
   lastName: string;
   fullName: string;
   fatherName: string | null;
