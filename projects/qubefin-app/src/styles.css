@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+@source "../../qubefin-core/src";
 @custom-variant dark (&:where(.dark, .dark *));
 @import "./styles/theme.css";
 @import "./styles/header.css";

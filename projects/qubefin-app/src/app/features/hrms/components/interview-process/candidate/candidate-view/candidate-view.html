@@ -176,7 +176,7 @@
                     }
 
                     <!-- ADD ADDITIONAL INFO - unlocked by the uploaded joining letter -->
-                    @if (data.isJoiningLetterUploaded && data.isHR) {
+                    @if (data.isJoiningLetterUploaded && data.isHR && !data.isEmployeeCreated ) {
                     <button type="button" class="reset-btn shine-sweep lift" (click)="onAddAdditionalInfo()">
                         <svg lucideIcon="file-plus" class="w-4 h-4 mr-2"></svg>
                         {{data.isEmployeeCreated ? "Update " : "Add "}} Additional Info
@@ -201,7 +201,7 @@
                     }
 
                     <!-- WELCOME LETTER - unlocked once the employee is created from the joining information -->
-                    @if (data.showWelcomeLetterActions && data.isEmployeeCreated) {
+                    @if (data.isJoiningLetterUploaded && data.isEmployeeCreated) {
                     <qfin-letter-actions letterName="Welcome" [sending]="sendingMail()"
                         [receiving]="recievingMail()" (view)="onViewWelcomeLetterMail()"
                         (send)="onSendLetterMail('welcome')" (receive)="onRecieveLetter('welcome')" />
