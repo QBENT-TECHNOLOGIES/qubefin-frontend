@@ -1,10 +1,9 @@
-import { DOCUMENT } from '@angular/common';
-import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
 
-import { DocumentModalService } from 'qubefin-core';
+import { DocumentModalService } from '../../services/document-modal.service';
 
 export interface IFileUploadDialogData {
   /** Heading of the dialog: "Upload Interview Format". */
@@ -34,7 +33,6 @@ export interface IFileUploadDialogData {
 export class FileUploadDialog {
   private readonly dialogRef = inject(MatDialogRef<FileUploadDialog, File | undefined>);
   private readonly documentModalService = inject(DocumentModalService);
-  private readonly documentRef = inject(DOCUMENT);
 
   readonly data = inject<IFileUploadDialogData>(MAT_DIALOG_DATA);
 
@@ -49,35 +47,7 @@ export class FileUploadDialog {
       // The viewer closes itself on Escape - without this the same key press would close the dialog
       // underneath it too, losing the picked file.
       this.dialogRef.disableClose = previewing;
-
-      this.stackBelowViewer(previewing);
     });
-
-    // A dialog closed while its preview is still up must not leave the overlay demoted.
-    inject(DestroyRef).onDestroy(() => this.stackBelowViewer(false));
-  }
-
-  /**
-   * Puts this dialog under the document viewer for as long as a preview is open.
-   *
-   * The viewer is a plain fixed element at z-index 1000 in the app root, while every dialog lives in
-   * `.cdk-overlay-container` - pinned to 1000 as well and later in the DOM, so it wins the tie and the
-   * preview opens behind it. The container is the stacking context, so nothing set on the dialog's own
-   * markup can beat it; dropping the container below the viewer while previewing is what works. The
-   * stylesheet pins that z-index with `!important`, so this has to be important too.
-   */
-  private stackBelowViewer(below: boolean) {
-    const container = this.documentRef.querySelector<HTMLElement>('.cdk-overlay-container');
-
-    if (!container) {
-      return;
-    }
-
-    if (below) {
-      container.style.setProperty('z-index', '999', 'important');
-    } else {
-      container.style.removeProperty('z-index');
-    }
   }
 
   /** ".pdf,.doc,.docx" reads better as "PDF, DOC, DOCX". */

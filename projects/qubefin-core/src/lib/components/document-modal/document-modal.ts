@@ -7,12 +7,22 @@ import {
   OnDestroy,
   OnInit,
   PLATFORM_ID,
+  ViewEncapsulation,
   computed,
   effect,
   inject,
   signal,
 } from '@angular/core';
-import { LucideDynamicIcon } from '@lucide/angular';
+import { MatDialogModule } from '@angular/material/dialog';
+import {
+  LucideAlertCircle,
+  LucideDynamicIcon,
+  LucideRefreshCw,
+  LucideRotateCcw,
+  LucideRotateCw,
+  LucideZoomIn,
+  LucideZoomOut,
+} from '@lucide/angular';
 import {
   LucideImage,
   LucideFileText,
@@ -22,7 +32,7 @@ import {
   LucideMaximize2,
   LucideMinimize2,
   LucideDownload,
-  LucideX
+  LucideX,
 } from '@lucide/angular';
 import {
   DocumentModalData,
@@ -38,8 +48,44 @@ type FileTypeMeta = {
 
 @Component({
   selector: 'qfin-document-modal',
-  imports: [CommonModule, LucideDynamicIcon],
+  imports: [CommonModule, MatDialogModule, LucideDynamicIcon],
   templateUrl: './document-modal.html',
+  // The dialog surface lives outside this component's view, so the panel reset has to be global.
+  // Material's title/content rules are unlayered and would beat the Tailwind classes on the same
+  // elements; revert-layer hands those properties back to Tailwind so the layout stays as designed.
+  styles: `
+    .qfin-document-modal-panel .mat-mdc-dialog-surface {
+      background: transparent;
+      box-shadow: none;
+      border-radius: 0;
+    }
+
+    .qfin-document-modal-panel .mat-mdc-dialog-container .mat-mdc-dialog-title,
+    .qfin-document-modal-panel .mat-mdc-dialog-container .mat-mdc-dialog-content {
+      display: revert-layer;
+      position: revert-layer;
+      flex-grow: revert-layer;
+      flex-shrink: revert-layer;
+      box-sizing: revert-layer;
+      margin: revert-layer;
+      padding: revert-layer;
+      max-height: revert-layer;
+      overflow: revert-layer;
+      color: revert-layer;
+      font-family: revert-layer;
+      font-size: revert-layer;
+      font-weight: revert-layer;
+      line-height: revert-layer;
+      letter-spacing: revert-layer;
+      text-align: revert-layer;
+    }
+
+    .qfin-document-modal-panel .mat-mdc-dialog-title::before {
+      display: none;
+    }
+  `,
+  encapsulation: ViewEncapsulation.None,
+  host: { class: 'block h-full' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocumentModal implements OnInit, OnDestroy {
@@ -56,7 +102,13 @@ export class DocumentModal implements OnInit, OnDestroy {
     Maximize2: LucideMaximize2,
     Minimize2: LucideMinimize2,
     Download: LucideDownload,
-    X: LucideX
+    RefreshCw: LucideRefreshCw,
+    AlertCircle: LucideAlertCircle,
+    ZoomOut: LucideZoomOut,
+    ZoomIn: LucideZoomIn,
+    RotateCw: LucideRotateCw,
+    RotateCcw: LucideRotateCcw,
+    X: LucideX,
   };
   readonly isBrowser = isPlatformBrowser(this.platformId);
 
@@ -160,7 +212,6 @@ export class DocumentModal implements OnInit, OnDestroy {
     if (this.fullscreenChangeHandler) {
       this.documentRef.removeEventListener('fullscreenchange', this.fullscreenChangeHandler);
     }
-
   }
 
   @HostListener('window:keydown', ['$event'])

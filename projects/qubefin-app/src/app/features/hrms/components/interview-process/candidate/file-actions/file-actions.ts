@@ -11,7 +11,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
 
-import { FileUploadDialog, IFileUploadDialogData } from '../file-upload-dialog/file-upload-dialog';
+import { FileUploadDialog, IFileUploadDialogData } from 'qubefin-core';
 
 /**
  * A download/upload pair for one document - the blank format out, the filled-in file back in - as a
