@@ -26,6 +26,8 @@ import { EmployeeStore } from '../../../stores/employee-store';
 import { ApprovalWorkflowStore } from '../../../stores/approval-workflow-store';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
+import { SalaryViewModal } from './salary-view-modal/salary-view-modal';
+
 @Component({
   selector: 'qfin-gross-salary-modal',
   providers: [provideNativeDateAdapter(), DatePipe],
@@ -55,7 +57,7 @@ export class GrossSalaryModal {
   private readonly organizationUnitTypeStore = inject(OrganizationUnitTypeStore);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly approvalWorkflowStore = inject(ApprovalWorkflowStore);
-
+  private readonly dialog = inject(MatDialog);
   readonly displayedColumns = computed(() => {
     return ['sl', 'grossSalary', 'fromDate', 'toDate', 'status'];
   });
@@ -68,11 +70,13 @@ export class GrossSalaryModal {
     employeeId: '',
     salaryGradeId: '',
     grossSalary: null,
+    pfAmount: null,
     effectiveFrom: null,
   });
   protected readonly grossChangeSchema: Schema<IGrossSalary> = schema((path) => {
     required(path.salaryGradeId, { message: 'Grade is required' });
     required(path.grossSalary, { message: 'Gross Salary is required' });
+    // required(path.pFamount, { message: 'PF Amount is required' });
     required(path.effectiveFrom, { message: 'Effective From is required' });
     readonly(path.effectiveFrom, { when: () => true });
   });
@@ -112,6 +116,7 @@ export class GrossSalaryModal {
                 this.grossChangeModel.update((state) => ({
                   ...state,
                   grossSalary: officialInfo.grossSalary || null,
+                  pfAmount: officialInfo.pFamount || null,
                   salaryGradeId: officialInfo.salaryGradeId || '',
                   effectiveFrom: null,
                 }));
@@ -183,6 +188,25 @@ export class GrossSalaryModal {
       }));
     }
   }
+  onView(): void {
+    this.grossChangeForm().markAsTouched();
+    if (!this.grossChangeForm().valid()) {
+      return;
+    }
+    const formValue = this.grossChangeForm().value();
+
+    this.dialog.open(SalaryViewModal, {
+      data: {
+        employeeId: this.empId(),
+        salaryGradeId: formValue.salaryGradeId,
+        grossSalary: formValue.grossSalary,
+        pfAmount: formValue.pfAmount,
+      },
+      maxWidth: '95vw',
+      panelClass: 'glass-modal',
+    });
+  }
+
   onCancel() {
     this.dialogRef.close(false);
     this.employeeStore.refreshList();
