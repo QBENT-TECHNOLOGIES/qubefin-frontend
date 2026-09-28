@@ -80,8 +80,17 @@ export class PersonalComponentDetail {
   protected readonly employeeSchema: Schema<IEmployeePersonalInfo> = schema((path) => {
     required(path.code, { message: 'Code is required' });
     required(path.firstName, { message: 'First name is required' });
+    pattern(path.firstName, /^[A-Za-z]{3,30}$/, {
+      message: 'Invalid first name.',
+    });
+    pattern(path.middleName, /^[A-Za-z]*$/, {
+      message: 'Invalid middle name.',
+    });
     required(path.nationality, { message: 'Nationality is required' });
     required(path.lastName, { message: 'Last name is required' });
+    pattern(path.lastName, /^[A-Za-z]{3,30}$/, {
+      message: 'Invalid last name.',
+    });
     required(path.dateOfBirth, { message: 'Date of birth is required' });
     required(path.gender, { message: 'Gender is required' });
     readonly(path.age, { when: () => true });
@@ -183,7 +192,9 @@ export class PersonalComponentDetail {
     const dataToSave: any = {
       ...formValue,
       dateOfBirth: this.datePipe.transform(formValue.dateOfBirth, 'yyyy-MM-dd'),
+      firstName: formValue.firstName?.trim() === '' ? null : formValue.firstName,
       middleName: formValue.middleName?.trim() === '' ? null : formValue.middleName,
+      lastName: formValue.lastName?.trim() === '' ? null : formValue.lastName,
       fatherName: formValue.fatherName?.trim() === '' ? null : formValue.fatherName,
       husbandName: formValue.husbandName?.trim() === '' ? null : formValue.husbandName,
       motherName: formValue.motherName?.trim() === '' ? null : formValue.motherName,
