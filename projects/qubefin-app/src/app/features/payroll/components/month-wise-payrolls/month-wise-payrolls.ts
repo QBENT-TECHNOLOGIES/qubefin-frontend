@@ -66,19 +66,25 @@ export class MonthWisePayrolls {
   }
 
   onLockMonth(month: number, year: number) {
-    this.alertService
-      .confirm(
-        'Confirmation',
-        `Are you sure you want to lock the payroll for ${month}/${year}?`,
-        'Yes',
-        'No',
-      )
-      .then((result) => {
-        if (result.isConfirmed) {
-          this.payrollStore.lockMonthlyPayroll(month, year);
-        }
-      });
+    const isConfirmed = confirm(`Are you sure you want to lock the payroll for ${month}/${year}?`);
+    if (isConfirmed) {
+      this.payrollStore.lockMonthlyPayroll(month, year);
+    }
   }
+  //   onLockMonth(month: number, year: number) {
+  //   this.alertService
+  //     .confirm(
+  //       'Confirmation',
+  //       `Are you sure you want to lock the payroll for ${month}/${year}?`,
+  //       'Yes',
+  //       'No',
+  //     )
+  //     .then((result: any) => {
+  //       if (result.isConfirmed) {
+  //         this.payrollStore.lockMonthlyPayroll(month, year);
+  //       }
+  //     });
+  // }
   readonly isDownloading = signal<boolean>(false);
   onDownloadPfReport(month: number, year: number, companyId: string, companyName: string) {
     this.isDownloading.set(true);
