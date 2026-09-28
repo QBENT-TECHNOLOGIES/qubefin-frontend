@@ -12,6 +12,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { PayrollService } from '../../services/payroll-service';
 import { MatTableModule } from '@angular/material/table';
 import { ReportService } from '../../../Report/Service/report-service';
+import { AlertService } from 'qubefin-core';
 @Component({
   selector: 'qfin-month-wise-payrolls',
   imports: [
@@ -29,6 +30,7 @@ import { ReportService } from '../../../Report/Service/report-service';
   templateUrl: './month-wise-payrolls.html',
 })
 export class MonthWisePayrolls {
+  readonly alertService = inject(AlertService);
   private readonly payrollStore = inject(PayrollStore);
   private readonly payrollService = inject(PayrollService);
   private readonly reportService = inject(ReportService);
@@ -64,10 +66,18 @@ export class MonthWisePayrolls {
   }
 
   onLockMonth(month: number, year: number) {
-    const isConfirmed = confirm(`Are you sure you want to lock the payroll for ${month}/${year}?`);
-    if (isConfirmed) {
-      this.payrollStore.lockMonthlyPayroll(month, year);
-    }
+    this.alertService
+      .confirm(
+        'Confirmation',
+        `Are you sure you want to lock the payroll for ${month}/${year}?`,
+        'Yes',
+        'No',
+      )
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.payrollStore.lockMonthlyPayroll(month, year);
+        }
+      });
   }
   readonly isDownloading = signal<boolean>(false);
   onDownloadPfReport(month: number, year: number, companyId: string, companyName: string) {
