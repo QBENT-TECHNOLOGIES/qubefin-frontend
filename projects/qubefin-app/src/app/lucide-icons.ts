@@ -169,6 +169,7 @@ import {
   LucideRadar,
   LucideIdCard,
   LucidePercent,
+  LucideSmartphone,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -341,6 +342,7 @@ export const APP_ICONS = [
   LucideWorkflow,
   LucideIdCard,
   LucidePercent,
+  LucideSmartphone,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -512,4 +514,5 @@ export const APP_ICONS_MAP: Record<string, any> = {
   Radar: LucideRadar,
   IdCard: LucideIdCard,
   Percent: LucidePercent,
+  Smartphone: LucideSmartphone,
 };

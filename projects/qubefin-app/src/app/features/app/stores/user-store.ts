@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
-import { User, UserSearchResult } from '../models/user';
+import { IUserDevice, User, UserSearchResult } from '../models/user';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +9,8 @@ import { User, UserSearchResult } from '../models/user';
 export class UserStore {
   // Internal State
   private userState = signal({
+    organizationUnitId: '',
+    companyId: '',
     searchText: '',
     pageIndex: 0,
     pageSize: 10,
@@ -31,7 +33,10 @@ export class UserStore {
 
   readonly hasUserId = computed(() => this.userState().userId !== EMPTY_UUID);
   //private readonly userId = signal<string | undefined>(undefined);
-
+  deviceResource = httpResource<IUserDevice[]>(() => {
+    const id = this.userState().userId;
+    return id && id !== EMPTY_UUID ? `${ApiPaths.APP}/user-device/${id}` : undefined;
+  });
   // All Users
   usersResource = httpResource<User[]>(() => `${ApiPaths.APP}/users`);
 
@@ -41,6 +46,7 @@ export class UserStore {
   });
   readonly loading = computed(() => this.usersResource.isLoading());
   readonly error = computed(() => this.usersResource.error());
+  //All Devices By User Id
 
   // Search Users
   usersSearchResource = httpResource<UserSearchResult>(() => {

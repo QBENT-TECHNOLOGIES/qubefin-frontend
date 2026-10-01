@@ -15,6 +15,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { EmployeeLopFinalizationStore } from '../../../hrms/stores/employee-lop-finalization-store';
+import { CompanyStore } from '../../../global/stores/company-store';
 
 @Component({
   selector: 'qfin-user-page',
@@ -36,10 +38,13 @@ export class UserPage {
   public readonly EMPTY_UUID = EMPTY_UUID;
 
   userStore = inject(UserStore);
-
+  orgStore = inject(EmployeeLopFinalizationStore);
+  companyStore = inject(CompanyStore);
   isViewMode = signal<boolean>(true);
   showFilterArea = signal<boolean>(false);
   selectedUserId = signal<string>(EMPTY_UUID);
+  organizationUnit = this.orgStore.organizationUnits;
+  companies = this.companyStore.companies;
   searchedUsers = this.userStore.searchedUsers;
   tempSearch = '';
   tempCategory = '';
@@ -51,6 +56,8 @@ export class UserPage {
   ]);
 
   protected readonly userSearchFields = signal<UserSearchParam>({
+    organizationUnitId: '',
+    companyId: '',
     searchText: '',
     sortOn: 'userName',
     sortDirection: 'ASC',
