@@ -48,6 +48,8 @@ export class UserPage {
   searchedUsers = this.userStore.searchedUsers;
   tempSearch = '';
   tempCategory = '';
+  tempOrganizationUnitId = '';
+  tempCompanyId = '';
   readonly categories = signal<Array<{ id: string; name: string }>>([
     { id: '', name: 'All Categories' },
     { id: 'ADMIN', name: 'Admin' },
@@ -111,13 +113,19 @@ export class UserPage {
   protected applyFilters() {
     this.userStore.setPagination(0, 10);
     this.userStore.setSearchQuery(this.tempSearch.trim());
+    this.userStore.setOrganizationUnitId(this.tempOrganizationUnitId);
+    this.userStore.setCompanyId(this.tempCompanyId);
     this.userStore.setSort('userName', 'ASC');
   }
 
   protected resetFilters() {
     this.tempSearch = '';
     this.tempCategory = '';
+    this.tempOrganizationUnitId = '';
+    this.tempCompanyId = '';
     this.userStore.setSearchQuery('');
+    this.userStore.setOrganizationUnitId('');
+    this.userStore.setCompanyId('');
     this.userStore.setPagination(0, 10);
     this.userStore.setSort('userName', 'ASC');
   }

@@ -48,6 +48,35 @@
                         </mat-form-field>
                     </div>
 
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Organization Unit</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select placeholder="Select organization unit" [(ngModel)]="tempOrganizationUnitId">
+                                <mat-option value="">All </mat-option>
+                                @for (unit of organizationUnit(); track unit.id) {
+                                <mat-option [value]="unit.id">{{ unit.name }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Company</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select placeholder="Select company" [(ngModel)]="tempCompanyId">
+                                <mat-option value="">All </mat-option>
+                                @for (company of companies(); track company.id) {
+                                <mat-option [value]="company.id">{{ company.name }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
                     <!-- <div class="flex-1 min-w-[200px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                             <mat-label>Category</mat-label>

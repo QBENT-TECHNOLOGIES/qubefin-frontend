@@ -24,6 +24,8 @@ export class UserStore {
     const searchState = this.userState();
     return {
       searchText: searchState.searchText,
+      organizationUnitId: searchState.organizationUnitId,
+      companyId: searchState.companyId,
       pageIndex: searchState.pageIndex,
       pageSize: searchState.pageSize,
       sortOn: searchState.sortOn,
@@ -50,7 +52,21 @@ export class UserStore {
 
   // Search Users
   usersSearchResource = httpResource<UserSearchResult>(() => {
-    const params = new URLSearchParams(this.searchParams() as any);
+    const search = this.searchParams();
+    const params = new URLSearchParams();
+
+    params.set('searchText', search.searchText ?? '');
+    params.set('sortOn', search.sortOn);
+    params.set('sortDirection', search.sortDirection);
+    params.set('pageIndex', String(search.pageIndex));
+    params.set('pageSize', String(search.pageSize));
+    if (search.organizationUnitId) {
+      params.set('organizationUnitId', search.organizationUnitId);
+    }
+    if (search.companyId) {
+      params.set('companyId', search.companyId);
+    }
+
     return `${ApiPaths.APP}/users/search?${params.toString()}`;
   });
 
@@ -97,5 +113,12 @@ export class UserStore {
 
   setUserId(id: string | undefined) {
     this.updateStateParams({ userId: id });
+  }
+  setOrganizationUnitId(organizationUnitId: string) {
+    this.updateStateParams({ organizationUnitId: organizationUnitId ?? '' });
+  }
+
+  setCompanyId(companyId: string) {
+    this.updateStateParams({ companyId: companyId ?? '' });
   }
 }
