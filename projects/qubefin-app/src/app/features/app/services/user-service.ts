@@ -29,4 +29,7 @@ export class UserService {
   update(payload: any, userId: any) {
     return this.httpClient.put<any>(`${ApiPaths.APP}/users/${userId}`, payload);
   }
+  resetPassword(payload: any, userId: any) {
+    return this.httpClient.put(`${ApiPaths.AUTH}/reset-password/${userId}`, payload);
+  }
 }
