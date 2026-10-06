@@ -20,10 +20,7 @@ export class DeviceListModal {
   private readonly userService = inject(UserService);
   protected readonly userStore = inject(UserStore);
   private readonly dialogData = inject(MAT_DIALOG_DATA);
-  // deviceList = [
-  //   { id: '1', deviceId: 'fgfgfg1', assignedDate: '2023-01-01' },
-  //   { id: '2', deviceId: '2gffg', assignedDate: '2023-01-02' },
-  // ];
+
   constructor() {
     const id = this.dialogData?.id;
     effect(() => {

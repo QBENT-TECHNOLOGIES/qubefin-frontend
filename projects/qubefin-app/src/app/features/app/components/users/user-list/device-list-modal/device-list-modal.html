@@ -18,14 +18,7 @@
 </div>
 <div class="box glass p-4 pb-6 m-2">
     <div class="flex flex-col gap-3">
-        <!-- <div class="flex justify-between">
-            <div>
-                <h4 class="box-content-heading">
-                    Devices
-                </h4>
-                <div class="blue-line mb-2!"></div>
-            </div>
-        </div> -->
+
 
         <div class="table-box" style="max-height: 275px;">
             <table mat-table [dataSource]="deviceList()" matSortDisableClear class="w-full table">
@@ -36,14 +29,7 @@
                         {{ i + 1 }}
                     </td>
                 </ng-container>
-                <!-- 
-                <ng-container matColumnDef="grade">
-                    <th mat-header-cell *matHeaderCellDef>Salary Grade</th>
 
-                    <td mat-cell *matCellDef="let item">
-                        {{ item.salaryGrade }}
-                    </td>
-                </ng-container> -->
                 <ng-container matColumnDef="deviceId">
                     <th mat-header-cell *matHeaderCellDef>Device Id</th>
                     <td mat-cell *matCellDef="let item">
@@ -65,11 +51,7 @@
                             {{ item.isRelease ? 'Yes' : 'No' }}
                         </span>
                     </td>
-                    <!-- <span class="px-2 py-1 text-xs rounded font-medium" [class.bg-green-100]="element.isActive"
-                        [class.text-green-800]="item.isRelease" [class.bg-red-100]="!item.isRelease"
-                        [class.text-red-800]="!element.isActive">
-                        {{ item.isRelease ? 'Yes' : 'No' }}
-                    </span> -->
+
                 </ng-container>
                 <ng-container matColumnDef="releaseDate">
                     <th mat-header-cell *matHeaderCellDef>Release Date</th>
