@@ -51,10 +51,12 @@ export class EmployeeRecordsDetail {
 
       case 'Rejected':
       case 'MSP':
+      case 'Absent':
         return 'text-rose-600 dark:text-rose-400';
 
       case 'Cancelled':
       case 'Lapsed':
+      case 'Not Punched':
         return 'text-slate-600 dark:text-slate-400';
 
       case 'Pending':
@@ -73,10 +75,12 @@ export class EmployeeRecordsDetail {
 
       case 'Rejected':
       case 'MSP':
+      case 'Absent':
         return 'bg-rose-400';
 
       case 'Cancelled':
       case 'Lapsed':
+      case 'Not Punched':
         return 'bg-slate-400';
 
       case 'Pending':
@@ -95,10 +99,12 @@ export class EmployeeRecordsDetail {
 
       case 'Rejected':
       case 'MSP':
+      case 'Absent':
         return 'bg-rose-500';
 
       case 'Cancelled':
       case 'Lapsed':
+      case 'Not Punched':
         return 'bg-slate-500';
 
       case 'Pending':

@@ -6,6 +6,7 @@ import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { EMPTY_UUID } from 'qubefin-core';
 
 import { IEmployeeRecordRow, IEmployeeRecordTabConfig } from '../../../models/employee-record';
 
@@ -60,7 +61,12 @@ export class EmployeeRecordsList {
     return row.recordType === 'attendance' ? row.workingHours : row.appliedOn;
   }
 
+  protected hasDetail(row: IEmployeeRecordRow): boolean {
+    return !!row.id && row.id !== EMPTY_UUID;
+  }
+
   protected onDetailView(id: string) {
+    if (!id || id === EMPTY_UUID) return;
     this.onViewDetail.emit(id);
   }
 
@@ -80,10 +86,12 @@ export class EmployeeRecordsList {
 
       case 'Rejected':
       case 'MSP':
+      case 'Absent':
         return 'bg-rose-500/10 text-rose-600 dark:text-rose-400';
 
       case 'Cancelled':
       case 'Lapsed':
+      case 'Not Punched':
         return 'bg-slate-500/10 text-slate-600 dark:text-slate-400';
 
       case 'Pending':
@@ -107,10 +115,12 @@ export class EmployeeRecordsList {
 
       case 'Rejected':
       case 'MSP':
+      case 'Absent':
         return 'bg-rose-500';
 
       case 'Cancelled':
       case 'Lapsed':
+      case 'Not Punched':
         return 'bg-slate-500';
 
       case 'Pending':

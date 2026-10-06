@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
-import { ApiPaths } from 'qubefin-core';
+import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 
 import {
   EMPLOYEE_RECORD_TABS,
@@ -112,6 +112,9 @@ export class EmployeeRecordsStore {
   readonly hasSelectedRecord = computed(() => this.detailRef() !== null);
 
   openDetail(id: string) {
+    // An attendance row for an employee with no punch has no record behind it to open.
+    if (!id || id === EMPTY_UUID) return;
+
     this.detailRef.set({ recordType: this.activeTab(), id });
   }
 
