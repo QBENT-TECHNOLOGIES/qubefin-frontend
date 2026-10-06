@@ -2,6 +2,8 @@ export interface CalendarDay {
   calendarDate: string;
   dayName: string;
   status: string | null;
+  actualInTime?: string;
+  actualOutTime?: string;
 }
 
 export interface CalendarStatusConfig {

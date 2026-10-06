@@ -1,13 +1,15 @@
-<div class="w-full bg-white shadow-sm overflow-hidden flex flex-col">
+<div
+  class="w-full bg-white shadow-sm overflow-hidden flex flex-col dark:border-[#2A2E38] dark:bg-[#15171D] dark:shadow-[0_24px_64px_rgba(0,0,0,0.5)]">
   <!-- Header -->
-  <div class="flex items-center justify-between px-6 pt-6 pb-4">
+  <div
+    class="flex items-center justify-between px-6 py-4 bg-white/60 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
     <div class="flex items-center gap-3">
       <div
         class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center shadow-sm">
         <svg lucideIcon="calendar-days" class="w-5 h-5 text-white"></svg>
       </div>
       <div>
-        <h2 class="text-base font-bold text-slate-900 tracking-tight">
+        <h2 class="text-base font-bold text-slate-900 tracking-tight dark:text-white">
           Attendance Calendar
         </h2>
         <p class="text-[11px] text-slate-400 -mt-0.5">
@@ -21,30 +23,30 @@
     </button>
   </div>
 
-  <div class="flex items-center justify-center gap-5 px-6 pb-4">
+  <div class="flex items-center justify-center gap-5 px-6 pb-4 pt-6">
     <button type="button" (click)="previousMonth()" [disabled]="loading()"
-      class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-50 hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 transition-colors disabled:opacity-30">
+      class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-50 hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 dark:text-emerald-600 transition-colors disabled:opacity-30">
       <svg lucideIcon="chevron-left" class="w-4 h-4"></svg>
     </button>
 
     <div class="text-center w-36">
-      <p class="text-base font-semibold text-slate-900">
+      <p class="text-base font-semibold text-slate-900 dark:text-white">
         {{ monthName() }} {{ year() }}
       </p>
-      <p class="text-[11px] text-slate-400 mt-0.5">
+      <p class="text-[11px] text-slate-400 mt-0.5 dark:text-white">
         {{ shortRange() }}
       </p>
     </div>
 
     <button type="button" (click)="nextMonth()" [disabled]="loading()"
-      class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-50 hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 transition-colors disabled:opacity-30">
+      class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-50 hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 dark:text-emerald-600 transition-colors disabled:opacity-30">
       <svg lucideIcon="chevron-right" class="w-4 h-4"></svg>
     </button>
   </div>
 
   <div class="grid grid-cols-7 px-6 text-center">
     @for (day of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; track day) {
-    <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 pb-2">
+    <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white pb-2">
       {{ day }}
     </div>
     }
@@ -59,7 +61,8 @@
       <div
         class="relative w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-medium transition-colors"
         [ngClass]="getStatusConfig(day.status)?.chip ?? 'text-slate-400'" [class.ring-2]="isToday(day.calendarDate)"
-        [class.ring-teal-500]="isToday(day.calendarDate)" [class.ring-offset-1]="isToday(day.calendarDate)">
+        [class.ring-teal-500]="isToday(day.calendarDate)" [class.ring-offset-1]="isToday(day.calendarDate)"
+        [matTooltip]="getTooltipText(day)" matTooltipClass="whitespace-pre-line text-xs">
         {{ $any(day.calendarDate | date:'d') }}
       </div>
     </div>
@@ -67,7 +70,7 @@
     }
   </div>
 
-  <div class="px-6 pt-4 pb-6 border-t border-slate-100 bg-slate-50/50">
+  <div class="px-6 pt-4 pb-6 border-t border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-900/50">
 
     <div class="h-1 w-8 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 mb-4"></div>
 
@@ -77,9 +80,11 @@
       <div class="flex items-start gap-2">
         <span class="w-2 h-2 mt-1 rounded-full flex-shrink-0" [ngClass]="item.value.dot"
           [class.opacity-30]="count === 0"></span>
-        <span class="text-[11px] leading-snug" [class.text-slate-300]="count === 0" [class.text-slate-600]="count > 0">
+        <span class="text-[11px] leading-snug dark:text-white" [class.text-slate-300]="count === 0"
+          [class.text-slate-600]="count > 0">
           {{ item.value.label }}
-          <span class="font-semibold ml-1" [class.text-slate-300]="count === 0" [class.text-slate-800]="count > 0">
+          <span class="font-semibold ml-1 dark:text-white" [class.text-slate-300]="count === 0"
+            [class.text-slate-800]="count > 0">
             {{ count }}
           </span>
         </span>
