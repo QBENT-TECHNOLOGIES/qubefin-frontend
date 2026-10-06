@@ -8,13 +8,20 @@ import { LoginStateStore } from "./login-state-store";
 export class AuthStore {
     private sessionTokenSignal = signal<string | null>(sessionStorage.getItem(StorageTokens.SESSION_TOKEN));
     private accessTokenSignal = signal<string | null>(sessionStorage.getItem(StorageTokens.ACCESS_TOKEN));
+    private refreshTokenSignal = signal<string | null>(sessionStorage.getItem(StorageTokens.REFRESH_TOKEN));
 
     readonly sessionToken = computed(() => this.sessionTokenSignal());
     readonly accessToken = computed(() => this.accessTokenSignal());
+    readonly refreshToken = computed(() => this.refreshTokenSignal());
 
     readonly isAuthenticated = computed(() => {
         const accessToken = this.accessTokenSignal();
-        return !!accessToken && !this.isAccessTokenExpired(accessToken);
+        if (!accessToken) {
+            return false;
+        }
+        // An expired access token is still a live session while a refresh token can renew it;
+        // the refresh interceptor does the renewal when the API rejects the old token.
+        return !this.isAccessTokenExpired(accessToken) || !!this.refreshTokenSignal();
     });
 
     loginStateStore = inject(LoginStateStore);
@@ -26,6 +33,9 @@ export class AuthStore {
         effect(() => {
             this.sync(StorageTokens.ACCESS_TOKEN, this.accessTokenSignal());
         });
+        effect(() => {
+            this.sync(StorageTokens.REFRESH_TOKEN, this.refreshTokenSignal());
+        });
     }
 
     setSessionToken = (sessionToken: string | null) => {
@@ -34,9 +44,13 @@ export class AuthStore {
     setAccessToken = (accessToken: string | null) => {
         this.accessTokenSignal.set(accessToken);
     }
+    setRefreshToken = (refreshToken: string | null) => {
+        this.refreshTokenSignal.set(refreshToken);
+    }
     logout = () => {
         this.setSessionToken(null);
         this.setAccessToken(null);
+        this.setRefreshToken(null);
         this.loginStateStore.resetLoginState();
     }
 

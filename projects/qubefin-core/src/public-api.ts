@@ -17,6 +17,7 @@ export * from './lib/enums/storage-tokens';
 
 // Interceptors
 export * from './lib/interceptors/auth-interceptor';
+export * from './lib/interceptors/refresh-token-interceptor';
 
 // Stores
 export * from './lib/stores/auth-store';
@@ -25,6 +26,7 @@ export * from './lib/stores/permission-store';
 
 // Services
 export * from './lib/services/alert-service';
+export * from './lib/services/token-refresh-service';
 export * from './lib/services/document-modal.service';
 
 // Components

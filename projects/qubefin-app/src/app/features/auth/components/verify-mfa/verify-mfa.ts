@@ -37,6 +37,7 @@ export class VerifyMfa {
 					if (response) {
 						this.authStore.setSessionToken(null);
 						this.authStore.setAccessToken(response.accessToken);
+						this.authStore.setRefreshToken(response.refreshToken);
 						this.loginStateStore.setLoginStep('complete');
 					}
 					this.isLoading.set(false);

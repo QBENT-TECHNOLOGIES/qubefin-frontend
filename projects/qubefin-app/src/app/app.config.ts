@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { environment } from '../environments/environment';
 
-import { AuthInterceptor, ENV_CONFIG } from 'qubefin-core';
+import { AuthInterceptor, ENV_CONFIG, RefreshTokenInterceptor } from 'qubefin-core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
@@ -15,7 +15,7 @@ import { HttpErrorInterceptor } from './interceptors/http-error.interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(withInterceptors([AuthInterceptor, HttpErrorInterceptor])),
+    provideHttpClient(withInterceptors([AuthInterceptor, HttpErrorInterceptor, RefreshTokenInterceptor])),
     {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
       useValue: { appearance: 'fill' },
