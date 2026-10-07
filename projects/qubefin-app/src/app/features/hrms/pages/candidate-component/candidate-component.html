@@ -8,6 +8,24 @@
                 Filter
             </button>
             }
+            <!-- Blank job application form, per company - handed to a candidate before they are created -->
+            <button type="button" class="filter-btn glass-input lift shine-sweep" [disabled]="downloadingJobApplication()"
+                [matMenuTriggerFor]="jobApplicationCompanies">
+                <svg [lucideIcon]="downloadingJobApplication() ? 'loader' : 'download'" class="w-4 h-4"
+                    [class.animate-spin]="downloadingJobApplication()"></svg>
+                Download Job Application
+            </button>
+            <mat-menu #jobApplicationCompanies="matMenu" class="menus-area" xPosition="before">
+                <div class="px-4 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                    Select company
+                </div>
+                @for (company of companies(); track company.id) {
+                <button mat-menu-item class="!h-10 !min-h-10" (click)="onDownloadJobApplication(company)">
+                    <svg lucideIcon="building-2" class="w-4 h-4 shrink-0 text-slate-500"></svg>
+                    <span class="text-[13px]">{{ company.name }}</span>
+                </button>
+                }
+            </mat-menu>
             <button class="global-btn shine-sweep lift" (click)="onAdd()">
                 <svg lucideIcon="plus" class="w-4 h-4"></svg>
                 Add New
@@ -193,7 +211,7 @@
 
                 <!-- VIEW -->
                 <qfin-candidate-view [candidateId]="selectedCandidateId()" (onUpdateAction)="onEdit($event)"
-                    (onEditDetails)="onEditDetails($event)">
+                    (onEditDetails)="onEditDetails($event)" (onEditJoiningDetails)="onEditDetails($event, true)">
                 </qfin-candidate-view>
 
                 } @else if (isUpdateMode()) {
@@ -205,7 +223,8 @@
                 } @else if (isEditDetailsMode()) {
 
                 <!-- EDIT BASIC DETAILS -->
-                <qfin-candidate-detail [candidateId]="selectedCandidateId()" (cancel)="onEditDetailsDone()"
+                <qfin-candidate-detail [candidateId]="selectedCandidateId()" [openJoiningStep]="openJoiningStep()"
+                    (cancel)="onEditDetailsDone()"
                     (save)="onEditDetailsDone()">
                 </qfin-candidate-detail>
 

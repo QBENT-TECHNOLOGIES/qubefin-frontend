@@ -1,5 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, DocumentModalService, EMPTY_UUID } from 'qubefin-core';
+import { MatMenuModule } from '@angular/material/menu';
+import { HrmsReportService } from '../../../Report/Service/hrms-report-service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -43,6 +45,7 @@ import { toApiDate } from '../../components/interview-process/interview-time';
     FormsModule,
     MatIconModule,
     MatTooltipModule,
+    MatMenuModule,
     LucideDynamicIcon,
     CommonModule,
     CandidateList,
@@ -60,6 +63,10 @@ export class CandidateComponent {
   readonly candidateStore = inject(CandidateStore);
   readonly companyStore = inject(CompanyStore);
   private readonly dialog = inject(MatDialog);
+  private readonly hrReportService = inject(HrmsReportService);
+  private readonly documentModalService = inject(DocumentModalService);
+  private readonly alertService = inject(AlertService);
+  protected readonly downloadingJobApplication = signal(false);
   protected readonly candidateStatuses = CANDIDATE_STATUSES;
   protected readonly recommendationStatuses = RECOMMENDATION_STATUSES;
   readonly isUpdateMode = signal<boolean>(false);
@@ -82,9 +89,12 @@ export class CandidateComponent {
     this.isUpdateMode.set(false);
     this.isEditDetailsMode.set(false);
   }
+  /** The candidate form opens on its Joining Details step (offer letter's "Update Joining Details"). */
+  readonly openJoiningStep = signal<boolean>(false);
   // Opens the candidate form on the selected candidate to edit its basic details.
-  protected onEditDetails(id: string) {
+  protected onEditDetails(id: string, openJoiningStep = false) {
     this.selectedCandidateId.set(id);
+    this.openJoiningStep.set(openJoiningStep);
     this.isViewMode.set(false);
     this.isUpdateMode.set(false);
     this.isEditDetailsMode.set(true);
@@ -152,6 +162,33 @@ export class CandidateComponent {
       if (this.selectedCandidateId() === candidate.id) {
         this.candidateStore.refreshDetail();
       }
+    });
+  }
+  constructor() {
+    this.dateAdapter.setLocale('en-GB');
+  }
+  /** Blank job application form of the chosen company, opened in the document viewer (which offers download). */
+  protected onDownloadJobApplication(company: { id: string; name: string }) {
+    if (this.downloadingJobApplication()) return;
+
+    this.downloadingJobApplication.set(true);
+    this.hrReportService.getBlankJobApplication(company.id).subscribe({
+      next: (blob) => {
+        this.downloadingJobApplication.set(false);
+        this.documentModalService.open({
+          url: URL.createObjectURL(blob),
+          documentName: `job_application_${company.name.toLowerCase().replace(/\s+/g, '_')}`,
+          extension: 'pdf',
+          downloadAccess: true,
+        });
+      },
+      error: () => {
+        this.downloadingJobApplication.set(false);
+        this.alertService.error(
+          'Failed',
+          `Unable to download the job application for ${company.name}.`,
+        );
+      },
     });
   }
   private emptySearchModel(): ICandidateSearchModel {

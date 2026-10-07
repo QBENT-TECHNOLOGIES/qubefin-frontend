@@ -47,6 +47,9 @@ export const RECOMMENDATION_STATUSES = [
   'Recommended with Training',
   'Hold for Future Opportunity',
   'Not Recommended',
+  'Strongly Recommended but not selected',
+  'Recommended but not selected',
+  'Recommended with Training but not selected',
   'Rejected',
 ] as const;
 
@@ -441,6 +444,10 @@ export interface ICandidate {
 
   /** Candidate verification is complete and the offer letter is not yet received. */
   showOfferLetterActions?: boolean;
+
+  /** Place of posting, date of joining, reporting time and monthly CTC (above 0) are filled in. The offer letter
+   * prints them, so it cannot be sent before. */
+  isJoiningDetailsComplete?: boolean;
 
   /** The offer letter is with the candidate - "Add Additional Info" is available. */
   showAddAdditionalInfoButton?: boolean;

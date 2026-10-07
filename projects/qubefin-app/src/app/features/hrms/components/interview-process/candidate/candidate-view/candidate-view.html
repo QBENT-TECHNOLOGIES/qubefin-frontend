@@ -66,7 +66,7 @@
                 }
 
                 <!-- Interview letter status -->
-                <div class="badge-group">
+                <!-- <div class="badge-group">
                     <span class="badge" [class.text-emerald-600]="data.isInterviewLetterReceived"
                         [class.dark:text-emerald-400]="data.isInterviewLetterReceived"
                         [class.text-rose-600]="!data.isInterviewLetterReceived"
@@ -75,7 +75,7 @@
                             class="w-3.5 h-3.5"></svg>
                         {{ data.isInterviewLetterReceived ? 'Letter Received' : 'Letter Pending' }}
                     </span>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
@@ -572,10 +572,15 @@
 
             <!-- IS CANDIDATE SELECTED - HR, after the HR Assessment, for a recommended candidate -->
             @if (data.showSelectForOfferButton) {
-            <button type="button" [disabled]="selecting()" (click)="onSelectForOffer()"
+            <button type="button" [disabled]="selecting()" (click)="onSelectForOffer(true)"
                 class="global-btn ripple-btn shine-sweep lift disabled:opacity-60 disabled:cursor-not-allowed">
                 <svg lucideIcon="badge-check" class="w-4 h-4 mr-2"></svg>
-                {{ selecting() ? 'Saving...' : 'Is Candidate Selected' }}
+                {{ selecting() ? 'Saving...' : 'Select Candidate' }}
+            </button>
+            <button type="button" [disabled]="selecting()" (click)="onSelectForOffer(false)"
+                class="rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-rose-600 dark:text-rose-400 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-500/30 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition cursor-pointer shine-sweep lift disabled:opacity-60 disabled:cursor-not-allowed">
+                <svg lucideIcon="thumbs-down" class="w-4 h-4"></svg>
+                Not Selected
             </button>
             }
 
@@ -587,11 +592,30 @@
             </button>
             }
 
-            <!-- OFFER LETTER - opens once verification is complete -->
+            <!-- OFFER LETTER - opens once verification is complete, and only with the joining details it prints -->
             @if (data.showOfferLetterActions) {
+            @if (data.isJoiningDetailsComplete) {
             <qfin-letter-actions letterName="Offer" [sending]="sendingMail()"
                 [receiving]="recievingMail()" (view)="onViewOfferLetterMail()"
                 (send)="onSendLetterMail('offer')" (receive)="onRecieveLetter('offer')" />
+            } @else {
+            <div
+                class="w-full flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                <div class="flex items-start gap-2.5 text-sm text-amber-800 dark:text-amber-300">
+                    <svg lucideIcon="triangle-alert" class="w-4 h-4 mt-0.5 shrink-0"></svg>
+                    <span>
+                        Update the joining details before the offer letter:
+                        <span class="font-semibold">{{ missingJoiningDetails().join(', ') }}</span>
+                    </span>
+                </div>
+                @if (data.canEditDetails) {
+                <button type="button" class="global-btn ripple-btn shine-sweep lift" (click)="onUpdateJoiningDetails()">
+                    <svg lucideIcon="square-pen" class="w-4 h-4 mr-2"></svg>
+                    Update Joining Details
+                </button>
+                }
+            </div>
+            }
             }
 
             <!-- ADD ADDITIONAL INFO - unlocked by the uploaded joining letter -->

@@ -53,6 +53,8 @@ export class CandidateView {
   onUpdateAction = output<ICandidate>();
   /** Opens the candidate form to edit the basic details - offered until the offer letter is received. */
   onEditDetails = output<string>();
+  /** Opens the candidate form on its Joining Details step - required before the offer letter. */
+  onEditJoiningDetails = output<string>();
   readonly candidateId = model<string>(EMPTY_UUID);
 
   readonly candidate = this.candidateStore.candidate;
@@ -480,6 +482,27 @@ export class CandidateView {
   // ADDITIONAL INFO - opens the joining information form, which saves the candidate as an employee
   // ============================================================
 
+  /** What the offer letter still needs. The detail payload carries the values; ReportingTime comes back as
+   * 00:00:00 when it was never set, so that counts as missing. */
+  readonly missingJoiningDetails = computed(() => {
+    const data = this.candidate();
+    if (!data) return [];
+    const missing: string[] = [];
+    if (!data.postedOrganizationUnitId) missing.push('Place of Posting');
+    if (!data.dateOfJoining) missing.push('Date of Joining');
+    if (!data.reportingTime || data.reportingTime.startsWith('00:00:00')) missing.push('Reporting Time');
+    if (!data.monthlyCostCompany || data.monthlyCostCompany <= 0) missing.push('Monthly Cost to Company (CTC)');
+    return missing;
+  });
+
+  onUpdateJoiningDetails() {
+    const candidate = this.getCandidate();
+
+    if (!candidate) return;
+
+    this.onEditJoiningDetails.emit(candidate.id);
+  }
+
   onEditCandidateDetails() {
     const candidate = this.getCandidate();
 
@@ -633,33 +656,44 @@ export class CandidateView {
   // CANDIDATE SELECTION
   // ============================================================
 
-  /** "Is Candidate Selected": HR selects the candidate for an offer after the HR Assessment. One-way - it
-   * opens Candidate Verification and cannot be undone. */
-  async onSelectForOffer() {
+  /** "Is Candidate Selected" after the HR Assessment. Selected opens Candidate Verification; not selected stops the
+   * workflow and records "<recommendation> but not selected". Either way it cannot be undone. */
+  async onSelectForOffer(isSelected: boolean) {
     const candidate = this.getCandidate();
 
     if (!candidate || this.selecting()) return;
 
-    const result = await this.alertService.confirm(
-      'Is Candidate Selected?',
-      `${candidate.candidateFullName || 'This candidate'} will be selected and moved on to Candidate Verification. This cannot be undone.`,
-      'Yes, selected',
-      'Cancel',
-    );
+    const name = candidate.candidateFullName || 'This candidate';
+    const result = isSelected
+      ? await this.alertService.confirm(
+          'Select Candidate?',
+          `${name} will be selected and moved on to Candidate Verification. This cannot be undone.`,
+          'Yes, select',
+          'Cancel',
+        )
+      : await this.alertService.confirm(
+          'Mark as Not Selected?',
+          `${name} will be marked "${candidate.recommendationStatus} but not selected" and the process will stop. This cannot be undone.`,
+          'Yes, not selected',
+          'Cancel',
+        );
 
     if (!result.isConfirmed) return;
 
     this.selecting.set(true);
-    this.candidateService.selectForOffer(candidate.id).subscribe({
+    this.candidateService.selectForOffer(candidate.id, isSelected).subscribe({
       next: (message: any) => {
         this.selecting.set(false);
-        this.alertService.success('Selected', typeof message === 'string' ? message : 'Candidate selected.');
+        this.alertService.success(
+          isSelected ? 'Selected' : 'Not Selected',
+          typeof message === 'string' ? message : 'Saved.',
+        );
         this.candidateStore.refreshDetail();
         this.candidateStore.refreshList();
       },
       error: (error) => {
         this.selecting.set(false);
-        this.alertService.error('Failed', error?.error?.message ?? error?.error?.detail ?? 'Failed to select the candidate.');
+        this.alertService.error('Failed', error?.error?.message ?? error?.error?.detail ?? 'Failed to save the selection.');
       },
     });
   }

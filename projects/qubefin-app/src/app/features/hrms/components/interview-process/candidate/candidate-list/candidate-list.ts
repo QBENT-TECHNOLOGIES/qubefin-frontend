@@ -145,16 +145,8 @@ export class CandidateList {
   readonly downloadingReport = signal<string | null>(null);
 
   // Generated reports, each opening at a report stage (see REPORT_STAGE); a candidate gets every report up to
-  // and including their stage.
+  // and including their stage. The blank job application form is downloaded from the page header instead.
   private readonly reports: { stage: number; report: CandidateReport }[] = [
-    {
-      stage: 0,
-      report: {
-        name: 'Job Application',
-        fileName: 'job_application',
-        download: (id) => this.hrReportService.getJobApplication(id) as Observable<Blob>,
-      },
-    },
     {
       stage: 1,
       report: {
@@ -309,6 +301,9 @@ export class CandidateList {
 
   /** HR Assessment outcome badge. */
   recommendationClass(status: string | null | undefined): string {
+    if (status?.endsWith('but not selected')) {
+      return 'pill-rose';
+    }
     switch (status) {
       case 'Strongly Recommended':
         return 'pill-emerald';

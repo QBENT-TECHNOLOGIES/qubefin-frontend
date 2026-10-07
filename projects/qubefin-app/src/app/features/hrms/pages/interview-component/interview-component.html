@@ -49,6 +49,7 @@
             Unable to load interviews.
         </div>
         } @else {
+        <!-- One horizontal scroller for the table, the bulk bar and the paginator - same as the candidate list. -->
         <div class="relative overflow-x-auto scroll-thin">
             @if (store.loading()) {
             <div class="absolute inset-x-0 top-0 h-0.5 bg-indigo-500/60 animate-pulse z-10"></div>
@@ -200,7 +201,6 @@
                     </td>
                 </tr>
             </table>
-        </div>
 
         <!-- Bulk acknowledge - only once something is ticked -->
         @if (selectedCount() > 0) {
@@ -224,6 +224,7 @@
         <mat-paginator [length]="store.totalRecords()" [pageSize]="store.pageSize()" [pageIndex]="store.pageIndex()"
             [pageSizeOptions]="[10, 20, 50]" (page)="onPage($event)">
         </mat-paginator>
+        </div>
         }
     </div>
 </div>

@@ -29,9 +29,10 @@ export class CandidateService {
       interviewTime,
     });
   }
-  // HR only, after the HR Assessment. Opens Candidate Verification; cannot be undone.
-  selectForOffer(id: string) {
-    return this.httpClient.post(`${ApiPaths.HRMS}/candidates/${id}/select-for-offer`, {});
+  // HR only, after the HR Assessment. Selected opens Candidate Verification; not selected stops the workflow.
+  // Either way it cannot be undone.
+  selectForOffer(id: string, isSelected: boolean) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/candidates/${id}/select-for-offer`, { isSelected });
   }
   private toCandidateFormData(candidate: Record<string, unknown>, cvFile: File | null, jobApplicationFile: File | null) {
     const formData = new FormData();

@@ -59,6 +59,13 @@ export class HrmsReportService {
     });
   }
 
+  /** Blank job application form for a company - given to a candidate before they are created. */
+  getBlankJobApplication(companyId: string) {
+    return this.httpClient.get(`${ApiPaths.REPORT}/interview/jobapplication-form/blank/${companyId}`, {
+      responseType: 'blob',
+    });
+  }
+
   getJobApplication(candidateId: string) {
     return this.httpClient.get(
       `${ApiPaths.REPORT}/interview/jobapplication-form/${candidateId}`,

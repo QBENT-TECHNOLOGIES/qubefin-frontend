@@ -23,6 +23,7 @@ import { OrganizationUnit } from '../../../../../global/models/organization-unit
 import { toApiTime, toDisplayTime, toLocalDate } from '../../interview-time';
 
 import { EmployeeStore } from '../../../../stores/employee-store';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'qfin-interview-panel-detail',
@@ -39,6 +40,7 @@ import { EmployeeStore } from '../../../../stores/employee-store';
     ReactiveFormsModule,
     LucideDynamicIcon,
     MatDialogModule,
+    MatTooltipModule,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './interview-panel-detail.html',
@@ -96,23 +98,50 @@ export class InterviewPanelDetail implements OnInit {
   readonly interviewSlotDate = computed(
     () => toLocalDate(this.interviewDate() || this.panelDetails()[0]?.scheduledDate) || null,
   );
-  readonly submittedCount = computed(() => this.panelDetails().filter((p: any) => p.isSubmitted).length);
+  readonly submittedCount = computed(
+    () => this.panelDetails().filter((p: any) => p.isSubmitted).length,
+  );
 
   /** One plain-words status per panelist, with its colour. */
   panelStatus(panel: any): { label: string; text: string; dot: string; isAbsent: boolean } {
     if (panel.isSubmitted) {
-      return { label: 'Submitted', text: 'text-emerald-700 dark:text-emerald-400', dot: 'bg-emerald-500', isAbsent: false };
+      return {
+        label: 'Submitted',
+        text: 'text-emerald-700 dark:text-emerald-400',
+        dot: 'bg-emerald-500',
+        isAbsent: false,
+      };
     }
     if (panel.attenedRemarks && !panel.isAttened) {
-      return { label: 'Candidate absent', text: 'text-rose-700 dark:text-rose-400', dot: 'bg-rose-500', isAbsent: true };
+      return {
+        label: 'Candidate absent',
+        text: 'text-rose-700 dark:text-rose-400',
+        dot: 'bg-rose-500',
+        isAbsent: true,
+      };
     }
     if (panel.isAttened) {
-      return { label: 'Assessing', text: 'text-violet-700 dark:text-violet-400', dot: 'bg-violet-500', isAbsent: false };
+      return {
+        label: 'Assessing',
+        text: 'text-violet-700 dark:text-violet-400',
+        dot: 'bg-violet-500',
+        isAbsent: false,
+      };
     }
     if (panel.isAcknowledged) {
-      return { label: 'Acknowledged', text: 'text-blue-700 dark:text-blue-400', dot: 'bg-blue-500', isAbsent: false };
+      return {
+        label: 'Acknowledged',
+        text: 'text-blue-700 dark:text-blue-400',
+        dot: 'bg-blue-500',
+        isAbsent: false,
+      };
     }
-    return { label: 'Not acknowledged', text: 'text-amber-700 dark:text-amber-400', dot: 'bg-amber-500', isAbsent: false };
+    return {
+      label: 'Not acknowledged',
+      text: 'text-amber-700 dark:text-amber-400',
+      dot: 'bg-amber-500',
+      isAbsent: false,
+    };
   }
 
   readonly interviewSlotTime = computed(() =>

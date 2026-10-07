@@ -195,7 +195,7 @@
                     {{ getInitials(panel.employeeName) }}
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{{ panel.employeeName || '-' }}</p>
+                    <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{{ panel.employeeName || '-' }} ({{panel.employeeCode}})</p>
                     <p class="text-xs text-slate-500 truncate">{{ panel.designation || '-' }}</p>
                 </div>
                 <div class="text-right shrink-0">
@@ -211,13 +211,17 @@
                     } @else if (status.isAbsent) {
                     <p class="text-xs text-slate-500 truncate max-w-56" [title]="panel.attenedRemarks">{{ panel.attenedRemarks }}</p>
                     }
-                    @if (canModifyPanel() && !panel.isSubmitted) {
-                    <button type="button" (click)="onDeletePanelist(panel.employeeId)"
-                        class="text-xs font-medium text-rose-600 hover:underline cursor-pointer">
-                        Remove
-                    </button>
-                    }
                 </div>
+                @if (canModifyPanel() && !panel.isSubmitted) {
+                <button type="button" (click)="onDeletePanelist(panel.employeeId)" matTooltip="Remove panelist"
+                    matTooltip="Remove panelist"
+                    class="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 cursor-pointer transition-colors">
+                    <svg lucideIcon="trash-2" class="w-4 h-4"></svg>
+                </button>
+                } @else if (canModifyPanel()) {
+                <!-- keeps the status column aligned with the removable rows -->
+                <span class="shrink-0 w-8"></span>
+                }
             </div>
             } @empty {
             <div class="flex flex-col items-center justify-center p-8 text-slate-400">

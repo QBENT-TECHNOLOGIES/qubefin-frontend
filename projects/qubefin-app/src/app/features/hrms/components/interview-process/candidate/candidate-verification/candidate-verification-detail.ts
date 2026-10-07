@@ -2,6 +2,8 @@ import { Component, computed, inject, Input, OnInit, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { Router } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -19,6 +21,13 @@ type BooleanVerificationKey =
   | 'isMobileValidated'
   | 'isUanVerified'
   | 'isCreditBureauChecked';
+
+/** Shows a row's error as soon as the user types (dirty) or tries to verify (touched) - not on a pristine field. */
+class TypedOrTouchedMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null): boolean {
+    return !!control && control.invalid && (control.dirty || control.touched);
+  }
+}
 
 export interface IVerificationItemConfig {
   key: BooleanVerificationKey;
@@ -72,11 +81,11 @@ export const VERIFICATION_ITEMS: IVerificationItemConfig[] = [
   {
     key: 'isVoterValited',
     check: 'Voter',
-    pattern: /^[A-Z]{3}\d{7}$/i,
-    patternMessage: 'Voter ID must be 3 letters followed by 7 digits',
+    pattern: /^[A-Z]{3}[0-9]{7}$/,
+    patternMessage: 'Voter ID must be 3 capital letters followed by 7 digits (e.g. ABC1234567)',
     valueField: 'voterNumber',
     placeholder: 'Voter ID number',
-    maxLength: 20,
+    maxLength: 10,
     label: 'Voter ID Verification',
     desc: 'Identity verified against Voter ID',
     icon: 'vote',
@@ -134,6 +143,7 @@ export const VERIFICATION_ITEMS: IVerificationItemConfig[] = [
     CommonModule,
     MatFormFieldModule,
     MatInputModule,
+    ReactiveFormsModule,
     LucideDynamicIcon,
     MatDialogModule,
   ],
@@ -158,8 +168,16 @@ export class CandidateVerificationDetail implements OnInit {
   isLoading = signal(false);
   /** Key of the row whose Verify call is in flight. */
   verifyingKey = signal<BooleanVerificationKey | null>(null);
-  /** What HR has typed in each row's input, seeded from the saved values. */
-  inputValues = signal<Partial<Record<BooleanVerificationKey, string>>>({});
+  /** One control per row, seeded from the saved values. Required + the row's format (pattern) - mirrors
+   * VerifyCandidateCheckCommandValidator, so a value that fails here would be refused by the API too. */
+  readonly controls = Object.fromEntries(
+    VERIFICATION_ITEMS.map((item) => [
+      item.key,
+      new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(item.pattern)] }),
+    ]),
+  ) as Record<BooleanVerificationKey, FormControl<string>>;
+
+  readonly errorMatcher = new TypedOrTouchedMatcher();
 
   verificationData = signal<ICandidateVerification>({
     candidateId: '',
@@ -216,44 +234,46 @@ export class CandidateVerificationDetail implements OnInit {
   }
 
   private seedInputs(data: ICandidateVerification) {
-    const values: Partial<Record<BooleanVerificationKey, string>> = {};
     for (const item of VERIFICATION_ITEMS) {
       const value = data[item.valueField];
-      values[item.key] = typeof value === 'string' ? value : '';
+      const control = this.controls[item.key];
+      control.setValue(typeof value === 'string' ? value : '');
+      control.markAsPristine();
+      control.markAsUntouched();
+      // A verified value is locked - and a disabled control never shows an error.
+      if (data[item.key]) control.disable();
+      else control.enable();
     }
-    this.inputValues.set(values);
   }
 
-  /** Rows whose format error is shown - after the first edit or a Verify attempt. */
-  readonly touchedKeys = signal<Set<BooleanVerificationKey>>(new Set());
-
-  /** Format error for the row's current value, or '' when it is empty or valid. */
-  getPatternError(item: IVerificationItemConfig): string {
-    if (this.isChecked(item.key) || !this.touchedKeys().has(item.key)) return '';
-    const value = this.getInputValue(item).trim();
-    return value && !item.pattern.test(value) ? item.patternMessage : '';
+  controlFor(item: IVerificationItemConfig): FormControl<string> {
+    return this.controls[item.key];
   }
 
-  getInputValue(item: IVerificationItemConfig): string {
-    return this.inputValues()[item.key] ?? '';
+  /** The row's mat-error text: required first, then its format message. */
+  getError(item: IVerificationItemConfig): string {
+    const errors = this.controls[item.key].errors;
+    if (errors?.['required']) return `Enter the ${item.label.replace(' Verification', '')} value`;
+    if (errors?.['pattern']) return item.patternMessage;
+    return '';
   }
 
-  onInputChange(item: IVerificationItemConfig, value: string) {
-    this.inputValues.update((v) => ({ ...v, [item.key]: value }));
-    this.touchedKeys.update((keys) => new Set(keys).add(item.key));
+  /** Trims as the user leaves the field so stray spaces don't fail the format. */
+  onBlur(item: IVerificationItemConfig) {
+    const control = this.controls[item.key];
+    const trimmed = control.value.trim();
+    if (trimmed !== control.value) control.setValue(trimmed);
   }
 
   /** Sets this check's flag on the candidate and saves the entered value. */
   verifyItem(item: IVerificationItemConfig) {
-    const value = this.getInputValue(item).trim();
-    if (!value) {
-      this.alertService.error('Required', `Enter the ${item.label.replace(' Verification', '')} value before verifying.`);
+    const control = this.controls[item.key];
+    control.setValue(control.value.trim());
+    control.markAsTouched();
+    if (control.invalid) {
       return;
     }
-    if (!item.pattern.test(value)) {
-      this.touchedKeys.update((keys) => new Set(keys).add(item.key));
-      return;
-    }
+    const value = control.value;
 
     this.verifyingKey.set(item.key);
     this.verificationService.verifyCheck(this.candidateId, item.check, value).subscribe({

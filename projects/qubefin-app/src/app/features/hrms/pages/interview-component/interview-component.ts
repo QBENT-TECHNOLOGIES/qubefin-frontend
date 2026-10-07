@@ -140,7 +140,15 @@ const STATUS_BADGE: Record<InterviewStatus, { label: string; pill: string }> = {
     .act-primary:hover { background: #4338ca; }
     .act-ghost { color: #475569; border: 1px solid color-mix(in srgb, #94a3b8 40%, transparent); }
     .act-ghost:hover { color: #4f46e5; border-color: color-mix(in srgb, #4f46e5 40%, transparent); }
-    .interview-table th.mat-mdc-header-cell { white-space: nowrap; }
+    .interview-table th.mat-mdc-header-cell { white-space: nowrap; padding-top: 0; padding-bottom: 0; }
+    .interview-table tr.mat-mdc-header-row { height: 46px; }
+    /* Compact checkboxes - the default 40px state layer and 48px touch target made the header row too tall. */
+    :host ::ng-deep .interview-table .mat-mdc-checkbox {
+      --mat-checkbox-state-layer-size: 28px;
+    }
+    :host ::ng-deep .interview-table .mat-mdc-checkbox .mat-mdc-checkbox-touch-target {
+      display: none;
+    }
   `,
 })
 export class InterviewComponent {

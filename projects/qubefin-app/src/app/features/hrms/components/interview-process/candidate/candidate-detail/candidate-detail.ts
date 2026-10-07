@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, untracked, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   disabled,
@@ -6,6 +6,7 @@ import {
   FormField,
   maxLength,
   pattern,
+  readonly,
   required,
   schema,
   Schema,
@@ -16,7 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { AlertService, DocumentModalService, EMPTY_UUID } from 'qubefin-core';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { MatStepperModule } from '@angular/material/stepper';
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatDialog } from '@angular/material/dialog';
 import { CandidateStore } from '../../../../stores/candidate-store';
 import { CandidateService } from '../../../../services/candidate-service';
@@ -109,6 +110,11 @@ export class CandidateDetail {
   }
   readonly candidateId = input<string>(EMPTY_UUID);
 
+  /** Open the form straight on the Joining Details step (from the offer letter's "Update Joining Details"). */
+  readonly openJoiningStep = input<boolean>(false);
+  private readonly stepper = viewChild<MatStepper>('stepper');
+  private jumpedToJoiningStep = false;
+
   readonly cancel = output<void>();
   readonly save = output<void>();
 
@@ -123,6 +129,12 @@ export class CandidateDetail {
       candidate?.id === this.candidateId() &&
       !!candidate?.isAllPanelAssessmentSubmitted
     );
+  });
+
+  /** The offer letter prints the joining details, so they are mandatory once the candidate is selected for offer. */
+  readonly isJoiningDetailsRequired = computed(() => {
+    const candidate = this.candidateStore.candidate();
+    return this.showJoiningStep() && !!candidate?.isSelectedForOffer;
   });
 
   readonly formModel = signal<ICandidateDetail>(this.createEmptyModel());
@@ -170,9 +182,18 @@ export class CandidateDetail {
     required(path.pinCode, { message: 'Pin Code is required' });
 
     pattern(path.mobileNo, /^[6-9]\d{9}$/, { message: 'Enter a valid 10-digit mobile number' });
-    pattern(path.monthlyCostCompany, /^\d+(\.\d{1,2})?$/, {
-      message: 'Enter a valid amount',
+    pattern(path.monthlyCostCompany, /^(?!0+(\.0+)?$)\d+(\.\d{1,2})?$/, {
+      message: 'Enter an amount above 0',
     });
+
+    // Joining details - printed on the offer letter.
+    const joiningRequired = () => this.isJoiningDetailsRequired();
+    required(path.postedOrganizationUnitId, { message: 'Place of Posting is required', when: joiningRequired });
+    required(path.dateOfJoining, { message: 'Date of Joining is required', when: joiningRequired });
+    required(path.reportingTime, { message: 'Reporting Time is required', when: joiningRequired });
+    required(path.monthlyCostCompany, { message: 'Monthly CTC is required', when: joiningRequired });
+    // Picked with the time picker only.
+    readonly(path.reportingTime);
     pattern(path.pinCode, /^\d{6}$/, {
       message: 'Pin code must be exactly 6 digits (Characters are not allowed)',
     });
@@ -211,6 +232,19 @@ export class CandidateDetail {
         countryId: path[0]?.id ?? tree[0].id,
         administrativeUnitId: path[1]?.id ?? '',
       }));
+    });
+    // "Update Joining Details" opens the form on the Joining Details step, once the form is filled.
+    effect(() => {
+      const stepper = this.stepper();
+      if (!this.openJoiningStep() || !stepper || !this.showJoiningStep() || this.jumpedToJoiningStep) return;
+      if (!this.loadedCandidateId) return;
+      this.jumpedToJoiningStep = true;
+      // Step by step: the stepper is linear and marks each step it leaves as visited.
+      untracked(() =>
+        setTimeout(() => {
+          for (let i = stepper.selectedIndex; i < stepper.steps.length - 1; i++) stepper.next();
+        }),
+      );
     });
     // The saved posted unit only carries its id - take its type from the full unit list (which loads
     // independently) so both dropdowns show the saved selection.
@@ -389,7 +423,8 @@ export class CandidateDetail {
       postedOrganizationUnitTypeId: '',
       postedOrganizationUnitId: candidate.postedOrganizationUnitId ?? '',
       dateOfJoining: toLocalDate(candidate.dateOfJoining) as any,
-      reportingTime: toDisplayTime(candidate.reportingTime),
+      // The detail SP returns a missing reporting time as 00:00:00 - treat that as not set.
+      reportingTime: candidate.reportingTime?.startsWith('00:00:00') ? '' : toDisplayTime(candidate.reportingTime),
       monthlyCostCompany:
         candidate.monthlyCostCompany != null ? String(candidate.monthlyCostCompany) : '',
     });
