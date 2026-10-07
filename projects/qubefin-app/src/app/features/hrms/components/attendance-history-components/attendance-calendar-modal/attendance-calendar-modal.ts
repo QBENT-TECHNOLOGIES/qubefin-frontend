@@ -69,16 +69,16 @@ export class AttendanceCalendarModal {
       return '';
     }
 
-    let tooltip = `Description: ${day.description}`;
+    let tooltip = `${day.description}`;
 
-    const rawInTime = day.actualInTime || day.actualintime;
-    const inTime = rawInTime ? this.formatTime12Hour(rawInTime.trim()) : '';
-    tooltip += `\nIn: ${inTime}`;
-
-    const rawOutTime = day.actualOutTime || day.outtime;
-    const outTime = rawOutTime ? this.formatTime12Hour(rawOutTime.trim()) : '';
-    tooltip += `\nOut: ${outTime}`;
-
+    const inTime = this.formatTime12Hour(day.actualInTime);
+    if (inTime) {
+      tooltip += `\nIn: ${inTime}`;
+    }
+    const outTime = this.formatTime12Hour(day.actualOutTime);
+    if (outTime) {
+      tooltip += `\nOut: ${outTime}`;
+    }
     return tooltip;
   }
   readonly statusConfig: Record<string, CalendarStatusConfig> = {
