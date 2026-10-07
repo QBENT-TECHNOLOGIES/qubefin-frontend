@@ -4,6 +4,7 @@ export interface CalendarDay {
   status: string | null;
   actualInTime?: string;
   actualOutTime?: string;
+  description?: string;
 }
 
 export interface CalendarStatusConfig {
