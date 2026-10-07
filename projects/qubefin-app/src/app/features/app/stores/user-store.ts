@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
-import { User, UserSearchResult } from '../models/user';
+import { IUserDevice, User, UserSearchResult } from '../models/user';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +9,8 @@ import { User, UserSearchResult } from '../models/user';
 export class UserStore {
   // Internal State
   private userState = signal({
+    organizationUnitId: '',
+    companyId: '',
     searchText: '',
     pageIndex: 0,
     pageSize: 10,
@@ -22,6 +24,8 @@ export class UserStore {
     const searchState = this.userState();
     return {
       searchText: searchState.searchText,
+      organizationUnitId: searchState.organizationUnitId,
+      companyId: searchState.companyId,
       pageIndex: searchState.pageIndex,
       pageSize: searchState.pageSize,
       sortOn: searchState.sortOn,
@@ -31,7 +35,10 @@ export class UserStore {
 
   readonly hasUserId = computed(() => this.userState().userId !== EMPTY_UUID);
   //private readonly userId = signal<string | undefined>(undefined);
-
+  deviceResource = httpResource<IUserDevice[]>(() => {
+    const id = this.userState().userId;
+    return id && id !== EMPTY_UUID ? `${ApiPaths.APP}/user-device/${id}` : undefined;
+  });
   // All Users
   usersResource = httpResource<User[]>(() => `${ApiPaths.APP}/users`);
 
@@ -41,10 +48,25 @@ export class UserStore {
   });
   readonly loading = computed(() => this.usersResource.isLoading());
   readonly error = computed(() => this.usersResource.error());
+  //All Devices By User Id
 
   // Search Users
   usersSearchResource = httpResource<UserSearchResult>(() => {
-    const params = new URLSearchParams(this.searchParams() as any);
+    const search = this.searchParams();
+    const params = new URLSearchParams();
+
+    params.set('searchText', search.searchText ?? '');
+    params.set('sortOn', search.sortOn);
+    params.set('sortDirection', search.sortDirection);
+    params.set('pageIndex', String(search.pageIndex));
+    params.set('pageSize', String(search.pageSize));
+    if (search.organizationUnitId) {
+      params.set('organizationUnitId', search.organizationUnitId);
+    }
+    if (search.companyId) {
+      params.set('companyId', search.companyId);
+    }
+
     return `${ApiPaths.APP}/users/search?${params.toString()}`;
   });
 
@@ -91,5 +113,12 @@ export class UserStore {
 
   setUserId(id: string | undefined) {
     this.updateStateParams({ userId: id });
+  }
+  setOrganizationUnitId(organizationUnitId: string) {
+    this.updateStateParams({ organizationUnitId: organizationUnitId ?? '' });
+  }
+
+  setCompanyId(companyId: string) {
+    this.updateStateParams({ companyId: companyId ?? '' });
   }
 }

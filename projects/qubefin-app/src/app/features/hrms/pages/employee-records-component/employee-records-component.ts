@@ -104,12 +104,14 @@ export class EmployeeRecordsComponent {
 
   readonly statusChips = computed(() => {
     const counts = this.statusCounts();
-    return [
+    const allowed = this.activeTabConfig().statusFilters;
+    const chips = [
       { key: 'all' as EmployeeRecordStatusFilter, label: 'All', count: counts.all },
       { key: 'pending' as EmployeeRecordStatusFilter, label: 'Pending', count: counts.pending },
       { key: 'approved' as EmployeeRecordStatusFilter, label: 'Approved', count: counts.approved },
       { key: 'rejected' as EmployeeRecordStatusFilter, label: 'Rejected', count: counts.rejected },
     ];
+    return allowed ? chips.filter((chip) => allowed.includes(chip.key)) : chips;
   });
 
   readonly isAllTime = computed(() => this.recordsStore.dateMode() === 'all');

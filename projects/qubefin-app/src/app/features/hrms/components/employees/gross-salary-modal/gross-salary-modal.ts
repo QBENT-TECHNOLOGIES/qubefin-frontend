@@ -78,7 +78,7 @@ export class GrossSalaryModal {
     required(path.grossSalary, { message: 'Gross Salary is required' });
     // required(path.pFamount, { message: 'PF Amount is required' });
     required(path.effectiveFrom, { message: 'Effective From is required' });
-    readonly(path.effectiveFrom, { when: () => true });
+    // readonly(path.effectiveFrom, { when: () => true });
   });
   protected readonly grossChangeForm = form(this.grossChangeModel, this.grossChangeSchema);
   empId = signal<string>('');
@@ -115,8 +115,8 @@ export class GrossSalaryModal {
                 this.minEffectiveDate.set(new Date(officialInfo.effectiveFrom));
                 this.grossChangeModel.update((state) => ({
                   ...state,
-                  grossSalary: officialInfo.grossSalary || null,
-                  pfAmount: officialInfo.pFamount || null,
+                  grossSalary: officialInfo.grossSalary ?? null,
+                  pfAmount: officialInfo.pfAmount ?? null,
                   salaryGradeId: officialInfo.salaryGradeId || '',
                   effectiveFrom: null,
                 }));
