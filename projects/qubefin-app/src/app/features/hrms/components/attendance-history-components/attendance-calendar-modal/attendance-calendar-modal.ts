@@ -65,7 +65,7 @@ export class AttendanceCalendarModal {
   }
 
   getTooltipText(day: any): string {
-    if (!day || !day.status) {
+    if (!day || !day.description) {
       return '';
     }
 
