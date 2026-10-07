@@ -115,8 +115,8 @@ export class GrossSalaryModal {
                 this.minEffectiveDate.set(new Date(officialInfo.effectiveFrom));
                 this.grossChangeModel.update((state) => ({
                   ...state,
-                  grossSalary: officialInfo.grossSalary || null,
-                  pfAmount: officialInfo.pFamount || null,
+                  grossSalary: officialInfo.grossSalary ?? null,
+                  pfAmount: officialInfo.pfAmount ?? null,
                   salaryGradeId: officialInfo.salaryGradeId || '',
                   effectiveFrom: null,
                 }));
