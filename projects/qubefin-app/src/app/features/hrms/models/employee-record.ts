@@ -107,6 +107,8 @@ export interface IEmployeeRecordTabConfig {
   kindLabel: string;
   emptyMessage: string;
   supportsStatusFilter: boolean;
+  /** Status chips offered for the tab. Omitted means all of them. */
+  statusFilters?: EmployeeRecordStatusFilter[];
   headers: IEmployeeRecordTabHeaders;
 }
 
@@ -162,9 +164,11 @@ export const EMPLOYEE_RECORD_TABS: readonly IEmployeeRecordTabConfig[] = [
     icon: 'Clock',
     kindLabel: 'Attendance',
     emptyMessage: 'No attendance records found.',
-    supportsStatusFilter: false,
+    supportsStatusFilter: true,
+    // Attendance has no approval flow, so only "all" and the days still to be recorded apply.
+    statusFilters: ['all', 'pending'],
     headers: {
-      category: null,
+      category: 'Leave Type',
       period: 'Date',
       quantity: 'In – Out',
       appliedOn: 'Work Hrs',

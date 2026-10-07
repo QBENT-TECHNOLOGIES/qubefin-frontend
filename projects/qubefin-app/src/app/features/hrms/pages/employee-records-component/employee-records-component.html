@@ -121,23 +121,25 @@
         </mat-form-field>
       </div>
 
-      <!-- date wise / all -->
-      <div class="flex items-center bg-slate-100 dark:bg-white/5 rounded-lg p-0.5 gap-0.5 shrink-0">
-        <button type="button" (click)="onSelectDateMode('range')"
-          class="h-8 px-3 rounded-md text-[12px] cursor-pointer transition-all"
-          [ngClass]="!isAllTime()
-              ? 'font-semibold text-secondary-600 dark:text-white bg-white dark:bg-slate-700 shadow-sm'
-              : 'font-medium text-slate-500 dark:text-slate-400'">
-          Date range
-        </button>
-        <button type="button" (click)="onSelectDateMode('all')"
-          class="h-8 px-3 rounded-md text-[12px] cursor-pointer transition-all"
-          [ngClass]="isAllTime()
-              ? 'font-semibold text-secondary-600 dark:text-white bg-white dark:bg-slate-700 shadow-sm'
-              : 'font-medium text-slate-500 dark:text-slate-400'">
-          All time
-        </button>
-      </div>
+      <!-- date wise / all (attendance is always a bounded date range) -->
+      @if (!isAttendanceTab()) {
+        <div class="flex items-center bg-slate-100 dark:bg-white/5 rounded-lg p-0.5 gap-0.5 shrink-0">
+          <button type="button" (click)="onSelectDateMode('range')"
+            class="h-8 px-3 rounded-md text-[12px] cursor-pointer transition-all"
+            [ngClass]="!isAllTime()
+                ? 'font-semibold text-secondary-600 dark:text-white bg-white dark:bg-slate-700 shadow-sm'
+                : 'font-medium text-slate-500 dark:text-slate-400'">
+            Date range
+          </button>
+          <button type="button" (click)="onSelectDateMode('all')"
+            class="h-8 px-3 rounded-md text-[12px] cursor-pointer transition-all"
+            [ngClass]="isAllTime()
+                ? 'font-semibold text-secondary-600 dark:text-white bg-white dark:bg-slate-700 shadow-sm'
+                : 'font-medium text-slate-500 dark:text-slate-400'">
+            All time
+          </button>
+        </div>
+      }
 
       <div class="flex items-center gap-2.5 shrink-0">
         <button type="button" (click)="applyFilters()" class="global-btn shine-sweep lift">

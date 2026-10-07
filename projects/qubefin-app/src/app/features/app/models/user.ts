@@ -14,10 +14,14 @@ export interface User {
   lastModifiedOn?: Date;
 }
 
-export interface UserSearchParam extends SearchParam {}
+export interface UserSearchParam extends SearchParam {
+  organizationUnitId: string;
+  companyId: string;
+}
 
 export interface UserSearch {
   id: string;
+  organizationUnitName?: string;
   userName: string;
   employee: string;
   mfaSecret: string;
@@ -39,8 +43,15 @@ export interface IUserDetail {
   hasMfaEnabled?: boolean;
   employeeName?: string; // used for display
 }
+export interface IUserDevice {
+  id: string;
+  deviceId: string;
+  assignDate: string;
+  isRelease: boolean;
+  releaseDate: string;
+}
 export interface IResetPassword {
-  //   userId: string;
-  password: string;
-  confirmPassword: string;
+    //   userId: string;
+    password: string;
+    confirmPassword: string;
 }

@@ -8,27 +8,31 @@ import { User, UserSearchResult } from '../../../models/user';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { StatusBadgeComponentComponent } from 'qubefin-core';
 import { MatDialog } from '@angular/material/dialog';
-import { ResetPasswordModal } from '../reset-password-modal/reset-password-modal';
 import { MatTooltip } from '@angular/material/tooltip';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { DeviceListModal } from './device-list-modal/device-list-modal';
+import { ResetPasswordModal } from '../reset-password-modal/reset-password-modal';
+
 
 @Component({
   selector: 'qfin-user-list-component',
   imports: [
-    MatTooltip,
     CommonModule,
     LucideDynamicIcon,
     MatPaginatorModule,
     MatSortModule,
-    MatTableModule,
+	MatTableModule,
+	MatTooltip,
+    MatTooltipModule,
     StatusBadgeComponentComponent,
   ],
   templateUrl: './user-list.html',
 })
 export class UserListComponent {
   readonly iconMap = APP_ICONS_MAP;
-  private readonly dialog = inject(MatDialog);
-  selectedId = signal<string>('');
 
+  selectedId = signal<string>('');
+  private readonly dialog = inject(MatDialog);
   readonly data = input.required<UserSearchResult>();
   isCollapsed = input<boolean>(false);
   readonly pageIndex = input(0);
@@ -42,18 +46,26 @@ export class UserListComponent {
     if (this.isCollapsed()) {
       return ['index', 'username', 'action'];
     }
-    return ['index', 'username', 'employee', 'mfakey', 'mfaenabled', 'status', 'action'];
+    return ['index', 'ogName', 'username', 'employee', 'mfakey', 'mfaenabled', 'status', 'action'];
   });
 
   onShowDetail(id: string) {
     this.selectedId.set(id);
     this.showDetail.emit(id);
   }
-  openResetPasswordModal(id: string) {
-    this.dialog.open(ResetPasswordModal, {
-      data: { userId: id },
+  openDeviceModal(id: string) {
+    this.dialog.open(DeviceListModal, {
+      data: { id: id },
+      width: '70vw',
       maxWidth: '95vw',
       panelClass: 'glass-modal',
     });
   }
+    openResetPasswordModal(id: string) {
+        this.dialog.open(ResetPasswordModal, {
+            data: { userId: id },
+            maxWidth: '95vw',
+            panelClass: 'glass-modal',
+        });
+    }
 }
