@@ -32,4 +32,7 @@ export class UserService {
   unBindDevice(id: string) {
     return this.httpClient.get(`${ApiPaths.APP}/user-device-unbind/${id}`);
   }
+  resetPassword(payload: any, userId: any) {
+    return this.httpClient.put(`${ApiPaths.AUTH}/reset-password/${userId}`, payload);
+  }
 }

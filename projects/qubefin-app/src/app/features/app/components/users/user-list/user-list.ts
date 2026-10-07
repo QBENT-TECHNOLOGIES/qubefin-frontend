@@ -7,9 +7,12 @@ import { MatSortModule, Sort } from '@angular/material/sort';
 import { User, UserSearchResult } from '../../../models/user';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { StatusBadgeComponentComponent } from 'qubefin-core';
-import { DeviceListModal } from './device-list-modal/device-list-modal';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTooltip } from '@angular/material/tooltip';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DeviceListModal } from './device-list-modal/device-list-modal';
+import { ResetPasswordModal } from '../reset-password-modal/reset-password-modal';
+
 
 @Component({
   selector: 'qfin-user-list-component',
@@ -18,7 +21,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     LucideDynamicIcon,
     MatPaginatorModule,
     MatSortModule,
-    MatTableModule,
+	MatTableModule,
+	MatTooltip,
     MatTooltipModule,
     StatusBadgeComponentComponent,
   ],
@@ -57,4 +61,11 @@ export class UserListComponent {
       panelClass: 'glass-modal',
     });
   }
+    openResetPasswordModal(id: string) {
+        this.dialog.open(ResetPasswordModal, {
+            data: { userId: id },
+            maxWidth: '95vw',
+            panelClass: 'glass-modal',
+        });
+    }
 }

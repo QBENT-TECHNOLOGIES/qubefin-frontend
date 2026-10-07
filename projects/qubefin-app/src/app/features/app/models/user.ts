@@ -50,3 +50,8 @@ export interface IUserDevice {
   isRelease: boolean;
   releaseDate: string;
 }
+export interface IResetPassword {
+    //   userId: string;
+    password: string;
+    confirmPassword: string;
+}
