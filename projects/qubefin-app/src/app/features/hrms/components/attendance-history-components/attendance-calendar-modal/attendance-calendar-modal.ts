@@ -8,10 +8,11 @@ import {
   CalendarDay,
   CalendarStatusConfig,
 } from '../../../models/attendance-calendar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'qfin-attendance-calendar-modal',
-  imports: [CommonModule, LucideDynamicIcon],
+  imports: [CommonModule, LucideDynamicIcon, MatTooltipModule],
   templateUrl: './attendance-calendar-modal.html',
   styles: ``,
 })
@@ -41,7 +42,45 @@ export class AttendanceCalendarModal {
       1,
     ),
   );
+  private formatTime12Hour(timeString: string | undefined): string {
+    if (!timeString) return '';
 
+    if (timeString.toUpperCase().includes('AM') || timeString.toUpperCase().includes('PM')) {
+      return timeString;
+    }
+
+    const parts = timeString.split(':');
+    if (parts.length < 2) return timeString;
+
+    let hour = parseInt(parts[0], 10);
+    const minute = parts[1];
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+
+    hour = hour % 12;
+    hour = hour ? hour : 12;
+
+    const hourFormatted = hour < 10 ? '0' + hour : hour.toString();
+
+    return `${hourFormatted}:${minute} ${ampm}`;
+  }
+
+  getTooltipText(day: any): string {
+    if (!day || !day.description) {
+      return '';
+    }
+
+    let tooltip = `${day.description}`;
+
+    const inTime = this.formatTime12Hour(day.actualInTime);
+    if (inTime) {
+      tooltip += `\nIn: ${inTime}`;
+    }
+    const outTime = this.formatTime12Hour(day.actualOutTime);
+    if (outTime) {
+      tooltip += `\nOut: ${outTime}`;
+    }
+    return tooltip;
+  }
   readonly statusConfig: Record<string, CalendarStatusConfig> = {
     P: {
       label: 'Present',
@@ -53,7 +92,7 @@ export class AttendanceCalendarModal {
       dot: 'bg-red-500',
       chip: 'bg-red-50 text-red-600',
     },
-    L: {
+    LT: {
       label: 'Late',
       dot: 'bg-amber-500',
       chip: 'bg-amber-50 text-amber-700',
