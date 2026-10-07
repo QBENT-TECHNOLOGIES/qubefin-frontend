@@ -6,7 +6,10 @@ export interface IInterviewPanelDto {
   scheduledTime: string; // TimeOnly mapped to string for Angular
   isAcknowledged: boolean;
   acknowledgedDate?: string; // DateTime mapped to string
+  /** Whether the CANDIDATE attended (recorded by this interviewer at Start Assessment). */
   isAttened: boolean;
+  /** "Present", or the interviewer's reason the candidate was absent. Null until recorded. */
+  attenedRemarks?: string | null;
   isSubmitted: boolean;
   submissionDate?: string; // DateTime mapped to string
   totalRatingPoint?: number;
@@ -30,6 +33,7 @@ export interface IInterviewAssessmentDto {
   isAcknowledged: boolean;
   acknowledgedDate?: string;
   isAttened: boolean;
+  attenedRemarks?: string | null;
   isSubmitted: boolean;
   submissionDate?: string;
 
@@ -114,4 +118,54 @@ export interface IAssessmentSubmitDto {
 
   positiveRemarks?: string;
   negativeRemarks?: string;
+}
+
+// Interview page statuses - decided by Hrms.USP_GetInterviewerCandidateList.
+export const INTERVIEW_STATUSES = [
+  'Acknowledgement Pending',
+  'Acknowledged',
+  'Started Assessment',
+  'Assessment Completed',
+  'Interview Closed',
+] as const;
+
+export type InterviewStatus = (typeof INTERVIEW_STATUSES)[number];
+
+/** One of the signed-in interviewer's own interviews. Mirrors backend `InterviewerCandidateDto`. */
+export interface IInterviewerCandidate {
+  panelId: string;
+  candidateId: string;
+  fullName: string;
+  referenceNo: string | null;
+  interviewPost: string | null;
+  companyName: string | null;
+  applicationDate: string | null;
+  interviewDate: string | null;
+  interviewTime: string | null;
+  status: InterviewStatus;
+  /** The interviewer recorded the candidate absent - nothing to assess. */
+  isCandidateAbsent: boolean;
+  attenedRemarks: string | null;
+  canAcknowledge: boolean;
+  canStartAssessment: boolean;
+  canContinueAssessment: boolean;
+  canViewAssessment: boolean;
+  cvFileUrl: string | null;
+}
+
+/** Counts behind the Interview page's quick tabs (they follow the search / date filters). */
+export interface IInterviewerTabCounts {
+  allOpen: number;
+  today: number;
+  acknowledgementPending: number;
+  completed: number;
+}
+
+/** Quick tabs: '' = all open, 'Today', or a row status. */
+export type InterviewTab = '' | 'Today' | 'Acknowledgement Pending' | 'Assessment Completed';
+
+export interface IInterviewerCandidateFilters {
+  searchText: string;
+  status: string | null;
+  interviewDate: string | null;
 }

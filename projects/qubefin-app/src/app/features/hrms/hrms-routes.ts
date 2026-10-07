@@ -154,6 +154,14 @@ export const HrmsRoutes: Routes = [
             (m) => m.CandidateComponent,
           ),
       },
+      {
+        // Interviewers only - access is given through the menu/role assignment.
+        path: 'interview',
+        loadComponent: () =>
+          import('./pages/interview-component/interview-component').then(
+            (m) => m.InterviewComponent,
+          ),
+      },
       // {
       //   path: 'interview-panel',
       //   loadComponent: () =>

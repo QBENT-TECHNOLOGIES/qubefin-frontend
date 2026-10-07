@@ -10,7 +10,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { LucideDynamicIcon } from '@lucide/angular';
 import { AlertService } from 'qubefin-core';
 
-import { RATING_FIELDS, RATING_OPTIONS } from '../interview-panel-detail/interview-panel-detail';
+import { RATING_FIELDS, RATING_OPTIONS, RatingLegend } from '../../assessment-rating';
 import { HrAssessmentService } from '../../../../services/hr-assessment.service';
 import {
   IHrAssessmentDecisionDto,
@@ -48,6 +48,7 @@ export const RECOMMENDATION_OPTIONS = [
     MatDialogModule,
     ReactiveFormsModule,
     LucideDynamicIcon,
+    RatingLegend,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './hr-assessment-form.html',
@@ -89,26 +90,14 @@ export class HrAssessmentForm implements OnInit {
   assessment = signal<IHrAssessmentFormDto | null>(null);
   isLocked = computed(() => !!this.assessment()?.isSubmitted);
 
-  /** HR has already submitted their own interviewer assessment (genuinely on the panel, not just holding
-   * the administrative HR row). */
-  hrIsInterviewer = computed(() => !!this.assessment()?.hrIsInterviewer);
-
-  /** HR is the ONLY interviewer on the panel - the fields shared with the interviewer assessment form
-   * (ratings, isRecommendedForPosition, positiveRemarks, negativeRemarks, anyOtherJobsSuitedRemarks) render
-   * disabled here, sourced from HR's own single submission. When HR is one of several interviewers those
-   * same fields stay enabled/live instead. */
-  isHrOnlyInterviewer = computed(() => !!this.assessment()?.isHrOnlyInterviewer);
-
-  /** The four fields this form shares with the interviewer assessment form. */
-  private readonly sharedFieldNames = [
-    'anyOtherJobsSuitedRemarks',
-    'positiveRemarks',
-    'negativeRemarks',
-  ] as const;
-
-  /** Whether the shared fields (including the isRecommendedForPosition Yes/No buttons, which aren't plain
-   * inputs) should render disabled - either the whole form is locked, or HR is the sole interviewer. */
-  isSharedFieldsDisabled = computed(() => this.isLocked() || this.isHrOnlyInterviewer());
+  /** Panelists who have not submitted (and did not record the candidate absent). HR is warned and may proceed -
+   * only the submitted assessments are averaged. */
+  readonly pendingPanelists = computed(() => this.assessment()?.pendingPanelists ?? []);
+  readonly pendingPanelistNames = computed(() =>
+    this.pendingPanelists()
+      .map((p) => p.employeeName || p.employeeCode)
+      .join(', '),
+  );
 
   readonly totalAverage = computed(() => this.assessment()?.averageTotalRatingPoint ?? null);
   readonly totalAveragePercent = computed(() => {
@@ -135,10 +124,6 @@ export class HrAssessmentForm implements OnInit {
     recommendationStatus: new FormControl<string | null>(null, {
       validators: [Validators.required],
     }),
-    anyOtherJobsSuitedRemarks: new FormControl('', { nonNullable: true }),
-    isRecommendedForPosition: new FormControl<boolean | null>(null),
-    positiveRemarks: new FormControl('', { nonNullable: true }),
-    negativeRemarks: new FormControl('', { nonNullable: true }),
   });
 
   ngOnInit() {
@@ -173,23 +158,11 @@ export class HrAssessmentForm implements OnInit {
           suitableRoleDepartment: res.suitableRoleDepartment ?? '',
           recommendedGradeId: res.recommendedGradeId ?? null,
           isTrainingRequired: res.isTrainingRequired,
-          recommendationStatus: res.recommendationStatus ?? null,
-          anyOtherJobsSuitedRemarks: res.anyOtherJobsSuitedRemarks ?? '',
-          isRecommendedForPosition: res.isRecommendedForPosition ?? null,
-          positiveRemarks: res.positiveRemarks ?? '',
-          negativeRemarks: res.negativeRemarks ?? '',
+          recommendationStatus: res.recommendationStatus === 'Pending' ? null : (res.recommendationStatus ?? null),
         });
 
         if (res.isSubmitted) {
           this.decisionForm.disable();
-        } else if (res.isHrOnlyInterviewer) {
-          // HR is the sole interviewer - these fields are HR's own already-submitted interviewer answers,
-          // shown for reference only. The rest of the form (OverallPerformance onward) stays editable.
-          this.sharedFieldNames.forEach((name) => this.decisionForm.get(name)?.disable());
-        } else {
-          // Re-enable in case the panel composition changed since this form was last loaded (e.g. another
-          // interviewer was added after HR had been the sole one).
-          this.sharedFieldNames.forEach((name) => this.decisionForm.get(name)?.enable());
         }
       },
       error: (error: any) => {
@@ -252,10 +225,6 @@ export class HrAssessmentForm implements OnInit {
     this.decisionForm.get('recommendationStatus')?.setValue(value);
   }
 
-  setRecommendedForPosition(value: boolean) {
-    this.decisionForm.get('isRecommendedForPosition')?.setValue(value);
-  }
-
   saveDraft() {
     if (!this.candidateId || this.isLocked()) return;
 
@@ -281,7 +250,7 @@ export class HrAssessmentForm implements OnInit {
     });
   }
 
-  submit() {
+  async submit() {
     if (!this.candidateId || this.isLocked()) return;
 
     if (!this.interviewMode()) {
@@ -296,6 +265,18 @@ export class HrAssessmentForm implements OnInit {
       this.decisionForm.markAllAsTouched();
       this.alertService.error('Incomplete', 'Please select a recommendation before submitting.');
       return;
+    }
+
+    const status = this.decisionForm.get('recommendationStatus')?.value;
+    const qualifies = ['Strongly Recommended', 'Recommended', 'Recommended with Training'].includes(status ?? '');
+    if (!qualifies) {
+      const confirmed = await this.alertService.confirm(
+        'Submit as Not Selected?',
+        `Submitting "${status}" marks the candidate as Not Selected and stops the process. This cannot be undone.`,
+        'Yes, submit',
+        'Cancel',
+      );
+      if (!confirmed.isConfirmed) return;
     }
 
     this.isSubmitting.set(true);
@@ -331,10 +312,6 @@ export class HrAssessmentForm implements OnInit {
       recommendedGradeId: v.recommendedGradeId || undefined,
       isTrainingRequired: v.isTrainingRequired,
       recommendationStatus: v.recommendationStatus || undefined,
-      anyOtherJobsSuitedRemarks: v.anyOtherJobsSuitedRemarks || undefined,
-      isRecommendedForPosition: v.isRecommendedForPosition ?? undefined,
-      positiveRemarks: v.positiveRemarks || undefined,
-      negativeRemarks: v.negativeRemarks || undefined,
     };
   }
 

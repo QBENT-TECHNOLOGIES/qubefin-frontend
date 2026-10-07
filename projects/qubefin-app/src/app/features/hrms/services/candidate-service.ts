@@ -8,11 +8,45 @@ import { ICandidateJoiningLetterStatus, ICandidateLetterStatusRequest } from '..
 })
 export class CandidateService {
   httpClient = inject(HttpClient);
-  createCandidate(candidate: any) {
-    return this.httpClient.post(`${ApiPaths.HRMS}/candidates`, candidate);
+  // Multipart: the candidate fields plus the CV and job application (both mandatory when creating).
+  createCandidate(candidate: Record<string, unknown>, cvFile: File | null, jobApplicationFile: File | null) {
+    return this.httpClient.post(
+      `${ApiPaths.HRMS}/candidates`,
+      this.toCandidateFormData(candidate, cvFile, jobApplicationFile),
+    );
   }
-  updateCandidate(id: any, candidate: any) {
-    return this.httpClient.put(`${ApiPaths.HRMS}/candidates/${id}`, candidate);
+  // Multipart: a CV / job application is only sent when it is being replaced.
+  updateCandidate(id: string, candidate: Record<string, unknown>, cvFile: File | null, jobApplicationFile: File | null) {
+    return this.httpClient.put(
+      `${ApiPaths.HRMS}/candidates/${id}`,
+      this.toCandidateFormData(candidate, cvFile, jobApplicationFile),
+    );
+  }
+  // HR / Admin. Only adds or moves the interview date and time - no panel, interviewer or letter is touched.
+  scheduleInterview(id: string, interviewDate: string, interviewTime: string) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/candidates/${id}/schedule`, {
+      interviewDate,
+      interviewTime,
+    });
+  }
+  // HR only, after the HR Assessment. Opens Candidate Verification; cannot be undone.
+  selectForOffer(id: string) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/candidates/${id}/select-for-offer`, {});
+  }
+  private toCandidateFormData(candidate: Record<string, unknown>, cvFile: File | null, jobApplicationFile: File | null) {
+    const formData = new FormData();
+    Object.entries(candidate).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        formData.append(key, String(value));
+      }
+    });
+    if (cvFile) {
+      formData.append('cvFile', cvFile, cvFile.name);
+    }
+    if (jobApplicationFile) {
+      formData.append('jobApplicationFile', jobApplicationFile, jobApplicationFile.name);
+    }
+    return formData;
   }
   // Send exactly one non-null flag per call. This only records that the flag changed - it does not
   // send any email (see sendLetterToCandidate for that).
@@ -48,7 +82,7 @@ export class CandidateService {
       interviewMode,
     });
   }
-  // HR only. Stops the candidate's workflow for good - every later action is refused by the API.
+  // HR, or Admin until HR starts the HR Assessment. Stops the candidate's workflow for good - every later action is refused by the API.
   rejectCandidate(id: string) {
     return this.httpClient.post(`${ApiPaths.HRMS}/candidates/${id}/reject`, {});
   }

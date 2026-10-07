@@ -17,10 +17,6 @@ export class InterviewPanelService {
     return this.httpClient.get(`${ApiPaths.HRMS}/interview-panels/candidate/${candidateId}`);
   }
 
-  getMyInterviews() {
-    return this.httpClient.get<any[]>(`${ApiPaths.HRMS}/interview-panels/my-interviews`);
-  }
-
   searchCandidates(searchText: string = '', maxResults: number = 50) {
     return this.httpClient.get<any>(
       `${ApiPaths.HRMS}/candidates/search?searchText=${searchText}&maxResults=${maxResults}`,
@@ -38,22 +34,25 @@ export class InterviewPanelService {
     return this.httpClient.post(`${ApiPaths.HRMS}/interview-panels/schedule`, formData);
   }
 
-  acknowledgePanel(candidateId: string) {
-    return this.httpClient.get(`${ApiPaths.HRMS}/interview-panels/acknowledge/${candidateId}`);
+  /** Acknowledges several of the signed-in interviewer's own interviews in one call. */
+  acknowledgeInterviews(candidateIds: string[]) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/interviews/acknowledge`, { candidateIds });
   }
 
-  markAttendance(panelId: string, attended: boolean) {
-    return this.httpClient.post(
-      `${ApiPaths.HRMS}/interview-panels/${panelId}/attendance`,
-      attended,
-    );
+  /** Start Assessment: records whether the candidate attended. Absent needs the reason as remarks. */
+  markCandidateAttendance(candidateId: string, isPresent: boolean, remarks: string | null) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/interviews/attendance`, {
+      candidateId,
+      isPresent,
+      remarks,
+    });
   }
 
   submitAssessment(assessmentData: IAssessmentRequest) {
     return this.httpClient.post(`${ApiPaths.HRMS}/interview-panels/assessment`, assessmentData);
   }
 
-  /** Saves an in-progress assessment without locking it. Marks the panelist as attended. */
+  /** Saves an in-progress assessment without locking it. */
   saveAssessmentDraft(assessmentData: IAssessmentRequest) {
     return this.httpClient.post(
       `${ApiPaths.HRMS}/interview-panels/assessment/draft`,

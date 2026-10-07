@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
-import { ICandidate, ICandidateDetail, ICandidateList } from '../models/candidate';
+import { ICandidate, ICandidateFilters, ICandidateList } from '../models/candidate';
 @Injectable({
   providedIn: 'root',
 })
@@ -9,11 +9,18 @@ export class CandidateStore {
   private readonly basePath = `${ApiPaths.HRMS}/candidates`;
   private readonly candidateId = signal<string | undefined>(undefined);
 
-  readonly companyId = signal<string>('');
-  readonly searchQuery = signal('');
+  readonly filters = signal<ICandidateFilters>({
+    searchText: '',
+    companyId: null,
+    applicationDateFrom: null,
+    applicationDateTo: null,
+    interviewDate: null,
+    recommendationStatus: null,
+    status: null,
+  });
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
-  readonly sortOn = signal('interviewDate');
+  readonly sortOn = signal('');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
 
   readonly postsResource = httpResource<any[]>(() => `${ApiPaths.HRMS}/posts`);
@@ -21,32 +28,15 @@ export class CandidateStore {
   readonly posts = computed(() => this.postsResource.value() ?? []);
   readonly postsLoading = computed(() => this.postsResource.isLoading());
   readonly postsError = computed(() => this.postsResource.error());
-  // private readonly candidatesResource = httpResource<{
-  //   candidates: ICandidateList[];
-  //   totalRecords: number;
-  // }>(() => {
-  //   const search = encodeURIComponent(this.searchQuery());
-
-  //   let url = `${this.basePath}?searchText=${search}&sortOn=${this.sortOn()}&sortDirection=${this.sortDirection()}&pageIndex=${this.pageIndex()}&pageSize=${this.pageSize()}`;
-
-  //   if (this.companyId()) {
-  //     url += `&companyId=${this.companyId()}`;
-  //   }
-
-  //   return url;
-  // });
-
   readonly candidatesResource = httpResource<{
     candidates: ICandidateList[];
     totalRecords: number;
   }>(() => ({
-    url: `${this.basePath}` + '/filter',
+    url: `${this.basePath}/filter`,
     method: 'POST',
     body: {
-      companyId: this.checkStringOrNull(this.companyId()),
-      searchText: encodeURIComponent(this.searchQuery()),
-      // toDate: this.checkStringOrNull(this.toDateQuery()),
-      // searchEmployeeId: this.checkStringOrNull(this.searchedEmployeeIdQuery()),
+      ...this.filters(),
+      searchText: this.checkStringOrNull(this.filters().searchText?.trim()),
       sortOn: this.sortOn(),
       sortDirection: this.sortDirection(),
       pageIndex: this.pageIndex(),
@@ -75,8 +65,8 @@ export class CandidateStore {
   readonly candidateLoading = computed(() => this.candidateResource.isLoading());
   readonly candidateError = computed(() => this.candidateResource.error());
 
-  setSearchQuery(query: string) {
-    this.searchQuery.set(query);
+  setFilters(filters: ICandidateFilters) {
+    this.filters.set(filters);
     this.pageIndex.set(0);
   }
 
@@ -97,9 +87,6 @@ export class CandidateStore {
     if (this.candidateId() !== id) {
       this.candidateId.set(id);
     }
-  }
-  setCompanyId(id: string) {
-    this.companyId.set(id);
   }
   refreshList() {
     this.candidatesResource.reload();

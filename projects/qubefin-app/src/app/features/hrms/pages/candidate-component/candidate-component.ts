@@ -12,18 +12,32 @@ import { form, FormField } from '@angular/forms/signals';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ICandidate, ICandidateSearchModel } from '../../models/candidate';
+import {
+  CANDIDATE_STATUSES,
+  ICandidate,
+  ICandidateList,
+  ICandidateSearchModel,
+  RECOMMENDATION_STATUSES,
+} from '../../models/candidate';
 import { Sort } from '@angular/material/sort';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { CompanyStore } from '../../../global/stores/company-store';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { CandidateJoiningInfo } from '../../components/interview-process/candidate/candidate-joining-info/candidate-joining-info';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialog } from '@angular/material/dialog';
+import {
+  IScheduleInterviewDialogData,
+  ScheduleInterviewDialog,
+} from '../../components/interview-process/candidate/schedule-interview-dialog/schedule-interview-dialog';
+import { toApiDate } from '../../components/interview-process/interview-time';
 @Component({
   selector: 'qfin-candidate-component',
   imports: [
     FormField,
     MatSelectModule,
+    MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
@@ -45,6 +59,9 @@ export class CandidateComponent {
   public readonly EMPTY_UUID = EMPTY_UUID;
   readonly candidateStore = inject(CandidateStore);
   readonly companyStore = inject(CompanyStore);
+  private readonly dialog = inject(MatDialog);
+  protected readonly candidateStatuses = CANDIDATE_STATUSES;
+  protected readonly recommendationStatuses = RECOMMENDATION_STATUSES;
   readonly isUpdateMode = signal<boolean>(false);
   readonly isViewMode = signal<boolean>(true);
   /** Candidate form is open on an existing candidate (basic details edit). */
@@ -56,10 +73,7 @@ export class CandidateComponent {
     () => this.selectedCandidateId() !== EMPTY_UUID || !this.isViewMode(),
   );
 
-  readonly searchModel = signal<ICandidateSearchModel>({
-    tempSearch: '',
-    companyId: '',
-  });
+  readonly searchModel = signal<ICandidateSearchModel>(this.emptySearchModel());
   readonly companies = this.companyStore.companies;
   readonly searchForm = form(this.searchModel);
   protected onView(id: string) {
@@ -104,17 +118,52 @@ export class CandidateComponent {
     this.showFilterArea.update((v) => !v);
   }
   protected applyFilters() {
-    const companyId = this.searchForm.companyId().value().trim();
-    this.candidateStore.setSearchQuery(this.searchForm.tempSearch().value());
-    this.candidateStore.setCompanyId(companyId);
+    const model = this.searchModel();
+    this.candidateStore.setFilters({
+      searchText: model.tempSearch.trim(),
+      companyId: model.companyId || null,
+      applicationDateFrom: toApiDate(model.applicationDateFrom || null),
+      applicationDateTo: toApiDate(model.applicationDateTo || null),
+      interviewDate: toApiDate(model.interviewDate || null),
+      recommendationStatus: model.recommendationStatus || null,
+      status: model.status || null,
+    });
   }
   protected resetFilters() {
-    this.searchModel.update((m) => ({
-      ...m,
+    this.searchModel.set(this.emptySearchModel());
+    this.applyFilters();
+  }
+  /** Schedule action: add or update the interview date/time only - no panel, interviewer or letter. */
+  protected onSchedule(candidate: ICandidateList) {
+    const dialogRef = this.dialog.open(ScheduleInterviewDialog, {
+      width: '560px',
+      maxWidth: '95vw',
+      panelClass: ['glass-modal', 'slide-in-up'],
+      data: {
+        candidateId: candidate.id,
+        candidateName: candidate.fullName,
+        interviewDate: candidate.interviewDate,
+        interviewTime: candidate.interviewTime,
+      } satisfies IScheduleInterviewDialogData,
+    });
+    dialogRef.afterClosed().subscribe((saved) => {
+      if (!saved) return;
+      this.candidateStore.refreshList();
+      if (this.selectedCandidateId() === candidate.id) {
+        this.candidateStore.refreshDetail();
+      }
+    });
+  }
+  private emptySearchModel(): ICandidateSearchModel {
+    return {
       tempSearch: '',
       companyId: '',
-    }));
-    this.applyFilters();
+      applicationDateFrom: '',
+      applicationDateTo: '',
+      interviewDate: '',
+      recommendationStatus: '',
+      status: '',
+    };
   }
   protected changePage(delta: number) {
     const current = this.candidateStore.pageIndex();

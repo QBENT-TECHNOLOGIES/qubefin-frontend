@@ -135,6 +135,25 @@
             </div>
         </div>
 
+        <!-- Panelists whose assessment is still outstanding - HR may proceed; their assessment is left out of
+             the average. -->
+        @if (pendingPanelists().length > 0 && !isLocked()) {
+        <div
+            class="flex items-start gap-3 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300">
+            <svg lucideIcon="triangle-alert" class="w-5 h-5 flex-shrink-0 mt-0.5"></svg>
+            <div class="text-sm">
+                <p class="font-semibold">
+                    {{ pendingPanelists().length }} panel member{{ pendingPanelists().length === 1 ? ' has' : 's have' }}
+                    not submitted the assessment:
+                    {{ pendingPanelistNames() }}.
+                </p>
+                <p class="mt-0.5">Ask them to submit, or proceed - only the submitted assessments are averaged below.</p>
+            </div>
+        </div>
+        }
+
+        <qfin-rating-legend />
+
         <!-- Live average summary -->
         <div
             class="bg-gradient-to-r from-indigo-50 to-primary-50 dark:from-slate-800 dark:to-slate-800 rounded-lg border border-indigo-100 dark:border-slate-700 p-4 flex items-center gap-4">
@@ -164,13 +183,7 @@
                 class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-500 bg-slate-50/80 dark:bg-slate-700 flex items-center justify-between">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                     <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                    @if (isHrOnlyInterviewer()) {
-                    Assessment Parameters (Your Interview Assessment - Read Only)
-                    } @else if (hrIsInterviewer()) {
-                    Assessment Parameters (Live Panel Average, Includes Your Own Score)
-                    } @else {
                     Assessment Parameters (Panel Average - Read Only)
-                    }
                 </h3>
             </div>
 
@@ -447,72 +460,6 @@
                         </button>
                         }
                     </div>
-                </div>
-
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>What other jobs (functional area) would he/she be suited for?</mat-label>
-                    <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="compass"
-                            class="w-[16px] h-[16px]"></svg></div>
-                    <input matInput formControlName="anyOtherJobsSuitedRemarks" placeholder="Enter remarks">
-                    @if (isHrOnlyInterviewer() && !isLocked()) {
-                    <mat-hint>Locked - from your own interviewer assessment (you are the only interviewer).</mat-hint>
-                    }
-                </mat-form-field>
-
-                <div>
-                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Recommendation for the position</span>
-                    @if (isHrOnlyInterviewer() && !isLocked()) {
-                    <p class="text-xs text-slate-400 italic mb-2 flex items-center gap-1.5">
-                        <svg lucideIcon="lock" class="w-3 h-3"></svg>
-                        Locked - this is your own answer from the interviewer assessment (you are the only interviewer).
-                    </p>
-                    }
-                    <div class="flex gap-3">
-                        <button type="button" [disabled]="isSharedFieldsDisabled()"
-                            (click)="setRecommendedForPosition(true)"
-                            class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-semibold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                            [class.bg-emerald-500]="decisionForm.get('isRecommendedForPosition')?.value === true"
-                            [class.border-emerald-500]="decisionForm.get('isRecommendedForPosition')?.value === true"
-                            [class.text-white]="decisionForm.get('isRecommendedForPosition')?.value === true"
-                            [class.bg-white]="decisionForm.get('isRecommendedForPosition')?.value !== true"
-                            [class.text-slate-600]="decisionForm.get('isRecommendedForPosition')?.value !== true"
-                            [class.border-slate-200]="decisionForm.get('isRecommendedForPosition')?.value !== true">
-                            <svg lucideIcon="thumbs-up" class="w-4 h-4"></svg> Yes
-                        </button>
-                        <button type="button" [disabled]="isSharedFieldsDisabled()"
-                            (click)="setRecommendedForPosition(false)"
-                            class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border text-sm font-semibold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                            [class.bg-rose-500]="decisionForm.get('isRecommendedForPosition')?.value === false"
-                            [class.border-rose-500]="decisionForm.get('isRecommendedForPosition')?.value === false"
-                            [class.text-white]="decisionForm.get('isRecommendedForPosition')?.value === false"
-                            [class.bg-white]="decisionForm.get('isRecommendedForPosition')?.value !== false"
-                            [class.text-slate-600]="decisionForm.get('isRecommendedForPosition')?.value !== false"
-                            [class.border-slate-200]="decisionForm.get('isRecommendedForPosition')?.value !== false">
-                            <svg lucideIcon="thumbs-down" class="w-4 h-4"></svg> No
-                        </button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Positive Remarks</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="plus-circle"
-                                class="w-[16px] h-[16px]"></svg></div>
-                        <input matInput formControlName="positiveRemarks" placeholder="Enter remarks" rows="2">
-                        @if (isHrOnlyInterviewer() && !isLocked()) {
-                        <mat-hint>Locked - from your own interviewer assessment.</mat-hint>
-                        }
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Negative Remarks</mat-label>
-                        <div class="w-10 flex justify-center text-slate-400" matPrefix><svg lucideIcon="minus-circle"
-                                class="w-[16px] h-[16px]"></svg></div>
-                        <input matInput formControlName="negativeRemarks" placeholder="Enter remarks" rows="2">
-                        @if (isHrOnlyInterviewer() && !isLocked()) {
-                        <mat-hint>Locked - from your own interviewer assessment.</mat-hint>
-                        }
-                    </mat-form-field>
                 </div>
             </div>
         </form>

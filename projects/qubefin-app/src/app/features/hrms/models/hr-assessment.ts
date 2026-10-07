@@ -28,17 +28,6 @@ export interface IHrAssessmentFormDto {
   candidateId: string;
   isSubmitted: boolean;
 
-  // True when HR has already submitted their own individual interviewer assessment (genuinely scheduled
-  // on the panel, not just holding the administrative HR row).
-  hrIsInterviewer: boolean;
-
-  // True when hrIsInterviewer is true AND HR is the only interviewer on the panel - the fields shared with
-  // the interviewer assessment form (ratings, isRecommendedForPosition, positiveRemarks, negativeRemarks,
-  // anyOtherJobsSuitedRemarks) should render disabled, sourced from HR's own single submission. When
-  // hrIsInterviewer is true but this is false, HR is one of several interviewers - those same fields stay
-  // enabled/live (the average keeps updating as other panelists submit).
-  isHrOnlyInterviewer: boolean;
-
   // Read-only: average of the submitted panelists' ratings per category.
   averageAppearanceAttitudeRating?: number;
   averagePersonalityRating?: number;
@@ -58,12 +47,8 @@ export interface IHrAssessmentFormDto {
   recommendedGradeId?: string;
   isTrainingRequired: boolean;
   recommendationStatus?: string;
-  anyOtherJobsSuitedRemarks?: string;
-  isRecommendedForPosition?: boolean;
-  positiveRemarks?: string;
-  negativeRemarks?: string;
 
-  // Salary & joining expectations. These live on the candidate, not the HR row - they may already have
+  // Salary & joining expectations. These live on the candidate - they may already have
   // been captured when the candidate was created, and HR confirms/corrects them on this form.
   currentSalary?: number;
   expectedSalary?: number;
@@ -74,6 +59,17 @@ export interface IHrAssessmentFormDto {
 
   // For reference - the individual panelists these averages were computed from.
   panelists: IPanelistRatingSummaryDto[];
+
+  // Panelists who have not submitted (and did not record the candidate absent) - HR is warned about them.
+  pendingPanelists: IPendingPanelistDto[];
+}
+
+/** An interviewer whose assessment is still outstanding. Mirrors backend `PendingPanelistDto`. */
+export interface IPendingPanelistDto {
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  isAcknowledged: boolean;
 }
 
 /** Body for both the HR Assessment draft-save and submit endpoints. The ten category ratings are never
@@ -85,10 +81,6 @@ export interface IHrAssessmentDecisionDto {
   recommendedGradeId?: string;
   isTrainingRequired: boolean;
   recommendationStatus?: string;
-  anyOtherJobsSuitedRemarks?: string;
-  isRecommendedForPosition?: boolean;
-  positiveRemarks?: string;
-  negativeRemarks?: string;
 
   // Salary & joining expectations, written straight to the candidate by both the draft and the submit.
   currentSalary?: number;

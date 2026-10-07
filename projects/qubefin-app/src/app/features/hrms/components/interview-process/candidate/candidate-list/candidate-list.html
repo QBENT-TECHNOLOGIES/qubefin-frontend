@@ -1,118 +1,214 @@
 <div class="overflow-auto scroll-thin" [ngClass]="{
     'h-[calc(100vh-170px-72px)] overflow-y-auto': isCollapsed()
   }">
-    <table mat-table [dataSource]="data()" matSort matSortActive="interviewDate" (matSortChange)="onSortChange($event)"
-        class="w-full table">
-
+    <table mat-table [dataSource]="data()" matSort (matSortChange)="onSortChange($event)"
+        class="w-full table candidate-table" [class.min-w-[1180px]]="!isCollapsed()">
 
         <ng-container matColumnDef="sl">
-            <th mat-header-cell *matHeaderCellDef>#</th>
+            <th mat-header-cell *matHeaderCellDef class="w-10">#</th>
             <td mat-cell *matCellDef="let row; let i = index"
-                class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                class="px-3 py-2.5 text-[13px] font-medium text-slate-400 dark:text-slate-500">
                 {{ pageIndex() * pageSize() + i + 1 }}
             </td>
         </ng-container>
+
         <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef> Candidate Name </th>
-            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
-                {{ item.fullName }}
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="name" class="whitespace-nowrap"> Candidate Name </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-2.5">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div
+                        class="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-[11px] font-bold bg-primary-500/10 text-primary-700 dark:text-primary-400">
+                        {{ initials(item.fullName) }}
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[13px] font-semibold text-slate-800 dark:text-slate-100 whitespace-nowrap truncate max-w-[180px]"
+                            [matTooltip]="item.fullName">
+                            {{ item.fullName }}
+                        </p>
+                        @if (isCollapsed()) {
+                        <p class="text-[11px] text-slate-400 whitespace-nowrap">{{ item.referenceNo }}</p>
+                        }
+                    </div>
+                </div>
             </td>
         </ng-container>
+
         <ng-container matColumnDef="ref">
-            <th mat-header-cell *matHeaderCellDef> Reference No </th>
-            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
-                {{ item.referenceNo }}
-            </td>
-        </ng-container>
-        <ng-container matColumnDef="interviewPost">
-            <th mat-header-cell *matHeaderCellDef> Interview Post </th>
-            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
-                {{ item.interviewPost }}
-            </td>
-        </ng-container>
-        <ng-container matColumnDef="interviewDate">
-            <th mat-header-cell *matHeaderCellDef> Interview Date </th>
-            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
-                {{ item.interviewDate | date: 'dd/MM/yyyy' }}
-            </td>
-        </ng-container>
-        <ng-container matColumnDef="interviewTime">
-            <th mat-header-cell *matHeaderCellDef> Interview Time </th>
-            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
-                {{ item.interviewTime }}
-            </td>
-        </ng-container>
-        <ng-container matColumnDef="recommendationStatus">
-            <th mat-header-cell *matHeaderCellDef> Recommendation Status </th>
-            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
-                {{ item.recommendationStatus }}
-            </td>
-        </ng-container>
-        <ng-container matColumnDef="interviewStatus">
-            <th mat-header-cell *matHeaderCellDef> Interview Status </th>
-            <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
-                <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold whitespace-nowrap"
-                    [ngClass]="statusClass(item.interviewStatus)">
-                    {{ item.interviewStatus }}
+            <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap"> Reference No </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-2.5">
+                <span
+                    class="inline-flex px-2 py-0.5 rounded-md bg-slate-500/8 text-[12px] font-medium font-mono text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                    {{ item.referenceNo }}
                 </span>
             </td>
         </ng-container>
+
+        <ng-container matColumnDef="interviewPost">
+            <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap"> Applied For (Post) </th>
+            <td mat-cell *matCellDef="let item"
+                class="px-3 py-2.5 text-[13px] font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                {{ item.interviewPost }}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="companyName">
+            <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap"> Company Name </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-2.5">
+                <div class="flex items-center gap-1.5 max-w-[190px]" [matTooltip]="item.companyName">
+                    <svg lucideIcon="building-2" class="w-3.5 h-3.5 shrink-0 text-slate-400"></svg>
+                    <span class="text-[13px] text-slate-600 dark:text-slate-300 truncate">{{ item.companyName }}</span>
+                </div>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="applicationDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="applicationDate" class="whitespace-nowrap"> Application Date </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-2.5 text-[13px] whitespace-nowrap">
+                @if (item.applicationDate) {
+                <span class="text-slate-700 dark:text-slate-300">{{ item.applicationDate | date: 'dd MMM yyyy' }}</span>
+                } @else {
+                <span class="text-slate-300 dark:text-slate-600">&mdash;</span>
+                }
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="interviewDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="interviewDate" class="whitespace-nowrap"> Date </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-2.5 text-[13px] whitespace-nowrap">
+                @if (item.interviewDate) {
+                <span class="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <svg lucideIcon="calendar-1" class="w-3.5 h-3.5 text-slate-400"></svg>
+                    {{ item.interviewDate | date: 'dd MMM yyyy' }}
+                </span>
+                } @else {
+                <span class="text-[12px] italic text-slate-400">Not scheduled</span>
+                }
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="interviewTime">
+            <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap"> Time </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-2.5 text-[13px] whitespace-nowrap">
+                @if (item.interviewTime) {
+                <span class="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                    <svg lucideIcon="clock-3" class="w-3.5 h-3.5 text-slate-400"></svg>
+                    {{ displayTime(item.interviewTime) }}
+                </span>
+                } @else {
+                <span class="text-slate-300 dark:text-slate-600">&mdash;</span>
+                }
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="recommendationStatus">
+            <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap"> Recommendation Status </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-2.5">
+                <span class="status-pill" [ngClass]="recommendationClass(item.recommendationStatus)">
+                    <span class="status-dot"></span>
+                    {{ item.recommendationStatus }}
+                </span>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap"> Status </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-2.5">
+                <span class="status-pill" [ngClass]="statusClass(item.status)">
+                    <span class="status-dot"></span>
+                    {{ item.status }}
+                </span>
+            </td>
+        </ng-container>
+
         <ng-container matColumnDef="reports">
-            <th mat-header-cell *matHeaderCellDef class="!text-center"> Reports </th>
-            <td mat-cell *matCellDef="let item" class="!text-center">
-                <div class="w-full flex justify-center">
+            <th mat-header-cell *matHeaderCellDef class="!text-center whitespace-nowrap"> Downloads </th>
+            <td mat-cell *matCellDef="let item" class="px-3 py-2.5">
+                @let cv = findFile(item, 'CV');
+                @let jobApplication = findFile(item, 'Job Application');
+                @let otherFiles = otherUploads(item);
+                @let reports = reportsFor(item.status);
+                <div class="flex items-center justify-center gap-1.5">
+                    <!-- Quick access: CV and Job Application, one click each -->
+                    <button type="button" class="file-btn" [disabled]="!cv"
+                        [matTooltip]="cv ? 'View CV' : 'CV not uploaded'" (click)="cv && onOpenFile(item, cv)">
+                        <svg lucideIcon="file-user" class="w-4 h-4 text-blue-600 dark:text-blue-400"></svg>
+                    </button>
+                    <button type="button" class="file-btn" [disabled]="!jobApplication"
+                        [matTooltip]="jobApplication ? 'View Job Application' : 'Job Application not uploaded'"
+                        (click)="jobApplication && onOpenFile(item, jobApplication)">
+                        <svg lucideIcon="file-text" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></svg>
+                    </button>
+
+                    <!-- Everything else, grouped -->
                     @if (downloadingReport() === item.id) {
-                    <div class="flex items-center justify-center w-9 h-9">
-                        <svg lucideIcon="loader" class="w-5 h-5 animate-spin text-secondary-600/80"></svg>
-                    </div>
-                    } @else {
-                    <div matTooltip="Reports" [matMenuTriggerFor]="reportsList"
-                        class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-gray-500/8">
-                        <svg lucideIcon="download" class="w-5 h-5 text-secondary-600/80 dark:text-primary-600"></svg>
-                    </div>
+                    <span class="more-btn">
+                        <svg lucideIcon="loader" class="w-3.5 h-3.5 animate-spin"></svg>
+                    </span>
+                    } @else if (otherFiles.length + reports.length > 0) {
+                    <button type="button" class="more-btn" [matMenuTriggerFor]="moreFiles" matTooltip="More files">
+                        +{{ otherFiles.length + reports.length }} more
+                    </button>
                     }
                 </div>
-                <mat-menu #reportsList="matMenu" class="menus-area">
-                    @for (report of reportsFor(item.interviewStatus); track report.fileName) {
-                    <button mat-menu-item class="!h-auto !min-h-12 !py-1.5" [matTooltip]="report.name"
-                        matTooltipPosition="left" (click)="onOpenReport(item, report)">
-                        <svg lucideIcon="file-text" class="w-5 h-5 shrink-0 text-teal-600 dark:text-teal-500"></svg>
-                        <span class="block max-w-44 whitespace-normal break-words leading-4 line-clamp-2">{{ report.name }}</span>
+
+                <mat-menu #moreFiles="matMenu" class="menus-area" xPosition="before">
+                    @if (otherFiles.length) {
+                    <div class="menu-heading">Uploaded documents</div>
+                    @for (file of otherFiles; track file.name) {
+                    <button mat-menu-item class="!h-10 !min-h-10" (click)="onOpenFile(item, file)">
+                        <svg lucideIcon="paperclip" class="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400"></svg>
+                        <span class="text-[13px]">{{ file.name }}</span>
+                        <span class="ml-3 text-[11px] text-slate-400">{{ fileType(file) }}</span>
                     </button>
                     }
-                    @for (file of item.downloads ?? []; track file.name) {
-                    <button mat-menu-item class="!h-auto !min-h-12 !py-1.5" [matTooltip]="file.name"
-                        matTooltipPosition="left" (click)="onOpenFile(item, file)">
-                        <svg lucideIcon="paperclip" class="w-5 h-5 shrink-0 text-sky-600 dark:text-sky-500"></svg>
-                        <span class="block max-w-44 whitespace-normal break-words leading-4 line-clamp-2">{{ file.name }}</span>
+                    }
+                    @if (otherFiles.length && reports.length) {
+                    <div class="menu-divider"></div>
+                    }
+                    @if (reports.length) {
+                    <div class="menu-heading">Generated letters</div>
+                    @for (report of reports; track report.fileName) {
+                    <button mat-menu-item class="!h-10 !min-h-10" (click)="onOpenReport(item, report)">
+                        <svg lucideIcon="file-check" class="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400"></svg>
+                        <span class="text-[13px]">{{ report.name }}</span>
                     </button>
+                    }
                     }
                 </mat-menu>
             </td>
         </ng-container>
+
         <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef class="text-right!"> Actions</th>
+            <th mat-header-cell *matHeaderCellDef class="text-right! whitespace-nowrap"> Action</th>
             <td mat-cell *matCellDef="let item">
-                <div class="w-full flex justify-end gap-2">
-                    <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
-                        matTooltip="View" (click)="onDetailView(item.id)">
-                        <svg lucideIcon="chevron-right"
-                            class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
-                    </div>
+                <div class="w-full flex justify-end items-center gap-1.5">
+                    @if (!isCollapsed()) {
+                    <button type="button" [disabled]="!item.canSchedule"
+                        class="flex items-center justify-center rounded-lg cursor-pointer w-9 h-9 border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800 hover:border-indigo-300 hover:bg-indigo-500/5 transition-colors disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-slate-200"
+                        [matTooltip]="!item.canSchedule ? 'Schedule is closed' : (item.interviewDate ? 'Update Schedule' : 'Schedule Interview')"
+                        (click)="onScheduleClick(item)">
+                        <svg lucideIcon="calendar-clock" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></svg>
+                    </button>
+                    }
+                    <button type="button" matTooltip="View"
+                        class="flex items-center justify-center rounded-lg cursor-pointer w-9 h-9 border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800 hover:border-primary-300 hover:bg-primary-500/5 transition-colors"
+                        (click)="onDetailView(item.id)">
+                        <svg lucideIcon="eye" class="w-4 h-4 text-primary-600 dark:text-primary-400"></svg>
+                    </button>
                 </div>
             </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="columns"></tr>
-        <tr mat-row *matRowDef="let row; columns: columns" [class.bg-primary-500]="selectedId() === row.id"
-            [class.bg-opacity-10]="selectedId() === row.id" class="transition-colors">
-        </tr>
+        <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"
+            class="transition-colors hover:bg-primary-500/[0.03] cursor-default"
+            [class.!bg-primary-500/10]="selectedId() === row.id"></tr>
 
-        <tr class="mat-row" *matNoDataRow colspan="7">
-            <td class="mat-cell px-8 text-center! text-slate-400 border-b-0" [attr.colspan]="columns.length">
-                <div class="flex justify-center items-center gap-2">
-                    <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>
-                    No candidates found.
+        <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell px-8 py-10 text-center! text-slate-400 border-b-0" [attr.colspan]="columns.length">
+                <div class="flex flex-col justify-center items-center gap-2">
+                    <svg lucideIcon="user-search" class="w-8 h-8 text-slate-300"></svg>
+                    <span class="text-sm">No candidates found.</span>
                 </div>
             </td>
         </tr>

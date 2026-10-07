@@ -18,9 +18,9 @@
                 <div>
                     <div class="box-title-group">
                         <h1 class="box-title">{{ data.candidateFullName || '-' }}</h1>
-                        <!-- EDIT DETAILS - until the offer letter is received (the API rejects edits after that), and
-                             never on a stopped workflow -->
-                        @if (!data.isOfferLetterReceived && data.isHR && !isWorkflowStopped()) {
+                        <!-- EDIT DETAILS - HR (Admin until HR starts the assessment) until the offer letter is
+                             received; never on a stopped workflow -->
+                        @if (data.canEditDetails) {
                         <div class="box-edit-btn" matTooltip="Edit Details" (click)="onEditCandidateDetails()">
                             <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
                         </div>
@@ -89,165 +89,6 @@
         <div class="lg:col-span-2 flex flex-col gap-4">
 
             <!-- =============================================
-                 ACTIONS
-            ============================================== -->
-
-            <div class="unit-box p-5">
-                <h3 class="box-content-heading">
-                    <svg lucideIcon="zap" class="w-4 h-4 text-green-600"></svg> Actions
-                </h3>
-                <div class="green-line"></div>
-
-                <div class="flex flex-wrap items-center gap-2.5">
-                    <!-- ==========================================================
-                         ACTIONS ONLY.
-
-                         No "... Completed" / "... Sent" / "... Received" status
-                         badges live here - the Workflow Path panel on the right
-                         is the single place a finished step is reported. This
-                         card shows what can be DONE right now and nothing else.
-
-                         Visibility is sequenced by USP_GetInterviewCandidateById
-                         (the show* flags), never re-derived in the template.
-                    =========================================================== -->
-
-                    <!-- STOPPED - rejected, or HR submitted 'Not Recommended'. Nothing further can be done, and the
-                         API refuses it anyway. -->
-                    @if (isWorkflowStopped()) {
-                    <span class="inline-flex items-center gap-2 text-sm font-medium text-rose-600 dark:text-rose-400">
-                        <svg lucideIcon="x-circle" class="w-4 h-4"></svg>
-                        {{ data.isRejected ? 'This candidate has been rejected.' : 'This candidate was not recommended by HR.' }}
-                        No further action can be taken.
-                    </span>
-                    } @else {
-
-                    <!-- ACKNOWLEDGE - panel interviewers only -->
-                    @if (showAcknowledgeButton()) {
-                    <button type="button" class="global-btn ripple-btn shine-sweep lift" (click)="onAcknowledge()">
-                        <svg lucideIcon="badge-check" class="w-4 h-4 mr-2"></svg>
-                        Acknowledge
-                    </button>
-                    }
-
-                    <!-- INTERVIEW FORMAT: DOWNLOAD / UPLOAD - one split button, like the letters. -->
-                    @if (showInterviewFormatActions() && data.isHR) {
-                    <qfin-file-actions actionName="Interview Format" uploadLabel="Interview Upload"
-                        [uploading]="uploadingInterviewFormat()" (download)="onDownloadInterviewFormat()"
-                        (upload)="onInterviewUpload($event)" />
-                    }
-
-                    <!-- INTERVIEW LETTER -->
-                    @if (showInterviewLetterActions()) {
-                    <qfin-letter-actions letterName="Interview" [sending]="sendingMail()"
-                        [receiving]="recievingMail()" (view)="onViewInterviewLetterMail()"
-                        (send)="onSendLetterMail('interview')" (receive)="onRecieveLetter('interview')" />
-                    }
-
-                    <!-- INTERVIEWER ASSESSMENT. The message is not a status -
-                         it explains why the button is not here yet. -->
-                    @if (showStartAssessmentButton()) {
-                    <button type="button" class="global-btn ripple-btn shine-sweep lift"
-                        (click)="onStartAssessment()">
-                        <svg lucideIcon="clipboard-check" class="w-4 h-4 mr-2"></svg>
-                        Start Assessment
-                    </button>
-                    } @else if (showAssessmentDateMessage()) {
-                    <span class="text-sm text-gray-500">
-                        {{ getAssessmentMessage(data.interviewDate) }}
-                    </span>
-                    }
-
-                    <!-- PANEL -->
-                    @if (data.showCreatePanelButton) {
-                    <button type="button" class="global-btn ripple-btn shine-sweep lift" (click)="onCreatePanel()">
-                        <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
-                        Create Panel
-                    </button>
-                    }
-
-                    @if (data.isPanelCreated && data.showViewPanelButton) {
-                    <button type="button" class="reset-btn shine-sweep lift" (click)="onViewPanel()">
-                        <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
-                        View Panel
-                    </button>
-                    }
-
-                    <!-- HR ASSESSMENT -->
-                    @if (data.isShowHrAssessmentButton) {
-                    <button type="button" class="reset-btn shine-sweep lift" (click)="onHrAssessment()">
-                        <svg lucideIcon="user-check" class="w-4 h-4 mr-2"></svg>
-                        {{ hrAssessmentButtonLabel() }}
-                    </button>
-                    }
-
-                    <!-- CANDIDATE VERIFICATION -->
-                    @if (data.isShowCandidateVerificationButton && !data.isCandidateVerificationCompleted) {
-                    <button type="button" class="reset-btn shine-sweep lift" (click)="onCandidateVerification()">
-                        <svg lucideIcon="shield-check" class="w-4 h-4 mr-2"></svg>
-                        Candidate Verification
-                    </button>
-                    }
-
-                    <!-- OFFER LETTER - opens once verification is complete -->
-                    @if (data.showOfferLetterActions) {
-                    <qfin-letter-actions letterName="Offer" [sending]="sendingMail()"
-                        [receiving]="recievingMail()" (view)="onViewOfferLetterMail()"
-                        (send)="onSendLetterMail('offer')" (receive)="onRecieveLetter('offer')" />
-                    }
-
-                    <!-- ADD ADDITIONAL INFO - unlocked by the uploaded joining letter -->
-                    @if (data.isJoiningLetterUploaded && data.isHR && !data.isEmployeeCreated ) {
-                    <button type="button" class="reset-btn shine-sweep lift" (click)="onAddAdditionalInfo()">
-                        <svg lucideIcon="file-plus" class="w-4 h-4 mr-2"></svg>
-                        {{data.isEmployeeCreated ? "Update " : "Add "}} Additional Info
-                    </button>
-                    }
-
-                    <!-- APPOINTMENT LETTER -->
-                    @if (data.showAppointmentLetterActions) {
-                    <qfin-letter-actions letterName="Appointment" [sending]="sendingMail()"
-                        [receiving]="recievingMail()" (view)="onViewAppointmentLetterMail()"
-                        (send)="onSendLetterMail('appointment')" (receive)="onRecieveLetter('appointment')" />
-                    }
-
-                    <!-- JOINING LETTER - unlocked by the received appointment letter. One split button,
-                         like the letters: download the blank letter, upload the signed one back. -->
-                    @if (data.showJoiningLetterActions && !data.isJoiningLetterUploaded) {
-                    <qfin-file-actions actionName="Joining Letter" downloadLabel="Download Joining Letter"
-                        uploadLabel="Joining Letter Upload"
-                        uploadDialogDescription="Drag the signed joining letter here, or browse to pick it."
-                        [uploading]="uploadingJoiningLetter()" (download)="onDownloadJoiningLetter()"
-                        (upload)="onJoiningLetterUpload($event)" />
-                    }
-
-                    <!-- WELCOME LETTER - unlocked once the employee is created from the joining information -->
-                    @if (data.isJoiningLetterUploaded && data.isEmployeeCreated) {
-                    <qfin-letter-actions letterName="Welcome" [sending]="sendingMail()"
-                        [receiving]="recievingMail()" (view)="onViewWelcomeLetterMail()"
-                        (send)="onSendLetterMail('welcome')" (receive)="onRecieveLetter('welcome')" />
-                    }
-
-                    <!-- REJECT - HR only, at any stage until the employee is created. Stops the workflow. -->
-                    @if (showRejectButton()) {
-                    <button type="button" [disabled]="rejecting()" (click)="onReject()"
-                        class="rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition cursor-pointer shine-sweep lift disabled:opacity-60 disabled:cursor-not-allowed">
-                        <svg lucideIcon="x-circle" class="w-4 h-4"></svg>
-                        {{ rejecting() ? 'Rejecting...' : 'Reject' }}
-                    </button>
-                    }
-
-                    <!-- Nothing to do right now - the Workflow Path says where
-                         the candidate stands. -->
-                    @if (!hasAnyAction()) {
-                    <span class="text-sm text-slate-400 dark:text-slate-500">
-                        No action is pending for you on this candidate.
-                    </span>
-                    }
-                    }
-                </div>
-            </div>
-
-            <!-- =============================================
                  CANDIDATE INFORMATION
             ============================================== -->
 
@@ -313,12 +154,7 @@
                                 </div>
                                 <div>
                                     <label class="gen-label">Address</label>
-                                    <p class="gen-title line-clamp-2">
-                                        @if (data.houseNo) { {{ data.houseNo }}, }
-                                        @if (data.roadName) { {{ data.roadName }}, }
-                                        @if (data.landMark) { {{ data.landMark }} }
-                                        @if (!data.houseNo && !data.roadName && !data.landMark) { - }
-                                    </p>
+                                    <p class="gen-title line-clamp-2">{{ data.location || '-' }}</p>
                                 </div>
                             </div>
 
@@ -350,11 +186,35 @@
                                 <div>
                                     <label class="gen-label">Interview Date &amp; Time</label>
                                     <p class="gen-title">
+                                        @if (data.interviewDate) {
                                         {{ data.interviewDate | date:'dd MMM yyyy' }}
                                         @if (data.interviewTime) {
-                                        , {{ data.interviewTime }}
+                                        , {{ displayTime(data.interviewTime) }}
+                                        }
+                                        } @else {
+                                        Not scheduled
                                         }
                                     </p>
+                                </div>
+                            </div>
+
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="calendar-plus" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Application Date</label>
+                                    <p class="gen-title">{{ (data.applicationDate | date:'dd MMM yyyy') || '-' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="building" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Company</label>
+                                    <p class="gen-title">{{ data.companyName || '-' }}</p>
                                 </div>
                             </div>
 
@@ -475,6 +335,20 @@
                                 </div>
                             </div>
 
+                            @if (data.isHrAssessmentCompleted) {
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10 sm:col-span-2">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="user-check" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Selected for Offer</label>
+                                    <p class="gen-title">
+                                        {{ data.isSelectedForOffer ? 'Selected' : (data.isNotSelected ? 'Not Selected' : 'Pending') }}
+                                    </p>
+                                </div>
+                            </div>
+                            }
+
                             <!-- Row 2: suitable role and recommended grade share a line. Each falls
                                  back to a dash so the pair stays a two-column row when one is unset. -->
                             <div class="gen-info bg-green-50 dark:bg-green-900/10">
@@ -515,7 +389,7 @@
 
                     <!-- Documents. Each row appears only once its file is on record - an
                          uploaded document is never reported as a dash. -->
-                    @if (data.writtenInterviewFIleUrl || data.signedJoiningLetterFileUrl) {
+                    @if (documents().length) {
                     <div>
                         <p
                             class="text-[11px] font-bold text-green-700 dark:text-green-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
@@ -523,41 +397,18 @@
                         </p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
 
-                            @if (data.writtenInterviewFIleUrl) {
+                            @for (doc of documents(); track doc.label) {
                             <div class="gen-info bg-green-50 dark:bg-green-900/10">
                                 <div class="gen-icon">
                                     <svg lucideIcon="paperclip" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
                                 </div>
                                 <div class="flex-1 flex items-center justify-between gap-3 min-w-0">
                                     <div class="min-w-0">
-                                        <label class="gen-label">Written Interview File</label>
-                                        <p class="gen-title truncate">
-                                            {{ getFileName(data.writtenInterviewFIleUrl) }}
-                                        </p>
+                                        <label class="gen-label">{{ doc.label }}</label>
+                                        <p class="gen-title truncate">{{ getFileName(doc.url) }}</p>
                                     </div>
                                     <button type="button" matTooltip="View Document"
-                                        (click)="openDocument(data.writtenInterviewFIleUrl, getFileName(data.writtenInterviewFIleUrl))"
-                                        class="text-primary-600 dark:text-primary-400 px-2 py-1.5 rounded-lg cursor-pointer shrink-0">
-                                        <svg lucideIcon="eye" class="w-5 h-5"></svg>
-                                    </button>
-                                </div>
-                            </div>
-                            }
-
-                            @if (data.signedJoiningLetterFileUrl) {
-                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
-                                <div class="gen-icon">
-                                    <svg lucideIcon="paperclip" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
-                                </div>
-                                <div class="flex-1 flex items-center justify-between gap-3 min-w-0">
-                                    <div class="min-w-0">
-                                        <label class="gen-label">Signed Joining Letter</label>
-                                        <p class="gen-title truncate">
-                                            {{ getFileName(data.signedJoiningLetterFileUrl) }}
-                                        </p>
-                                    </div>
-                                    <button type="button" matTooltip="View Document"
-                                        (click)="openDocument(data.signedJoiningLetterFileUrl, getFileName(data.signedJoiningLetterFileUrl))"
+                                        (click)="openDocument(doc.url, getFileName(doc.url))"
                                         class="text-primary-600 dark:text-primary-400 px-2 py-1.5 rounded-lg cursor-pointer shrink-0">
                                         <svg lucideIcon="eye" class="w-5 h-5"></svg>
                                     </button>
@@ -649,61 +500,150 @@
         </div>
     </div>
     
-    <div class="box glass p-4 pb-6">
-        <div class="flex flex-col gap-3">
-            <div>
-                <h4 class="box-content-heading">
-                    Audit Information
-                </h4>
-                <div class="green-line"></div>
-            </div>
-            <div
-                class="audit-grid">
-                <div class="audit-small-box">
-                    <div
-                        class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
-                        <svg lucideIcon="user-check" class="w-4 h-4 text-primary-700"></svg>
-                    </div>
-                    <div>
-                        <p class="audit-label">
-                            Created By</p>
-                        <p class="audit-title">{{data?.createdBy}}</p>
-                    </div>
-                </div>
-                <div class="audit-small-box">
-                    <div
-                        class="audit-icon-box bg-secondary-500/15 dark:bg-primary-300">
-                        <svg lucideIcon="calendar-plus" class="w-4 h-4 text-secondary-600"></svg>
-                    </div>
-                    <div>
-                        <p class="audit-label">
-                            Created On</p>
-                        <p class="audit-title">{{data?.createdOn | date: 'dd-MM-yyyy hh:mm a'}}</p>
-                    </div>
-                </div>
-                <div class="audit-small-box">
-                    <div
-                        class="audit-icon-box bg-accent-500/15 dark:bg-primary-300">
-                        <svg lucideIcon="user-cog" class="w-4 h-4 text-secondary-600"></svg>
-                    </div>
-                    <div>
-                        <p class="audit-label">
-                            Last Modified By</p>
-                        <p class="audit-title">{{data?.modifiedBy}}</p>
-                    </div>
-                </div>
-                <div class="audit-small-box">
-                    <div
-                        class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
-                        <svg lucideIcon="calendar-clock" class="w-4 h-4 text-primary-700"></svg>
-                    </div>
-                    <div>
-                        <p class="audit-label">
-                            Last Modified On</p>
-                        <p class="audit-title">{{data?.modifiedOn | date: 'dd-MM-yyyy hh:mm a'}}</p>
-                    </div>
-                </div>
-            </div>
+    <!-- =====================================================
+         ACTIONS - at the bottom of the view.
+
+         Actions only: no "... Completed" / "... Received" badges - the Workflow Path panel is the single
+         place a finished step is reported. Visibility is sequenced by USP_GetInterviewCandidateById (the
+         show* / can* flags), never re-derived in the template. Interviewer actions (acknowledge, attendance,
+         assessment) live on the Interview page, not here.
+    ====================================================== -->
+
+    <div class="unit-box p-5">
+        <h3 class="box-content-heading">
+            <svg lucideIcon="zap" class="w-4 h-4 text-green-600"></svg> Actions
+        </h3>
+        <div class="green-line"></div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+
+            <!-- STOPPED - rejected, or not selected. Nothing further can be done, and the API refuses it anyway. -->
+            @if (isWorkflowStopped()) {
+            <span class="inline-flex items-center gap-2 text-sm font-medium text-rose-600 dark:text-rose-400">
+                <svg lucideIcon="x-circle" class="w-4 h-4"></svg>
+                {{ data.isRejected ? 'This candidate has been rejected.' : 'This candidate was not selected.' }}
+                No further action can be taken.
+            </span>
+            @if (data.showViewPanelButton) {
+            <button type="button" class="reset-btn shine-sweep lift" (click)="onViewPanel()">
+                <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
+                View Panel
+            </button>
+            }
+            } @else {
+
+            <!-- INTERVIEW LETTER - once the interview is scheduled -->
+            @if (data.showInterviewLetterActions) {
+            <qfin-letter-actions letterName="Interview" [sending]="sendingMail()"
+                [receiving]="recievingMail()" (view)="onViewInterviewLetterMail()"
+                (send)="onSendLetterMail('interview')" (receive)="onRecieveLetter('interview')" />
+            }
+
+            <!-- PANEL -->
+            @if (data.showCreatePanelButton) {
+            <button type="button" class="global-btn ripple-btn shine-sweep lift" (click)="onCreatePanel()">
+                <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
+                Create Panel
+            </button>
+            }
+
+            @if (data.showViewPanelButton) {
+            <button type="button" class="reset-btn shine-sweep lift" (click)="onViewPanel()">
+                <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
+                View Panel
+            </button>
+            }
+
+            <!-- WRITTEN INTERVIEW FORMAT (optional): download the blank form / upload the filled one, until the
+                 HR Assessment is completed. -->
+            @if (data.showInterviewFormatActions) {
+            <qfin-file-actions actionName="Interview Format" uploadLabel="Interview Upload"
+                [uploading]="uploadingInterviewFormat()" (download)="onDownloadInterviewFormat()"
+                (upload)="onInterviewUpload($event)" />
+            }
+
+            <!-- HR ASSESSMENT -->
+            @if (data.isShowHrAssessmentButton) {
+            <button type="button" class="reset-btn shine-sweep lift" (click)="onHrAssessment()">
+                <svg lucideIcon="user-check" class="w-4 h-4 mr-2"></svg>
+                {{ hrAssessmentButtonLabel() }}
+            </button>
+            }
+
+            <!-- IS CANDIDATE SELECTED - HR, after the HR Assessment, for a recommended candidate -->
+            @if (data.showSelectForOfferButton) {
+            <button type="button" [disabled]="selecting()" (click)="onSelectForOffer()"
+                class="global-btn ripple-btn shine-sweep lift disabled:opacity-60 disabled:cursor-not-allowed">
+                <svg lucideIcon="badge-check" class="w-4 h-4 mr-2"></svg>
+                {{ selecting() ? 'Saving...' : 'Is Candidate Selected' }}
+            </button>
+            }
+
+            <!-- CANDIDATE VERIFICATION - once the candidate is selected -->
+            @if (data.isShowCandidateVerificationButton && !data.isCandidateVerificationCompleted) {
+            <button type="button" class="reset-btn shine-sweep lift" (click)="onCandidateVerification()">
+                <svg lucideIcon="shield-check" class="w-4 h-4 mr-2"></svg>
+                Candidate Verification
+            </button>
+            }
+
+            <!-- OFFER LETTER - opens once verification is complete -->
+            @if (data.showOfferLetterActions) {
+            <qfin-letter-actions letterName="Offer" [sending]="sendingMail()"
+                [receiving]="recievingMail()" (view)="onViewOfferLetterMail()"
+                (send)="onSendLetterMail('offer')" (receive)="onRecieveLetter('offer')" />
+            }
+
+            <!-- ADD ADDITIONAL INFO - unlocked by the uploaded joining letter -->
+            @if (data.isJoiningLetterUploaded && data.isHR && !data.isEmployeeCreated ) {
+            <button type="button" class="reset-btn shine-sweep lift" (click)="onAddAdditionalInfo()">
+                <svg lucideIcon="file-plus" class="w-4 h-4 mr-2"></svg>
+                {{data.isEmployeeCreated ? "Update " : "Add "}} Additional Info
+            </button>
+            }
+
+            <!-- APPOINTMENT LETTER -->
+            @if (data.showAppointmentLetterActions) {
+            <qfin-letter-actions letterName="Appointment" [sending]="sendingMail()"
+                [receiving]="recievingMail()" (view)="onViewAppointmentLetterMail()"
+                (send)="onSendLetterMail('appointment')" (receive)="onRecieveLetter('appointment')" />
+            }
+
+            <!-- JOINING LETTER - unlocked by the received appointment letter. One split button,
+                 like the letters: download the blank letter, upload the signed one back. -->
+            @if (data.showJoiningLetterActions && !data.isJoiningLetterUploaded) {
+            <qfin-file-actions actionName="Joining Letter" downloadLabel="Download Joining Letter"
+                uploadLabel="Joining Letter Upload"
+                uploadDialogDescription="Drag the signed joining letter here, or browse to pick it."
+                [uploading]="uploadingJoiningLetter()" (download)="onDownloadJoiningLetter()"
+                (upload)="onJoiningLetterUpload($event)" />
+            }
+
+            <!-- WELCOME LETTER - unlocked once the employee is created from the joining information -->
+            @if (data.isJoiningLetterUploaded && data.isEmployeeCreated) {
+            <qfin-letter-actions letterName="Welcome" [sending]="sendingMail()"
+                [receiving]="recievingMail()" (view)="onViewWelcomeLetterMail()"
+                (send)="onSendLetterMail('welcome')" (receive)="onRecieveLetter('welcome')" />
+            }
+
+            <!-- REJECT - HR until the employee is created; Admin only until HR starts the HR Assessment. Stops the
+                 workflow. -->
+            @if (data.showRejectButton) {
+            <button type="button" [disabled]="rejecting()" (click)="onReject()"
+                class="rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition cursor-pointer shine-sweep lift disabled:opacity-60 disabled:cursor-not-allowed">
+                <svg lucideIcon="x-circle" class="w-4 h-4"></svg>
+                {{ rejecting() ? 'Rejecting...' : 'Reject' }}
+            </button>
+            }
+
+            <!-- Nothing to do right now - the Workflow Path says where the candidate stands. -->
+            @if (!hasAnyAction()) {
+            <span class="text-sm text-slate-400 dark:text-slate-500">
+                {{ data.isAdmin && !data.canAct ? 'HR has started the assessment - you can view this candidate only.' :
+                'No action is pending for you on this candidate.' }}
+            </span>
+            }
+            }
         </div>
     </div>
 

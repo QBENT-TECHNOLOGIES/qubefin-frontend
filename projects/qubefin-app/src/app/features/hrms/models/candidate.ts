@@ -1,13 +1,18 @@
 export interface ICandidateList {
   id: string;
   fullName: string;
-  interviewPost: string;
-  interviewDate: string;
-  interviewTime: string;
-  recommendationStatus: string;
   referenceNo: string;
-  interviewStatus: CandidateInterviewStatus;
-  /** Uploaded files (written interview form, credit bureau report, signed joining letter) the API offers at this stage. */
+  interviewPost: string;
+  companyName: string;
+  applicationDate: string | null;
+  interviewDate: string | null;
+  interviewTime: string | null;
+  recommendationStatus: string;
+  status: CandidateInterviewStatus;
+  /** HR / Admin may add or move the interview date and time (until the HR Assessment is completed). */
+  canSchedule: boolean;
+  /** Uploaded files (CV, job application, written interview form, credit bureau report, signed joining letter)
+   * the API offers at this status. */
   downloads?: ICandidateDownloadFile[];
 }
 
@@ -16,20 +21,54 @@ export interface ICandidateDownloadFile {
   url: string;
 }
 
-// Stages shown in the candidate list, in order: HR assessment submitted -> offer letter received -> signed
-// joining letter uploaded. The workflow stops at 'Rejected' when HR rejects the candidate, or at
-// 'Not Recommended' when HR submits the assessment as Not Recommended. Must match CandidateInterviewStatus
-// on the API.
-export type CandidateInterviewStatus =
-  | 'Interview in Progress'
-  | 'Rejected'
-  | 'Not Recommended'
-  | 'Candidate Verification in Progress'
-  | 'Joining in Progress'
-  | 'Joined';
+// Candidate list statuses, derived from the workflow by Hrms.USP_GetCandidateList. Must match
+// CandidateInterviewStatus on the API. The workflow stops at 'Rejected' or 'Not Selected'.
+export const CANDIDATE_STATUSES = [
+  'Schedule Pending',
+  'Interview Scheduled but Letter not sent',
+  'Interview Scheduled & Letter sent',
+  'Interview in Progress',
+  'HR Assessment Pending',
+  'Selection Pending',
+  'Candidate Verification in Progress',
+  'Joining in Progress',
+  'Joined',
+  'Rejected',
+  'Not Selected',
+] as const;
+
+export type CandidateInterviewStatus = (typeof CANDIDATE_STATUSES)[number];
+
+// RecommendationStatus values: 'Pending' until HR decides, the HR Assessment outcomes, and 'Rejected'.
+export const RECOMMENDATION_STATUSES = [
+  'Pending',
+  'Strongly Recommended',
+  'Recommended',
+  'Recommended with Training',
+  'Hold for Future Opportunity',
+  'Not Recommended',
+  'Rejected',
+] as const;
+
 export interface ICandidateSearchModel {
   tempSearch: string;
   companyId: string;
+  applicationDateFrom: Date | '';
+  applicationDateTo: Date | '';
+  interviewDate: Date | '';
+  recommendationStatus: string;
+  status: string;
+}
+
+/** Applied Candidate list filters (dates as yyyy-MM-dd). */
+export interface ICandidateFilters {
+  searchText: string;
+  companyId: string | null;
+  applicationDateFrom: string | null;
+  applicationDateTo: string | null;
+  interviewDate: string | null;
+  recommendationStatus: string | null;
+  status: string | null;
 }
 
 // Send exactly one non-null flag per request; the rest should be left undefined.
@@ -172,6 +211,7 @@ export interface ICandidate {
   // ADDRESS
   // ============================================================
 
+  address?: string;
   houseNo?: string;
   roadName?: string;
   landMark?: string;
@@ -195,8 +235,14 @@ export interface ICandidate {
   // INTERVIEW INFORMATION
   // ============================================================
 
-  interviewDate: string;
-  interviewTime?: string;
+  applicationDate?: string | null;
+
+  interviewDate?: string | null;
+  interviewTime?: string | null;
+
+  /** CV and job application - mandatory at creation. */
+  cvFileUrl?: string | null;
+  jobApplicationFileUrl?: string | null;
 
   writtenInterviewFIle?: string;
 
@@ -313,24 +359,22 @@ export interface ICandidate {
   signedJoiningLetterFileUrl?: string | null;
 
   // ============================================================
-  // AUDIT
+  // ROLES
   // ============================================================
 
-  createdBy?: string;
-  createdOn?: string;
-
-  modifiedBy?: string;
-  modifiedOn?: string;
-
-  // ============================================================
-  // WORKFLOW / ROLE
-  // ============================================================
-
+  /** The signed-in employee holds the HR post. */
   isHR?: boolean;
 
-  isInterviewLetterReceived?: boolean;
+  /** The signed-in employee created the candidate (and is not HR) - its Admin. */
+  isAdmin?: boolean;
 
-  isInterviewerAcknowledged?: boolean;
+  /** The signed-in user may act right now: HR until the workflow stops, Admin only until HR saves the HR
+   * Assessment draft (after that Admin can only view). */
+  canAct?: boolean;
+
+  canEditDetails?: boolean;
+
+  isInterviewLetterReceived?: boolean;
 
   // ============================================================
   // PANEL
@@ -342,52 +386,39 @@ export interface ICandidate {
 
   panelMemberCount?: number;
 
-  isCurrentEmployeePanelMember?: boolean;
-
-  canAcknowledgePanel?: boolean;
-
-  isCurrentEmployeeAttended?: boolean;
-
-  isCurrentEmployeeAssessmentSubmitted?: boolean;
-  isAssessmentDate?: boolean;
+  /** Add / remove panelists inside View Panel. A panelist who submitted can never be removed. */
+  canModifyPanel?: boolean;
 
   isAllPanelAcknowledged?: boolean;
 
+  /** Every panelist is finished: submitted, recorded the candidate absent, or the interview day passed. */
   isAllPanelAssessmentSubmitted?: boolean;
 
-  /** How many interviewers have acknowledged so far. Excludes HR's own assessment row, so it can be
-   * compared directly against `panelMemberCount`. */
   interviewerAcknowledgedCount?: number;
 
-  /** How many interviewers have submitted their assessment so far. Excludes HR's own assessment row, so
-   * it can be compared directly against `panelMemberCount`. */
   interviewerSubmittedCount?: number;
 
+  /** Panelists who neither submitted nor recorded the candidate absent - HR is warned about them. */
+  pendingPanelAssessmentCount?: number;
+
   // ============================================================
-  // HR ASSESSMENT
+  // HR ASSESSMENT -> SELECTION
   // ============================================================
 
   isShowHrAssessmentButton?: boolean;
 
   isHrAssessmentCompleted?: boolean;
 
-  /** HR opened the HR Assessment and saved it as a draft without submitting. `isShowHrAssessmentButton`
-   * stays true in this state - use this to label the button "Continue HR Assessment". */
+  /** HR saved the HR Assessment as a draft without submitting - label the button "Continue HR Assessment". */
   isHrAssessmentDraftSaved?: boolean;
 
-  /** The candidate's `AssessmentType = 'HR'` row has been finalised. Distinct from any interviewer
-   * submission made by the same HR employee. */
   isHrAssessmentSubmitted?: boolean;
 
-  /** The signed-in employee owns the candidate's `AssessmentType = 'HR'` row. Independent of
-   * `isCurrentEmployeePanelMember` - an HR employee who also sits on the panel is both. */
-  isCurrentEmployeeHrAssessor?: boolean;
+  /** HR picked the candidate for an offer - opens Candidate Verification. Never reverted. */
+  isSelectedForOffer?: boolean;
 
-  /** What the signed-in employee is on this candidate, straight from `Tbl_InterviewPanel.AssessmentType`:
-   * `'INTERVIEWER'`, `'HR'`, `'BOTH'`, or undefined when they hold no row. Always branch on this (or on
-   * `isCurrentEmployeePanelMember` / `isCurrentEmployeeHrAssessor`) rather than on `isHR`, which only says
-   * the user has HR permissions. */
-  currentEmployeeAssessmentType?: 'INTERVIEWER' | 'HR' | 'BOTH';
+  /** "Is Candidate Selected" - HR, HR Assessment submitted with a qualified outcome, not selected yet. */
+  showSelectForOfferButton?: boolean;
 
   // ============================================================
   // POST-OFFER DOCUMENT CHAIN
@@ -431,12 +462,12 @@ export interface ICandidate {
   /** HR rejected the candidate. The workflow is stopped - the API refuses every further action. */
   isRejected?: boolean;
 
-  /** HR submitted the assessment as 'Not Recommended'. The workflow is stopped - the API refuses every
-   * further action. */
-  isNotRecommended?: boolean;
+  /** HR submitted the assessment with an outcome that does not qualify (Hold / Not Recommended). The workflow
+   * is stopped - the API refuses every further action. */
+  isNotSelected?: boolean;
 
-  /** Total of the ten averaged category ratings stored on HR's assessment row. */
-  hrAssessmentTotalRatingPoint?: number;
+  /** HR, or Admin while it can still act, until the employee is created. */
+  showRejectButton?: boolean;
 
   isCandidateQualified?: boolean;
 
@@ -477,15 +508,11 @@ export interface ICandidateDetail {
   interviewPost: string;
   departmentId: string;
   VenueOrganizationUnitId: string;
-  interviewDate: string;
-  interviewTime: string;
-
-  houseNo: string;
-  roadName: string;
-  landMark: string;
+  /** UI only: the (single, read-only) country the state list hangs off. */
+  countryId: string;
+  /** The selected State - stored as the candidate's AdministrativeUnitId. */
   administrativeUnitId: string;
-  policeStationId: string;
-  postOfficeId: string;
+  address: string;
   pinCode: string;
 
   // Joining details - edited on an existing candidate only.
