@@ -150,7 +150,7 @@ export class PayrollStore {
     this.lockingMonthId.set(lockId);
     this.payrollService.lockPayroll(year, month).subscribe({
       next: (resp: any) => {
-        this.alertService.success('Success', resp).then(() => {
+        this.alertService.success('Success', 'Monthly payroll locked successfully').then(() => {
           this.lockingMonthId.set(null);
           this.refreshMonthlyPayrollSummaries();
         });
