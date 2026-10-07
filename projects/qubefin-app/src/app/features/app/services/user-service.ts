@@ -29,4 +29,7 @@ export class UserService {
   update(payload: any, userId: any) {
     return this.httpClient.put<any>(`${ApiPaths.APP}/users/${userId}`, payload);
   }
+  unBindDevice(id: string) {
+    return this.httpClient.get(`${ApiPaths.APP}/user-device-unbind/${id}`);
+  }
 }
