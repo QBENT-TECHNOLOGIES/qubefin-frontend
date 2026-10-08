@@ -1,4 +1,14 @@
-import { Component, computed, effect, inject, input, output, signal, untracked, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   disabled,
@@ -94,7 +104,11 @@ export class CandidateDetail {
     return this.countries().find((c) => c.id === countryId)?.children ?? [];
   });
 
-  protected readonly documentFields: { key: CandidateDocumentField; label: string; icon: string }[] = [
+  protected readonly documentFields: {
+    key: CandidateDocumentField;
+    label: string;
+    icon: string;
+  }[] = [
     { key: 'cv', label: 'CV', icon: 'file-user' },
     { key: 'jobApplication', label: 'Job Application', icon: 'file-text' },
   ];
@@ -188,10 +202,16 @@ export class CandidateDetail {
 
     // Joining details - printed on the offer letter.
     const joiningRequired = () => this.isJoiningDetailsRequired();
-    required(path.postedOrganizationUnitId, { message: 'Place of Posting is required', when: joiningRequired });
+    required(path.postedOrganizationUnitId, {
+      message: 'Place of Posting is required',
+      when: joiningRequired,
+    });
     required(path.dateOfJoining, { message: 'Date of Joining is required', when: joiningRequired });
     required(path.reportingTime, { message: 'Reporting Time is required', when: joiningRequired });
-    required(path.monthlyCostCompany, { message: 'Monthly CTC is required', when: joiningRequired });
+    required(path.monthlyCostCompany, {
+      message: 'Monthly CTC is required',
+      when: joiningRequired,
+    });
     // Picked with the time picker only.
     readonly(path.reportingTime);
     pattern(path.pinCode, /^\d{6}$/, {
@@ -226,7 +246,9 @@ export class CandidateDetail {
       const model = this.formModel();
       if (tree.length === 0 || model.countryId) return;
 
-      const path = model.administrativeUnitId ? this.findPath(tree, model.administrativeUnitId) : [];
+      const path = model.administrativeUnitId
+        ? this.findPath(tree, model.administrativeUnitId)
+        : [];
       this.formModel.update((m) => ({
         ...m,
         countryId: path[0]?.id ?? tree[0].id,
@@ -236,7 +258,13 @@ export class CandidateDetail {
     // "Update Joining Details" opens the form on the Joining Details step, once the form is filled.
     effect(() => {
       const stepper = this.stepper();
-      if (!this.openJoiningStep() || !stepper || !this.showJoiningStep() || this.jumpedToJoiningStep) return;
+      if (
+        !this.openJoiningStep() ||
+        !stepper ||
+        !this.showJoiningStep() ||
+        this.jumpedToJoiningStep
+      )
+        return;
       if (!this.loadedCandidateId) return;
       this.jumpedToJoiningStep = true;
       // Step by step: the stepper is linear and marks each step it leaves as visited.
@@ -272,9 +300,14 @@ export class CandidateDetail {
   }
 
   openReportingTimePicker() {
-    openTimePicker(this.dialog, 'Reporting Time', this.formModel().reportingTime, (time: string) => {
-      this.formModel.update((m) => ({ ...m, reportingTime: time }));
-    });
+    openTimePicker(
+      this.dialog,
+      'Reporting Time',
+      this.formModel().reportingTime,
+      (time: string) => {
+        this.formModel.update((m) => ({ ...m, reportingTime: time }));
+      },
+    );
   }
 
   onPostedOrganizationUnitTypeChange(typeId: string) {
@@ -317,7 +350,9 @@ export class CandidateDetail {
   /** Drops a newly picked file - an already stored one comes back. */
   removeDocument(field: CandidateDocumentField) {
     this.documentSignal(field).update((doc) =>
-      doc.fileUrl ? { ...doc, rawFile: null, fileName: this.fileNameFromUrl(doc.fileUrl) } : emptyDocument(),
+      doc.fileUrl
+        ? { ...doc, rawFile: null, fileName: this.fileNameFromUrl(doc.fileUrl) }
+        : emptyDocument(),
     );
   }
 
@@ -377,7 +412,12 @@ export class CandidateDetail {
     const cvFile = this.cvDocument().rawFile;
     const jobApplicationFile = this.jobApplicationDocument().rawFile;
     const request = this.isEditMode()
-      ? this.candidateService.updateCandidate(this.candidateId(), dataToSave, cvFile, jobApplicationFile)
+      ? this.candidateService.updateCandidate(
+          this.candidateId(),
+          dataToSave,
+          cvFile,
+          jobApplicationFile,
+        )
       : this.candidateService.createCandidate(dataToSave, cvFile, jobApplicationFile);
     request.subscribe({
       next: (resp: any) => {
@@ -420,11 +460,13 @@ export class CandidateDetail {
       administrativeUnitId: candidate.administrativeUnitId ?? '',
       address: candidate.address ?? '',
       pinCode: candidate.pinCode ?? '',
-      postedOrganizationUnitTypeId: '',
+      postedOrganizationUnitTypeId: candidate.postedOrganizationUnitTypeId ?? '',
       postedOrganizationUnitId: candidate.postedOrganizationUnitId ?? '',
       dateOfJoining: toLocalDate(candidate.dateOfJoining) as any,
       // The detail SP returns a missing reporting time as 00:00:00 - treat that as not set.
-      reportingTime: candidate.reportingTime?.startsWith('00:00:00') ? '' : toDisplayTime(candidate.reportingTime),
+      reportingTime: candidate.reportingTime?.startsWith('00:00:00')
+        ? ''
+        : toDisplayTime(candidate.reportingTime),
       monthlyCostCompany:
         candidate.monthlyCostCompany != null ? String(candidate.monthlyCostCompany) : '',
     });

@@ -52,8 +52,8 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
             </div>
-            <input matInput [matDatepicker]="dateOfConfirmation" autocomplete="off"
-                [formField]="officialForm.dateOfConfirmation">
+            <input matInput [matDatepicker]="dateOfConfirmation" [min]="officialForm.dateOfJoining().value()"
+                autocomplete="off" [formField]="officialForm.dateOfConfirmation">
             <mat-datepicker-toggle matIconSuffix [for]="dateOfConfirmation">
             </mat-datepicker-toggle>
 

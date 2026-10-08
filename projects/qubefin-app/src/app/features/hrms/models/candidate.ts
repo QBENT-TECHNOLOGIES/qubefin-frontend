@@ -152,7 +152,8 @@ export function withCandidateContact(resp: any, info: ICandidateJoiningInfo | nu
 // has been saved on the employee.
 export function withCandidateAddress(resp: any, info: ICandidateJoiningInfo | null) {
   const hasAddress =
-    !!resp?.presentAddressInfo?.administrativeUnitId || !!resp?.permanentAddressInfo?.administrativeUnitId;
+    !!resp?.presentAddressInfo?.administrativeUnitId ||
+    !!resp?.permanentAddressInfo?.administrativeUnitId;
   if (!info?.address || hasAddress) return resp;
   return {
     ...resp,
@@ -162,8 +163,9 @@ export function withCandidateAddress(resp: any, info: ICandidateJoiningInfo | nu
   };
 }
 
-// Employee official read model with the candidate's company, posted office, department, joining date and
-// designation until official info has been saved on the employee.
+// Employee official read model with the candidate's company, posted office, department and joining date
+// until official info has been saved on the employee. Designation, salary grade and gross salary start
+// empty so they are chosen on this step.
 export function withCandidateOfficial(resp: any, info: ICandidateJoiningInfo | null) {
   if (!info || resp?.organizationUnitId) return resp;
   return {
@@ -173,8 +175,10 @@ export function withCandidateOfficial(resp: any, info: ICandidateJoiningInfo | n
     organizationUnitId: info.organizationUnitId,
     departmentId: resp?.departmentId || info.departmentId,
     joiningDate: resp?.joiningDate || info.dateOfJoining,
-    designationId:
-      resp?.isDesignationEditable && !resp?.designationId ? info.designationId : resp?.designationId,
+    designationId: null,
+    salaryGradeId: null,
+    salaryGrade: null,
+    grossSalary: null,
   };
 }
 
@@ -334,6 +338,8 @@ export interface ICandidate {
   // ============================================================
 
   postedOrganizationUnitId?: string;
+
+  postedOrganizationUnitTypeId?: string;
 
   postedOrganizationUnitName?: string;
 

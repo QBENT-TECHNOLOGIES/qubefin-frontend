@@ -100,7 +100,6 @@ export class JoiningOfficialComponent {
     required(path.organizationUnitId, { message: 'Org. Unit is required' });
     required(path.companyId, { message: 'Company Name is required' });
     readonly(path.dateOfJoining, { when: () => true });
-    readonly(path.dateOfConfirmation, { when: () => true });
     readonly(path.separationDate, { when: () => true });
     readonly(path.retirementDate, { when: () => true });
     // readonly(path.salaryGrade, { when: () => true });
@@ -199,11 +198,15 @@ export class JoiningOfficialComponent {
             resp = withCandidateOfficial(resp, this.joiningInfo());
             this.officialModel.set(new EmployeeOfficialInfo(resp));
 
+            const joiningDate = resp.joiningDate == null ? null : new Date(resp.joiningDate);
             this.officialModel.update((state) => ({
               ...state,
-              dateOfJoining: resp.joiningDate == null ? null : new Date(resp.joiningDate),
+              dateOfJoining: joiningDate,
+              // Defaults to 6 months after joining until a confirmation date is saved; it stays editable.
               dateOfConfirmation:
-                resp.confirmationDate == null ? null : new Date(resp.confirmationDate),
+                resp.confirmationDate != null
+                  ? new Date(resp.confirmationDate)
+                  : joiningDate && this.dateAdapter.addCalendarMonths(joiningDate, 6),
               separationDate: resp.separationDate == null ? null : new Date(resp.separationDate),
               isDesignationEditable: resp.isDesignationEditable,
               companyId: resp.companyId,
