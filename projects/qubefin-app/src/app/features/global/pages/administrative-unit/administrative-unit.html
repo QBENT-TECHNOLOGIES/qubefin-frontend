@@ -19,19 +19,25 @@
                         class="search-input-area">
                         <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
                         <input type="text" placeholder="Search units..." aria-label="Search administrative units"
+                            [value]="searchText()" (input)="onSearch($event)" (keyup.enter)="applyFilter()"
                             class="search-input-style" />
                     </div>
-                    <button aria-label="Filter"
+                    <button aria-label="Filter" (click)="applyFilter()"
                         class="search-input-btn lift">
-                        <svg lucideIcon="funnel" class="w-4 h-4"></svg>
+                        <svg lucideIcon="search" class="w-4 h-4"></svg>
                     </button>
                 </div>
                 <div class="tree-view scroll-thin">
                     <qfin-administrative-unit-tree-component
-                        [administrativeUnitTreeNodes]="administrativeUnitTreeNodes()"
+                        [administrativeUnitTreeNodes]="filteredAdministrativeUnitTreeNodes()"
                         [selectedId]="selectedAdministrativeUnitId()"
                         (onViewDetail)="viewDetail($event)">
                     </qfin-administrative-unit-tree-component>
+                    @if (appliedSearchText().trim() && !filteredAdministrativeUnitTreeNodes().length) {
+                    <p class="px-3 py-4 text-sm text-slate-400 dark:text-slate-500">
+                        No units match "{{ appliedSearchText().trim() }}".
+                    </p>
+                    }
                 </div>
             </div>
         </aside>
@@ -42,8 +48,8 @@
                 (showEdit)="onEdit()">
             </qfin-administrative-unit-view-component>
             } @else {
-            <qfin-administrative-unit-detail-component [administrativeUnitId]="selectedAdministrativeUnitId()"
-                (cancel)="isViewMode.set(true)">
+            <qfin-administrative-unit-detail-component [administrativeUnitId]="editingAdministrativeUnitId()"
+                (cancel)="isViewMode.set(true)" (saved)="onSaved()">
             </qfin-administrative-unit-detail-component>
             }
         </section>

@@ -3,7 +3,7 @@
     <div class="details-card-header">
         <div>
             <h2 class="box-title text-xl!">
-                {{ administrativeUnitId() && administrativeUnitId() !== '00000000-0000-0000-0000-000000000000' ? 'Edit Administrative Unit' : 'Create Administrative Unit' }}
+                {{ isEditMode() ? 'Edit Administrative Unit' : 'Create Administrative Unit' }}
             </h2>
             <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
                 Configure the administrative hierarchy and unit information.
@@ -13,7 +13,7 @@
         <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
             <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
             <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                {{ administrativeUnitId() && administrativeUnitId() !== '00000000-0000-0000-0000-000000000000' ? 'Edit Mode' : 'New Mode' }}
+                {{ isEditMode() ? 'Edit Mode' : 'New Mode' }}
             </span>
         </div>
     </div>
@@ -72,6 +72,16 @@
                         placeholder="Enter name">
                 </mat-form-field>
             </div>
+
+            <!-- Active flag: a new unit is always created active, so this is edit only -->
+            @if (isEditMode()) {
+            <div>
+                <div class="checkbox-area">
+                    <mat-checkbox [formField]="administrativeUnitForm.isActive" color="primary">Is
+                        Active?</mat-checkbox>
+                </div>
+            </div>
+            }
         </div>
     </div>
 
@@ -85,10 +95,10 @@
         </button>
 
         <!-- Submit button -->
-        <button type="button" (click)="onSubmit()"
+        <button type="button" (click)="onSubmit()" [disabled]="saving()"
             class="global-btn shine-sweep lift">
             <svg lucideIcon="save" class="w-4 h-4"></svg>
-            Save / Update
+            {{ isEditMode() ? 'Update' : 'Save' }}
         </button>
     </div>
 </div>

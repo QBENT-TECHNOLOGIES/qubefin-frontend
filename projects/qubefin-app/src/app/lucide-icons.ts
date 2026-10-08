@@ -99,6 +99,7 @@ import {
   LucideMars,
   LucideStickyNote,
   LucideChevronLeft,
+  LucideChevronUp,
   LucideIdCardLanyard,
   LucideSwatchBook,
   LucideClipboardCheck,
@@ -168,6 +169,9 @@ import {
   LucideRadar,
   LucideIndianRupee,
   LucideIdCard,
+  LucidePercent,
+  LucideSmartphone,
+  LucideUnlink,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -184,6 +188,7 @@ export const APP_ICONS = [
   LucideChevronDown,
   LucideChevronRight,
   LucideChevronLeft,
+  LucideChevronUp,
   LucideCircleQuestionMark,
   LucideCoins,
   LucideCombine,
@@ -338,6 +343,10 @@ export const APP_ICONS = [
   LucideRadar,
   LucideIndianRupee,
   LucideIdCard,
+  LucideWorkflow,
+  LucidePercent,
+  LucideSmartphone,
+  LucideUnlink,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -354,6 +363,7 @@ export const APP_ICONS_MAP: Record<string, any> = {
   CalendarPlus: LucideCalendarPlus,
   ChevronDown: LucideChevronDown,
   ChevronRight: LucideChevronRight,
+  ChevronUp: LucideChevronUp,
   CircleQuestionMark: LucideCircleQuestionMark,
   Coins: LucideCoins,
   Combine: LucideCombine,
@@ -508,4 +518,7 @@ export const APP_ICONS_MAP: Record<string, any> = {
   Radar: LucideRadar,
   IndianRupee: LucideIndianRupee,
   IdCard: LucideIdCard,
+  Percent: LucidePercent,
+  Smartphone: LucideSmartphone,
+  Unlink: LucideUnlink,
 };

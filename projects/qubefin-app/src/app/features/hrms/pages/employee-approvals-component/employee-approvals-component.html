@@ -1,0 +1,143 @@
+<div class="page-container">
+
+  <!-- ============ HEADER ============ -->
+  <div class="header-group">
+    <div class="flex items-center gap-3">
+      <div
+        class="w-10 h-10 rounded-xl flex items-center justify-center bg-linear-to-br from-primary-500 to-secondary-500 shadow-glow shrink-0">
+        <svg lucideIcon="clipboard-check" class="w-5 h-5 text-white"></svg>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">Employee Approvals</h1>
+        <p class="text-[11px] text-slate-400 dark:text-slate-500">
+          Every pending employee approval in one place
+        </p>
+      </div>
+    </div>
+
+    <div class="headerBtn-area">
+      @if (totalPending()) {
+      <div
+        class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/60 dark:bg-white/5 border border-white/70 dark:border-white/10">
+        <span class="text-[11px] text-slate-500 dark:text-slate-400">Pending</span>
+        <span class="text-[12px] font-semibold text-slate-800 dark:text-slate-100">{{ totalPending() }}</span>
+      </div>
+      }
+      <button type="button" (click)="toggleFilterArea()" class="filter-btn glass-input lift shine-sweep">
+        <svg lucideIcon="funnel" class="w-4 h-4"></svg>
+        Filter
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ CONSOLE BAR : approval types + one shared filter ============ -->
+  <div class="mainCard-area glass w-full max-w-full p-2.5 mb-2">
+
+    <!-- approval-type rail -->
+    <div class="flex items-center gap-1.5 flex-wrap">
+      @for (tab of tabs; track tab.key) {
+      <button type="button" (click)="onSelectTab(tab.key)"
+        class="flex items-center gap-2 h-8 px-3 rounded-lg text-[12.5px] whitespace-nowrap cursor-pointer transition-all duration-200"
+        [ngClass]="activeTab() === tab.key
+            ? 'font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow'
+            : 'font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-400/12'">
+        <svg [lucideIcon]="iconMap[tab.icon]" class="w-4 h-4"></svg>
+        {{ tab.label }}
+        @if (pendingCounts()[tab.key]) {
+        <span
+          class="inline-flex items-center justify-center min-w-[17px] h-[17px] px-1.5 rounded-full text-[10px] font-bold"
+          [ngClass]="activeTab() === tab.key
+              ? 'bg-white/25 text-white'
+              : 'bg-yellow-500/15 text-yellow-600 dark:text-yellow-400'">
+          {{ pendingCounts()[tab.key] }}
+        </span>
+        }
+      </button>
+      }
+
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500 pr-1">
+        <svg lucideIcon="circle-question-mark" class="w-3.5 h-3.5"></svg>
+        Filters below apply to every tab
+      </div>
+    </div>
+
+    <!-- one shared filter row -->
+    @if (showFilterArea()) {
+    <div class="h-px bg-slate-200/70 dark:bg-white/8 my-2.5"></div>
+
+    <div class="filter-container">
+      <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3 w-full md:w-auto">
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <mat-label>Employee</mat-label>
+          <div class="field-icon" matPrefix>
+            <svg lucideIcon="user-search" class="w-5 h-5"></svg>
+          </div>
+          <input matInput [value]="employeeSearchText()" (input)="searchEmployees($any($event.target).value)"
+            [matAutocomplete]="auto" autocomplete="off" placeholder="All employees" />
+          <mat-autocomplete class="autoList" #auto="matAutocomplete" [displayWith]="displayEmployeeName"
+            (optionSelected)="selectEmployee($event)">
+            @for (employee of employeeOptions(); track employee.id) {
+            <mat-option [value]="employee">{{ employee.employeeName }}</mat-option>
+            } @empty {
+            @if (employeeSearchText().trim()) {
+            <mat-option disabled>No employees found</mat-option>
+            }
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <mat-label>From Date</mat-label>
+          <div class="field-icon" matPrefix>
+            <svg lucideIcon="calendar-check" class="w-4 h-4"></svg>
+          </div>
+          <input matInput [matDatepicker]="fromPicker" placeholder="Select From Date" [value]="fromDate()"
+            (dateChange)="fromDate.set($event.value)" readonly />
+          <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fromPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <mat-label>To Date</mat-label>
+          <div class="field-icon" matPrefix>
+            <svg lucideIcon="calendar-check" class="w-4 h-4"></svg>
+          </div>
+          <input matInput [matDatepicker]="toPicker" placeholder="Select To Date" [value]="toDate()"
+            (dateChange)="toDate.set($event.value)" readonly />
+          <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+          <mat-datepicker #toPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="flex items-center gap-2.5 shrink-0">
+        <button type="button" (click)="applyFilters()" class="global-btn shine-sweep lift">
+          <svg lucideIcon="search" class="w-4 h-4"></svg>
+          Search
+        </button>
+        <button type="button" (click)="resetFilters()" class="reset-btn lift">
+          <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+          Reset
+        </button>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- ============ ACTIVE APPROVAL QUEUE ============ -->
+  @switch (activeTab()) {
+  @case ('regularization') {
+  <qfin-approval-regularizations [embedded]="true"></qfin-approval-regularizations>
+  }
+  @case ('leave') {
+  <qfin-leave-approval-component [embedded]="true"></qfin-leave-approval-component>
+  }
+  @case ('prayer') {
+  <qfin-leave-prayer-approval-component [embedded]="true"></qfin-leave-prayer-approval-component>
+  }
+  @case ('fitness') {
+  <qfin-leave-fitness-component></qfin-leave-fitness-component>
+  }
+  }
+</div>

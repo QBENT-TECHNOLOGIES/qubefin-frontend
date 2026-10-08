@@ -42,6 +42,7 @@ import { OrganizationUnit } from '../../../../../global/models/organization-unit
 import { IDesignation } from '../../../../models/designation';
 import { CompanyService } from '../../../../../global/services/company-service';
 import { IComapnyList } from '../../../../../global/models/company';
+import { DepartmentStore } from '../../../../stores/department-store';
 
 @Component({
   selector: 'qfin-official-component',
@@ -66,6 +67,7 @@ export class OfficialComponentDetail {
   onOfficialUpdate = output<void>();
   private dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
+  private readonly departmentStore = inject(DepartmentStore);
   private readonly organizationUnitTypeStore = inject(OrganizationUnitTypeStore);
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
@@ -74,28 +76,33 @@ export class OfficialComponentDetail {
   private readonly alertService = inject(AlertService);
 
   readonly iconMap = APP_ICONS_MAP;
+  readonly departments = this.departmentStore.departments;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
   organizationUnits = signal<OrganizationUnit[]>([]);
   designations = signal<IDesignation[]>([]);
   companies = signal<IComapnyList[]>([]);
+
   protected readonly officialModel = signal<IEmployeeOfficialInfo>(new EmployeeOfficialInfo());
 
   protected readonly officialSchema: Schema<IEmployeeOfficialInfo> = schema((path) => {
     pattern(path.officialEmail, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
-      message: 'Enter a valid email address',
+      message: 'Invalid email address',
     });
+
     required(path.employementType, { message: 'Employement Type is required' });
     required(path.dateOfJoining, { message: 'Joining Date is required' });
+    required(path.departmentId, { message: 'Department is required' });
     required(path.designationId, { message: 'Designation is required' });
     required(path.salaryGrade, { message: 'Salary Grade is required' });
     required(path.grossSalary, { message: 'Gross Salary is required' });
-    required(path.organizationUnitTypeId, { message: 'Organization Unit Type is required' });
-    required(path.organizationUnitId, { message: 'Organization Unit is required' });
+    required(path.organizationUnitTypeId, { message: 'Org. Unit Type required' });
+    required(path.organizationUnitId, { message: 'Org. Unit is required' });
     required(path.companyId, { message: 'Company Name is required' });
     readonly(path.dateOfJoining, { when: () => true });
     readonly(path.dateOfConfirmation, { when: () => true });
     readonly(path.separationDate, { when: () => true });
-    readonly(path.salaryGrade, { when: () => true });
+    readonly(path.retirementDate, { when: () => true });
+    // readonly(path.salaryGrade, { when: () => true });
     const isNotEditable = ({ valueOf }: any) => {
       return valueOf(path.isDesignationEditable) === false;
     };
@@ -176,6 +183,7 @@ export class OfficialComponentDetail {
       this.officialModel.update((state) => ({
         ...state,
         designationId: id,
+        salaryGradeId: selectedDesignation.salaryGradeId || '',
         salaryGrade: selectedDesignation.salaryGrade || '',
         grossSalary: selectedDesignation.grossSalary || 0,
       }));
@@ -216,11 +224,19 @@ export class OfficialComponentDetail {
                 .subscribe({
                   next: (res: any) => {
                     this.designations.set(res);
+
+                    const matched = res.find(
+                      (d: any) => d.id?.toLowerCase() === resp.designationId?.toLowerCase(),
+                    );
+
                     this.officialModel.update((state) => ({
                       ...state,
                       designationId: resp.designationId
                         ? resp.designationId.toLowerCase()
                         : state.designationId,
+                      salaryGradeId:
+                        matched?.salaryGradeId || resp.salaryGradeId || state.salaryGradeId,
+                      salaryGrade: matched?.salaryGrade || state.salaryGrade,
                     }));
                   },
                 });
@@ -267,6 +283,7 @@ export class OfficialComponentDetail {
     dataToSave.companyName = dataToSave.companyName == '' ? null : dataToSave.companyName;
     dataToSave.designationId = dataToSave.designationId == '' ? null : dataToSave.designationId;
     dataToSave.salaryGrade = dataToSave.salaryGrade == '' ? null : dataToSave.salaryGrade;
+    dataToSave.salaryGradeId = dataToSave.salaryGradeId == '' ? null : dataToSave.salaryGradeId;
 
     delete dataToSave.joiningDate;
     delete dataToSave.confirmationDate;

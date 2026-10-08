@@ -13,7 +13,7 @@ export class ApprovalWorkflowStore {
   readonly organizationUnitTypeId = signal<string | null>(null);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
-  readonly sortOn = signal('assignedFrom');
+  readonly sortOn = signal('category');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
   private readonly approvalWorkflowsResource = httpResource<{
     workflows: IApprovalWorkflowListItem[];
@@ -52,10 +52,6 @@ export class ApprovalWorkflowStore {
     if (this.approvalWorkflowId() !== id) {
       this.approvalWorkflowId.set(id);
     }
-  }
-
-  setSearchQuery(query: string) {
-    this.pageIndex.set(0);
   }
 
   setCategory(category: string | null) {

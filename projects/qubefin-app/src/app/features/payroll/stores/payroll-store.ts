@@ -22,7 +22,7 @@ export class PayrollStore {
   private readonly payrollResource = httpResource<Payroll>(() => {
     const id = this.payrollId();
     if (!id) return undefined;
-    return `${ApiPaths.PAYROLL}/payroll/${id}`;
+    return `${ApiPaths.PAYROLL}/payroll-detail/${id}`;
   });
   readonly payroll = computed(() => this.payrollResource.value() ?? undefined);
   readonly payrollLoading = computed(() => this.payrollResource.isLoading());
@@ -150,7 +150,7 @@ export class PayrollStore {
     this.lockingMonthId.set(lockId);
     this.payrollService.lockPayroll(year, month).subscribe({
       next: (resp: any) => {
-        this.alertService.success('Success', resp).then(() => {
+        this.alertService.success('Success', 'Monthly payroll locked successfully').then(() => {
           this.lockingMonthId.set(null);
           this.refreshMonthlyPayrollSummaries();
         });

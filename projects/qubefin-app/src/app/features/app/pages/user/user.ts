@@ -15,6 +15,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { EmployeeLopFinalizationStore } from '../../../hrms/stores/employee-lop-finalization-store';
+import { CompanyStore } from '../../../global/stores/company-store';
 
 @Component({
   selector: 'qfin-user-page',
@@ -36,13 +38,18 @@ export class UserPage {
   public readonly EMPTY_UUID = EMPTY_UUID;
 
   userStore = inject(UserStore);
-
+  orgStore = inject(EmployeeLopFinalizationStore);
+  companyStore = inject(CompanyStore);
   isViewMode = signal<boolean>(true);
   showFilterArea = signal<boolean>(false);
   selectedUserId = signal<string>(EMPTY_UUID);
+  organizationUnit = this.orgStore.organizationUnits;
+  companies = this.companyStore.companies;
   searchedUsers = this.userStore.searchedUsers;
   tempSearch = '';
   tempCategory = '';
+  tempOrganizationUnitId = '';
+  tempCompanyId = '';
   readonly categories = signal<Array<{ id: string; name: string }>>([
     { id: '', name: 'All Categories' },
     { id: 'ADMIN', name: 'Admin' },
@@ -51,6 +58,8 @@ export class UserPage {
   ]);
 
   protected readonly userSearchFields = signal<UserSearchParam>({
+    organizationUnitId: '',
+    companyId: '',
     searchText: '',
     sortOn: 'userName',
     sortDirection: 'ASC',
@@ -104,13 +113,19 @@ export class UserPage {
   protected applyFilters() {
     this.userStore.setPagination(0, 10);
     this.userStore.setSearchQuery(this.tempSearch.trim());
+    this.userStore.setOrganizationUnitId(this.tempOrganizationUnitId);
+    this.userStore.setCompanyId(this.tempCompanyId);
     this.userStore.setSort('userName', 'ASC');
   }
 
   protected resetFilters() {
     this.tempSearch = '';
     this.tempCategory = '';
+    this.tempOrganizationUnitId = '';
+    this.tempCompanyId = '';
     this.userStore.setSearchQuery('');
+    this.userStore.setOrganizationUnitId('');
+    this.userStore.setCompanyId('');
     this.userStore.setPagination(0, 10);
     this.userStore.setSort('userName', 'ASC');
   }
