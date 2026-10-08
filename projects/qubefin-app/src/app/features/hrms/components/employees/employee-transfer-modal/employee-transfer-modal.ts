@@ -224,17 +224,23 @@ export class EmployeeTransferModal {
       ...this.empTransferForm().value(),
       employeeId: this.empId(),
     };
-    this.employeeService.transferEmployee(dataToSave).subscribe({
-      next: (resp: any) => {
-        this.alertService.success('Success', resp).then(() => {
-          this.transferDataResource.reload();
-        });
-      },
-      error: (err: any) => {
-        if (err.error?.isError) {
+    this.alertService
+      .confirm('Confirmation', 'Do you want to transfer this employee?')
+      .then((result: any) => {
+        if (result.isConfirmed) {
+          this.employeeService.transferEmployee(dataToSave).subscribe({
+            next: (resp: any) => {
+              this.alertService.success('Success', resp).then(() => {
+                this.transferDataResource.reload();
+              });
+            },
+            error: (err: any) => {
+              if (err.error?.isError) {
+              }
+            },
+          });
         }
-      },
-    });
+      });
   }
   onCancel() {
     this.dialogRef.close(false);
