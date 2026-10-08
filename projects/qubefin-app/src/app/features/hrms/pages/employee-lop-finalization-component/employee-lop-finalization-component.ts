@@ -82,6 +82,10 @@ export class EmployeeLopFinalizationComponent {
   // Store Data
   // ===========================
   readonly listData = this.store.listData;
+  readonly showLockButton = computed(() => {
+    const data = this.listData();
+    return data.length > 0 && !data.some((item) => item.isLocked);
+  });
   readonly hasSelectedRecord = computed(
     () => this.selectedId() !== EMPTY_UUID || !this.isViewMode(),
   );

@@ -150,9 +150,12 @@
                 <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
             </div>
             <input matInput [matDatepicker]="picker" [formField]="grossChangeForm.effectiveFrom"
-                [min]="minEffectiveDate()" placeholder="Select Date" />
+                (keydown)="$event.preventDefault()" [min]="minEffectiveDate()" placeholder="Select Date" />
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
+            <mat-error class="cus-error">
+                {{ grossChangeForm.effectiveFrom().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
     </div>
     <div class="flex items-center justify-between pt-4 bg-white/60 dark:bg-slate-800 border-t border-slate-200">

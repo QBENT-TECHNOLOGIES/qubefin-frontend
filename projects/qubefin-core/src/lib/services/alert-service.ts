@@ -15,6 +15,7 @@ export class AlertService {
 
   private swal = Swal.mixin({
     target: 'body',
+    topLayer: true,
     heightAuto: false,
     allowOutsideClick: false,
     allowEscapeKey: true,
@@ -269,6 +270,7 @@ export class AlertService {
 
   toast(icon: SweetAlertIcon, title: string, timer = 3000) {
     return Swal.fire({
+      topLayer: true,
       toast: true,
       position: 'top-end',
       icon,

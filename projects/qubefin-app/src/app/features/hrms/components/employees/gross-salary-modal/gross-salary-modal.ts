@@ -78,7 +78,7 @@ export class GrossSalaryModal {
     required(path.grossSalary, { message: 'Gross Salary is required' });
     // required(path.pFamount, { message: 'PF Amount is required' });
     required(path.effectiveFrom, { message: 'Effective From is required' });
-    readonly(path.effectiveFrom, { when: () => true });
+    // readonly(path.effectiveFrom, { when: () => true });
   });
   protected readonly grossChangeForm = form(this.grossChangeModel, this.grossChangeSchema);
   empId = signal<string>('');
