@@ -701,6 +701,26 @@ export class KycDocument {
   isDateValidate: boolean = false;
   sequence: number = 0;
 }
+export interface IEmpTransferHistory {
+  id: string;
+  organizationUnit: string;
+  organizationUnitType: string;
+  designation: string;
+  salaryGrade: string;
+  grossSalary: number;
+  fromDate: string;
+  toDate: string;
+  transferData: IEmpTransfer;
+}
+export interface IEmpTransfer {
+  id: string;
+  employeeId: string;
+  organisationUnitTypeId: string;
+  organisationUnitId: string;
+  designationId: string;
+  salaryGradeId: string;
+  grossSalary: number | null;
+}
 export interface IEmpGrossChangeHistory {
   id: string;
   salaryGrade: string;

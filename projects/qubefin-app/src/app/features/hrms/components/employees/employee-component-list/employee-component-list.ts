@@ -20,8 +20,9 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
-import { GrossSalaryModal } from '../gross-salary-modal/gross-salary-modal';
+import { EmployeeTransferModal } from '../employee-transfer-modal/employee-transfer-modal';
 import { MatDialog } from '@angular/material/dialog';
+import { GrossSalaryModal } from '../gross-salary-modal/gross-salary-modal';
 import { AttendanceCalendarModal } from '../../attendance-history-components/attendance-calendar-modal/attendance-calendar-modal';
 @Component({
   selector: 'qfin-employee-component-list',
@@ -74,6 +75,14 @@ export class EmployeeComponentList {
   }
   onSortChange(sort: Sort) {
     this.sortChanged.emit(sort);
+  }
+
+  openEmpTransferModal(id: string) {
+    this.dialog.open(EmployeeTransferModal, {
+      data: { id: id },
+      maxWidth: '95vw',
+      panelClass: 'glass-modal',
+    });
   }
   openGradeModal(id: string) {
     this.dialog.open(GrossSalaryModal, {

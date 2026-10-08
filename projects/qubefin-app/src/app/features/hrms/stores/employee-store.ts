@@ -4,6 +4,8 @@ import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import {
   IEmployeePersonalInfo,
   IEmployeesBySearchResult,
+  IEmpTransfer,
+  IEmpTransferHistory,
   KycDocument,
   Utility,
 } from '../models/employee-detail';
@@ -62,7 +64,7 @@ export class EmployeeStore {
     personalInfo: IEmployeePersonalInfo;
   }>(() => {
     const id = this.employeeComponentId();
-    console.log(id);
+    // console.log(id);
     if (!id || id === EMPTY_UUID) return undefined;
     return `${ApiPaths.HRMS}/employees/${id}`;
   });

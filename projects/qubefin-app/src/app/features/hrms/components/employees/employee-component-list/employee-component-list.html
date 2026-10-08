@@ -67,6 +67,11 @@
                             class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
                     </div>
                     <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
+                        matTooltip="Transfer" (click)="openEmpTransferModal(item.id)">
+                        <svg lucideIcon="user-check"
+                            class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
+                    </div>
+                    <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
                         matTooltip="View" (click)="onDetailView(item.id)">
                         <svg lucideIcon="chevron-right"
                             class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
