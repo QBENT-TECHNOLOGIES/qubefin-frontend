@@ -2,6 +2,7 @@ export interface OrganizationUnitTreeNode {
     id: string;
     organizationUnitTypeId: string;
     organizationUnitTypeName: string;
+    organizationUnitTypeIcon: string;
     name: string;
     parentId: string;
     isActive: boolean;

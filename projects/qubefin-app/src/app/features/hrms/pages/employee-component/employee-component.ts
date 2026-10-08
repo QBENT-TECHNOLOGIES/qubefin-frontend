@@ -94,9 +94,18 @@ export class EmployeeComponent {
     this.isViewMode.set(true);
   }
 
-  protected handleSave() {
-    this.selectedEmployeeComponentId.set(EMPTY_UUID);
-    this.isViewMode.set(true);
+  protected handleSave(newId?: string) {
+    // Validate that newId is an actual ID (e.g., UUIDs are typically 36 characters)
+    // This prevents breaking the view if the API just returned a success message string.
+    if (newId && typeof newId === 'string' && newId !== EMPTY_UUID && newId.length > 20) {
+      // Switch the context to the newly created employee and STAY in the form (Edit mode)
+      this.selectedEmployeeComponentId.set(newId);
+      this.isViewMode.set(false);
+    } else {
+      // Fallback if an ID couldn't be safely extracted (redirects to list)
+      this.selectedEmployeeComponentId.set(EMPTY_UUID);
+      this.isViewMode.set(true);
+    }
   }
   protected handleUpdate(event: any) {}
 

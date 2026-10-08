@@ -13,4 +13,7 @@ export class AttendanceService {
   submitRegularization(data: any) {
     return this.httpClient.post(`${ApiPaths.HRMS}/attendances/regularizations/submit`, data);
   }
+  getCalendarDaysByEmployee(year: number, month: number) {
+    return this.httpClient.get(`${ApiPaths.HRMS}/holidays/calendar?year=${year}&month=${month}`);
+  }
 }

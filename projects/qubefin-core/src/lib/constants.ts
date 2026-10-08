@@ -14,3 +14,4 @@ export const months = [
   { value: 12, label: 'December' },
 ];
 export const nationalities = ['Indian'];
+export const accountType = ['Savings', 'Current'];

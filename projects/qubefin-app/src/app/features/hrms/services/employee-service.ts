@@ -47,7 +47,12 @@ export class EmployeeService {
   getBankingInfoData(id: string) {
     return this.httpClient.get(`${ApiPaths.HRMS}/employees/banking/${id}`);
   }
-
+  getNomineeData(id: string) {
+    return this.httpClient.get(`${ApiPaths.HRMS}/employees/dependent-nominees/${id}`);
+  }
+  getReferralData(id: string) {
+    return this.httpClient.get(`${ApiPaths.HRMS}/employees/referral-details/${id}`);
+  }
   create(personalInfo: any) {
     return this.httpClient.post(`${ApiPaths.HRMS}/employees`, personalInfo);
   }
@@ -99,6 +104,15 @@ export class EmployeeService {
       model,
     );
   }
+  updateNomineeInfo(employeeId: string, model: any) {
+    return this.httpClient.patch(
+      `${ApiPaths.HRMS}/employees/update/dependent-nominees/` + employeeId,
+      model,
+    );
+  }
+  updateReferralInfo(employeeId: string, model: any) {
+    return this.httpClient.put(`${ApiPaths.HRMS}/employees/update/referral/` + employeeId, model);
+  }
   getDisignationByOrganizationUnit(id: string) {
     return this.httpClient.get(`${ApiPaths.HRMS}/designations/${id}/organization-unit`);
   }
@@ -107,5 +121,17 @@ export class EmployeeService {
   }
   transferEmployee(empTransfer: any) {
     return this.httpClient.post(`${ApiPaths.HRMS}/employees/transfer`, empTransfer);
+  }
+  getGrossSalaryByEmployeeId(id: string) {
+    return this.httpClient.get(`${ApiPaths.HRMS}/employees/gross-salary/${id}`);
+  }
+  changeGrossSalary(data: any) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/employees/gross-salary`, data);
+  }
+  getSalaryByGradeId(id: string) {
+    return this.httpClient.get(`${ApiPaths.HRMS}/employees/salary-by-grade/${id}`);
+  }
+  getGrossSalaryPreview(data: any) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/employees/get-salary-structure-by-gross`, data);
   }
 }
