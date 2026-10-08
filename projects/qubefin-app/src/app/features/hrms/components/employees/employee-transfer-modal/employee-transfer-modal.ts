@@ -66,28 +66,7 @@ export class EmployeeTransferModal {
       'toDate',
     ];
   });
-  // readonly empTransferHistoryList = [
-  //   {
-  //     id: '1',
-  //     organizationUnitTypeName: 'Block',
-  //     organizationUnitName: 'Block 1',
-  //     designationName: 'Designation 1',
-  //     salaryGrade: 'Grade 1',
-  //     grossSalary: 1000,
-  //     fromDate: '2023-01-01',
-  //     toDate: '2023-01-02',
-  //   },
-  //   {
-  //     id: '2',
-  //     organizationUnitTypeName: 'Block',
-  //     organizationUnitName: 'Block 2',
-  //     designationName: 'Designation 2',
-  //     salaryGrade: 'Grade 2',
-  //     grossSalary: 2000,
-  //     fromDate: '2023-01-03',
-  //     toDate: '2023-01-04',
-  //   },
-  // ];
+
   empTransferHistoryList = signal<IEmpTransferHistory[]>([]);
   readonly salaryGrades = this.approvalWorkflowStore.salaryGrades;
   readonly organizationUnitTypes = this.organizationUnitTypeStore.organizationUnitTypes;
@@ -220,6 +199,21 @@ export class EmployeeTransferModal {
       }));
     }
   }
+  onSalaryGradeChange(id: string) {
+    if (!id || id === EMPTY_UUID) {
+      return;
+    }
+
+    const selectedGrade = this.salaryGrades().find((grade: any) => grade.id === id);
+
+    if (selectedGrade) {
+      this.transferModel.update((state) => ({
+        ...state,
+        salaryGradeId: id,
+        grossSalary: selectedGrade.grossSalary,
+      }));
+    }
+  }
   onSave() {
     this.empTransferForm().markAsTouched();
     if (!this.empTransferForm().valid()) {
@@ -233,7 +227,6 @@ export class EmployeeTransferModal {
     this.employeeService.transferEmployee(dataToSave).subscribe({
       next: (resp: any) => {
         this.alertService.success('Success', resp).then(() => {
-          // this.dialogRef.close(true);
           this.transferDataResource.reload();
         });
       },

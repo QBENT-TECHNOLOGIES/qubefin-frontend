@@ -164,7 +164,8 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="tag" class="w-5 h-5"></svg>
             </div>
-            <mat-select [formField]="empTransferForm.salaryGradeId">
+            <mat-select [formField]="empTransferForm.salaryGradeId"
+                (selectionChange)="onSalaryGradeChange($event.value)">
                 @for(item of salaryGrades(); track item.id){
                 <mat-option [value]="item.id">
                     {{item.name}}
