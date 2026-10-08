@@ -49,14 +49,21 @@ export class ResetPasswordModal {
       return;
     }
     const data = this.resetForm().value();
-    this.userService.resetPassword(data, this.userId).subscribe({
-      next: (resp: any) => {
-        this.alertService.success('Success', resp).then(() => {
-          this.dialogRef.close(true);
-        });
-      },
-      error: (err: any) => {},
-    });
+    this.alertService
+      .confirm('Confirmation', 'Are you sure you want to reset password?')
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.userService.resetPassword(data, this.userId).subscribe({
+            next: (resp: any) => {
+              this.alertService.confirm;
+              this.alertService.success('Success', resp).then(() => {
+                this.dialogRef.close(true);
+              });
+            },
+            error: (err: any) => {},
+          });
+        }
+      });
   }
   onCancel() {
     this.dialogRef.close(false);

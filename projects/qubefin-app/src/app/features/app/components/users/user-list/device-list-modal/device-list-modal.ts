@@ -37,13 +37,20 @@ export class DeviceListModal {
   unbindDevice(deviceId: string) {
     if (!deviceId || deviceId === EMPTY_UUID) return;
 
-    this.userService.unBindDevice(deviceId).subscribe({
-      next: () => {
-        this.alertService.success('Success', 'Device Unbind Successfully');
-        this.userStore.deviceResource.reload();
-      },
-      error: (err: any) => {},
-    });
+    this.alertService
+      .confirm('Confirmation', 'Are you sure you want to unbind this device?')
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.userService.unBindDevice(deviceId).subscribe({
+            next: () => {
+              this.alertService.success('Success', 'Device Unbind Successfully').then(() => {
+                this.userStore.deviceResource.reload();
+              });
+            },
+            error: (err: any) => {},
+          });
+        }
+      });
   }
   onCancel() {
     this.dialogRef.close(false);
