@@ -121,6 +121,17 @@
                                     {{ getMonthName(selectedMonth() ?? 0) }} {{ selectedYear() }}
                                 </span>
                             </div>
+                            @if (payrollStore.monthlyPayroll(); as payroll) {
+                            <div class="viewArea-badge"
+                                [ngClass]="payroll.isLocked ? 'bg-emerald-500/5! border-emerald-500/10!' : 'bg-amber-500/5! border-amber-500/10!'">
+                                <svg [lucideIcon]="payroll.isLocked ? 'lock' : 'pencil'" class="w-3 h-3"
+                                    [ngClass]="payroll.isLocked ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'"></svg>
+                                <span class="text-[10px] font-semibold uppercase tracking-wider"
+                                    [ngClass]="payroll.isLocked ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'">
+                                    {{ payroll.isLocked ? 'Locked' : 'Draft' }}
+                                </span>
+                            </div>
+                            }
                         </div>
                         <p class="viewArea-description">
                             View the monthly payroll breakdown and employee details.

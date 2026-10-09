@@ -88,6 +88,47 @@
                     </mat-error>
                 </mat-form-field>
 
+                <!-- Location: Country is fixed, State narrows the District list -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Country</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="earth" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [value]="country()?.id" [disabled]="true">
+                        @if (country(); as c) {
+                        <mat-option [value]="c.id">{{ c.name }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>State</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="map" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [value]="selectedStateId()" (valueChange)="onStateChange($event)"
+                        placeholder="Select state">
+                        @for (state of states(); track state.id) {
+                        <mat-option [value]="state.id">{{ state.name }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>District</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="organizationUnitForm.districtId" placeholder="Select district">
+                        @for (district of districts(); track district.id) {
+                        <mat-option [value]="district.id">{{ district.name }}</mat-option>
+                        }
+                    </mat-select>
+                    <mat-error class="cus-error">
+                        {{ organizationUnitForm.districtId().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
                 @if (isBranchSelected()) {
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Company</mat-label>

@@ -6,6 +6,7 @@ import {
   model,
   output,
   signal,
+  untracked,
   WritableSignal,
 } from '@angular/core';
 import { OrganizationUnitStore } from '../../stores/organization-unit-store';
@@ -33,6 +34,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { IComapnyList } from '../../models/company';
 import { CompanyService } from '../../services/company-service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
 
 export interface OrganizationUnitTypeParentField {
   id: string;
@@ -63,6 +65,23 @@ export class OrganizationUnitDetailComponent {
   organizationUnitTypeStore = inject(OrganizationUnitTypeStore);
   organizationUnitService = inject(OrganizationUnitService);
   alertService = inject(AlertService);
+  private readonly administrativeUnitStore = inject(AdministrativeUnitStore);
+
+  // Location: Country is fixed to India, the user picks State and then District (only District is saved).
+  readonly country = computed(
+    () =>
+      this.administrativeUnitStore
+        .administrativeUnitTree()
+        .find((x) => x.name.trim().toLowerCase() === 'india') ?? null,
+  );
+  readonly states = computed(() => this.country()?.children ?? []);
+  readonly selectedStateId = signal<string | null>(null);
+  readonly districts = computed(
+    () =>
+      this.states()
+        .find((x) => x.id === this.selectedStateId())
+        ?.children?.filter((x) => x.administrativeUnitTypeName === 'District') ?? [],
+  );
 
   companies = signal<IComapnyList[]>([]);
 
@@ -104,6 +123,7 @@ export class OrganizationUnitDetailComponent {
           parentName: '',
           isActive: true,
           companyId: '',
+          districtId: '',
           latitude: null,
           longitude: null,
           attendanceInTime: '',
@@ -115,6 +135,7 @@ export class OrganizationUnitDetailComponent {
           designations: [],
         });
         this.parentTypes.set([]);
+        this.selectedStateId.set(null);
         return;
       }
 
@@ -125,12 +146,23 @@ export class OrganizationUnitDetailComponent {
       this.organizationUnitModel.set({
         ...unit,
         companyId: unit.companyId ?? '',
+        districtId: unit.districtId ?? '',
         latitude: unit.latitude ?? null,
         longitude: unit.longitude ?? null,
         checkRadiusInMeter: unit.checkRadiusInMeter ?? null,
         attendanceInTime: this.formatTo12Hour(unit.attendanceInTime),
         attendanceOutTime: this.formatTo12Hour(unit.attendanceOutTime),
       });
+    });
+    // Select the State that owns the saved District once both the unit and the location tree are loaded.
+    effect(() => {
+      const districtId = this.organizationUnitForm.districtId().value();
+      if (!districtId) return;
+
+      const state = this.states().find((x) => x.children?.some((d) => d.id === districtId));
+      if (state && state.id !== untracked(this.selectedStateId)) {
+        this.selectedStateId.set(state.id);
+      }
     });
     effect(() => {
       const typeId = this.organizationUnitForm.organizationUnitTypeId().value();
@@ -182,6 +214,7 @@ export class OrganizationUnitDetailComponent {
     parentName: '',
     isActive: true,
     companyId: '',
+    districtId: '',
     latitude: null,
     longitude: null,
     attendanceInTime: '',
@@ -199,6 +232,7 @@ export class OrganizationUnitDetailComponent {
       message: 'Organization Unit Name cannot exceed 50 characters',
     });
     required(path.organizationUnitTypeId, { message: 'Organization Unit Type is required' });
+    required(path.districtId, { message: 'District is required' });
     required(path.companyId, {
       message: 'Company is required',
       when: () => this.isBranchSelected(),
@@ -232,6 +266,11 @@ export class OrganizationUnitDetailComponent {
   );
 
   parentTypes = signal<OrganizationUnitTypeParentField[]>([]);
+
+  onStateChange(stateId: string) {
+    this.selectedStateId.set(stateId);
+    this.organizationUnitModel.update((m) => ({ ...m, districtId: '' }));
+  }
 
   onParentChanged(index: number, value: string) {
     const fields = this.parentTypes();
@@ -361,6 +400,7 @@ export class OrganizationUnitDetailComponent {
     const dataToSave = this.organizationUnitForm().value() as any;
     dataToSave.parentId = this.parentTypes().at(-1)?.value() ?? null;
     dataToSave.companyId = dataToSave.companyId ? dataToSave.companyId : null;
+    dataToSave.districtId = dataToSave.districtId ? dataToSave.districtId : null;
     dataToSave.attendanceInTime = dataToSave.attendanceInTime
       ? this.formatTimeForApi(dataToSave.attendanceInTime)
       : null;

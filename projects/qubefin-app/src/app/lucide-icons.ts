@@ -1,5 +1,8 @@
 import {
   LucideAlertCircle,
+  LucideChevronsDownUp,
+  LucideChevronsUpDown,
+  LucideArrowUpDown,
   LucideArrowLeft,
   LucideBadgeCheck,
   LucideBadgeIndianRupee,
@@ -176,6 +179,9 @@ import {
 
 export const APP_ICONS = [
   LucideArrowLeft,
+  LucideChevronsDownUp,
+  LucideChevronsUpDown,
+  LucideArrowUpDown,
   LucideBadgeCheck,
   LucideBadgeIndianRupee,
   LucideBanknoteCheck,
@@ -363,6 +369,9 @@ export const APP_ICONS_MAP: Record<string, any> = {
   CalendarPlus: LucideCalendarPlus,
   ChevronDown: LucideChevronDown,
   ChevronRight: LucideChevronRight,
+  ChevronsDownUp: LucideChevronsDownUp,
+  ChevronsUpDown: LucideChevronsUpDown,
+  ArrowUpDown: LucideArrowUpDown,
   ChevronUp: LucideChevronUp,
   CircleQuestionMark: LucideCircleQuestionMark,
   Coins: LucideCoins,
