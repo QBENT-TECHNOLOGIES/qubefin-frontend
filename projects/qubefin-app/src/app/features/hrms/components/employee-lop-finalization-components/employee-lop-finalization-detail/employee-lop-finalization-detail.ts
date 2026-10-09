@@ -77,14 +77,17 @@ export class EmployeeLopFinalizationDetail {
   onSave() {
     const id = this.recordId();
     if (!id) return;
-
-    this.store.updateDetails(id, this.editingData()).subscribe({
-      next: (resp: any) => {
-        this.alertService.success('Success', resp).then(() => {
-          this.save.emit();
+    this.alertService.confirm('Confirmation', `Do you want to save changes?`).then((result) => {
+      if (result.isConfirmed) {
+        this.store.updateDetails(id, this.editingData()).subscribe({
+          next: (resp: any) => {
+            this.alertService.success('Success', resp).then(() => {
+              this.save.emit();
+            });
+          },
+          error: (err: any) => {},
         });
-      },
-      error: (err: any) => {},
+      }
     });
   }
 

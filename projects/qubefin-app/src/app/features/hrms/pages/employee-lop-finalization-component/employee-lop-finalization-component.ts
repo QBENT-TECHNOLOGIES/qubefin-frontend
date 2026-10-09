@@ -19,6 +19,7 @@ import { EmployeeLopFinalizationList } from '../../components/employee-lop-final
 import { EmployeeLopFinalizationDetail } from '../../components/employee-lop-finalization-components/employee-lop-finalization-detail/employee-lop-finalization-detail';
 import { CompanyStore } from '../../../global/stores/company-store';
 import { Sort } from '@angular/material/sort';
+import { ReportService } from '../../../Report/Service/report-service';
 
 @Component({
   selector: 'qfin-employee-lop-finalization-component',
@@ -52,6 +53,7 @@ export class EmployeeLopFinalizationComponent {
   readonly srchCompanyId = signal<string | null>(null);
   readonly srchOrganizationUnitId = signal<string | null>(null);
   readonly alertService = inject(AlertService);
+  readonly reportService = inject(ReportService);
 
   // ===========================
   // Component State
@@ -139,14 +141,54 @@ export class EmployeeLopFinalizationComponent {
   // Actions
   // ===========================
   protected onGenerate() {
-    this.store.generateMoralization().subscribe({
-      next: (resp: any) => {
-        this.alertService.success('Success', resp).then(() => {
-          this.store.refreshList();
+    this.alertService
+      .confirm('Confirmation', `Do you want to Generate?`, 'Yes', 'No')
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.store.generateMoralization().subscribe({
+            next: (resp: any) => {
+              this.alertService.success('Success', resp).then(() => {
+                this.store.refreshList();
+              });
+            },
+            error: (err: any) => {},
+          });
+        }
+      });
+  }
+  protected exportLop() {
+    const payload = {
+      year: this.year(),
+      month: this.month(),
+      status: this.status(),
+      searchText: this.searchQuery() || null,
+      companyId: this.srchCompanyId(),
+      organizationUnitId: this.srchOrganizationUnitId(),
+      sortOn: this.store.sortOn(),
+      sortDirection: this.store.sortDirection(),
+    };
+    if (payload.companyId == null) {
+      this.alertService.warning('Validation Error', 'Please select a company before exporting.');
+      return;
+    }
+
+    this.alertService
+      .confirm('Confirmation', `Do you want to export?`, 'Yes', 'No')
+      .then((result) => {
+        if (!result.isConfirmed) return;
+
+        this.reportService.exportLopFinalization(payload).subscribe({
+          next: (blob: Blob) => {
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `LOP_${this.year()}_${this.month()}.xlsx`;
+            link.click();
+            window.URL.revokeObjectURL(downloadUrl);
+          },
+          error: () => {},
         });
-      },
-      error: (err: any) => {},
-    });
+      });
   }
   protected onLock() {
     this.alertService

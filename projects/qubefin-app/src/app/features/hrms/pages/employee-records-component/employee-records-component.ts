@@ -15,7 +15,7 @@ import { Sort } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { CompanyStore } from '../../../global/stores/company-store';
@@ -29,6 +29,7 @@ import {
 } from '../../models/employee-record';
 import { EmployeeService } from '../../services/employee-service';
 import { EmployeeRecordsStore } from '../../stores/employee-records-store';
+import { ReportService } from '../../../Report/Service/report-service';
 
 @Component({
   selector: 'qfin-employee-records-component',
@@ -57,6 +58,9 @@ export class EmployeeRecordsComponent {
   readonly companyStore = inject(CompanyStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly dateAdapter = inject(DateAdapter<Date>);
+  readonly reportService = inject(ReportService);
+  readonly alertService = inject(AlertService);
+  private readonly datePipe = inject(DatePipe);
 
   readonly showFilterArea = signal<boolean>(true);
 
@@ -238,5 +242,42 @@ export class EmployeeRecordsComponent {
     }
     this.recordsStore.setSort(sort.active, sort.direction as 'asc' | 'desc');
   }
+  protected exportAttendanceHistory() {
+    const payload = {
+      companyId: this.recordsStore.companyId(),
+      fromDate: this.formatDate(this.fromDate()),
+      toDate: this.formatDate(this.toDate()),
+      status: '',
+      searchText: this.employeeSearchText().trim(),
+      sortOn: this.recordsStore.sortOn(),
+      sortDirection: this.recordsStore.sortDirection(),
+      pageIndex: this.recordsStore.pageIndex(),
+      pageSize: this.recordsStore.pageSize(),
+    };
+    if (payload.companyId == null) {
+      this.alertService.warning('Validation Error', 'Please select a company before exporting.');
+      return;
+    }
+    this.alertService
+      .confirm('Confirmation', `Do you want to export?`, 'Yes', 'No')
+      .then((result) => {
+        if (!result.isConfirmed) return;
 
+        this.reportService.exportAttendanceHistory(payload).subscribe({
+          next: (blob: Blob) => {
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `export_attendance.xlsx`;
+            link.click();
+            window.URL.revokeObjectURL(downloadUrl);
+          },
+          error: () => {},
+        });
+      });
+  }
+
+  private formatDate(date: Date | null): string | null {
+    return date ? this.datePipe.transform(date, 'yyyy-MM-dd') : null;
+  }
 }

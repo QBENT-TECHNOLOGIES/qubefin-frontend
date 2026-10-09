@@ -16,9 +16,8 @@
     </div>
 
     <div class="headerBtn-area">
-      <button type="button" (click)="toggleFilterArea()" class="filter-btn glass-input lift shine-sweep"
-        /* [ngClass]="{ 'bg-secondary-600! text-white!': showFilterArea() }" */
-        >
+
+      <button type="button" (click)="toggleFilterArea()" class="filter-btn glass-input lift shine-sweep">
         <svg lucideIcon="funnel" class="w-4 h-4"></svg>
         Filter
       </button>
@@ -39,7 +38,8 @@
         <svg [lucideIcon]="iconMap[tab.icon]" class="w-4 h-4"></svg>
         {{ tab.label }}
         @if (tabCounts()[tab.key]) {
-        <span class="inline-flex items-center justify-center min-w-[17px] h-[17px] px-1.5 rounded-full text-[10px] font-bold"
+        <span
+          class="inline-flex items-center justify-center min-w-[17px] h-[17px] px-1.5 rounded-full text-[10px] font-bold"
           [ngClass]="recordsStore.activeTab() === tab.key
               ? 'bg-white/25 text-white'
               : 'bg-yellow-500/15 text-yellow-600 dark:text-yellow-400'">
@@ -123,22 +123,20 @@
 
       <!-- date wise / all (attendance is always a bounded date range) -->
       @if (!isAttendanceTab()) {
-        <div class="flex items-center bg-slate-100 dark:bg-white/5 rounded-lg p-0.5 gap-0.5 shrink-0">
-          <button type="button" (click)="onSelectDateMode('range')"
-            class="h-8 px-3 rounded-md text-[12px] cursor-pointer transition-all"
-            [ngClass]="!isAllTime()
+      <div class="flex items-center bg-slate-100 dark:bg-white/5 rounded-lg p-0.5 gap-0.5 shrink-0">
+        <button type="button" (click)="onSelectDateMode('range')"
+          class="h-8 px-3 rounded-md text-[12px] cursor-pointer transition-all" [ngClass]="!isAllTime()
                 ? 'font-semibold text-secondary-600 dark:text-white bg-white dark:bg-slate-700 shadow-sm'
                 : 'font-medium text-slate-500 dark:text-slate-400'">
-            Date range
-          </button>
-          <button type="button" (click)="onSelectDateMode('all')"
-            class="h-8 px-3 rounded-md text-[12px] cursor-pointer transition-all"
-            [ngClass]="isAllTime()
+          Date range
+        </button>
+        <button type="button" (click)="onSelectDateMode('all')"
+          class="h-8 px-3 rounded-md text-[12px] cursor-pointer transition-all" [ngClass]="isAllTime()
                 ? 'font-semibold text-secondary-600 dark:text-white bg-white dark:bg-slate-700 shadow-sm'
                 : 'font-medium text-slate-500 dark:text-slate-400'">
-            All time
-          </button>
-        </div>
+          All time
+        </button>
+      </div>
       }
 
       <div class="flex items-center gap-2.5 shrink-0">
@@ -177,11 +175,21 @@
     </div>
     }
 
-    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/60 dark:bg-white/5 border border-white/70 dark:border-white/10">
-      <span class="text-[11px] text-slate-500 dark:text-slate-400">Showing</span>
-      <span class="text-[12px] font-semibold text-slate-800 dark:text-slate-100">
-        {{ rows().length }} of {{ recordsStore.totalRecords() }}
-      </span>
+    <div class="flex items-center gap-2.5 shrink-0">
+      @if (isAttendanceTab()) {
+      <button type="button" (click)="exportAttendanceHistory()" class="global-btn ripple-btn shine-sweep lift">
+        <svg lucideIcon="file-down" class="w-4 h-4"></svg>
+        Export History
+      </button>
+      }
+
+      <div
+        class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/60 dark:bg-white/5 border border-white/70 dark:border-white/10">
+        <span class="text-[11px] text-slate-500 dark:text-slate-400">Showing</span>
+        <span class="text-[12px] font-semibold text-slate-800 dark:text-slate-100">
+          {{ rows().length }} of {{ recordsStore.totalRecords() }}
+        </span>
+      </div>
     </div>
   </div>
 
@@ -206,9 +214,8 @@
       } @else {
       <qfin-employee-records-list [data]="rows()" [tabConfig]="activeTabConfig()"
         [totalRecords]="recordsStore.totalRecords()" [pageIndex]="recordsStore.pageIndex()"
-        [pageSize]="recordsStore.pageSize()" [selectedId]="selectedRecordId()"
-        [isCollapsed]="hasSelectedRecord()" (pageChanged)="pageChanged($event)"
-        (onViewDetail)="onView($event)" (sortChanged)="onSortChanged($event)">
+        [pageSize]="recordsStore.pageSize()" [selectedId]="selectedRecordId()" [isCollapsed]="hasSelectedRecord()"
+        (pageChanged)="pageChanged($event)" (onViewDetail)="onView($event)" (sortChanged)="onSortChanged($event)">
       </qfin-employee-records-list>
       }
     </div>

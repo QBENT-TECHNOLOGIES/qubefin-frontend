@@ -117,9 +117,7 @@ export class HolidayDetail {
 
   readonly visibleUnitIds = computed(() => this.orgUnitTree().flatMap((x) => x.unitIds));
   readonly isAllOrgUnitsSelected = computed(() => this.isNodeChecked(this.visibleUnitIds()));
-  readonly isSomeOrgUnitsSelected = computed(() =>
-    this.isNodePartial(this.visibleUnitIds()),
-  );
+  readonly isSomeOrgUnitsSelected = computed(() => this.isNodePartial(this.visibleUnitIds()));
 
   protected readonly formModel = signal<IHolidayDetail>(this.createEmptyModel());
 
@@ -261,27 +259,33 @@ export class HolidayDetail {
     };
 
     delete payload.orgUnits;
-
-    if (!this.isEditMode()) {
-      this.holidayService.createHoliday(payload).subscribe({
-        next: (resp: any) => {
-          this.alertService.success('Success', 'Holiday created successfully').then(() => {
-            this.holidayStore.refreshList();
-            this.save.emit();
-          });
-        },
+    this.alertService
+      .confirm('Confirmation', `Do you want to ${this.isEditMode() ? 'update' : 'create'} holiday?`)
+      .then((result) => {
+        if (result.isConfirmed) {
+          this;
+          if (!this.isEditMode()) {
+            this.holidayService.createHoliday(payload).subscribe({
+              next: (resp: any) => {
+                this.alertService.success('Success', 'Holiday created successfully').then(() => {
+                  this.holidayStore.refreshList();
+                  this.save.emit();
+                });
+              },
+            });
+          } else {
+            this.holidayService.updateHoliday(payload).subscribe({
+              next: (resp: any) => {
+                this.alertService.success('Success', 'Holiday updated successfully').then(() => {
+                  this.holidayStore.refreshList();
+                  this.holidayStore.refreshDetail();
+                  this.save.emit();
+                });
+              },
+            });
+          }
+        }
       });
-    } else {
-      this.holidayService.updateHoliday(payload).subscribe({
-        next: (resp: any) => {
-          this.alertService.success('Success', 'Holiday updated successfully').then(() => {
-            this.holidayStore.refreshList();
-            this.holidayStore.refreshDetail();
-            this.save.emit();
-          });
-        },
-      });
-    }
   }
 
   protected onCancelClicked() {

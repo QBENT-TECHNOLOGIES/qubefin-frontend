@@ -241,28 +241,36 @@ export class SurveyCommitteeUnitDetail {
     if (!dataToSave.employeeId?.trim()) {
       return;
     }
+    this.alertService
+      .confirm(
+        'Confirmation',
+        `Do you want to ${this.isEditMode() ? 'update' : 'create'} this survey committee?`,
+      )
+      .then((result) => {
+        if (result.isConfirmed) {
+          if (!this.isEditMode()) {
+            this.surveyCommitteeService.create(dataToSave).subscribe({
+              next: (resp: any) => {
+                this.alertService.success('Success', resp).then(() => {
+                  this.surveyCommitteeStore.refreshList();
+                  this.save.emit();
+                });
+              },
+            });
+            return;
+          }
 
-    if (!this.isEditMode()) {
-      this.surveyCommitteeService.create(dataToSave).subscribe({
-        next: (resp: any) => {
-          this.alertService.success('Success', resp).then(() => {
-            this.surveyCommitteeStore.refreshList();
-            this.save.emit();
+          this.surveyCommitteeService.update(payLoad).subscribe({
+            next: (resp: any) => {
+              this.alertService.success('Success', resp).then(() => {
+                this.surveyCommitteeStore.refreshList();
+                this.surveyCommitteeStore.refreshDetail();
+                this.save.emit();
+              });
+            },
           });
-        },
+        }
       });
-      return;
-    }
-
-    this.surveyCommitteeService.update(payLoad).subscribe({
-      next: (resp: any) => {
-        this.alertService.success('Success', resp).then(() => {
-          this.surveyCommitteeStore.refreshList();
-          this.surveyCommitteeStore.refreshDetail();
-          this.save.emit();
-        });
-      },
-    });
   }
   // ===========================
   // Helpers
