@@ -9,12 +9,9 @@ export class HrmsReportService {
   httpClient = inject(HttpClient);
 
   getInterviewLetter(candidateId: string) {
-    return this.httpClient.get(
-      `${ApiPaths.REPORT}/interview/interview-letter/${candidateId}`,
-      {
-        responseType: 'blob',
-      },
-    );
+    return this.httpClient.get(`${ApiPaths.REPORT}/interview/interview-letter/${candidateId}`, {
+      responseType: 'blob',
+    });
   }
 
   getInterviewPanelAcknowledgement(candidateId: string) {
@@ -33,12 +30,9 @@ export class HrmsReportService {
   }
 
   getAppointmentLetter(candidateId: string) {
-    return this.httpClient.get(
-      `${ApiPaths.REPORT}/interview/appointment-letter/${candidateId}`,
-      {
-        responseType: 'blob',
-      },
-    );
+    return this.httpClient.get(`${ApiPaths.REPORT}/interview/appointment-letter/${candidateId}`, {
+      responseType: 'blob',
+    });
   }
 
   getJoiningLetter(candidateId: string) {
@@ -60,18 +54,15 @@ export class HrmsReportService {
   }
 
   /** Blank job application form for a company - given to a candidate before they are created. */
-  getBlankJobApplication(companyId: string) {
-    return this.httpClient.get(`${ApiPaths.REPORT}/interview/jobapplication-form/blank/${companyId}`, {
+  getBlankJobApplication() {
+    return this.httpClient.get(`${ApiPaths.REPORT}/interview/jobapplication-form/blank`, {
       responseType: 'blob',
     });
   }
 
   getJobApplication(candidateId: string) {
-    return this.httpClient.get(
-      `${ApiPaths.REPORT}/interview/jobapplication-form/${candidateId}`,
-      {
-        responseType: 'blob',
-      },
-    );
+    return this.httpClient.get(`${ApiPaths.REPORT}/interview/jobapplication-form/${candidateId}`, {
+      responseType: 'blob',
+    });
   }
 }

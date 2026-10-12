@@ -168,26 +168,23 @@ export class CandidateComponent {
     this.dateAdapter.setLocale('en-GB');
   }
   /** Blank job application form of the chosen company, opened in the document viewer (which offers download). */
-  protected onDownloadJobApplication(company: { id: string; name: string }) {
+  protected onDownloadJobApplication() {
     if (this.downloadingJobApplication()) return;
 
     this.downloadingJobApplication.set(true);
-    this.hrReportService.getBlankJobApplication(company.id).subscribe({
+    this.hrReportService.getBlankJobApplication().subscribe({
       next: (blob) => {
         this.downloadingJobApplication.set(false);
         this.documentModalService.open({
           url: URL.createObjectURL(blob),
-          documentName: `job_application_${company.name.toLowerCase().replace(/\s+/g, '_')}`,
+          documentName: `job_application`,
           extension: 'pdf',
           downloadAccess: true,
         });
       },
       error: () => {
         this.downloadingJobApplication.set(false);
-        this.alertService.error(
-          'Failed',
-          `Unable to download the job application for ${company.name}.`,
-        );
+        this.alertService.error('Failed', `Unable to download the job application.`);
       },
     });
   }
