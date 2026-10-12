@@ -23,6 +23,7 @@ import { MatSortModule, Sort } from '@angular/material/sort';
 import { GrossSalaryModal } from '../gross-salary-modal/gross-salary-modal';
 import { MatDialog } from '@angular/material/dialog';
 import { AttendanceCalendarModal } from '../../attendance-history-components/attendance-calendar-modal/attendance-calendar-modal';
+import { EmployeeDocumentsModal } from '../employee-documents-modal/employee-documents-modal';
 @Component({
   selector: 'qfin-employee-component-list',
   imports: [
@@ -74,6 +75,13 @@ export class EmployeeComponentList {
   }
   onSortChange(sort: Sort) {
     this.sortChanged.emit(sort);
+  }
+  openDocumentsModal(id: string) {
+    this.dialog.open(EmployeeDocumentsModal, {
+      data: { id: id },
+      maxWidth: '95vw',
+      panelClass: 'glass-modal',
+    });
   }
   openGradeModal(id: string) {
     this.dialog.open(GrossSalaryModal, {

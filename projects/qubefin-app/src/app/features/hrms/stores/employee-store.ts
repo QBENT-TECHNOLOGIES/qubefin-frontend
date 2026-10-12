@@ -7,6 +7,7 @@ import {
   IEmployeeByOrgUnit,
   KycDocument,
   Utility,
+  IEmployeeDocuments,
 } from '../models/employee-detail';
 
 @Injectable({
@@ -15,6 +16,7 @@ import {
 export class EmployeeStore {
   // --- Detail State ---
   private readonly employeeComponentId = signal<string | undefined>(undefined);
+  private readonly documentEmployeeId = signal<string | undefined>(undefined);
   // 1. Keep track of the active step index
 
   // --- Org Unit State ---
@@ -87,6 +89,13 @@ export class EmployeeStore {
   );
   readonly employeeInfoComponentError = computed(() => this.employeeInfoComponentResource.error());
 
+  readonly documentsByEmpIdResource = httpResource<IEmployeeDocuments[]>(() => {
+    const id = this.documentEmployeeId();
+    if (!id || id === EMPTY_UUID) return undefined;
+    return `${ApiPaths.HRMS}/employees/documents/${id}`;
+  });
+
+  readonly documentsByEmpId = computed(() => this.documentsByEmpIdResource.value() ?? []);
   // // --- Personal Resource ---
   // private readonly personalInfoComponentResource = httpResource<{ personalInfo: IEmployeePersonalInfo }>(() => {
   //   const id = this.employeeComponentId();
@@ -141,6 +150,10 @@ export class EmployeeStore {
   setEmployeeComponentId(id: string | undefined) {
     if (this.employeeComponentId() === id) return;
     this.employeeComponentId.set(id);
+  }
+  setDocumentEmployeeId(id: string | undefined) {
+    if (this.documentEmployeeId() === id) return;
+    this.documentEmployeeId.set(id);
   }
   setSearchJoiningDate(date: string | null) {
     this.srchJoiningDate.set(date);

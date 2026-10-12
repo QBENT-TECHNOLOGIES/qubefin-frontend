@@ -745,3 +745,9 @@ export interface ISalaryPreviewComponent {
   salaryComponentName: string;
   amount: number;
 }
+export interface IEmployeeDocuments {
+  id: string;
+  documentName?: string;
+  fileName?: string;
+  fileUrl?: string;
+}
