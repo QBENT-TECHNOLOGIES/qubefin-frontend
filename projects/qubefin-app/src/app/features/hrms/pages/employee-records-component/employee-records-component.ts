@@ -243,21 +243,24 @@ export class EmployeeRecordsComponent {
     this.recordsStore.setSort(sort.active, sort.direction as 'asc' | 'desc');
   }
   protected exportAttendanceHistory() {
-    const payload = {
-      companyId: this.recordsStore.companyId(),
-      fromDate: this.formatDate(this.fromDate()),
-      toDate: this.formatDate(this.toDate()),
-      status: '',
-      searchText: this.employeeSearchText().trim(),
-      sortOn: this.recordsStore.sortOn(),
-      sortDirection: this.recordsStore.sortDirection(),
-      pageIndex: this.recordsStore.pageIndex(),
-      pageSize: this.recordsStore.pageSize(),
-    };
-    if (payload.companyId == null) {
+    const companyId = this.recordsStore.companyId();
+
+    if (companyId == null) {
       this.alertService.warning('Validation Error', 'Please select a company before exporting.');
       return;
     }
+    const payload = {
+      companyId,
+      fromDate: this.formatDate(this.fromDate()),
+      toDate: this.formatDate(this.toDate()),
+      searchEmployeeId: this.selectedEmployee()?.id ?? null,
+      searchText: '',
+      status: this.recordsStore.statusFilter(),
+      sortOn: this.recordsStore.sortOn(),
+      sortDirection: this.recordsStore.sortDirection(),
+      pageIndex: 0,
+      pageSize: 1,
+    };
     this.alertService
       .confirm('Confirmation', `Do you want to export?`, 'Yes', 'No')
       .then((result) => {
