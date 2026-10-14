@@ -97,6 +97,9 @@ export class EmployeeRecordsList {
       case 'Pending':
         return 'bg-yellow-500/12 text-yellow-600 dark:text-yellow-400';
 
+      case 'On Leave':
+        return 'bg-violet-500/10 text-violet-600 dark:text-violet-400';
+
       case 'Late Entry':
       case 'Early Exit':
       case 'Late Entry & Early Exit':
@@ -125,6 +128,9 @@ export class EmployeeRecordsList {
 
       case 'Pending':
         return 'bg-yellow-500';
+
+      case 'On Leave':
+        return 'bg-violet-500';
 
       case 'Late Entry':
       case 'Early Exit':
