@@ -509,6 +509,7 @@ export interface IEmployeeAddressInfo {
   administrativeUnitId: string; // Guid? maps to nullable string
   policeStationId: string; // Guid? maps to nullable string
   postOfficeId: string; // Guid? maps to nullable string
+  postOfficeName: string; // entered manually when no post office is found for the pin code
   pinCode: string;
   ownerShipOfHouse: string;
   durationOfStayInMonths: number | null; // int? maps to nullable number
@@ -520,6 +521,7 @@ export class EmployeeAddressInfo {
   administrativeUnitId = '';
   policeStationId = '';
   postOfficeId = '';
+  postOfficeName = '';
   pinCode = '';
   ownerShipOfHouse = '';
   durationOfStayInMonths = null;
@@ -720,6 +722,7 @@ export interface IEmpTransfer {
   designationId: string;
   salaryGradeId: string;
   grossSalary: number | null;
+  effectiveFrom: Date | null;
 }
 export interface IEmpGrossChangeHistory {
   id: string;
