@@ -17,6 +17,8 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
+    // Token missing or expired: clear tokens and reset login state before redirecting
+    this.authStore.logout();
     this.router.navigate(['/public/auth/login']);
     return false;
   }
