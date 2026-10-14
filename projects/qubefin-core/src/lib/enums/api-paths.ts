@@ -5,4 +5,5 @@ export enum ApiPaths {
   HRMS = 'hrms-api',
   PAYROLL = 'payroll-api',
   REPORT = 'report-api',
+  TRACKING = 'tracking-api',
 }

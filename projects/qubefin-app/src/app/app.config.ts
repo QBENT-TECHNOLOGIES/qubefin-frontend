@@ -11,11 +11,13 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { provideLucideIcons } from '@lucide/angular';
 import { APP_ICONS } from './lucide-icons';
 import { HttpErrorInterceptor } from './interceptors/http-error.interceptor';
+import { trackingMockInterceptor } from './features/tracking/mocks/tracking-mock.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(withInterceptors([AuthInterceptor, HttpErrorInterceptor])),
+    // trackingMockInterceptor must stay last; it only answers tracking-api calls when environment.useTrackingMocks is true.
+    provideHttpClient(withInterceptors([AuthInterceptor, HttpErrorInterceptor, trackingMockInterceptor])),
     {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
       useValue: { appearance: 'fill' },

@@ -175,6 +175,22 @@ import {
   LucidePercent,
   LucideSmartphone,
   LucideUnlink,
+  // Tracking module
+  LucideCamera,
+  LucideCircleX,
+  LucideHourglass,
+  LucideInfo,
+  LucideLocateFixed,
+  LucideLocateOff,
+  LucideMapPinOff,
+  LucideNavigation,
+  LucidePause,
+  LucidePlay,
+  LucideRoute,
+  LucideSatellite,
+  LucideTarget,
+  LucideTimer,
+  LucideListChecks,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -353,6 +369,22 @@ export const APP_ICONS = [
   LucidePercent,
   LucideSmartphone,
   LucideUnlink,
+  // Tracking module
+  LucideCamera,
+  LucideCircleX,
+  LucideHourglass,
+  LucideInfo,
+  LucideLocateFixed,
+  LucideLocateOff,
+  LucideMapPinOff,
+  LucideNavigation,
+  LucidePause,
+  LucidePlay,
+  LucideRoute,
+  LucideSatellite,
+  LucideTarget,
+  LucideTimer,
+  LucideListChecks,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -530,4 +562,20 @@ export const APP_ICONS_MAP: Record<string, any> = {
   Percent: LucidePercent,
   Smartphone: LucideSmartphone,
   Unlink: LucideUnlink,
+  // Tracking module
+  Camera: LucideCamera,
+  CircleX: LucideCircleX,
+  Hourglass: LucideHourglass,
+  Info: LucideInfo,
+  LocateFixed: LucideLocateFixed,
+  LocateOff: LucideLocateOff,
+  MapPinOff: LucideMapPinOff,
+  Navigation: LucideNavigation,
+  Pause: LucidePause,
+  Play: LucidePlay,
+  Route: LucideRoute,
+  Satellite: LucideSatellite,
+  Target: LucideTarget,
+  Timer: LucideTimer,
+  ListChecks: LucideListChecks,
 };

@@ -1,0 +1,167 @@
+<div class="page-container trk-form">
+    <div class="trk-kpi-row">
+        <div class="trk-kpi glass is-static" [style.--trk-color]="'#E11D48'">
+            <span class="trk-kpi-icon"><svg lucideIcon="users" class="w-5 h-5"></svg></span>
+            <span><span class="trk-kpi-value">{{ store.totalRecords() }}</span><span class="trk-kpi-label">Overdue customers</span></span>
+        </div>
+        <div class="trk-kpi glass is-static" [style.--trk-color]="'#D97706'">
+            <span class="trk-kpi-icon"><svg lucideIcon="indian-rupee" class="w-5 h-5"></svg></span>
+            <span><span class="trk-kpi-value">₹{{ store.totalOverdueAmount() | number }}</span><span class="trk-kpi-label">Total overdue (filtered)</span></span>
+        </div>
+        <div class="trk-kpi glass is-static" [style.--trk-color]="'#2563EB'">
+            <span class="trk-kpi-icon"><svg lucideIcon="check-square" class="w-5 h-5"></svg></span>
+            <span><span class="trk-kpi-value">{{ selectedCount() }}</span><span class="trk-kpi-label">Selected · ₹{{ selectedAmount() | number }}</span></span>
+        </div>
+    </div>
+
+    <div class="header-group">
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+            <svg lucideIcon="info" class="w-4 h-4"></svg>
+            Source: Loan Status Report. Only customers with a geo-tagged home and no open visit can be selected.
+        </div>
+        <div class="headerBtn-area">
+            @if (selectedCount()) {
+            <button type="button" class="trk-link-btn" (click)="clearSelection()">Clear selection</button>
+            }
+            <button class="global-btn shine-sweep lift" [disabled]="!selectedCount()" [class.opacity-50]="!selectedCount()" (click)="assign()">
+                <svg lucideIcon="user-check" class="w-4 h-4"></svg> Assign follow-up ({{ selectedCount() }})
+            </button>
+        </div>
+    </div>
+
+    <div class="mainCard-area glass w-full">
+        <div class="filter-area">
+            <div class="filter-container flex-wrap!">
+                <div class="flex-1 min-w-[240px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Search</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="search" class="w-5 h-5"></svg></div>
+                        <input matInput [ngModel]="searchDraft()" (ngModelChange)="searchDraft.set($event)" (keydown.enter)="applySearch()"
+                            (blur)="applySearch()" placeholder="Customer, loan account or group">
+                    </mat-form-field>
+                </div>
+                <div class="min-w-[160px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Branch</mat-label>
+                        <mat-select [value]="store.branchId()" (valueChange)="store.setFilter(store.branchId, $event)">
+                            <mat-option [value]="null">All branches</mat-option>
+                            @for (b of lookup.branches(); track b.id) { <mat-option [value]="b.id">{{ b.name }}</mat-option> }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="min-w-[150px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Days past due</mat-label>
+                        <mat-select [value]="store.minDpd()" (valueChange)="store.setFilter(store.minDpd, $event)">
+                            @for (b of dpdBuckets; track b.label) { <mat-option [value]="b.value">{{ b.label }}</mat-option> }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <label class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 cursor-pointer select-none">
+                    <input type="checkbox" class="accent-primary-500 w-4 h-4" [checked]="store.onlyUnassigned()"
+                        (change)="store.setFilter(store.onlyUnassigned, $any($event.target).checked)">
+                    Without an open visit
+                </label>
+            </div>
+        </div>
+
+        @if (store.error()) {
+        <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
+            <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg> Unable to load overdue customers.
+        </div>
+        } @else {
+        <div class="overflow-auto scroll-thin">
+            <table mat-table [dataSource]="store.customers()" matSort [matSortActive]="store.sortOn()"
+                [matSortDirection]="store.sortDirection()" matSortDisableClear (matSortChange)="onSort($event)" class="w-full table">
+
+                <ng-container matColumnDef="select">
+                    <th mat-header-cell *matHeaderCellDef class="w-10">
+                        <input type="checkbox" class="accent-primary-500 w-4 h-4 cursor-pointer" [checked]="allSelected()"
+                            (change)="toggleAll($any($event.target).checked)" aria-label="Select all on this page">
+                    </th>
+                    <td mat-cell *matCellDef="let c" class="w-10">
+                        <input type="checkbox" class="accent-primary-500 w-4 h-4 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                            [checked]="selected().has(c.id)" [disabled]="!canAssign(c)" (change)="toggle(c, $any($event.target).checked)"
+                            [matTooltip]="!c.homeLocation ? 'Home not geo-tagged yet' : hasOpenFollowUp(c) ? 'Already has an open visit' : ''"
+                            [attr.aria-label]="'Select ' + c.customerName">
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="customerName">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Customer</th>
+                    <td mat-cell *matCellDef="let c" class="px-3 py-2">
+                        <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200">{{ c.customerName }}</p>
+                        <p class="text-[11px] text-slate-400 tabular-nums">{{ c.loanAccountNo }}{{ c.coBorrowerName ? ' · Co: ' + c.coBorrowerName : '' }}</p>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="group">
+                    <th mat-header-cell *matHeaderCellDef>Group / Branch</th>
+                    <td mat-cell *matCellDef="let c" class="px-3 py-2">
+                        <p class="text-[13px] dark:text-slate-300">{{ c.groupName ?? '–' }}</p>
+                        <p class="text-[11px] text-slate-400">{{ c.branchName }}</p>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="overdueAmount">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Overdue</th>
+                    <td mat-cell *matCellDef="let c" class="px-3 py-2 tabular-nums">
+                        <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200">₹{{ c.overdueAmount | number }}</p>
+                        <p class="text-[11px] text-slate-400">Last paid {{ c.lastPaymentDate ? (c.lastPaymentDate | date: 'dd MMM') : '–' }}</p>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="dpd">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>DPD</th>
+                    <td mat-cell *matCellDef="let c">
+                        <span class="text-xs font-bold px-2 py-0.5 rounded-md tabular-nums" [ngClass]="dpdClass(c.dpd)">{{ c.dpd }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="home">
+                    <th mat-header-cell *matHeaderCellDef>Home geo-tag</th>
+                    <td mat-cell *matCellDef="let c">
+                        @if (c.homeLocation) {
+                        <a class="trk-link text-xs flex items-center gap-1" [href]="googleMapsLink(c.homeLocation)" target="_blank" rel="noopener">
+                            <svg lucideIcon="map-pin-house" class="w-3.5 h-3.5"></svg> Tagged
+                        </a>
+                        } @else {
+                        <span class="text-xs text-amber-600 flex items-center gap-1"><svg lucideIcon="map-pin-off" class="w-3.5 h-3.5"></svg> Missing</span>
+                        }
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="followUp">
+                    <th mat-header-cell *matHeaderCellDef>Latest follow-up</th>
+                    <td mat-cell *matCellDef="let c" class="px-3 py-2">
+                        @if (c.followUp; as f) {
+                        <div class="flex items-center gap-2">
+                            <qfin-trk-chip [tone]="TASK_STATUS[f.status]" [small]="true" />
+                            <a class="trk-link text-[11px] tabular-nums" [routerLink]="['/secure/tracking/tasks']" [queryParams]="{ task: f.taskId }">{{ f.taskNo }}</a>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-0.5">{{ f.assigneeName }} ({{ f.assigneeRole }}) · {{ f.scheduledDate | date: 'dd MMM' }}</p>
+                        @if (f.outcome; as o) {
+                        <p class="text-[11px] font-medium mt-0.5" [class.text-emerald-600]="o.paid" [class.text-amber-600]="!o.paid">
+                            {{ o.paid ? 'Paid ₹' + (o.amountCollected | number) : (o.ptpDate ? 'PTP ' + (o.ptpDate | date: 'dd MMM') : 'Not paid') }}
+                        </p>
+                        }
+                        } @else {
+                        <span class="text-xs text-slate-400">Not assigned</span>
+                        }
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: columns" [class.trk-row-selected]="selected().has(row.id)"></tr>
+                <tr class="mat-row" *matNoDataRow>
+                    <td class="mat-cell px-8 py-6 text-center! text-slate-400 border-b-0" [attr.colspan]="columns.length">
+                        {{ store.loading() ? 'Loading…' : 'No overdue customers match these filters.' }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <mat-paginator [length]="store.totalRecords()" [pageSize]="store.pageSize()" [pageIndex]="store.pageIndex()"
+            [pageSizeOptions]="[10, 25, 50]" (page)="onPage($event)" showFirstLastButtons />
+        }
+    </div>
+</div>

@@ -1,0 +1,147 @@
+<div class="page-container trk-form">
+    <div class="trk-alert-cards">
+        @for (c of typeCards(); track c.type) {
+        <button type="button" class="trk-kpi glass" [class.is-active]="store.type() === c.type" [style.--trk-color]="c.tone.color"
+            (click)="filterType(c.type)">
+            <span class="trk-kpi-icon"><svg [lucideIcon]="c.tone.icon" class="w-5 h-5"></svg></span>
+            <span><span class="trk-kpi-value">{{ c.count }}</span><span class="trk-kpi-label">{{ c.tone.label }}</span></span>
+        </button>
+        }
+    </div>
+
+    <div class="mainCard-area glass w-full">
+        <div class="filter-area">
+            <div class="filter-container flex-wrap!">
+                <div class="min-w-[150px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Status</mat-label>
+                        <mat-select [value]="store.status()" (valueChange)="store.setFilter(store.status, $event)">
+                            <mat-option [value]="null">All</mat-option>
+                            @for (o of statusOptions; track o.value) { <mat-option [value]="o.value">{{ o.label }}</mat-option> }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="min-w-[170px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Type</mat-label>
+                        <mat-select [value]="store.type()" (valueChange)="store.setFilter(store.type, $event)">
+                            <mat-option [value]="null">All types</mat-option>
+                            @for (o of typeOptions; track o.value) { <mat-option [value]="o.value">{{ o.label }}</mat-option> }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="min-w-[140px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Severity</mat-label>
+                        <mat-select [value]="store.severity()" (valueChange)="store.setFilter(store.severity, $event)">
+                            <mat-option [value]="null">Any</mat-option>
+                            @for (o of severityOptions; track o.value) { <mat-option [value]="o.value">{{ o.label }}</mat-option> }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="min-w-[150px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Branch</mat-label>
+                        <mat-select [value]="store.branchId()" (valueChange)="store.setFilter(store.branchId, $event)">
+                            <mat-option [value]="null">All branches</mat-option>
+                            @for (b of lookup.branches(); track b.id) { <mat-option [value]="b.id">{{ b.name }}</mat-option> }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="min-w-[150px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>From</mat-label>
+                        <input matInput type="date" [ngModel]="store.fromDate()" (ngModelChange)="store.setFilter(store.fromDate, $event || null)">
+                    </mat-form-field>
+                </div>
+                <div class="min-w-[150px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>To</mat-label>
+                        <input matInput type="date" [ngModel]="store.toDate()" (ngModelChange)="store.setFilter(store.toDate, $event || null)">
+                    </mat-form-field>
+                </div>
+                <span class="text-xs text-slate-500 ml-auto">{{ totalOpen() }} open · refreshes every 30 s</span>
+            </div>
+        </div>
+
+        <div class="overflow-auto scroll-thin">
+            <table mat-table [dataSource]="store.alerts()" class="w-full table">
+                <ng-container matColumnDef="severity">
+                    <th mat-header-cell *matHeaderCellDef class="w-10"></th>
+                    <td mat-cell *matCellDef="let a">
+                        <span class="trk-sev" [style.--trk-color]="ALERT_SEVERITY[a.severity].color" [matTooltip]="ALERT_SEVERITY[a.severity].label + ' severity'">
+                            <svg [lucideIcon]="ALERT_SEVERITY[a.severity].icon" class="w-4 h-4"></svg>
+                        </span>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="type">
+                    <th mat-header-cell *matHeaderCellDef>Rule</th>
+                    <td mat-cell *matCellDef="let a"><qfin-trk-chip [tone]="ALERT_TYPE[a.type]" [small]="true" /></td>
+                </ng-container>
+                <ng-container matColumnDef="employee">
+                    <th mat-header-cell *matHeaderCellDef>Employee</th>
+                    <td mat-cell *matCellDef="let a" class="px-3 py-2 whitespace-nowrap">
+                        <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200">{{ a.employeeName }}</p>
+                        <p class="text-[11px] text-slate-400">{{ a.role }} · {{ a.branchName }}</p>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="message">
+                    <th mat-header-cell *matHeaderCellDef>Details</th>
+                    <td mat-cell *matCellDef="let a" class="px-3 py-2 max-w-[420px]">
+                        <p class="text-[13px] text-slate-600 dark:text-slate-300">{{ a.message }}</p>
+                        <p class="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
+                            @if (measured(a); as m) { <span class="font-semibold text-slate-500">{{ m }}</span> · }
+                            Sent to {{ a.notifiedTo.join(', ') }}
+                            @if (a.location) {
+                            · <a class="trk-link" [href]="googleMapsLink(a.location)" target="_blank" rel="noopener">map</a>
+                            }
+                        </p>
+                        @if (a.resolutionRemarks) {
+                        <p class="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5">✓ {{ a.resolutionRemarks }} — {{ a.resolvedByName }}</p>
+                        }
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="raisedAt">
+                    <th mat-header-cell *matHeaderCellDef>Raised</th>
+                    <td mat-cell *matCellDef="let a" class="whitespace-nowrap text-[12px] text-slate-500 tabular-nums">{{ a.raisedAt | date: 'dd MMM, hh:mm a' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>Status</th>
+                    <td mat-cell *matCellDef="let a">
+                        <qfin-trk-chip [tone]="ALERT_STATUS[a.status]" [small]="true" />
+                        @if (a.acknowledgedByName && a.status === 'Acknowledged') {
+                        <p class="text-[10px] text-slate-400 mt-0.5">by {{ a.acknowledgedByName }}</p>
+                        }
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef class="text-right!"></th>
+                    <td mat-cell *matCellDef="let a">
+                        <div class="flex justify-end gap-1">
+                            @if (a.status === 'Open') {
+                            <button type="button" class="trk-icon-btn" matTooltip="Acknowledge" (click)="acknowledge(a)">
+                                <svg lucideIcon="eye" class="w-4 h-4"></svg>
+                            </button>
+                            }
+                            @if (a.status !== 'Resolved') {
+                            <button type="button" class="trk-icon-btn text-emerald-600!" matTooltip="Resolve" (click)="resolve(a)">
+                                <svg lucideIcon="circle-check" class="w-4 h-4"></svg>
+                            </button>
+                            }
+                        </div>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: columns" [ngClass]="{ 'trk-row-open': row.status === 'Open' }"></tr>
+                <tr class="mat-row" *matNoDataRow>
+                    <td class="mat-cell px-8 py-6 text-center! text-slate-400 border-b-0" [attr.colspan]="columns.length">
+                        {{ store.loading() ? 'Loading…' : 'No alerts match these filters.' }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <mat-paginator [length]="store.totalRecords()" [pageSize]="store.pageSize()" [pageIndex]="store.pageIndex()"
+            [pageSizeOptions]="[10, 25, 50]" (page)="onPage($event)" showFirstLastButtons />
+    </div>
+</div>

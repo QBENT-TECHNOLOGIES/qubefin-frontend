@@ -1,0 +1,128 @@
+<div class="space-y-5">
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">Task details</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Task type</mat-label>
+                <mat-select [formField]="taskForm.type" (valueChange)="onTypeChange($event)">
+                    @for (o of typeOptions; track o.value) {
+                    <mat-option [value]="o.value">{{ o.label }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
+                <mat-label>Title</mat-label>
+                <input matInput [formField]="taskForm.title" placeholder="What needs to be done">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Priority</mat-label>
+                <mat-select [formField]="taskForm.priority">
+                    @for (o of priorityOptions; track o.value) {
+                    <mat-option [value]="o.value">{{ o.label }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
+                <mat-label>Assign to</mat-label>
+                <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="user" class="w-5 h-5"></svg></div>
+                <mat-select [formField]="taskForm.assigneeId" placeholder="Select employee">
+                    @for (g of lookup.officersByRole(); track g.role) {
+                    <mat-optgroup [label]="ROLE_LABEL[g.role] + 's'">
+                        @for (o of g.officers; track o.id) {
+                        <mat-option [value]="o.id">{{ o.name }} · {{ o.branchName }}</mat-option>
+                        }
+                    </mat-optgroup>
+                    }
+                </mat-select>
+                @if (taskForm.assigneeId().touched() && taskForm.assigneeId().invalid()) {
+                <mat-error>{{ taskForm.assigneeId().errors()?.[0]?.message }}</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Date</mat-label>
+                <input matInput type="date" [min]="today" [formField]="taskForm.scheduledDate">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Due by</mat-label>
+                <input matInput type="time" [formField]="taskForm.dueTime">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-4">
+                <mat-label>Instructions (optional)</mat-label>
+                <textarea matInput rows="2" [formField]="taskForm.description"
+                    placeholder="Anything the employee should know before the visit"></textarea>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">Where</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-1"></div>
+        <p class="text-xs text-slate-500 mb-6">Arrival and the completion photo are checked against this geo-tag.</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Location type</mat-label>
+                <mat-select [value]="targetKind()" (valueChange)="onKindChange($event)">
+                    @for (o of kindOptions; track o.value) {
+                    <mat-option [value]="o.value">{{ o.label }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+
+            @if (targetKind() !== 'Custom') {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
+                <mat-label>Search geo-tagged place</mat-label>
+                <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="search" class="w-5 h-5"></svg></div>
+                <input matInput [value]="targetSearch()" (input)="targetSearch.set($any($event.target).value); target.set(null)"
+                    [matAutocomplete]="placeAuto" autocomplete="off" placeholder="Name, loan account or group code">
+                <mat-autocomplete #placeAuto="matAutocomplete" [displayWith]="displayPlace" (optionSelected)="selectPlace($event)">
+                    @for (p of places(); track p.id) {
+                    <mat-option [value]="p">
+                        <span class="text-[13px]">{{ p.name }}</span>
+                        <span class="text-[11px] text-slate-400"> · {{ p.refCode }} · {{ p.branchName }}</span>
+                    </mat-option>
+                    } @empty {
+                    <mat-option disabled>{{ placesLoading() ? 'Searching…' : 'No geo-tagged match' }}</mat-option>
+                    }
+                </mat-autocomplete>
+            </mat-form-field>
+            } @else {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Place name</mat-label>
+                <input matInput [value]="customName()" (input)="customName.set($any($event.target).value)"
+                    placeholder="e.g. Taherpur market">
+            </mat-form-field>
+            <button type="button" class="trk-btn-secondary h-[52px]" (click)="pickOnMap()">
+                <svg lucideIcon="map-pinned" class="w-4 h-4"></svg> {{ target() ? 'Change on map' : 'Pick on map' }}
+            </button>
+            }
+        </div>
+
+        @if (target(); as t) {
+        <div class="trk-info-box mt-3 flex-row! items-center gap-3">
+            <svg lucideIcon="map-pin" class="w-5 h-5 text-primary-600 shrink-0"></svg>
+            <div class="text-xs">
+                <p class="font-semibold text-slate-700 dark:text-slate-200">{{ t.name }}</p>
+                <p class="text-slate-500">{{ t.address }} · {{ formatCoords(t.location) }} · match within {{ t.matchRadiusMeters }} m</p>
+            </div>
+        </div>
+        } @else if (submitted()) {
+        <p class="trk-field-error mt-2">Choose the task location.</p>
+        }
+    </div>
+
+    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3">
+        <button type="button" (click)="cancel.emit()" class="trk-btn-secondary">
+            <svg lucideIcon="x" class="w-4 h-4"></svg> Cancel
+        </button>
+        <button type="button" (click)="submit()" class="trk-btn-primary" [disabled]="saving()">
+            <svg [lucideIcon]="saving() ? 'loader' : 'send'" class="w-4 h-4" [class.animate-spin]="saving()"></svg> Assign task
+        </button>
+    </div>
+</div>

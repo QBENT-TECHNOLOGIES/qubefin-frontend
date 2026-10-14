@@ -1,0 +1,68 @@
+@let t = task();
+@let v = t.verification;
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div class="trk-stat-card">
+        <p class="trk-stat-label">Arrival distance</p>
+        <p class="trk-stat-value" [class.text-emerald-600]="arrivalOk() === true" [class.text-rose-600]="arrivalOk() === false">
+            {{ formatDistance(v?.arrivalDistanceMeters) }}
+        </p>
+        <p class="text-[11px] text-slate-400">GPS fix when the app recorded arrival</p>
+    </div>
+    <div class="trk-stat-card">
+        <p class="trk-stat-label">Completion photo distance</p>
+        <p class="trk-stat-value" [class.text-emerald-600]="verdict()?.ok" [class.text-rose-600]="verdict() && !verdict()!.ok">
+            {{ formatDistance(v?.completionDistanceMeters) }}
+        </p>
+        @if (verdict(); as vd) {
+        <p class="text-[11px] flex items-center gap-1" [class.text-emerald-600]="vd.ok" [class.text-rose-600]="!vd.ok">
+            <svg [lucideIcon]="vd.ok ? 'shield-check' : 'triangle-alert'" class="w-3 h-3"></svg> {{ vd.text }}
+        </p>
+        } @else {
+        <p class="text-[11px] text-slate-400">Not completed yet</p>
+        }
+    </div>
+</div>
+
+<div class="mt-3 grid grid-cols-1 md:grid-cols-[180px_1fr] gap-3 items-start">
+    @if (v?.photoUrl) {
+    <button type="button" class="trk-photo" (click)="openPhoto()" title="Open photo">
+        <img [src]="v!.photoUrl" alt="Completion evidence" loading="lazy">
+        <span class="trk-photo-zoom"><svg lucideIcon="zoom-in" class="w-4 h-4"></svg></span>
+    </button>
+    } @else {
+    <div class="trk-photo is-empty">
+        <svg lucideIcon="camera" class="w-6 h-6"></svg>
+        <span>{{ t.odOutcome?.paid ? 'Not required (paid)' : 'No photo yet' }}</span>
+    </div>
+    }
+    <div class="text-xs flex flex-col gap-1.5 text-slate-600 dark:text-slate-300">
+        <div class="flex gap-2"><span class="w-28 text-slate-400">Target</span>
+            <a class="trk-link" [href]="googleMapsLink(t.target.location)" target="_blank" rel="noopener">{{ formatCoords(t.target.location) }}</a>
+        </div>
+        <div class="flex gap-2"><span class="w-28 text-slate-400">Arrival fix</span><span class="tabular-nums">{{ formatCoords(v?.arrivalLocation) }}</span></div>
+        <div class="flex gap-2"><span class="w-28 text-slate-400">Photo fix</span><span class="tabular-nums">{{ formatCoords(v?.completionLocation) }}</span></div>
+        <div class="flex gap-2"><span class="w-28 text-slate-400">Photo taken</span><span>{{ v?.photoTakenAt ? (v!.photoTakenAt | date: 'dd MMM, hh:mm:ss a') : '–' }}</span></div>
+    </div>
+</div>
+
+@if (t.type === 'OdFollowUp') {
+<div class="mt-3 trk-info-box">
+    <p class="font-semibold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-1.5">
+        <svg lucideIcon="indian-rupee" class="w-4 h-4"></svg> OD visit outcome
+    </p>
+    @if (t.odOutcome; as o) {
+    <div class="flex justify-between"><span>Customer available</span><b>{{ o.customerAvailable ? 'Yes' : 'No' }}</b></div>
+    <div class="flex justify-between"><span>Paid</span>
+        <b [class.text-emerald-600]="o.paid" [class.text-rose-600]="!o.paid">{{ o.paid ? 'Yes – ₹' + (o.amountCollected | number) : 'No' }}</b>
+    </div>
+    @if (!o.paid) {
+    <div class="flex justify-between"><span>Promise-to-pay date</span><b>{{ o.ptpDate ? (o.ptpDate | date: 'dd MMM yyyy') : 'Not recorded' }}</b></div>
+    }
+    @if (o.remarks) {
+    <div class="flex justify-between gap-4"><span>Remarks</span><b class="text-right">{{ o.remarks }}</b></div>
+    }
+    } @else {
+    <p class="text-slate-400">Recorded from the mobile app when the visit is completed.</p>
+    }
+</div>
+}

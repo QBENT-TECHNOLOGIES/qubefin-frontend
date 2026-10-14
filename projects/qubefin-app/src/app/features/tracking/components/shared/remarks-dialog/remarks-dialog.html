@@ -1,0 +1,38 @@
+<div class="trk-dialog-header">
+    <div class="flex items-center gap-4">
+        <div class="trk-dialog-icon" [class.bg-rose-50]="tone === 'danger'" [class.text-rose-600]="tone === 'danger'"
+            [class.bg-emerald-50]="tone === 'success'" [class.text-emerald-600]="tone === 'success'"
+            [class.bg-indigo-50]="tone === 'primary'" [class.text-indigo-600]="tone === 'primary'">
+            <svg [lucideIcon]="data.icon ?? 'message-square-plus'" class="w-6 h-6"></svg>
+        </div>
+        <div>
+            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">{{ data.title }}</h2>
+            @if (data.message) {
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 max-w-sm">{{ data.message }}</p>
+            }
+        </div>
+    </div>
+    <button type="button" (click)="cancel()" class="trk-dialog-close" aria-label="Close">
+        <svg lucideIcon="x" class="w-5 h-5"></svg>
+    </button>
+</div>
+
+<div class="p-5 w-[min(480px,90vw)] trk-form">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>{{ data.label ?? 'Remarks' }}</mat-label>
+        <textarea matInput rows="4" cdkFocusInitial [ngModel]="remarks()" (ngModelChange)="remarks.set($event)"
+            [placeholder]="data.placeholder ?? 'Saved in the audit trail'"></textarea>
+    </mat-form-field>
+    @if (submitted() && !valid()) {
+    <p class="trk-field-error mt-2">Please enter at least a few words.</p>
+    }
+</div>
+
+<div class="trk-dialog-footer">
+    <button type="button" (click)="cancel()" class="trk-btn-secondary">
+        <svg lucideIcon="x" class="w-4 h-4"></svg> Cancel
+    </button>
+    <button type="button" (click)="confirm()" [class]="tone === 'danger' ? 'trk-btn-danger' : 'trk-btn-primary'">
+        <svg lucideIcon="check" class="w-4 h-4"></svg> {{ data.confirmText ?? 'Confirm' }}
+    </button>
+</div>

@@ -1,0 +1,81 @@
+<div class="page-container trk-form">
+    <div class="header-group">
+        <div class="trk-tabs">
+            @for (t of tabs; track t.label) {
+            <button type="button" [class.is-active]="store.status() === t.value" (click)="setTab(t.value)">{{ t.label }}</button>
+            }
+        </div>
+        <p class="text-xs text-slate-500 flex items-center gap-1.5">
+            <svg lucideIcon="info" class="w-4 h-4"></svg>
+            Field work beyond the branch radius needs approval before it starts. Unapproved travel raises an alert.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-[1fr_440px] gap-4 items-start">
+        <div class="flex flex-col gap-3">
+            @for (r of store.requests(); track r.id) {
+            <button type="button" class="trk-request glass" [class.is-selected]="selected()?.id === r.id" (click)="selectedId.set(r.id)">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0 text-left">
+                        <p class="text-[11px] text-slate-400 tabular-nums">{{ r.requestNo }} · requested {{ r.requestedAt | date: 'dd MMM, hh:mm a' }}</p>
+                        <p class="text-[15px] font-bold text-slate-800 dark:text-white">{{ r.employeeName }}
+                            <span class="text-xs font-medium text-slate-400">· {{ ROLE_LABEL[r.role] }}, {{ r.branchName }}</span></p>
+                        <p class="text-[13px] text-slate-600 dark:text-slate-300 mt-1">
+                            <b>{{ ACTIVITY_LABEL[r.activity] }}</b> at {{ r.destinationName }} on {{ r.requestedForDate | date: 'EEE, dd MMM' }}
+                        </p>
+                        <p class="text-xs text-slate-500 mt-1 italic">“{{ r.reason }}”</p>
+                    </div>
+                    <div class="flex flex-col items-end gap-2 shrink-0">
+                        <qfin-trk-chip [tone]="APPROVAL_STATUS[r.status]" [small]="true" />
+                        <span class="trk-distance">{{ r.distanceFromBranchKm | number: '1.0-1' }} km</span>
+                    </div>
+                </div>
+                @if (r.status !== 'Pending') {
+                <p class="text-[11px] text-slate-400 mt-2 text-left">
+                    {{ r.status }} by {{ r.decidedByName }} · {{ r.decidedAt | date: 'dd MMM, hh:mm a' }}{{ r.decisionRemarks ? ' — ' + r.decisionRemarks : '' }}
+                </p>
+                }
+            </button>
+            } @empty {
+            <div class="glass rounded-2xl p-8 text-center text-sm text-slate-400">
+                {{ store.loading() ? 'Loading…' : 'No requests here.' }}
+            </div>
+            }
+        </div>
+
+        <div class="glass rounded-2xl overflow-hidden xl:sticky xl:top-0">
+            <div class="trk-map-frame h-[360px] rounded-none!">
+                @if (maps.status() === 'ready') {
+                @if (selected(); as r) {
+                <google-map width="100%" height="100%" [mapId]="maps.mapId" [center]="mapCenter()" [zoom]="8" [options]="mapOptions">
+                    @if (r.branchLocation) {
+                    <map-circle [center]="r.branchLocation" [radius]="radiusKm() * 1000" [options]="circleOptions" />
+                    <map-advanced-marker [position]="r.branchLocation" [content]="branchPin()" [title]="r.branchName + ' Branch'" />
+                    <map-polyline [path]="[r.branchLocation, r.destination]" [options]="lineOptions" />
+                    }
+                    <map-advanced-marker [position]="r.destination" [content]="destPin()" [title]="r.destinationName" />
+                </google-map>
+                }
+                } @else {
+                <qfin-map-status />
+                }
+            </div>
+            @if (selected(); as r) {
+            <div class="p-4">
+                <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ r.destinationName }}</p>
+                <p class="text-xs text-slate-500">{{ r.distanceFromBranchKm | number: '1.0-1' }} km from {{ r.branchName }} — {{ (r.distanceFromBranchKm - radiusKm()) | number: '1.0-1' }} km beyond the {{ radiusKm() }} km limit.</p>
+                @if (r.status === 'Pending') {
+                <div class="flex gap-2 mt-4">
+                    <button type="button" class="trk-btn-danger flex-1 justify-center" (click)="decide(r, false)">
+                        <svg lucideIcon="circle-x" class="w-4 h-4"></svg> Reject
+                    </button>
+                    <button type="button" class="trk-btn-primary flex-1 justify-center" (click)="decide(r, true)">
+                        <svg lucideIcon="shield-check" class="w-4 h-4"></svg> Approve
+                    </button>
+                </div>
+                }
+            </div>
+            }
+        </div>
+    </div>
+</div>

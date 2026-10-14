@@ -43,6 +43,10 @@ export const routes: Routes = [
             {
                 path: 'payroll',
                 loadChildren: () => import('./features/payroll/payroll-routes').then(m => m.PayrollRoutes)
+            },
+            {
+                path: 'tracking',
+                loadChildren: () => import('./features/tracking/tracking-routes').then(m => m.TrackingRoutes)
             }
         ]
     },

@@ -6,7 +6,8 @@
     "outDir": "../../out-tsc/app",
     "rootDir": "src",
     "types": [
-      "node"
+      "node",
+      "google.maps"
     ]
   },
   "include": [

@@ -18,6 +18,7 @@ Qubefin is an HR, payroll and organisation-administration web app (the browser t
 | UI kit | Angular Material 22 + CDK (custom overrides in `mat-theme.scss`) |
 | Styling | **Tailwind CSS v4** via PostCSS, plus hand-written global CSS in `src/styles/` |
 | Icons | `@lucide/angular` ^1.56 (registered once, globally) |
+| Maps | `@angular/google-maps` (Google Maps JS API, Advanced Markers), used by the Tracking module |
 | Alerts | SweetAlert2, wrapped by `AlertService` |
 | Dates | `moment` + `@angular/material-moment-adapter` |
 | Tests | Vitest + jsdom are installed, but **no test target or spec files exist yet** |
@@ -152,6 +153,7 @@ All feature areas are lazy-loaded (`loadChildren` → `*-routes.ts`, then `loadC
               (commented out: approval-regularization, leave-approvals,
                leave-prayer-approvals, leave-fitness)
   /payroll/   salary-components, monthly-payroll, payslip
+  /tracking/  tasks, od-follow-up, monitoring, live-map, alerts, approvals, geo-tags, settings   (see §13)
 /unauthorized             PageUnauthorized
 /**                       PageNotfound
 ```
@@ -219,7 +221,8 @@ login ──► mfa ──► complete
 
    ```ts
    export enum ApiPaths { APP='app-api', AUTH='auth-api', GLOBAL='global-api',
-                          HRMS='hrms-api', PAYROLL='payroll-api', REPORT='report-api' }
+                          HRMS='hrms-api', PAYROLL='payroll-api', REPORT='report-api',
+                          TRACKING='tracking-api' }
    // e.g. `${ApiPaths.HRMS}/departments/${id}` → https://localhost:7297/hrms-api/departments/{id}
    ```
 2. **`HttpErrorInterceptor`** (app) shows a SweetAlert error for every failed request. It covers no network, 400 (`error.message` or `error.errors[0]`), 504, and everything else (`message`/`detail`), then re-throws.
@@ -348,7 +351,8 @@ protected readonly departmentForm = form(this.formModel, this.schema);
 9. **XSS surface.** `AlertService` interpolates `title`/`text` into raw HTML, and `HttpErrorInterceptor` feeds it server error messages. Escape them if messages can ever contain user input.
 10. **Production gateway is plain HTTP on a bare IP** (`http://65.2.146.91/services/`). Tokens in `sessionStorage` travel over it unencrypted.
 11. **Production builds need internet.** The build inlines Google Fonts (Inter, Material Symbols) from `index.html`, so it fails offline or behind a proxy that blocks `fonts.googleapis.com`.
-12. Housekeeping: misspelled folder `heloers`, capitalised `features/Report/Service`, duplicate `* - Copy.png` assets in `public/assets/images`, many commented-out routes in `hrms-routes.ts`, and the duplicate `AuthGuard`.
+12. **`ng build qubefin-app` (production) already fails its size budget.** The initial bundle is about 1.68 MB before the Tracking module and about 1.75 MB after it, against `maximumError: 1.5mb` in `angular.json`. Raise the budget or trim the initial bundle (for example, register fewer icons globally).
+13. Housekeeping: misspelled folder `heloers`, capitalised `features/Report/Service`, duplicate `* - Copy.png` assets in `public/assets/images`, many commented-out routes in `hrms-routes.ts`, and the duplicate `AuthGuard`.
 
 ---
 
@@ -368,3 +372,36 @@ Example: *Grades* under HRMS.
 9. Errors are already surfaced by the interceptor. Use `AlertService.success` after saves.
 
 For a whole **new area** (not just a screen), add `features/<area>/<area>-routes.ts`, register it under `secure` children in `app.routes.ts`, and add a value to `ApiPaths` in `qubefin-core` if it talks to a new backend service. Then rebuild the library.
+
+---
+
+## 13. Tracking module (employee task assignment + GPS monitoring)
+
+The web side of the tracking system from the *Tracking Software* meeting minutes. The mobile app captures punches, GPS fixes, photos and visit outcomes. This module **assigns** work and **monitors** what comes back.
+
+**Backend contract:** [`docs/TRACKING_API_CONTRACT.md`](./TRACKING_API_CONTRACT.md). Until `tracking-api` exists, `useTrackingMocks: true` (dev environment) makes `trackingMockInterceptor` answer every `tracking-api/*` call from an in-browser mock with realistic seed data. The mock is lazy-loaded, so it is not in the main bundle.
+
+| Route (`/secure/tracking/…`) | Screen | What it does |
+|---|---|---|
+| `tasks` | Task Assignment | KPIs, filters, list + panel; manual assign, reassign (single or bulk), cancel, full audit trail |
+| `od-follow-up` | OD Follow-up | Overdue customers (Loan Status Report); multi-select → assign visit to CO/BM/AM/DM; shows paid / PTP outcome |
+| `monitoring` | Task Monitoring | One day's tasks; server-stamped timeline; arrival and photo distance vs geo-tag; evidence photo; map of target, arrival fix and photo fix |
+| `live-map` | Live Map | Latest position and status of each employee, 30 km branch circles, 50 m home circle, route playback with stops |
+| `alerts` | Alerts | Near-home, GPS-off, stationary, outside-radius, location-mismatch and late alerts; acknowledge / resolve with remarks |
+| `approvals` | Out-of-radius approvals | Approve or reject field work beyond the branch radius, with a map |
+| `geo-tags` | Geo-tag Registry | Branches, groups/centres, customer and OD homes, employee homes; map picker with reason and location history |
+| `settings` | Tracking Settings | Thresholds, working hours, who is notified, system auto-allocation rules, management exceptions |
+
+**Folder:** `features/tracking/{models,services,stores,components,pages,utils,mocks}`. It follows the standard pattern: reads in stores (`httpResource`), writes in services, list + panel pages.
+
+* `utils/poll.ts`: `pollWhileVisible()` refreshes every 30 s while the tab is visible.
+* `services/maps-loader.service.ts`: loads the Google Maps JS API once with `MAP_API_KEY`. Pages render `<google-map>` only when `status() === 'ready'` and otherwise show `<qfin-map-status>`.
+* `utils/tracking-labels.ts`: one place for label, colour, icon and badge class per status or type.
+* `styles/tracking.css`: global, because Google renders marker DOM outside Angular. Fields without a prefix icon need the `trk-form` wrapper class for padding.
+
+**Environment keys:** `MAP_API_KEY`, `MAP_ID` (Advanced Markers; `DEMO_MAP_ID` works for development only), `useTrackingMocks`.
+
+**Google Cloud APIs for the key:** *Maps JavaScript API* (required) and *Geocoding API* (address search in the map picker). Restrict the key by HTTP referrer (localhost:4200 and the production domain) and to these APIs. Create a Map ID under *Map Management* for production.
+
+**Menus to create** (Admin → Menus) so the drawer shows the screens and the header gets titles: a "Tracking" group with targets `/secure/tracking/tasks`, `/od-follow-up`, `/monitoring`, `/live-map`, `/alerts`, `/approvals`, `/geo-tags`, `/settings`. Suggested icons, all registered: `ClipboardList`, `IndianRupee`, `ListChecks`, `Map`, `Siren`, `ShieldCheck`, `MapPinned`, `Settings`.
+

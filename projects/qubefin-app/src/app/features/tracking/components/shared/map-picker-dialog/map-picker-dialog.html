@@ -1,0 +1,106 @@
+<div class="trk-dialog-header">
+    <div class="flex items-center gap-4">
+        <div class="trk-dialog-icon bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300">
+            <svg lucideIcon="map-pinned" class="w-6 h-6"></svg>
+        </div>
+        <div>
+            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">{{ data.title }}</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {{ data.subtitle ?? 'Click the map or drag the pin to set the exact location.' }}
+            </p>
+        </div>
+    </div>
+    <button type="button" (click)="cancel()" class="trk-dialog-close" aria-label="Close">
+        <svg lucideIcon="x" class="w-5 h-5"></svg>
+    </button>
+</div>
+
+<div class="p-4 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 w-[min(1040px,94vw)] trk-form">
+    <div class="trk-map-frame h-[440px]">
+        @if (maps.status() === 'ready') {
+        <google-map width="100%" height="100%" [mapId]="maps.mapId" [center]="center()" [zoom]="data.location ? 16 : 13"
+            [options]="mapOptions" (mapClick)="onMapClick($event)">
+            @if (location(); as loc) {
+            <map-advanced-marker [position]="loc" [content]="pinContent()" [gmpDraggable]="true"
+                (mapDragend)="onDragEnd($event)" title="Drag to adjust" />
+            @if (data.allowRadius !== false) {
+            <map-circle [center]="loc" [radius]="radius()"
+                [options]="{ strokeColor: data.color ?? '#16C784', strokeWeight: 1.5, fillColor: data.color ?? '#16C784', fillOpacity: 0.12, clickable: false }" />
+            }
+            }
+        </google-map>
+        } @else {
+        <qfin-map-status />
+        }
+    </div>
+
+    <div class="flex flex-col gap-3">
+        <div class="flex gap-2">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Search address / place</mat-label>
+                <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)" (keydown.enter)="findAddress()"
+                    placeholder="e.g. Duttapukur, Barasat">
+            </mat-form-field>
+            <button type="button" class="trk-icon-btn" (click)="findAddress()" [disabled]="searching()" title="Search">
+                <svg [lucideIcon]="searching() ? 'loader' : 'search'" class="w-4 h-4" [class.animate-spin]="searching()"></svg>
+            </button>
+        </div>
+        <button type="button" class="trk-link-btn self-start" (click)="useMyLocation()">
+            <svg lucideIcon="locate-fixed" class="w-4 h-4"></svg> Use my current location
+        </button>
+        @if (searchError()) {
+        <p class="trk-field-error">{{ searchError() }}</p>
+        }
+
+        <div class="grid grid-cols-2 gap-2">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Latitude</mat-label>
+                <input matInput #lat type="number" step="0.000001" [value]="location()?.lat ?? ''"
+                    (change)="setManual(lat.value, lng.value)">
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Longitude</mat-label>
+                <input matInput #lng type="number" step="0.000001" [value]="location()?.lng ?? ''"
+                    (change)="setManual(lat.value, lng.value)">
+            </mat-form-field>
+        </div>
+
+        @if (data.allowRadius !== false) {
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Match radius (metres)</mat-label>
+            <input matInput type="number" min="10" step="10" [ngModel]="radius()" (ngModelChange)="radius.set(+$event)">
+        </mat-form-field>
+        }
+
+        <div class="trk-info-box">
+            <div class="flex justify-between"><span>Previous</span><b>{{ formatCoords(data.location) }}</b></div>
+            <div class="flex justify-between"><span>New</span><b>{{ formatCoords(location()) }}</b></div>
+            @if (movedBy()) {
+            <div class="flex justify-between"><span>Moved by</span><b>{{ movedBy() }}</b></div>
+            }
+        </div>
+
+        @if (reasonRequired()) {
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Reason for change</mat-label>
+            <textarea matInput rows="3" [ngModel]="reason()" (ngModelChange)="reason.set($event)"
+                placeholder="e.g. Group meeting moved to the new community hall"></textarea>
+        </mat-form-field>
+        @if (submitted() && reason().trim().length < 3) {
+        <p class="trk-field-error -mt-2">A reason is required — it is kept in the location history.</p>
+        }
+        }
+        @if (submitted() && !location()) {
+        <p class="trk-field-error">Pick a location on the map first.</p>
+        }
+    </div>
+</div>
+
+<div class="trk-dialog-footer">
+    <button type="button" (click)="cancel()" class="trk-btn-secondary">
+        <svg lucideIcon="x" class="w-4 h-4"></svg> Cancel
+    </button>
+    <button type="button" (click)="confirm()" class="trk-btn-primary">
+        <svg lucideIcon="save" class="w-4 h-4"></svg> Save location
+    </button>
+</div>

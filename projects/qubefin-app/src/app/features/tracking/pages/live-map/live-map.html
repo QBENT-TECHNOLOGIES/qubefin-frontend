@@ -1,0 +1,169 @@
+<div class="page-container trk-form">
+    <div class="header-group flex-wrap gap-3">
+        <div class="flex items-center gap-2 flex-wrap">
+            @for (c of statusChips(); track c.key) {
+            <button type="button" class="trk-filter-chip" [class.is-active]="statusFilter() === c.key" [style.--trk-color]="c.color"
+                (click)="statusFilter.set(c.key)">
+                <span class="trk-filter-dot"></span>{{ c.label }} <b>{{ c.count }}</b>
+            </button>
+            }
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="w-40"><mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Branch</mat-label>
+                <mat-select [value]="store.branchId()" (valueChange)="store.branchId.set($event)">
+                    <mat-option [value]="null">All branches</mat-option>
+                    @for (b of lookup.branches(); track b.id) { <mat-option [value]="b.id">{{ b.name }}</mat-option> }
+                </mat-select>
+            </mat-form-field></div>
+            <span class="text-[11px] text-slate-400 hidden lg:inline">Updated {{ lastUpdated() | date: 'hh:mm:ss a' }} · every {{ pollSeconds }}s</span>
+            <button type="button" class="trk-icon-btn" matTooltip="Refresh now" (click)="refreshNow()">
+                <svg lucideIcon="refresh-cw" class="w-4 h-4" [class.animate-spin]="store.loading()"></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-[340px_1fr] gap-4">
+        <!-- People list -->
+        <div class="glass rounded-2xl flex flex-col xl:h-[calc(100vh-200px)] overflow-hidden">
+            <div class="p-3 border-b border-slate-200/70 dark:border-slate-700/50">
+                <div class="trk-search">
+                    <svg lucideIcon="search" class="w-4 h-4 text-slate-400"></svg>
+                    <input [value]="search()" (input)="search.set($any($event.target).value)" placeholder="Find employee">
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto scroll-thin p-2">
+                @for (p of people(); track p.employeeId) {
+                <button type="button" class="trk-person" [class.is-selected]="selectedId() === p.employeeId" (click)="select(p)">
+                    <span class="trk-avatar" [style.--trk-color]="LIVE_STATUS[p.status].color">{{ initials(p.employeeName) }}</span>
+                    <span class="min-w-0 flex-1 text-left">
+                        <span class="flex items-center gap-1.5">
+                            <span class="text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate">{{ p.employeeName }}</span>
+                            @if (p.openAlertCount) {
+                            <span class="trk-alert-count" matTooltip="Open alerts">{{ p.openAlertCount }}</span>
+                            }
+                        </span>
+                        <span class="block text-[11px] text-slate-400 truncate">{{ p.role }} · {{ p.branchName }} · {{ ago(p.lastSeenAt) }}</span>
+                        @if (p.currentTaskTitle) {
+                        <span class="block text-[11px] text-emerald-600 truncate">▸ {{ p.currentTaskTitle }}</span>
+                        }
+                    </span>
+                    <qfin-trk-chip [tone]="LIVE_STATUS[p.status]" [small]="true" [showIcon]="false" />
+                </button>
+                } @empty {
+                <p class="p-6 text-center text-sm text-slate-400">{{ store.loading() ? 'Loading…' : 'Nobody matches.' }}</p>
+                }
+            </div>
+        </div>
+
+        <!-- Map -->
+        <div class="relative trk-map-frame glass xl:h-[calc(100vh-200px)] h-[560px]">
+            @if (maps.status() === 'ready') {
+            <google-map width="100%" height="100%" [mapId]="maps.mapId" [center]="center()" [zoom]="zoom()" [options]="mapOptions">
+                @for (b of branchMarkers(); track b.id) {
+                <map-advanced-marker [position]="b.location" [content]="b.content" [title]="b.name + ' Branch'" [zIndex]="50" />
+                @if (showBranchRadius()) {
+                <map-circle [center]="b.location" [radius]="b.operatingRadiusKm * 1000" [options]="branchCircle" />
+                }
+                }
+
+                @if (homeMarker(); as h) {
+                <map-circle [center]="h.position" [radius]="homeRadius()" [options]="homeCircle" />
+                <map-advanced-marker [position]="h.position" [content]="h.content" title="Registered home" />
+                }
+
+                @if (routePath().length) {
+                <map-polyline [path]="routePath()" [options]="routeLine" />
+                <map-polyline [path]="playedPath()" [options]="playedLine" />
+                @for (s of stopMarkers(); track s.key) {
+                <map-advanced-marker [position]="s.position" [content]="s.content" [title]="s.title" [zIndex]="300" />
+                }
+                @if (playHead(); as head) {
+                <map-advanced-marker [position]="head.point" [content]="head.content" [zIndex]="2000" />
+                }
+                }
+
+                @for (m of personMarkers(); track m.id) {
+                <map-advanced-marker [position]="m.position" [content]="m.content" [title]="m.title" [zIndex]="m.zIndex"
+                    (mapClick)="onMarkerClick(m.id)" />
+                }
+            </google-map>
+            } @else {
+            <qfin-map-status />
+            }
+
+            <!-- Legend / layer toggles -->
+            <div class="trk-map-overlay left-3 bottom-3 text-[11px]">
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                    <input type="checkbox" class="accent-primary-500" [checked]="showBranchRadius()" (change)="showBranchRadius.set($any($event.target).checked)">
+                    30 km branch radius
+                </label>
+                <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#D97706"></span> Home {{ homeRadius() }} m</span>
+                <span class="flex items-center gap-1.5"><span class="trk-legend-dot is-pulse" style="--trk-color:#E11D48"></span> Has open alert</span>
+            </div>
+
+            <!-- Selected person -->
+            @if (selected(); as p) {
+            <div class="trk-map-overlay right-3 top-3 w-[320px] max-w-[calc(100%-24px)] p-0!">
+                <div class="p-3 flex items-start gap-3 border-b border-slate-200/70 dark:border-slate-700/50">
+                    <span class="trk-avatar is-lg" [style.--trk-color]="LIVE_STATUS[p.status].color">{{ initials(p.employeeName) }}</span>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-bold text-slate-800 dark:text-white truncate">{{ p.employeeName }}</p>
+                        <p class="text-[11px] text-slate-500">{{ ROLE_LABEL[p.role] }} · {{ p.branchName }}</p>
+                        <div class="mt-1"><qfin-trk-chip [tone]="LIVE_STATUS[p.status]" [small]="true" /></div>
+                    </div>
+                    <button type="button" class="trk-dialog-close" (click)="select(null)" aria-label="Close"><svg lucideIcon="x" class="w-4 h-4"></svg></button>
+                </div>
+                <div class="p-3 grid grid-cols-2 gap-2 text-[11px]">
+                    <div><p class="text-slate-400">Last fix</p><p class="font-semibold text-slate-700 dark:text-slate-200">{{ ago(p.lastSeenAt) }}</p></div>
+                    <div><p class="text-slate-400">Punched in</p><p class="font-semibold text-slate-700 dark:text-slate-200">{{ p.punchedInAt ? (p.punchedInAt | date: 'hh:mm a') : 'No' }}</p></div>
+                    <div><p class="text-slate-400">From branch</p>
+                        <p class="font-semibold" [class.text-rose-600]="(p.distanceFromBranchKm ?? 0) > 30" [class.text-slate-700]="(p.distanceFromBranchKm ?? 0) <= 30">
+                            {{ p.distanceFromBranchKm !== null ? (p.distanceFromBranchKm | number: '1.0-1') + ' km' : '–' }}</p></div>
+                    <div><p class="text-slate-400">From home</p><p class="font-semibold text-slate-700 dark:text-slate-200">{{ homeDistance(p) ?? 'Not tagged' }}</p></div>
+                    <div><p class="text-slate-400">Speed</p><p class="font-semibold text-slate-700 dark:text-slate-200">{{ p.speedKmph !== null ? p.speedKmph + ' km/h' : '–' }}</p></div>
+                    <div><p class="text-slate-400">Battery · accuracy</p><p class="font-semibold text-slate-700 dark:text-slate-200">{{ p.batteryPct ?? '–' }}% · {{ p.accuracyMeters ?? '–' }} m</p></div>
+                </div>
+                @if (p.currentTaskTitle) {
+                <a class="mx-3 mb-2 block trk-info-box text-[11px] trk-link" [routerLink]="['/secure/tracking/monitoring']" [queryParams]="{ task: p.currentTaskId }">
+                    On task: {{ p.currentTaskTitle }}
+                </a>
+                }
+                <div class="px-3 pb-3 flex flex-wrap items-center gap-2">
+                    <button type="button" class="trk-btn-secondary py-1.5!" (click)="toggleRoute()">
+                        <svg lucideIcon="route" class="w-4 h-4"></svg> {{ showRoute() ? 'Hide route' : 'Show route' }}
+                    </button>
+                    @if (showRoute()) {
+                    <input type="date" class="trk-date-input" [max]="today()" [value]="store.routeDate()" (change)="setRouteDate($any($event.target).value)">
+                    }
+                    @if (p.openAlertCount) {
+                    <a class="trk-link text-[11px]" [routerLink]="['/secure/tracking/alerts']">{{ p.openAlertCount }} open alert(s) →</a>
+                    }
+                </div>
+                @if (showRoute()) {
+                <div class="px-3 pb-3 border-t border-slate-200/70 dark:border-slate-700/50 pt-3">
+                    @if (store.routeLoading()) {
+                    <p class="text-[11px] text-slate-500">Loading route…</p>
+                    } @else if (route(); as r) {
+                    @if (r.points.length) {
+                    <div class="flex items-center gap-2">
+                        <button type="button" class="trk-icon-btn" (click)="playing() ? stop() : play()" [attr.aria-label]="playing() ? 'Pause' : 'Play'">
+                            <svg [lucideIcon]="playing() ? 'pause' : 'play'" class="w-4 h-4"></svg>
+                        </button>
+                        <input type="range" class="flex-1 accent-primary-500" min="0" [max]="r.points.length - 1" [value]="playIndex()"
+                            (input)="scrub($any($event.target).value)" aria-label="Route position">
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1 tabular-nums">
+                        {{ r.points[playIndex()]?.at | date: 'hh:mm a' }} · {{ r.totalDistanceKm }} km travelled · {{ r.stops.length }} stops
+                    </p>
+                    } @else {
+                    <p class="text-[11px] text-slate-500">No GPS points for this day.</p>
+                    }
+                    }
+                </div>
+                }
+            </div>
+            }
+        </div>
+    </div>
+</div>

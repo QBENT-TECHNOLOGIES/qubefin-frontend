@@ -1,0 +1,76 @@
+<div class="trk-dialog-header">
+    <div class="flex items-center gap-4">
+        <div class="trk-dialog-icon bg-indigo-50 text-indigo-600 dark:bg-secondary-600/50 dark:text-indigo-400">
+            <svg lucideIcon="user-check" class="w-6 h-6"></svg>
+        </div>
+        <div>
+            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">{{ data.title }}</h2>
+            @if (data.subtitle) {
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ data.subtitle }}</p>
+            }
+        </div>
+    </div>
+    <button type="button" (click)="cancel()" class="trk-dialog-close" aria-label="Close">
+        <svg lucideIcon="x" class="w-5 h-5"></svg>
+    </button>
+</div>
+
+<div class="p-5 flex flex-col gap-4 w-[min(520px,90vw)] trk-form">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Assign to</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+            <svg lucideIcon="user" class="w-5 h-5"></svg>
+        </div>
+        <mat-select [ngModel]="assigneeId()" (ngModelChange)="assigneeId.set($event)" placeholder="Select employee">
+            @for (group of groups(); track group.role) {
+            <mat-optgroup [label]="ROLE_LABEL[group.role] + 's'">
+                @for (o of group.officers; track o.id) {
+                <mat-option [value]="o.id" [disabled]="o.id === data.currentAssigneeId">
+                    {{ o.name }} · {{ o.branchName }}
+                    @if (o.id === data.currentAssigneeId) { (current) }
+                </mat-option>
+                }
+            </mat-optgroup>
+            }
+        </mat-select>
+    </mat-form-field>
+    @if (submitted() && !assigneeId()) {
+    <p class="trk-field-error">Select who should do this.</p>
+    }
+
+    @if (data.branchId) {
+    <label class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer select-none -mt-2">
+        <input type="checkbox" class="accent-primary-500" [checked]="sameBranchOnly()"
+            (change)="sameBranchOnly.set($any($event.target).checked)">
+        Only show staff from the same branch (managers always shown)
+    </label>
+    }
+
+    @if (data.showDate) {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Visit date</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+            <svg lucideIcon="calendar-days" class="w-5 h-5"></svg>
+        </div>
+        <input matInput type="date" [min]="today" [ngModel]="scheduledDate()" (ngModelChange)="scheduledDate.set($event)">
+    </mat-form-field>
+    }
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Remarks{{ data.remarksRequired ? '' : ' (optional)' }}</mat-label>
+        <textarea matInput rows="3" [ngModel]="remarks()" (ngModelChange)="remarks.set($event)"
+            placeholder="Reason / instructions — saved in the audit trail"></textarea>
+    </mat-form-field>
+    @if (submitted() && data.remarksRequired && remarks().trim().length < 3) {
+    <p class="trk-field-error -mt-2">Remarks are required for the audit trail.</p>
+    }
+</div>
+
+<div class="trk-dialog-footer">
+    <button type="button" (click)="cancel()" class="trk-btn-secondary">
+        <svg lucideIcon="x" class="w-4 h-4"></svg> Cancel
+    </button>
+    <button type="button" (click)="confirm()" class="trk-btn-primary" [disabled]="submitted() && !valid()">
+        <svg lucideIcon="check" class="w-4 h-4"></svg> {{ data.confirmText ?? 'Assign' }}
+    </button>
+</div>

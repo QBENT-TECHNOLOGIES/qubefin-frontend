@@ -1,0 +1,134 @@
+<div class="page-container trk-form">
+    @if (draft(); as d) {
+    <div class="header-group">
+        <p class="text-xs text-slate-500">
+            @if (d.lastModifiedByName) { Last changed by <b>{{ d.lastModifiedByName }}</b> on {{ d.lastModifiedAt | date: 'dd MMM yyyy, hh:mm a' }}. }
+            Changes apply to the mobile app on its next sync.
+        </p>
+        <div class="headerBtn-area">
+            @if (dirty()) {
+            <button type="button" class="trk-link-btn" (click)="reset()">Discard changes</button>
+            }
+            <button class="global-btn shine-sweep lift" [disabled]="!dirty() || saving()" [class.opacity-50]="!dirty()" (click)="save()">
+                <svg [lucideIcon]="saving() ? 'loader' : 'save'" class="w-4 h-4" [class.animate-spin]="saving()"></svg> Save settings
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+        <section class="glass rounded-2xl p-5">
+            <h3 class="box-content-heading">Alert thresholds</h3>
+            <div class="green-line mb-4!"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @for (t of thresholds; track t.key) {
+                <div>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>{{ t.label }}</mat-label>
+                        <input matInput type="number" [min]="t.min" [ngModel]="num(t.key)" (ngModelChange)="set(t.key, +$event)">
+                        <span matTextSuffix class="text-xs text-slate-400 pl-1">{{ t.unit }}</span>
+                    </mat-form-field>
+                    <p class="text-[11px] text-slate-400 mt-1 px-1">{{ t.hint }}</p>
+                </div>
+                }
+            </div>
+        </section>
+
+        <section class="glass rounded-2xl p-5 flex flex-col gap-5">
+            <div>
+                <h3 class="box-content-heading">Working hours</h3>
+                <div class="green-line mb-4!"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>Duty starts</mat-label>
+                        <input matInput type="time" [ngModel]="d.workingHoursStart" (ngModelChange)="set('workingHoursStart', $event)">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>Duty ends</mat-label>
+                        <input matInput type="time" [ngModel]="d.workingHoursEnd" (ngModelChange)="set('workingHoursEnd', $event)">
+                    </mat-form-field>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1">Location alerts are only raised inside these hours (or while a task is in progress).</p>
+            </div>
+
+            <div>
+                <h3 class="box-content-heading">Who is notified</h3>
+                <div class="green-line mb-3!"></div>
+                <div class="flex flex-col gap-2">
+                    <mat-slide-toggle [ngModel]="d.notifyReportingOfficer" (ngModelChange)="set('notifyReportingOfficer', $event)">Reporting officer</mat-slide-toggle>
+                    <mat-slide-toggle [ngModel]="d.notifyCreditOfficer" (ngModelChange)="set('notifyCreditOfficer', $event)">Concerned Credit Officer (stationary &amp; radius alerts)</mat-slide-toggle>
+                    <mat-slide-toggle [ngModel]="d.notifyAdministration" (ngModelChange)="set('notifyAdministration', $event)">Administration team</mat-slide-toggle>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="box-content-heading">System-generated allocation</h3>
+                <div class="green-line mb-3!"></div>
+                <div class="flex flex-col gap-3">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <mat-slide-toggle [ngModel]="d.autoAssignOdFollowUps" (ngModelChange)="set('autoAssignOdFollowUps', $event)">Auto-assign OD follow-ups to the customer's CO when DPD ≥</mat-slide-toggle>
+                        <input type="number" min="1" class="trk-inline-number" [disabled]="!d.autoAssignOdFollowUps" [ngModel]="d.autoAssignOdMinDpd"
+                            (ngModelChange)="set('autoAssignOdMinDpd', +$event)" aria-label="Minimum DPD">
+                    </div>
+                    <mat-slide-toggle [ngModel]="d.autoAssignGroupMeetings" (ngModelChange)="set('autoAssignGroupMeetings', $event)">Create centre-meeting tasks from the meeting schedule</mat-slide-toggle>
+                    <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                        Run allocation daily at
+                        <input type="time" class="trk-inline-number w-28!" [ngModel]="d.autoAllocationTime" (ngModelChange)="set('autoAllocationTime', $event)" aria-label="Allocation time">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass rounded-2xl p-5 2xl:col-span-2">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="box-content-heading">Operational exceptions</h3>
+                    <div class="green-line mb-1!"></div>
+                    <p class="text-[11px] text-slate-400 mb-3">Defined by management — matching alerts are suppressed.</p>
+                </div>
+                <button type="button" class="trk-btn-secondary" (click)="addException()">
+                    <svg lucideIcon="plus" class="w-4 h-4"></svg> Add exception
+                </button>
+            </div>
+            <div class="flex flex-col gap-3">
+                @for (x of d.exceptions; track x.id) {
+                <div class="trk-exception" [class.opacity-60]="!x.isActive">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="flex-1 min-w-[180px]">
+                        <mat-label>Name</mat-label>
+                        <input matInput [ngModel]="x.name" (ngModelChange)="updateException(x.id, { name: $event })" placeholder="e.g. Lunch break">
+                    </mat-form-field>
+                    <div class="w-56"><mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Suppresses</mat-label>
+                        <mat-select [value]="x.appliesTo" (valueChange)="updateException(x.id, { appliesTo: $event })">
+                            @for (o of ruleOptions; track o.value) { <mat-option [value]="o.value">{{ o.label }}</mat-option> }
+                        </mat-select>
+                    </mat-form-field></div>
+                    <div class="w-32"><mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>From</mat-label>
+                        <input matInput type="time" [ngModel]="x.fromTime" (ngModelChange)="updateException(x.id, { fromTime: $event || null })">
+                    </mat-form-field></div>
+                    <div class="w-32"><mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>To</mat-label>
+                        <input matInput type="time" [ngModel]="x.toTime" (ngModelChange)="updateException(x.id, { toTime: $event || null })">
+                    </mat-form-field></div>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="flex-[2] min-w-[220px]">
+                        <mat-label>Description</mat-label>
+                        <input matInput [ngModel]="x.description" (ngModelChange)="updateException(x.id, { description: $event })">
+                    </mat-form-field>
+                    <mat-slide-toggle [ngModel]="x.isActive" (ngModelChange)="updateException(x.id, { isActive: $event })">Active</mat-slide-toggle>
+                    <button type="button" class="trk-icon-btn text-rose-600!" matTooltip="Remove" (click)="removeException(x.id)">
+                        <svg lucideIcon="trash-2" class="w-4 h-4"></svg>
+                    </button>
+                </div>
+                } @empty {
+                <p class="text-sm text-slate-400">No exceptions defined.</p>
+                }
+            </div>
+        </section>
+    </div>
+    } @else {
+    <div class="glass rounded-xl p-8 text-center text-slate-400 flex flex-col items-center justify-center gap-3 min-h-[300px]">
+        <div class="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-sm">Loading settings…</p>
+    </div>
+    }
+</div>

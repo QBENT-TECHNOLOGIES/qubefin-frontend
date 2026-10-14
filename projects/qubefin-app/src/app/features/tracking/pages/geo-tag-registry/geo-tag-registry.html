@@ -1,0 +1,129 @@
+<div class="page-container trk-form">
+    <div class="header-group flex-wrap gap-3">
+        <div class="trk-tabs">
+            @for (k of kinds; track k) {
+            <button type="button" [class.is-active]="store.kind() === k" (click)="setKind(k)">
+                <svg [lucideIcon]="GEO_TAG_KIND[k].icon" class="w-4 h-4"></svg> {{ GEO_TAG_KIND[k].label }}
+            </button>
+            }
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+            <div class="trk-search w-56">
+                <svg lucideIcon="search" class="w-4 h-4 text-slate-400"></svg>
+                <input [value]="store.searchText()" (change)="store.searchText.set($any($event.target).value)"
+                    (keydown.enter)="store.searchText.set($any($event.target).value)" placeholder="Name or code">
+            </div>
+            <div class="w-40"><mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Branch</mat-label>
+                <mat-select [value]="store.branchId()" (valueChange)="store.branchId.set($event)">
+                    <mat-option [value]="null">All branches</mat-option>
+                    @for (b of lookup.branches(); track b.id) { <mat-option [value]="b.id">{{ b.name }}</mat-option> }
+                </mat-select>
+            </mat-form-field></div>
+            <button type="button" class="trk-toggle" [class.is-on]="store.onlyUntagged()" (click)="store.onlyUntagged.set(!store.onlyUntagged())">
+                <svg lucideIcon="map-pin-off" class="w-4 h-4"></svg> Missing only
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-[1fr_1fr] gap-4 items-start">
+        <div class="glass rounded-2xl overflow-hidden">
+            <div class="px-4 py-3 flex items-center justify-between border-b border-slate-200/70 dark:border-slate-700/50 text-xs text-slate-500">
+                <span>{{ store.tags().length }} records · {{ tagged().length }} tagged
+                    @if (store.untaggedCount()) { · <b class="text-amber-600">{{ store.untaggedCount() }} missing</b> }</span>
+                @if (!editable()) {
+                <span class="flex items-center gap-1"><svg lucideIcon="smartphone" class="w-3.5 h-3.5"></svg> Captured from the mobile app with a photo</span>
+                }
+            </div>
+            <div class="max-h-[calc(100vh-260px)] overflow-y-auto scroll-thin">
+                <table class="w-full trk-simple-table">
+                    <thead>
+                        <tr><th>Name</th><th>Branch</th><th>Location</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @for (t of store.tags(); track t.id) {
+                        <tr [class.trk-row-selected]="selectedId() === t.id" (click)="selectedId.set(t.id)" class="cursor-pointer">
+                            <td>
+                                <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200">{{ t.name }}</p>
+                                <p class="text-[11px] text-slate-400 tabular-nums">{{ t.refCode }}</p>
+                            </td>
+                            <td class="text-[12px] text-slate-500">{{ t.branchName }}</td>
+                            <td>
+                                @if (t.location) {
+                                <span class="text-[11px] flex items-center gap-1" [class.text-emerald-600]="t.verified" [class.text-slate-500]="!t.verified">
+                                    <svg [lucideIcon]="t.verified ? 'shield-check' : 'map-pin'" class="w-3.5 h-3.5"></svg>
+                                    {{ t.verified ? 'Verified' : 'Tagged' }}
+                                </span>
+                                <span class="text-[10px] text-slate-400">{{ t.taggedAt | date: 'dd MMM yyyy' }}</span>
+                                } @else {
+                                <span class="text-[11px] text-amber-600 flex items-center gap-1"><svg lucideIcon="map-pin-off" class="w-3.5 h-3.5"></svg> Missing</span>
+                                }
+                            </td>
+                            <td class="text-right">
+                                @if (editable()) {
+                                <button type="button" class="trk-icon-btn" [matTooltip]="t.location ? 'Change location' : 'Geo-tag now'" (click)="$event.stopPropagation(); edit(t)">
+                                    <svg [lucideIcon]="t.location ? 'pencil' : 'map-pinned'" class="w-4 h-4"></svg>
+                                </button>
+                                }
+                            </td>
+                        </tr>
+                        } @empty {
+                        <tr><td colspan="4" class="text-center text-slate-400 py-8">{{ store.loading() ? 'Loading…' : 'Nothing here.' }}</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-4 xl:sticky xl:top-0">
+            <div class="trk-map-frame glass h-[420px]">
+                @if (maps.status() === 'ready') {
+                <google-map width="100%" height="100%" [mapId]="maps.mapId" [center]="mapCenter()" [zoom]="mapZoom()" [options]="mapOptions">
+                    @for (p of pins(); track p.id) {
+                    <map-advanced-marker [position]="p.position" [content]="p.content" [title]="p.title" (mapClick)="selectedId.set(p.id)" />
+                    }
+                    @if (selected(); as s) {
+                    @if (s.location) {
+                    <map-circle [center]="s.location" [radius]="s.radiusMeters" [options]="circleOptions()" />
+                    }
+                    }
+                </google-map>
+                } @else {
+                <qfin-map-status />
+                }
+            </div>
+
+            @if (selected(); as s) {
+            <div class="glass rounded-2xl p-4">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="text-[11px] text-slate-400 tabular-nums">{{ s.refCode }} · {{ s.branchName }}</p>
+                        <p class="text-base font-bold text-slate-800 dark:text-white">{{ s.name }}</p>
+                        @if (s.address) { <p class="text-xs text-slate-500">{{ s.address }}</p> }
+                        <p class="text-xs text-slate-500 mt-1">
+                            @if (s.location) {
+                            <a class="trk-link" [href]="googleMapsLink(s.location)" target="_blank" rel="noopener">{{ formatCoords(s.location) }}</a> · {{ radiusLabel(s) }}
+                            } @else { Not geo-tagged yet }
+                        </p>
+                    </div>
+                    @if (s.photoUrl) {
+                    <button type="button" class="trk-photo w-28! h-20!" (click)="openPhoto(s)" title="Tagging photo"><img [src]="s.photoUrl" alt="Tagging photo"></button>
+                    }
+                </div>
+                @if (s.history.length) {
+                <h4 class="box-content-heading mt-4">Location history</h4>
+                <div class="green-line mb-2!"></div>
+                <ul class="flex flex-col gap-2 text-xs">
+                    @for (h of s.history; track h.changedAt) {
+                    <li class="flex justify-between gap-3">
+                        <span class="text-slate-600 dark:text-slate-300">{{ h.reason ?? 'Updated' }} <span class="text-slate-400">— {{ h.changedByName }}</span></span>
+                        <span class="text-slate-400 whitespace-nowrap tabular-nums">{{ h.changedAt | date: 'dd MMM yyyy, hh:mm a' }}</span>
+                    </li>
+                    }
+                </ul>
+                }
+            </div>
+            }
+        </div>
+    </div>
+</div>

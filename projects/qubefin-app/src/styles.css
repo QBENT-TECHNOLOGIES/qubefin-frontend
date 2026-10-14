@@ -10,6 +10,7 @@
 @import "./styles/typography.css";
 @import "./styles/utilities.css";
 @import "./styles/components.css";
+@import "./styles/tracking.css";
 @import "./styles/menu.css";
 @import "./styles/tree.css";
 @import "./styles/dark.css";
