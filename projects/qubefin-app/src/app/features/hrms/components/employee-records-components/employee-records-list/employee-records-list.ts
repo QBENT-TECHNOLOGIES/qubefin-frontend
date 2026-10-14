@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { EMPTY_UUID } from 'qubefin-core';
+import { DocumentModalService, EMPTY_UUID } from 'qubefin-core';
 
 import { IEmployeeRecordRow, IEmployeeRecordTabConfig } from '../../../models/employee-record';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'qfin-employee-records-list',
@@ -20,11 +21,13 @@ import { IEmployeeRecordRow, IEmployeeRecordTabConfig } from '../../../models/em
     MatTooltipModule,
     MatButtonModule,
     LucideDynamicIcon,
+    MatMenuModule,
   ],
   templateUrl: './employee-records-list.html',
   styles: ``,
 })
 export class EmployeeRecordsList {
+  private readonly documentModalService = inject(DocumentModalService);
   readonly data = input<IEmployeeRecordRow[]>([]);
   readonly tabConfig = input.required<IEmployeeRecordTabConfig>();
   readonly totalRecords = input(0);
@@ -40,7 +43,7 @@ export class EmployeeRecordsList {
   readonly columns = computed(() => {
     if (this.isCollapsed()) return ['employeeCompact', 'action'];
 
-    const headers = this.tabConfig().headers;
+    const { headers, key } = this.tabConfig();
 
     return [
       'sl',
@@ -52,6 +55,7 @@ export class EmployeeRecordsList {
       'appliedOn',
       'status',
       ...(headers.stage ? ['stage'] : []),
+      ...(key === 'attendance' ? ['startMileage', 'endMileage', 'personalUse', 'view'] : []),
       'action',
     ];
   });
@@ -134,5 +138,25 @@ export class EmployeeRecordsList {
       default:
         return 'bg-blue-500';
     }
+  }
+  protected onOpenMileageFile(url: string, label: string) {
+    const extension = this.getFileExtension(url);
+
+    this.documentModalService.open({
+      url,
+      documentName: `${label.toLowerCase().replace(/\s+/g, '_')}`,
+      extension,
+      downloadAccess: true,
+    });
+  }
+
+  protected fileType(url: string | null | undefined): string {
+    if (!url) return '';
+    return this.getFileExtension(url).toUpperCase();
+  }
+
+  private getFileExtension(url: string): string {
+    const path = url.split('?')[0];
+    return path.includes('.') ? path.split('.').pop()!.toLowerCase() : '';
   }
 }
