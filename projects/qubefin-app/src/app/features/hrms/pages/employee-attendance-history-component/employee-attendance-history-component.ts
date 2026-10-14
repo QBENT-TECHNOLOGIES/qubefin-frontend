@@ -192,19 +192,29 @@ export class EmployeeAttendanceHistoryComponent {
       pageSize: this.employeeAttendanceHistoryStore.pageSize(),
     };
     // this.isDownloading.set(true);
-    this.reportService.exportAttendanceHistory(payload).subscribe({
-      next: (blob: Blob) => {
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = `export_attendance.xlsx`;
-        link.click();
-        window.URL.revokeObjectURL(downloadUrl);
-        // this.isDownloading.set(false);
-      },
-      error: (err) => {
-        // this.isDownloading.set(false);
-      },
-    });
+    if (payload.companyId == null || payload.companyId == '') {
+      this.alertService.warning('Validation Error', 'Please select a company before exporting.');
+      return;
+    }
+    this.alertService
+      .confirm('Confirmation', `Do you want to export?`, 'Yes', 'No')
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.reportService.exportAttendanceHistory(payload).subscribe({
+            next: (blob: Blob) => {
+              const downloadUrl = window.URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = downloadUrl;
+              link.download = `export_attendance.xlsx`;
+              link.click();
+              window.URL.revokeObjectURL(downloadUrl);
+              // this.isDownloading.set(false);
+            },
+            error: (err) => {
+              // this.isDownloading.set(false);
+            },
+          });
+        }
+      });
   }
 }
