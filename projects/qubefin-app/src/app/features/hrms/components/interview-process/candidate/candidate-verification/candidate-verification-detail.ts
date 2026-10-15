@@ -20,7 +20,8 @@ type BooleanVerificationKey =
   | 'isPanValidated'
   | 'isMobileValidated'
   | 'isUanVerified'
-  | 'isCreditBureauChecked';
+  | 'isCreditBureauChecked'
+  | 'isHrBureauChecked';
 
 /** Shows a row's error as soon as the user types (dirty) or tries to verify (touched) - not on a pristine field. */
 class TypedOrTouchedMatcher implements ErrorStateMatcher {
@@ -134,6 +135,20 @@ export const VERIFICATION_ITEMS: IVerificationItemConfig[] = [
     mandatory: true,
     group: 'bureau',
   },
+  {
+    key: 'isHrBureauChecked',
+    check: 'HrBureau',
+    pattern: /^https?:\/\/\S+$/i,
+    patternMessage: 'Enter a valid link starting with http:// or https://',
+    valueField: 'hrBureauReportLink',
+    placeholder: 'https://...',
+    maxLength: 200,
+    label: 'HR Bureau Report',
+    desc: 'HR bureau report reviewed',
+    icon: 'file-user',
+    mandatory: true,
+    group: 'bureau',
+  },
 ];
 
 @Component({
@@ -187,10 +202,11 @@ export class CandidateVerificationDetail implements OnInit {
     isMobileValidated: false,
     isUanVerified: false,
     isCreditBureauChecked: false,
+    isHrBureauChecked: false,
     overallStatus: 'Pending',
   });
 
-  // Backend computes `overallStatus` the same way (Aadhar && Voter && Pan && Mobile && CreditBureau);
+  // Backend computes `overallStatus` the same way (Aadhar && Voter && Pan && Mobile && CreditBureau && HrBureau);
   // trust that value rather than recomputing it here so the two never drift apart.
   isVerificationComplete = computed(() => this.verificationData().overallStatus === 'Verified');
 

@@ -618,11 +618,11 @@
             }
             }
 
-            <!-- ADD ADDITIONAL INFO - unlocked by the uploaded joining letter -->
-            @if (data.isJoiningLetterUploaded && data.isHR && !data.isEmployeeCreated ) {
+            <!-- ADD ADDITIONAL INFO - HR, from the received appointment letter until the joining letter is uploaded -->
+            @if (data.isAppointmentLetterReceived && data.isHR && !data.isJoiningLetterUploaded) {
             <button type="button" class="reset-btn shine-sweep lift" (click)="onAddAdditionalInfo()">
                 <svg lucideIcon="file-plus" class="w-4 h-4 mr-2"></svg>
-                {{data.isEmployeeCreated ? "Update " : "Add "}} Additional Info
+                {{data.isEmployeeCreated ? "Update " : "Add "}} Employee Onboarding Info
             </button>
             }
 
@@ -635,7 +635,7 @@
 
             <!-- JOINING LETTER - unlocked by the received appointment letter. One split button,
                  like the letters: download the blank letter, upload the signed one back. -->
-            @if (data.showJoiningLetterActions && !data.isJoiningLetterUploaded) {
+            @if (data.showJoiningLetterActions && !data.isJoiningLetterUploaded && data.isEmployeeCreated) {
             <qfin-file-actions actionName="Joining Letter" downloadLabel="Download Joining Letter"
                 uploadLabel="Joining Letter Upload"
                 uploadDialogDescription="Drag the signed joining letter here, or browse to pick it."

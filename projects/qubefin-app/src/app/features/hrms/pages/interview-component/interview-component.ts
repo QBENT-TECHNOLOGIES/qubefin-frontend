@@ -168,6 +168,7 @@ export class InterviewComponent {
     'interview',
     'status',
     'cv',
+    'writtenInterview',
     'action',
   ];
 
@@ -361,6 +362,18 @@ export class InterviewComponent {
     this.documentModalService.open({
       url: row.cvFileUrl,
       documentName: `cv_${row.referenceNo ?? row.fullName}`,
+      extension,
+      downloadAccess: true,
+    });
+  }
+
+  protected onViewWrittenInterview(row: IInterviewerCandidate) {
+    if (!row.writtenInterviewFileUrl) return;
+    const path = row.writtenInterviewFileUrl.split('?')[0];
+    const extension = path.includes('.') ? path.split('.').pop()!.toLowerCase() : '';
+    this.documentModalService.open({
+      url: row.writtenInterviewFileUrl,
+      documentName: `written_interview_${row.referenceNo ?? row.fullName}`,
       extension,
       downloadAccess: true,
     });

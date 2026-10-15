@@ -22,11 +22,13 @@ export interface ICandidateVerification {
   isUanVerified: boolean;
   isCreditBureauChecked: boolean;
   creditBureauReportLink?: string;
+  isHrBureauChecked: boolean;
+  hrBureauReportLink?: string;
   overallStatus: string;
 }
 
 // Body for PUT candidate-verifications/{candidateId}. Mirrors backend `CandidateVerificationUpdateRequest`.
-// All six flags are sent together in one call, unlike the one-flag-per-call letter-status endpoint.
+// All seven flags are sent together in one call, unlike the one-flag-per-call letter-status endpoint.
 export interface ICandidateVerificationUpdateRequest {
   isAadharValidated: boolean;
   isVoterValited: boolean;
@@ -35,10 +37,12 @@ export interface ICandidateVerificationUpdateRequest {
   isUanVerified: boolean;
   isCreditBureauChecked: boolean;
   creditBureauReportLink?: string;
+  isHrBureauChecked: boolean;
+  hrBureauReportLink?: string;
 }
 
 // Mirrors backend `CandidateVerificationCheck` (sent as its string name).
-export type CandidateVerificationCheck = 'Aadhar' | 'Voter' | 'Pan' | 'Mobile' | 'Uan' | 'CreditBureau';
+export type CandidateVerificationCheck = 'Aadhar' | 'Voter' | 'Pan' | 'Mobile' | 'Uan' | 'CreditBureau' | 'HrBureau';
 
 @Injectable({
   providedIn: 'root',

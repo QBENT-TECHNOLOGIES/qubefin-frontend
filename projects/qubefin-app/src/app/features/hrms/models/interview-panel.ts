@@ -151,6 +151,7 @@ export interface IInterviewerCandidate {
   canContinueAssessment: boolean;
   canViewAssessment: boolean;
   cvFileUrl: string | null;
+  writtenInterviewFileUrl: string | null;
 }
 
 /** Counts behind the Interview page's quick tabs (they follow the search / date filters). */

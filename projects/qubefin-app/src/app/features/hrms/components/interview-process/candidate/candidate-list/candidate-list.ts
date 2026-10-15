@@ -251,9 +251,9 @@ export class CandidateList {
     return (item.downloads ?? []).filter((f) => f.name !== 'CV' && f.name !== 'Job Application');
   }
 
-  /** "PDF" / "Image" for uploaded files; "Link" for the credit bureau report, which is entered as a URL. */
+  /** "PDF" / "Image" for uploaded files; "Link" for the credit and HR bureau reports, which are entered as URLs. */
   fileType(file: ICandidateDownloadFile): string {
-    if (file.name === 'Credit Bureau Report') return 'Link';
+    if (file.name === 'Credit Bureau Report' || file.name === 'HR Bureau Report') return 'Link';
     const extension = file.url.split('?')[0].split('.').pop()?.toLowerCase() ?? '';
     if (extension === 'pdf') return 'PDF';
     if (['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'].includes(extension)) return 'Image';

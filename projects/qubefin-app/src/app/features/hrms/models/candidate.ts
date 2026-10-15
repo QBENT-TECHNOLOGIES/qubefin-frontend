@@ -11,7 +11,7 @@ export interface ICandidateList {
   status: CandidateInterviewStatus;
   /** HR / Admin may add or move the interview date and time (until the HR Assessment is completed). */
   canSchedule: boolean;
-  /** Uploaded files (CV, job application, written interview form, credit bureau report, signed joining letter)
+  /** Uploaded files (CV, job application, written interview form, credit bureau report, HR bureau report, signed joining letter)
    * the API offers at this status. */
   downloads?: ICandidateDownloadFile[];
 }
@@ -332,6 +332,10 @@ export interface ICandidate {
   isCreditBureauChecked: boolean;
 
   creditBureauReportLink?: string;
+
+  isHrBureauChecked: boolean;
+
+  hrBureauReportLink?: string;
 
   // ============================================================
   // POSTING / JOINING

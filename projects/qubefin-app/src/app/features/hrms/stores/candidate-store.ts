@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal, untracked } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import { ICandidate, ICandidateFilters, ICandidateList } from '../models/candidate';
 @Injectable({
@@ -83,9 +83,13 @@ export class CandidateStore {
     this.sortDirection.set(direction);
     this.pageIndex.set(0);
   }
+  /** Selects the candidate whose detail is loaded. Selecting the one already loaded fetches it again, so opening
+   * the view always shows fresh data (the store outlives the page). */
   setCandidateId(id: string | undefined) {
-    if (this.candidateId() !== id) {
+    if (untracked(this.candidateId) !== id) {
       this.candidateId.set(id);
+    } else {
+      this.refreshDetail();
     }
   }
   refreshList() {

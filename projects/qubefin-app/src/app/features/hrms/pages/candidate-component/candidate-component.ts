@@ -83,7 +83,11 @@ export class CandidateComponent {
   readonly searchModel = signal<ICandidateSearchModel>(this.emptySearchModel());
   readonly companies = this.companyStore.companies;
   readonly searchForm = form(this.searchModel);
+  // Every open from the list reloads the detail - re-opening the same candidate does not change the view's input.
   protected onView(id: string) {
+    if (this.selectedCandidateId() === id) {
+      this.candidateStore.refreshDetail();
+    }
     this.selectedCandidateId.set(id);
     this.isViewMode.set(true);
     this.isUpdateMode.set(false);
@@ -118,11 +122,13 @@ export class CandidateComponent {
     this.selectedCandidateId.set(EMPTY_UUID);
     this.isUpdateMode.set(false);
   }
+  // Closing the panel reloads the list, so statuses changed in the view show straight away.
   protected closePanel() {
     this.isEditDetailsMode.set(false);
     this.selectedCandidateId.set(EMPTY_UUID);
     this.isViewMode.set(true);
     this.isUpdateMode.set(false);
+    this.candidateStore.refreshList();
   }
   protected toggleFilterArea() {
     this.showFilterArea.update((v) => !v);
