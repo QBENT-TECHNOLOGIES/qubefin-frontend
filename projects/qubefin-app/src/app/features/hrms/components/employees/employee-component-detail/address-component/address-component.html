@@ -71,7 +71,11 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
             </div>
-            <!-- <input matInput autocomplete="off" [formField]="presentAddressForm.postOfficeId" placeholder="Enter Post Office"> -->
+            <!-- No post office for this pin code: enter it, saved against the pin code -->
+            @if (presentPostOfficeNotFound()) {
+            <input matInput autocomplete="off" [formField]="presentAddressForm.postOfficeName"
+                placeholder="Enter Post Office">
+            } @else {
             <mat-select [formField]="presentAddressForm.postOfficeId" placeholder="Select Post Office">
                 @for (post of presentPostOffices(); track post.id) {
                 <mat-option [value]="post.id">
@@ -79,8 +83,14 @@
                 </mat-option>
                 }
             </mat-select>
+            }
+            @if (presentPostOfficeNotFound()) {
+            <mat-hint>No post office found for this pin code, please enter it</mat-hint>
+            }
             <mat-error class="cus-error">
-                {{ presentAddressForm.postOfficeId().errors()[0]?.message }}
+                {{ presentPostOfficeNotFound()
+                ? presentAddressForm.postOfficeName().errors()[0]?.message
+                : presentAddressForm.postOfficeId().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -187,6 +197,11 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
             </div>
+            <!-- No post office for this pin code: enter it, saved against the pin code -->
+            @if (permanentPostOfficeNotFound()) {
+            <input matInput autocomplete="off" [formField]="permanentAddressForm.postOfficeName"
+                placeholder="Enter Post Office">
+            } @else {
             <mat-select [formField]="permanentAddressForm.postOfficeId" placeholder="Select Post Office">
                 @for (post of permanentPostOffices(); track post.id) {
                 <mat-option [value]="post.id">
@@ -194,8 +209,14 @@
                 </mat-option>
                 }
             </mat-select>
+            }
+            @if (permanentPostOfficeNotFound()) {
+            <mat-hint>No post office found for this pin code, please enter it</mat-hint>
+            }
             <mat-error class="cus-error">
-                {{ permanentAddressForm.postOfficeId().errors()[0]?.message }}
+                {{ permanentPostOfficeNotFound()
+                ? permanentAddressForm.postOfficeName().errors()[0]?.message
+                : permanentAddressForm.postOfficeId().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">

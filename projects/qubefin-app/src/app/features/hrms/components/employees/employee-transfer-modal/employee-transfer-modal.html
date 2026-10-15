@@ -107,7 +107,7 @@
             </div>
         </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 my-3">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-3">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Org Unit Type</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -151,7 +151,7 @@
                 (selectionChange)="onDesignationChange($event.value)">
                 @for(item of designations(); track item.id){
                 <mat-option [value]="item.id">
-                    {{item.name}}
+                    {{item.name}}@if(item.employeeName){ - {{item.employeeName}}}
                 </mat-option>
                 }
             </mat-select>
@@ -185,6 +185,19 @@
                 placeholder="Gross Salary">
             <mat-error class="cus-error">
                 {{ empTransferForm.grossSalary().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Effective From</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [matDatepicker]="picker" [formField]="empTransferForm.effectiveFrom"
+                (keydown)="$event.preventDefault()" [min]="minEffectiveDate()" placeholder="Select Date" />
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error class="cus-error">
+                {{ empTransferForm.effectiveFrom().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
     </div>
