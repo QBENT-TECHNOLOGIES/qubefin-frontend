@@ -1,0 +1,469 @@
+<div
+    class="flex items-center justify-between px-5 py-3 bg-white/60 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+    <div class="flex items-center gap-4">
+        <div
+            class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50 dark:bg-secondary-600/50 text-indigo-600 dark:text-indigo-500 border border-indigo-100 dark:border-0">
+            <svg lucideIcon="users-round" class="w-6 h-6"></svg>
+        </div>
+        <div>
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 leading-tight">Panel Tagging</h2>
+            <p class="text-sm text-slate-500 font-medium mt-1">
+                @if (isCandidateMode) {
+                Tagging <span class="font-semibold text-slate-700 dark:text-slate-200">{{ data.candidateName }}</span>
+                &middot; {{ data.interviewDate | date: 'dd MMM yyyy' }}
+                } @else {
+                Tag candidates to an interview panel by interview date and venue
+                }
+            </p>
+        </div>
+    </div>
+    <button (click)="close()" aria-label="Close"
+        class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer focus:outline-none">
+        <svg lucideIcon="x" class="w-5 h-5"></svg>
+    </button>
+</div>
+
+<mat-dialog-content class="p-0! max-h-none!">
+    <!-- Filters -->
+    <div
+        class="flex flex-wrap items-center gap-3 px-5 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-[190px]">
+            <mat-label>From</mat-label>
+            <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                <svg lucideIcon="calendar-1" class="w-[16px] h-[16px]"></svg>
+            </div>
+            <input matInput [matDatepicker]="fromPicker" autocomplete="off" (keydown)="$event.preventDefault()"
+                [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event); onDateChange()">
+            <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+            <mat-datepicker #fromPicker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-[190px]">
+            <mat-label>To</mat-label>
+            <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                <svg lucideIcon="calendar-1" class="w-[16px] h-[16px]"></svg>
+            </div>
+            <input matInput [matDatepicker]="toPicker" [min]="dateFrom() || null" autocomplete="off"
+                (keydown)="$event.preventDefault()" [ngModel]="dateTo()"
+                (ngModelChange)="dateTo.set($event); onDateChange()">
+            <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+            <mat-datepicker #toPicker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-[220px]">
+            <mat-label>Venue</mat-label>
+            <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                <svg lucideIcon="map-pin" class="w-[16px] h-[16px]"></svg>
+            </div>
+            <mat-select [value]="venueFilter()" (selectionChange)="venueFilter.set($event.value)">
+                <mat-option value="">All venues</mat-option>
+                @for (venue of venues(); track venue.id) {
+                <mat-option [value]="venue.id">{{ venue.name }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <div class="ml-auto flex items-center gap-3 text-xs text-slate-500">
+            <span><strong class="text-slate-700 dark:text-slate-200">{{ totals().panels }}</strong> panels</span>
+            <span class="status-pill" [ngClass]="totals().untagged ? 'pill-amber' : 'pill-emerald'">
+                <span class="status-dot"></span>{{ totals().untagged }} not tagged
+            </span>
+            <button type="button" (click)="load()" matTooltip="Refresh" [disabled]="loading()"
+                class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800 hover:border-primary-300 cursor-pointer disabled:opacity-40">
+                <svg lucideIcon="refresh-cw" class="w-4 h-4" [class.animate-spin]="loading()"></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row md:h-[64vh]">
+        <!-- Left: panels by date and venue -->
+        <aside
+            class="md:w-[340px] shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 overflow-y-auto scroll-thin max-h-[40vh] md:max-h-none">
+            @if (loading() && !slots().length) {
+            <div class="flex items-center justify-center gap-2 p-8 text-sm text-slate-500">
+                <svg lucideIcon="loader" class="w-4 h-4 animate-spin"></svg> Loading panels...
+            </div>
+            } @else if (loadError()) {
+            <div class="flex flex-col items-center gap-2 p-8 text-center">
+                <svg lucideIcon="circle-alert" class="w-8 h-8 text-rose-400"></svg>
+                <p class="text-sm text-rose-600">{{ loadError() }}</p>
+            </div>
+            } @else if (!visibleSlots().length) {
+            <div class="flex flex-col items-center gap-2 p-8 text-center text-slate-400">
+                <svg lucideIcon="calendar-x-2" class="w-10 h-10 text-slate-300"></svg>
+                <p class="text-sm text-slate-500">No scheduled interviews in this period.</p>
+                <p class="text-xs">Candidates appear here once their interview date, time and venue are set.</p>
+            </div>
+            } @else {
+            @for (group of slotsByDate(); track group.date) {
+            <div
+                class="sticky top-0 z-10 px-4 py-2 text-[11px] font-bold uppercase tracking-wide text-slate-500 bg-slate-100/95 dark:bg-slate-800/95 backdrop-blur border-b border-slate-200 dark:border-slate-700">
+                {{ group.date | date: 'EEE, dd MMM yyyy' }}
+            </div>
+            @for (slot of group.slots; track slotKey(slot)) {
+            <div class="px-3 pt-3 pb-1">
+                <p class="px-1 mb-2 text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                    <svg lucideIcon="map-pin" class="w-3.5 h-3.5 text-slate-400"></svg>{{ slot.venueName }}
+                </p>
+
+                @for (panel of slot.panels; track panel.panelKey) {
+                @let status = panelStatus(panel, slot);
+                <button type="button" (click)="select(slotKey(slot), panel.panelKey)"
+                    class="w-full text-left mb-2 p-3 rounded-lg border transition-colors cursor-pointer"
+                    [ngClass]="isSelected(slot, panel.panelKey)
+                        ? 'border-primary-400 bg-primary-500/10 shadow-sm'
+                        : 'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/60 hover:border-primary-300'">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex -space-x-2">
+                            @for (member of panel.members.slice(0, 4); track member.employeeId) {
+                            <span [matTooltip]="member.employeeName"
+                                class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-200 text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-800">
+                                {{ initials(member.employeeName) }}
+                            </span>
+                            }
+                            @if (panel.members.length > 4) {
+                            <span
+                                class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-800">
+                                +{{ panel.members.length - 4 }}
+                            </span>
+                            }
+                        </div>
+                        <span class="status-pill" [ngClass]="status.cls"><span class="status-dot"></span>{{
+                            status.label }}</span>
+                    </div>
+                    <p class="mt-2 text-[13px] font-semibold text-slate-800 dark:text-slate-100 truncate">
+                        {{ panelLabel(panel) }}
+                    </p>
+                    <p class="text-xs text-slate-500">{{ panel.members.length }} panelist(s) &middot; {{
+                        panel.candidates.length }} candidate(s)</p>
+                </button>
+                }
+
+                @if (slot.untaggedCandidates.length) {
+                <button type="button" (click)="select(slotKey(slot), null)"
+                    class="w-full text-left mb-2 p-3 rounded-lg border border-dashed transition-colors cursor-pointer flex items-center justify-between gap-2"
+                    [ngClass]="isSelected(slot, null)
+                        ? 'border-amber-400 bg-amber-500/10'
+                        : 'border-amber-300 dark:border-amber-700 bg-amber-50/40 dark:bg-amber-900/10 hover:bg-amber-50'">
+                    <span class="flex items-center gap-2 text-[13px] font-semibold text-amber-700 dark:text-amber-400">
+                        <svg lucideIcon="user-round-x" class="w-4 h-4"></svg>
+                        Not tagged
+                    </span>
+                    <span class="status-pill pill-amber"><span class="status-dot"></span>{{
+                        slot.untaggedCandidates.length }} candidate(s)</span>
+                </button>
+                }
+            </div>
+            }
+            }
+            }
+        </aside>
+
+        <!-- Right: selected panel / untagged candidates -->
+        <section class="flex-1 min-w-0 overflow-y-auto scroll-thin p-5">
+            @let slot = selectedSlot();
+            @if (!slot) {
+            <div class="h-full min-h-[240px] flex flex-col items-center justify-center text-center text-slate-400">
+                <svg lucideIcon="mouse-pointer-click" class="w-10 h-10 mb-3 text-slate-300"></svg>
+                <p class="text-sm font-medium text-slate-500">Select a panel or a "Not tagged" group</p>
+                <p class="text-xs mt-1">Panels are grouped by interview date and venue.</p>
+            </div>
+            } @else {
+            <!-- Slot header -->
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        {{ slot.interviewDate | date: 'EEE, dd MMM yyyy' }} &middot; {{ slot.venueName }}
+                    </p>
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">
+                        @switch (mode()) {
+                        @case ('newPanel') { New panel }
+                        @case ('editMembers') { Change panel members }
+                        @default { {{ selectedPanel() ? panelLabel(selectedPanel()!) : 'Not tagged candidates' }} }
+                        }
+                    </h3>
+                </div>
+                @if (slot.isPast) {
+                <span class="status-pill pill-slate"><span class="status-dot"></span>Past interview - read only</span>
+                }
+            </div>
+
+            @if (mode() !== 'view') {
+            <!-- Picker: new panel or member change -->
+            @if (mode() === 'newPanel') {
+            <div class="rounded-lg border border-slate-200 dark:border-slate-700 mb-4">
+                <div
+                    class="px-3 py-2 bg-slate-50/80 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600 flex items-center gap-3">
+                    <mat-checkbox color="primary" [checked]="allChecked('eligible', slot.untaggedCandidates)"
+                        (change)="toggleAll('eligible', slot.untaggedCandidates, $event.checked)"></mat-checkbox>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-100">Candidates for this panel ({{
+                        checkedEligible().size }} selected)</span>
+                </div>
+                <div class="max-h-[180px] overflow-y-auto scroll-thin divide-y divide-slate-100 dark:divide-slate-800">
+                    @for (c of slot.untaggedCandidates; track c.candidateId) {
+                    <label class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-slate-50/60">
+                        <mat-checkbox color="primary" [checked]="checkedEligible().has(c.candidateId)"
+                            (change)="toggle('eligible', c.candidateId, $event.checked)"></mat-checkbox>
+                        <span class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ c.fullName }}</span>
+                        <span class="text-xs font-mono text-slate-500">{{ c.referenceNo }}</span>
+                        <span class="ml-auto text-xs text-slate-500">{{ displayTime(c.interviewTime) }}</span>
+                    </label>
+                    }
+                </div>
+            </div>
+            }
+            @if (mode() === 'editMembers') {
+            <p
+                class="mb-3 text-xs text-slate-500 flex items-start gap-1.5 bg-blue-50/60 dark:bg-blue-900/20 rounded-lg p-2.5">
+                <svg lucideIcon="info" class="w-4 h-4 text-blue-500 shrink-0"></svg>
+                The change applies to every candidate on this panel. Panelists who stay keep their acknowledgement;
+                new panelists receive one invitation mail.
+            </p>
+            }
+
+            <qfin-panelist-picker [(selected)]="pickerSelection"></qfin-panelist-picker>
+
+            <div class="flex justify-end gap-3 mt-4">
+                <button type="button" (click)="cancelMode()"
+                    class="cursor-pointer px-4 py-2 flex items-center gap-2 bg-white border border-slate-300 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 text-slate-700 text-sm font-semibold rounded-lg shadow-sm">
+                    Cancel
+                </button>
+                <button type="button" (click)="savePicker()" [disabled]="saving() || !pickerSelection().length"
+                    class="ripple-btn shine-sweep rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow cursor-pointer lift disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg [lucideIcon]="saving() ? 'loader' : 'check'" class="w-4 h-4"
+                        [class.animate-spin]="saving()"></svg>
+                    {{ saving() ? 'Saving...' : (mode() === 'newPanel' ? 'Create panel & tag' : 'Save members') }}
+                </button>
+            </div>
+            } @else if (selectedPanel(); as panel) {
+            <!-- Panel members -->
+            <div
+                class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-800/50 p-3 mb-4">
+                <div class="flex items-center justify-between gap-3 mb-2">
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-100">Panel members ({{
+                        panel.members.length }})</span>
+                    @if (!slot.isPast) {
+                    <button type="button" (click)="startEditMembers()"
+                        class="text-xs font-semibold text-primary-600 hover:underline cursor-pointer flex items-center gap-1">
+                        <svg lucideIcon="pencil" class="w-3.5 h-3.5"></svg> Change members
+                    </button>
+                    }
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    @for (m of panel.members; track m.employeeId) {
+                    <div
+                        class="inline-flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                        <span
+                            class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-200 text-[10px] font-bold flex items-center justify-center">{{
+                            initials(m.employeeName) }}</span>
+                        <span class="flex flex-col">
+                            <span class="text-xs font-semibold text-slate-800 dark:text-slate-100 leading-tight">{{
+                                m.employeeName }}</span>
+                            <span class="text-[10px] text-slate-500 leading-tight">{{ m.employeeCode }}{{ m.designation
+                                ? ' · ' + m.designation : '' }}</span>
+                        </span>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Tagged candidates -->
+            <div class="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden mb-4">
+                <div
+                    class="px-3 py-2 bg-slate-50/80 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600 flex flex-wrap items-center gap-3">
+                    @if (!slot.isPast) {
+                    <mat-checkbox color="primary" [checked]="allChecked('tagged', panel.candidates)"
+                        (change)="toggleAll('tagged', panel.candidates, $event.checked)"></mat-checkbox>
+                    }
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-100">Tagged candidates ({{
+                        panel.candidates.length }})</span>
+
+                    @if (checkedTagged().size) {
+                    <div class="ml-auto flex flex-wrap items-center gap-2">
+                        @if (siblingPanels().length) {
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-[210px]">
+                            <mat-label>Move to</mat-label>
+                            <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                                <svg lucideIcon="users-round" class="w-[16px] h-[16px]"></svg>
+                            </div>
+                            <mat-select [value]="moveTargetKey()" (selectionChange)="moveTargetKey.set($event.value)">
+                                @for (p of siblingPanels(); track p.panelKey) {
+                                <mat-option [value]="p.panelKey">{{ panelLabel(p) }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                        <button type="button" (click)="moveChecked()" [disabled]="!moveTargetKey() || saving()"
+                            class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+                            Move {{ checkedTagged().size }}
+                        </button>
+                        }
+                        <button type="button" (click)="untagChecked()" [disabled]="saving()"
+                            class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-rose-200 text-rose-700 bg-rose-50 hover:bg-rose-100 cursor-pointer disabled:opacity-40">
+                            Untag {{ checkedTagged().size }}
+                        </button>
+                    </div>
+                    }
+                </div>
+                <div class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @for (c of panel.candidates; track c.candidateId) {
+                    @let progress = candidateProgress(c);
+                    <div class="flex items-center gap-3 px-3 py-2"
+                        [class.bg-primary-500/5]="checkedTagged().has(c.candidateId)">
+                        @if (!slot.isPast) {
+                        <mat-checkbox color="primary" [disabled]="c.isLocked"
+                            [checked]="checkedTagged().has(c.candidateId)"
+                            (change)="toggle('tagged', c.candidateId, $event.checked)"></mat-checkbox>
+                        }
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{{ c.fullName
+                                }}</p>
+                            <p class="text-xs text-slate-500 truncate"><span class="font-mono">{{ c.referenceNo
+                                    }}</span>{{ c.interviewPost ? ' · ' + c.interviewPost : '' }}</p>
+                        </div>
+                        <span class="text-xs text-slate-500 whitespace-nowrap">{{ displayTime(c.interviewTime) }}</span>
+                        <span class="status-pill" [ngClass]="progress.cls"><span class="status-dot"></span>{{
+                            progress.label }}</span>
+                        @if (c.isLocked) {
+                        <svg lucideIcon="lock" class="w-4 h-4 text-slate-400" [matTooltip]="c.lockedReason"></svg>
+                        }
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Candidates that can join this panel -->
+            @if (!slot.isPast) {
+            @let eligible = eligibleForPanel();
+            <div class="rounded-lg border border-dashed border-amber-300 dark:border-amber-700 overflow-hidden">
+                <div
+                    class="px-3 py-2 bg-amber-50/60 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 flex flex-wrap items-center gap-3">
+                    @if (eligible.length) {
+                    <mat-checkbox color="primary" [checked]="allChecked('eligible', eligible)"
+                        (change)="toggleAll('eligible', eligible, $event.checked)"></mat-checkbox>
+                    }
+                    <span class="text-xs font-bold text-amber-800 dark:text-amber-300">Add candidates to this panel ({{
+                        eligible.length }} available)</span>
+                    @if (checkedEligible().size) {
+                    <button type="button" (click)="tagToSelectedPanel()" [disabled]="saving()"
+                        class="ml-auto ripple-btn rounded-lg px-3 py-1.5 flex items-center gap-1.5 text-xs font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow cursor-pointer disabled:opacity-50">
+                        <svg [lucideIcon]="saving() ? 'loader' : 'user-round-plus'" class="w-3.5 h-3.5"
+                            [class.animate-spin]="saving()"></svg>
+                        Tag {{ checkedEligible().size }} to this panel
+                    </button>
+                    }
+                </div>
+                @if (eligible.length) {
+                <div class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @for (c of eligible; track c.candidateId) {
+                    <label class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-slate-50/60">
+                        <mat-checkbox color="primary" [checked]="checkedEligible().has(c.candidateId)"
+                            (change)="toggle('eligible', c.candidateId, $event.checked)"></mat-checkbox>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{{ c.fullName
+                                }}</p>
+                            <p class="text-xs text-slate-500 font-mono">{{ c.referenceNo }}</p>
+                        </div>
+                        <span class="text-xs text-slate-500 whitespace-nowrap">{{ displayTime(c.interviewTime) }}</span>
+                        @if (c.currentPanel) {
+                        <span class="status-pill pill-blue"><span class="status-dot"></span>On {{ c.currentPanel
+                            }}</span>
+                        } @else {
+                        <span class="status-pill pill-amber"><span class="status-dot"></span>Not tagged</span>
+                        }
+                    </label>
+                    }
+                </div>
+                } @else {
+                <p class="px-3 py-4 text-xs text-slate-500">Every candidate for this date and venue is already on a
+                    panel.</p>
+                }
+            </div>
+            }
+            } @else {
+            <!-- Untagged candidates of the slot -->
+            <div class="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div
+                    class="px-3 py-2 bg-slate-50/80 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600 flex items-center gap-3">
+                    @if (!slot.isPast) {
+                    <mat-checkbox color="primary" [checked]="allChecked('eligible', slot.untaggedCandidates)"
+                        (change)="toggleAll('eligible', slot.untaggedCandidates, $event.checked)"></mat-checkbox>
+                    }
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-100">{{
+                        slot.untaggedCandidates.length }} candidate(s) without a panel</span>
+                </div>
+                <div class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @for (c of slot.untaggedCandidates; track c.candidateId) {
+                    <label class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-slate-50/60"
+                        [class.bg-primary-500/5]="checkedEligible().has(c.candidateId)">
+                        @if (!slot.isPast) {
+                        <mat-checkbox color="primary" [checked]="checkedEligible().has(c.candidateId)"
+                            (change)="toggle('eligible', c.candidateId, $event.checked)"></mat-checkbox>
+                        }
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{{ c.fullName
+                                }}</p>
+                            <p class="text-xs text-slate-500 truncate"><span class="font-mono">{{ c.referenceNo
+                                    }}</span>{{ c.interviewPost ? ' · ' + c.interviewPost : '' }}</p>
+                        </div>
+                        <span class="text-xs text-slate-500 whitespace-nowrap">{{ displayTime(c.interviewTime) }}</span>
+                    </label>
+                    }
+                </div>
+            </div>
+
+            @if (!slot.isPast) {
+            <div
+                class="mt-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-800/50 p-4 flex flex-col gap-4">
+                @if (!checkedEligible().size) {
+                <p class="text-xs text-slate-500">Select one or more candidates above to tag them.</p>
+                }
+                @if (slot.panels.length) {
+                <div class="flex flex-wrap items-center gap-3">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-[260px]">
+                        <mat-label>Existing panel on this date &amp; venue</mat-label>
+                        <div class="w-10 flex justify-center text-slate-400" matPrefix>
+                            <svg lucideIcon="users-round" class="w-[16px] h-[16px]"></svg>
+                        </div>
+                        <mat-select [value]="tagTargetKey()" (selectionChange)="tagTargetKey.set($event.value)">
+                            @for (p of slot.panels; track p.panelKey) {
+                            <mat-option [value]="p.panelKey">{{ panelLabel(p) }} ({{ p.candidates.length
+                                }})</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                    <button type="button" (click)="tagToExistingPanel()"
+                        [disabled]="!tagTargetKey() || !checkedEligible().size || saving()"
+                        class="ripple-btn rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg [lucideIcon]="saving() ? 'loader' : 'user-round-plus'" class="w-4 h-4"
+                            [class.animate-spin]="saving()"></svg>
+                        Tag {{ checkedEligible().size || '' }} to panel
+                    </button>
+                    <span class="text-xs text-slate-400">or</span>
+                    <button type="button" (click)="startNewPanel()"
+                        class="px-4 py-2 text-sm font-semibold rounded-lg border border-primary-300 text-primary-700 bg-primary-500/5 hover:bg-primary-500/10 cursor-pointer flex items-center gap-2">
+                        <svg lucideIcon="plus" class="w-4 h-4"></svg> New panel
+                    </button>
+                </div>
+                } @else {
+                <div class="flex flex-wrap items-center gap-3">
+                    <p class="text-sm text-slate-600 dark:text-slate-300">No panel exists yet for this date and venue.
+                    </p>
+                    <button type="button" (click)="startNewPanel()"
+                        class="ripple-btn rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow cursor-pointer">
+                        <svg lucideIcon="plus" class="w-4 h-4"></svg> Create panel
+                    </button>
+                </div>
+                }
+            </div>
+            }
+            }
+            }
+        </section>
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions class="justify-end! px-6 py-3 bg-white/60 dark:bg-slate-800 border-t border-slate-200 gap-3">
+    <button (click)="close()"
+        class="cursor-pointer px-5 py-2.5 flex items-center gap-2 bg-white border border-slate-300 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 text-slate-700 text-sm font-semibold rounded-lg shadow-sm transition-all">
+        <svg lucideIcon="x" class="w-4 h-4"></svg>
+        Close
+    </button>
+</mat-dialog-actions>

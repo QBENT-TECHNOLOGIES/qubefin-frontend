@@ -1,5 +1,12 @@
 import { L } from '@angular/cdk/keycodes';
 import {
+  LucideEllipsis,
+  LucideCalendarX2,
+  LucideCircleAlert,
+  LucideInfo,
+  LucideMousePointerClick,
+  LucideUserRoundPlus,
+  LucideUserRoundX,
   LucideAlertCircle,
   LucideArrowLeft,
   LucideBadgeCheck,
@@ -402,6 +409,13 @@ export const APP_ICONS = [
   LucideUnlink,
   LucideFiles,
   LucideFolder,
+  LucideCalendarX2,
+  LucideCircleAlert,
+  LucideInfo,
+  LucideMousePointerClick,
+  LucideUserRoundPlus,
+  LucideUserRoundX,
+  LucideEllipsis,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -602,4 +616,11 @@ export const APP_ICONS_MAP: Record<string, any> = {
   Unlink: LucideUnlink,
   Files: LucideFiles,
   Folder: LucideFolder,
+  CalendarX2: LucideCalendarX2,
+  CircleAlert: LucideCircleAlert,
+  Info: LucideInfo,
+  MousePointerClick: LucideMousePointerClick,
+  UserRoundPlus: LucideUserRoundPlus,
+  UserRoundX: LucideUserRoundX,
+  Ellipsis: LucideEllipsis,
 };

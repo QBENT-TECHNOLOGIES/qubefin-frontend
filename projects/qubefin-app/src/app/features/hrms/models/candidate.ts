@@ -11,6 +11,10 @@ export interface ICandidateList {
   status: CandidateInterviewStatus;
   /** HR / Admin may add or move the interview date and time (until the HR Assessment is completed). */
   canSchedule: boolean;
+  /** Venue organization unit name. */
+  venue?: string | null;
+  /** Names of the interview panelists (empty when not tagged to a panel). */
+  panelMembers?: string[];
   /** Uploaded files (CV, job application, written interview form, credit bureau report, signed joining letter)
    * the API offers at this status. */
   downloads?: ICandidateDownloadFile[];

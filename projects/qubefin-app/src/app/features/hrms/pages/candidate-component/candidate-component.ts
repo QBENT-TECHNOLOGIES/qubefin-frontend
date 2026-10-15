@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { AlertService, DocumentModalService, EMPTY_UUID } from 'qubefin-core';
 import { MatMenuModule } from '@angular/material/menu';
 import { HrmsReportService } from '../../../Report/Service/hrms-report-service';
@@ -34,6 +35,10 @@ import {
   ScheduleInterviewDialog,
 } from '../../components/interview-process/candidate/schedule-interview-dialog/schedule-interview-dialog';
 import { toApiDate } from '../../components/interview-process/interview-time';
+import {
+  IPanelTaggingDialogData,
+  PanelTaggingDialog,
+} from '../../components/interview-process/candidate/panel-tagging-dialog/panel-tagging-dialog';
 @Component({
   selector: 'qfin-candidate-component',
   imports: [
@@ -63,6 +68,7 @@ export class CandidateComponent {
   readonly candidateStore = inject(CandidateStore);
   readonly companyStore = inject(CompanyStore);
   private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
   private readonly hrReportService = inject(HrmsReportService);
   private readonly documentModalService = inject(DocumentModalService);
   private readonly alertService = inject(AlertService);
@@ -160,6 +166,29 @@ export class CandidateComponent {
       if (!saved) return;
       this.candidateStore.refreshList();
       if (this.selectedCandidateId() === candidate.id) {
+        this.candidateStore.refreshDetail();
+      }
+    });
+  }
+  /** Panel Tagging board page (HR). */
+  protected openPanelTaggingPage() {
+    this.router.navigate(['/secure/hrms/panel-tagging']);
+  }
+  /** Panel Tagging dialog for one candidate's date and venue, from its row. */
+  protected onPanelTagging(candidate?: ICandidateList) {
+    const dialogRef = this.dialog.open(PanelTaggingDialog, {
+      width: '1180px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      panelClass: ['glass-modal', 'slide-in-up'],
+      data: (candidate
+        ? { candidateId: candidate.id, candidateName: candidate.fullName, interviewDate: candidate.interviewDate }
+        : {}) satisfies IPanelTaggingDialogData,
+    });
+    dialogRef.afterClosed().subscribe((saved) => {
+      if (!saved) return;
+      this.candidateStore.refreshList();
+      if (this.selectedCandidateId() !== EMPTY_UUID) {
         this.candidateStore.refreshDetail();
       }
     });

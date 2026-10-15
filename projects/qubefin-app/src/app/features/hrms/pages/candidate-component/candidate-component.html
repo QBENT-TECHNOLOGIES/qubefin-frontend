@@ -15,6 +15,12 @@
                     [class.animate-spin]="downloadingJobApplication()"></svg>
                 Download Job Application
             </button>
+            @if (candidateStore.isHr()) {
+            <button type="button" class="filter-btn glass-input lift shine-sweep" (click)="openPanelTaggingPage()">
+                <svg lucideIcon="users-round" class="w-4 h-4"></svg>
+                Panel Tagging
+            </button>
+            }
             <button class="global-btn shine-sweep lift" (click)="onAdd()">
                 <svg lucideIcon="plus" class="w-4 h-4"></svg>
                 Add New
@@ -154,7 +160,8 @@
             } @else {
             <qfin-candidate-list [data]="candidates()" [selectedId]="selectedCandidateId()"
                 [isCollapsed]="selectedCandidateId() !== EMPTY_UUID || !isViewMode()" (onViewDetail)="onView($event)"
-                (onSchedule)="onSchedule($event)" [totalRecords]="candidateStore.totalRecords()"
+                (onSchedule)="onSchedule($event)" (onTagPanel)="onPanelTagging($event)"
+                [isHr]="candidateStore.isHr()" [totalRecords]="candidateStore.totalRecords()"
                 [pageIndex]="candidateStore.pageIndex()" [pageSize]="candidateStore.pageSize()"
                 (pageChanged)="pageChanged($event)" (sortChanged)="onSortChanged($event)">
             </qfin-candidate-list>

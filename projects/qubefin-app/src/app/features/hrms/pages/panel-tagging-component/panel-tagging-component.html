@@ -1,0 +1,330 @@
+<div class="page-container">
+    <!-- Header -->
+    <div class="header-group">
+        <div class="flex items-center gap-3">
+            <span class="text-sm text-slate-500">
+                {{ weekLabel().from | date: 'dd MMM' }} &ndash; {{ weekLabel().to | date: 'dd MMM yyyy' }}
+            </span>
+        </div>
+        <div class="headerBtn-area">
+            <button type="button" class="filter-btn glass-input lift shine-sweep" (click)="backToCandidates()">
+                <svg lucideIcon="arrow-left" class="w-4 h-4"></svg>
+                Candidates
+            </button>
+            <button type="button" class="filter-btn glass-input lift" (click)="shiftWeek(-1)" aria-label="Previous week"
+                matTooltip="Previous week">
+                <svg lucideIcon="chevron-left" class="w-4 h-4"></svg>
+            </button>
+            <button type="button" class="filter-btn glass-input lift shine-sweep" (click)="thisWeek()">This week</button>
+            <button type="button" class="filter-btn glass-input lift" (click)="shiftWeek(1)" aria-label="Next week"
+                matTooltip="Next week">
+                <svg lucideIcon="chevron-right" class="w-4 h-4"></svg>
+            </button>
+            <button type="button" class="filter-btn glass-input lift" (click)="load()" [disabled]="loading()"
+                aria-label="Refresh" matTooltip="Refresh">
+                <svg lucideIcon="refresh-cw" class="w-4 h-4" [class.animate-spin]="loading()"></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="mainCard-area glass w-full p-4 flex flex-col gap-4">
+        <!-- Week strip -->
+        <div class="grid grid-cols-7 gap-2">
+            @for (tile of days(); track tile.date) {
+            @let isSelected = tile.date === selectedDate();
+            <button type="button" (click)="selectDay(tile.date)"
+                class="rounded-lg border px-2 py-2 text-center transition-colors cursor-pointer"
+                [ngClass]="isSelected
+                    ? 'border-primary-500 bg-primary-500/10 ring-1 ring-primary-500'
+                    : 'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/60 hover:border-primary-300'"
+                [class.opacity-60]="tile.date < today && !isSelected">
+                <p class="text-[11px] uppercase tracking-wide text-slate-500">{{ tile.day | date: 'EEE' }}</p>
+                <p class="text-lg font-bold leading-tight"
+                    [ngClass]="tile.date === today ? 'text-primary-600' : 'text-slate-800 dark:text-slate-100'">
+                    {{ tile.day | date: 'dd' }}
+                </p>
+                @if (!tile.candidates) {
+                <p class="text-[11px] text-slate-400">&mdash;</p>
+                } @else if (tile.untagged) {
+                <p class="text-[11px] font-semibold text-amber-600">{{ tile.untagged }} untagged</p>
+                } @else {
+                <p class="text-[11px] font-semibold text-emerald-600 flex items-center justify-center gap-0.5">
+                    {{ tile.candidates }} <svg lucideIcon="check" class="w-3 h-3"></svg>
+                </p>
+                }
+            </button>
+            }
+        </div>
+
+        @if (loadError()) {
+        <div class="flex flex-col items-center gap-2 p-10 text-center">
+            <svg lucideIcon="circle-alert" class="w-10 h-10 text-rose-400"></svg>
+            <p class="text-sm text-rose-600">{{ loadError() }}</p>
+        </div>
+        } @else if (loading() && !slots().length) {
+        <div class="flex items-center justify-center gap-2 p-10 text-sm text-slate-500">
+            <svg lucideIcon="loader" class="w-4 h-4 animate-spin"></svg> Loading panels...
+        </div>
+        } @else if (!slot()) {
+        <div class="flex flex-col items-center gap-2 p-10 text-center text-slate-400">
+            <svg lucideIcon="calendar-x-2" class="w-12 h-12 text-slate-300"></svg>
+            <p class="text-sm font-medium text-slate-500">No interviews on {{ toDate(selectedDate()) | date: 'EEEE, dd MMM' }}</p>
+            <p class="text-xs">Candidates appear here once their interview date, time and venue are set.</p>
+        </div>
+        } @else {
+        @let current = slot()!;
+        <!-- Venues of the day -->
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-semibold text-slate-500 mr-1">Venue</span>
+            @for (s of daySlots(); track s.venueOrganizationUnitId) {
+            <button type="button" (click)="selectVenue(s.venueOrganizationUnitId)"
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold cursor-pointer transition-colors"
+                [ngClass]="s.venueOrganizationUnitId === current.venueOrganizationUnitId
+                    ? 'border-primary-500 bg-primary-500/10 text-primary-700 dark:text-primary-300'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-primary-300'">
+                <svg lucideIcon="map-pin" class="w-3.5 h-3.5"></svg>
+                {{ s.venueName }} &middot; {{ venueCount(s) }}
+                @if (s.untaggedCandidates.length) {
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500" matTooltip="Has untagged candidates"></span>
+                }
+            </button>
+            }
+
+            <div class="ml-auto flex items-center gap-3">
+                @if (selectedCards().size) {
+                <span class="text-xs text-slate-500">{{ selectedCards().size }} selected</span>
+                <button type="button" (click)="clearSelection()"
+                    class="text-xs font-semibold text-slate-500 hover:text-rose-600 cursor-pointer">Clear</button>
+                }
+                @if (!isReadOnly()) {
+                <button class="global-btn shine-sweep lift" (click)="openNewPanel()">
+                    <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                    New panel
+                </button>
+                }
+            </div>
+        </div>
+
+        @if (isReadOnly()) {
+        <p
+            class="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2">
+            <svg lucideIcon="lock" class="w-3.5 h-3.5"></svg>
+            This interview date has passed - the board is read only.
+        </p>
+        } @else {
+        <p class="text-xs text-slate-500 flex items-center gap-1.5">
+            <svg lucideIcon="info" class="w-3.5 h-3.5"></svg>
+            Drag a candidate onto a panel to tag or move it. Ctrl / Shift + click selects several cards to drag together.
+        </p>
+        }
+
+        <div class="flex flex-col lg:flex-row gap-4 items-start">
+            <!-- Board -->
+            <div cdkDropListGroup class="flex-1 min-w-0 w-full flex gap-3 overflow-x-auto scroll-thin pb-2"
+                [class.pointer-events-none]="saving()" [class.opacity-60]="saving()">
+                @for (column of columns(); track column.key) {
+                @let isUntagged = column.key === UNTAGGED;
+                <div cdkDropList [id]="'col-' + column.key" [cdkDropListData]="column.key"
+                    [cdkDropListEnterPredicate]="canEnter"
+                    [cdkDropListSortingDisabled]="true" (cdkDropListDropped)="onDrop($event)"
+                    class="board-column w-[270px] shrink-0 rounded-xl p-2.5 flex flex-col gap-2 min-h-[260px]"
+                    [ngClass]="isUntagged
+                        ? 'border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/40 dark:bg-amber-900/10'
+                        : column.isDraft
+                            ? 'border border-dashed border-primary-300 bg-primary-500/5'
+                            : 'border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/50'">
+
+                    <!-- Column header -->
+                    @if (isUntagged) {
+                    <div class="flex items-center justify-between px-1">
+                        <span class="flex items-center gap-1.5 text-sm font-bold text-amber-700 dark:text-amber-400">
+                            <svg lucideIcon="user-round-x" class="w-4 h-4"></svg> Not tagged
+                        </span>
+                        <span class="status-pill pill-amber"><span class="status-dot"></span>{{ column.candidates.length }}</span>
+                    </div>
+                    } @else {
+                    @let status = columnStatus(column);
+                    <div class="px-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex -space-x-2">
+                                @for (m of column.members.slice(0, 5); track m.employeeId) {
+                                <span [matTooltip]="m.employeeName + (m.designation ? ' · ' + m.designation : '')"
+                                    class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-200 text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-800">
+                                    {{ tagging.initials(m.employeeName) }}
+                                </span>
+                                }
+                                @if (column.members.length > 5) {
+                                <span
+                                    class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-800">
+                                    +{{ column.members.length - 5 }}
+                                </span>
+                                }
+                            </div>
+                            @if (!isReadOnly()) {
+                            <button type="button" [matMenuTriggerFor]="columnMenu" aria-label="Panel options"
+                                class="w-7 h-7 flex items-center justify-center rounded-md text-slate-500 hover:bg-slate-200/70 dark:hover:bg-slate-700 cursor-pointer">
+                                <svg lucideIcon="ellipsis" class="w-4 h-4"></svg>
+                            </button>
+                            }
+                        </div>
+                        <p class="mt-1.5 text-sm font-bold text-slate-800 dark:text-slate-100 truncate">{{
+                            columnLabel(column) }}</p>
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs text-slate-500">{{ column.members.length }} panelist(s)</span>
+                            @if (column.isDraft) {
+                            <span class="status-pill pill-blue"><span class="status-dot"></span>New</span>
+                            } @else {
+                            <span class="status-pill" [ngClass]="status.cls"><span class="status-dot"></span>{{
+                                status.label }}</span>
+                            }
+                        </div>
+                    </div>
+
+                    <mat-menu #columnMenu="matMenu" xPosition="before">
+                        <button mat-menu-item (click)="openEditMembers(column)">
+                            <svg lucideIcon="pencil" class="w-4 h-4 mr-2"></svg> Change members
+                        </button>
+                        @if (column.isDraft) {
+                        <button mat-menu-item (click)="removeDraft(column)">
+                            <svg lucideIcon="trash-2" class="w-4 h-4 mr-2 text-rose-500"></svg> Remove panel
+                        </button>
+                        } @else {
+                        <button mat-menu-item (click)="untagColumn(column)">
+                            <svg lucideIcon="user-round-x" class="w-4 h-4 mr-2 text-rose-500"></svg> Untag all
+                        </button>
+                        }
+                    </mat-menu>
+                    }
+
+                    <!-- Candidate cards -->
+                    @for (c of column.candidates; track c.candidateId) {
+                    @let progress = tagging.candidateProgress(c);
+                    @let picked = selectedCards().has(c.candidateId);
+                    <div cdkDrag [cdkDragData]="c" [cdkDragDisabled]="c.isLocked || isReadOnly()"
+                        (click)="onCardClick($event, c)"
+                        class="candidate-card rounded-lg border bg-white dark:bg-slate-800 px-2.5 py-2 select-none transition-colors"
+                        [ngClass]="picked
+                            ? 'border-primary-500 ring-1 ring-primary-500'
+                            : 'border-slate-200 dark:border-slate-700 hover:border-primary-300'"
+                        [class.cursor-grab]="!c.isLocked && !isReadOnly()"
+                        [class.opacity-70]="c.isLocked">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="min-w-0">
+                                <p class="text-[13px] font-semibold text-slate-800 dark:text-slate-100 truncate">{{
+                                    c.fullName }}</p>
+                                <p class="text-[11px] text-slate-500 truncate"><span class="font-mono">{{ c.referenceNo
+                                        }}</span> &middot; {{ displayTime(c.interviewTime) }}</p>
+                                @if (c.interviewPost) {
+                                <p class="text-[11px] text-slate-400 truncate">{{ c.interviewPost }}</p>
+                                }
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0">
+                                @if (c.isLocked) {
+                                <svg lucideIcon="lock" class="w-3.5 h-3.5 text-slate-400"
+                                    [matTooltip]="c.lockedReason"></svg>
+                                } @else if (!isReadOnly()) {
+                                <button type="button" [matMenuTriggerFor]="cardMenu" (click)="$event.stopPropagation()"
+                                    aria-label="Candidate options"
+                                    class="w-6 h-6 flex items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">
+                                    <svg lucideIcon="ellipsis-vertical" class="w-3.5 h-3.5"></svg>
+                                </button>
+                                }
+                            </div>
+                        </div>
+                        @if (!isUntagged) {
+                        <div class="mt-1.5">
+                            <span class="status-pill" [ngClass]="progress.cls"><span class="status-dot"></span>{{
+                                progress.label }}</span>
+                        </div>
+                        }
+
+                        <div *cdkDragPreview
+                            class="rounded-lg border border-primary-500 bg-white dark:bg-slate-800 px-3 py-2 shadow-lg text-[13px] font-semibold text-slate-800 dark:text-slate-100">
+                            @if (picked && selectedCards().size > 1) {
+                            <span class="flex items-center gap-1.5"><svg lucideIcon="users-round" class="w-4 h-4"></svg>
+                                {{ selectedCards().size }} candidates</span>
+                            } @else {
+                            {{ c.fullName }}
+                            }
+                        </div>
+                        <div *cdkDragPlaceholder
+                            class="rounded-lg border border-dashed border-slate-300 bg-slate-100/60 dark:bg-slate-800 h-[58px]">
+                        </div>
+
+                        <mat-menu #cardMenu="matMenu" xPosition="before">
+                            @for (target of otherColumns(column); track target.key) {
+                            @if (target.key !== UNTAGGED) {
+                            <button mat-menu-item (click)="moveTo(targetsFor(c), target.key)">
+                                <svg lucideIcon="user-round-plus" class="w-4 h-4 mr-2 text-primary-600"></svg>
+                                {{ isUntagged ? 'Tag to' : 'Move to' }} {{ columnLabel(target) }}
+                            </button>
+                            }
+                            }
+                            @if (!isUntagged) {
+                            <button mat-menu-item (click)="moveTo(targetsFor(c), UNTAGGED)">
+                                <svg lucideIcon="user-round-x" class="w-4 h-4 mr-2 text-rose-500"></svg> Untag
+                            </button>
+                            }
+                        </mat-menu>
+                    </div>
+                    } @empty {
+                    <p class="px-1 py-6 text-center text-xs text-slate-400">
+                        {{ isUntagged ? 'Every candidate is tagged.' : 'No candidates yet.' }}
+                    </p>
+                    }
+
+                    <div
+                        class="drop-hint items-center justify-center rounded-lg border-2 border-dashed border-primary-400 text-xs font-semibold text-primary-600 py-3">
+                        {{ isUntagged ? 'Drop here to untag' : 'Drop here to tag' }}
+                    </div>
+                </div>
+                }
+            </div>
+
+            <!-- Side pane: new panel / change members -->
+            @if (sidePane(); as pane) {
+            <div
+                class="w-full lg:w-[440px] shrink-0 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900 p-4">
+                <div class="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 dark:text-slate-100">
+                            {{ pane.mode === 'new' ? 'New panel' : 'Change panel members' }}
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">
+                            {{ current.interviewDate | date: 'EEE, dd MMM yyyy' }} &middot; {{ current.venueName }}
+                        </p>
+                    </div>
+                    <button (click)="sidePane.set(null)" aria-label="Close"
+                        class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full cursor-pointer">
+                        <svg lucideIcon="x" class="w-4 h-4"></svg>
+                    </button>
+                </div>
+                <p class="mb-3 text-xs text-slate-500">
+                    @if (pane.mode === 'new') {
+                    The panel appears as a new column. Drag candidates into it to save it.
+                    } @else {
+                    Applies to every candidate on this panel. Panelists who stay keep their acknowledgement; new
+                    panelists get one invitation mail.
+                    }
+                </p>
+
+                <qfin-panelist-picker [(selected)]="pickerSelection"></qfin-panelist-picker>
+
+                <div class="flex justify-end gap-3 mt-4">
+                    <button type="button" (click)="sidePane.set(null)"
+                        class="cursor-pointer px-4 py-2 bg-white border border-slate-300 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 text-slate-700 text-sm font-semibold rounded-lg shadow-sm">
+                        Cancel
+                    </button>
+                    <button type="button" (click)="saveSidePane()" [disabled]="saving() || !pickerSelection().length"
+                        class="ripple-btn shine-sweep rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow cursor-pointer lift disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg [lucideIcon]="saving() ? 'loader' : 'check'" class="w-4 h-4"
+                            [class.animate-spin]="saving()"></svg>
+                        {{ pane.mode === 'new' ? 'Add panel' : (saving() ? 'Saving...' : 'Save members') }}
+                    </button>
+                </div>
+            </div>
+            }
+        </div>
+        }
+    </div>
+</div>

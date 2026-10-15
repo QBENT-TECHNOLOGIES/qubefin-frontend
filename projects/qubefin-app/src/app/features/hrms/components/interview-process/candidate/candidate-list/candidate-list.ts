@@ -210,9 +210,12 @@ export class CandidateList {
   readonly pageSize = input(10);
   readonly selectedId = input('');
   readonly isCollapsed = input(false);
+  /** HR sees the Tag to Panel row action. */
+  readonly isHr = input(false);
   pageChanged = output<PageEvent>();
   onViewDetail = output<string>();
   onSchedule = output<ICandidateList>();
+  onTagPanel = output<ICandidateList>();
   sortChanged = output<Sort>();
 
   displayedColumns = [
@@ -224,6 +227,8 @@ export class CandidateList {
     'applicationDate',
     'interviewDate',
     'interviewTime',
+    'venue',
+    'panel',
     'recommendationStatus',
     'status',
     'reports',

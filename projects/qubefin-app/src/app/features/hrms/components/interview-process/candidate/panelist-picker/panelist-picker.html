@@ -1,0 +1,114 @@
+<!-- Selected panelists -->
+<div
+    class="rounded-lg border border-emerald-100 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/20 p-3 mb-4">
+    <p class="text-xs font-bold text-emerald-800 dark:text-emerald-100 flex items-center gap-1.5 mb-2">
+        <svg lucideIcon="users-round" class="w-3.5 h-3.5"></svg>
+        Panelists ({{ selected().length }})
+    </p>
+    @if (selected().length) {
+    <div class="flex flex-wrap gap-2">
+        @for (emp of selected(); track emp.id) {
+        <div
+            class="inline-flex items-center gap-2 pl-1.5 pr-2 py-1 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-700 rounded-full shadow-sm">
+            <div
+                class="w-6 h-6 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                {{ initials(emp.name) }}
+            </div>
+            <div class="flex flex-col">
+                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight">{{ emp.name }}</span>
+                <span class="text-[10px] text-slate-500 leading-tight">{{ emp.currentDesignation || '-' }}</span>
+            </div>
+            <button type="button" (click)="toggle(emp, false)" aria-label="Remove panelist"
+                class="ml-1 h-5 w-5 flex items-center justify-center rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 cursor-pointer">
+                <svg lucideIcon="x" class="w-3.5 h-3.5"></svg>
+            </button>
+        </div>
+        }
+    </div>
+    } @else {
+    <p class="text-xs text-slate-500">No panelist selected yet. Pick an organization unit below.</p>
+    }
+</div>
+
+<!-- Organization unit -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Organization Unit Type</mat-label>
+        <div class="w-10 flex justify-center text-slate-400" matPrefix>
+            <svg lucideIcon="building" class="w-[16px] h-[16px]"></svg>
+        </div>
+        <mat-select [value]="organizationUnitTypeId()" (selectionChange)="onTypeChange($event.value)">
+            @for (type of organizationUnitTypes(); track type.id) {
+            <mat-option [value]="type.id">{{ type.name }}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Organization Unit</mat-label>
+        <div class="w-10 flex justify-center text-slate-400" matPrefix>
+            <svg lucideIcon="building-2" class="w-[16px] h-[16px]"></svg>
+        </div>
+        <mat-select [value]="organizationUnitId()" (selectionChange)="onUnitChange($event.value)"
+            [disabled]="!organizationUnits().length">
+            @for (unit of organizationUnits(); track unit.id) {
+            <mat-option [value]="unit.id">{{ unit.name }}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+</div>
+
+<!-- Employees of the unit -->
+<div class="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div
+        class="px-3 py-2 bg-slate-50/80 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600 flex items-center justify-between gap-3">
+        <span class="text-xs font-bold text-slate-700 dark:text-slate-100">Employees</span>
+        <div class="relative">
+            <svg lucideIcon="search" class="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></svg>
+            <input type="text" placeholder="Search name, code, designation..." [value]="searchTerm()"
+                (input)="searchTerm.set($any($event.target).value)"
+                class="pl-8 pr-3 py-1.5 text-xs rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-300 w-56" />
+        </div>
+    </div>
+    <div class="overflow-y-auto max-h-[240px] scroll-thin">
+        @if (employeesLoading()) {
+        <div class="flex items-center justify-center gap-2 p-6 text-sm text-slate-500">
+            <svg lucideIcon="loader" class="w-4 h-4 animate-spin"></svg> Loading employees...
+        </div>
+        } @else if (filteredEmployees().length) {
+        <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/50">
+                @for (emp of filteredEmployees(); track emp.id) {
+                <tr (click)="toggle(emp, !isSelected(emp.id))"
+                    class="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 cursor-pointer"
+                    [class.bg-emerald-50/60]="isSelected(emp.id)">
+                    <td class="px-3 py-2 w-[48px] text-center" (click)="$event.stopPropagation()">
+                        <mat-checkbox [checked]="isSelected(emp.id)" (change)="toggle(emp, $event.checked)"
+                            color="primary"></mat-checkbox>
+                    </td>
+                    <td class="px-3 py-2">
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300 text-[10px] font-bold flex items-center justify-center shrink-0">
+                                {{ initials(emp.name) }}
+                            </div>
+                            <span class="font-semibold text-slate-800 dark:text-slate-200">{{ emp.name }}</span>
+                        </div>
+                    </td>
+                    <td class="px-3 py-2">{{ emp.code }}</td>
+                    <td class="px-3 py-2">{{ emp.currentDesignation || '-' }}</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+        } @else {
+        <div class="flex flex-col items-center justify-center p-6 text-slate-400">
+            <svg lucideIcon="users-round" class="w-10 h-10 mb-2 text-slate-300"></svg>
+            <p class="text-sm text-slate-500">
+                {{ hasEmployees() ? 'No employees match your search.' : 'Select an organization unit to list its
+                employees.' }}
+            </p>
+        </div>
+        }
+    </div>
+</div>

@@ -31,6 +31,7 @@ export class CandidateStore {
   readonly candidatesResource = httpResource<{
     candidates: ICandidateList[];
     totalRecords: number;
+    isHr: boolean;
   }>(() => ({
     url: `${this.basePath}/filter`,
     method: 'POST',
@@ -48,6 +49,8 @@ export class CandidateStore {
   }
   readonly candidates = computed(() => this.candidatesResource.value()?.candidates ?? []);
   readonly totalRecords = computed(() => this.candidatesResource.value()?.totalRecords ?? 0);
+  /** HR may manage panel tagging. */
+  readonly isHr = computed(() => this.candidatesResource.value()?.isHr ?? false);
   readonly candidatesLoading = computed(() => this.candidatesResource.isLoading());
   readonly candidatesError = computed(() => this.candidatesResource.error());
 

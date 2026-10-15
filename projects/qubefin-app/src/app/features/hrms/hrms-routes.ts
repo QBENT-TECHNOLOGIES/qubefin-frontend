@@ -155,6 +155,19 @@ export const HrmsRoutes: Routes = [
           ),
       },
       {
+        // HR only - the API refuses everyone else.
+        path: 'panel-tagging',
+        loadComponent: () =>
+          import('./pages/panel-tagging-component/panel-tagging-component').then(
+            (m) => m.PanelTaggingComponent,
+          ),
+        data: {
+          title: 'Panel Tagging',
+          subTitle: 'Tag interview candidates to panels by date and venue.',
+          icon: 'users-round',
+        },
+      },
+      {
         // Interviewers only - access is given through the menu/role assignment.
         path: 'interview',
         loadComponent: () =>

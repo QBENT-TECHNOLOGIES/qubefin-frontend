@@ -6,6 +6,7 @@ import {
   IInterviewAssessmentDto,
   IPanelistScheduleDto,
 } from '../models/interview-panel';
+import { IPanelBoardSearch, IPanelSlot } from '../models/panel-tagging';
 
 @Injectable({
   providedIn: 'root',
@@ -90,6 +91,26 @@ export class InterviewPanelService {
       formData.append('File', acknowledgement, 'interview_panel_acknowledgement.pdf');
     }
     return formData;
+  }
+
+  /** Panel Tagging: panels and untagged candidates, grouped by interview date and venue (HR only). */
+  getPanelBoard(search: IPanelBoardSearch) {
+    return this.httpClient.post<IPanelSlot[]>(`${ApiPaths.HRMS}/interview-panels/board`, search);
+  }
+
+  /** Panel Tagging: sets the panel of each candidate (same date and venue) to exactly these panelists. New
+   * panelists get one mail each, with every candidate's acknowledgement PDF attached. */
+  assignPanel(candidateIds: string[], employeeIds: string[], acknowledgements: Map<string, Blob>) {
+    const formData = new FormData();
+    candidateIds.forEach((id) => formData.append('CandidateIds', id));
+    employeeIds.forEach((id) => formData.append('EmployeeIds', id));
+    acknowledgements.forEach((file, candidateId) => formData.append('Files', file, `${candidateId}.pdf`));
+    return this.httpClient.post<string>(`${ApiPaths.HRMS}/interview-panels/assign`, formData);
+  }
+
+  /** Panel Tagging: removes every panelist from the candidates. */
+  untagCandidates(candidateIds: string[]) {
+    return this.httpClient.post<string>(`${ApiPaths.HRMS}/interview-panels/untag`, { candidateIds });
   }
 
   /** Removes an existing panelist from a candidate's interview panel. */
