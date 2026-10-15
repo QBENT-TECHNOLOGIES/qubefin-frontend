@@ -55,4 +55,9 @@ export class ReportService {
       responseType: 'blob',
     });
   }
+  exportLopFinalization(payload: any) {
+    return this.httpClient.post(`${ApiPaths.REPORT}/generate-lop-finalization-report`, payload, {
+      responseType: 'blob',
+    });
+  }
 }

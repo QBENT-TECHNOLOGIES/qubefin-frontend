@@ -7,14 +7,15 @@ import { PayrollComponent, UpdatePayrollCommand } from '../../models/payroll-mod
 import { CreatePayrollModal } from '../create-payroll-modal/create-payroll-modal';
 import { FormsModule } from '@angular/forms';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
-
+import { AlertService } from 'qubefin-core';
 @Component({
   selector: 'qfin-payroll-edit-modal',
   imports: [CommonModule, FormsModule, MatDialogModule, LucideDynamicIcon],
   templateUrl: './payroll-edit-modal.html',
-  styleUrls: ['./payroll-edit-modal.scss']
+  styleUrls: ['./payroll-edit-modal.scss'],
 })
 export class PayrollEditModal {
+  readonly alertService = inject(AlertService);
   public readonly dialogRef = inject(MatDialogRef<CreatePayrollModal>);
   private readonly data = inject(MAT_DIALOG_DATA);
   public readonly payrollStore = inject(PayrollStore);
@@ -37,8 +38,12 @@ export class PayrollEditModal {
     if (this.isEditMode()) return this.editableDeductions();
     return this.payrollStore.payroll()?.deductionHeads ?? [];
   });
-  totalEarnings = computed(() => this.displayEarnings().reduce((acc, item) => acc + (Number(item.amount) || 0), 0));
-  totalDeductions = computed(() => this.displayDeductions().reduce((acc, item) => acc + (Number(item.amount) || 0), 0));
+  totalEarnings = computed(() =>
+    this.displayEarnings().reduce((acc, item) => acc + (Number(item.amount) || 0), 0),
+  );
+  totalDeductions = computed(() =>
+    this.displayDeductions().reduce((acc, item) => acc + (Number(item.amount) || 0), 0),
+  );
   netPay = computed(() => this.totalEarnings() - this.totalDeductions());
   getMonthName(monthNumber: number): string {
     const date = new Date();
@@ -48,20 +53,20 @@ export class PayrollEditModal {
   onEdit(): void {
     const currentData = this.payrollStore.payroll();
     if (currentData) {
-      this.editableEarnings.set((currentData.earningHeads ?? []).map(c => ({ ...c })));
-      this.editableDeductions.set((currentData.deductionHeads ?? []).map(c => ({ ...c })));
+      this.editableEarnings.set((currentData.earningHeads ?? []).map((c) => ({ ...c })));
+      this.editableDeductions.set((currentData.deductionHeads ?? []).map((c) => ({ ...c })));
       this.isEditMode.set(true);
     }
   }
   onEarningAmountChange(item: PayrollComponent, amount: number): void {
-    this.editableEarnings.update(items =>
-      items.map(i => i.id === item.id ? { ...i, amount } : i)
+    this.editableEarnings.update((items) =>
+      items.map((i) => (i.id === item.id ? { ...i, amount } : i)),
     );
   }
 
   onDeductionAmountChange(item: PayrollComponent, amount: number): void {
-    this.editableDeductions.update(items =>
-      items.map(i => i.id === item.id ? { ...i, amount } : i)
+    this.editableDeductions.update((items) =>
+      items.map((i) => (i.id === item.id ? { ...i, amount } : i)),
     );
   }
 
@@ -69,18 +74,22 @@ export class PayrollEditModal {
     if (!this.data?.id) return;
     const command: UpdatePayrollCommand = {
       payrollId: this.data.id,
-      earningHeads: this.displayEarnings().map(e => ({
+      earningHeads: this.displayEarnings().map((e) => ({
         salaryComponentId: e.salaryComponentId,
-        amount: Number(e.amount)
+        amount: Number(e.amount),
       })),
-      deductionHeads: this.displayDeductions().map(d => ({
+      deductionHeads: this.displayDeductions().map((d) => ({
         salaryComponentId: d.salaryComponentId,
-        amount: Number(d.amount)
-      }))
+        amount: Number(d.amount),
+      })),
     };
-    this.payrollStore.updatePayrollComponents(command, () => {
-      this.isEditMode.set(false);
-      this.dialogRef.close(true);
+    this.alertService.confirm('Confirmation', `Do you want to save changes?`).then((result) => {
+      if (result.isConfirmed) {
+        this.payrollStore.updatePayrollComponents(command, () => {
+          this.isEditMode.set(false);
+          this.dialogRef.close(true);
+        });
+      }
     });
   }
   onCancel(): void {
