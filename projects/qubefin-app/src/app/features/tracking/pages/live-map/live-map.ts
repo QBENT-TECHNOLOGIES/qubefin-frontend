@@ -14,7 +14,7 @@ import { TrackingSettingsStore } from '../../stores/tracking-settings-store';
 import { DEFAULT_CENTER, centroid, distanceMeters, formatDistance, toDateKey } from '../../utils/geo-utils';
 import { MarkerContentCache, initials } from '../../utils/marker-content';
 import { TRACKING_POLL_MS, pollWhileVisible } from '../../utils/poll';
-import { LIVE_STATUS, ROLE_LABEL } from '../../utils/tracking-labels';
+import { LIVE_STATUS, ROLE_LABEL, STOP_KIND } from '../../utils/tracking-labels';
 import { MapStatus } from '../../components/shared/map-status/map-status';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
 
@@ -134,8 +134,8 @@ export class LiveMap {
       ? (this.route()?.stops ?? []).map((s, i) => ({
           key: `s${i}`,
           position: s.location,
-          title: `${s.label ?? 'Unscheduled stop'} · ${s.durationMinutes} min (${new Date(s.from).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })})`,
-          content: this.markers.pin(`stop-${i}`, `${s.durationMinutes}′`, s.label ? '#7C3AED' : '#D97706', { small: true }),
+          title: `${s.seq}. ${s.label ?? 'Undesignated stop'} · ${s.durationMinutes} min (${new Date(s.from).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })})`,
+          content: this.markers.pin(`stop-${i}`, `${s.durationMinutes}′`, STOP_KIND[s.kind].color, { small: true }),
         }))
       : [],
   );

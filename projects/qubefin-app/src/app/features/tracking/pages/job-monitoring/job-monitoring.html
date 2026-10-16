@@ -1,0 +1,174 @@
+<div class="page-container trk-form">
+    <div class="header-group flex-wrap gap-3">
+        <div class="flex items-center gap-3 flex-wrap">
+            <div class="trk-tabs">
+                @for (s of scopes; track s.key) {
+                <button type="button" [class.is-active]="scope() === s.key" (click)="scope.set(s.key); selectJob(null)">{{ s.label }}</button>
+                }
+            </div>
+            @if (summary(); as s) {
+            <div class="flex items-center gap-3 text-xs text-slate-500">
+                <span><b class="text-slate-700 dark:text-slate-200">{{ jobs().length }}</b> jobs</span>
+                <span><b class="text-violet-600">{{ s.inProgress }}</b> in progress</span>
+                <span><b class="text-blue-600">{{ s.assigned }}</b> not started</span>
+                <span><b class="text-rose-600">{{ s.overdue }}</b> overdue</span>
+            </div>
+            }
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+            <div class="w-40"><mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Branch</mat-label>
+                <mat-select [value]="branchId()" (valueChange)="branchId.set($event); selectJob(null)">
+                    <mat-option [value]="null">All branches</mat-option>
+                    @for (b of lookup.branches(); track b.id) { <mat-option [value]="b.id">{{ b.name }}</mat-option> }
+                </mat-select>
+            </mat-form-field></div>
+            <div class="w-48"><mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Employee</mat-label>
+                <mat-select [value]="assigneeId()" (valueChange)="assigneeId.set($event); selectJob(null)">
+                    <mat-option [value]="null">Everyone</mat-option>
+                    @for (g of lookup.officersByRole(); track g.role) {
+                    <mat-optgroup [label]="ROLE_LABEL[g.role] + 's'">
+                        @for (o of g.officers; track o.id) { <mat-option [value]="o.id">{{ o.name }}</mat-option> }
+                    </mat-optgroup>
+                    }
+                </mat-select>
+            </mat-form-field></div>
+            <button type="button" class="trk-toggle" [class.is-on]="onlyIssues()" (click)="onlyIssues.set(!onlyIssues())">
+                <svg lucideIcon="triangle-alert" class="w-4 h-4"></svg> Overdue only
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-4 items-start">
+        <!-- Jobs -->
+        <div class="glass rounded-2xl p-2 xl:h-[calc(100vh-200px)] overflow-y-auto scroll-thin">
+            @if (loading() && !jobs().length) { <p class="p-6 text-center text-sm text-slate-500">Loading…</p> }
+            @for (j of jobs(); track j.id) {
+            <button type="button" class="trk-task-card" [class.is-selected]="selectedJobId() === j.id" (click)="selectJob(j.id)">
+                <div class="flex items-start gap-2.5">
+                    <div class="min-w-0 flex-1 text-left">
+                        <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate">{{ j.title }}</p>
+                        <p class="text-[11px] text-slate-400 truncate">{{ j.jobNo }} · {{ j.assigneeName ?? 'Not assigned' }} · due {{ j.completeBy | date: 'dd MMM' }}</p>
+                    </div>
+                    <qfin-trk-chip [tone]="JOB_STATUS[j.status]" [small]="true" [showIcon]="false" />
+                </div>
+                <div class="flex items-center gap-2 mt-2">
+                    <div class="trk-bar flex-1"><span [style.width.%]="pct(j)" [class.is-late]="j.status === 'Overdue'"></span></div>
+                    <span class="text-[11px] text-slate-500 tabular-nums">{{ j.doneCount }}/{{ j.taskCount }}</span>
+                </div>
+                <div class="flex items-center gap-1 mt-1.5">
+                    @for (t of j.types; track t) {
+                    <span class="trk-type-dot" [style.--trk-color]="TASK_TYPE[t].color"><svg [lucideIcon]="TASK_TYPE[t].icon" class="w-3 h-3"></svg></span>
+                    }
+                </div>
+            </button>
+            } @empty {
+            @if (!loading()) { <p class="p-6 text-center text-sm text-slate-400">No jobs match.</p> }
+            }
+        </div>
+
+        <!-- Map + details -->
+        <div class="flex flex-col gap-4 min-w-0">
+            <div class="trk-map-frame glass h-[440px] relative">
+                @if (maps.status() === 'ready') {
+                <google-map width="100%" height="100%" [mapId]="maps.mapId" [center]="center()" [zoom]="zoom()" [options]="mapOptions">
+                    @for (m of overviewMarkers(); track m.key) {
+                    <map-advanced-marker [position]="m.position" [title]="m.title" [content]="m.content" (mapClick)="selectJob(m.jobId)" />
+                    }
+                    @for (m of taskMarkers(); track m.task.id) {
+                    <map-circle [center]="m.task.target.location" [radius]="m.task.target.matchRadiusMeters" [options]="circleOptions(colorOf(m.task))" />
+                    <map-advanced-marker [position]="m.task.target.location" [title]="m.task.taskNo + ' · ' + m.task.title" [content]="m.content"
+                        [zIndex]="m.task.id === selectedTaskId() ? 900 : 100" (mapClick)="selectTask(m.task)" />
+                    }
+                    @for (m of evidenceMarkers(); track m.key) {
+                    <map-advanced-marker [position]="m.position" [title]="m.title" [content]="m.content" [zIndex]="950" />
+                    }
+                    @for (line of evidenceLines(); track $index) {
+                    <map-polyline [path]="line" [options]="lineOptions" />
+                    }
+                    @if (assigneeMarker(); as a) {
+                    <map-advanced-marker [position]="a.position" [title]="a.title" [content]="a.content" [zIndex]="1000" />
+                    }
+                </google-map>
+                } @else {
+                <qfin-map-status />
+                }
+                <div class="trk-map-overlay left-3 bottom-3 text-[11px]">
+                    @if (job()) {
+                    <span class="flex items-center gap-1.5"><span class="trk-legend-pin" style="--trk-color:#2563EB"></span> Pending</span>
+                    <span class="flex items-center gap-1.5"><span class="trk-legend-pin" style="--trk-color:#16A34A"></span> Completed</span>
+                    <span class="flex items-center gap-1.5"><span class="trk-legend-pin" style="--trk-color:#E11D48"></span> Photo off-site</span>
+                    @if (assigneeNow()) { <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#0F172A"></span> Employee now</span> }
+                    } @else {
+                    <span>Pending task points of the jobs listed · pin colour = job status</span>
+                    }
+                </div>
+            </div>
+
+            @if (job(); as j) {
+            <div class="glass rounded-2xl p-4">
+                <div class="flex items-start justify-between gap-4 mb-3">
+                    <div class="min-w-0">
+                        <p class="text-[11px] text-slate-400 tabular-nums">{{ j.jobNo }} · due {{ j.completeBy | date: 'EEE, dd MMM' }}</p>
+                        <h2 class="text-lg font-bold text-slate-800 dark:text-white truncate">{{ j.title }}</h2>
+                        <p class="text-xs text-slate-500">
+                            {{ j.assigneeName ? j.assigneeName + ' (' + ROLE_LABEL[j.assigneeRole!] + ')' : 'Not assigned' }} · {{ j.branchNames.join(', ') }}
+                            · {{ j.doneCount }}/{{ j.taskCount }} done
+                            @if (mismatches(j)) { · <span class="text-rose-600">{{ mismatches(j) }} photo(s) off-site</span> }
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <qfin-trk-chip [tone]="JOB_STATUS[j.status]" />
+                        <a class="trk-icon-btn" matTooltip="Open job" [routerLink]="['/secure/tracking/jobs']" [queryParams]="{ job: j.id }"><svg lucideIcon="external-link" class="w-4 h-4"></svg></a>
+                        @if (j.assigneeId) {
+                        <a class="trk-icon-btn" matTooltip="Today's route" [routerLink]="['/secure/tracking/route-history']" [queryParams]="{ employee: j.assigneeId, date: today }"><svg lucideIcon="route" class="w-4 h-4"></svg></a>
+                        }
+                        <button type="button" class="pannel-close" matTooltip="Back to all jobs" (click)="selectJob(null)"><svg lucideIcon="x" class="w-4 h-4"></svg></button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-4">
+                    <ul class="flex flex-col gap-1 max-h-[360px] overflow-y-auto scroll-thin pr-1">
+                        @for (t of visibleTasks(); track t.id) {
+                        <li>
+                            <button type="button" class="trk-task-card py-2!" [class.is-selected]="selectedTaskId() === t.id" (click)="selectTask(t)">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="trk-type-icon" [style.--trk-color]="TASK_TYPE[t.type].color"><svg [lucideIcon]="TASK_TYPE[t.type].icon" class="w-4 h-4"></svg></span>
+                                    <div class="min-w-0 flex-1 text-left">
+                                        <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate">{{ t.title }}</p>
+                                        <p class="text-[11px] text-slate-400 truncate">
+                                            {{ t.taskNo }}{{ t.origin === 'SelfAdded' ? ' · self-added' : '' }}
+                                            @if (t.completedAt) { · {{ t.completedAt | date: 'dd MMM, hh:mm a' }} }
+                                        </p>
+                                    </div>
+                                    @if (t.verification?.locationMatched === false) {
+                                    <svg lucideIcon="crosshair" class="w-4 h-4 text-rose-600" matTooltip="Photo outside the match radius"></svg>
+                                    }
+                                    <qfin-trk-chip [tone]="JOB_TASK_STATUS[t.status]" [small]="true" [showIcon]="false" />
+                                </div>
+                            </button>
+                        </li>
+                        }
+                    </ul>
+                    <div>
+                        @if (task(); as t) {
+                        <h4 class="box-content-heading">{{ t.taskNo }} · verification</h4>
+                        <div class="green-line mb-3!"></div>
+                        <qfin-task-evidence [task]="t" />
+                        } @else {
+                        <div class="trk-info-box h-full justify-center items-center text-center text-slate-500">
+                            Select a task (list or map) to see the arrival fix, completion photo and remarks.
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            } @else {
+            <div class="glass rounded-2xl p-6 text-center text-sm text-slate-500">
+                Select a job to see all its task points, what is done, and where each completion photo was taken.
+            </div>
+            }
+        </div>
+    </div>
+</div>

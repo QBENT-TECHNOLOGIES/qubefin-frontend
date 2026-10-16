@@ -1,0 +1,96 @@
+<div class="trk-dialog-header">
+    <div class="flex items-center gap-4">
+        <div class="trk-dialog-icon bg-indigo-50 text-indigo-600 dark:bg-secondary-600/50 dark:text-indigo-400">
+            <svg lucideIcon="arrow-right-left" class="w-6 h-6"></svg>
+        </div>
+        <div>
+            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">Transfer {{ job.jobNo }}</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Held by {{ job.assigneeName }} · {{ pending.length }} pending of {{ job.taskCount }}. Every transfer is kept in the audit trail.
+            </p>
+        </div>
+    </div>
+    <button type="button" (click)="cancel()" class="trk-dialog-close" aria-label="Close"><svg lucideIcon="x" class="w-5 h-5"></svg></button>
+</div>
+
+<div class="p-5 flex flex-col gap-4 w-[min(600px,92vw)] max-h-[70vh] overflow-y-auto scroll-thin trk-form">
+    <div class="trk-tabs self-start">
+        <button type="button" [class.is-active]="mode() === 'whole'" (click)="setMode('whole')">
+            <svg lucideIcon="briefcase" class="w-4 h-4"></svg> Whole job
+        </button>
+        <button type="button" [class.is-active]="mode() === 'partial'" (click)="setMode('partial')">
+            <svg lucideIcon="list-checks" class="w-4 h-4"></svg> Selected tasks
+        </button>
+    </div>
+    <p class="text-[11px] text-slate-500 -mt-2">
+        @if (mode() === 'whole') {
+        The job moves to the new person with its {{ pending.length }} pending task(s). Completed tasks stay credited to whoever did them.
+        } @else {
+        The ticked pending tasks move into a new job linked to {{ job.jobNo }}. The rest stay here.
+        }
+    </p>
+
+    @if (mode() === 'partial') {
+    <div class="trk-info-box p-0! overflow-hidden">
+        <label class="flex items-center gap-2 px-3 py-2 border-b border-slate-200/70 dark:border-slate-700/50 text-xs font-semibold cursor-pointer">
+            <input type="checkbox" class="accent-primary-500 w-4 h-4" [checked]="picked().size === pending.length"
+                [indeterminate]="picked().size > 0 && picked().size < pending.length" (change)="toggleAll($any($event.target).checked)">
+            Pending tasks ({{ picked().size }} selected)
+        </label>
+        <ul class="max-h-56 overflow-y-auto scroll-thin">
+            @for (t of pending; track t.id) {
+            <li>
+                <label class="flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-slate-500/5">
+                    <input type="checkbox" class="accent-primary-500 w-4 h-4" [checked]="picked().has(t.id)" (change)="toggle(t.id, $any($event.target).checked)">
+                    <span class="trk-type-dot" [style.--trk-color]="TASK_TYPE[t.type].color"><svg [lucideIcon]="TASK_TYPE[t.type].icon" class="w-3 h-3"></svg></span>
+                    <span class="min-w-0">
+                        <span class="block text-[13px] text-slate-700 dark:text-slate-200 truncate">{{ t.title }}</span>
+                        <span class="block text-[11px] text-slate-400">{{ t.taskNo }} · {{ t.target.branchName }}</span>
+                    </span>
+                </label>
+            </li>
+            }
+        </ul>
+    </div>
+    @if (submitted() && !picked().size) { <p class="trk-field-error -mt-2">Tick at least one task.</p> }
+    }
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Transfer to</mat-label>
+        <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="user" class="w-5 h-5"></svg></div>
+        <mat-select [ngModel]="assigneeId()" (ngModelChange)="assigneeId.set($event)" placeholder="Select employee">
+            @for (g of groups(); track g.role) {
+            <mat-optgroup [label]="ROLE_LABEL[g.role] + 's'">
+                @for (o of g.officers; track o.id) {
+                <mat-option [value]="o.id" [disabled]="!!o.blockedReason">
+                    <span class="text-[13px]">{{ o.name }} · {{ o.unitName }}</span>
+                    @if (o.blockedReason) { <span class="block text-[10px] leading-tight text-amber-600">{{ o.blockedReason }}</span> }
+                </mat-option>
+                }
+            </mat-optgroup>
+            }
+        </mat-select>
+    </mat-form-field>
+    @if (submitted() && !assigneeId()) { <p class="trk-field-error -mt-2">Select who takes over.</p> }
+
+    @if (mode() === 'partial') {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>New job – complete by</mat-label>
+        <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="calendar-days" class="w-5 h-5"></svg></div>
+        <input matInput type="date" [min]="today" [ngModel]="completeBy()" (ngModelChange)="completeBy.set($event)">
+    </mat-form-field>
+    }
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Reason</mat-label>
+        <textarea matInput rows="3" [ngModel]="remarks()" (ngModelChange)="remarks.set($event)" placeholder="e.g. On leave from Thursday"></textarea>
+    </mat-form-field>
+    @if (submitted() && remarks().trim().length < 3) { <p class="trk-field-error -mt-2">A reason is required for the audit trail.</p> }
+</div>
+
+<div class="trk-dialog-footer">
+    <button type="button" (click)="cancel()" class="trk-btn-secondary"><svg lucideIcon="x" class="w-4 h-4"></svg> Cancel</button>
+    <button type="button" (click)="confirm()" class="trk-btn-primary" [disabled]="submitted() && !valid()">
+        <svg lucideIcon="arrow-right-left" class="w-4 h-4"></svg> {{ mode() === 'whole' ? 'Transfer job' : 'Transfer ' + picked().size + ' task(s)' }}
+    </button>
+</div>

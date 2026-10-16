@@ -25,9 +25,10 @@
             @for (group of groups(); track group.role) {
             <mat-optgroup [label]="ROLE_LABEL[group.role] + 's'">
                 @for (o of group.officers; track o.id) {
-                <mat-option [value]="o.id" [disabled]="o.id === data.currentAssigneeId">
-                    {{ o.name }} · {{ o.branchName }}
-                    @if (o.id === data.currentAssigneeId) { (current) }
+                <mat-option [value]="o.id" [disabled]="o.id === data.currentAssigneeId || !!o.blockedReason">
+                    <span class="text-[13px]">{{ o.name }} · {{ o.unitName }}</span>
+                    @if (o.id === data.currentAssigneeId) { <span class="text-[11px] text-slate-400"> (current)</span> }
+                    @if (o.blockedReason) { <span class="block text-[10px] leading-tight text-amber-600">{{ o.blockedReason }}</span> }
                 </mat-option>
                 }
             </mat-optgroup>

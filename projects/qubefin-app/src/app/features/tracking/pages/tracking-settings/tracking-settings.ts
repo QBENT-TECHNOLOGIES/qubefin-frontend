@@ -45,6 +45,8 @@ export class TrackingSettingsPage {
     { key: 'branchRadiusKm', label: 'Branch operating radius', unit: 'km', hint: 'Travel beyond this needs prior approval.', min: 1 },
     { key: 'locationMatchRadiusMeters', label: 'Task location match', unit: 'm', hint: 'Default distance accepted for arrival and completion photos.', min: 10 },
     { key: 'gpsOffGraceMinutes', label: 'GPS-off grace period', unit: 'min', hint: 'Wait this long before raising a GPS-off alert.', min: 0 },
+    { key: 'stopMinMinutes', label: 'Stop – minimum halt', unit: 'min', hint: 'A halt this long or longer is listed as a stop in the day route.', min: 1 },
+    { key: 'stopRadiusMeters', label: 'Stop – tolerance', unit: 'm', hint: 'Added to a task point’s radius when deciding if a stop is designated.', min: 10 },
     { key: 'positionIntervalSeconds', label: 'Position update interval', unit: 'sec', hint: 'How often the mobile app sends a location fix.', min: 15 },
   ];
 

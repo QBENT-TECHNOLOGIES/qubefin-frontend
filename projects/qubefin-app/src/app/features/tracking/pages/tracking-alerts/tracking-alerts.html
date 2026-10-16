@@ -95,6 +95,9 @@
                             @if (a.location) {
                             · <a class="trk-link" [href]="googleMapsLink(a.location)" target="_blank" rel="noopener">map</a>
                             }
+                            @if (a.jobId) {
+                            · <a class="trk-link" [routerLink]="['/secure/tracking/monitoring']" [queryParams]="{ job: a.jobId }">{{ a.jobNo }}</a>
+                            }
                         </p>
                         @if (a.resolutionRemarks) {
                         <p class="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5">✓ {{ a.resolutionRemarks }} — {{ a.resolvedByName }}</p>

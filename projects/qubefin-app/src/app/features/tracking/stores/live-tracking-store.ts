@@ -20,7 +20,7 @@ export class LiveTrackingStore {
   readonly error = computed(() => this.positionsResource.error());
 
   readonly countsByStatus = computed(() => {
-    const counts: Record<LiveStatus, number> = { OnTask: 0, Moving: 0, Idle: 0, GpsOff: 0, Offline: 0, NotPunchedIn: 0 };
+    const counts: Record<LiveStatus, number> = { OnTask: 0, AtBranch: 0, Moving: 0, Idle: 0, GpsOff: 0, Offline: 0, NotPunchedIn: 0, PunchedOut: 0 };
     this.positions().forEach((p) => counts[p.status]++);
     return counts;
   });

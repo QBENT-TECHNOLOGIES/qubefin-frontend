@@ -7,7 +7,7 @@ export type AlertType =
   | 'Stationary'
   | 'OutsideBranchRadius'
   | 'LocationMismatch'
-  | 'LateTask';
+  | 'OverdueJob';
 
 export type AlertSeverity = 'Low' | 'Medium' | 'High';
 
@@ -27,6 +27,9 @@ export interface TrackingAlert {
   /** Rule-specific measurement, e.g. 22 (minutes stationary) or 34.5 (km from branch). */
   measuredValue: number | null;
   measuredUnit: string | null;
+  /** The job / task the alert is about, if any. */
+  jobId: string | null;
+  jobNo: string | null;
   taskId: string | null;
   raisedAt: string;
   status: AlertStatus;

@@ -191,6 +191,15 @@ import {
   LucideTarget,
   LucideTimer,
   LucideListChecks,
+  // Tracking – jobs
+  LucideArrowRightLeft,
+  LucideBan,
+  LucideHistory,
+  LucideListPlus,
+  LucideMapPinCheck,
+  LucideMapPinX,
+  LucideMousePointerClick,
+  LucideUserPlus,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -385,6 +394,15 @@ export const APP_ICONS = [
   LucideTarget,
   LucideTimer,
   LucideListChecks,
+  // Tracking – jobs
+  LucideArrowRightLeft,
+  LucideBan,
+  LucideHistory,
+  LucideListPlus,
+  LucideMapPinCheck,
+  LucideMapPinX,
+  LucideMousePointerClick,
+  LucideUserPlus,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -578,4 +596,13 @@ export const APP_ICONS_MAP: Record<string, any> = {
   Target: LucideTarget,
   Timer: LucideTimer,
   ListChecks: LucideListChecks,
+  // Tracking – jobs
+  ArrowRightLeft: LucideArrowRightLeft,
+  Ban: LucideBan,
+  History: LucideHistory,
+  ListPlus: LucideListPlus,
+  MapPinCheck: LucideMapPinCheck,
+  MapPinX: LucideMapPinX,
+  MousePointerClick: LucideMousePointerClick,
+  UserPlus: LucideUserPlus,
 };

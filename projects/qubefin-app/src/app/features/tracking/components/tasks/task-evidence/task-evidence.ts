@@ -2,10 +2,10 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DocumentModalService } from 'qubefin-core';
-import { TrackingTask } from '../../../models/tracking-task';
+import { JobTask } from '../../../models/job';
 import { formatCoords, formatDistance, googleMapsLink } from '../../../utils/geo-utils';
 
-/** Location check + completion photo + OD outcome for one task. */
+/** Location check + completion photo + remarks + OD outcome for one task (all captured on the mobile app). */
 @Component({
   selector: 'qfin-task-evidence',
   imports: [DatePipe, DecimalPipe, LucideDynamicIcon],
@@ -15,7 +15,7 @@ import { formatCoords, formatDistance, googleMapsLink } from '../../../utils/geo
 export class TaskEvidence {
   private readonly documents = inject(DocumentModalService);
 
-  readonly task = input.required<TrackingTask>();
+  readonly task = input.required<JobTask>();
 
   readonly formatDistance = formatDistance;
   readonly formatCoords = formatCoords;

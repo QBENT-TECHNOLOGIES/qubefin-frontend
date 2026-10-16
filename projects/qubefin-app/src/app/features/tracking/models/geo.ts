@@ -9,6 +9,9 @@ export interface TrackingBranch {
   id: string;
   name: string;
   code: string;
+  /** Org hierarchy: Head Office > Division > Area > Branch. */
+  areaName: string;
+  divisionName: string;
   location: GeoPoint | null;
   /** Allowed operating radius around the branch, in kilometres (default 30). */
   operatingRadiusKm: number;

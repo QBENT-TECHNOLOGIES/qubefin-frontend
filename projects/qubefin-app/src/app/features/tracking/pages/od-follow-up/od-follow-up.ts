@@ -16,17 +16,12 @@ import { OverdueCustomer } from '../../models/overdue-customer';
 import { OdFollowUpService } from '../../services/od-follow-up-service';
 import { OdFollowUpStore } from '../../stores/od-follow-up-store';
 import { TrackingLookupStore } from '../../stores/tracking-lookup-store';
-import { TrackingTaskStore } from '../../stores/tracking-task-store';
-import { googleMapsLink, toDateKey } from '../../utils/geo-utils';
-import { TASK_STATUS, Tone } from '../../utils/tracking-labels';
-import {
-  AssignOfficerDialog,
-  AssignOfficerDialogData,
-  AssignOfficerDialogResult,
-} from '../../components/shared/assign-officer-dialog/assign-officer-dialog';
+import { JobStore } from '../../stores/job-store';
+import { AddOdToJobRequest } from '../../models/overdue-customer';
+import { googleMapsLink } from '../../utils/geo-utils';
+import { JOB_TASK_STATUS, Tone } from '../../utils/tracking-labels';
+import { AddToJobDialog, AddToJobDialogData } from '../../components/jobs/add-to-job-dialog/add-to-job-dialog';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
-
-const OPEN = new Set(['Assigned', 'Arrived', 'InProgress']);
 
 @Component({
   selector: 'qfin-od-follow-up',
@@ -51,13 +46,13 @@ const OPEN = new Set(['Assigned', 'Arrived', 'InProgress']);
 export class OdFollowUp {
   readonly store = inject(OdFollowUpStore);
   readonly lookup = inject(TrackingLookupStore);
-  private readonly taskStore = inject(TrackingTaskStore);
+  private readonly jobStore = inject(JobStore);
   private readonly service = inject(OdFollowUpService);
   private readonly alerts = inject(AlertService);
   private readonly dialog = inject(MatDialog);
 
   /** Widened for mat-table rows, which are typed `any` in templates. */
-  readonly TASK_STATUS: Record<string, Tone> = TASK_STATUS;
+  readonly JOB_TASK_STATUS: Record<string, Tone> = JOB_TASK_STATUS;
   readonly googleMapsLink = googleMapsLink;
   readonly dpdBuckets = [
     { value: null, label: 'Any DPD' },
@@ -77,7 +72,7 @@ export class OdFollowUp {
   readonly allSelected = computed(() => this.assignableRows().length > 0 && this.assignableRows().every((c) => this.selected().has(c.id)));
 
   hasOpenFollowUp(c: OverdueCustomer) {
-    return !!c.followUp && OPEN.has(c.followUp.status);
+    return c.followUp?.status === 'Pending';
   }
 
   canAssign(c: OverdueCustomer) {
@@ -122,41 +117,30 @@ export class OdFollowUp {
     this.store.setFilter(this.store.sortDirection, (e.direction || 'desc') as 'asc' | 'desc');
   }
 
-  assign() {
+  addToJob() {
     const picked = [...this.selected().values()];
     if (!picked.length) return;
-    const branches = new Set(picked.map((c) => c.branchId));
     this.dialog
-      .open<AssignOfficerDialog, AssignOfficerDialogData, AssignOfficerDialogResult>(AssignOfficerDialog, {
-        data: {
-          title: `Assign follow-up for ${picked.length} customer${picked.length > 1 ? 's' : ''}`,
-          subtitle: `Total overdue ₹${this.selectedAmount().toLocaleString('en-IN')}. The officer must visit the geo-tagged home.`,
-          branchId: branches.size === 1 ? picked[0].branchId : null,
-          showDate: true,
-          defaultDate: toDateKey(),
-          confirmText: 'Assign visits',
-        },
+      .open<AddToJobDialog, AddToJobDialogData, AddOdToJobRequest>(AddToJobDialog, {
+        data: { customers: picked },
         panelClass: 'glass-modal',
-        maxWidth: '95vw',
+        maxWidth: '96vw',
       })
       .afterClosed()
-      .subscribe((res) => {
-        if (!res) return;
-        this.service
-          .assign({ customerIds: picked.map((c) => c.id), assigneeId: res.assigneeId, scheduledDate: res.scheduledDate, remarks: res.remarks || null })
-          .subscribe((r) => {
-            this.clearSelection();
-            this.store.refresh();
-            this.taskStore.refreshList();
-            if (r.skipped.length) {
-              this.alerts.warning(
-                `${r.createdTaskIds.length} assigned, ${r.skipped.length} skipped`,
-                r.skipped.map((s) => s.reason).join(' · '),
-              );
-            } else {
-              this.alerts.success('Follow-ups assigned', `${r.createdTaskIds.length} visit task${r.createdTaskIds.length > 1 ? 's' : ''} created.`);
-            }
-          });
+      .subscribe((req) => {
+        if (!req) return;
+        this.service.addToJob(req).subscribe((r) => {
+          this.clearSelection();
+          this.store.refresh();
+          this.jobStore.refreshList();
+          const n = r.addedTaskIds.length;
+          const where = `${r.job.jobNo}${r.job.assigneeName ? ' (' + r.job.assigneeName + ')' : ' – not assigned yet'}`;
+          if (r.skipped.length) {
+            this.alerts.warning(`${n} added to ${where}, ${r.skipped.length} skipped`, r.skipped.map((s) => s.reason).join(' · '));
+          } else {
+            this.alerts.success('Added to job', `${n} OD follow-up task${n > 1 ? 's' : ''} in ${where}.`);
+          }
+        });
       });
   }
 }

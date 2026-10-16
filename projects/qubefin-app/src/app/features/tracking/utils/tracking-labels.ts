@@ -1,7 +1,7 @@
 import { OfficerRole } from '../models/field-officer';
-import { LiveStatus } from '../models/live-position';
+import { LiveStatus, StopKind } from '../models/live-position';
 import { AlertSeverity, AlertStatus, AlertType } from '../models/tracking-alert';
-import { TaskPriority, TaskStatus, TaskType } from '../models/tracking-task';
+import { JobStatus, JobTaskStatus, TaskType } from '../models/job';
 import { ApprovalStatus, OutOfRadiusActivity } from '../models/approval-request';
 import { GeoTagKind } from '../models/geo-tag';
 
@@ -24,37 +24,56 @@ const RED = 'bg-rose-100 text-rose-700 ring-rose-600/20 dark:bg-rose-500/15 dark
 const SLATE = 'bg-slate-100 text-slate-600 ring-slate-500/20 dark:bg-slate-500/15 dark:text-slate-300';
 const VIOLET = 'bg-violet-100 text-violet-700 ring-violet-600/20 dark:bg-violet-500/15 dark:text-violet-300';
 
-export const TASK_STATUS: Record<TaskStatus, Tone> = {
-  Assigned: tone('Assigned', BLUE, 'clipboard-list', '#2563EB'),
-  Arrived: tone('Arrived', INDIGO, 'map-pin', '#4F46E5'),
+export const JOB_STATUS: Record<JobStatus, Tone> = {
+  Unassigned: tone('Unassigned', SLATE, 'user-plus', '#64748B'),
+  Assigned: tone('Not started', BLUE, 'clipboard-list', '#2563EB'),
   InProgress: tone('In Progress', VIOLET, 'activity', '#7C3AED'),
+  Overdue: tone('Overdue', RED, 'hourglass', '#E11D48'),
   Completed: tone('Completed', GREEN, 'circle-check', '#16A34A'),
-  Missed: tone('Missed', RED, 'circle-x', '#E11D48'),
-  Cancelled: tone('Cancelled', SLATE, 'x', '#64748B'),
+  Cancelled: tone('Cancelled', SLATE, 'ban', '#94A3B8'),
+};
+
+export const JOB_TASK_STATUS: Record<JobTaskStatus, Tone> = {
+  Pending: tone('Pending', BLUE, 'circle-dot', '#2563EB'),
+  Completed: tone('Completed', GREEN, 'circle-check', '#16A34A'),
+  Cancelled: tone('Cancelled', SLATE, 'x', '#94A3B8'),
+  Transferred: tone('Transferred', INDIGO, 'arrow-right-left', '#4F46E5'),
+  Rejected: tone('Rejected', RED, 'circle-x', '#E11D48'),
 };
 
 export const TASK_TYPE: Record<TaskType, Tone> = {
-  CustomerVisit: tone('Customer Visit', BLUE, 'user-round', '#2563EB'),
+  GroupVisit: tone('Group Visit', VIOLET, 'users', '#7C3AED'),
+  MemberVisit: tone('Member Visit', BLUE, 'user-round', '#2563EB'),
   OdFollowUp: tone('OD Follow-up', RED, 'indian-rupee', '#E11D48'),
-  GroupMeeting: tone('Group Meeting', VIOLET, 'users', '#7C3AED'),
+  CentreMeeting: tone('Centre Meeting', GREEN, 'landmark', '#059669'),
   LeadSourcing: tone('Lead Sourcing', AMBER, 'target', '#D97706'),
   Survey: tone('Survey', INDIGO, 'clipboard-check', '#4F46E5'),
-  Other: tone('Other', SLATE, 'circle-dot', '#64748B'),
 };
 
-export const TASK_PRIORITY: Record<TaskPriority, Tone> = {
-  Low: tone('Low', SLATE, 'chevron-down', '#64748B'),
-  Normal: tone('Normal', BLUE, 'circle-dot', '#2563EB'),
-  High: tone('High', RED, 'zap', '#E11D48'),
+/** Short code shown inside map pins. */
+export const TASK_TYPE_CODE: Record<TaskType, string> = {
+  GroupVisit: 'G',
+  MemberVisit: 'M',
+  OdFollowUp: 'OD',
+  CentreMeeting: 'C',
+  LeadSourcing: 'L',
+  Survey: 'S',
+};
+
+export const STOP_KIND: Record<StopKind, Tone> = {
+  Designated: tone('Designated', GREEN, 'map-pin-check', '#16A34A'),
+  Undesignated: tone('Undesignated', AMBER, 'map-pin-x', '#D97706'),
 };
 
 export const LIVE_STATUS: Record<LiveStatus, Tone> = {
   OnTask: tone('On Task', GREEN, 'clipboard-check', '#16A34A'),
+  AtBranch: tone('At Branch', SLATE, 'building-2', '#0F766E'),
   Moving: tone('Moving', BLUE, 'navigation', '#2563EB'),
   Idle: tone('Stationary', AMBER, 'timer', '#D97706'),
   GpsOff: tone('GPS Off', RED, 'locate-off', '#E11D48'),
   Offline: tone('Offline', SLATE, 'satellite', '#64748B'),
   NotPunchedIn: tone('Not Punched In', SLATE, 'clock', '#94A3B8'),
+  PunchedOut: tone('Punched Out', SLATE, 'log-out', '#475569'),
 };
 
 export const ALERT_TYPE: Record<AlertType, Tone> = {
@@ -63,7 +82,7 @@ export const ALERT_TYPE: Record<AlertType, Tone> = {
   Stationary: tone('Stationary', AMBER, 'timer', '#D97706'),
   OutsideBranchRadius: tone('Outside 30 km', VIOLET, 'map-pin-off', '#7C3AED'),
   LocationMismatch: tone('Location Mismatch', RED, 'crosshair', '#E11D48'),
-  LateTask: tone('Late Task', BLUE, 'hourglass', '#2563EB'),
+  OverdueJob: tone('Overdue Job', BLUE, 'hourglass', '#2563EB'),
 };
 
 export const ALERT_SEVERITY: Record<AlertSeverity, Tone> = {
@@ -101,6 +120,7 @@ export const GEO_TAG_KIND: Record<GeoTagKind, Tone> = {
 
 export const ROLE_LABEL: Record<OfficerRole, string> = {
   CO: 'Credit Officer',
+  ABM: 'Assistant Branch Manager',
   BM: 'Branch Manager',
   AM: 'Area Manager',
   DM: 'Divisional Manager',

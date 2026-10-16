@@ -1,5 +1,6 @@
+import { OfficerRole } from './field-officer';
 import { GeoPoint } from './geo';
-import { TaskStatus, OdVisitOutcome } from './tracking-task';
+import { Job, JobStatus, JobTaskStatus, OdVisitOutcome } from './job';
 
 /** A row from the Loan Status Report that is past due (source: LOS/LMS). */
 export interface OverdueCustomer {
@@ -18,17 +19,21 @@ export interface OverdueCustomer {
   dpd: number;
   lastPaymentDate: string | null;
   homeLocation: GeoPoint | null;
-  /** Latest follow-up assignment for this customer, if any. */
+  /** Latest OD follow-up task for this customer (in whichever job it was added to), if any. */
   followUp: OdFollowUpSummary | null;
 }
 
 export interface OdFollowUpSummary {
+  jobId: string;
+  jobNo: string;
+  jobStatus: JobStatus;
   taskId: string;
   taskNo: string;
-  assigneeName: string;
-  assigneeRole: string;
-  scheduledDate: string;
-  status: TaskStatus;
+  /** null while the job is not assigned yet. */
+  assigneeName: string | null;
+  assigneeRole: OfficerRole | null;
+  completeBy: string;
+  status: JobTaskStatus;
   outcome: OdVisitOutcome | null;
 }
 
@@ -36,7 +41,7 @@ export interface OverdueCustomerSearchRequest {
   searchText: string | null;
   branchId: string | null;
   minDpd: number | null;
-  /** true = only customers without an open follow-up task. */
+  /** true = only customers without a pending follow-up task. */
   onlyUnassigned: boolean;
   pageIndex: number;
   pageSize: number;
@@ -50,15 +55,30 @@ export interface OverdueCustomerSearchResponse {
   totalOverdueAmount: number;
 }
 
-export interface AssignOdFollowUpRequest {
-  customerIds: string[];
-  assigneeId: string;
-  scheduledDate: string;
-  remarks: string | null;
+/** Header of a new job created from the OD screen. */
+export interface NewJobHeader {
+  title: string;
+  description: string | null;
+  assigneeId: string | null;
+  startFrom: string | null;
+  completeBy: string;
 }
 
-export interface AssignOdFollowUpResponse {
-  createdTaskIds: string[];
-  /** Customers skipped because they have no geo-tagged home or already have an open task. */
+/**
+ * OD customers are never assigned on their own: each becomes an OD follow-up task inside a job.
+ * Send exactly one of `jobId` (add to an existing open job) or `newJob`.
+ */
+export interface AddOdToJobRequest {
+  customerIds: string[];
+  jobId: string | null;
+  newJob: NewJobHeader | null;
+  /** Instructions copied to every task created. */
+  notes: string | null;
+}
+
+export interface AddOdToJobResponse {
+  job: Job;
+  addedTaskIds: string[];
+  /** Customers not added: no home geo-tag, already pending in a job, or outside the assignee's branch. */
   skipped: { customerId: string; reason: string }[];
 }

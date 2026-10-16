@@ -1,0 +1,200 @@
+<div class="page-container trk-form">
+    <div class="header-group flex-wrap gap-3">
+        <div class="flex items-center gap-2 flex-wrap">
+            <div class="w-60"><mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Employee</mat-label>
+                <mat-select [value]="employeeId()" (valueChange)="setEmployee($event)" placeholder="Select employee">
+                    @for (g of lookup.officersByRole(); track g.role) {
+                    <mat-optgroup [label]="ROLE_LABEL[g.role] + 's'">
+                        @for (o of g.officers; track o.id) { <mat-option [value]="o.id">{{ o.name }} · {{ o.unitName }}</mat-option> }
+                    </mat-optgroup>
+                    }
+                </mat-select>
+            </mat-form-field></div>
+            <div class="trk-day-switch glass">
+                <button type="button" (click)="shiftDay(-1)" aria-label="Previous day"><svg lucideIcon="chevron-left" class="w-4 h-4"></svg></button>
+                <input type="date" [max]="today()" [value]="date()" (change)="setDate($any($event.target).value)" aria-label="Day">
+                <button type="button" (click)="shiftDay(1)" [disabled]="isToday()" aria-label="Next day"><svg lucideIcon="chevron-right" class="w-4 h-4"></svg></button>
+            </div>
+            @if (!isToday()) { <button type="button" class="trk-link-btn" (click)="goToday()">Today</button> }
+            @if (data()?.isLive) {
+            <span class="trk-chip trk-chip-sm bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live · refresh every {{ pollSeconds }}s
+            </span>
+            }
+        </div>
+        @if (officer(); as o) {
+        <div class="text-xs text-slate-500 flex items-center gap-3">
+            <span>{{ ROLE_LABEL[o.role] }} · {{ o.unitName }}</span>
+            <a class="trk-link" [routerLink]="['/secure/tracking/monitoring']" [queryParams]="{ employee: o.id }">{{ o.name.split(' ')[0] }}'s jobs →</a>
+        </div>
+        }
+    </div>
+
+    @if (!employeeId()) {
+    <div class="glass rounded-2xl p-10 text-center text-sm text-slate-500 flex flex-col items-center gap-2">
+        <svg lucideIcon="route" class="w-8 h-8 text-slate-400"></svg>
+        Choose an employee to see the day's route, stops and distance travelled.
+    </div>
+    } @else {
+    <!-- Summary -->
+    @if (data(); as r) {
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-4">
+        <div class="trk-stat-card glass">
+            <p class="trk-stat-label">Distance travelled</p>
+            <p class="trk-stat-value">{{ r.summary.totalDistanceKm | number: '1.1-1' }} <span class="text-sm font-semibold">km</span></p>
+            <p class="text-[11px] text-slate-400">Moving {{ hours(r.summary.movingMinutes) }}</p>
+        </div>
+        <div class="trk-stat-card glass">
+            <p class="trk-stat-label">Designated stops</p>
+            <p class="trk-stat-value text-emerald-600!">{{ r.summary.designatedStops }}</p>
+            <p class="text-[11px] text-slate-400">{{ hours(r.summary.designatedMinutes) }} at task points / branch</p>
+        </div>
+        <div class="trk-stat-card glass">
+            <p class="trk-stat-label">Undesignated stops</p>
+            <p class="trk-stat-value" [class.text-amber-600!]="r.summary.undesignatedStops">{{ r.summary.undesignatedStops }}</p>
+            <p class="text-[11px] text-slate-400">{{ hours(r.summary.undesignatedMinutes) }} elsewhere</p>
+        </div>
+        <div class="trk-stat-card glass">
+            <p class="trk-stat-label">Tasks completed</p>
+            <p class="trk-stat-value">{{ r.summary.tasksCompleted }}</p>
+            <p class="text-[11px] text-slate-400">{{ r.summary.taskPointsVisited }} of {{ r.summary.taskPointsPlanned }} task points visited</p>
+        </div>
+        <div class="trk-stat-card glass">
+            <p class="trk-stat-label">Punch in</p>
+            <p class="trk-stat-value text-base!">{{ r.punchInAt ? (r.punchInAt | date: 'hh:mm a') : '–' }}</p>
+            <p class="text-[11px] text-slate-400">First fix {{ r.summary.firstFixAt ? (r.summary.firstFixAt | date: 'hh:mm a') : '–' }}</p>
+        </div>
+        <div class="trk-stat-card glass">
+            <p class="trk-stat-label">Punch out</p>
+            <p class="trk-stat-value text-base!">{{ r.punchOutAt ? (r.punchOutAt | date: 'hh:mm a') : (r.isLive ? 'On duty' : '–') }}</p>
+            <p class="text-[11px] text-slate-400">Last fix {{ r.summary.lastFixAt ? (r.summary.lastFixAt | date: 'hh:mm a') : '–' }}</p>
+        </div>
+    </div>
+    }
+
+    <div class="grid grid-cols-1 xl:grid-cols-[380px_1fr] gap-4 items-start">
+        <!-- Stops / task points -->
+        <div class="glass rounded-2xl flex flex-col xl:h-[calc(100vh-330px)] min-h-[360px] overflow-hidden">
+            <div class="p-3 border-b border-slate-200/70 dark:border-slate-700/50 flex flex-col gap-2">
+                <div class="trk-tabs self-start">
+                    <button type="button" [class.is-active]="panel() === 'stops'" (click)="panel.set('stops')">Stops <b>{{ data()?.stops?.length ?? 0 }}</b></button>
+                    <button type="button" [class.is-active]="panel() === 'tasks'" (click)="panel.set('tasks')">Task points <b>{{ data()?.taskPoints?.length ?? 0 }}</b></button>
+                </div>
+                @if (panel() === 'stops') {
+                <div class="flex gap-1.5">
+                    <button type="button" class="trk-filter-chip" [class.is-active]="stopFilter() === 'all'" (click)="stopFilter.set('all')">All</button>
+                    <button type="button" class="trk-filter-chip" style="--trk-color:#16A34A" [class.is-active]="stopFilter() === 'Designated'" (click)="stopFilter.set('Designated')"><span class="trk-filter-dot"></span>Designated</button>
+                    <button type="button" class="trk-filter-chip" style="--trk-color:#D97706" [class.is-active]="stopFilter() === 'Undesignated'" (click)="stopFilter.set('Undesignated')"><span class="trk-filter-dot"></span>Undesignated</button>
+                </div>
+                }
+            </div>
+            <div class="flex-1 overflow-y-auto scroll-thin p-2">
+                @if (loading() && !data()) {
+                <p class="p-6 text-center text-sm text-slate-500">Loading route…</p>
+                } @else if (panel() === 'stops') {
+                @for (s of stops(); track s.seq) {
+                <button type="button" class="trk-stop" [class.is-selected]="selectedStop() === s.seq" [style.--trk-color]="STOP_KIND[s.kind].color" (click)="focusStop(s)">
+                    <span class="trk-stop-seq">{{ s.seq }}</span>
+                    <span class="min-w-0 flex-1 text-left">
+                        <span class="flex items-center gap-1.5">
+                            <span class="text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate">{{ s.label ?? 'Undesignated stop' }}</span>
+                        </span>
+                        <span class="block text-[11px] text-slate-500 tabular-nums">{{ s.from | date: 'hh:mm a' }} – {{ s.to | date: 'hh:mm a' }} · {{ s.durationMinutes }} min</span>
+                        <span class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                            <qfin-trk-chip [tone]="STOP_KIND[s.kind]" [small]="true" />
+                            @if (s.place === 'Home') { <span class="trk-badge is-red"><svg lucideIcon="house" class="w-3 h-3"></svg> Near home</span> }
+                            @if (s.taskCompleted) { <span class="trk-badge is-green"><svg lucideIcon="circle-check" class="w-3 h-3"></svg> {{ s.taskNo }} done</span> }
+                            @else if (s.taskNo) { <span class="trk-badge">{{ s.taskNo }} visited</span> }
+                            @if (s.kind === 'Undesignated' && s.distanceMeters !== null) { <span class="text-[11px] text-slate-400">{{ formatDistance(s.distanceMeters) }} from nearest task point</span> }
+                        </span>
+                        @if (s.jobId) {
+                        <a class="trk-link text-[11px]" [routerLink]="['/secure/tracking/jobs']" [queryParams]="{ job: s.jobId }" (click)="$event.stopPropagation()">{{ s.jobNo }} →</a>
+                        }
+                    </span>
+                </button>
+                } @empty {
+                <p class="p-6 text-center text-sm text-slate-400">{{ data()?.points?.length ? 'No stops match.' : 'No GPS data for this day.' }}</p>
+                }
+                } @else {
+                @for (p of data()?.taskPoints ?? []; track p.taskId) {
+                <button type="button" class="trk-stop" [style.--trk-color]="pointColor(p)" (click)="focusPoint(p)">
+                    <span class="trk-type-icon" [style.--trk-color]="TASK_TYPE[p.type].color"><svg [lucideIcon]="TASK_TYPE[p.type].icon" class="w-4 h-4"></svg></span>
+                    <span class="min-w-0 flex-1 text-left">
+                        <span class="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate">{{ p.title }}</span>
+                        <span class="block text-[11px] text-slate-500">{{ p.taskNo }} · {{ p.jobNo }}</span>
+                        <span class="block text-[11px] font-medium" [style.color]="pointColor(p)">
+                            {{ pointState(p) }}{{ p.completedAt ? ' · ' + (p.completedAt | date: 'hh:mm a') : '' }}
+                        </span>
+                    </span>
+                </button>
+                } @empty {
+                <p class="p-6 text-center text-sm text-slate-400">No open task points for this day.</p>
+                }
+                }
+            </div>
+        </div>
+
+        <!-- Map + playback -->
+        <div class="flex flex-col gap-3 min-w-0">
+            <div class="relative trk-map-frame glass xl:h-[calc(100vh-400px)] min-h-[420px] h-[460px]">
+                @if (maps.status() === 'ready') {
+                <google-map width="100%" height="100%" [mapId]="maps.mapId" [center]="center()" [zoom]="zoom()" [options]="mapOptions">
+                    @if (branchMarker(); as b) { <map-advanced-marker [position]="b.position" [title]="b.title" [content]="b.content" [zIndex]="50" /> }
+                    @if (homeMarker(); as h) {
+                    <map-circle [center]="h.position" [radius]="homeRadius()" [options]="homeCircle" />
+                    <map-advanced-marker [position]="h.position" [content]="h.content" title="Registered home" [zIndex]="50" />
+                    }
+                    @for (m of taskPointMarkers(); track m.point.taskId) {
+                    <map-circle [center]="m.point.location" [radius]="m.point.matchRadiusMeters" [options]="m.circle" />
+                    <map-advanced-marker [position]="m.point.location" [title]="m.title" [content]="m.content" [zIndex]="120" />
+                    }
+                    @if (points().length) {
+                    <map-polyline [path]="points()" [options]="routeLine" />
+                    <map-polyline [path]="playedPath()" [options]="playedLine" />
+                    }
+                    @for (m of stopMarkers(); track m.stop.seq) {
+                    <map-advanced-marker [position]="m.stop.location" [title]="m.title" [content]="m.content" [zIndex]="300" (mapClick)="focusStop(m.stop)" />
+                    }
+                    @if (headMarker(); as h) { <map-advanced-marker [position]="h.position" [content]="h.content" [zIndex]="2000" /> }
+                </google-map>
+                } @else {
+                <qfin-map-status />
+                }
+                <div class="trk-map-overlay left-3 bottom-3 text-[11px]">
+                    <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#16A34A"></span> Designated stop</span>
+                    <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#D97706"></span> Undesignated stop</span>
+                    <span class="flex items-center gap-1.5"><span class="trk-legend-pin" style="--trk-color:#16A34A"></span> Task done · <span class="trk-legend-pin" style="--trk-color:#7C3AED"></span> visited · <span class="trk-legend-pin" style="--trk-color:#94A3B8"></span> not visited</span>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl px-4 py-3">
+                @if (points().length) {
+                <div class="flex items-center gap-3 flex-wrap">
+                    <button type="button" class="trk-icon-btn" (click)="playing() ? pause() : play()" [attr.aria-label]="playing() ? 'Pause' : 'Play'">
+                        <svg [lucideIcon]="playing() ? 'pause' : 'play'" class="w-4 h-4"></svg>
+                    </button>
+                    <div class="trk-tabs">
+                        @for (s of speeds; track s) {
+                        <button type="button" class="py-1! px-2!" [class.is-active]="speed() === s" (click)="setSpeed(s)">{{ s }}×</button>
+                        }
+                    </div>
+                    <input type="range" class="flex-1 min-w-[200px] accent-primary-500" min="0" [max]="points().length - 1" [value]="playIndex()"
+                        (input)="scrub($any($event.target).value)" aria-label="Route position">
+                </div>
+                <div class="mt-2 flex items-center gap-4 flex-wrap text-[11px] text-slate-500 tabular-nums">
+                    <span><b class="text-slate-700 dark:text-slate-200">{{ current()?.at | date: 'hh:mm:ss a' }}</b></span>
+                    <span>{{ formatDistance(distanceSoFar()) }} so far</span>
+                    <span>{{ current()?.speedKmph ? (current()!.speedKmph + ' km/h') : 'stationary' }}</span>
+                    @if (currentStop(); as s) {
+                    <span class="font-medium" [style.color]="STOP_KIND[s.kind].color">Stop {{ s.seq }} · {{ s.label ?? 'Undesignated' }}</span>
+                    }
+                </div>
+                } @else {
+                <p class="text-xs text-slate-500">{{ loading() ? 'Loading…' : 'No GPS points for this day' + (isToday() ? ' yet — the employee has not punched in.' : '.') }}</p>
+                }
+            </div>
+        </div>
+    </div>
+    }
+</div>

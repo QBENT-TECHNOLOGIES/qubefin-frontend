@@ -100,6 +100,9 @@
                 </label>
                 <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#D97706"></span> Home {{ homeRadius() }} m</span>
                 <span class="flex items-center gap-1.5"><span class="trk-legend-dot is-pulse" style="--trk-color:#E11D48"></span> Has open alert</span>
+                @if (showRoute()) {
+                <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#16A34A"></span> Designated · <span class="trk-legend-dot" style="--trk-color:#D97706"></span> Undesignated stop</span>
+                }
             </div>
 
             <!-- Selected person -->
@@ -124,9 +127,13 @@
                     <div><p class="text-slate-400">Speed</p><p class="font-semibold text-slate-700 dark:text-slate-200">{{ p.speedKmph !== null ? p.speedKmph + ' km/h' : '–' }}</p></div>
                     <div><p class="text-slate-400">Battery · accuracy</p><p class="font-semibold text-slate-700 dark:text-slate-200">{{ p.batteryPct ?? '–' }}% · {{ p.accuracyMeters ?? '–' }} m</p></div>
                 </div>
+                <div class="px-3 pb-2 grid grid-cols-2 gap-2 text-[11px]">
+                    <div><p class="text-slate-400">Travelled today</p><p class="font-semibold text-slate-700 dark:text-slate-200">{{ p.distanceTodayKm !== null ? (p.distanceTodayKm | number: '1.1-1') + ' km' : '–' }}</p></div>
+                    <div><p class="text-slate-400">Pending tasks</p><p class="font-semibold text-slate-700 dark:text-slate-200">{{ p.openTaskCount }} in open jobs</p></div>
+                </div>
                 @if (p.currentTaskTitle) {
-                <a class="mx-3 mb-2 block trk-info-box text-[11px] trk-link" [routerLink]="['/secure/tracking/monitoring']" [queryParams]="{ task: p.currentTaskId }">
-                    On task: {{ p.currentTaskTitle }}
+                <a class="mx-3 mb-2 block trk-info-box text-[11px] trk-link" [routerLink]="['/secure/tracking/monitoring']" [queryParams]="{ job: p.currentJobId }">
+                    At task point: {{ p.currentTaskTitle }} ({{ p.currentJobNo }})
                 </a>
                 }
                 <div class="px-3 pb-3 flex flex-wrap items-center gap-2">
@@ -136,6 +143,9 @@
                     @if (showRoute()) {
                     <input type="date" class="trk-date-input" [max]="today()" [value]="store.routeDate()" (change)="setRouteDate($any($event.target).value)">
                     }
+                    <a class="trk-btn-secondary py-1.5!" [routerLink]="['/secure/tracking/route-history']" [queryParams]="{ employee: p.employeeId, date: store.routeDate() }">
+                        <svg lucideIcon="history" class="w-4 h-4"></svg> Day history
+                    </a>
                     @if (p.openAlertCount) {
                     <a class="trk-link text-[11px]" [routerLink]="['/secure/tracking/alerts']">{{ p.openAlertCount }} open alert(s) →</a>
                     }
@@ -154,7 +164,9 @@
                             (input)="scrub($any($event.target).value)" aria-label="Route position">
                     </div>
                     <p class="text-[11px] text-slate-500 mt-1 tabular-nums">
-                        {{ r.points[playIndex()]?.at | date: 'hh:mm a' }} · {{ r.totalDistanceKm }} km travelled · {{ r.stops.length }} stops
+                        {{ r.points[playIndex()]?.at | date: 'hh:mm a' }} · {{ r.totalDistanceKm }} km travelled ·
+                        <span class="text-emerald-600">{{ r.summary.designatedStops }} designated</span> ·
+                        <span class="text-amber-600">{{ r.summary.undesignatedStops }} undesignated</span> stops
                     </p>
                     } @else {
                     <p class="text-[11px] text-slate-500">No GPS points for this day.</p>

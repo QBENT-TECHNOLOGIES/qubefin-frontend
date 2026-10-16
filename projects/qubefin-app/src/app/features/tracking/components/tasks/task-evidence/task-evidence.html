@@ -42,6 +42,13 @@
         <div class="flex gap-2"><span class="w-28 text-slate-400">Arrival fix</span><span class="tabular-nums">{{ formatCoords(v?.arrivalLocation) }}</span></div>
         <div class="flex gap-2"><span class="w-28 text-slate-400">Photo fix</span><span class="tabular-nums">{{ formatCoords(v?.completionLocation) }}</span></div>
         <div class="flex gap-2"><span class="w-28 text-slate-400">Photo taken</span><span>{{ v?.photoTakenAt ? (v!.photoTakenAt | date: 'dd MMM, hh:mm:ss a') : '–' }}</span></div>
+        <div class="flex gap-2"><span class="w-28 text-slate-400">Arrived</span><span>{{ t.arrivedAt ? (t.arrivedAt | date: 'dd MMM, hh:mm a') : '–' }}</span></div>
+        <div class="flex gap-2"><span class="w-28 text-slate-400">Completed</span>
+            <span>{{ t.completedAt ? (t.completedAt | date: 'dd MMM, hh:mm a') + (t.completedByName ? ' · ' + t.completedByName : '') : '–' }}</span>
+        </div>
+        @if (t.remarks) {
+        <div class="flex gap-2"><span class="w-28 text-slate-400 shrink-0">Remarks</span><span class="italic">“{{ t.remarks }}”</span></div>
+        }
     </div>
 </div>
 
@@ -57,9 +64,6 @@
     </div>
     @if (!o.paid) {
     <div class="flex justify-between"><span>Promise-to-pay date</span><b>{{ o.ptpDate ? (o.ptpDate | date: 'dd MMM yyyy') : 'Not recorded' }}</b></div>
-    }
-    @if (o.remarks) {
-    <div class="flex justify-between gap-4"><span>Remarks</span><b class="text-right">{{ o.remarks }}</b></div>
     }
     } @else {
     <p class="text-slate-400">Recorded from the mobile app when the visit is completed.</p>

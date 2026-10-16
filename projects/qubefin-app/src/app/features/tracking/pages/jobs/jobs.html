@@ -1,5 +1,4 @@
 <div class="page-container trk-form">
-    <!-- KPI strip -->
     <div class="trk-kpi-row">
         @for (k of kpis(); track k.label) {
         <button type="button" class="trk-kpi glass" [class.is-active]="store.status() === k.key && (k.key !== null || !store.status())"
@@ -11,41 +10,29 @@
             </span>
         </button>
         }
-        <div class="trk-kpi glass is-static" [style.--trk-color]="'#D97706'">
-            <span class="trk-kpi-icon"><svg lucideIcon="hourglass" class="w-5 h-5"></svg></span>
-            <span>
-                <span class="trk-kpi-value">{{ store.summary().late }}</span>
-                <span class="trk-kpi-label">Late</span>
-            </span>
-        </div>
     </div>
 
     <div class="header-group">
-        <div class="flex items-center gap-3">
-            @if (selectedIds().size) {
-            <span class="text-xs text-slate-500">{{ selectedIds().size }} selected</span>
-            <button type="button" class="trk-btn-secondary" (click)="bulkReassign()">
-                <svg lucideIcon="users" class="w-4 h-4"></svg> Reassign selected
-            </button>
-            <button type="button" class="trk-link-btn" (click)="clearSelection()">Clear</button>
-            }
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+            <svg lucideIcon="info" class="w-4 h-4"></svg>
+            A job holds tasks of any type with one complete-by date. Tasks are done from the mobile app in any order.
         </div>
         <div class="headerBtn-area">
-            @if (isViewMode() && selectedTaskId() === EMPTY_UUID) {
+            @if (isViewMode() && selectedJobId() === EMPTY_UUID) {
             <button type="button" (click)="showFilters.set(!showFilters())" class="filter-btn glass-input lift shine-sweep">
                 <svg lucideIcon="funnel" class="w-4 h-4"></svg> Filter
             </button>
             }
             <button class="global-btn shine-sweep lift" (click)="onAdd()">
-                <svg lucideIcon="plus" class="w-4 h-4"></svg> Assign New Task
+                <svg lucideIcon="plus" class="w-4 h-4"></svg> Create Job
             </button>
         </div>
     </div>
 
     <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
         <div class="mainCard-area glass" [ngClass]="{
-            'w-full max-w-full opacity-100 translate-x-0': selectedTaskId() === EMPTY_UUID && isViewMode(),
-            'w-1/3 max-w-[33%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]': isViewMode() && selectedTaskId() !== EMPTY_UUID,
+            'w-full max-w-full opacity-100 translate-x-0': selectedJobId() === EMPTY_UUID && isViewMode(),
+            'w-1/3 max-w-[33%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]': isViewMode() && selectedJobId() !== EMPTY_UUID,
             'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none': !isViewMode()
         }">
             @if (showFilters() && !hasPanel()) {
@@ -56,28 +43,7 @@
                             <mat-label>Search</mat-label>
                             <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="search" class="w-5 h-5"></svg></div>
                             <input matInput [ngModel]="searchDraft()" (ngModelChange)="searchDraft.set($event)"
-                                (keydown.enter)="applySearch()" (blur)="applySearch()" placeholder="Task no, title, employee, customer">
-                        </mat-form-field>
-                    </div>
-                    <div class="min-w-[150px]">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>From</mat-label>
-                            <input matInput type="date" [ngModel]="store.fromDate()" (ngModelChange)="store.setFilter(store.fromDate, $event || null)">
-                        </mat-form-field>
-                    </div>
-                    <div class="min-w-[150px]">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>To</mat-label>
-                            <input matInput type="date" [ngModel]="store.toDate()" (ngModelChange)="store.setFilter(store.toDate, $event || null)">
-                        </mat-form-field>
-                    </div>
-                    <div class="min-w-[160px]">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Type</mat-label>
-                            <mat-select [value]="store.type()" (valueChange)="store.setFilter(store.type, $event)">
-                                <mat-option [value]="null">All types</mat-option>
-                                @for (o of typeOptions; track o.value) { <mat-option [value]="o.value">{{ o.label }}</mat-option> }
-                            </mat-select>
+                                (keydown.enter)="applySearch()" (blur)="applySearch()" placeholder="Job / task no, title, employee, place">
                         </mat-form-field>
                     </div>
                     <div class="min-w-[150px]">
@@ -111,35 +77,35 @@
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="min-w-[130px]">
+                    <div class="min-w-[150px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Source</mat-label>
-                            <mat-select [value]="store.source()" (valueChange)="store.setFilter(store.source, $event)">
-                                <mat-option [value]="null">All</mat-option>
-                                <mat-option value="System">Auto</mat-option>
-                                <mat-option value="Manual">Manual</mat-option>
-                            </mat-select>
+                            <mat-label>Due from</mat-label>
+                            <input matInput type="date" [ngModel]="store.dueFrom()" (ngModelChange)="store.setFilter(store.dueFrom, $event || null)">
+                        </mat-form-field>
+                    </div>
+                    <div class="min-w-[150px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Due to</mat-label>
+                            <input matInput type="date" [ngModel]="store.dueTo()" (ngModelChange)="store.setFilter(store.dueTo, $event || null)">
                         </mat-form-field>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button type="button" class="trk-link-btn" (click)="setToday()">Today</button>
                         <button type="button" class="trk-link-btn" (click)="resetFilters()">Reset</button>
                     </div>
                 </div>
             </div>
             }
 
-            @if (store.loading() && !store.tasks().length) {
+            @if (store.loading() && !store.jobs().length) {
             <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
-                <svg lucideIcon="loader" class="w-5 h-5 animate-spin"></svg> Loading tasks…
+                <svg lucideIcon="loader" class="w-5 h-5 animate-spin"></svg> Loading jobs…
             </div>
             } @else if (store.error()) {
             <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
-                <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg> Unable to load tasks.
+                <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg> Unable to load jobs.
             </div>
             } @else {
-            <qfin-task-list [data]="store.tasks()" [selectedId]="selectedTaskId()" [isCollapsed]="hasPanel()"
-                [selectedIds]="selectedIds()" (selectionChange)="selectedIds.set($event)" [sortOn]="store.sortOn()"
+            <qfin-job-list [data]="store.jobs()" [selectedId]="selectedJobId()" [isCollapsed]="hasPanel()" [sortOn]="store.sortOn()"
                 [sortDirection]="store.sortDirection()" (sortChange)="onSort($event)" (viewDetail)="onView($event)" />
             <mat-paginator [length]="store.totalRecords()" [pageSize]="store.pageSize()" [pageIndex]="store.pageIndex()"
                 [pageSizeOptions]="[10, 25, 50]" (page)="onPage($event)" showFirstLastButtons />
@@ -152,7 +118,7 @@
                 <div class="viewArea-headerInner">
                     <div>
                         <div class="flex justify-start gap-2">
-                            <h2 class="viewArea-title">{{ isViewMode() ? 'Task Details' : 'Assign New Task' }}</h2>
+                            <h2 class="viewArea-title">{{ isViewMode() ? 'Job Details' : 'Create Job' }}</h2>
                             <div class="viewArea-badge">
                                 <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                                 <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
@@ -161,7 +127,7 @@
                             </div>
                         </div>
                         <p class="viewArea-description">
-                            {{ isViewMode() ? 'Progress, location checks and the full audit trail.' : 'Manual assignment by an authorised official.' }}
+                            {{ isViewMode() ? 'Tasks, evidence from the mobile app and the full audit trail.' : 'Add the tasks, then assign now or later.' }}
                         </p>
                     </div>
                 </div>
@@ -171,9 +137,9 @@
             </div>
             <div>
                 @if (isViewMode()) {
-                <qfin-task-view [taskId]="selectedTaskId()" />
+                <qfin-job-view [jobId]="selectedJobId()" (openJob)="onView($event)" />
                 } @else {
-                <qfin-task-form (cancel)="closePanel()" (saved)="onSaved($event)" />
+                <qfin-job-form (cancel)="closePanel()" (saved)="onSaved($event)" />
                 }
             </div>
         </div>

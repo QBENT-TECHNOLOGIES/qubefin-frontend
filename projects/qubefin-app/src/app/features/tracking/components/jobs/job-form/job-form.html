@@ -1,0 +1,78 @@
+<div class="space-y-6">
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">Job</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
+                <mat-label>Job title</mat-label>
+                <input matInput [formField]="jobForm.title" placeholder="e.g. Weekly field plan">
+                @if (jobForm.title().touched() && jobForm.title().invalid()) {
+                <mat-error>{{ jobForm.title().errors()?.[0]?.message }}</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
+                <mat-label>Assign to</mat-label>
+                <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="user" class="w-5 h-5"></svg></div>
+                <mat-select [formField]="jobForm.assigneeId">
+                    <mat-option value="">Assign later</mat-option>
+                    @for (g of lookup.officersByRole(); track g.role) {
+                    <mat-optgroup [label]="ROLE_LABEL[g.role] + 's'">
+                        @for (o of g.officers; track o.id) {
+                        <mat-option [value]="o.id">{{ o.name }} · {{ o.unitName }}</mat-option>
+                        }
+                    </mat-optgroup>
+                    }
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Start from (optional)</mat-label>
+                <input matInput type="date" [formField]="jobForm.startFrom">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Complete by</mat-label>
+                <input matInput type="date" [min]="today" [formField]="jobForm.completeBy">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
+                <mat-label>Description (optional)</mat-label>
+                <input matInput [formField]="jobForm.description" placeholder="What this job is about">
+            </mat-form-field>
+        </div>
+        @if (dateError(); as e) {
+        <p class="trk-field-error mt-2">{{ e }}</p>
+        }
+        <p class="mt-2 text-[11px] text-slate-500 flex items-center gap-1.5">
+            <svg lucideIcon="info" class="w-3.5 h-3.5"></svg>
+            @if (assignee(); as a) {
+            {{ ROLE_LABEL[a.role] }} jobs may only hold tasks in {{ a.unitName }}.
+            } @else {
+            Without an assignee the job is saved and can be assigned later from the job details.
+            }
+        </p>
+    </div>
+
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">Tasks <span class="text-slate-400 font-medium">({{ tasks().length }})</span></h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+        <qfin-task-builder [(tasks)]="tasks" [allowedBranchIds]="allowedBranchIds()" [window]="window()" />
+        @if (branchConflict(); as c) {
+        <p class="trk-field-error mt-2">{{ c }} Remove those tasks or choose someone else.</p>
+        }
+        @if (submitted() && !tasks().length) {
+        <p class="trk-field-error mt-2">Add at least one task.</p>
+        }
+    </div>
+
+    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3">
+        <button type="button" (click)="cancel.emit()" class="trk-btn-secondary">
+            <svg lucideIcon="x" class="w-4 h-4"></svg> Cancel
+        </button>
+        <button type="button" (click)="submit()" class="trk-btn-primary" [disabled]="saving()">
+            <svg [lucideIcon]="saving() ? 'loader' : 'send'" class="w-4 h-4" [class.animate-spin]="saving()"></svg>
+            {{ model().assigneeId ? 'Create & assign' : 'Create job' }}
+        </button>
+    </div>
+</div>

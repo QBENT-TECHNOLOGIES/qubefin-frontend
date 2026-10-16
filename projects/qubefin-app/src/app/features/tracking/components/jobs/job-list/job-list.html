@@ -1,0 +1,94 @@
+<div class="overflow-auto scroll-thin" [ngClass]="{ 'h-[calc(100vh-170px-72px)] overflow-y-auto': isCollapsed() }">
+    <table mat-table [dataSource]="data()" matSort [matSortActive]="sortOn()" [matSortDirection]="sortDirection()"
+        matSortDisableClear (matSortChange)="sortChange.emit($event)" class="w-full table">
+
+        <ng-container matColumnDef="job">
+            <th mat-header-cell *matHeaderCellDef>Job</th>
+            <td mat-cell *matCellDef="let j" class="px-3 py-2">
+                <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[440px]">{{ j.title }}</p>
+                <p class="text-[11px] text-slate-400 flex items-center gap-1.5 flex-wrap">
+                    <span class="tabular-nums">{{ j.jobNo }}</span>
+                    · {{ j.taskCount }} task{{ j.taskCount === 1 ? '' : 's' }}
+                    @if (j.selfAddedCount) {
+                    <span class="trk-badge" matTooltip="Added by the employee from the mobile app">+{{ j.selfAddedCount }} self-added</span>
+                    }
+                    @if (j.transferredFromJobNo) {
+                    <span class="flex items-center gap-0.5" matTooltip="Created by a transfer"><svg lucideIcon="arrow-right-left" class="w-3 h-3"></svg>{{ j.transferredFromJobNo }}</span>
+                    }
+                    @if (isCollapsed()) { · {{ j.assigneeName ?? 'Unassigned' }} }
+                </p>
+                <div class="flex items-center gap-1 mt-1">
+                    @for (t of j.types; track t) {
+                    <span class="trk-type-dot" [style.--trk-color]="TASK_TYPE[t].color" [matTooltip]="TASK_TYPE[t].label">
+                        <svg [lucideIcon]="TASK_TYPE[t].icon" class="w-3 h-3"></svg>
+                    </span>
+                    }
+                    @if (isCollapsed()) {
+                    <span class="ml-1"><qfin-trk-chip [tone]="JOB_STATUS[j.status]" [small]="true" /></span>
+                    }
+                </div>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="assigneeName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Assigned to</th>
+            <td mat-cell *matCellDef="let j" class="px-3 py-2">
+                @if (j.assigneeName) {
+                <p class="text-[13px] font-medium dark:text-slate-300">{{ j.assigneeName }}</p>
+                <p class="text-[11px] text-slate-400">{{ j.assigneeRole }} · {{ j.unitName }}</p>
+                } @else {
+                <p class="text-[13px] font-medium text-slate-400 flex items-center gap-1"><svg lucideIcon="user-plus" class="w-3.5 h-3.5"></svg> Not assigned</p>
+                <p class="text-[11px] text-slate-400">{{ j.unitName }}</p>
+                }
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="completeBy">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Complete by</th>
+            <td mat-cell *matCellDef="let j" class="px-3 py-2 whitespace-nowrap">
+                <p class="text-[13px] font-medium dark:text-slate-300">{{ j.completeBy | date: 'EEE, dd MMM' }}</p>
+                <p class="text-[11px]" [class.text-rose-600]="daysLeft(j) < 0 && j.openCount" [class.text-amber-600]="daysLeft(j) >= 0 && daysLeft(j) <= 1 && j.openCount"
+                    [class.text-slate-400]="daysLeft(j) > 1 || !j.openCount">
+                    {{ dueText(j) || (j.startFrom ? 'from ' + (j.startFrom | date: 'dd MMM') : '') }}
+                </p>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="progress">
+            <th mat-header-cell *matHeaderCellDef>Progress</th>
+            <td mat-cell *matCellDef="let j" class="px-3 py-2 min-w-[140px]">
+                <div class="trk-bar"><span [style.width.%]="pct(j)" [class.is-late]="j.status === 'Overdue'"></span></div>
+                <p class="text-[11px] text-slate-500 mt-1 tabular-nums">{{ j.doneCount }} / {{ j.taskCount }} done{{ j.openCount ? ' · ' + j.openCount + ' pending' : '' }}</p>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let j"><qfin-trk-chip [tone]="JOB_STATUS[j.status]" [small]="true" /></td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef class="text-right!"></th>
+            <td mat-cell *matCellDef="let j">
+                <div class="w-full flex justify-end">
+                    <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10" matTooltip="View">
+                        <svg lucideIcon="chevron-right" class="w-5 h-5 text-primary-500 hover:text-primary-600"></svg>
+                    </div>
+                </div>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns(); sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns()" class="transition-colors cursor-pointer"
+            [class.trk-row-selected]="selectedId() === row.id" (click)="viewDetail.emit(row.id)"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell px-8 py-6 text-center! text-slate-400 border-b-0" [attr.colspan]="columns().length">
+                <div class="flex justify-center items-center gap-2">
+                    <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>
+                    No jobs match these filters.
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>

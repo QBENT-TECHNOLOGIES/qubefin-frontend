@@ -153,7 +153,7 @@ All feature areas are lazy-loaded (`loadChildren` → `*-routes.ts`, then `loadC
               (commented out: approval-regularization, leave-approvals,
                leave-prayer-approvals, leave-fitness)
   /payroll/   salary-components, monthly-payroll, payslip
-  /tracking/  tasks, od-follow-up, monitoring, live-map, alerts, approvals, geo-tags, settings   (see §13)
+  /tracking/  jobs, od-follow-up, monitoring, live-map, route-history, alerts, approvals, geo-tags, settings   (see §13)
 /unauthorized             PageUnauthorized
 /**                       PageNotfound
 ```
@@ -375,33 +375,44 @@ For a whole **new area** (not just a screen), add `features/<area>/<area>-routes
 
 ---
 
-## 13. Tracking module (employee task assignment + GPS monitoring)
+## 13. Tracking module (jobs, tasks and GPS monitoring)
 
-The web side of the tracking system from the *Tracking Software* meeting minutes. The mobile app captures punches, GPS fixes, photos and visit outcomes. This module **assigns** work and **monitors** what comes back.
+The web side of the tracking system from the *Tracking Software* meeting minutes. The mobile app captures punches, GPS fixes, photos, remarks and visit outcomes, and lets employees add tasks themselves. This module **creates and assigns jobs** and **monitors** what comes back.
 
-**Backend contract:** [`docs/TRACKING_API_CONTRACT.md`](./TRACKING_API_CONTRACT.md). Until `tracking-api` exists, `useTrackingMocks: true` (dev environment) makes `trackingMockInterceptor` answer every `tracking-api/*` call from an in-browser mock with realistic seed data. The mock is lazy-loaded, so it is not in the main bundle.
+**Work model.** A **job** is what gets assigned: it has one *complete-by* date and holds **tasks** of any type (Group Visit, Member Visit, OD Follow-up, Centre Meeting, Lead Sourcing, Survey). Every task has a location; tasks have no time and no order. A job can be created and assigned later, and incomplete work can be transferred: the whole job, or selected pending tasks into a new linked job. Everything is in the job's audit trail.
+
+**Rules the screens guide and the backend enforces** (`utils/job-rules.ts`, shared with the mock):
+
+* CO, ABM and BM jobs stay inside their own branch; AM and DM jobs may span the branches they cover. (ABM is treated like BM — to confirm with the client.)
+* The same place cannot have the same task type pending in two open jobs whose date windows overlap (an overdue job stays active until today).
+* An OD customer can only be pending in one job. OD customers are never assigned on their own; they are added to an existing job (its details are shown first) or to a new job.
+
+**Backend contract:** [`docs/TRACKING_API_CONTRACT.md`](./TRACKING_API_CONTRACT.md). Until `tracking-api` exists, `useTrackingMocks: true` (dev environment) makes `trackingMockInterceptor` answer every `tracking-api/*` call from an in-browser mock. The mock is lazy-loaded, so it is not in the main bundle. Its seed data uses the real units (Dhupguri Division; Falakata and Alipurduar areas; 7 branches) with approximate coordinates and fictional people, and simulates a GPS day per employee from which task completions are taken, so jobs, live map and day route agree.
 
 | Route (`/secure/tracking/…`) | Screen | What it does |
 |---|---|---|
-| `tasks` | Task Assignment | KPIs, filters, list + panel; manual assign, reassign (single or bulk), cancel, full audit trail |
-| `od-follow-up` | OD Follow-up | Overdue customers (Loan Status Report); multi-select → assign visit to CO/BM/AM/DM; shows paid / PTP outcome |
-| `monitoring` | Task Monitoring | One day's tasks; server-stamped timeline; arrival and photo distance vs geo-tag; evidence photo; map of target, arrival fix and photo fix |
-| `live-map` | Live Map | Latest position and status of each employee, 30 km branch circles, 50 m home circle, route playback with stops |
-| `alerts` | Alerts | Near-home, GPS-off, stationary, outside-radius, location-mismatch and late alerts; acknowledge / resolve with remarks |
+| `jobs` | Jobs | KPIs, filters, list + panel. Create a job with a task builder (geo-tagged place or point on map), assign now or later, transfer (whole / selected tasks), add tasks, extend the date, cancel a job or task, reject a self-added task, evidence per task, audit trail. `tasks` redirects here. |
+| `od-follow-up` | OD Follow-up | Overdue customers (Loan Status Report) with their latest follow-up task; multi-select → **Add to job** (existing job with details and tasks, or a new job) |
+| `monitoring` | Job Monitoring | Open / overdue / completed jobs; map of a job's task points with match radius, arrival and photo fixes and where the assignee is now; evidence per task; overview map of pending task points |
+| `live-map` | Live Map | Latest position and status of each employee (on task, at branch, moving, stationary, GPS off, offline, punched out), 30 km branch circles, 50 m home circle, today's route with designated / undesignated stops, link to the day route |
+| `route-history` | Day Route | One employee, one day: live while the day runs, playback afterwards (1–8×); distance, moving time, designated vs undesignated stops with durations, task points visited / completed, punch in / out |
+| `alerts` | Alerts | Near-home, GPS-off, stationary, outside-radius, location-mismatch and overdue-job alerts; acknowledge / resolve with remarks; link to the job |
 | `approvals` | Out-of-radius approvals | Approve or reject field work beyond the branch radius, with a map |
 | `geo-tags` | Geo-tag Registry | Branches, groups/centres, customer and OD homes, employee homes; map picker with reason and location history |
-| `settings` | Tracking Settings | Thresholds, working hours, who is notified, system auto-allocation rules, management exceptions |
+| `settings` | Tracking Settings | Thresholds (incl. stop detection), working hours, who is notified, auto-allocation rules, management exceptions |
 
-**Folder:** `features/tracking/{models,services,stores,components,pages,utils,mocks}`. It follows the standard pattern: reads in stores (`httpResource`), writes in services, list + panel pages.
+**Folder:** `features/tracking/{models,services,stores,components/{jobs,tasks,shared},pages,utils,mocks}`. It follows the standard pattern: reads in stores (`httpResource`), writes in services, list + panel pages.
 
+* `models/job.ts`: jobs, tasks, history and every request / response; the source of truth for the contract.
+* `utils/job-rules.ts`: branch rule, duplicate key, task-type → place kinds.
+* `components/jobs/task-builder`: reusable task entry used by *Create job* and *Add tasks*; flags places already pending in an overlapping job.
 * `utils/poll.ts`: `pollWhileVisible()` refreshes every 30 s while the tab is visible.
 * `services/maps-loader.service.ts`: loads the Google Maps JS API once with `MAP_API_KEY`. Pages render `<google-map>` only when `status() === 'ready'` and otherwise show `<qfin-map-status>`.
 * `utils/tracking-labels.ts`: one place for label, colour, icon and badge class per status or type.
 * `styles/tracking.css`: global, because Google renders marker DOM outside Angular. Fields without a prefix icon need the `trk-form` wrapper class for padding.
 
-**Environment keys:** `MAP_API_KEY`, `MAP_ID` (Advanced Markers; `DEMO_MAP_ID` works for development only), `useTrackingMocks`.
+**Environment keys:** `MAP_API_KEY`, `MAP_ID` (Advanced Markers), `useTrackingMocks`.
 
-**Google Cloud APIs for the key:** *Maps JavaScript API* (required) and *Geocoding API* (address search in the map picker). Restrict the key by HTTP referrer (localhost:4200 and the production domain) and to these APIs. Create a Map ID under *Map Management* for production.
+**Google Cloud APIs for the key:** *Maps JavaScript API* (required) and *Geocoding API* (address search in the map picker). Restrict the key by HTTP referrer (localhost:4200 and the production domain) and to these APIs.
 
-**Menus to create** (Admin → Menus) so the drawer shows the screens and the header gets titles: a "Tracking" group with targets `/secure/tracking/tasks`, `/od-follow-up`, `/monitoring`, `/live-map`, `/alerts`, `/approvals`, `/geo-tags`, `/settings`. Suggested icons, all registered: `ClipboardList`, `IndianRupee`, `ListChecks`, `Map`, `Siren`, `ShieldCheck`, `MapPinned`, `Settings`.
-
+**Menus to create** (Admin → Menus) so the drawer shows the screens and the header gets titles: a "Tracking" group with targets `/secure/tracking/jobs`, `/od-follow-up`, `/monitoring`, `/live-map`, `/route-history`, `/alerts`, `/approvals`, `/geo-tags`, `/settings`. Suggested icons, all registered: `Briefcase`, `IndianRupee`, `ListChecks`, `Map`, `Route`, `Siren`, `ShieldCheck`, `MapPinned`, `Settings`. Change the old *Task Assignment* menu target from `/tasks` to `/jobs` (the old URL redirects anyway).

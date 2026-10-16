@@ -19,7 +19,7 @@ export class TrackingLookupStore {
 
   /** Officers grouped for <mat-optgroup>, managers last. */
   readonly officersByRole = computed(() => {
-    const order: OfficerRole[] = ['CO', 'BM', 'AM', 'DM'];
+    const order: OfficerRole[] = ['CO', 'ABM', 'BM', 'AM', 'DM'];
     return order
       .map((role) => ({ role, officers: this.officers().filter((o) => o.role === role) }))
       .filter((g) => g.officers.length);

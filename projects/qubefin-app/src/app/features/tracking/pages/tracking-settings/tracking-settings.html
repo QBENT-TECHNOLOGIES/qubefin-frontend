@@ -65,11 +65,11 @@
                 <div class="green-line mb-3!"></div>
                 <div class="flex flex-col gap-3">
                     <div class="flex flex-wrap items-center gap-3">
-                        <mat-slide-toggle [ngModel]="d.autoAssignOdFollowUps" (ngModelChange)="set('autoAssignOdFollowUps', $event)">Auto-assign OD follow-ups to the customer's CO when DPD ≥</mat-slide-toggle>
+                        <mat-slide-toggle [ngModel]="d.autoAssignOdFollowUps" (ngModelChange)="set('autoAssignOdFollowUps', $event)">Auto-add new OD customers to the CO's open OD job when DPD ≥</mat-slide-toggle>
                         <input type="number" min="1" class="trk-inline-number" [disabled]="!d.autoAssignOdFollowUps" [ngModel]="d.autoAssignOdMinDpd"
                             (ngModelChange)="set('autoAssignOdMinDpd', +$event)" aria-label="Minimum DPD">
                     </div>
-                    <mat-slide-toggle [ngModel]="d.autoAssignGroupMeetings" (ngModelChange)="set('autoAssignGroupMeetings', $event)">Create centre-meeting tasks from the meeting schedule</mat-slide-toggle>
+                    <mat-slide-toggle [ngModel]="d.autoAssignGroupMeetings" (ngModelChange)="set('autoAssignGroupMeetings', $event)">Add centre-meeting tasks to the CO's weekly job from the meeting schedule</mat-slide-toggle>
                     <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
                         Run allocation daily at
                         <input type="time" class="trk-inline-number w-28!" [ngModel]="d.autoAllocationTime" (ngModelChange)="set('autoAllocationTime', $event)" aria-label="Allocation time">

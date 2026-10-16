@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { RouterLink } from '@angular/router';
 import { AlertService } from 'qubefin-core';
 import { AlertType, TrackingAlert } from '../../models/tracking-alert';
 import { TrackingAlertService } from '../../services/tracking-alert-service';
@@ -33,6 +34,7 @@ import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chi
     MatSelectModule,
     MatTooltipModule,
     LucideDynamicIcon,
+    RouterLink,
     TrackingChip,
   ],
   templateUrl: './tracking-alerts.html',

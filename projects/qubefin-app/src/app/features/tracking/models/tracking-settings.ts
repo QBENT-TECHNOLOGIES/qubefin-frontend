@@ -23,6 +23,9 @@ export interface TrackingSettings {
   locationMatchRadiusMeters: number;
   /** Grace period before a GPS-off alert is raised. */
   gpsOffGraceMinutes: number;
+  /** A halt counts as a stop when the employee stays within `stopRadiusMeters` for at least this long. */
+  stopMinMinutes: number;
+  stopRadiusMeters: number;
   /** How often the mobile app should send a fix. */
   positionIntervalSeconds: number;
   workingHoursStart: string;
