@@ -379,7 +379,7 @@ For a whole **new area** (not just a screen), add `features/<area>/<area>-routes
 
 The web side of the tracking system from the *Tracking Software* meeting minutes. The mobile app captures punches, GPS fixes, photos, remarks and visit outcomes, and lets employees add tasks themselves. This module **creates and assigns jobs** and **monitors** what comes back.
 
-**Work model.** A **job** is what gets assigned: it has one *complete-by* date and holds **tasks** of any type (Group Visit, Member Visit, OD Follow-up, Centre Meeting, Lead Sourcing, Survey). Every task has a location; tasks have no time and no order. A job can be created and assigned later, and incomplete work can be transferred: the whole job, or selected pending tasks into a new linked job. Everything is in the job's audit trail.
+**Work model.** A **job** is what gets assigned: it has one *complete-by* date and holds **tasks** of any type (Group Visit, Member Visit, OD Follow-up, Lead Sourcing, Survey; a group / centre meeting is a Group Visit). Every task has a location; tasks have no time and no order. A job can be created and assigned later, and incomplete work can be transferred: the whole job, or selected pending tasks into a new linked job. Everything is in the job's audit trail.
 
 **Rules the screens guide and the backend enforces** (`utils/job-rules.ts`, shared with the mock):
 
@@ -391,7 +391,7 @@ The web side of the tracking system from the *Tracking Software* meeting minutes
 
 | Route (`/secure/tracking/…`) | Screen | What it does |
 |---|---|---|
-| `jobs` | Jobs | KPIs, filters, list + panel. Create a job with a task builder (geo-tagged place or point on map), assign now or later, transfer (whole / selected tasks), add tasks, extend the date, cancel a job or task, reject a self-added task, evidence per task, audit trail. `tasks` redirects here. |
+| `jobs` | Jobs | KPIs, filters, list + panel. Create a job with a task picker (one branch: groups, members and OD members in a list or on a map; the place sets the task type; click empty ground for lead sourcing / survey; area drawing, clustering, DPD filter, trip estimate), assign now or later, transfer (whole / selected tasks), add tasks, extend the date, cancel a job or task, reject a self-added task, evidence per task, audit trail. `tasks` redirects here. |
 | `od-follow-up` | OD Follow-up | Overdue customers (Loan Status Report) with their latest follow-up task; multi-select → **Add to job** (existing job with details and tasks, or a new job) |
 | `monitoring` | Job Monitoring | Open / overdue / completed jobs; map of a job's task points with match radius, arrival and photo fixes and where the assignee is now; evidence per task; overview map of pending task points |
 | `live-map` | Live Map | Latest position and status of each employee (on task, at branch, moving, stationary, GPS off, offline, punched out), 30 km branch circles, 50 m home circle, today's route with designated / undesignated stops, link to the day route |
@@ -405,7 +405,9 @@ The web side of the tracking system from the *Tracking Software* meeting minutes
 
 * `models/job.ts`: jobs, tasks, history and every request / response; the source of truth for the contract.
 * `utils/job-rules.ts`: branch rule, duplicate key, task-type → place kinds.
-* `components/jobs/task-builder`: reusable task entry used by *Create job* and *Add tasks*; flags places already pending in an overlapping job.
+* `components/jobs/task-builder`: reusable task entry used by *Create job* and *Add tasks*; flags places already pending in an overlapping job. Type comes from the place (`TYPES_FOR_KIND` in `utils/job-rules.ts`) and can be switched per task where allowed.
+* `components/jobs/place-multi-select`: the list / map picker (`geo-tags/points`), with kind and DPD filters, clustering above 100 places, area drawing, field points and the trip estimate.
+* `services/routing.service.ts` (Routes API, `Route` class, two-wheeler with car fallback, ≤ 25 stops, cached) and `services/roads.service.ts` (Roads API snap-to-roads via `fetch`, so no gateway prefix or bearer token goes to Google). Used by the picker, Job Monitoring ("Plan route") and Day Route (road-snapped trail, planned route).
 * `utils/poll.ts`: `pollWhileVisible()` refreshes every 30 s while the tab is visible.
 * `services/maps-loader.service.ts`: loads the Google Maps JS API once with `MAP_API_KEY`. Pages render `<google-map>` only when `status() === 'ready'` and otherwise show `<qfin-map-status>`.
 * `utils/tracking-labels.ts`: one place for label, colour, icon and badge class per status or type.
@@ -413,6 +415,6 @@ The web side of the tracking system from the *Tracking Software* meeting minutes
 
 **Environment keys:** `MAP_API_KEY`, `MAP_ID` (Advanced Markers), `useTrackingMocks`.
 
-**Google Cloud APIs for the key:** *Maps JavaScript API* (required) and *Geocoding API* (address search in the map picker). Restrict the key by HTTP referrer (localhost:4200 and the production domain) and to these APIs.
+**Google Cloud APIs for the key:** *Maps JavaScript API* (required), *Geocoding API* (address search in the map picker), *Routes API* (planned routes, trip estimate) and *Roads API* (road-snapped day route). Restrict the key by HTTP referrer (localhost:4200 and the production domain) and to these APIs. *Route Optimization API* is backend-only (OAuth); see the contract §9.
 
 **Menus to create** (Admin → Menus) so the drawer shows the screens and the header gets titles: a "Tracking" group with targets `/secure/tracking/jobs`, `/od-follow-up`, `/monitoring`, `/live-map`, `/route-history`, `/alerts`, `/approvals`, `/geo-tags`, `/settings`. Suggested icons, all registered: `Briefcase`, `IndianRupee`, `ListChecks`, `Map`, `Route`, `Siren`, `ShieldCheck`, `MapPinned`, `Settings`. Change the old *Task Assignment* menu target from `/tasks` to `/jobs` (the old URL redirects anyway).

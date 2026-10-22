@@ -57,6 +57,11 @@
 }
 .trk-marker-pin.is-small { width: 22px; height: 22px; }
 .trk-marker-pin.is-small > span { font-size: 8px; }
+.trk-marker-pin.has-icon > span svg { width: 15px; height: 15px; }
+.trk-marker-pin.has-icon.is-small > span svg { width: 11px; height: 11px; }
+.trk-marker-pin.has-icon.is-selected > span svg { width: 17px; height: 17px; }
+.trk-marker-pin.is-outline { background: #fff; border-color: var(--trk-color); }
+.trk-marker-pin.is-outline > span { color: var(--trk-color); }
 .trk-marker-pin.is-selected { width: 36px; height: 36px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--trk-color) 30%, transparent), 0 2px 8px rgba(15, 23, 42, 0.4); }
 
 .trk-marker-dot {
@@ -709,3 +714,107 @@
   color: #fff;
   background: var(--trk-color);
 }
+
+/* ---------- Multi place picker (task builder) ---------- */
+.trk-picker {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.6);
+}
+.dark .trk-picker { background: rgba(15, 23, 42, 0.4); border-color: rgba(148, 163, 184, 0.15); }
+.trk-picker-head,
+.trk-picker-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+}
+.trk-picker-head { border-bottom: 1px solid rgba(148, 163, 184, 0.25); }
+.trk-picker-list {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 0 0.5rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.trk-picker-row { border-radius: 0.6rem; }
+.trk-picker-row:hover { background: rgba(148, 163, 184, 0.1); }
+.trk-picker-row.is-on { background: rgba(22, 199, 132, 0.09); }
+.trk-picker-row.is-disabled { opacity: 0.65; }
+.trk-picker-row .mat-mdc-checkbox,
+.trk-picker-row .mat-internal-form-field { display: flex; width: 100%; }
+.trk-picker-row .mat-internal-form-field > label { flex: 1; min-width: 0; cursor: pointer; padding: 0.3rem 0.5rem 0.3rem 0; }
+.trk-picker .trk-map-frame { border-radius: 0; }
+.trk-dpd {
+  --trk-color: #f59e0b;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.35rem;
+  padding: 0 0.4rem;
+  border-radius: 0.4rem;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: #fff;
+  background: var(--trk-color);
+}
+
+/* Cluster of places on the picker map: the coloured share of the ring = share selected. */
+.trk-marker-cluster {
+  --trk-color: #64748b;
+  --trk-sel: #16c784;
+  --sel: 0;
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  transform: translateY(50%);
+  background: conic-gradient(var(--trk-sel) calc(var(--sel) * 1turn), var(--trk-color) 0);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.35);
+  cursor: pointer;
+}
+.trk-marker-cluster > span {
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  border-radius: 9999px;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  font: 700 11px/1 var(--font-sans);
+  color: #0f172a;
+}
+
+/* Freehand area selection on the picker map. */
+.trk-lasso {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  cursor: crosshair;
+  touch-action: none;
+}
+.trk-lasso polygon { fill: rgba(37, 99, 235, 0.12); stroke: #2563eb; stroke-width: 2; stroke-dasharray: 6 4; stroke-linejoin: round; }
+.trk-lasso.is-remove polygon { fill: rgba(225, 29, 72, 0.1); stroke: #e11d48; }
+
+.trk-inline-select {
+  height: 30px;
+  padding: 0 0.4rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+}
+.dark .trk-inline-select { background: rgba(30, 41, 59, 0.9); color: #e2e8f0; }
+.trk-picker-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0 0.75rem 0.6rem;
+  font-size: 11px;
+  color: #475569;
+}
+.dark .trk-picker-legend { color: #cbd5e1; }

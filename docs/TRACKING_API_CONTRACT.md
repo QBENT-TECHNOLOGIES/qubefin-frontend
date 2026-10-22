@@ -43,7 +43,21 @@ names them and adds the rules the server must enforce. Shared business rules are
 A **job** is the unit of assignment: one assignee (or none yet), one `completeBy` date, and any number of **tasks** of
 mixed types. Tasks have a location but no time and no order.
 
-`TaskType`: `GroupVisit` · `MemberVisit` · `OdFollowUp` · `CentreMeeting` · `LeadSourcing` · `Survey`.
+`TaskType`: `GroupVisit` · `MemberVisit` · `OdFollowUp` · `LeadSourcing` · `Survey`. (`CentreMeeting` was removed: a group /
+centre meeting is a `GroupVisit`. No Centre Meeting data exists, so nothing to migrate.)
+
+**Type follows the place.** The web picks the type from the target (`utils/job-rules.ts` → `TYPES_FOR_KIND`; first = default):
+
+| `target.kind` | Default type | Also allowed |
+|---|---|---|
+| `GroupCentre` | `GroupVisit` | `Survey`, `LeadSourcing` |
+| `Customer` | `MemberVisit` | – |
+| `OdCustomer` | `OdFollowUp` | `MemberVisit` (e.g. a loan-use check on an overdue member) |
+| `Branch` | `Survey` | – |
+| `Custom` (point on the map) | `LeadSourcing` | `Survey` |
+
+The server should reject a task whose type is not allowed for its `target.kind` (400). Lead sourcing and surveys are mostly
+self-added on the mobile app; the web only offers them as a point clicked on the map.
 
 | Method | Path | Body | Response |
 |---|---|---|---|
@@ -159,6 +173,11 @@ Also return `currentTaskId/Title`, `currentJobId/No`, `openTaskCount` (pending t
   plus tasks completed that day. `status` as at the end of that day, `completedAt` if completed that day, `visited` if any stop was inside it.
 * `summary` — `totalDistanceKm` (sum of the GPS path), `movingMinutes`, designated / undesignated stop count and minutes,
   `tasksCompleted`, `taskPointsVisited` / `taskPointsPlanned`, first / last fix. Also `punchInAt` / `punchOutAt`.
+* **Optional, recommended:** `roadPath[]` (`RoadPathPoint`: lat, lng, `pointIndex` = index into `points[]` of the last original fix
+  at or before it) and `roadDistanceKm`: the trail snapped to roads with the **Roads API** (Snap to Roads, `interpolate=true`,
+  100 points per request, consecutive points within ~300 m, do not snap across GPS gaps). Snap once per finished day and store it;
+  for today, snap only the new fixes. While these fields are absent, the web snaps in the browser on demand (cached per tab), which
+  costs a Roads request per ~100 fixes for every viewer.
 
 ---
 
@@ -205,10 +224,17 @@ Only authorised higher officials may decide. Remarks are required when rejecting
 | Method | Path | Body | Response |
 |---|---|---|---|
 | GET | `geo-tags?kind=&searchText=&branchIds=&onlyUntagged=` | – | `GeoTag[]` |
+| GET | `geo-tags/points?branchId=&kinds=GroupCentre,Customer,OdCustomer` | – | `GeoTagPointsResponse` `{ points: GeoTagPoint[], untaggedByKind }` |
 | PUT | `geo-tags/{id}` | `{ location, radiusMeters, reason }` | `GeoTag` |
 | GET | `settings` | – | `TrackingSettings` |
 | PUT | `settings` | `TrackingSettings` | `TrackingSettings` |
 
+* `geo-tags/points` is the **light** call behind the task picker: every geo-tagged place of the listed kinds in one branch, with no
+  photo or history, so a branch with thousands of members stays small. `GeoTagPoint`: id, kind, refId, name, refCode, branchId/Name,
+  address, location, radiusMeters, and for `OdCustomer` only `dpd` and `overdueAmount` from the Loan Status Report (null otherwise).
+  **One point per person:** a member who is currently overdue is returned once, as `OdCustomer` (not also as `Customer`).
+  `untaggedByKind` = per kind, places in the branch with no location yet. Same scope rules as `geo-tags`. If a branch ever gets too
+  large even for this, add an optional `bbox=swLat,swLng,neLat,neLng` filter; the response shape stays the same.
 * `GeoTagKind`: `Branch` · `GroupCentre` · `Customer` · `OdCustomer` · `EmployeeHome`. `branchIds` is a comma-separated list
   (the task builder searches the assignee's branches).
 * The web UI edits **Branch, GroupCentre and EmployeeHome** (requirement 2.5, "change of group meeting location"). Customer and
@@ -217,12 +243,29 @@ Only authorised higher officials may decide. Remarks are required when rejecting
   Organisation Unit's latitude/longitude.
 * `TrackingSettings` holds the §6 thresholds, **stop detection** (`stopMinMinutes`, default 5; `stopRadiusMeters`, default 75),
   working hours, notification switches, auto-allocation rules (`autoAssignOdFollowUps` + `autoAssignOdMinDpd` = add newly overdue
-  customers to the CO's open OD job; `autoAssignGroupMeetings` = add centre meetings to the CO's weekly job; `autoAllocationTime`),
+  customers to the CO's open OD job; `autoAssignGroupVisits` (renamed from `autoAssignGroupMeetings`) = add group visits to the CO's weekly job from the group meeting schedule; `autoAllocationTime`),
   and management-defined `exceptions[]`. The mobile app must read the same settings (for example `positionIntervalSeconds`).
 
 ---
 
-## 9. Mobile-side inputs (not part of this web scope)
+## 9. Google Maps Platform APIs
+
+All on the one browser key (`MAP_API_KEY`, restricted by HTTP referrer and to these APIs):
+
+| API | Used for | Called from |
+|---|---|---|
+| Maps JavaScript API | every map | browser |
+| Geocoding API | address search in the map picker | browser |
+| **Routes API** | best-order road route with distance / time, two-wheeler (Google beta, must show a warning; falls back to car where Google has no two-wheeler route). Max 25 stops per request; >10 stops or optimised order bill at a higher tier. Job Monitoring "Plan route", Day Route "planned route", task picker "Trip estimate". Only on click, cached per set of points. | browser (`Route` class) |
+| **Roads API** | Day Route trail snapped to roads and road distance | browser for now; backend preferred (§5 `roadPath`) |
+| Route Optimization API | not used by the web. It authenticates with OAuth (service account), so it belongs in the backend — e.g. a future auto-allocation that splits a branch's open tasks across several officers. | backend only |
+
+Turn-by-turn navigation is a mobile-app concern: a "Navigate" button can open Google Maps with
+`https://www.google.com/maps/dir/?api=1&destination=<lat>,<lng>` (no API, no cost).
+
+---
+
+## 10. Mobile-side inputs (not part of this web scope)
 
 These events feed the data above. They come from the mobile app and are not called by the web: punch-in/out with odometer photos,
 periodic GPS fixes (with GPS-on/off state and battery), task arrival and completion with GPS photo + remarks, OD outcome (paid / PTP),
@@ -231,7 +274,7 @@ out-of-radius request, and the group-formation form (from LOS/MIS).
 
 ---
 
-## 10. Switching from mock to real backend
+## 11. Switching from mock to real backend
 
 1. Implement the endpoints above under `tracking-api` on the gateway.
 2. In `environment*.ts`, set `useTrackingMocks: false`.

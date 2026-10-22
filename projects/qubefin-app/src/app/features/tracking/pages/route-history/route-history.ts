@@ -1,6 +1,6 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { httpResource } from '@angular/common/http';
-import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { GoogleMap, MapAdvancedMarker, MapCircle, MapPolyline } from '@angular/google-maps';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -8,7 +8,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { ApiPaths } from 'qubefin-core';
-import { EmployeeRoute, RouteStop, RouteTaskPoint } from '../../models/live-position';
+import { EmployeeRoute, RoadPathPoint, RouteStop, RouteTaskPoint } from '../../models/live-position';
+import { GeoPoint } from '../../models/geo';
+import { RoadsService, pathKm } from '../../services/roads.service';
+import { MAX_ROUTE_STOPS, PlannedRoute, RoutingService, TRAVEL_MODE_LABEL, formatDuration } from '../../services/routing.service';
 import { MapsLoaderService } from '../../services/maps-loader.service';
 import { TrackingLookupStore } from '../../stores/tracking-lookup-store';
 import { TrackingSettingsStore } from '../../stores/tracking-settings-store';
@@ -37,6 +40,11 @@ export class RouteHistory {
   readonly lookup = inject(TrackingLookupStore);
   readonly maps = inject(MapsLoaderService);
   private readonly settingsStore = inject(TrackingSettingsStore);
+  private readonly roads = inject(RoadsService);
+  private readonly routing = inject(RoutingService);
+  readonly formatDuration = formatDuration;
+  readonly TRAVEL_MODE_LABEL = TRAVEL_MODE_LABEL;
+  readonly MAX_ROUTE_STOPS = MAX_ROUTE_STOPS;
 
   readonly ROLE_LABEL = ROLE_LABEL;
   readonly STOP_KIND = STOP_KIND;
@@ -76,10 +84,66 @@ export class RouteHistory {
 
   readonly points = computed(() => this.data()?.points ?? []);
   readonly playedPath = computed(() => this.points().slice(0, this.playIndex() + 1));
+
+  // --- Road-snapped trail (Roads API) and planned route (Routes API) ---------------------------
+  /** Show the trail snapped to roads instead of straight lines between GPS fixes. */
+  readonly roadSnap = signal(true);
+  readonly roadPath = signal<RoadPathPoint[] | null>(null);
+  readonly snapping = signal(false);
+  readonly snapError = signal<string | null>(null);
+  private snapToken = 0;
+  /** Road distance: from the backend when it pre-snaps, else from the snapped path. */
+  readonly roadKm = computed(() => {
+    const r = this.data();
+    if (r?.roadDistanceKm != null) return r.roadDistanceKm;
+    const p = this.roadPath();
+    return p && p.length > 1 ? pathKm(p) : null;
+  });
+  private readonly useRoad = computed(() => this.roadSnap() && !!this.roadPath()?.length);
+  /** Whole-day line and the part already played, on roads when snapped. */
+  readonly linePath = computed<GeoPoint[]>(() => (this.useRoad() ? this.roadPath()! : this.points()));
+  readonly playedLinePath = computed<GeoPoint[]>(() => {
+    if (!this.useRoad()) return this.playedPath();
+    const idx = this.playIndex();
+    const road = this.roadPath()!;
+    let end = road.length;
+    for (let i = 0; i < road.length; i++) {
+      if (road[i].pointIndex > idx) {
+        end = i;
+        break;
+      }
+    }
+    return road.slice(0, end);
+  });
+
+  /** `visited`: through the task points visited that day (compared with the actual km); `planned`: none visited, all of them. */
+  readonly plan = signal<{ key: string; route: PlannedRoute; from: string; to: string; scope: 'visited' | 'planned' } | null>(null);
+  readonly planLoading = signal(false);
+  readonly planError = signal<string | null>(null);
+  private readonly dayKey = computed(() => {
+    const r = this.data();
+    return r ? `${r.employeeId}|${r.date}` : '';
+  });
+  readonly activePlan = computed(() => {
+    const p = this.plan();
+    return p && p.key === this.dayKey() ? p : null;
+  });
+  readonly planLine: google.maps.PolylineOptions = {
+    strokeOpacity: 0,
+    icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 0.9, strokeColor: '#7C3AED', scale: 4 }, offset: '0', repeat: '14px' }],
+    clickable: false,
+  };
+  /** Actual road distance vs the planned (best-order) distance, in %. */
+  readonly extraPct = computed(() => {
+    const p = this.activePlan();
+    const actual = this.roadKm() ?? this.data()?.summary.totalDistanceKm ?? null;
+    if (!p || p.scope !== 'visited' || actual == null || !p.route.distanceMeters) return null;
+    return Math.round(((actual * 1000 - p.route.distanceMeters) / p.route.distanceMeters) * 100);
+  });
   readonly current = computed(() => this.points()[Math.min(this.playIndex(), Math.max(0, this.points().length - 1))]);
   /** Distance covered up to the play head. */
   readonly distanceSoFar = computed(() => {
-    const pts = this.playedPath();
+    const pts = this.playedLinePath();
     let m = 0;
     for (let i = 1; i < pts.length; i++) m += distanceMeters(pts[i - 1], pts[i]);
     return m;
@@ -137,6 +201,44 @@ export class RouteHistory {
       if (this.isToday() && this.employeeId()) this.routeResource.reload();
     });
     this.destroyRef.onDestroy(() => this.pause());
+
+    // Snap the trail to roads (backend path if given; otherwise Roads API, only new fixes on a live day).
+    let snappedKey = '';
+    effect(() => {
+      const r = this.data();
+      const on = this.roadSnap();
+      if (!r) return;
+      const key = `${r.employeeId}|${r.date}`;
+      untracked(() => {
+        if (key !== snappedKey) {
+          snappedKey = key;
+          this.roadPath.set(null);
+          this.snapError.set(null);
+        }
+        if (!on) return;
+        if (r.roadPath?.length) {
+          this.roadPath.set(r.roadPath);
+          return;
+        }
+        if (r.points.length < 2) return;
+        const token = ++this.snapToken;
+        this.snapping.set(true);
+        this.roads
+          .snap(key, r.points)
+          .then((path) => {
+            if (token === this.snapToken) {
+              this.roadPath.set(path);
+              this.snapError.set(null);
+            }
+          })
+          .catch((err) => {
+            if (token === this.snapToken) this.snapError.set(err instanceof Error ? err.message : 'Road snapping failed.');
+          })
+          .finally(() => {
+            if (token === this.snapToken) this.snapping.set(false);
+          });
+      });
+    });
 
     // New day / employee → show the whole day, fit the map.
     let lastKey = '';
@@ -217,6 +319,49 @@ export class RouteHistory {
     if (p.completedAt) return '#16A34A';
     if (p.visited) return '#7C3AED';
     return '#94A3B8';
+  }
+
+  /**
+   * Best-order road route (two-wheeler) through the task points the employee visited that day — so it can be compared
+   * with the km actually travelled — or through all planned points when none was visited. From the first GPS fix
+   * (or the branch) to the last fix once the day is over (or back to the branch while it runs).
+   */
+  async togglePlan() {
+    if (this.activePlan()) {
+      this.plan.set(null);
+      return;
+    }
+    const r = this.data();
+    if (!r?.taskPoints.length) return;
+    const branch = this.officer() ? this.lookup.branchById().get(this.officer()!.branchId) : undefined;
+    const first = r.points[0];
+    const last = r.points[r.points.length - 1];
+    const origin: GeoPoint | null = first ? { lat: first.lat, lng: first.lng } : (branch?.location ?? null);
+    const ended = !r.isLive && !!last;
+    const destination: GeoPoint | null = ended ? { lat: last.lat, lng: last.lng } : (branch?.location ?? origin);
+    if (!origin) {
+      this.planError.set('No start point for this day.');
+      return;
+    }
+    this.planLoading.set(true);
+    this.planError.set(null);
+    try {
+      const visited = r.taskPoints.filter((p) => p.visited || !!p.completedAt);
+      const scope = visited.length ? 'visited' : 'planned';
+      const stops = (visited.length ? visited : r.taskPoints).map((p) => p.location);
+      const route = await this.routing.plan(origin, stops, { destination, optimize: true });
+      this.plan.set({
+        key: `${r.employeeId}|${r.date}`,
+        route,
+        scope,
+        from: first ? 'the first GPS fix' : `${branch?.name} branch`,
+        to: ended ? 'the last GPS fix' : `${branch?.name ?? 'the'} branch`,
+      });
+    } catch (err) {
+      this.planError.set(err instanceof Error ? err.message : 'Route could not be calculated.');
+    } finally {
+      this.planLoading.set(false);
+    }
   }
 
   // --- Playback controls ---------------------------------------------------------------------

@@ -36,7 +36,8 @@ export interface TrackingSettings {
   /** System-generated allocation rules. */
   autoAssignOdFollowUps: boolean;
   autoAssignOdMinDpd: number;
-  autoAssignGroupMeetings: boolean;
+  /** Add group visits to the CO's weekly job from the group meeting schedule. */
+  autoAssignGroupVisits: boolean;
   autoAllocationTime: string;
   exceptions: TrackingException[];
   lastModifiedByName: string | null;

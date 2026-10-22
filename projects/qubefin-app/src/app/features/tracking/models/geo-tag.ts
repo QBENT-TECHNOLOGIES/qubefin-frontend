@@ -44,3 +44,31 @@ export interface UpdateGeoTagRequest {
   radiusMeters: number;
   reason: string;
 }
+
+/**
+ * Light view of one geo-tagged place, for the task picker that loads a whole branch at once
+ * (`GET geo-tags/points?branchId=&kinds=GroupCentre,Customer,OdCustomer`). Only places that have a location;
+ * no photo or history. A member who is currently overdue is returned once, as `OdCustomer`.
+ */
+export interface GeoTagPoint {
+  id: string;
+  kind: GeoTagKind;
+  refId: string;
+  name: string;
+  refCode: string;
+  branchId: string;
+  branchName: string;
+  address: string | null;
+  location: GeoPoint;
+  radiusMeters: number;
+  /** OD customers only (Loan Status Report): days past due. */
+  dpd: number | null;
+  /** OD customers only: overdue amount (₹). */
+  overdueAmount: number | null;
+}
+
+export interface GeoTagPointsResponse {
+  points: GeoTagPoint[];
+  /** Per kind: places in the branch with no geo-tag yet (they cannot get a task). */
+  untaggedByKind: Partial<Record<GeoTagKind, number>>;
+}

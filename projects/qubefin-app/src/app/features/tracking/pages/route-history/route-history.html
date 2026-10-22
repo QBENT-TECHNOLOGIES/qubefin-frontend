@@ -41,9 +41,22 @@
     @if (data(); as r) {
     <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-4">
         <div class="trk-stat-card glass">
-            <p class="trk-stat-label">Distance travelled</p>
-            <p class="trk-stat-value">{{ r.summary.totalDistanceKm | number: '1.1-1' }} <span class="text-sm font-semibold">km</span></p>
-            <p class="text-[11px] text-slate-400">Moving {{ hours(r.summary.movingMinutes) }}</p>
+            <p class="trk-stat-label">Distance travelled{{ roadKm() != null ? ' (on roads)' : '' }}</p>
+            <p class="trk-stat-value">{{ (roadKm() ?? r.summary.totalDistanceKm) | number: '1.1-1' }} <span class="text-sm font-semibold">km</span></p>
+            <p class="text-[11px] text-slate-400">
+                @if (roadKm() != null) { GPS {{ r.summary.totalDistanceKm | number: '1.1-1' }} km · }
+                Moving {{ hours(r.summary.movingMinutes) }}
+            </p>
+            @if (activePlan(); as p) {
+            <p class="text-[11px] text-violet-600">
+                @if (p.scope === 'visited') {
+                Best route {{ (p.route.distanceMeters / 1000) | number: '1.1-1' }} km
+                @if (extraPct() !== null) { · actual {{ extraPct()! > 0 ? '+' : '' }}{{ extraPct() }}% }
+                } @else {
+                Planned route {{ (p.route.distanceMeters / 1000) | number: '1.1-1' }} km (no point visited)
+                }
+            </p>
+            }
         </div>
         <div class="trk-stat-card glass">
             <p class="trk-stat-label">Designated stops</p>
@@ -149,9 +162,12 @@
                     <map-circle [center]="m.point.location" [radius]="m.point.matchRadiusMeters" [options]="m.circle" />
                     <map-advanced-marker [position]="m.point.location" [title]="m.title" [content]="m.content" [zIndex]="120" />
                     }
+                    @if (activePlan(); as p) {
+                    <map-polyline [path]="p.route.path" [options]="planLine" />
+                    }
                     @if (points().length) {
-                    <map-polyline [path]="points()" [options]="routeLine" />
-                    <map-polyline [path]="playedPath()" [options]="playedLine" />
+                    <map-polyline [path]="linePath()" [options]="routeLine" />
+                    <map-polyline [path]="playedLinePath()" [options]="playedLine" />
                     }
                     @for (m of stopMarkers(); track m.stop.seq) {
                     <map-advanced-marker [position]="m.stop.location" [title]="m.title" [content]="m.content" [zIndex]="300" (mapClick)="focusStop(m.stop)" />
@@ -161,7 +177,33 @@
                 } @else {
                 <qfin-map-status />
                 }
+                @if (points().length) {
+                <div class="trk-map-overlay right-3 top-14 text-xs max-w-[280px]">
+                    <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" [checked]="roadSnap()" (change)="roadSnap.set($any($event.target).checked)">
+                        Snap trail to roads
+                        @if (snapping()) { <svg lucideIcon="loader" class="w-3.5 h-3.5 animate-spin"></svg> }
+                    </label>
+                    @if (snapError(); as e) { <span class="trk-field-error">{{ e }} Showing straight GPS lines.</span> }
+                    @if (data()?.taskPoints?.length) {
+                    <button type="button" class="trk-link-btn self-start" (click)="togglePlan()" [disabled]="planLoading()">
+                        <svg [lucideIcon]="planLoading() ? 'loader' : 'route'" class="w-4 h-4" [class.animate-spin]="planLoading()"></svg>
+                        {{ activePlan() ? 'Hide planned route' : 'Show planned route' }}
+                    </button>
+                    }
+                    @if (activePlan(); as p) {
+                    <span class="text-[11px]">
+                        Best order through the {{ p.route.order.length }} task {{ p.route.order.length === 1 ? 'point' : 'points' }} {{ p.scope === 'visited' ? 'visited this day' : 'planned (none visited)' }}, from {{ p.from }} to {{ p.to }}:
+                        <b>{{ (p.route.distanceMeters / 1000).toFixed(1) }} km · ~{{ formatDuration(p.route.durationSeconds) }}</b> by {{ TRAVEL_MODE_LABEL[p.route.travelMode] }}.
+                        @if (p.route.skipped) { <span class="text-amber-600">{{ p.route.skipped }} more not included (max {{ MAX_ROUTE_STOPS }}).</span> }
+                        @if (p.route.travelMode === 'TWO_WHEELER') { <span class="text-slate-400">Two-wheeler routes are a Google beta.</span> }
+                    </span>
+                    }
+                    @if (planError(); as e) { <span class="trk-field-error">{{ e }}</span> }
+                </div>
+                }
                 <div class="trk-map-overlay left-3 bottom-3 text-[11px]">
+                    @if (activePlan()) { <span class="flex items-center gap-1.5"><span class="inline-block w-5 border-t-[3px] border-dashed border-violet-600"></span> Planned route</span> }
                     <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#16A34A"></span> Designated stop</span>
                     <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#D97706"></span> Undesignated stop</span>
                     <span class="flex items-center gap-1.5"><span class="trk-legend-pin" style="--trk-color:#16A34A"></span> Task done · <span class="trk-legend-pin" style="--trk-color:#7C3AED"></span> visited · <span class="trk-legend-pin" style="--trk-color:#94A3B8"></span> not visited</span>

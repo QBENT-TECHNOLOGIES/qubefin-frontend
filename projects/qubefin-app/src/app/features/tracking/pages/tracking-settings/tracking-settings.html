@@ -69,7 +69,7 @@
                         <input type="number" min="1" class="trk-inline-number" [disabled]="!d.autoAssignOdFollowUps" [ngModel]="d.autoAssignOdMinDpd"
                             (ngModelChange)="set('autoAssignOdMinDpd', +$event)" aria-label="Minimum DPD">
                     </div>
-                    <mat-slide-toggle [ngModel]="d.autoAssignGroupMeetings" (ngModelChange)="set('autoAssignGroupMeetings', $event)">Add centre-meeting tasks to the CO's weekly job from the meeting schedule</mat-slide-toggle>
+                    <mat-slide-toggle [ngModel]="d.autoAssignGroupVisits" (ngModelChange)="set('autoAssignGroupVisits', $event)">Add group-visit tasks to the CO's weekly job from the group meeting schedule</mat-slide-toggle>
                     <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
                         Run allocation daily at
                         <input type="time" class="trk-inline-number w-28!" [ngModel]="d.autoAllocationTime" (ngModelChange)="set('autoAllocationTime', $event)" aria-label="Allocation time">

@@ -34,20 +34,39 @@ export const DEFAULT_TARGET_KIND: Record<TaskType, TaskTargetKind> = {
   GroupVisit: 'GroupCentre',
   MemberVisit: 'Customer',
   OdFollowUp: 'OdCustomer',
-  CentreMeeting: 'GroupCentre',
   LeadSourcing: 'Custom',
   Survey: 'Custom',
 };
 
-/** Place kinds allowed per task type (first one is the default). */
+/** Place kinds allowed per task type. */
 export const TARGET_KINDS_FOR: Record<TaskType, TaskTargetKind[]> = {
   GroupVisit: ['GroupCentre'],
   MemberVisit: ['Customer', 'OdCustomer'],
   OdFollowUp: ['OdCustomer'],
-  CentreMeeting: ['GroupCentre'],
   LeadSourcing: ['Custom', 'GroupCentre'],
   Survey: ['Custom', 'GroupCentre', 'Branch'],
 };
+
+/**
+ * The task type follows from the place that is picked. The first entry is the default; the others are
+ * what the task can be switched to after it is added (an OD member can get a plain member visit,
+ * a group can get a survey). A point on the map is lead sourcing or a survey.
+ */
+export const TYPES_FOR_KIND: Record<TaskTargetKind, TaskType[]> = {
+  GroupCentre: ['GroupVisit', 'Survey', 'LeadSourcing'],
+  Customer: ['MemberVisit'],
+  OdCustomer: ['OdFollowUp', 'MemberVisit'],
+  Branch: ['Survey'],
+  Custom: ['LeadSourcing', 'Survey'],
+};
+
+export function defaultTypeFor(kind: TaskTargetKind): TaskType {
+  return TYPES_FOR_KIND[kind][0];
+}
+
+/** Place kinds shown in the task picker (one call to `geo-tags/points`). */
+export const PICKER_KINDS = ['GroupCentre', 'Customer', 'OdCustomer'] as const;
+export type PickerKind = (typeof PICKER_KINDS)[number];
 
 export const TARGET_KIND_LABEL: Record<TaskTargetKind, string> = {
   Customer: 'Member / customer home',

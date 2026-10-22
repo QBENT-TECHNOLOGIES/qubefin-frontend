@@ -100,6 +100,14 @@ export interface RouteSummary {
   lastFixAt: string | null;
 }
 
+/** A point of the GPS trail snapped to the road network (Roads API). */
+export interface RoadPathPoint {
+  lat: number;
+  lng: number;
+  /** Index into `EmployeeRoute.points` of the last original fix at or before this point (for playback). */
+  pointIndex: number;
+}
+
 export interface EmployeeRoute {
   employeeId: string;
   /** yyyy-MM-dd */
@@ -113,4 +121,10 @@ export interface EmployeeRoute {
   totalDistanceKm: number;
   punchInAt: string | null;
   punchOutAt: string | null;
+  /**
+   * Optional, preferred: the trail snapped to roads once by the backend (Roads API). When missing,
+   * the web snaps it on demand. `roadDistanceKm` is the length of that path.
+   */
+  roadPath?: RoadPathPoint[] | null;
+  roadDistanceKm?: number | null;
 }

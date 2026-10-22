@@ -1,33 +1,32 @@
 import { httpResource } from '@angular/common/http';
 import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { ApiPaths } from 'qubefin-core';
-import { GeoTag, GeoTagKind } from '../../../models/geo-tag';
+import { GeoTagPoint, GeoTagPointsResponse } from '../../../models/geo-tag';
 import { JobTaskPoint, NewTaskInput, TaskTarget, TaskTargetKind, TaskType } from '../../../models/job';
 import { TrackingLookupStore } from '../../../stores/tracking-lookup-store';
 import { formatCoords, toDateKey } from '../../../utils/geo-utils';
-import { TARGET_KINDS_FOR, TARGET_KIND_LABEL, targetKey } from '../../../utils/job-rules';
-import { TASK_TYPE, optionsOf } from '../../../utils/tracking-labels';
-import { MapPickerDialog, MapPickerDialogData, MapPickerDialogResult } from '../../shared/map-picker-dialog/map-picker-dialog';
+import { PICKER_KINDS, TYPES_FOR_KIND, defaultTypeFor, targetKey } from '../../../utils/job-rules';
+import { TASK_TYPE } from '../../../utils/tracking-labels';
+import { FieldPointDraft, FieldPointMarker, FieldPointType, PlaceMultiSelect } from '../place-multi-select/place-multi-select';
 
 /**
- * Builds the list of tasks for a job. Every task needs a place: a geo-tagged branch, centre or
- * customer home, or a point picked on the map. Tasks have no time and no order.
+ * Builds the list of tasks for a job. Pick a branch, then select places (list or map):
+ * the task type follows from the place — group → Group Visit, member → Member Visit, OD member → OD Follow-up.
+ * Clicking empty ground on the map adds a lead-sourcing or survey point. One set of instructions is copied to every
+ * selected place. After adding, a task's type can be switched where the place allows it (OD member → Member Visit,
+ * group → Survey). Tasks have no time and no order.
  */
 @Component({
   selector: 'qfin-task-builder',
-  imports: [FormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatAutocompleteModule, MatTooltipModule, LucideDynamicIcon],
+  imports: [MatFormFieldModule, MatInputModule, MatSelectModule, MatTooltipModule, LucideDynamicIcon, PlaceMultiSelect],
   templateUrl: './task-builder.html',
 })
 export class TaskBuilder {
-  private readonly dialog = inject(MatDialog);
   readonly lookup = inject(TrackingLookupStore);
 
   /** The tasks added so far (two-way). */
@@ -38,46 +37,43 @@ export class TaskBuilder {
   readonly existingKeys = input<string[]>([]);
   /** Days the job is active ([start, end], yyyy-MM-dd); places with the same task pending in an overlapping job are blocked. */
   readonly window = input<[string, string] | null>(null);
+  /** Who will hold the job (if known): their pending tasks and home are shown on the picker map. */
+  readonly assigneeId = input<string | null>(null);
 
-  readonly typeOptions = optionsOf(TASK_TYPE);
   readonly TASK_TYPE = TASK_TYPE;
-  readonly TARGET_KIND_LABEL = TARGET_KIND_LABEL;
+  readonly TYPES_FOR_KIND = TYPES_FOR_KIND;
   readonly formatCoords = formatCoords;
 
-  readonly type = signal<TaskType>('CentreMeeting');
-  readonly kind = signal<TaskTargetKind>('GroupCentre');
   readonly branchId = signal<string | null>(null);
-  readonly search = signal('');
-  readonly target = signal<TaskTarget | null>(null);
-  readonly customName = signal('');
   readonly notes = signal('');
   readonly error = signal<string | null>(null);
-
-  readonly kindOptions = computed(() => TARGET_KINDS_FOR[this.type()].map((value) => ({ value, label: TARGET_KIND_LABEL[value] })));
+  /** Geo-tag ids ticked in the picker. */
+  readonly selectedIds = signal<string[]>([]);
 
   readonly branches = computed(() => {
     const allowed = this.allowedBranchIds();
     return this.lookup.branches().filter((b) => !allowed || allowed.includes(b.id));
   });
+  readonly branch = computed(() => this.lookup.branchById().get(this.branchId() ?? '') ?? null);
 
-  /** Branch filter for the search: the chosen one, or every allowed branch. */
-  private readonly searchBranchIds = computed(() => {
-    const chosen = this.branchId();
-    if (chosen) return [chosen];
-    return this.allowedBranchIds();
+  /** Every geo-tagged group, member and OD member of the chosen branch (light payload). */
+  private readonly pointsResource = httpResource<GeoTagPointsResponse>(() => {
+    const id = this.branchId();
+    if (!id) return undefined;
+    return { url: `${ApiPaths.TRACKING}/geo-tags/points`, params: { branchId: id, kinds: PICKER_KINDS.join(',') } };
   });
+  readonly branchPlaces = computed(() => this.pointsResource.value()?.points ?? []);
+  readonly untaggedByKind = computed(() => this.pointsResource.value()?.untaggedByKind ?? {});
+  readonly pointsLoading = computed(() => this.pointsResource.isLoading());
 
-  private readonly placesResource = httpResource<GeoTag[]>(() => {
-    const kind = this.kind();
-    if (kind === 'Custom') return undefined;
-    const params: Record<string, string> = { kind: kind as GeoTagKind, onlyUntagged: 'false' };
-    const ids = this.searchBranchIds();
-    if (ids?.length) params['branchIds'] = ids.join(',');
-    if (this.search().trim()) params['searchText'] = this.search().trim();
-    return { url: `${ApiPaths.TRACKING}/geo-tags`, params };
+  /** Context for the map: the assignee's pending tasks in open jobs, and their home. */
+  readonly assignee = computed(() => this.lookup.officerById().get(this.assigneeId() ?? '') ?? null);
+  private readonly assigneeTasksResource = httpResource<JobTaskPoint[]>(() => {
+    const id = this.assigneeId();
+    if (!id || !this.branchId()) return undefined;
+    return { url: `${ApiPaths.TRACKING}/jobs/task-points`, params: { assigneeId: id, pendingOnly: 'true' } };
   });
-  readonly places = computed(() => (this.placesResource.value() ?? []).filter((p) => !!p.location).slice(0, 40));
-  readonly placesLoading = computed(() => this.placesResource.isLoading());
+  readonly assigneeTasks = computed(() => this.assigneeTasksResource.value() ?? []);
 
   /** Pending tasks of all open jobs, to flag places that are already taken. */
   private readonly pendingResource = httpResource<JobTaskPoint[]>(() => `${ApiPaths.TRACKING}/jobs/task-points`);
@@ -94,6 +90,24 @@ export class TaskBuilder {
   private readonly keysInList = computed(() => new Set(this.tasks().map((t) => targetKey(t.type, t.target))));
   private readonly keysInJob = computed(() => new Set(this.existingKeys()));
 
+  /** Place id → why it cannot take its task now (with the type it would get). */
+  readonly blocked = computed(() => {
+    const map = new Map<string, string>();
+    this.branchPlaces().forEach((p) => {
+      const why = this.conflict(defaultTypeFor(p.kind as TaskTargetKind), this.targetOf(p));
+      if (why) map.set(p.id, why);
+    });
+    return map;
+  });
+
+  /** Lead sourcing / survey points in the list, for the map. */
+  readonly fieldPoints = computed<FieldPointMarker[]>(() =>
+    this.tasks()
+      .map((t, i) => ({ t, i }))
+      .filter(({ t }) => t.target.kind === 'Custom' && (t.type === 'LeadSourcing' || t.type === 'Survey'))
+      .map(({ t, i }) => ({ key: `${i}`, type: t.type as FieldPointType, name: t.target.name, location: t.target.location, radiusMeters: t.target.matchRadiusMeters })),
+  );
+
   constructor() {
     // Keep the branch choice valid when the allowed branches change (e.g. assignee picked).
     effect(() => {
@@ -102,54 +116,49 @@ export class TaskBuilder {
       if (list.length === 1) this.branchId.set(list[0].id);
       else if (current && !list.some((b) => b.id === current)) this.branchId.set(null);
     });
-  }
-
-  onTypeChange(type: TaskType) {
-    this.type.set(type);
-    this.kind.set(TARGET_KINDS_FOR[type][0]);
-    this.resetPlace();
-  }
-
-  onKindChange(kind: TaskTargetKind) {
-    this.kind.set(kind);
-    this.resetPlace();
+    // Drop ticked places that are no longer on offer (branch changed, or they became unavailable).
+    effect(() => {
+      const ids = this.selectedIds();
+      if (!ids.length) return;
+      const ok = new Set(this.branchPlaces().map((p) => p.id));
+      const blocked = this.blocked();
+      const keep = ids.filter((id) => ok.has(id) && !blocked.has(id));
+      if (keep.length !== ids.length) this.selectedIds.set(keep);
+    });
   }
 
   onBranchChange(id: string | null) {
     this.branchId.set(id);
-    this.resetPlace();
-  }
-
-  private resetPlace() {
-    this.target.set(null);
-    this.search.set('');
-    this.customName.set('');
+    this.selectedIds.set([]);
     this.error.set(null);
   }
 
-  selectPlace(e: MatAutocompleteSelectedEvent) {
-    const tag = e.option.value as GeoTag;
-    this.search.set(tag.name);
-    this.error.set(null);
-    this.target.set({
-      kind: this.kind(),
+  private targetOf(tag: GeoTagPoint): TaskTarget {
+    return {
+      kind: tag.kind as TaskTargetKind,
       refId: tag.refId,
       name: tag.name,
       address: tag.address ?? tag.branchName,
-      location: tag.location!,
+      location: tag.location,
       branchId: tag.branchId,
       branchName: tag.branchName,
       matchRadiusMeters: Math.min(tag.radiusMeters, 500),
-    });
+    };
   }
 
-  displayPlace = (v: GeoTag | string | null) => (typeof v === 'string' ? v : (v?.name ?? ''));
+  private titleFor(type: TaskType, target: TaskTarget) {
+    return `${TASK_TYPE[type].label} – ${target.name.replace(/ \([A-Z]{3}-C\d+\)$/, '')}`;
+  }
 
-  /** Why this place cannot take this task type now, or null. */
-  isUsed(tag: GeoTag): string | null {
-    const key = targetKey(this.type(), { kind: this.kind(), refId: tag.refId } as TaskTarget);
-    if (this.keysInList().has(key)) return 'already in this list';
+  /**
+   * Why `type` cannot be added at `target` now, or null. `skipIndex` = a task in the list to ignore
+   * (when switching that task's own type).
+   */
+  conflict(type: TaskType, target: TaskTarget, skipIndex = -1): string | null {
+    const key = targetKey(type, target);
+    if (this.tasks().some((t, i) => i !== skipIndex && targetKey(t.type, t.target) === key)) return 'already in this list';
     if (this.keysInJob().has(key)) return 'already pending in this job';
+    if (!target.refId) return null;
     const w = this.window();
     const hit = (this.pendingByKey().get(key) ?? []).find((p) => !w || (p.jobStartFrom <= w[1] && w[0] <= this.activeEnd(p.jobCompleteBy)));
     return hit ? `pending in ${hit.jobNo}${hit.assigneeName ? ' (' + hit.assigneeName + ')' : ''}` : null;
@@ -161,79 +170,78 @@ export class TaskBuilder {
     return completeBy < today ? today : completeBy;
   }
 
-  pickOnMap() {
-    const branch = this.lookup.branchById().get(this.branchId() ?? '') ?? this.branches()[0];
-    if (!branch) return;
-    this.dialog
-      .open<MapPickerDialog, MapPickerDialogData, MapPickerDialogResult>(MapPickerDialog, {
-        data: {
-          title: 'Task location',
-          subtitle: `Inside ${branch.name} branch area. Arrival and the completion photo are checked against this point.`,
-          location: this.target()?.location ?? null,
-          radiusMeters: this.target()?.matchRadiusMeters ?? 300,
-          fallbackCenter: branch.location,
-          requireReason: false,
-          color: TASK_TYPE[this.type()].color,
-        },
-        panelClass: 'glass-modal',
-        maxWidth: '96vw',
-      })
-      .afterClosed()
-      .subscribe((res) => {
-        if (!res) return;
-        this.error.set(null);
-        this.target.set({
-          kind: 'Custom',
-          refId: null,
-          name: this.customName().trim() || 'Field location',
-          address: `${formatCoords(res.location)}, ${branch.name}`,
-          location: res.location,
-          branchId: branch.id,
-          branchName: branch.name,
-          matchRadiusMeters: res.radiusMeters,
-        });
+  /** One task per ticked place, typed by the place, all with the same instructions. */
+  addSelected() {
+    if (!this.branchId()) {
+      this.error.set('Select a branch first.');
+      return;
+    }
+    const chosen = new Set(this.selectedIds());
+    const notes = this.notes().trim() || null;
+    const fresh: NewTaskInput[] = [];
+    this.branchPlaces()
+      .filter((p) => chosen.has(p.id))
+      .forEach((p) => {
+        const target = this.targetOf(p);
+        const type = defaultTypeFor(target.kind);
+        if (!this.conflict(type, target)) fresh.push({ type, title: this.titleFor(type, target), notes, target });
       });
+    if (!fresh.length) {
+      this.error.set('Select at least one group or member, in the list or on the map.');
+      return;
+    }
+    this.tasks.update((list) => [...list, ...fresh]);
+    this.selectedIds.set([]);
+    this.notes.set('');
+    this.error.set(null);
   }
 
-  add() {
-    let target = this.target();
-    if (!target) {
-      this.error.set(this.kind() === 'Custom' ? 'Pick the point on the map.' : 'Choose a geo-tagged place from the list.');
+  /** Lead sourcing / survey at a point picked on the map. */
+  addFieldPoint(d: FieldPointDraft) {
+    const b = this.branch();
+    if (!b) return;
+    const target: TaskTarget = {
+      kind: 'Custom',
+      refId: null,
+      name: d.name,
+      address: `${formatCoords(d.location)}, ${b.name}`,
+      location: d.location,
+      branchId: b.id,
+      branchName: b.name,
+      matchRadiusMeters: d.radiusMeters,
+    };
+    const why = this.conflict(d.type, target);
+    if (why) {
+      this.error.set(`A ${TASK_TYPE[d.type].label.toLowerCase()} at this point is ${why}.`);
       return;
     }
-    if (target.kind === 'Custom') {
-      const name = this.customName().trim();
-      if (!name) {
-        this.error.set('Give the place a name, e.g. "Jateswar market".');
-        return;
-      }
-      target = { ...target, name };
-    }
-    const type = this.type();
-    const key = targetKey(type, target);
-    if (this.keysInList().has(key)) {
-      this.error.set(`A ${TASK_TYPE[type].label.toLowerCase()} for ${target.name} is already in the list.`);
+    this.error.set(null);
+    this.tasks.update((list) => [...list, { type: d.type, title: this.titleFor(d.type, target), notes: d.notes ?? (this.notes().trim() || null), target }]);
+  }
+
+  /** Switch an added task to another type its place allows (e.g. OD member → Member Visit). */
+  changeType(index: number, type: TaskType) {
+    const task = this.tasks()[index];
+    if (!task || task.type === type) return;
+    const why = this.conflict(type, task.target, index);
+    if (why) {
+      this.error.set(`${task.target.name} cannot take a ${TASK_TYPE[type].label.toLowerCase()}: ${why}.`);
+      this.tasks.update((list) => [...list]); // re-render the select back to the old value
       return;
     }
-    if (this.keysInJob().has(key)) {
-      this.error.set(`This job already has a pending ${TASK_TYPE[type].label.toLowerCase()} for ${target.name}.`);
-      return;
-    }
-    if (target.refId) {
-      const why = this.isUsed({ refId: target.refId } as GeoTag);
-      if (why) {
-        this.error.set(`${target.name} already has a ${TASK_TYPE[type].label.toLowerCase()} ${why}. Pick another place or wait until that job is done.`);
-        return;
-      }
-    }
-    const placeName = target.name.replace(/ \([A-Z]{3}-C\d+\)$/, '');
-    this.tasks.update((list) => [...list, { type, title: `${TASK_TYPE[type].label} – ${placeName}`, notes: this.notes().trim() || null, target: target! }]);
-    this.resetPlace();
-    this.notes.set('');
+    this.error.set(null);
+    const oldPrefix = `${TASK_TYPE[task.type].label} – `;
+    const title = task.title.startsWith(oldPrefix) ? `${TASK_TYPE[type].label} – ${task.title.slice(oldPrefix.length)}` : task.title;
+    this.tasks.update((list) => list.map((t, i) => (i === index ? { ...t, type, title } : t)));
   }
 
   remove(index: number) {
     this.tasks.update((list) => list.filter((_, i) => i !== index));
+  }
+
+  /** Clears every task from the list (handy after a large bulk add). */
+  removeAll() {
+    this.tasks.set([]);
   }
 
   rename(index: number, title: string) {

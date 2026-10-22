@@ -43,7 +43,9 @@ export class Container implements OnInit {
     });
   }
 
-  private loadPageData(path: string) {
+  private loadPageData(url: string) {
+    // The menu record is keyed by path only: drop ?query and #fragment (e.g. /secure/tracking/monitoring?job=…).
+    const path = url.split(/[?#]/)[0];
     if (this.currentPath() === path) {
       return;
     }

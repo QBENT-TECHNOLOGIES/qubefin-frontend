@@ -467,7 +467,6 @@ function buildDb(): MockDb {
     };
   };
   const titleFor = (type: TaskType, t: TaskTarget) =>
-    type === 'CentreMeeting' ? `Centre meeting – ${t.name.split(' (')[0].replace(' Mahila Group', '')}` :
     type === 'GroupVisit' ? `Group visit – ${t.name.split(' (')[0]}` :
     type === 'Survey' ? `Survey – ${t.name}` :
     type === 'LeadSourcing' ? `Lead sourcing – ${t.name.split(' – ')[0]}` :
@@ -515,9 +514,9 @@ function buildDb(): MockDb {
     const boss = supervisor(co);
 
     // Last week's plan: mostly done; some COs left tasks behind (overdue).
-    const prev = newJob(d, { title: 'Weekly field plan', description: 'Centre meetings, group and member visits for the week.', creator: boss, assignee: co, startFrom: lastMonday, completeBy: lastSaturday, createdAt: at(shiftKey(lastMonday, -2), 17, 10) });
+    const prev = newJob(d, { title: 'Weekly field plan', description: 'Group and member visits for the week.', creator: boss, assignee: co, startFrom: lastMonday, completeBy: lastSaturday, createdAt: at(shiftKey(lastMonday, -2), 17, 10) });
     const prevDays = workDays(lastMonday, lastSaturday);
-    [myGroups[0], myGroups[1]].forEach((g, k) => addPlanned(prev, 'CentreMeeting', groupTarget(g), prevDays[k * 3], boss));
+    [myGroups[0], myGroups[1]].forEach((g, k) => addPlanned(prev, 'GroupVisit', groupTarget(g), prevDays[k * 3], boss));
     addPlanned(prev, 'GroupVisit', groupTarget(myGroups[2]), prevDays[1], boss);
     addPlanned(prev, 'MemberVisit', memberTarget(myMembers[0]), prevDays[2], boss);
     addPlanned(prev, 'MemberVisit', memberTarget(myMembers[1]), prevDays[4], boss);
@@ -526,9 +525,9 @@ function buildDb(): MockDb {
     coJobs.push({ job: prev, officer: co });
 
     // This week's plan.
-    const cur = newJob(d, { title: 'Weekly field plan', description: 'Centre meetings, group and member visits for the week.', creator: boss, assignee: co, startFrom: thisMonday, completeBy: thisSaturday, createdAt: at(shiftKey(thisMonday, -2), 17, 25) });
+    const cur = newJob(d, { title: 'Weekly field plan', description: 'Group and member visits for the week.', creator: boss, assignee: co, startFrom: thisMonday, completeBy: thisSaturday, createdAt: at(shiftKey(thisMonday, -2), 17, 25) });
     const curDays = workDays(thisMonday, thisSaturday);
-    [myGroups[3], myGroups[4]].forEach((g, k) => addPlanned(cur, 'CentreMeeting', groupTarget(g), curDays[Math.min(k * 3, curDays.length - 1)], boss));
+    [myGroups[3], myGroups[4]].forEach((g, k) => addPlanned(cur, 'GroupVisit', groupTarget(g), curDays[Math.min(k * 3, curDays.length - 1)], boss));
     addPlanned(cur, 'GroupVisit', groupTarget(myGroups[5]), curDays[1], boss);
     addPlanned(cur, 'GroupVisit', groupTarget(myGroups[0]), curDays[weekday] ?? curDays[3], boss);
     addPlanned(cur, 'MemberVisit', memberTarget(myMembers[2]), curDays[2], boss);
@@ -544,9 +543,9 @@ function buildDb(): MockDb {
     // Next week's plan, already handed over to some COs.
     if (i % 4 === 0) {
       const nextMonday = shiftKey(thisMonday, 7);
-      const next = newJob(d, { title: 'Weekly field plan', description: 'Centre meetings and member visits for next week.', creator: boss, assignee: co, startFrom: nextMonday, completeBy: shiftKey(nextMonday, 5), createdAt: addMinutes(now, -intBetween(30, 300)) });
-      addPlanned(next, 'CentreMeeting', groupTarget(myGroups[1]), shiftKey(nextMonday, 1), boss);
-      addPlanned(next, 'CentreMeeting', groupTarget(myGroups[2]), shiftKey(nextMonday, 3), boss);
+      const next = newJob(d, { title: 'Weekly field plan', description: 'Group and member visits for next week.', creator: boss, assignee: co, startFrom: nextMonday, completeBy: shiftKey(nextMonday, 5), createdAt: addMinutes(now, -intBetween(30, 300)) });
+      addPlanned(next, 'GroupVisit', groupTarget(myGroups[1]), shiftKey(nextMonday, 1), boss);
+      addPlanned(next, 'GroupVisit', groupTarget(myGroups[2]), shiftKey(nextMonday, 3), boss);
       if (myMembers[5]) addPlanned(next, 'MemberVisit', memberTarget(myMembers[5]), shiftKey(nextMonday, 2), boss);
       d.jobs.push(next);
     }
@@ -567,10 +566,10 @@ function buildDb(): MockDb {
   officers.filter((o) => o.role === 'BM' || o.role === 'ABM').forEach((m, i) => {
     const branch = branchOf(m.branchId);
     const boss = supervisor(m);
-    const job = newJob(d, { title: m.role === 'BM' ? 'Branch supervision visits' : 'Centre support visits', description: 'Surprise attendance at centre meetings and high-DPD customer visits.', creator: boss, assignee: m, startFrom: thisMonday, completeBy: thisSaturday, createdAt: at(shiftKey(thisMonday, -3), 16, 40) });
+    const job = newJob(d, { title: m.role === 'BM' ? 'Branch supervision visits' : 'Centre support visits', description: 'Surprise attendance at group meetings and high-DPD customer visits.', creator: boss, assignee: m, startFrom: thisMonday, completeBy: thisSaturday, createdAt: at(shiftKey(thisMonday, -3), 16, 40) });
     const days = workDays(thisMonday, thisSaturday);
     const g = shuffle(groups.filter((x) => x.branchId === branch.id));
-    addPlanned(job, 'CentreMeeting', groupTarget(g[0]), days[1], boss);
+    addPlanned(job, 'GroupVisit', groupTarget(g[0]), days[1], boss);
     addPlanned(job, 'GroupVisit', groupTarget(g[1]), days[weekday] ?? days[2], boss);
     const od = odFor(branch.id, 1)[0];
     if (od) addPlanned(job, 'OdFollowUp', odTarget(od), days[Math.max(0, weekday - 1)], boss, 'Assigned', `High DPD (${od.dpd}). Meet the customer with the CO.`);
@@ -581,11 +580,11 @@ function buildDb(): MockDb {
   // Area managers: centre audits across their branches, set by the DM.
   const dm = byName('Partha Mukherjee');
   officers.filter((o) => o.role === 'AM').forEach((am) => {
-    const job = newJob(d, { title: 'Area review – centre audits', description: 'Audit one centre meeting in each branch and check the registers.', creator: { id: dm.id, name: dm.name, unitName: DIVISION }, assignee: am, startFrom: thisMonday, completeBy: shiftKey(thisSaturday, 7), createdAt: at(shiftKey(thisMonday, -4), 11, 0) });
+    const job = newJob(d, { title: 'Area review – centre audits', description: 'Audit one group meeting in each branch and check the registers.', creator: { id: dm.id, name: dm.name, unitName: DIVISION }, assignee: am, startFrom: thisMonday, completeBy: shiftKey(thisSaturday, 7), createdAt: at(shiftKey(thisMonday, -4), 11, 0) });
     const days = workDays(thisMonday, thisSaturday);
     am.branchIds.forEach((bid, k) => {
       const g = pick(groups.filter((x) => x.branchId === bid));
-      addPlanned(job, 'CentreMeeting', groupTarget(g), days[(k * 2) % days.length], { id: dm.id, name: dm.name });
+      addPlanned(job, 'GroupVisit', groupTarget(g), days[(k * 2) % days.length], { id: dm.id, name: dm.name });
     });
     addPlanned(job, 'Survey', pointTarget(branchOf(am.branchIds[am.branchIds.length - 1]), 'new branch feasibility survey', [12, 22]), shiftKey(thisSaturday, 3), { id: dm.id, name: dm.name });
     d.jobs.push(job);
@@ -606,7 +605,7 @@ function buildDb(): MockDb {
   d.jobs.push(unassigned2);
   const sanjay = byName('Sanjay Kundu');
   const unassigned3 = newJob(d, { title: 'Joint centre audits – Dhupguri & Daukimari', description: 'Spans two branches, so only an AM or DM can hold it.', creator: { ...sanjay, unitName: sanjay.unitName }, assignee: null, startFrom: null, completeBy: shiftKey(today, 7), createdAt: addMinutes(now, -60 * 5) });
-  [dpg, branchByCode('DKM')].forEach((b) => addPlanned(unassigned3, 'CentreMeeting', groupTarget(pick(groups.filter((g) => g.branchId === b.id))), shiftKey(today, 9), sanjay));
+  [dpg, branchByCode('DKM')].forEach((b) => addPlanned(unassigned3, 'GroupVisit', groupTarget(pick(groups.filter((g) => g.branchId === b.id))), shiftKey(today, 9), sanjay));
   d.jobs.push(unassigned3);
 
   // History for creation / assignment.
@@ -758,7 +757,7 @@ function defaultSettings(now: Date): TrackingSettings {
     notifyAdministration: true,
     autoAssignOdFollowUps: false,
     autoAssignOdMinDpd: 7,
-    autoAssignGroupMeetings: false,
+    autoAssignGroupVisits: false,
     autoAllocationTime: '07:30',
     exceptions: [
       { id: uuid('x', 1), name: 'Lunch break', appliesTo: 'Stationary', description: 'Stationary alerts suppressed during lunch.', fromTime: '13:30', toTime: '14:15', isActive: true },

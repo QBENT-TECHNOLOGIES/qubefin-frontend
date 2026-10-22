@@ -1,0 +1,299 @@
+<div class="trk-picker">
+    <div class="trk-picker-head">
+        <div class="trk-tabs">
+            <button type="button" [class.is-active]="view() === 'list'" (click)="setView('list')">
+                <svg lucideIcon="list-checks" class="w-4 h-4"></svg> List
+            </button>
+            <button type="button" [class.is-active]="view() === 'map'" (click)="setView('map')">
+                <svg lucideIcon="map" class="w-4 h-4"></svg> Map
+            </button>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap text-xs text-slate-500">
+            <span><b class="text-slate-800 dark:text-slate-100">{{ selectedIds().length }}</b> selected</span>
+            <span>{{ available().length }} available</span>
+            @if (blockedVisible()) {
+            <span class="text-amber-600">{{ blockedVisible() }} unavailable</span>
+            }
+            @if (untaggedTotal()) {
+            <span class="flex items-center gap-1" [matTooltip]="'Not geo-tagged yet, so they cannot get a task: ' + untaggedText()">
+                <svg lucideIcon="map-pin-off" class="w-3.5 h-3.5"></svg> {{ untaggedTotal() }} not geo-tagged
+            </span>
+            }
+            @if (hiddenSelected()) {
+            <span class="text-slate-400">({{ hiddenSelected() }} selected are hidden by the filters)</span>
+            }
+        </div>
+        <span class="flex-1"></span>
+        <button type="button" class="trk-link-btn" (click)="startFieldPoint()"
+            matTooltip="Lead sourcing or a survey at a place with no geo-tag: click it on the map">
+            <svg lucideIcon="map-pin-plus" class="w-4 h-4"></svg> Field point
+        </button>
+        @if (selectedIds().length) {
+        <button type="button" class="trk-link-btn" (click)="clear()">
+            <svg lucideIcon="x" class="w-4 h-4"></svg> Clear selection
+        </button>
+        }
+    </div>
+
+    <!-- Kind (= task type) and DPD filters -->
+    <div class="trk-picker-tools !pb-0">
+        @for (k of PICKER_KINDS; track k) {
+        <button type="button" class="trk-filter-chip" [class.is-active]="!hiddenKinds().has(k)" [style.--trk-color]="KIND_STYLE[k].color"
+            (click)="toggleKind(k)" [matTooltip]="KIND_STYLE[k].becomes + ' tasks · click to show / hide'">
+            <svg [lucideIcon]="KIND_STYLE[k].lucide" class="w-3.5 h-3.5" [style.color]="KIND_STYLE[k].color"></svg>
+            {{ KIND_STYLE[k].label }} <b>{{ kindCounts()[k] }}</b>
+        </button>
+        }
+        @if (hasDpd()) {
+        <span class="w-px h-5 bg-slate-300/70 mx-1"></span>
+        <span class="text-xs font-semibold text-slate-500">OD days past due</span>
+        @for (min of MIN_DPD_OPTIONS; track min) {
+        <button type="button" class="trk-filter-chip" [class.is-active]="minDpd() === min"
+            [style.--trk-color]="min ? dpdColor(min) : '#334155'" (click)="minDpd.set(min)">
+            @if (min) { <span class="trk-filter-dot"></span> {{ min }}+ } @else { All }
+        </button>
+        }
+        }
+    </div>
+
+    @if (tripValid(); as t) {
+    <div class="trk-picker-tools !pb-0 text-xs text-slate-600 dark:text-slate-300">
+        <svg lucideIcon="route" class="w-4 h-4" [style.color]="TRIP_COLOR"></svg>
+        <span>
+            Round trip from {{ branch()?.name }} branch: <b>{{ t.route.order.length }} stops · {{ (t.route.distanceMeters / 1000).toFixed(1) }} km ·
+            ~{{ formatDuration(t.route.durationSeconds) }}</b> by {{ TRAVEL_MODE_LABEL[t.route.travelMode] }}, in the best order (numbers on the map).
+            @if (t.route.skipped) { <span class="text-amber-600"> {{ t.route.skipped }} more not included (25 stops per estimate).</span> }
+        </span>
+        @if (t.route.travelMode === 'TWO_WHEELER') {
+        <span class="text-[11px] text-slate-400" matTooltip="Google's two-wheeler routing is in beta: roads may be missing or not ideal. Treat it as an estimate.">
+            <svg lucideIcon="triangle-alert" class="w-3.5 h-3.5 inline"></svg> two-wheeler routes are a Google beta
+        </span>
+        }
+        <button type="button" class="trk-link-btn" (click)="clearTrip()"><svg lucideIcon="x" class="w-4 h-4"></svg> Hide</button>
+    </div>
+    }
+    @if (tripError(); as e) {
+    <p class="trk-field-error px-3 pt-2">{{ e }}</p>
+    }
+
+    @if (view() === 'list') {
+    <div class="trk-picker-tools">
+        <mat-checkbox color="primary" [checked]="allFilteredSelected()" [indeterminate]="someFilteredSelected()"
+            [disabled]="!filteredAvailable().length" (change)="toggleAllFiltered($event.checked)">
+            <span class="text-xs font-semibold">Select all shown ({{ filteredAvailable().length }})</span>
+        </mat-checkbox>
+        <label class="trk-search flex-1 min-w-[200px]">
+            <svg lucideIcon="search" class="w-4 h-4 text-slate-400"></svg>
+            <input [value]="filter()" (input)="filter.set($any($event.target).value)" placeholder="Filter by name, loan account, group code or address"
+                aria-label="Filter places">
+        </label>
+    </div>
+    <ul class="trk-picker-list scroll-thin">
+        @for (p of shown(); track p.id) {
+        @let why = blocked().get(p.id);
+        @let st = kindStyle(p.kind);
+        <li class="trk-picker-row" [class.is-on]="isSelected(p.id)" [class.is-disabled]="!!why">
+            <mat-checkbox color="primary" [checked]="isSelected(p.id)" [disabled]="!!why" (change)="toggle(p.id)">
+                <span class="flex items-center gap-2 min-w-0">
+                    <span class="trk-type-dot" [style.--trk-color]="st.color" [matTooltip]="st.becomes">
+                        <svg [lucideIcon]="st.lucide" class="w-3 h-3"></svg>
+                    </span>
+                    <span class="min-w-0">
+                        @if (p.dpd != null) {
+                        <span class="trk-dpd" [style.--trk-color]="dpdColor(p.dpd)">{{ p.dpd }} DPD</span>
+                        }
+                        <span class="text-[13px] font-medium text-slate-700 dark:text-slate-200">{{ p.name }}</span>
+                        <span class="text-[11px] text-slate-400">
+                            · {{ p.refCode }}{{ p.overdueAmount != null ? ' · ₹' + money(p.overdueAmount) : '' }}{{ p.address ? ' · ' + p.address : '' }}
+                        </span>
+                        @if (why) { <span class="text-[11px] text-amber-600"> · {{ why }}</span> }
+                        @if (tripSeq().get(p.id); as n) { <span class="trk-badge ml-1">stop {{ n }}</span> }
+                    </span>
+                </span>
+            </mat-checkbox>
+        </li>
+        } @empty {
+        <li class="px-3 py-6 text-center text-xs text-slate-400">
+            @if (loading()) { Loading places… }
+            @else if (filter()) { Nothing matches "{{ filter() }}". }
+            @else if (places().length) { Nothing to show with these filters. }
+            @else { No geo-tagged groups or members in {{ branch()?.name ?? 'this branch' }}. }
+        </li>
+        }
+    </ul>
+    @if (filtered().length > LIST_LIMIT) {
+    <p class="px-3 pb-2 text-[11px] text-slate-500">
+        Showing {{ LIST_LIMIT }} of {{ filtered().length }}. Filter to narrow down, or switch to the map. "Select all" still covers every match.
+    </p>
+    }
+    } @else {
+    <div class="trk-picker-tools">
+        <button type="button" class="trk-btn-primary !h-9" (click)="selectInView()" [disabled]="!inViewIds().length || !!drawMode()">
+            <svg lucideIcon="scan" class="w-4 h-4"></svg> Select {{ inViewIds().length }} in view
+        </button>
+        <button type="button" class="trk-btn-secondary !h-9" (click)="startDraw('add')" [disabled]="!!drawMode()" matTooltip="Draw a shape around the places to add">
+            <svg lucideIcon="lasso-select" class="w-4 h-4"></svg> Draw area
+        </button>
+        <button type="button" class="trk-btn-secondary !h-9" (click)="startDraw('remove')" [disabled]="!selectedIds().length || !!drawMode()"
+            matTooltip="Draw a shape to remove places from the selection">
+            <svg lucideIcon="eraser" class="w-4 h-4"></svg> Draw to remove
+        </button>
+        <button type="button" class="trk-btn-secondary !h-9" (click)="estimateTrip()" [disabled]="!selectedIds().length || tripLoading() || !branch()?.location"
+            matTooltip="Road distance and time for a round trip from the branch through the selection, in the best order">
+            <svg [lucideIcon]="tripLoading() ? 'loader' : 'route'" class="w-4 h-4" [class.animate-spin]="tripLoading()"></svg> Trip estimate
+        </button>
+        <span class="flex-1"></span>
+        <button type="button" class="trk-icon-btn" matTooltip="Show the whole branch area" (click)="refit()" aria-label="Show the whole branch area">
+            <svg lucideIcon="maximize-2" class="w-4 h-4"></svg>
+        </button>
+    </div>
+    <div class="trk-map-frame h-[460px]">
+        @if (maps.status() === 'ready') {
+        <google-map width="100%" height="100%" [mapId]="maps.mapId" [center]="center()" [zoom]="13" [options]="mapOptions"
+            (mapInitialized)="onMapInitialized($event)" (idle)="onMapIdle()" (tilesloaded)="onMapIdle()" (mapClick)="onMapClick($event)">
+            @if (branch()?.location; as bl) {
+            @if (branchRadiusMeters()) {
+            <map-circle [center]="bl" [radius]="branchRadiusMeters()" [options]="branchRadiusOptions" />
+            }
+            <map-advanced-marker [position]="bl" [content]="branchContent" [title]="branch()!.name + ' branch'" [zIndex]="20" />
+            }
+            @if (homeMarker(); as h) {
+            <map-advanced-marker [position]="h.position" [content]="h.content" [title]="h.title" [zIndex]="30" />
+            }
+            @for (a of assigneeMarkers(); track a.id) {
+            <map-advanced-marker [position]="a.position" [content]="a.content" [title]="a.title" [zIndex]="40" />
+            }
+            @if (tripValid(); as t) {
+            <map-polyline [path]="t.route.path" [options]="tripLine()" />
+            }
+            @for (f of fieldMarkers(); track f.key) {
+            <map-circle [center]="f.location" [radius]="f.radiusMeters" [options]="f.circle" />
+            <map-advanced-marker [position]="f.location" [content]="f.content" [title]="f.title" [zIndex]="150" (mapClick)="onPinClick(null)" />
+            }
+            @for (c of clusterMarkers(); track c.key) {
+            <map-advanced-marker [position]="c.position" [content]="c.content" [title]="c.title" [zIndex]="200" (mapClick)="zoomInto(c.cluster)" />
+            }
+            @for (m of markers(); track m.id) {
+            <map-advanced-marker [position]="m.position" [content]="m.content" [title]="m.title" [zIndex]="m.z" (mapClick)="onPinClick(m.id)" />
+            }
+            @if (draft(); as d) {
+            <map-circle [center]="d" [radius]="draftRadius()" [options]="draftCircle()" />
+            <map-advanced-marker [position]="d" [content]="draftContent()" [gmpDraggable]="true" (mapDragend)="onDraftDrag($event)"
+                title="Drag to adjust" [zIndex]="2000" />
+            }
+        </google-map>
+
+        @if (drawMode(); as mode) {
+        <div class="trk-lasso" [class.is-remove]="mode === 'remove'" (pointerdown)="onPointerDown($event)"
+            (pointermove)="onPointerMove($event)" (pointerup)="onPointerUp()" (pointercancel)="cancelDraw()">
+            <svg class="absolute inset-0 w-full h-full pointer-events-none"><polygon [attr.points]="drawPoints()" /></svg>
+            <div class="trk-map-overlay left-1/2 top-3 -translate-x-1/2 !flex-row items-center gap-3 text-xs" (pointerdown)="$event.stopPropagation()">
+                <span>Draw around the places to <b>{{ mode === 'add' ? 'add' : 'remove' }}</b>.</span>
+                <button type="button" class="trk-link-btn" (click)="cancelDraw()"><svg lucideIcon="x" class="w-4 h-4"></svg> Cancel</button>
+            </div>
+        </div>
+        }
+
+        @if (fieldHint() && !draft()) {
+        <div class="trk-map-overlay left-1/2 bottom-24 -translate-x-1/2 !flex-row items-center gap-2 text-xs">
+            <svg lucideIcon="mouse-pointer-click" class="w-4 h-4 text-amber-600"></svg>
+            Click the map where the lead sourcing or survey should happen.
+            <button type="button" class="trk-link-btn" (click)="fieldHint.set(false)"><svg lucideIcon="x" class="w-4 h-4"></svg></button>
+        </div>
+        }
+
+        @if (draft(); as d) {
+        <div class="trk-map-overlay right-3 top-3 w-[min(300px,calc(100%-24px))] gap-2! text-xs trk-form" (click)="$event.stopPropagation()">
+            <p class="font-semibold text-slate-700 dark:text-slate-100 flex items-center gap-1.5">
+                <svg lucideIcon="map-pin-plus" class="w-4 h-4"></svg> New field point · {{ formatCoords(d) }}
+            </p>
+            <div class="trk-tabs">
+                @for (t of fieldTypes; track t) {
+                <button type="button" [class.is-active]="draftType() === t" (click)="setDraftType(t)">
+                    <svg [lucideIcon]="TASK_TYPE[t].icon" class="w-4 h-4"></svg> {{ TASK_TYPE[t].label }}
+                </button>
+                }
+            </div>
+            <label class="trk-search !h-9"><input [value]="draftName()" (input)="draftName.set($any($event.target).value)" placeholder="Place name, e.g. Jateswar market" aria-label="Place name"></label>
+            <div class="flex items-center gap-2">
+                <span class="text-slate-500">Match radius</span>
+                <input type="number" min="10" step="10" class="trk-inline-number" [value]="draftRadius()" (change)="setDraftRadius($any($event.target).value)" aria-label="Match radius in metres"> m
+            </div>
+            <label class="trk-search !h-9"><input [value]="draftNotes()" (input)="draftNotes.set($any($event.target).value)" placeholder="Instructions (optional)" aria-label="Instructions"></label>
+            @if (draftOutside(); as o) {
+            <p class="text-amber-700 flex items-start gap-1.5"><svg lucideIcon="triangle-alert" class="w-4 h-4 shrink-0"></svg>
+                {{ o.km.toFixed(1) }} km from the branch, beyond its {{ o.limit }} km radius: the officer will need an out-of-radius approval.</p>
+            }
+            @if (draftError(); as e) { <p class="trk-field-error">{{ e }}</p> }
+            <p class="text-[11px] text-slate-400">Drag the pin to adjust. The completion photo must be inside the circle.</p>
+            <div class="flex justify-end gap-2">
+                <button type="button" class="trk-btn-secondary !h-9" (click)="cancelDraft()">Cancel</button>
+                <button type="button" class="trk-btn-primary !h-9" (click)="confirmDraft()"><svg lucideIcon="plus" class="w-4 h-4"></svg> Add task</button>
+            </div>
+        </div>
+        }
+
+        @if (note(); as n) {
+        <div class="trk-map-overlay right-3 bottom-8 text-xs !flex-row items-center gap-1.5">
+            <svg lucideIcon="check" class="w-4 h-4 text-emerald-600"></svg> {{ n }}
+        </div>
+        }
+
+        } @else {
+        <qfin-map-status />
+        }
+    </div>
+    <div class="px-3 py-2 text-[11px] text-slate-500 flex items-center gap-3 flex-wrap">
+        <span class="flex items-center gap-1.5 flex-1 min-w-[240px]">
+            <svg lucideIcon="mouse-pointer-click" class="w-3.5 h-3.5 shrink-0"></svg>
+            Click a pin to select it, "Select in view" or "Draw area" for many, or empty ground for a lead-sourcing / survey point.
+        </span>
+        @if (assigneeName() && (assigneeTasks().length || assigneeHome())) {
+        <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" [checked]="showAssignee()" (change)="showAssignee.set($any($event.target).checked)">
+            Show {{ assigneeName() }}'s {{ assigneeTasks().length }} pending task(s){{ assigneeHome() ? ' and home' : '' }}
+        </label>
+        }
+        <button type="button" class="trk-link-btn !text-[11px]" (click)="showLegend.set(!showLegend())">
+            <svg [lucideIcon]="showLegend() ? 'chevron-up' : 'info'" class="w-3.5 h-3.5"></svg> {{ showLegend() ? 'Hide legend' : 'Legend' }}
+        </button>
+    </div>
+    @if (showLegend()) {
+    <div class="trk-picker-legend">
+        <span class="flex items-center gap-3 flex-wrap">
+            @for (k of PICKER_KINDS; track k) {
+            <span class="flex items-center gap-1"><svg [lucideIcon]="KIND_STYLE[k].lucide" class="w-3.5 h-3.5" [style.color]="KIND_STYLE[k].color"></svg> {{ KIND_STYLE[k].becomes }}</span>
+            }
+            <span class="text-slate-400">outline = not selected · filled = selected</span>
+        </span>
+        @if (hasDpd()) {
+        <span class="flex items-center gap-2 flex-wrap">
+            <span class="text-slate-400">OD by DPD</span>
+            @for (b of DPD_BUCKETS; track b.min) {
+            <span class="flex items-center gap-1"><span class="trk-legend-pin" [style.--trk-color]="b.color"></span> {{ b.label }}</span>
+            }
+        </span>
+        }
+        <span class="flex items-center gap-3 flex-wrap">
+            <span class="flex items-center gap-1.5"><span class="trk-legend-pin" [style.--trk-color]="PIN_BLOCKED"></span> Unavailable</span>
+            <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#0F172A"></span> Branch</span>
+            @if (branchRadiusMeters()) {
+            <span class="flex items-center gap-1.5"><span class="inline-block w-3.5 h-3.5 rounded-full border-[1.5px] border-slate-700/60 bg-slate-900/5"></span> {{ branch()?.operatingRadiusKm }} km branch radius</span>
+            }
+            <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#64748B"></span> Group of places · click to zoom in</span>
+            @if (tripValid()) {
+            <span class="flex items-center gap-1.5"><span class="inline-block w-5 border-t-4" [style.border-color]="TRIP_COLOR"></span> Trip estimate (numbers = stop order)</span>
+            }
+        </span>
+        @if (assigneeName() && (assigneeTasks().length || assigneeHome())) {
+        <span class="flex items-center gap-3 flex-wrap">
+            <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#64748B"></span> {{ assigneeName() }}'s pending tasks (dot = task type colour)</span>
+            @if (assigneeHome()) {
+            <span class="flex items-center gap-1.5"><span class="trk-legend-dot" [style.--trk-color]="HOME_COLOR"></span> {{ assigneeName() }}'s home</span>
+            }
+        </span>
+        }
+    </div>
+    }
+    }
+</div>

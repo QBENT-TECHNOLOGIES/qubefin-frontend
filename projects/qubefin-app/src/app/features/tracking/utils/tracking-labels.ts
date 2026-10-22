@@ -45,7 +45,6 @@ export const TASK_TYPE: Record<TaskType, Tone> = {
   GroupVisit: tone('Group Visit', VIOLET, 'users', '#7C3AED'),
   MemberVisit: tone('Member Visit', BLUE, 'user-round', '#2563EB'),
   OdFollowUp: tone('OD Follow-up', RED, 'indian-rupee', '#E11D48'),
-  CentreMeeting: tone('Centre Meeting', GREEN, 'landmark', '#059669'),
   LeadSourcing: tone('Lead Sourcing', AMBER, 'target', '#D97706'),
   Survey: tone('Survey', INDIGO, 'clipboard-check', '#4F46E5'),
 };
@@ -55,7 +54,6 @@ export const TASK_TYPE_CODE: Record<TaskType, string> = {
   GroupVisit: 'G',
   MemberVisit: 'M',
   OdFollowUp: 'OD',
-  CentreMeeting: 'C',
   LeadSourcing: 'L',
   Survey: 'S',
 };

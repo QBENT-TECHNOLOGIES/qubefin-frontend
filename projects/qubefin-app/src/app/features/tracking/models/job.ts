@@ -7,7 +7,8 @@ import { GeoPoint, SortDirection } from './geo';
  * the employee does them in any sequence before the job's date.
  */
 
-export type TaskType = 'GroupVisit' | 'MemberVisit' | 'OdFollowUp' | 'CentreMeeting' | 'LeadSourcing' | 'Survey';
+/** Group Visit also covers the group / centre meeting (one type since Oct 2026). */
+export type TaskType = 'GroupVisit' | 'MemberVisit' | 'OdFollowUp' | 'LeadSourcing' | 'Survey';
 
 export type JobStatus = 'Unassigned' | 'Assigned' | 'InProgress' | 'Completed' | 'Overdue' | 'Cancelled';
 

@@ -1,37 +1,10 @@
 <div class="trk-builder">
-    <div class="flex flex-wrap gap-3 items-start">
-        <div class="w-full sm:w-44">
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                <mat-label>Task type</mat-label>
-                <mat-select [value]="type()" (valueChange)="onTypeChange($event)">
-                    @for (o of typeOptions; track o.value) {
-                    <mat-option [value]="o.value">{{ o.label }}</mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
-        </div>
-
-        @if (kindOptions().length > 1) {
-        <div class="w-full sm:w-52">
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                <mat-label>Place</mat-label>
-                <mat-select [value]="kind()" (valueChange)="onKindChange($event)">
-                    @for (o of kindOptions(); track o.value) {
-                    <mat-option [value]="o.value">{{ o.label }}</mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
-        </div>
-        }
-
+    <div class="flex flex-wrap gap-3 items-center">
         @if (branches().length > 1) {
-        <div class="w-full sm:w-44">
+        <div class="w-full sm:w-56">
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                 <mat-label>Branch</mat-label>
-                <mat-select [value]="branchId()" (valueChange)="onBranchChange($event)">
-                    @if (kind() !== 'Custom') {
-                    <mat-option [value]="null">All allowed branches</mat-option>
-                    }
+                <mat-select [value]="branchId()" (valueChange)="onBranchChange($event)" placeholder="Select a branch">
                     @for (b of branches(); track b.id) {
                     <mat-option [value]="b.id">{{ b.name }}</mat-option>
                     }
@@ -43,69 +16,60 @@
             <svg lucideIcon="building-2" class="w-4 h-4"></svg> {{ branches()[0].name }} branch only
         </div>
         }
-
-        @if (kind() !== 'Custom') {
-        <div class="flex-1 min-w-[260px]">
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                <mat-label>Search {{ TARGET_KIND_LABEL[kind()].toLowerCase() }}</mat-label>
-                <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="search" class="w-5 h-5"></svg></div>
-                <input matInput [value]="search()" (input)="search.set($any($event.target).value); target.set(null)"
-                    [matAutocomplete]="placeAuto" autocomplete="off" placeholder="Name, loan account or centre code">
-                <mat-autocomplete #placeAuto="matAutocomplete" [displayWith]="displayPlace" (optionSelected)="selectPlace($event)">
-                    @for (p of places(); track p.id) {
-                    <mat-option [value]="p" [disabled]="!!isUsed(p)">
-                        <span class="text-[13px]">{{ p.name }}</span>
-                        <span class="text-[11px] text-slate-400"> · {{ p.refCode }} · {{ p.branchName }}</span>
-                        @if (isUsed(p); as why) { <span class="text-[11px] text-amber-600"> · {{ why }}</span> }
-                    </mat-option>
-                    } @empty {
-                    <mat-option disabled>{{ placesLoading() ? 'Searching…' : 'No geo-tagged match' }}</mat-option>
-                    }
-                </mat-autocomplete>
-            </mat-form-field>
-        </div>
-        } @else {
-        <div class="flex-1 min-w-[200px]">
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                <mat-label>Place name</mat-label>
-                <input matInput [value]="customName()" (input)="customName.set($any($event.target).value)" placeholder="e.g. Jateswar market">
-            </mat-form-field>
-        </div>
-        <div class="w-full sm:w-44">
-            <button type="button" class="trk-btn-secondary h-[52px] w-full justify-center" (click)="pickOnMap()" [disabled]="!branches().length">
-                <svg lucideIcon="map-pinned" class="w-4 h-4"></svg> {{ target() ? 'Change point' : 'Pick on map' }}
-            </button>
-        </div>
-        }
-
-        <div class="flex-1 min-w-[260px]">
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                <mat-label>Instructions (optional)</mat-label>
-                <input matInput [value]="notes()" (input)="notes.set($any($event.target).value)" (keydown.enter)="add()"
-                    placeholder="Anything the employee should know at this place">
-            </mat-form-field>
-        </div>
-        <div class="w-full sm:w-36">
-            <button type="button" class="trk-btn-primary h-[52px] w-full justify-center" (click)="add()">
-                <svg lucideIcon="plus" class="w-4 h-4"></svg> Add task
-            </button>
-        </div>
+        <p class="text-[11px] text-slate-500 flex items-center gap-1.5 flex-1 min-w-[240px]">
+            <svg lucideIcon="info" class="w-3.5 h-3.5 shrink-0"></svg>
+            The task type follows the place: group → Group Visit, member → Member Visit, OD member → OD Follow-up.
+            For lead sourcing or a survey, click an empty spot on the map.
+        </p>
     </div>
 
-    @if (target(); as t) {
-    <p class="mt-2 text-[11px] text-slate-500 flex items-center gap-1.5">
-        <svg lucideIcon="map-pin" class="w-3.5 h-3.5 text-primary-600"></svg>
-        {{ t.kind === 'Custom' ? (customName() || 'Point') : t.name }} · {{ t.branchName }} · {{ formatCoords(t.location) }} · match within {{ t.matchRadiusMeters }} m
-    </p>
-    }
+    <div class="mt-3">
+        @if (branch(); as b) {
+        <qfin-place-multi-select [places]="branchPlaces()" [blocked]="blocked()" [loading]="pointsLoading()"
+            [untaggedByKind]="untaggedByKind()" [branch]="b" [assigneeName]="assignee()?.name ?? null"
+            [assigneeHome]="assignee()?.homeLocation ?? null" [assigneeTasks]="assigneeTasks()" [fieldPoints]="fieldPoints()"
+            [(selectedIds)]="selectedIds" (addFieldPoint)="addFieldPoint($event)" />
+
+        <div class="mt-3 flex flex-wrap gap-3 items-start">
+            <div class="flex-1 min-w-[260px]">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Instructions for all selected (optional)</mat-label>
+                    <input matInput [value]="notes()" (input)="notes.set($any($event.target).value)" (keydown.enter)="addSelected()"
+                        placeholder="Copied to every task, e.g. collect attendance and check passbooks">
+                </mat-form-field>
+            </div>
+            <div class="w-full sm:w-auto">
+                <button type="button" class="trk-btn-primary h-[52px] w-full sm:min-w-[160px] justify-center" (click)="addSelected()"
+                    [disabled]="!selectedIds().length">
+                    <svg lucideIcon="list-plus" class="w-4 h-4"></svg>
+                    Add {{ selectedIds().length || '' }} {{ selectedIds().length === 1 ? 'task' : 'tasks' }}
+                </button>
+            </div>
+        </div>
+        } @else {
+        <p class="trk-info-box text-xs flex items-center gap-2">
+            <svg lucideIcon="building-2" class="w-4 h-4 text-primary-600"></svg>
+            Select a branch to see its groups, members and OD members, in a list or on the map.
+        </p>
+        }
+    </div>
+
     @if (error(); as e) {
     <p class="trk-field-error mt-2">{{ e }}</p>
     }
 
     <div class="mt-4">
         @if (tasks().length) {
+        @if (tasks().length > 3) {
+        <div class="flex justify-end mb-1">
+            <button type="button" class="trk-link-btn !text-rose-600" (click)="removeAll()">
+                <svg lucideIcon="trash-2" class="w-4 h-4"></svg> Remove all {{ tasks().length }}
+            </button>
+        </div>
+        }
         <ul class="flex flex-col gap-2">
             @for (t of tasks(); track $index; let i = $index) {
+            @let types = TYPES_FOR_KIND[t.target.kind];
             <li class="trk-builder-item">
                 <span class="trk-type-icon" [style.--trk-color]="TASK_TYPE[t.type].color" [matTooltip]="TASK_TYPE[t.type].label">
                     <svg [lucideIcon]="TASK_TYPE[t.type].icon" class="w-4 h-4"></svg>
@@ -116,6 +80,16 @@
                         {{ t.target.name }} · {{ t.target.branchName }}{{ t.notes ? ' · ' + t.notes : '' }}
                     </p>
                 </div>
+                @if (types.length > 1) {
+                <select class="trk-inline-select" [value]="t.type" (change)="changeType(i, $any($event.target).value)"
+                    [attr.aria-label]="'Task type for ' + t.target.name" matTooltip="Change the task type for this place">
+                    @for (ty of types; track ty) {
+                    <option [value]="ty" [selected]="ty === t.type">{{ TASK_TYPE[ty].label }}</option>
+                    }
+                </select>
+                } @else {
+                <span class="text-[11px] font-medium text-slate-500 whitespace-nowrap">{{ TASK_TYPE[t.type].label }}</span>
+                }
                 <button type="button" class="trk-icon-btn" matTooltip="Remove" (click)="remove(i)" [attr.aria-label]="'Remove ' + t.title">
                     <svg lucideIcon="trash-2" class="w-4 h-4 text-rose-600"></svg>
                 </button>

@@ -200,6 +200,10 @@ import {
   LucideMapPinX,
   LucideMousePointerClick,
   LucideUserPlus,
+  LucideScan,
+  LucideLassoSelect,
+  LucideEraser,
+  LucideMapPinPlus,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -403,6 +407,10 @@ export const APP_ICONS = [
   LucideMapPinX,
   LucideMousePointerClick,
   LucideUserPlus,
+  LucideScan,
+  LucideLassoSelect,
+  LucideEraser,
+  LucideMapPinPlus,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -605,4 +613,9 @@ export const APP_ICONS_MAP: Record<string, any> = {
   MapPinX: LucideMapPinX,
   MousePointerClick: LucideMousePointerClick,
   UserPlus: LucideUserPlus,
+  // Tracking – multi place picker
+  Scan: LucideScan,
+  LassoSelect: LucideLassoSelect,
+  Eraser: LucideEraser,
+  MapPinPlus: LucideMapPinPlus,
 };

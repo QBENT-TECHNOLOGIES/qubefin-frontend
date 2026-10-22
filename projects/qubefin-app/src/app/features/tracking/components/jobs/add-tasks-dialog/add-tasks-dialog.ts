@@ -24,8 +24,8 @@ import { TaskBuilder } from '../task-builder/task-builder';
       </div>
       <button type="button" (click)="cancel()" class="trk-dialog-close" aria-label="Close"><svg lucideIcon="x" class="w-5 h-5"></svg></button>
     </div>
-    <div class="p-5 w-[min(860px,94vw)] max-h-[70vh] overflow-y-auto scroll-thin trk-form">
-      <qfin-task-builder [(tasks)]="tasks" [allowedBranchIds]="allowedBranchIds()" [existingKeys]="existingKeys" [window]="window" />
+    <div class="p-5 w-[min(1000px,94vw)] max-h-[75vh] overflow-y-auto scroll-thin trk-form">
+      <qfin-task-builder [(tasks)]="tasks" [allowedBranchIds]="allowedBranchIds()" [existingKeys]="existingKeys" [window]="window" [assigneeId]="job.assigneeId" />
     </div>
     <div class="trk-dialog-footer">
       <button type="button" (click)="cancel()" class="trk-btn-secondary"><svg lucideIcon="x" class="w-4 h-4"></svg> Cancel</button>

@@ -40,7 +40,7 @@ import {
 import { FieldOfficer } from '../models/field-officer';
 import { AlertSearchRequest, AlertSearchResponse, AlertType, ResolveAlertRequest } from '../models/tracking-alert';
 import { ApprovalDecisionRequest } from '../models/approval-request';
-import { GeoTagKind, UpdateGeoTagRequest } from '../models/geo-tag';
+import { GeoTagKind, GeoTagPoint, GeoTagPointsResponse, UpdateGeoTagRequest } from '../models/geo-tag';
 import { TrackingSettings } from '../models/tracking-settings';
 import { toDateKey } from '../utils/geo-utils';
 import { isOpenJob, jobBranchConflict, targetKey } from '../utils/job-rules';
@@ -177,6 +177,24 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
   }
 
   // ---- Geo-tags --------------------------------------------------------------------------
+  if (m === 'GET' && path === 'geo-tags/points') {
+    const kinds = (q.get('kinds') ?? q.get('kind') ?? 'GroupCentre').split(',').filter(Boolean) as GeoTagKind[];
+    const branchId = q.get('branchId');
+    const all = d.geoTags.filter((g) => kinds.includes(g.kind) && (!branchId || g.branchId === branchId));
+    const od = new Map(d.customers.map((c) => [c.id, c]));
+    const untaggedByKind: Partial<Record<GeoTagKind, number>> = {};
+    all.filter((g) => !g.location).forEach((g) => (untaggedByKind[g.kind] = (untaggedByKind[g.kind] ?? 0) + 1));
+    const points: GeoTagPoint[] = all
+      .filter((g) => !!g.location)
+      .map((g) => {
+        const c = g.kind === 'OdCustomer' ? od.get(g.refId) : undefined;
+        return {
+          id: g.id, kind: g.kind, refId: g.refId, name: g.name, refCode: g.refCode, branchId: g.branchId, branchName: g.branchName,
+          address: g.address, location: g.location!, radiusMeters: g.radiusMeters, dpd: c?.dpd ?? null, overdueAmount: c?.overdueAmount ?? null,
+        };
+      });
+    return { points, untaggedByKind } satisfies GeoTagPointsResponse;
+  }
   if (m === 'GET' && path === 'geo-tags') {
     const kind = (q.get('kind') ?? 'Branch') as GeoTagKind;
     const text = (q.get('searchText') ?? '').toLowerCase().trim();

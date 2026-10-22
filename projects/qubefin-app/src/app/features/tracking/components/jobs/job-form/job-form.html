@@ -57,7 +57,7 @@
     <div>
         <h3 class="text-base font-bold text-slate-800 dark:text-white">Tasks <span class="text-slate-400 font-medium">({{ tasks().length }})</span></h3>
         <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
-        <qfin-task-builder [(tasks)]="tasks" [allowedBranchIds]="allowedBranchIds()" [window]="window()" />
+        <qfin-task-builder [(tasks)]="tasks" [allowedBranchIds]="allowedBranchIds()" [window]="window()" [assigneeId]="assignee()?.id ?? null" />
         @if (branchConflict(); as c) {
         <p class="trk-field-error mt-2">{{ c }} Remove those tasks or choose someone else.</p>
         }

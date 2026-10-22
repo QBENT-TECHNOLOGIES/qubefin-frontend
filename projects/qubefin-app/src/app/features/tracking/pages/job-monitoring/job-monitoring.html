@@ -90,9 +90,36 @@
                     @if (assigneeMarker(); as a) {
                     <map-advanced-marker [position]="a.position" [title]="a.title" [content]="a.content" [zIndex]="1000" />
                     }
+                    @if (activePlan(); as p) {
+                    <map-polyline [path]="p.route.path" [options]="planLine" />
+                    }
                 </google-map>
                 } @else {
                 <qfin-map-status />
+                }
+                @if (job() && pendingTasks().length) {
+                <div class="trk-map-overlay left-3 top-14 max-w-[calc(100%-24px)] text-xs">
+                    @if (activePlan(); as p) {
+                    <span class="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-100">
+                        <svg lucideIcon="route" class="w-4 h-4 text-blue-600"></svg>
+                        {{ p.route.order.length }} stops · {{ (p.route.distanceMeters / 1000).toFixed(1) }} km · ~{{ formatDuration(p.route.durationSeconds) }}
+                    </span>
+                    <span class="text-[11px]">Best order from {{ p.from }}, back to {{ p.to }} · {{ TRAVEL_MODE_LABEL[p.route.travelMode] }}</span>
+                    @if (p.route.skipped) { <span class="text-[11px] text-amber-600">{{ p.route.skipped }} more pending tasks not routed (max {{ MAX_ROUTE_STOPS }}).</span> }
+                    @if (p.route.travelMode === 'TWO_WHEELER') { <span class="text-[11px] text-slate-400">Two-wheeler routes are a Google beta; roads may be missing.</span> }
+                    <span class="flex gap-3">
+                        <button type="button" class="trk-link-btn" (click)="planRoute()"><svg lucideIcon="refresh-cw" class="w-3.5 h-3.5"></svg> Re-plan</button>
+                        <button type="button" class="trk-link-btn" (click)="clearPlan()"><svg lucideIcon="x" class="w-3.5 h-3.5"></svg> Hide</button>
+                    </span>
+                    } @else {
+                    <button type="button" class="trk-btn-primary !h-9" (click)="planRoute()" [disabled]="planLoading()"
+                        matTooltip="Road route through the pending tasks in the best order (two-wheeler)">
+                        <svg [lucideIcon]="planLoading() ? 'loader' : 'route'" class="w-4 h-4" [class.animate-spin]="planLoading()"></svg>
+                        Plan route ({{ pendingTasks().length }} pending)
+                    </button>
+                    @if (planError(); as e) { <span class="trk-field-error max-w-xs">{{ e }}</span> }
+                    }
+                </div>
                 }
                 <div class="trk-map-overlay left-3 bottom-3 text-[11px]">
                     @if (job()) {
@@ -142,6 +169,9 @@
                                             @if (t.completedAt) { · {{ t.completedAt | date: 'dd MMM, hh:mm a' }} }
                                         </p>
                                     </div>
+                                    @if (planSeq().get(t.id); as n) {
+                                    <span class="trk-badge" matTooltip="Stop number in the planned route">#{{ n }}</span>
+                                    }
                                     @if (t.verification?.locationMatched === false) {
                                     <svg lucideIcon="crosshair" class="w-4 h-4 text-rose-600" matTooltip="Photo outside the match radius"></svg>
                                     }
