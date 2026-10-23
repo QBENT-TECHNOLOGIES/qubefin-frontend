@@ -2,9 +2,12 @@
     'h-[calc(100vh-300px)] overflow-y-auto': isCollapsed()
   }">
   <table mat-table [dataSource]="data()" matSort matSortDisableClear (matSortChange)="onSortChange($event)"
-    class="w-full table">
+    class="w-full table" [ngClass]="{
+    '[&_th]:whitespace-nowrap [&_td]:whitespace-nowrap': !isCollapsed(),
+    'min-w-[1400px]': !isCollapsed() && tabConfig().key === 'attendance',
+    'min-w-[900px]': !isCollapsed() && tabConfig().key !== 'attendance'
+  }">
 
-    <!-- Sl -->
     <ng-container matColumnDef="sl">
       <th mat-header-cell *matHeaderCellDef class="w-12">#</th>
       <td mat-cell *matCellDef="let row; let i = index" class="px-3 py-1.5 text-[12px] text-slate-400">
@@ -12,7 +15,6 @@
       </td>
     </ng-container>
 
-    <!-- Employee (full) -->
     <ng-container matColumnDef="employee">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="employeeName">Employee</th>
       <td mat-cell *matCellDef="let item" class="px-3 py-1.5">
@@ -24,7 +26,6 @@
       </td>
     </ng-container>
 
-    <!-- Employee (collapsed) -->
     <ng-container matColumnDef="employeeCompact">
       <th mat-header-cell *matHeaderCellDef>Employee</th>
       <td mat-cell *matCellDef="let item" class="px-3 py-1.5">
@@ -43,7 +44,6 @@
       </td>
     </ng-container>
 
-    <!-- Organization Unit -->
     <ng-container matColumnDef="organizationUnit">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="organizationUnit">Org. Unit</th>
       <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[12px] text-slate-600 dark:text-slate-300">
@@ -51,35 +51,32 @@
       </td>
     </ng-container>
 
-    <!-- Category -->
     <ng-container matColumnDef="category">
       <th mat-header-cell *matHeaderCellDef>{{ tabConfig().headers.category }}</th>
-      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[12.5px] font-medium text-slate-700 dark:text-slate-300">
+      <td mat-cell *matCellDef="let item"
+        class="px-3 py-1.5 text-[12.5px] font-medium text-slate-700 dark:text-slate-300">
         {{ item.category || '—' }}
       </td>
     </ng-container>
 
-    <!-- Period -->
     <ng-container matColumnDef="period">
       <th mat-header-cell *matHeaderCellDef>{{ tabConfig().headers.period }}</th>
       <td mat-cell *matCellDef="let item"> {{ item.period || '—' }} </td>
     </ng-container>
 
-    <!-- Quantity -->
     <ng-container matColumnDef="quantity">
       <th mat-header-cell *matHeaderCellDef>{{ tabConfig().headers.quantity }}</th>
-      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[12px] font-semibold text-slate-700 dark:text-slate-300">
+      <td mat-cell *matCellDef="let item"
+        class="px-3 py-1.5 text-[12px] font-semibold text-slate-700 dark:text-slate-300">
         {{ item.quantity || '—' }}
       </td>
     </ng-container>
 
-    <!-- Applied -->
     <ng-container matColumnDef="appliedOn">
       <th mat-header-cell *matHeaderCellDef>{{ tabConfig().headers.appliedOn }}</th>
       <td mat-cell *matCellDef="let item"> {{ secondaryValue(item) || '—' }} </td>
     </ng-container>
 
-    <!-- Status -->
     <ng-container matColumnDef="status">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="status">Status</th>
       <td mat-cell *matCellDef="let item" class="px-3 py-1.5">
@@ -91,7 +88,6 @@
       </td>
     </ng-container>
 
-    <!-- Stage -->
     <ng-container matColumnDef="stage">
       <th mat-header-cell *matHeaderCellDef>{{ tabConfig().headers.stage }}</th>
       <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[12px] text-slate-500 dark:text-slate-400">
@@ -99,7 +95,60 @@
       </td>
     </ng-container>
 
-    <!-- Action -->
+    <ng-container matColumnDef="startMileage">
+      <th mat-header-cell *matHeaderCellDef>Start(km.)</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[12px] text-slate-500 dark:text-slate-400">
+        {{ item.startMileage || '—' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="endMileage">
+      <th mat-header-cell *matHeaderCellDef>End(km.)</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[12px] text-slate-500 dark:text-slate-400">
+        {{ item.endMileage || '—' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="personalUse">
+      <th mat-header-cell *matHeaderCellDef>Personal(km.)</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[12px] text-slate-500 dark:text-slate-400">
+        {{ item.personalUseKm || '—' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="view">
+      <th mat-header-cell *matHeaderCellDef class="text-center!">View</th>
+      <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-center">
+        @if (item.startMileageUrl || item.endMileageUrl) {
+        <button mat-icon-button [matMenuTriggerFor]="moreFiles" (click)="$event.stopPropagation()"
+          matTooltip="Mileage photos"
+          class="!w-8 !h-8 ! inline-flex items-center justify-center rounded-full hover:bg-slate-500/10">
+          <svg lucideIcon="file-text" class="w-4 h-4 text-primary-600 dark:text-primary-400"></svg>
+        </button>
+
+        <mat-menu #moreFiles="matMenu" class="menus-area" xPosition="before">
+
+          @if (item.startMileageUrl) {
+          <button mat-menu-item class="!h-10 !min-h-10"
+            (click)="onOpenMileageFile(item.startMileageUrl, 'Start Mileage')">
+            <svg lucideIcon="paperclip" class="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400"></svg>
+            <span class="text-[13px]">Start Mileage</span>
+          </button>
+          }
+
+          @if (item.endMileageUrl) {
+          <button mat-menu-item class="!h-10 !min-h-10" (click)="onOpenMileageFile(item.endMileageUrl, 'End Mileage')">
+            <svg lucideIcon="paperclip" class="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400"></svg>
+            <span class="text-[13px]">End Mileage</span>
+          </button>
+          }
+        </mat-menu>
+        } @else {
+        <span class="text-[12px] text-slate-400">—</span>
+        }
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="action">
       <th mat-header-cell *matHeaderCellDef class="text-right!">Actions</th>
       <td mat-cell *matCellDef="let item">
