@@ -32,8 +32,13 @@ import { EmployeeStore } from '../../../../stores/employee-store';
 import { EmployeeService } from '../../../../services/employee-service';
 import { APP_ICONS_MAP } from '../../../../../../lucide-icons';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { of, tap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, of, Subject, switchMap, tap } from 'rxjs';
 import { EmployeeOfficialInfo, IEmployeeOfficialInfo } from '../../../../models/employee-detail';
+import { EmployeeSearchByText } from '../../../../models/employee-search-by-text';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
 import { OrganizationUnitTypeStore } from '../../../../../global/stores/organization-unit-type-store';
@@ -59,6 +64,7 @@ import { DepartmentStore } from '../../../../stores/department-store';
     LucideDynamicIcon,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatAutocompleteModule,
   ],
   templateUrl: './official-component.html',
 })
@@ -82,6 +88,10 @@ export class OfficialComponentDetail {
   designations = signal<IDesignation[]>([]);
   companies = signal<IComapnyList[]>([]);
 
+  readonly supervisorOptions = signal<EmployeeSearchByText[]>([]);
+  readonly supervisorSearchText = signal('');
+  private readonly supervisorSearch$ = new Subject<{ searchText: string }>();
+
   protected readonly officialModel = signal<IEmployeeOfficialInfo>(new EmployeeOfficialInfo());
 
   protected readonly officialSchema: Schema<IEmployeeOfficialInfo> = schema((path) => {
@@ -98,10 +108,10 @@ export class OfficialComponentDetail {
     required(path.organizationUnitTypeId, { message: 'Org. Unit Type required' });
     required(path.organizationUnitId, { message: 'Org. Unit is required' });
     required(path.companyId, { message: 'Company Name is required' });
-    readonly(path.dateOfJoining, { when: () => true });
+    //readonly(path.dateOfJoining, { when: () => true });
     readonly(path.dateOfConfirmation, { when: () => true });
     readonly(path.separationDate, { when: () => true });
-    readonly(path.retirementDate, { when: () => true });
+    disabled(path.retirementDate, { when: () => true });
     // readonly(path.salaryGrade, { when: () => true });
     const isNotEditable = ({ valueOf }: any) => {
       return valueOf(path.isDesignationEditable) === false;
@@ -123,6 +133,51 @@ export class OfficialComponentDetail {
         companies.map((company: any) => ({ ...company, name: company.name.trim() })),
       );
     });
+
+    this.supervisorSearch$
+      .pipe(
+        debounceTime(250),
+        distinctUntilChanged(),
+        switchMap((searchText) => this.employeeService.getEmployeesBySearchText(searchText)),
+      )
+      .subscribe((resp: any) => {
+        this.supervisorOptions.set(resp ?? []);
+      });
+  }
+
+  protected searchSupervisors(searchText: string) {
+    this.supervisorSearchText.set(searchText);
+
+    if (!searchText.trim()) {
+      this.officialModel.update((state) => ({
+        ...state,
+        supervisorId: '',
+        supervisorName: '',
+      }));
+      this.supervisorOptions.set([]);
+      return;
+    }
+
+    this.supervisorSearch$.next({ searchText });
+  }
+
+  protected selectSupervisor(event: MatAutocompleteSelectedEvent) {
+    const employee = event.option.value as EmployeeSearchByText;
+
+    this.supervisorSearchText.set(employee.employeeName);
+    this.officialModel.update((state) => ({
+      ...state,
+      supervisorId: employee.id,
+      supervisorName: employee.employeeName,
+    }));
+  }
+
+  protected displaySupervisorName(employee: EmployeeSearchByText | string | null): string {
+    if (!employee) {
+      return '';
+    }
+
+    return typeof employee === 'string' ? employee : employee.employeeName;
   }
 
   onCompanyChange(companyId: string) {
@@ -137,6 +192,22 @@ export class OfficialComponentDetail {
       companyName: company.name,
     }));
   }
+
+  onJoiningDateChange(joiningDate: Date | null) {
+    if (!joiningDate) {
+      return;
+    }
+
+    const confirmationDate = new Date(joiningDate);
+    confirmationDate.setMonth(confirmationDate.getMonth() + 6);
+
+    this.officialModel.update((state) => ({
+      ...state,
+      dateOfJoining: joiningDate,
+      dateOfConfirmation: confirmationDate,
+    }));
+  }
+
   onOrganizationUnitTypeChange(typeId: string) {
     if (!typeId || typeId === EMPTY_UUID) {
       return;
@@ -208,6 +279,8 @@ export class OfficialComponentDetail {
               companyId: resp.companyId,
             }));
 
+            this.supervisorSearchText.set(resp.supervisorName ?? '');
+
             if (resp.organizationUnitTypeId) {
               this.organizationUnitService
                 .getOrganizationUnitByType(resp.organizationUnitTypeId)
@@ -245,6 +318,8 @@ export class OfficialComponentDetail {
         );
       } else {
         this.officialModel.set(new EmployeeOfficialInfo());
+        this.supervisorSearchText.set('');
+        this.supervisorOptions.set([]);
         return of(null);
       }
     },
@@ -277,6 +352,7 @@ export class OfficialComponentDetail {
         ? null
         : this.datePipe.transform(dataToSave.separationDate, 'yyyy-MM-dd');
     dataToSave.referedBy = dataToSave.referedBy == '' ? null : dataToSave.referedBy;
+    dataToSave.supervisorId = dataToSave.supervisorId == '' ? null : dataToSave.supervisorId;
     dataToSave.howYouKnow = dataToSave.howYouKnow == '' ? null : dataToSave.howYouKnow;
     dataToSave.officialEmail = dataToSave.officialEmail == '' ? null : dataToSave.officialEmail;
     dataToSave.isActive = dataToSave.isActive == '' ? false : dataToSave.isActive;

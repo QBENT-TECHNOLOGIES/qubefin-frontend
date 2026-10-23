@@ -60,4 +60,10 @@ export class ReportService {
       responseType: 'blob',
     });
   }
+  // Employee Appoinment Letter After Entry
+  getAppoinmentLetter(employeeId: string, companyId: string) {
+    return this.httpClient.get(`${ApiPaths.REPORT}/employee/${employeeId}/${companyId}`, {
+      responseType: 'blob',
+    });
+  }
 }

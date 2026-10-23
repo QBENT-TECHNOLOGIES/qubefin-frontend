@@ -9,6 +9,7 @@ import {
   KycDocument,
   Utility,
 } from '../models/employee-detail';
+import { IAuditInfo } from '../models/leave-request';
 
 @Injectable({
   providedIn: 'root',
@@ -62,6 +63,7 @@ export class EmployeeStore {
   // --- View Resource ---
   private readonly employeeInfoComponentResource = httpResource<{
     personalInfo: IEmployeePersonalInfo;
+    auditInfo: IAuditInfo;
   }>(() => {
     const id = this.employeeComponentId();
     // console.log(id);
@@ -71,6 +73,9 @@ export class EmployeeStore {
 
   readonly employeeInfoComponent = computed(
     () => this.employeeInfoComponentResource.value()?.personalInfo ?? undefined,
+  );
+  readonly employeeAuditInfo = computed(
+    () => this.employeeInfoComponentResource.value()?.auditInfo ?? undefined,
   );
   readonly employeeInfoComponentLoading = computed(() =>
     this.employeeInfoComponentResource.isLoading(),
