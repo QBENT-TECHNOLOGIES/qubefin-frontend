@@ -60,7 +60,6 @@ export class EmployeeRecordsList {
     ];
   });
 
-  // Attendance uses this column for worked hours; every other type shows the applied-on date.
   protected secondaryValue(row: IEmployeeRecordRow): string | null {
     return row.recordType === 'attendance' ? row.workingHours : row.appliedOn;
   }
