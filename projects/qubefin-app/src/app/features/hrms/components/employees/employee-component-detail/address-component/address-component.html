@@ -31,18 +31,30 @@
             <input matInput autocomplete="off" [formField]="presentAddressForm.landMark" placeholder="Enter Landmark">
         </mat-form-field>
     </div>
-    <qfin-administrative-unit-cascade [columns]="4" [administrativeUnitId]="presentAddressModel().administrativeUnitId"
+    <!-- <qfin-administrative-unit-cascade [columns]="4" [administrativeUnitId]="presentAddressModel().administrativeUnitId"
         [emitAtEveryLevel]="true" (selectedIdChanged)="updatePresentAddressField('administrativeUnitId', $event)"
         (districtChangedByUser)="onAdministrativeAreaChangedByUser('present')"
         (districtChanged)="onDistrictChangeForPoliceStation('present', $event)">
-    </qfin-administrative-unit-cascade>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+    </qfin-administrative-unit-cascade> -->
+    <div class="grid grid-cols-1 gap-4 mt-4">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Address</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="map-pin-house" class="w-5 h-5"></svg>
+            </div>
+            <textarea matInput rows="2" autocomplete="off" [formField]="presentAddressForm.address"
+                placeholder="Enter Address"></textarea>
+            <mat-error class="cus-error">
+                {{ presentAddressForm.address().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+        <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Police Station</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="siren" class="w-5 h-5"></svg>
             </div>
-            <!-- <input matInput autocomplete="off" [formField]="presentAddressForm.policeStationId" placeholder="Enter Police Station"> -->
             <mat-select [formField]="presentAddressForm.policeStationId" placeholder="Select Police Station">
                 @for (police of presentPoliceStations(); track police.id) {
                 <mat-option [value]="police.id">
@@ -53,7 +65,7 @@
             <mat-error class="cus-error">
                 {{ presentAddressForm.policeStationId().errors()[0]?.message }}
             </mat-error>
-        </mat-form-field>
+        </mat-form-field> -->
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Pin Code</mat-label>
@@ -158,14 +170,27 @@
             <input matInput autocomplete="off" [formField]="permanentAddressForm.landMark" placeholder="Enter Landmark">
         </mat-form-field>
     </div>
-    <qfin-administrative-unit-cascade [columns]="4"
+    <!-- <qfin-administrative-unit-cascade [columns]="4"
         [administrativeUnitId]="permanentAddressModel().administrativeUnitId" [emitAtEveryLevel]="true"
         (selectedIdChanged)="updatePermanentAddressField('administrativeUnitId', $event)"
         (districtChangedByUser)="onAdministrativeAreaChangedByUser('permanent')"
         (districtChanged)="onDistrictChangeForPoliceStation('permanent', $event)">
-    </qfin-administrative-unit-cascade>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+    </qfin-administrative-unit-cascade> -->
+    <div class="grid grid-cols-1 gap-4 mt-4">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Address</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="map-pin-house" class="w-5 h-5"></svg>
+            </div>
+            <textarea matInput rows="2" autocomplete="off" [formField]="permanentAddressForm.address"
+                placeholder="Enter Address"></textarea>
+            <mat-error class="cus-error">
+                {{ permanentAddressForm.address().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+        <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Police Station</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="siren" class="w-5 h-5"></svg>
@@ -180,7 +205,7 @@
             <mat-error class="cus-error">
                 {{ permanentAddressForm.policeStationId().errors()[0]?.message }}
             </mat-error>
-        </mat-form-field>
+        </mat-form-field> -->
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Pin Code</mat-label>
             <div class="w-12 flex justify-center" matPrefix>

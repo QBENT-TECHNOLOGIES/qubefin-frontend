@@ -38,10 +38,10 @@ import {
 } from '../../../../models/employee-detail';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
-import { AdministrativeUnitCascade } from '../../../../../global/components/administrative-unit-cascade/administrative-unit-cascade';
+//import { AdministrativeUnitCascade } from '../../../../../global/components/administrative-unit-cascade/administrative-unit-cascade';
 import { AdministrativeUnitStore } from '../../../../../global/stores/administrative-unit-store';
 import { AdministrativeUnitService } from '../../../../../global/services/administrative-unit-service';
-import { IPoliceStationList } from '../../../../../global/models/police-sation';
+//import { IPoliceStationList } from '../../../../../global/models/police-sation';
 import { IPostOfficeList } from '../../../../../global/models/post-office';
 
 @Component({
@@ -56,7 +56,7 @@ import { IPostOfficeList } from '../../../../../global/models/post-office';
     FormField,
     MatStepperModule,
     LucideDynamicIcon,
-    AdministrativeUnitCascade,
+    //AdministrativeUnitCascade,
   ],
   templateUrl: './address-component.html',
 })
@@ -64,7 +64,7 @@ export class AddressComponentDetail {
   empId = input<string>(EMPTY_UUID);
   utilities = input<Utility[]>([]);
   onAddressUpdate = output<void>();
-  policeStations = [];
+  //policeStations = [];
 
   private readonly administrativeUnitService = inject(AdministrativeUnitService);
   private readonly employeeStore = inject(EmployeeStore);
@@ -77,8 +77,8 @@ export class AddressComponentDetail {
   readonly permanentPostOffices = signal<IPostOfficeList[]>([]);
   readonly presentPostOfficeNotFound = signal(false);
   readonly permanentPostOfficeNotFound = signal(false);
-  presentPoliceStations = signal<IPoliceStationList[]>([]);
-  permanentPoliceStations = signal<IPoliceStationList[]>([]);
+  //presentPoliceStations = signal<IPoliceStationList[]>([]);
+  //permanentPoliceStations = signal<IPoliceStationList[]>([]);
   protected readonly presentAddressModel = signal<IEmployeeAddressInfo>(new EmployeeAddressInfo());
   protected readonly permanentAddressModel = signal<IEmployeeAddressInfo>(
     new EmployeeAddressInfo(),
@@ -86,10 +86,14 @@ export class AddressComponentDetail {
 
   private employeeAddressSchema(postOfficeNotFound: () => boolean): Schema<IEmployeeAddressInfo> {
     return schema((path) => {
-      required(path.administrativeUnitId, { message: 'Location details are required' });
+      //required(path.administrativeUnitId, { message: 'Location details are required' });
       required(path.pinCode, { message: 'Pin Code is required' });
       pattern(path.pinCode, /^\d{6}$/, {
         message: 'Invalid pin code ',
+      });
+      required(path.address, { message: 'Address is required' });
+      maxLength(path.address, 250, {
+        message: 'Address cannot exceed 250 characters',
       });
 
       // Select from the list, or type the name when none is found for the pin code
@@ -186,49 +190,49 @@ export class AddressComponentDetail {
     }
   }
   
-  onAdministrativeAreaChangedByUser(type: 'present' | 'permanent') {
-    if (type === 'present') {
-      this.presentPoliceStations.set([]);
-      this.presentPostOffices.set([]);
-      this.presentPostOfficeNotFound.set(false);
-      this.presentAddressModel.update((current) => ({
-        ...current,
-        policeStationId: '',
-        pinCode: '',
-        postOfficeId: '',
-        postOfficeName: '',
-      }));
-    } else {
-      this.permanentPoliceStations.set([]);
-      this.permanentPostOffices.set([]);
-      this.permanentPostOfficeNotFound.set(false);
-      this.permanentAddressModel.update((current) => ({
-        ...current,
-        policeStationId: '',
-        pinCode: '',
-        postOfficeId: '',
-        postOfficeName: '',
-      }));
-    }
-  }
+  //onAdministrativeAreaChangedByUser(type: 'present' | 'permanent') {
+  //  if (type === 'present') {
+  //    this.presentPoliceStations.set([]);
+  //    this.presentPostOffices.set([]);
+  //    this.presentPostOfficeNotFound.set(false);
+  //    this.presentAddressModel.update((current) => ({
+  //      ...current,
+  //      policeStationId: '',
+  //      pinCode: '',
+  //      postOfficeId: '',
+  //      postOfficeName: '',
+  //    }));
+  //  } else {
+  //    this.permanentPoliceStations.set([]);
+  //    this.permanentPostOffices.set([]);
+  //    this.permanentPostOfficeNotFound.set(false);
+  //    this.permanentAddressModel.update((current) => ({
+  //      ...current,
+  //      policeStationId: '',
+  //      pinCode: '',
+  //      postOfficeId: '',
+  //      postOfficeName: '',
+  //    }));
+  //  }
+  //}
 
-  onDistrictChangeForPoliceStation(type: 'present' | 'permanent', districtId: string) {
-    if (!districtId || districtId === EMPTY_UUID) {
-      if (type === 'present') this.presentPoliceStations.set([]);
-      else this.permanentPoliceStations.set([]);
-      return;
-    }
+  //onDistrictChangeForPoliceStation(type: 'present' | 'permanent', districtId: string) {
+  //  if (!districtId || districtId === EMPTY_UUID) {
+  //    if (type === 'present') this.presentPoliceStations.set([]);
+  //    else this.permanentPoliceStations.set([]);
+  //    return;
+  //  }
 
-    this.administrativeUnitService.getPoliceStationByDistrict(districtId).subscribe({
-      next: (res: any) => {
-        if (type === 'present') {
-          this.presentPoliceStations.set(res);
-        } else {
-          this.permanentPoliceStations.set(res);
-        }
-      },
-    });
-  }
+  //  this.administrativeUnitService.getPoliceStationByDistrict(districtId).subscribe({
+  //    next: (res: any) => {
+  //      if (type === 'present') {
+  //        this.presentPoliceStations.set(res);
+  //      } else {
+  //        this.permanentPoliceStations.set(res);
+  //      }
+  //    },
+  //  });
+  //}
   private addressResource = rxResource({
     params: () => ({ id: this.empId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
@@ -309,30 +313,31 @@ export class AddressComponentDetail {
     const dataToSave: any = {
       presentAddress: this.presentAddressForm().value(),
       permanentAddress: this.permanentAddressForm().value(),
+      presentPermanentAddressSame: this.sameAsPresentAddress(),
     };
 
-    dataToSave.presentAddress.administrativeUnitId =
-      dataToSave.presentAddress.administrativeUnitId == ''
-        ? null
-        : dataToSave.presentAddress.administrativeUnitId;
+    //dataToSave.presentAddress.administrativeUnitId =
+    //  dataToSave.presentAddress.administrativeUnitId == ''
+    //    ? null
+    //    : dataToSave.presentAddress.administrativeUnitId;
 
-    dataToSave.presentAddress.policeStationId =
-      dataToSave.presentAddress.policeStationId == ''
-        ? null
-        : dataToSave.presentAddress.policeStationId;
+    //dataToSave.presentAddress.policeStationId =
+    //  dataToSave.presentAddress.policeStationId == ''
+    //    ? null
+    //    : dataToSave.presentAddress.policeStationId;
 
     dataToSave.presentAddress.postOfficeId =
       dataToSave.presentAddress.postOfficeId == '' ? null : dataToSave.presentAddress.postOfficeId;
 
-    dataToSave.permanentAddress.administrativeUnitId =
-      dataToSave.permanentAddress.administrativeUnitId == ''
-        ? null
-        : dataToSave.permanentAddress.administrativeUnitId;
+    //dataToSave.permanentAddress.administrativeUnitId =
+    //  dataToSave.permanentAddress.administrativeUnitId == ''
+    //    ? null
+    //    : dataToSave.permanentAddress.administrativeUnitId;
 
-    dataToSave.permanentAddress.policeStationId =
-      dataToSave.permanentAddress.policeStationId == ''
-        ? null
-        : dataToSave.permanentAddress.policeStationId;
+    //dataToSave.permanentAddress.policeStationId =
+    //  dataToSave.permanentAddress.policeStationId == ''
+    //    ? null
+    //    : dataToSave.permanentAddress.policeStationId;
 
     dataToSave.permanentAddress.postOfficeId =
       dataToSave.permanentAddress.postOfficeId == ''

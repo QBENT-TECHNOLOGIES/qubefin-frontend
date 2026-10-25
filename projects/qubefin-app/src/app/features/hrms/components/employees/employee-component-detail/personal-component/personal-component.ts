@@ -78,7 +78,8 @@ export class PersonalComponentDetail {
   protected readonly employeeModel = signal<IEmployeePersonalInfo>(new EmployeePersonalInfo());
 
   protected readonly employeeSchema: Schema<IEmployeePersonalInfo> = schema((path) => {
-    required(path.code, { message: 'Code is required' });
+    //required(path.code, { message: 'Code is required' });
+    readonly(path.code, { when: () => true });
     required(path.firstName, { message: 'First name is required' });
     pattern(path.firstName, /^[A-Za-z]{3,30}$/, {
       message: 'Invalid first name.',
@@ -202,6 +203,7 @@ export class PersonalComponentDetail {
       disabilityType: formValue.disablityType?.trim() === '' ? null : formValue.disablityType,
       salutation: formValue.salutation?.trim() === '' ? null : formValue.salutation,
     };
+    delete dataToSave.code;
     if (!this.isEditMode()) {
       this.employeeService.create(dataToSave).subscribe({
         next: (resp: any) => {
