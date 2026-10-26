@@ -1,3 +1,10 @@
+export interface IEmployeeByOrgUnit {
+  id: string;
+  name: string;
+  code: string;
+  currentDesignation?: string;
+}
+
 // export interface IEmployeeInfo {
 //   id: string; // Representing Guid
 //   salutation?: string;
@@ -766,4 +773,10 @@ export interface ISalaryPreviewComponent {
   id: string;
   salaryComponentName: string;
   amount: number;
+}
+export interface IEmployeeDocuments {
+  id: string;
+  documentName?: string;
+  fileName?: string;
+  fileUrl?: string;
 }

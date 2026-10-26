@@ -1,9 +1,7 @@
 @if (currentDocument(); as doc) {
-<div
-  class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 p-6 backdrop-blur-sm animate-in fade-in duration-200"
-  role="dialog" aria-modal="true" [attr.aria-label]="doc.documentName || 'Document preview'">
+<div class="h-full">
   <div #modalContainer
-    class="flex h-[88vh] w-full max-w-[1080px] flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-[#2A2E38] bg-white dark:bg-[#15171D] shadow-2xl dark:shadow-[0_24px_64px_rgba(0,0,0,0.5)]">
+    class="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-[#2A2E38] bg-white dark:bg-[#15171D] shadow-2xl dark:shadow-[0_24px_64px_rgba(0,0,0,0.5)]">
     <div
       class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-[#2A2E38] bg-slate-50 dark:bg-[#1D2028] px-[18px] py-[14px] max-sm:px-3 max-sm:py-2.5">
       <div class="flex min-w-0 items-center gap-3">
@@ -12,7 +10,7 @@
           <svg [lucideIcon]="iconMap[fileMeta().icon]" class="h-[18px] w-[18px]"></svg>
         </span>
 
-        <div class="flex min-w-0 flex-col">
+        <div mat-dialog-title class="flex min-w-0 flex-col">
           <span class="max-w-[46vw] truncate text-[14.5px] font-semibold text-slate-800 dark:text-[#F2F3F6] max-sm:max-w-[34vw]">
             {{ doc.documentName || 'Untitled' }}
           </span>
@@ -49,13 +47,13 @@
 
         <button type="button"
           class="flex h-[34px] w-[34px] items-center justify-center rounded-[9px] border border-transparent text-slate-500 dark:text-[#C7CAD6] transition hover:border-[rgba(229,72,77,0.3)] hover:bg-[rgba(229,72,77,0.14)] hover:text-[#E5484D]"
-          title="Close (Esc)" (click)="close()">
+          title="Close (Esc)" mat-dialog-close>
           <svg [lucideIcon]="iconMap['X']" class="h-[18px] w-[18px]"></svg>
         </button>
       </div>
     </div>
 
-    <div class="relative flex flex-1 items-center justify-center overflow-hidden bg-slate-100 dark:bg-[#17191F]" (wheel)="onWheel($event)"
+    <div mat-dialog-content class="relative flex flex-1 items-center justify-center overflow-hidden bg-slate-100 dark:bg-[#17191F]" (wheel)="onWheel($event)"
       (mousemove)="onMouseMove($event)" (mouseup)="stopDrag()" (mouseleave)="stopDrag()">
       @if (loading() && !error()) {
       <div class="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-[13.5px] text-slate-500 dark:text-[#8B8FA3]">
@@ -150,7 +148,7 @@
         <button type="button"
           class="flex h-8 w-8 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-[#C7CAD6] dark:hover:bg-[#33384A] dark:hover:text-white"
           title="Rotate left" (click)="rotateCounterClockwise()">
-          <svg [lucideIcon]="iconMap['RotateCcw2']" class="h-4 w-4"></svg>
+          <svg [lucideIcon]="iconMap['RotateCcw']" class="h-4 w-4"></svg>
         </button>
 
         <button type="button"

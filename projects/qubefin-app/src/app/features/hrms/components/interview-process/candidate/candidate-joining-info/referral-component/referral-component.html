@@ -1,0 +1,68 @@
+<div class="space-y-4 animate-fade-in">
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 pb-1">
+            Reference Information
+        </h3>
+        <div class="green-line"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Employee Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user-search" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [value]="employeeSearchText()" (input)="searchEmployees($any($event.target).value)"
+                [matAutocomplete]="employeeAuto" autocomplete="off" placeholder="Search employee" />
+            <mat-autocomplete class="autoList" #employeeAuto="matAutocomplete" [displayWith]="displayEmployeeName"
+                (optionSelected)="selectEmployee($event)">
+                @for (employee of employeeOptions(); track employee.id) {
+                <mat-option [value]="employee">
+                    {{ employee.employeeName }}
+                </mat-option>
+                } @empty {
+                @if (employeeSearchText().trim()) {
+                <mat-option disabled>No employees found</mat-option>
+                }
+                }
+            </mat-autocomplete>
+        </mat-form-field>
+
+        <!-- Employee Code -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Employee Code</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" placeholder="Enter Employee Code"
+                [formField]="referralForm.employeeCode">
+        </mat-form-field>
+
+        <!-- Designation -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Designation</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user-check" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" placeholder="Enter Designation" [formField]="referralForm.designation">
+        </mat-form-field>
+
+        <!-- How Do You Know -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>How Do You Know</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user-lock" class="w-5 h-5"></svg>
+            </div>
+            <input matInput autocomplete="off" placeholder="Enter How Do You Know"
+                [formField]="referralForm.howYouKnow">
+        </mat-form-field>
+    </div>
+    <div class="step-footer-area">
+        <div class="flex flex-1 justify-end items-center gap-3">
+            <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">
+                Save
+                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+            </button>
+        </div>
+    </div>
+</div>

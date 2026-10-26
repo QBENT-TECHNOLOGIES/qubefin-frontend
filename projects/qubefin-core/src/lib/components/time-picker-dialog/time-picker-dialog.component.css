@@ -1,34 +1,33 @@
 /* Static fade overlays (not on the scrolling element itself, so nothing
    gets repainted on scroll — mask-image on a scroll container is what
-   was causing the laggy/delayed scroll feel). */
+   was causing the laggy/delayed scroll feel). Each covers the two rows
+   above/below the centre band and matches the wheel's solid background. */
 .wheel-fade-top,
 .wheel-fade-bottom {
   position: absolute;
-  left: 1px;
-  right: 1px;
-  height: 38px;
+  left: 0;
+  right: 0;
+  height: 72px;
   pointer-events: none;
   z-index: 1;
 }
 
 .wheel-fade-top {
-  top: 1px;
-  background: linear-gradient(to bottom, rgba(248, 250, 252, 0.95), transparent);
-  border-radius: 1rem 1rem 0 0;
+  top: 0;
+  background: linear-gradient(to bottom, rgba(248, 250, 252, 0.95), rgba(248, 250, 252, 0));
 }
 
 .wheel-fade-bottom {
-  bottom: 1px;
-  background: linear-gradient(to top, rgba(248, 250, 252, 0.95), transparent);
-  border-radius: 0 0 1rem 1rem;
+  bottom: 0;
+  background: linear-gradient(to top, rgba(248, 250, 252, 0.95), rgba(248, 250, 252, 0));
 }
 
 :host-context(.dark) .wheel-fade-top {
-  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.95), transparent);
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0));
 }
 
 :host-context(.dark) .wheel-fade-bottom {
-  background: linear-gradient(to top, rgba(15, 23, 42, 0.95), transparent);
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0));
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -40,3 +39,44 @@
   -ms-overflow-style: none;
 }
 
+
+/* Material's title/content/actions rules are unlayered and would beat the
+   Tailwind classes on the same elements; revert-layer hands those properties
+   back to Tailwind so the dialog keeps its own layout. */
+:host .mat-mdc-dialog-title,
+:host .mat-mdc-dialog-content,
+:host .mat-mdc-dialog-actions {
+  display: revert-layer;
+  position: revert-layer;
+  flex-grow: revert-layer;
+  flex-shrink: revert-layer;
+  flex-wrap: revert-layer;
+  align-items: revert-layer;
+  justify-content: revert-layer;
+  box-sizing: revert-layer;
+  min-height: revert-layer;
+  max-height: revert-layer;
+  margin: revert-layer;
+  padding: revert-layer;
+  border-top: revert-layer;
+  overflow: revert-layer;
+  color: revert-layer;
+  font-family: revert-layer;
+  font-size: revert-layer;
+  font-weight: revert-layer;
+  line-height: revert-layer;
+  letter-spacing: revert-layer;
+  text-align: revert-layer;
+}
+
+:host .mat-mdc-dialog-title::before {
+  display: none;
+}
+
+/* The card draws its own background, corners and shadow; the dialog surface
+   behind it would otherwise show at the rounded corners (white in dark mode). */
+::ng-deep .qfin-time-picker-panel .mat-mdc-dialog-surface {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 1.5rem;
+}

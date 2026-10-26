@@ -1,0 +1,295 @@
+<div class="animate-fade-in">
+    <div>
+        <h3 class="box-content-heading mb-2!">
+            Personal Info
+        </h3>
+        <div class="green-line"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Code</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="id-card-lanyard" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="employeeForm.code" autocomplete="off" placeholder="Enter code">
+            <mat-error class="cus-error">
+                {{ employeeForm.code().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Salutation</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="swatch-book" class="w-5 h-5"></svg>
+            </div>
+            <!-- <input matInput [formField]="$any(employeeForm)['salutation']" autocomplete="off" placeholder="Enter Salutation"> -->
+            <mat-select [formField]="employeeForm.salutation" placeholder="Select Salutation">
+                @for (sal of loadSalutation(); track sal) {
+                <mat-option [value]="sal.sysVal">
+                    {{ sal.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>First Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="employeeForm.firstName" autocomplete="off" placeholder="Enter name">
+            <mat-error class="cus-error">
+                {{ employeeForm.firstName().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Middle Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="text" [formField]="$any(employeeForm)['middleName']" autocomplete="off"
+                placeholder="Enter middle name">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Last Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="employeeForm.lastName" autocomplete="off" placeholder="Enter last name">
+            <mat-error class="cus-error">
+                {{ employeeForm.lastName().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Date of Birth</mat-label>
+
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+            </div>
+
+            <input matInput [matDatepicker]="dobPicker" [formField]="employeeForm.dateOfBirth"
+                placeholder="Select Date of Birth" autocomplete="off">
+
+            <mat-datepicker-toggle matIconSuffix [for]="dobPicker">
+            </mat-datepicker-toggle>
+
+            <mat-datepicker #dobPicker></mat-datepicker>
+
+            <mat-error class="cus-error">
+                {{ employeeForm.dateOfBirth().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Age</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="employeeForm.age" autocomplete="off" placeholder="Enter Age">
+            <mat-error class="cus-error">
+                {{ employeeForm.age().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Gender</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="employeeForm.gender" placeholder="Select Gender">
+                @for (gen of genders(); track gen) {
+                <mat-option [value]="gen.sysVal">
+                    {{ gen.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ employeeForm.gender().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Father Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="mars" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="$any(employeeForm)['fatherName']" autocomplete="off"
+                placeholder="Enter Father name">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Mother Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="venus" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="$any(employeeForm)['motherName']" autocomplete="off"
+                placeholder="Enter Mother Name">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Spouse Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="$any(employeeForm)['husbandName']" autocomplete="off"
+                placeholder="Enter Husband Name">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Religion</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="chess-bishop" class="w-5 h-5"></svg>
+            </div>
+            <!-- <input matInput [formField]="$any(employeeForm)['religion']" autocomplete="off" placeholder="Enter Religion"> -->
+            <mat-select [formField]="employeeForm.religion" placeholder="Select Religion">
+                @for (rel of religions(); track rel) {
+                <mat-option [value]="rel.sysVal">
+                    {{ rel.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ employeeForm.religion().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Caste</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="clipboard-check" class="w-5 h-5"></svg>
+            </div>
+            <!-- <input matInput [formField]="$any(employeeForm)['caste']" autocomplete="off" placeholder="Enter Caste"> -->
+            <mat-select [formField]="employeeForm.caste" placeholder="Select Caste">
+                @for (cst of castes(); track cst) {
+                <mat-option [value]="cst.sysVal">
+                    {{ cst.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Nationality</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="flag" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="employeeForm.nationality" placeholder="Select Nationality">
+                @for (n of nationalities; track n) {
+                <mat-option [value]="n">
+                    {{ n }}
+                </mat-option>
+                }
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ employeeForm.nationality().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Blood Group</mat-label>
+
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="droplet" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="employeeForm.bloodGroup" placeholder="Select Blood Group">
+                @for (blood of bloodGroups(); track blood) {
+                <mat-option [value]="blood.sysVal">
+                    {{ blood.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ employeeForm.bloodGroup().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Disablity Type</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="accessibility" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="employeeForm.disablityType" placeholder="Select Disability Type">
+                @for (item of disabilityTypes; track item) {
+                <mat-option [value]="item">
+                    {{ item }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Marital Status</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="employeeForm.maritalStatus" placeholder="Select Marital">
+                @for (mrst of maritalStatuses(); track mrst) {
+                <mat-option [value]="mrst.sysVal">
+                    {{ mrst.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ employeeForm.maritalStatus().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="mt-6">
+        <h3 class="box-content-heading mb-2!">
+            Photo &amp; Signature
+        </h3>
+        <div class="green-line"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        @for (field of imageFields; track field.key) {
+        @let image = field.key === 'photo' ? photo() : signature();
+        <div class="flex items-center gap-4">
+            <div class="w-24 h-24 shrink-0 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-400/5 flex items-center justify-center overflow-hidden cursor-pointer"
+                (click)="openImage(field.key)">
+                @if (image.previewUrl) {
+                <img [src]="image.previewUrl" [alt]="field.label" class="w-full h-full object-contain">
+                } @else {
+                <svg [lucideIcon]="field.icon" class="w-8 h-8 text-slate-400"></svg>
+                }
+            </div>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>{{ field.label }}</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="paperclip" class="w-5 h-5 text-slate-500"></svg>
+                </div>
+                <input matInput [value]="image.fileName || 'No file chosen'" readonly />
+                <input hidden (change)="onImageSelected($event, field.key)" #imageFileInput
+                    accept="image/jpeg,image/png,image/jpg,image/webp" type="file">
+
+                <div matSuffix class="flex items-center gap-2 pr-1.5 py-1">
+                    @if (image.fileName) {
+                    <button type="button" mat-icon-button (click)="removeImage(field.key)" class="text-rose-500">
+                        <svg lucideIcon="x" class="w-4 h-4"></svg>
+                    </button>
+                    }
+
+                    <button type="button"
+                        class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
+                        (click)="imageFileInput.click()">
+                        <svg lucideIcon="upload" class="w-3.5 h-3.5"></svg>
+                        Choose File
+                    </button>
+
+                    @if (image.fileName) {
+                    <button type="button" (click)="openImage(field.key)"
+                        class="bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-primary-200 dark:border-primary-800/30 cursor-pointer">
+                        <svg lucideIcon="eye" class="w-3.5 h-3.5"></svg>
+                        View
+                    </button>
+                    }
+                </div>
+            </mat-form-field>
+        </div>
+        }
+    </div>
+
+    <div class="step-footer-area">
+
+        <div class="flex flex-1 justify-end items-center gap-3">
+            <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">
+                Save &amp; Next
+                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,229 @@
+<div class="page-container">
+    <div class="header-group">
+        <div class="flex items-center gap-3"></div>
+        <div class="headerBtn-area">
+            @if (selectedCandidateId() === EMPTY_UUID && isViewMode()) {
+            <button type="button" (click)="toggleFilterArea()" class="filter-btn glass-input lift shine-sweep">
+                <svg lucideIcon="funnel" class="w-4 h-4"></svg>
+                Filter
+            </button>
+            }
+            <!-- Blank job application form, per company - handed to a candidate before they are created -->
+            <button type="button" class="filter-btn glass-input lift shine-sweep"
+                [disabled]="downloadingJobApplication()" (click)="onDownloadJobApplication()">
+                <svg [lucideIcon]="downloadingJobApplication() ? 'loader' : 'download'" class="w-4 h-4"
+                    [class.animate-spin]="downloadingJobApplication()"></svg>
+                Download Job Application
+            </button>
+            <button class="global-btn shine-sweep lift" (click)="onAdd()">
+                <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                Add New
+            </button>
+        </div>
+    </div>
+
+    <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
+
+
+        <div class="mainCard-area glass" [ngClass]="{
+    'w-full max-w-full opacity-100 translate-x-0': selectedCandidateId() === EMPTY_UUID && isViewMode(),
+    'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]': isViewMode() && selectedCandidateId() !== EMPTY_UUID,
+    'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none': !isViewMode()
+}">
+
+            @if (selectedCandidateId() === EMPTY_UUID && isViewMode()) {
+            @if (showFilterArea()) {
+            <div class="filter-area">
+                <div class="filter-container">
+                    <div class="flex-1 grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4 w-full md:w-auto">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Candidate Name / Reference No</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="user-search" class="w-5 h-5"></svg>
+                            </div>
+                            <input matInput [formField]="searchForm.tempSearch" autocomplete="off"
+                                placeholder="Enter name or reference no">
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Application Date From</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="calendar-arrow-down" class="w-5 h-5"></svg>
+                            </div>
+                            <input matInput [matDatepicker]="applicationFromPicker" autocomplete="off"
+                                (keydown)="$event.preventDefault()" [formField]="searchForm.applicationDateFrom">
+                            <mat-datepicker-toggle matIconSuffix [for]="applicationFromPicker"></mat-datepicker-toggle>
+                            <mat-datepicker #applicationFromPicker></mat-datepicker>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Application Date To</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="calendar-arrow-up" class="w-5 h-5"></svg>
+                            </div>
+                            <input matInput [matDatepicker]="applicationToPicker" autocomplete="off"
+                                (keydown)="$event.preventDefault()" [formField]="searchForm.applicationDateTo">
+                            <mat-datepicker-toggle matIconSuffix [for]="applicationToPicker"></mat-datepicker-toggle>
+                            <mat-datepicker #applicationToPicker></mat-datepicker>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Company</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select [formField]="searchForm.companyId" placeholder="Select Company">
+                                <mat-option value="">All</mat-option>
+                                @for (company of companies(); track company.id) {
+                                <mat-option [value]="company.id">
+                                    {{ company.name }}
+                                </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Interview Date</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
+                            </div>
+                            <input matInput [matDatepicker]="interviewDatePicker" autocomplete="off"
+                                (keydown)="$event.preventDefault()" [formField]="searchForm.interviewDate">
+                            <mat-datepicker-toggle matIconSuffix [for]="interviewDatePicker"></mat-datepicker-toggle>
+                            <mat-datepicker #interviewDatePicker></mat-datepicker>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Recommendation Status</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="thumbs-up" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select [formField]="searchForm.recommendationStatus" placeholder="Select Status">
+                                <mat-option value="">All</mat-option>
+                                @for (status of recommendationStatuses; track status) {
+                                <mat-option [value]="status">{{ status }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Current Status</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="workflow" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select [formField]="searchForm.status" placeholder="Select Status">
+                                <mat-option value="">All</mat-option>
+                                @for (status of candidateStatuses; track status) {
+                                <mat-option [value]="status">{{ status }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <button type="button" (click)="applyFilters()" class="global-btn shine-sweep lift">
+                            <svg lucideIcon="search" class="w-4 h-4"></svg>
+                            Search
+                        </button>
+                        <button type="button" (click)="resetFilters()" class="reset-btn lift">
+                            <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+            }
+            } @else {
+            <div class="search-area">
+                <div class="search-input-area">
+                    <svg lucideIcon="user-search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
+                    <input type="text" [formField]="searchForm.tempSearch" autocomplete="off"
+                        placeholder="Name or Reference No..." class="search-input-style" />
+                </div>
+                <button (click)="applyFilters()" class="search-input-btn lift">
+                    <svg lucideIcon="search" class="w-4 h-4"></svg>
+                </button>
+            </div>
+            }
+
+            @if (candidateStore.candidatesLoading()) {
+            <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+                <svg lucideIcon="loader" class="w-5 h-5"></svg>
+                Loading Candidates...
+            </div>
+            } @else if (candidateStore.candidatesError()) {
+            <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
+                <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
+                Unable to load Candidates.
+            </div>
+            } @else {
+            <qfin-candidate-list [data]="candidates()" [selectedId]="selectedCandidateId()"
+                [isCollapsed]="selectedCandidateId() !== EMPTY_UUID || !isViewMode()" (onViewDetail)="onView($event)"
+                (onSchedule)="onSchedule($event)" [totalRecords]="candidateStore.totalRecords()"
+                [pageIndex]="candidateStore.pageIndex()" [pageSize]="candidateStore.pageSize()"
+                (pageChanged)="pageChanged($event)" (sortChanged)="onSortChanged($event)">
+            </qfin-candidate-list>
+            }
+        </div>
+
+        @if (hasSelectedCandidate()) {
+        <div class="viewArea-container glass" [ngClass]="{
+           'w-3/4': isViewMode() && selectedCandidateId() !== EMPTY_UUID,
+            'w-full': !isViewMode()
+        }">
+
+            <div class="viewArea-header">
+                <div class="viewArea-headerInner">
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <div class="flex justify-start gap-2">
+                                <h2 class="viewArea-title">
+                                    {{ isUpdateMode() ? 'Joining Information' : 'Candidate Details' }}
+                                </h2>
+                                <div class="viewArea-badge">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+                                    <span
+                                        class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                                        {{ isUpdateMode() || isEditDetailsMode() ? 'Edit Mode' : 'View Mode' }}
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="viewArea-description">
+                                {{ isUpdateMode() ? 'Capture joining information of the candidate as an employee.' :
+                                'Review Candidate details.' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <button aria-label="Close" matTooltip="Close" class="pannel-close" (click)="closePanel()">
+                    <svg lucideIcon="x" class="w-4 h-4"></svg>
+                </button>
+            </div>
+            <div>
+                @if (isViewMode() && selectedCandidateId() !== EMPTY_UUID) {
+
+                <!-- VIEW -->
+                <qfin-candidate-view [candidateId]="selectedCandidateId()" (onUpdateAction)="onEdit($event)"
+                    (onEditDetails)="onEditDetails($event)" (onEditJoiningDetails)="onEditDetails($event, true)">
+                </qfin-candidate-view>
+
+                } @else if (isUpdateMode()) {
+
+                <qfin-candidate-joining-info [candidateId]="selectedCandidateId()" (onProcessComplete)="closePanel()">
+                </qfin-candidate-joining-info>
+
+                } @else if (isEditDetailsMode()) {
+
+                <!-- EDIT BASIC DETAILS -->
+                <qfin-candidate-detail [candidateId]="selectedCandidateId()" [openJoiningStep]="openJoiningStep()"
+                    (cancel)="onEditDetailsDone()" (save)="onEditDetailsDone()">
+                </qfin-candidate-detail>
+
+                } @else {
+
+                <!-- CREATE -->
+                <qfin-candidate-detail [candidateId]="EMPTY_UUID" (cancel)="closePanel()" (save)="closePanel()">
+                </qfin-candidate-detail>
+
+                }
+            </div>
+        </div>
+        }
+    </div>
+</div>

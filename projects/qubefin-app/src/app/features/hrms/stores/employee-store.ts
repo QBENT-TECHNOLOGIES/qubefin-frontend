@@ -6,8 +6,10 @@ import {
   IEmployeesBySearchResult,
   IEmpTransfer,
   IEmpTransferHistory,
+  IEmployeeByOrgUnit,
   KycDocument,
   Utility,
+  IEmployeeDocuments,
 } from '../models/employee-detail';
 import { IAuditInfo } from '../models/leave-request';
 
@@ -17,7 +19,19 @@ import { IAuditInfo } from '../models/leave-request';
 export class EmployeeStore {
   // --- Detail State ---
   private readonly employeeComponentId = signal<string | undefined>(undefined);
+  private readonly documentEmployeeId = signal<string | undefined>(undefined);
   // 1. Keep track of the active step index
+
+  // --- Org Unit State ---
+  readonly searchOrganizationUnitId = signal<string | null>(null);
+
+  readonly employeesByOrgUnitResource = httpResource<IEmployeeByOrgUnit[]>(() => {
+    const id = this.searchOrganizationUnitId();
+    if (!id || id === EMPTY_UUID) return undefined;
+    return `${ApiPaths.HRMS}/employees/by-organization-unit/${id}`;
+  });
+
+  readonly employeesByOrgUnit = computed(() => this.employeesByOrgUnitResource.value() ?? []);
 
   // --- Pagination & Filtering State ---
   readonly searchQuery = signal<string>('');
@@ -82,6 +96,13 @@ export class EmployeeStore {
   );
   readonly employeeInfoComponentError = computed(() => this.employeeInfoComponentResource.error());
 
+  readonly documentsByEmpIdResource = httpResource<IEmployeeDocuments[]>(() => {
+    const id = this.documentEmployeeId();
+    if (!id || id === EMPTY_UUID) return undefined;
+    return `${ApiPaths.HRMS}/employees/documents/${id}`;
+  });
+
+  readonly documentsByEmpId = computed(() => this.documentsByEmpIdResource.value() ?? []);
   // // --- Personal Resource ---
   // private readonly personalInfoComponentResource = httpResource<{ personalInfo: IEmployeePersonalInfo }>(() => {
   //   const id = this.employeeComponentId();
@@ -107,6 +128,10 @@ export class EmployeeStore {
   // readonly addressInfoComponentError = computed(() => this.addressInfoComponentResource.error());
 
   // --- State Setters ---
+  setSearchOrganizationUnitId(id: string | null) {
+    this.searchOrganizationUnitId.set(id);
+  }
+
   setSearchQuery(query: string) {
     this.searchQuery.set(query);
     this.pageIndex.set(0);
@@ -132,6 +157,10 @@ export class EmployeeStore {
   setEmployeeComponentId(id: string | undefined) {
     if (this.employeeComponentId() === id) return;
     this.employeeComponentId.set(id);
+  }
+  setDocumentEmployeeId(id: string | undefined) {
+    if (this.documentEmployeeId() === id) return;
+    this.documentEmployeeId.set(id);
   }
   setSearchJoiningDate(date: string | null) {
     this.srchJoiningDate.set(date);

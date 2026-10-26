@@ -7,11 +7,10 @@ import {
   Router,
   RouterOutlet,
 } from '@angular/router';
-import { DocumentModal } from 'qubefin-core';
 
 @Component({
   selector: 'qfin-root',
-  imports: [RouterOutlet, DocumentModal],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })

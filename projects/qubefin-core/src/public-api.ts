@@ -31,3 +31,4 @@ export * from './lib/services/document-modal.service';
 export * from './lib/components/status-badge';
 export * from './lib/components/time-picker-dialog/time-picker-dialog.component';
 export * from './lib/components/document-modal/document-modal';
+export * from './lib/components/file-upload-dialog/file-upload-dialog';
