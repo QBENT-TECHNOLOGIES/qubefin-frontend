@@ -409,6 +409,8 @@ export interface IEmployeeOfficialInfo {
   referedBy: string; // Guid? maps to string
   howYouKnow: string;
   officialEmail: string;
+  supervisorId: string; // Guid? maps to string
+  supervisorName: string;
   isActive: boolean; // bool maps to required boolean
   organizationUnitTypeId: string; // Guid? maps to string
   companyName: string;
@@ -431,6 +433,8 @@ export class EmployeeOfficialInfo {
   referedBy: string = '';
   howYouKnow: string = '';
   officialEmail: string = '';
+  supervisorId: string = '';
+  supervisorName: string = '';
   isActive: boolean = true;
   organizationUnitTypeId: string = '';
   companyName: string = '';
@@ -513,10 +517,12 @@ export interface IEmployeeAddressInfo {
   houseNo: string;
   roadName: string;
   landMark: string;
-  administrativeUnitId: string; // Guid? maps to nullable string
-  policeStationId: string; // Guid? maps to nullable string
+  //administrativeUnitId: string; // Guid? maps to nullable string
+  //policeStationId: string; // Guid? maps to nullable string
   postOfficeId: string; // Guid? maps to nullable string
+  postOfficeName: string; // entered manually when no post office is found for the pin code
   pinCode: string;
+  address: string;
   ownerShipOfHouse: string;
   durationOfStayInMonths: number | null; // int? maps to nullable number
 }
@@ -524,10 +530,12 @@ export class EmployeeAddressInfo {
   houseNo = '';
   roadName = '';
   landMark = '';
-  administrativeUnitId = '';
-  policeStationId = '';
+  //administrativeUnitId = '';
+  //policeStationId = '';
   postOfficeId = '';
+  postOfficeName = '';
   pinCode = '';
+  address = '';
   ownerShipOfHouse = '';
   durationOfStayInMonths = null;
 
@@ -707,6 +715,27 @@ export class KycDocument {
   isAddressProof: boolean = false;
   isDateValidate: boolean = false;
   sequence: number = 0;
+}
+export interface IEmpTransferHistory {
+  id: string;
+  organizationUnit: string;
+  organizationUnitType: string;
+  designation: string;
+  salaryGrade: string;
+  grossSalary: number;
+  fromDate: string;
+  toDate: string;
+  transferData: IEmpTransfer;
+}
+export interface IEmpTransfer {
+  id: string;
+  employeeId: string;
+  organisationUnitTypeId: string;
+  organisationUnitId: string;
+  designationId: string;
+  salaryGradeId: string;
+  grossSalary: number | null;
+  effectiveFrom: Date | null;
 }
 export interface IEmpGrossChangeHistory {
   id: string;

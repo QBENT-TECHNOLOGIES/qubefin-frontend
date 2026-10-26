@@ -38,10 +38,10 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
             </div>
-            <input matInput [matDatepicker]="dateOfJoining" autocomplete="off" [formField]="officialForm.dateOfJoining">
-            <mat-datepicker-toggle matIconSuffix [for]="dateOfJoining">
-            </mat-datepicker-toggle>
-
+            <input matInput [matDatepicker]="dateOfJoining" autocomplete="off" [formField]="officialForm.dateOfJoining"
+                (dateChange)="onJoiningDateChange($event.value)">
+            <mat-hint>DD/MM/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="dateOfJoining"></mat-datepicker-toggle>
             <mat-datepicker #dateOfJoining></mat-datepicker>
             <mat-error class="cus-error">
                 {{ officialForm.dateOfJoining().errors()[0]?.message }}
@@ -78,7 +78,7 @@
             </div>
             <input matInput [matDatepicker]="retirementDate" [min]="officialForm.dateOfJoining().value()"
                 autocomplete="off" [formField]="officialForm.retirementDate">
-            <mat-datepicker-toggle matIconSuffix [for]="retirementDate">
+            <mat-datepicker-toggle matIconSuffix [for]="retirementDate" disabled>
             </mat-datepicker-toggle>
 
             <mat-datepicker #retirementDate></mat-datepicker>
@@ -157,7 +157,7 @@
             <mat-select [formField]="officialForm.designationId" (selectionChange)="onDesignationChange($event.value)">
                 @for(item of designations(); track item.id){
                 <mat-option [value]="item.id">
-                    {{item.name}}
+                    {{item.name}}@if(item.employeeName){ - {{item.employeeName}}}
                 </mat-option>
                 }
             </mat-select>
@@ -186,6 +186,27 @@
             <mat-error class="cus-error">
                 {{ officialForm.grossSalary().errors()[0]?.message }}
             </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Supervisor</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user-search" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [value]="supervisorSearchText()"
+                (input)="searchSupervisors($any($event.target).value)" [matAutocomplete]="supervisorAuto"
+                autocomplete="off" placeholder="Search employee" />
+            <mat-autocomplete class="autoList" #supervisorAuto="matAutocomplete"
+                [displayWith]="displaySupervisorName" (optionSelected)="selectSupervisor($event)">
+                @for (employee of supervisorOptions(); track employee.id) {
+                <mat-option [value]="employee">
+                    {{ employee.employeeName }}
+                </mat-option>
+                } @empty {
+                @if (supervisorSearchText().trim()) {
+                <mat-option disabled>No employees found</mat-option>
+                }
+                }
+            </mat-autocomplete>
         </mat-form-field>
 
     </div>

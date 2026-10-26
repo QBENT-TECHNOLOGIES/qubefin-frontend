@@ -62,6 +62,9 @@ export class EmployeeRecordsDetail {
       case 'Pending':
         return 'text-yellow-600 dark:text-yellow-400';
 
+      case 'On Leave':
+        return 'text-violet-600 dark:text-violet-400';
+
       default:
         return 'text-blue-600 dark:text-blue-400';
     }
@@ -86,6 +89,9 @@ export class EmployeeRecordsDetail {
       case 'Pending':
         return 'bg-yellow-400';
 
+      case 'On Leave':
+        return 'bg-violet-400';
+
       default:
         return 'bg-blue-400';
     }
@@ -109,6 +115,9 @@ export class EmployeeRecordsDetail {
 
       case 'Pending':
         return 'bg-yellow-500';
+
+      case 'On Leave':
+        return 'bg-violet-500';
 
       default:
         return 'bg-blue-500';

@@ -20,8 +20,9 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
-import { GrossSalaryModal } from '../gross-salary-modal/gross-salary-modal';
+import { EmployeeTransferModal } from '../employee-transfer-modal/employee-transfer-modal';
 import { MatDialog } from '@angular/material/dialog';
+import { GrossSalaryModal } from '../gross-salary-modal/gross-salary-modal';
 import { AttendanceCalendarModal } from '../../attendance-history-components/attendance-calendar-modal/attendance-calendar-modal';
 import { EmployeeDocumentsModal } from '../employee-documents-modal/employee-documents-modal';
 @Component({
@@ -78,6 +79,14 @@ export class EmployeeComponentList {
   }
   openDocumentsModal(id: string) {
     this.dialog.open(EmployeeDocumentsModal, {
+      data: { id: id },
+      maxWidth: '95vw',
+      panelClass: 'glass-modal',
+    });
+  }
+
+  openEmpTransferModal(id: string) {
+    this.dialog.open(EmployeeTransferModal, {
       data: { id: id },
       maxWidth: '95vw',
       panelClass: 'glass-modal',

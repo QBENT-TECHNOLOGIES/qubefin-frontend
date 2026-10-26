@@ -9,6 +9,7 @@ export interface IDesignation {
   grossSalary: number;
   roleId: string;
   roleName: string;
+  employeeName?: string | null;
 }
 export interface IDesignationDetail {
   id: string;

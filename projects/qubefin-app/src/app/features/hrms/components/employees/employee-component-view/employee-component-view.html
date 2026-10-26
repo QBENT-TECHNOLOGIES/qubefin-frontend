@@ -153,6 +153,92 @@
                 </div>
             </div>
         </div>
+
+        @if (showAppointmentLetter()) {
+        <div class="unit-box p-4 pb-6 mt-4">
+            <div class="flex flex-col gap-3">
+                <div>
+                    <h4 class="box-content-heading">
+                        Documents
+                    </h4>
+                    <div class="blue-line"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="gen-info justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="gen-icon">
+                                <svg lucideIcon="file-text" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label class="gen-label">Appointment Letter</label>
+                                <p class="gen-title">Generated from the employee's official details</p>
+                            </div>
+                        </div>
+                        <button type="button" matTooltip="Download Appointment Letter"
+                            class="global-btn ripple-btn shine-sweep lift" (click)="onViewDocument()">
+                            <svg lucideIcon="download" class="w-4 h-4"></svg>
+                            Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+
+        <div class="unit-box p-4 pb-6 mt-4">
+            <div class="flex flex-col gap-3">
+                <div>
+                    <h4 class="box-content-heading">
+                        Audit Information
+                    </h4>
+                    <div class="green-line"></div>
+                </div>
+                <div class="audit-grid">
+                    <div class="audit-small-box">
+                        <div class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
+                            <svg lucideIcon="user-check" class="w-4 h-4 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <p class="audit-label">
+                                Created By</p>
+                            <p class="audit-title">{{ auditInfo()?.createdBy || '-' }}</p>
+                        </div>
+                    </div>
+                    <div class="audit-small-box">
+                        <div class="audit-icon-box bg-secondary-500/15 dark:bg-primary-300">
+                            <svg lucideIcon="calendar-plus" class="w-4 h-4 text-secondary-600"></svg>
+                        </div>
+                        <div>
+                            <p class="audit-label">
+                                Created On</p>
+                            <p class="audit-title">{{ auditInfo()?.createdOn ?
+                                (auditInfo()?.createdOn | date:'dd-MM-yyyy hh:mm a') : '-' }}</p>
+                        </div>
+                    </div>
+                    <div class="audit-small-box">
+                        <div class="audit-icon-box bg-accent-500/15 dark:bg-primary-300">
+                            <svg lucideIcon="user-cog" class="w-4 h-4 text-secondary-600"></svg>
+                        </div>
+                        <div>
+                            <p class="audit-label">
+                                Last Modified By</p>
+                            <p class="audit-title">{{ auditInfo()?.lastModifiedBy || '-' }}</p>
+                        </div>
+                    </div>
+                    <div class="audit-small-box">
+                        <div class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
+                            <svg lucideIcon="calendar-clock" class="w-4 h-4 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <p class="audit-label">
+                                Last Modified On</p>
+                            <p class="audit-title">{{ auditInfo()?.lastModifiedOn ?
+                                (auditInfo()?.lastModifiedOn | date:'dd-MM-yyyy hh:mm a') : '-' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 } @else {

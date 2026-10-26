@@ -5,136 +5,199 @@
     <div class="py-8 text-center text-slate-400 font-medium">No payroll details found for this month.</div>
     } @else {
 
-    <mat-accordion class="flex flex-col gap-2">
-        @for (header of monthlyPayroll()?.headers; track header.organizationUnitId; let idx = $index) {
-        <mat-expansion-panel [expanded]="expandedOrgUnitId() === header.organizationUnitId"
-            (opened)="togglePanel(header.organizationUnitId, true)"
-            class="expansion-panel glass">
-
-            <mat-expansion-panel-header
-                class="expansion-panel-header">
-                <div class="panel-header-inner">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="panel-header-icon-box">
-                            <svg [lucideIcon]="icons['Building2']"
-                                class="w-5 h-5 text-primary-600 dark:text-primary-400"></svg>
-                        </div>
-                        <div>
-                            <h3 class="panel-header-title">
-                                {{ header.organizationUnitName }}
-                            </h3>
-                            <span
-                                class="code-badge">
-                                Code: {{ header.codeVal }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="panel-header-info">
-                        <div
-                            class="info-badge">
-                            <svg [lucideIcon]="icons['Users']" class="w-4 h-4 text-slate-300"></svg>
-                            <span
-                                class="info-label">Employees:</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-100">{{ header.details.length
-                                }}</span>
-                        </div>
-                        <div class="pay-info">
-                            <span class="pay-label text-emerald-600 dark:text-emerald-400">Earnings:</span>
-                            <span class="font-bold text-emerald-600 dark:text-emerald-400">
-                                {{ header.totalEarnings | currency:'INR' }}
-                            </span>
-                        </div>
-                        <div class="pay-info border-rose-500/10! dark:border-rose-500/20! bg-rose-500/5! dark:bg-rose-500/10!">
-                            <span class="pay-label text-rose-600 dark:text-rose-400">Deductions:</span>
-                            <span class="font-bold text-rose-600 dark:text-rose-400">
-                                {{ header.totalDeductions | currency:'INR' }}
-                            </span>
-                        </div>
-                        <div class="pay-info border-sky-500/10! dark:border-sky-500/20! bg-sky-500/5! dark:bg-sky-500/10!">
-                            <span class="pay-label text-sky-600 dark:text-sky-400">Employer Contribution:</span>
-                            <span class="font-bold text-sky-600 dark:text-sky-400">
-                                {{ header.employerContribution | currency:'INR' }}
-                            </span>
-                        </div>
-                        <div class="pay-info">
-                            <span class="pay-label">Net Pay:</span>
-                            <span class="font-bold text-emerald-600 dark:text-emerald-400">
-                                {{ netPay(header.totalEarnings, header.totalDeductions) | currency:'INR' }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </mat-expansion-panel-header>
-            <div class="panel-content-box">
-                @for (emp of header.details; track emp.id; let i = $index) {
-                <div
-                    class="panel-content-item-box">
-                    <div class="flex items-center gap-3.5 min-w-[240px]">
-                        <div
-                            class="employee-circle">
-                            {{ getInitials(emp.employeeName) }}
-                        </div>
-                        <div>
-                            <h4 class="employee-name">
-                                {{ emp.employeeName }}
-                            </h4>
-                            <div
-                                class="emp-desg-com">
-                                <span class="font-medium text-slate-500 dark:text-slate-400">{{ emp.designationTitle
-                                    }}</span>
-                                <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
-                                <span>{{ emp.companyName }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="panel-content-end-box">
-                        <div class="amount-box min-w-[90px]">
-                            <span
-                                class="amount-label">Earnings</span>
-                            <span
-                                class="amount-title text-emerald-600 dark:text-emerald-500">
-                                <svg [lucideIcon]="icons['TrendingUp']" class="w-3.5 h-3.5 text-emerald-500"></svg>
-                                {{ emp.totalEarnings | currency:'INR' }}
-                            </span>
-                        </div>
-                        <div class="amount-box min-w-[90px]">
-                            <span
-                                class="amount-label">Deductions</span>
-                            <span
-                                class="amount-title text-rose-500 dark:text-rose-400">
-                                <svg [lucideIcon]="icons['TrendingDown']" class="w-3.5 h-3.5 text-rose-500"></svg>
-                                {{ emp.totalDeductions | currency:'INR' }}
-                            </span>
-                        </div>
-                        <div class="amount-box min-w-[110px] px-3 py-1.5 rounded-lg">
-                            <span
-                                class="amount-label text-primary-500 dark:text-primary-400">Net
-                                Pay</span>
-                            <span class="amount-title text-primary-600 dark:text-primary-400">
-                                {{ netPay(emp.totalEarnings, emp.totalDeductions) | currency:'INR' }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 shrink-0">
-                        @if(!monthlyPayroll()?.isLocked){
-                            <button type="button" matTooltip="Edit" (click)="onViewEmployeePayroll(emp.id)"
-                                class="edit-box lift">
-                                <svg [lucideIcon]="icons['Pencil']" class="w-4 h-4"></svg>
-                            </button>}
-                        @else {
-                        <button mat-menu-item (click)="downloadPayslip(emp.id,emp.employeeId, emp.employeeName)">
-                            <svg lucideIcon="file-down" matTooltip="Download Payslip"
-                                class="w-5 h-5 text-sky-600 dark:text-sky-500 hover:text-sky-700"></svg>
-                        </button>
-                        }
-                    </div>
-                </div>
-                }
+    <!-- Month totals -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+        <div class="rounded-xl bg-slate-500/5 dark:bg-slate-400/5 border border-slate-200/60 dark:border-slate-700/60 px-4 py-3">
+            <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                <svg [lucideIcon]="icons['Users']" class="w-3.5 h-3.5"></svg> Employees
             </div>
-        </mat-expansion-panel>
+            <div class="text-xl font-bold text-slate-800 dark:text-slate-100 mt-1">{{ summary().employees }}</div>
+            <div class="text-[11px] text-slate-400">{{ summary().units }} units</div>
+        </div>
+        <div class="rounded-xl bg-emerald-500/5 dark:bg-emerald-400/5 border border-emerald-500/10 px-4 py-3">
+            <div class="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                <svg [lucideIcon]="icons['TrendingUp']" class="w-3.5 h-3.5"></svg> Earnings
+            </div>
+            <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                {{ summary().earnings | currency:'INR':'symbol':'1.0-0' }}
+            </div>
+        </div>
+        <div class="rounded-xl bg-rose-500/5 dark:bg-rose-400/5 border border-rose-500/10 px-4 py-3">
+            <div class="flex items-center gap-1.5 text-xs text-rose-600 dark:text-rose-400">
+                <svg [lucideIcon]="icons['TrendingDown']" class="w-3.5 h-3.5"></svg> Deductions
+            </div>
+            <div class="text-xl font-bold text-rose-600 dark:text-rose-400 mt-1">
+                {{ summary().deductions | currency:'INR':'symbol':'1.0-0' }}
+            </div>
+        </div>
+        <div class="rounded-xl bg-sky-500/5 dark:bg-sky-400/5 border border-sky-500/10 px-4 py-3">
+            <div class="flex items-center gap-1.5 text-xs text-sky-600 dark:text-sky-400">
+                <svg [lucideIcon]="icons['Building2']" class="w-3.5 h-3.5"></svg> Employer Contribution
+            </div>
+            <div class="text-xl font-bold text-sky-600 dark:text-sky-400 mt-1">
+                {{ summary().employerContribution | currency:'INR':'symbol':'1.0-0' }}
+            </div>
+        </div>
+        <div class="rounded-xl bg-primary-500/10 dark:bg-primary-400/10 border border-primary-500/20 px-4 py-3 col-span-2 md:col-span-1">
+            <div class="flex items-center gap-1.5 text-xs text-primary-600 dark:text-primary-400">
+                <svg [lucideIcon]="icons['Wallet']" class="w-3.5 h-3.5"></svg> Net Pay
+            </div>
+            <div class="text-xl font-bold text-primary-600 dark:text-primary-400 mt-1">
+                {{ summary().netPay | currency:'INR':'symbol':'1.0-0' }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="flex items-center gap-2 mb-3">
+        <div class="search-input-area flex-1 min-w-0 h-[42px] py-0!">
+            <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
+            <input type="text" placeholder="Search employee, designation or unit" class="search-input-style"
+                [value]="search()" (input)="search.set($any($event.target).value)" />
+            @if (search()) {
+            <button type="button" class="cursor-pointer text-slate-400" (click)="search.set('')" aria-label="Clear search">
+                <svg lucideIcon="x" class="w-4 h-4"></svg>
+            </button>
+            }
+        </div>
+        <!-- Wrapper sets the width (mat-form-field is forced to 100% globally) and a 42px field height to
+             line up with the search box and button. -->
+        <div class="w-[180px] shrink-0"
+            style="--mat-form-field-container-height: 42px; --mat-form-field-container-vertical-padding: 9px">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Sort By</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="arrow-up-down" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [value]="sortBy()" (valueChange)="sortBy.set($event)">
+                    <mat-option value="netPay">Net Pay</mat-option>
+                    <mat-option value="name">Name</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <button type="button" class="filter-btn glass-input lift shrink-0 whitespace-nowrap h-[42px]" (click)="toggleAll()" [disabled]="!!search().trim()">
+            <svg [lucideIcon]="allExpanded() ? 'chevrons-down-up' : 'chevrons-up-down'" class="w-4 h-4"></svg>
+            {{ allExpanded() ? 'Collapse All' : 'Expand All' }}
+        </button>
+    </div>
+
+    <!-- Organization units -->
+    <div class="flex flex-col gap-3">
+        @for (unit of units(); track unit.header.organizationUnitId) {
+        <div class="glass rounded-xl border border-slate-200/60 dark:border-slate-700/60 overflow-hidden">
+            <button type="button"
+                class="w-full flex flex-wrap items-center gap-3 px-4 py-3 text-left cursor-pointer hover:bg-slate-500/5 transition-colors"
+                (click)="togglePanel(unit.header.organizationUnitId)"
+                [attr.aria-expanded]="isExpanded(unit.header.organizationUnitId)">
+                <svg lucideIcon="chevron-right" class="w-4 h-4 text-slate-400 transition-transform shrink-0"
+                    [class.rotate-90]="isExpanded(unit.header.organizationUnitId)"></svg>
+                <div class="panel-header-icon-box shrink-0">
+                    <svg [lucideIcon]="icons['Building2']" class="w-5 h-5 text-primary-600 dark:text-primary-400"></svg>
+                </div>
+                <div class="flex-1 min-w-[180px]">
+                    <div class="flex items-baseline gap-2">
+                        <h3 class="panel-header-title">{{ unit.header.organizationUnitName }}</h3>
+                        <span class="text-[11px] text-slate-400">#{{ unit.header.codeVal }} · {{
+                            unit.header.details.length }} employees</span>
+                    </div>
+                </div>
+                <div class="flex gap-5 text-right text-xs">
+                    <div>
+                        <div class="text-slate-400">Earnings</div>
+                        <div class="font-bold text-emerald-600 dark:text-emerald-400">
+                            {{ unit.header.totalEarnings | currency:'INR':'symbol':'1.0-0' }}</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-400">Deductions</div>
+                        <div class="font-bold text-rose-600 dark:text-rose-400">
+                            {{ unit.header.totalDeductions | currency:'INR':'symbol':'1.0-0' }}</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-400">Employer</div>
+                        <div class="font-bold text-sky-600 dark:text-sky-400">
+                            {{ unit.header.employerContribution | currency:'INR':'symbol':'1.0-0' }}</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-400">Net Pay</div>
+                        <div class="font-bold text-primary-600 dark:text-primary-400">
+                            {{ netPay(unit.header.totalEarnings, unit.header.totalDeductions) |
+                            currency:'INR':'symbol':'1.0-0' }}</div>
+                    </div>
+                </div>
+            </button>
+
+            @if (isExpanded(unit.header.organizationUnitId)) {
+            <div class="overflow-x-auto border-t border-slate-200/60 dark:border-slate-700/60">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-[11px] uppercase tracking-wider text-slate-400 bg-slate-500/5">
+                            <th class="text-left font-semibold px-4 py-2">Employee</th>
+                            <th class="text-right font-semibold px-4 py-2">Earnings</th>
+                            <th class="text-right font-semibold px-4 py-2">Deductions</th>
+                            <th class="text-right font-semibold px-4 py-2">Net Pay</th>
+                            <th class="w-14"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (emp of unit.employees; track emp.id) {
+                        <tr class="border-t border-slate-100 dark:border-slate-700/50 hover:bg-slate-500/5 transition-colors">
+                            <td class="px-4 py-2.5">
+                                <div class="flex items-center gap-3 min-w-[220px]">
+                                    <div class="employee-circle shrink-0">{{ getInitials(emp.employeeName) }}</div>
+                                    <div>
+                                        <div class="employee-name">{{ emp.employeeName }}</div>
+                                        <div class="text-xs text-slate-400">
+                                            {{ emp.designationTitle }}
+                                            @if (emp.companyName) { · {{ emp.companyName }} }
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-2.5 text-right tabular-nums text-emerald-600 dark:text-emerald-400">
+                                {{ emp.totalEarnings | currency:'INR' }}</td>
+                            <td class="px-4 py-2.5 text-right tabular-nums text-rose-500 dark:text-rose-400">
+                                {{ emp.totalDeductions | currency:'INR' }}</td>
+                            <td class="px-4 py-2.5 text-right tabular-nums font-bold text-slate-800 dark:text-slate-100">
+                                {{ netPay(emp.totalEarnings, emp.totalDeductions) | currency:'INR' }}</td>
+                            <td class="px-2 py-2.5 text-center">
+                                @if (!monthlyPayroll()?.isLocked) {
+                                <button type="button" matTooltip="Edit" (click)="onViewEmployeePayroll(emp.id)"
+                                    class="edit-box lift">
+                                    <svg [lucideIcon]="icons['Pencil']" class="w-4 h-4"></svg>
+                                </button>
+                                } @else {
+                                <button type="button" matTooltip="Download Payslip" class="edit-box lift"
+                                    [disabled]="openingPayslipId() === emp.id"
+                                    (click)="downloadPayslip(emp.id, emp.employeeId, emp.employeeName)">
+                                    <svg lucideIcon="file-down" class="w-4 h-4 text-sky-600 dark:text-sky-500"></svg>
+                                </button>
+                                }
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="border-t border-slate-200 dark:border-slate-700 bg-slate-500/5 font-bold">
+                            <td class="px-4 py-2.5 text-xs text-slate-500 dark:text-slate-400">
+                                Unit Total ({{ unit.header.details.length }})</td>
+                            <td class="px-4 py-2.5 text-right tabular-nums text-emerald-600 dark:text-emerald-400">
+                                {{ unit.header.totalEarnings | currency:'INR' }}</td>
+                            <td class="px-4 py-2.5 text-right tabular-nums text-rose-500 dark:text-rose-400">
+                                {{ unit.header.totalDeductions | currency:'INR' }}</td>
+                            <td class="px-4 py-2.5 text-right tabular-nums text-primary-600 dark:text-primary-400">
+                                {{ netPay(unit.header.totalEarnings, unit.header.totalDeductions) | currency:'INR' }}</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            }
+        </div>
+        } @empty {
+        <div class="py-8 text-center text-slate-400 font-medium">
+            No employee or unit matches "{{ search().trim() }}".
+        </div>
         }
-    </mat-accordion>
+    </div>
     }
 </div>

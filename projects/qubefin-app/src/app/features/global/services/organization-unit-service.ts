@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { ApiPaths } from 'qubefin-core';
 import { Observable } from 'rxjs';
 import { OrganizationUnitBasic } from '../models/organization-unit-tree-node';
-import { OrganizationUnit } from '../models/organization-unit';
+import { OrganizationUnit, OrganizationUnitLocation } from '../models/organization-unit';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +12,11 @@ export class OrganizationUnitService {
   httpClient = inject(HttpClient);
   getAll() {
     return this.httpClient.get(`${ApiPaths.GLOBAL}/organization-units/all`);
+  }
+  getAllByLocation(): Observable<OrganizationUnitLocation[]> {
+    return this.httpClient.get<OrganizationUnitLocation[]>(
+      `${ApiPaths.GLOBAL}/organization-units/by-location`,
+    );
   }
   create(organizationUnit: OrganizationUnit) {
     return this.httpClient.post(`${ApiPaths.GLOBAL}/organization-units`, organizationUnit);

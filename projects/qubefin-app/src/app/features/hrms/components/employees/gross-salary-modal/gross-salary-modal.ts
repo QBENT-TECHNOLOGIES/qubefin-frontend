@@ -143,7 +143,7 @@ export class GrossSalaryModal {
       const till = new Date(effectiveTill);
       till.setHours(0, 0, 0, 0);
 
-      if (till < today) {
+      if (till <= today) {
         return 'Inactive';
       }
     }

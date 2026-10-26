@@ -20,6 +20,7 @@ export interface OrganizationUnit {
   lastModifiedOn?: Date;
   companyName?: string;
   companyId: string;
+  districtId: string;
   hierarchy: OrganizationUnitHierarchyItem[];
   designations: Designations[];
 }
@@ -33,4 +34,15 @@ export interface Designations {
   roleId: string;
   roleName: string;
   isActive: boolean;
+}
+
+// An organization unit with the District / State it is located in (null when no District is saved).
+export interface OrganizationUnitLocation {
+  id: string;
+  name: string;
+  organizationUnitTypeName: string;
+  districtId: string | null;
+  districtName: string | null;
+  stateId: string | null;
+  stateName: string | null;
 }

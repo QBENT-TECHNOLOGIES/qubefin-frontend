@@ -29,7 +29,7 @@ import { PayrollStore } from '../../stores/payroll-store';
 })
 export class MonthlyPayroll {
   private readonly dialog = inject(MatDialog);
-  private readonly payrollStore = inject(PayrollStore);
+  protected readonly payrollStore = inject(PayrollStore);
   readonly companyStore = inject(CompanyStore);
   private readonly alertService = inject(AlertService);
   isDetailMode = signal<boolean>(false);

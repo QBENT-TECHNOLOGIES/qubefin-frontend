@@ -116,6 +116,12 @@ export class EmployeeService {
   getDisignationByOrganizationUnit(id: string) {
     return this.httpClient.get(`${ApiPaths.HRMS}/designations/${id}/organization-unit`);
   }
+  getEmployeeTransfer(id: string) {
+    return this.httpClient.get(`${ApiPaths.HRMS}/employees/transfer/${id}`);
+  }
+  transferEmployee(empTransfer: any) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/employees/transfer`, empTransfer);
+  }
   getGrossSalaryByEmployeeId(id: string) {
     return this.httpClient.get(`${ApiPaths.HRMS}/employees/gross-salary/${id}`);
   }
@@ -125,7 +131,6 @@ export class EmployeeService {
   getSalaryByGradeId(id: string) {
     return this.httpClient.get(`${ApiPaths.HRMS}/employees/salary-by-grade/${id}`);
   }
-
   getGrossSalaryPreview(data: any) {
     return this.httpClient.post(`${ApiPaths.HRMS}/employees/get-salary-structure-by-gross`, data);
   }
