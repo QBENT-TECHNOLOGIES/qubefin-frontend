@@ -46,7 +46,7 @@ export class EmployeeComponentView {
       return false;
     }
 
-    const today = new Date();
+    const today = new Date(2026, 9, 1);
     today.setHours(0, 0, 0, 0);
 
     return new Date(joiningDate) >= today;
