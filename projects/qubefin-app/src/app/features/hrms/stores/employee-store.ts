@@ -10,6 +10,7 @@ import {
   KycDocument,
   Utility,
   IEmployeeDocuments,
+  IJoiningInfo,
 } from '../models/employee-detail';
 import { IAuditInfo } from '../models/leave-request';
 
@@ -20,6 +21,7 @@ export class EmployeeStore {
   // --- Detail State ---
   private readonly employeeComponentId = signal<string | undefined>(undefined);
   private readonly documentEmployeeId = signal<string | undefined>(undefined);
+  private readonly joiningEmployeeID = signal<string | undefined>(undefined);
   // 1. Keep track of the active step index
 
   // --- Org Unit State ---
@@ -76,6 +78,7 @@ export class EmployeeStore {
   readonly error = computed(() => this.employeeListComponentsResource.error());
   // --- View Resource ---
   private readonly employeeInfoComponentResource = httpResource<{
+    hasJoiningInfo: boolean;
     personalInfo: IEmployeePersonalInfo;
     auditInfo: IAuditInfo;
   }>(() => {
@@ -87,6 +90,10 @@ export class EmployeeStore {
 
   readonly employeeInfoComponent = computed(
     () => this.employeeInfoComponentResource.value()?.personalInfo ?? undefined,
+  );
+
+  readonly hasJoiningInfo = computed(
+    () => this.employeeInfoComponentResource.value()?.hasJoiningInfo ?? false,
   );
   readonly employeeAuditInfo = computed(
     () => this.employeeInfoComponentResource.value()?.auditInfo ?? undefined,
@@ -103,6 +110,13 @@ export class EmployeeStore {
   });
 
   readonly documentsByEmpId = computed(() => this.documentsByEmpIdResource.value() ?? []);
+
+  readonly joiningInfoResource = httpResource<IJoiningInfo>(() => {
+    const id = this.joiningEmployeeID();
+    if (!id || id === EMPTY_UUID) return undefined;
+    return `${ApiPaths.HRMS}/employees/joining-info/${id}`;
+  });
+  readonly joiningInfo = computed(() => this.joiningInfoResource.value() ?? undefined);
   // // --- Personal Resource ---
   // private readonly personalInfoComponentResource = httpResource<{ personalInfo: IEmployeePersonalInfo }>(() => {
   //   const id = this.employeeComponentId();
@@ -161,6 +175,10 @@ export class EmployeeStore {
   setDocumentEmployeeId(id: string | undefined) {
     if (this.documentEmployeeId() === id) return;
     this.documentEmployeeId.set(id);
+  }
+  setJoiningEmployeeId(id: string | undefined) {
+    if (this.joiningEmployeeID() === id) return;
+    this.joiningEmployeeID.set(id);
   }
   setSearchJoiningDate(date: string | null) {
     this.srchJoiningDate.set(date);

@@ -8,6 +8,8 @@ import { MatTableModule } from '@angular/material/table';
 import { DesignationEditModal } from '../designation-edit-modal/designation-edit-modal';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { OrganizationUnitService } from '../../services/organization-unit-service';
+import { AlertService } from 'qubefin-core';
 
 @Component({
   selector: 'qfin-organization-unit-view-component',
@@ -18,6 +20,8 @@ export class OrganizationUnitViewComponent {
   private readonly dialog = inject(MatDialog);
   permissionStore = inject(PermissionStore);
   organizationUnitStore = inject(OrganizationUnitStore);
+  private readonly alertService = inject(AlertService);
+  private readonly organizationUnitService = inject(OrganizationUnitService);
 
   organizationUnitId = model<string>(EMPTY_UUID);
   readonly iconMap = APP_ICONS_MAP;
@@ -43,7 +47,7 @@ export class OrganizationUnitViewComponent {
   //   { id: '3', name: 'Designation 3', post: 'post3', grade: 'grade3', role: 'role3' },
   // ];
   displayedColumns = computed(() => {
-    return ['sl', 'name', 'post', 'grade', 'employee', 'isActive'];
+    return ['sl', 'name', 'post', 'grade', 'employee', 'isActive', 'actions'];
   });
   constructor() {
     effect(() => {
@@ -62,5 +66,26 @@ export class OrganizationUnitViewComponent {
       maxWidth: '95vw',
       panelClass: 'glass-modal',
     });
+  }
+  onUpdateDesigantionStatus(id: string, isActive: boolean) {
+    this.alertService
+      .confirm(
+        'Confirmation',
+        'Are you sure you want to ' + (isActive ? 'disable' : 'enable') + ' this designation?',
+      )
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.organizationUnitService.updateDesignationStatus(id).subscribe({
+            next: () => {
+              this.alertService
+                .success('Success', `Designation ${isActive ? 'Disabled' : 'Enabled'} Successfully`)
+                .then(() => {
+                  this.organizationUnitStore.refresh();
+                });
+            },
+            error: (err: any) => {},
+          });
+        }
+      });
   }
 }

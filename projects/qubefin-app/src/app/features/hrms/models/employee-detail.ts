@@ -780,3 +780,9 @@ export interface IEmployeeDocuments {
   fileName?: string;
   fileUrl?: string;
 }
+export interface IJoiningInfo {
+  // id: string;
+  employeeId: string;
+  monthlyCtc: number | null;
+  offerLetterDate: string | Date | null;
+}

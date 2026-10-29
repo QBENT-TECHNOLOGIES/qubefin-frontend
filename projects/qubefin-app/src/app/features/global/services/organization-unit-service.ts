@@ -47,4 +47,9 @@ export class OrganizationUnitService {
       designation,
     );
   }
+  updateDesignationStatus(designationId: string) {
+    return this.httpClient.get(
+      `${ApiPaths.GLOBAL}/organization-units/designation-activation/${designationId}`,
+    );
+  }
 }
