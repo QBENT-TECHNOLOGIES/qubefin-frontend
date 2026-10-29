@@ -7,7 +7,7 @@ export type AlertType =
   | 'Stationary'
   | 'OutsideBranchRadius'
   | 'LocationMismatch'
-  | 'OverdueJob';
+  | 'DelayedJob';
 
 export type AlertSeverity = 'Low' | 'Medium' | 'High';
 

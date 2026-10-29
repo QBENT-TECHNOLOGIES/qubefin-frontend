@@ -15,11 +15,12 @@ import { AlertType, TrackingAlert } from '../../models/tracking-alert';
 import { TrackingAlertService } from '../../services/tracking-alert-service';
 import { TrackingAlertStore } from '../../stores/tracking-alert-store';
 import { TrackingLookupStore } from '../../stores/tracking-lookup-store';
-import { googleMapsLink } from '../../utils/geo-utils';
+import { googleMapsLink, toDateKey } from '../../utils/geo-utils';
 import { pollWhileVisible } from '../../utils/poll';
 import { ALERT_SEVERITY, ALERT_STATUS, ALERT_TYPE, optionsOf, Tone } from '../../utils/tracking-labels';
 import { RemarksDialog, RemarksDialogData } from '../../components/shared/remarks-dialog/remarks-dialog';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
+import { TrkDateField } from '../../components/shared/date-field/trk-date-field';
 
 @Component({
   selector: 'qfin-tracking-alerts',
@@ -36,11 +37,13 @@ import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chi
     LucideDynamicIcon,
     RouterLink,
     TrackingChip,
+    TrkDateField,
   ],
   templateUrl: './tracking-alerts.html',
 })
 export class TrackingAlerts {
   readonly store = inject(TrackingAlertStore);
+  readonly today = toDateKey();
   readonly lookup = inject(TrackingLookupStore);
   private readonly service = inject(TrackingAlertService);
   private readonly popups = inject(AlertService);

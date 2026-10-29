@@ -38,14 +38,8 @@
                 <h3 class="box-content-heading">Working hours</h3>
                 <div class="green-line mb-4!"></div>
                 <div class="grid grid-cols-2 gap-4">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                        <mat-label>Duty starts</mat-label>
-                        <input matInput type="time" [ngModel]="d.workingHoursStart" (ngModelChange)="set('workingHoursStart', $event)">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                        <mat-label>Duty ends</mat-label>
-                        <input matInput type="time" [ngModel]="d.workingHoursEnd" (ngModelChange)="set('workingHoursEnd', $event)">
-                    </mat-form-field>
+                    <qfin-trk-time-field label="Duty starts" interval="30m" [value]="d.workingHoursStart" (valueChange)="$event && set('workingHoursStart', $event)" />
+                    <qfin-trk-time-field label="Duty ends" interval="30m" [value]="d.workingHoursEnd" (valueChange)="$event && set('workingHoursEnd', $event)" />
                 </div>
                 <p class="text-[11px] text-slate-400 mt-1">Location alerts are only raised inside these hours (or while a task is in progress).</p>
             </div>
@@ -65,14 +59,14 @@
                 <div class="green-line mb-3!"></div>
                 <div class="flex flex-col gap-3">
                     <div class="flex flex-wrap items-center gap-3">
-                        <mat-slide-toggle [ngModel]="d.autoAssignOdFollowUps" (ngModelChange)="set('autoAssignOdFollowUps', $event)">Auto-add new OD customers to the CO's open OD job when DPD ≥</mat-slide-toggle>
+                        <mat-slide-toggle [ngModel]="d.autoAssignOdFollowUps" (ngModelChange)="set('autoAssignOdFollowUps', $event)">Auto-add new OD members to the CO's open OD job when DPD ≥</mat-slide-toggle>
                         <input type="number" min="1" class="trk-inline-number" [disabled]="!d.autoAssignOdFollowUps" [ngModel]="d.autoAssignOdMinDpd"
                             (ngModelChange)="set('autoAssignOdMinDpd', +$event)" aria-label="Minimum DPD">
                     </div>
                     <mat-slide-toggle [ngModel]="d.autoAssignGroupVisits" (ngModelChange)="set('autoAssignGroupVisits', $event)">Add group-visit tasks to the CO's weekly job from the group meeting schedule</mat-slide-toggle>
                     <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
                         Run allocation daily at
-                        <input type="time" class="trk-inline-number w-28!" [ngModel]="d.autoAllocationTime" (ngModelChange)="set('autoAllocationTime', $event)" aria-label="Allocation time">
+                        <qfin-trk-time-field compact interval="30m" ariaLabel="Allocation time" [value]="d.autoAllocationTime" (valueChange)="$event && set('autoAllocationTime', $event)" />
                     </div>
                 </div>
             </div>
@@ -102,14 +96,8 @@
                             @for (o of ruleOptions; track o.value) { <mat-option [value]="o.value">{{ o.label }}</mat-option> }
                         </mat-select>
                     </mat-form-field></div>
-                    <div class="w-32"><mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>From</mat-label>
-                        <input matInput type="time" [ngModel]="x.fromTime" (ngModelChange)="updateException(x.id, { fromTime: $event || null })">
-                    </mat-form-field></div>
-                    <div class="w-32"><mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>To</mat-label>
-                        <input matInput type="time" [ngModel]="x.toTime" (ngModelChange)="updateException(x.id, { toTime: $event || null })">
-                    </mat-form-field></div>
+                    <div class="w-40"><qfin-trk-time-field label="From" [value]="x.fromTime ?? ''" (valueChange)="updateException(x.id, { fromTime: $event || null })" /></div>
+                    <div class="w-40"><qfin-trk-time-field label="To" [value]="x.toTime ?? ''" (valueChange)="updateException(x.id, { toTime: $event || null })" /></div>
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="flex-[2] min-w-[220px]">
                         <mat-label>Description</mat-label>
                         <input matInput [ngModel]="x.description" (ngModelChange)="updateException(x.id, { description: $event })">

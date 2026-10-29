@@ -45,7 +45,7 @@ export class JobList {
   dueText(j: JobSummary): string {
     if (j.status === 'Completed' || j.status === 'Cancelled') return '';
     const n = this.daysLeft(j);
-    if (n < 0) return `${-n} day${n === -1 ? '' : 's'} overdue`;
+    if (n < 0) return `${-n} day${n === -1 ? '' : 's'} delayed`;
     if (n === 0) return 'due today';
     return `${n} day${n === 1 ? '' : 's'} left`;
   }

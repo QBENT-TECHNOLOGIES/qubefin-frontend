@@ -297,6 +297,59 @@
 .dark .trk-date-input,
 .dark .trk-inline-number { background: rgba(30, 41, 59, 0.9); color: #e2e8f0; }
 
+/* ---------- Date / time pickers (qfin-trk-date-field, qfin-trk-time-field) ---------- */
+.trk-date-compact {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: #fff;
+  overflow: hidden;
+}
+.trk-date-compact input {
+  width: 6.6rem;
+  height: 100%;
+  padding: 0 0.25rem 0 0.6rem;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  color: inherit;
+}
+.trk-date-compact-btn {
+  width: 32px;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #60a5fa;
+  cursor: pointer;
+}
+.trk-date-compact-btn:hover { background: rgba(96, 165, 250, 0.12); }
+.trk-date-compact:focus-within { border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2); }
+.trk-date-compact.is-disabled { opacity: 0.55; }
+.trk-date-compact.is-disabled input,
+.trk-date-compact.is-disabled .trk-date-compact-btn { cursor: not-allowed; }
+.trk-date-compact .mat-datepicker-toggle,
+.trk-date-compact .mat-timepicker-toggle { --mat-icon-button-state-layer-size: 32px; }
+.trk-date-compact .mat-mdc-icon-button.mat-mdc-button-base { width: 32px; height: 32px; padding: 4px; }
+.dark .trk-date-compact { background: rgba(30, 41, 59, 0.9); color: #e2e8f0; border-color: rgba(148, 163, 184, 0.3); }
+.trk-date-clear {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  color: #94a3b8;
+  cursor: pointer;
+}
+.trk-date-clear:hover { color: #e11d48; background: rgba(225, 29, 72, 0.08); }
+/* Inside the Tracking History day switch the picker blends into the glass pill. */
+.trk-day-switch .trk-date-compact { border: 0; border-radius: 0; background: transparent; height: 100%; }
+.trk-day-switch .trk-date-compact input { font-size: 13px; text-align: center; }
+.trk-day-switch .trk-date-compact-btn { width: 30px; }
+
 .trk-day-switch {
   display: inline-flex;
   align-items: center;
@@ -636,9 +689,11 @@
 }
 .trk-badge.is-red { color: #be123c; background: rgba(225, 29, 72, 0.1); }
 .trk-badge.is-green { color: #047857; background: rgba(16, 185, 129, 0.12); }
+.trk-badge.is-amber { color: #b45309; background: rgba(245, 158, 11, 0.14); white-space: nowrap; }
 .dark .trk-badge { color: #a5b4fc; }
 .dark .trk-badge.is-red { color: #fda4af; }
 .dark .trk-badge.is-green { color: #6ee7b7; }
+.dark .trk-badge.is-amber { color: #fcd34d; }
 
 .trk-type-dot {
   --trk-color: #2563eb;

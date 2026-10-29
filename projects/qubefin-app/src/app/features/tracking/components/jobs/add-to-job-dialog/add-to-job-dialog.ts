@@ -11,15 +11,16 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { ApiPaths } from 'qubefin-core';
 import { FieldOfficer } from '../../../models/field-officer';
 import { Job, JobSummary } from '../../../models/job';
-import { AddOdToJobRequest, OverdueCustomer } from '../../../models/overdue-customer';
+import { AddOdToJobRequest, OdMember } from '../../../models/od-member';
 import { TrackingLookupStore } from '../../../stores/tracking-lookup-store';
 import { toDateKey } from '../../../utils/geo-utils';
 import { jobBranchConflict } from '../../../utils/job-rules';
 import { JOB_STATUS, JOB_TASK_STATUS, ROLE_LABEL, TASK_TYPE } from '../../../utils/tracking-labels';
 import { TrackingChip } from '../../shared/tracking-chip/tracking-chip';
+import { TrkDateField } from '../../shared/date-field/trk-date-field';
 
 export interface AddToJobDialogData {
-  customers: OverdueCustomer[];
+  members: OdMember[];
 }
 
 const plusDays = (n: number) => {
@@ -29,12 +30,12 @@ const plusDays = (n: number) => {
 };
 
 /**
- * OD customers are not assigned on their own any more: they become OD follow-up tasks inside a job.
+ * OD members are not assigned on their own any more: they become OD follow-up tasks inside a job.
  * Pick an open job (its details and tasks are shown before adding) or describe a new one.
  */
 @Component({
   selector: 'qfin-add-to-job-dialog',
-  imports: [DatePipe, DecimalPipe, FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatTooltipModule, LucideDynamicIcon, TrackingChip],
+  imports: [DatePipe, DecimalPipe, FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatTooltipModule, LucideDynamicIcon, TrackingChip, TrkDateField],
   templateUrl: './add-to-job-dialog.html',
 })
 export class AddToJobDialog {
@@ -48,10 +49,10 @@ export class AddToJobDialog {
   readonly ROLE_LABEL = ROLE_LABEL;
   readonly today = toDateKey();
 
-  readonly customers = this.data.customers;
-  readonly amount = this.customers.reduce((s, c) => s + c.overdueAmount, 0);
-  readonly branchIds = [...new Set(this.customers.map((c) => c.branchId))];
-  readonly branchNames = [...new Set(this.customers.map((c) => c.branchName))];
+  readonly members = this.data.members;
+  readonly amount = this.members.reduce((s, c) => s + c.overdueAmount, 0);
+  readonly branchIds = [...new Set(this.members.map((c) => c.branchId))];
+  readonly branchNames = [...new Set(this.members.map((c) => c.branchName))];
 
   readonly mode = signal<'existing' | 'new'>('existing');
   readonly notes = signal('');
@@ -64,7 +65,7 @@ export class AddToJobDialog {
 
   private readonly openResource = httpResource<JobSummary[]>(() => {
     const params: Record<string, string> = {};
-    // With one branch, list only jobs that may take that branch's customers.
+    // With one branch, list only jobs that may take that branch's members.
     if (this.branchIds.length === 1) params['branchId'] = this.branchIds[0];
     if (this.filterAssigneeId()) params['assigneeId'] = this.filterAssigneeId()!;
     return { url: `${ApiPaths.TRACKING}/jobs/open`, params };
@@ -89,14 +90,14 @@ export class AddToJobDialog {
   readonly assigneeId = signal<string>('');
   readonly completeBy = signal(plusDays(3));
   readonly startFrom = signal(toDateKey());
-  readonly description = signal('Visit each overdue customer at home. Collect, or record the promise-to-pay date.');
+  readonly description = signal('Visit each OD member at home. Collect, or record the promise-to-pay date.');
 
   readonly officerGroups = computed(() =>
     this.lookup.officersByRole().map((g) => ({
       ...g,
       officers: g.officers.map((o) => {
-        const fit = this.customers.filter((c) => !jobBranchConflict(o, [c.branchId])).length;
-        const note = fit === 0 ? `None of these customers are in ${o.unitName}` : fit < this.customers.length ? `Only ${fit} of ${this.customers.length} are in ${o.unitName}` : null;
+        const fit = this.members.filter((c) => !jobBranchConflict(o, [c.branchId])).length;
+        const note = fit === 0 ? `None of these members are in ${o.unitName}` : fit < this.members.length ? `Only ${fit} of ${this.members.length} are in ${o.unitName}` : null;
         return { ...o, fit, note };
       }),
     })),
@@ -109,12 +110,12 @@ export class AddToJobDialog {
     return j?.assigneeId ? (this.lookup.officerById().get(j.assigneeId) ?? null) : null;
   });
 
-  /** Per-customer reason it will be skipped, if any. */
+  /** Per-member reason it will be skipped, if any. */
   readonly skipReasons = computed(() => {
     const map = new Map<string, string>();
     const j = this.mode() === 'existing' ? this.job() : undefined;
     const holder = this.holder();
-    this.customers.forEach((c) => {
+    this.members.forEach((c) => {
       if (!c.homeLocation) return map.set(c.id, 'home not geo-tagged');
       if (c.followUp?.status === 'Pending') return map.set(c.id, `already pending in ${c.followUp.jobNo}`);
       if (j?.tasks.some((t) => t.type === 'OdFollowUp' && t.target.refId === c.id && t.status === 'Pending')) return map.set(c.id, 'already in this job');
@@ -124,7 +125,7 @@ export class AddToJobDialog {
     });
     return map;
   });
-  readonly addable = computed(() => this.customers.length - this.skipReasons().size);
+  readonly addable = computed(() => this.members.length - this.skipReasons().size);
 
   readonly valid = computed(() => {
     if (this.addable() === 0) return false;
@@ -148,9 +149,9 @@ export class AddToJobDialog {
   confirm() {
     this.submitted.set(true);
     if (!this.valid()) return;
-    const ids = this.customers.filter((c) => !this.skipReasons().has(c.id)).map((c) => c.id);
+    const ids = this.members.filter((c) => !this.skipReasons().has(c.id)).map((c) => c.id);
     this.dialogRef.close({
-      customerIds: ids,
+      memberIds: ids,
       jobId: this.mode() === 'existing' ? this.selectedJobId() : null,
       newJob:
         this.mode() === 'new'

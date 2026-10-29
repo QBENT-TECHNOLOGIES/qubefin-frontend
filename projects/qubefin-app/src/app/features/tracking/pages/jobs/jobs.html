@@ -23,9 +23,12 @@
                 <svg lucideIcon="funnel" class="w-4 h-4"></svg> Filter
             </button>
             }
+            <qfin-trk-mock-actor (changed)="onActorChanged()" />
+            @if (lookup.canCreateJobs()) {
             <button class="global-btn shine-sweep lift" (click)="onAdd()">
                 <svg lucideIcon="plus" class="w-4 h-4"></svg> Create Job
             </button>
+            }
         </div>
     </div>
 
@@ -77,17 +80,23 @@
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="min-w-[150px]">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Due from</mat-label>
-                            <input matInput type="date" [ngModel]="store.dueFrom()" (ngModelChange)="store.setFilter(store.dueFrom, $event || null)">
+                    <div class="min-w-[160px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full"
+                            matTooltip="Jobs with OD member tasks in this days-past-due range">
+                            <mat-label>Days past due</mat-label>
+                            <mat-select [value]="store.dpdRange()" (valueChange)="store.setFilter(store.dpdRange, $event)">
+                                <mat-option [value]="null">Any DPD</mat-option>
+                                @for (r of DPD_RANGES; track r.value) { <mat-option [value]="r.value">{{ r.label }}</mat-option> }
+                            </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="min-w-[150px]">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                            <mat-label>Due to</mat-label>
-                            <input matInput type="date" [ngModel]="store.dueTo()" (ngModelChange)="store.setFilter(store.dueTo, $event || null)">
-                        </mat-form-field>
+                    <div class="w-[190px]">
+                        <qfin-trk-date-field label="Due from" clearable [value]="store.dueFrom() ?? ''" [maxDate]="store.dueTo()"
+                            (valueChange)="store.setFilter(store.dueFrom, $event || null)" />
+                    </div>
+                    <div class="w-[190px]">
+                        <qfin-trk-date-field label="Due to" clearable [value]="store.dueTo() ?? ''" [minDate]="store.dueFrom()"
+                            (valueChange)="store.setFilter(store.dueTo, $event || null)" />
                     </div>
                     <div class="flex items-center gap-2">
                         <button type="button" class="trk-link-btn" (click)="resetFilters()">Reset</button>

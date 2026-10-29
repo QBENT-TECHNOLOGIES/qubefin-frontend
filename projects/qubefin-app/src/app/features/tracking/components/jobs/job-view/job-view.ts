@@ -8,6 +8,7 @@ import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { ExtendJobRequest, JobHistoryAction, JobTask, NewTaskInput, TransferJobRequest } from '../../../models/job';
 import { JobService } from '../../../services/job-service';
 import { JobStore } from '../../../stores/job-store';
+import { TrackingLookupStore } from '../../../stores/tracking-lookup-store';
 import { googleMapsLink, toDateKey } from '../../../utils/geo-utils';
 import { isOpenJob } from '../../../utils/job-rules';
 import { JOB_STATUS, JOB_TASK_STATUS, ROLE_LABEL, TASK_TYPE } from '../../../utils/tracking-labels';
@@ -31,7 +32,7 @@ const HISTORY: Record<JobHistoryAction, { label: string; icon: string }> = {
   TaskCancelled: { label: 'Task cancelled', icon: 'x' },
   TaskRejected: { label: 'Self-added task rejected', icon: 'circle-x' },
   DateExtended: { label: 'Date extended', icon: 'calendar-plus' },
-  BecameOverdue: { label: 'Became overdue', icon: 'hourglass' },
+  BecameDelayed: { label: 'Became delayed', icon: 'hourglass' },
   Completed: { label: 'Job completed', icon: 'badge-check' },
   Cancelled: { label: 'Job cancelled', icon: 'ban' },
 };
@@ -48,6 +49,7 @@ export class JobView {
   private readonly service = inject(JobService);
   private readonly alerts = inject(AlertService);
   private readonly dialog = inject(MatDialog);
+  private readonly lookup = inject(TrackingLookupStore);
 
   readonly jobId = input<string>(EMPTY_UUID);
   readonly changed = output<void>();
@@ -68,6 +70,19 @@ export class JobView {
   readonly expandedId = signal<string | null>(null);
 
   readonly isOpen = computed(() => !!this.job() && isOpenJob(this.job()!.status));
+  /** Why some or all actions are missing for this user (the server decides via `job.permissions`). */
+  readonly accessNote = computed(() => {
+    const j = this.job();
+    if (!j) return null;
+    const p = j.permissions;
+    if (j.assigneeId && j.assigneeId === this.lookup.viewer()?.employeeId) {
+      return 'This job is assigned to you. Work cannot be transferred or delegated; new tasks for your own job are added from the mobile app.';
+    }
+    if (!p.canUpdate && !p.canAssign) return `View only. ${j.createdByName} (who created the job) or someone above them can change it.`;
+    if (p.canUpdate && !p.canCancel) return `You can add tasks and extend the date. Only ${j.createdByName} or someone above them can transfer or cancel this job.`;
+    return null;
+  });
+
   readonly pct = computed(() => {
     const j = this.job();
     return j?.taskCount ? Math.round((j.doneCount / j.taskCount) * 100) : 0;

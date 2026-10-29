@@ -26,15 +26,11 @@
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-label>Start from (optional)</mat-label>
-                <input matInput type="date" [formField]="jobForm.startFrom">
-            </mat-form-field>
+            <qfin-trk-date-field label="Start from (optional)" icon="calendar-arrow-down" clearable [formField]="jobForm.startFrom"
+                [maxDate]="jobForm.completeBy().value()" />
 
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-label>Complete by</mat-label>
-                <input matInput type="date" [min]="today" [formField]="jobForm.completeBy">
-            </mat-form-field>
+            <qfin-trk-date-field label="Complete by" icon="calendar-check" [formField]="jobForm.completeBy"
+                [minDate]="jobForm.startFrom().value() > today ? jobForm.startFrom().value() : today" />
 
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
                 <mat-label>Description (optional)</mat-label>

@@ -39,8 +39,8 @@
                 <div>
                     <label class="gen-label">Complete by</label>
                     <p class="gen-title">{{ j.completeBy | date: 'EEE, dd MMM yyyy' }}</p>
-                    <p class="text-[11px]" [class.text-rose-600]="j.status === 'Overdue'" [class.text-slate-400]="j.status !== 'Overdue'">
-                        @if (j.status === 'Overdue') { {{ -daysLeft() }} day(s) overdue }
+                    <p class="text-[11px]" [class.text-rose-600]="j.status === 'Delayed'" [class.text-slate-400]="j.status !== 'Delayed'">
+                        @if (j.status === 'Delayed') { {{ -daysLeft() }} day(s) delayed }
                         @else if (isOpen()) { {{ daysLeft() === 0 ? 'Due today' : daysLeft() + ' day(s) left' }} }
                         @if (j.startFrom) { · from {{ j.startFrom | date: 'dd MMM' }} }
                     </p>
@@ -60,22 +60,31 @@
             <div class="flex items-center justify-between text-[11px] text-slate-500 mb-1">
                 <span>{{ j.doneCount }} of {{ j.taskCount }} done</span><span class="tabular-nums">{{ pct() }}%</span>
             </div>
-            <div class="trk-bar h-2!"><span [style.width.%]="pct()" [class.is-late]="j.status === 'Overdue'"></span></div>
+            <div class="trk-bar h-2!"><span [style.width.%]="pct()" [class.is-late]="j.status === 'Delayed'"></span></div>
         </div>
 
         @if (j.description) {
         <p class="mx-4 mb-4 text-xs text-slate-600 dark:text-slate-300 trk-info-box">{{ j.description }}</p>
         }
 
+        @if (isOpen() && accessNote(); as note) {
+        <p class="mx-4 mb-3 text-[11px] text-slate-500 dark:text-slate-400 trk-info-box flex items-start gap-2">
+            <svg lucideIcon="info" class="w-4 h-4 shrink-0"></svg> {{ note }}
+        </p>
+        }
+
         <div class="px-4 pb-4 flex flex-wrap gap-2">
-            @if (isOpen()) {
-            @if (!j.assigneeId) {
+            @if (j.permissions.canAssign) {
             <button type="button" class="trk-btn-primary" (click)="assign()"><svg lucideIcon="user-check" class="w-4 h-4"></svg> Assign</button>
-            } @else if (j.openCount) {
+            }
+            @if (j.permissions.canTransfer) {
             <button type="button" class="trk-btn-secondary" (click)="transfer()"><svg lucideIcon="arrow-right-left" class="w-4 h-4"></svg> Transfer</button>
             }
+            @if (j.permissions.canUpdate) {
             <button type="button" class="trk-btn-secondary" (click)="addTasks()"><svg lucideIcon="list-plus" class="w-4 h-4"></svg> Add tasks</button>
             <button type="button" class="trk-btn-secondary" (click)="extend()"><svg lucideIcon="calendar-plus" class="w-4 h-4"></svg> Extend date</button>
+            }
+            @if (j.permissions.canCancel) {
             <button type="button" class="trk-btn-secondary text-rose-600!" (click)="cancelJob()"><svg lucideIcon="ban" class="w-4 h-4"></svg> Cancel job</button>
             }
             <a class="trk-btn-secondary" [routerLink]="['/secure/tracking/monitoring']" [queryParams]="{ job: j.id }">
@@ -130,7 +139,7 @@
                     </div>
                     <div class="flex items-center gap-1 shrink-0" (click)="$event.stopPropagation()">
                         <qfin-trk-chip [tone]="JOB_TASK_STATUS[t.status]" [small]="true" />
-                        @if (t.status === 'Pending' && isOpen()) {
+                        @if (t.status === 'Pending' && j.permissions.canUpdate) {
                         @if (t.origin === 'SelfAdded') {
                         <button type="button" class="trk-icon-btn" matTooltip="Reject self-added task" (click)="rejectTask(t)"><svg lucideIcon="circle-x" class="w-4 h-4 text-rose-600"></svg></button>
                         }

@@ -21,6 +21,7 @@ import { TRACKING_POLL_MS, pollWhileVisible } from '../../utils/poll';
 import { ROLE_LABEL, STOP_KIND, TASK_TYPE, TASK_TYPE_CODE } from '../../utils/tracking-labels';
 import { MapStatus } from '../../components/shared/map-status/map-status';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
+import { TrkDateField } from '../../components/shared/date-field/trk-date-field';
 
 type StopFilter = 'all' | 'Designated' | 'Undesignated';
 
@@ -30,7 +31,7 @@ type StopFilter = 'all' | 'Designated' | 'Undesignated';
  */
 @Component({
   selector: 'qfin-route-history',
-  imports: [DatePipe, DecimalPipe, RouterLink, MatFormFieldModule, MatSelectModule, MatTooltipModule, LucideDynamicIcon, GoogleMap, MapAdvancedMarker, MapCircle, MapPolyline, MapStatus, TrackingChip],
+  imports: [DatePipe, DecimalPipe, RouterLink, MatFormFieldModule, MatSelectModule, MatTooltipModule, LucideDynamicIcon, GoogleMap, MapAdvancedMarker, MapCircle, MapPolyline, MapStatus, TrackingChip, TrkDateField],
   templateUrl: './route-history.html',
 })
 export class RouteHistory {

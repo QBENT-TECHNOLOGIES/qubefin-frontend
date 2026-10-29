@@ -3,8 +3,9 @@ import { Injectable, computed, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 import { Job, JobHistoryEntry, JobSearchRequest, JobSearchResponse, JobStatus } from '../models/job';
 import { SortDirection } from '../models/geo';
+import { DpdRange } from '../utils/dpd';
 
-const EMPTY_SUMMARY = { total: 0, unassigned: 0, assigned: 0, inProgress: 0, overdue: 0, completed: 0 };
+const EMPTY_SUMMARY = { total: 0, unassigned: 0, assigned: 0, inProgress: 0, delayed: 0, completed: 0 };
 
 @Injectable({ providedIn: 'root' })
 export class JobStore {
@@ -17,6 +18,8 @@ export class JobStore {
   readonly assigneeId = signal<string | null>(null);
   readonly dueFrom = signal<string | null>(null);
   readonly dueTo = signal<string | null>(null);
+  /** Jobs with OD member tasks in this days-past-due range. */
+  readonly dpdRange = signal<DpdRange | null>(null);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
   readonly sortOn = signal<JobSearchRequest['sortOn']>('completeBy');
@@ -33,6 +36,7 @@ export class JobStore {
       assigneeId: this.assigneeId(),
       dueFrom: this.dueFrom(),
       dueTo: this.dueTo(),
+      dpdRange: this.dpdRange(),
       pageIndex: this.pageIndex(),
       pageSize: this.pageSize(),
       sortOn: this.sortOn(),
@@ -58,10 +62,11 @@ export class JobStore {
     return id && id !== EMPTY_UUID ? `${this.basePath}/${id}/history` : undefined;
   });
 
-  readonly job = computed(() => this.jobResource.value());
+  // hasValue(): a job outside the user's scope comes back 404, and value() would throw while in error.
+  readonly job = computed(() => (this.jobResource.hasValue() ? this.jobResource.value() : undefined));
   readonly jobLoading = computed(() => this.jobResource.isLoading());
   readonly jobError = computed(() => this.jobResource.error());
-  readonly history = computed(() => this.historyResource.value() ?? []);
+  readonly history = computed(() => (this.historyResource.hasValue() ? this.historyResource.value() : []));
 
   setJobId(id: string | undefined) {
     if (this.jobId() !== id) this.jobId.set(id);

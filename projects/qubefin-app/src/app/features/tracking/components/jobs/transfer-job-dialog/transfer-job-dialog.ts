@@ -11,18 +11,23 @@ import { TrackingLookupStore } from '../../../stores/tracking-lookup-store';
 import { toDateKey } from '../../../utils/geo-utils';
 import { jobBranchConflict } from '../../../utils/job-rules';
 import { ROLE_LABEL, TASK_TYPE } from '../../../utils/tracking-labels';
+import { TrkDateField } from '../../shared/date-field/trk-date-field';
 
 export interface TransferJobDialogData {
   job: Job;
 }
 
 /**
- * Whole job → same job, new assignee (completed tasks stay credited to whoever did them).
- * Selected tasks → those pending tasks move into a new job linked to this one.
+ * Only the job's creator or someone above them gets here (`job.permissions.canTransfer`); the assignee never does.
+ *
+ * Whole job, nothing done yet → same job, new assignee.
+ * Whole job with completed tasks → every pending task moves into a new job linked to this one, so the
+ * completed tasks (and the route / allowance behind them) stay with the original assignee.
+ * Selected tasks → those pending tasks move into a new linked job.
  */
 @Component({
   selector: 'qfin-transfer-job-dialog',
-  imports: [FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, LucideDynamicIcon],
+  imports: [FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, LucideDynamicIcon, TrkDateField],
   templateUrl: './transfer-job-dialog.html',
 })
 export class TransferJobDialog {
@@ -35,6 +40,8 @@ export class TransferJobDialog {
   readonly today = toDateKey();
   readonly job = this.data.job;
   readonly pending = this.job.tasks.filter((t) => t.status === 'Pending');
+  /** With completed tasks, even "whole job" creates a new linked job for the pending ones. */
+  readonly hasDone = this.job.doneCount > 0;
 
   readonly mode = signal<'whole' | 'partial'>('whole');
   readonly picked = signal<ReadonlySet<string>>(new Set());
@@ -42,6 +49,9 @@ export class TransferJobDialog {
   readonly completeBy = signal(this.job.completeBy < this.today ? this.today : this.job.completeBy);
   readonly remarks = signal('');
   readonly submitted = signal(false);
+
+  /** A new job is created: selected tasks, or all pending tasks of a job with completed work. */
+  readonly createsNewJob = computed(() => this.mode() === 'partial' || this.hasDone);
 
   readonly workBranchIds = computed(() =>
     this.mode() === 'whole'
@@ -61,7 +71,8 @@ export class TransferJobDialog {
       !!this.assigneeId() &&
       !this.blocked(this.lookup.officerById().get(this.assigneeId()!)!) &&
       this.remarks().trim().length >= 3 &&
-      (this.mode() === 'whole' || (this.picked().size > 0 && !!this.completeBy() && this.completeBy() >= this.today)),
+      (this.mode() === 'whole' || this.picked().size > 0) &&
+      (!this.createsNewJob() || (!!this.completeBy() && this.completeBy() >= this.today)),
   );
 
   private blocked(o: FieldOfficer | undefined): string | null {
@@ -99,7 +110,7 @@ export class TransferJobDialog {
       assigneeId: this.assigneeId()!,
       taskIds: partial ? [...this.picked()] : null,
       remarks: this.remarks().trim(),
-      completeBy: partial ? this.completeBy() : null,
+      completeBy: this.createsNewJob() ? this.completeBy() : null,
     });
   }
 }

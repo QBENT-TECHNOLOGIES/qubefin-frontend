@@ -1,28 +1,29 @@
 import { httpResource } from '@angular/common/http';
 import { Injectable, computed, signal } from '@angular/core';
 import { ApiPaths } from 'qubefin-core';
-import { OverdueCustomerSearchResponse } from '../models/overdue-customer';
+import { OdMemberSearchResponse } from '../models/od-member';
 import { SortDirection } from '../models/geo';
+import { DpdRange } from '../utils/dpd';
 
-/** Overdue customers from the Loan Status Report, with their latest follow-up. */
+/** OD members from the Loan Status Report, with their latest follow-up. */
 @Injectable({ providedIn: 'root' })
-export class OdFollowUpStore {
+export class OdMemberStore {
   readonly searchText = signal('');
   readonly branchId = signal<string | null>(null);
-  readonly minDpd = signal<number | null>(null);
+  readonly dpdRange = signal<DpdRange | null>(null);
   readonly onlyUnassigned = signal(false);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
   readonly sortOn = signal('dpd');
   readonly sortDirection = signal<SortDirection>('desc');
 
-  readonly searchResource = httpResource<OverdueCustomerSearchResponse>(() => ({
-    url: `${ApiPaths.TRACKING}/overdue-customers/search`,
+  readonly searchResource = httpResource<OdMemberSearchResponse>(() => ({
+    url: `${ApiPaths.TRACKING}/od-members/search`,
     method: 'POST',
     body: {
       searchText: this.searchText() || null,
       branchId: this.branchId(),
-      minDpd: this.minDpd(),
+      dpdRange: this.dpdRange(),
       onlyUnassigned: this.onlyUnassigned(),
       pageIndex: this.pageIndex(),
       pageSize: this.pageSize(),
@@ -31,7 +32,7 @@ export class OdFollowUpStore {
     },
   }));
 
-  readonly customers = computed(() => this.searchResource.value()?.customers ?? []);
+  readonly members = computed(() => this.searchResource.value()?.members ?? []);
   readonly totalRecords = computed(() => this.searchResource.value()?.totalRecords ?? 0);
   readonly totalOverdueAmount = computed(() => this.searchResource.value()?.totalOverdueAmount ?? 0);
   readonly loading = computed(() => this.searchResource.isLoading());

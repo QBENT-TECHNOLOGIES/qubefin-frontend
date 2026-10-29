@@ -11,10 +11,11 @@ import { AlertService } from 'qubefin-core';
 import { ExceptionRule, TrackingException, TrackingSettings } from '../../models/tracking-settings';
 import { TrackingSettingsService } from '../../services/tracking-settings-service';
 import { TrackingSettingsStore } from '../../stores/tracking-settings-store';
+import { TrkTimeField } from '../../components/shared/date-field/trk-time-field';
 
 @Component({
   selector: 'qfin-tracking-settings',
-  imports: [DatePipe, FormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatSlideToggleModule, MatTooltipModule, LucideDynamicIcon],
+  imports: [DatePipe, FormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatSlideToggleModule, MatTooltipModule, LucideDynamicIcon, TrkTimeField],
   templateUrl: './tracking-settings.html',
 })
 export class TrackingSettingsPage {

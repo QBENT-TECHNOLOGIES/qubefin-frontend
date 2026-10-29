@@ -3,7 +3,7 @@ import { GeoPoint } from './geo';
 
 export type ApprovalStatus = 'Pending' | 'Approved' | 'Rejected';
 
-export type OutOfRadiusActivity = 'LeadSourcing' | 'CustomerVisit' | 'Survey' | 'Other';
+export type OutOfRadiusActivity = 'LeadSourcing' | 'MemberVisit' | 'Survey' | 'Other';
 
 /** Raised from the mobile app before field work beyond the branch radius. */
 export interface OutOfRadiusRequest {

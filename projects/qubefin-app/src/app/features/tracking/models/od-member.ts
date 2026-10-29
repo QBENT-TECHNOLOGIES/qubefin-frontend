@@ -1,12 +1,13 @@
 import { OfficerRole } from './field-officer';
+import { DpdRange } from '../utils/dpd';
 import { GeoPoint } from './geo';
 import { Job, JobStatus, JobTaskStatus, OdVisitOutcome } from './job';
 
 /** A row from the Loan Status Report that is past due (source: LOS/LMS). */
-export interface OverdueCustomer {
+export interface OdMember {
   id: string;
   loanAccountNo: string;
-  customerName: string;
+  memberName: string;
   coBorrowerName: string | null;
   groupName: string | null;
   centreName: string | null;
@@ -19,7 +20,12 @@ export interface OverdueCustomer {
   dpd: number;
   lastPaymentDate: string | null;
   homeLocation: GeoPoint | null;
-  /** Latest OD follow-up task for this customer (in whichever job it was added to), if any. */
+  /**
+   * The home geo-tag has been verified. A member whose location is not verified cannot be put in a job
+   * (shown with a "Location Not Verified" badge) until it is.
+   */
+  locationVerified: boolean;
+  /** Latest OD follow-up task for this member (in whichever job it was added to), if any. */
   followUp: OdFollowUpSummary | null;
 }
 
@@ -37,11 +43,12 @@ export interface OdFollowUpSummary {
   outcome: OdVisitOutcome | null;
 }
 
-export interface OverdueCustomerSearchRequest {
+export interface OdMemberSearchRequest {
   searchText: string | null;
   branchId: string | null;
-  minDpd: number | null;
-  /** true = only customers without a pending follow-up task. */
+  /** Days-past-due range (`utils/dpd.ts`); null = any. */
+  dpdRange: DpdRange | null;
+  /** true = only members without a pending follow-up task. */
   onlyUnassigned: boolean;
   pageIndex: number;
   pageSize: number;
@@ -49,8 +56,8 @@ export interface OverdueCustomerSearchRequest {
   sortDirection: 'asc' | 'desc';
 }
 
-export interface OverdueCustomerSearchResponse {
-  customers: OverdueCustomer[];
+export interface OdMemberSearchResponse {
+  members: OdMember[];
   totalRecords: number;
   totalOverdueAmount: number;
 }
@@ -65,11 +72,11 @@ export interface NewJobHeader {
 }
 
 /**
- * OD customers are never assigned on their own: each becomes an OD follow-up task inside a job.
+ * OD members are never assigned on their own: each becomes an OD follow-up task inside a job.
  * Send exactly one of `jobId` (add to an existing open job) or `newJob`.
  */
 export interface AddOdToJobRequest {
-  customerIds: string[];
+  memberIds: string[];
   jobId: string | null;
   newJob: NewJobHeader | null;
   /** Instructions copied to every task created. */
@@ -79,6 +86,6 @@ export interface AddOdToJobRequest {
 export interface AddOdToJobResponse {
   job: Job;
   addedTaskIds: string[];
-  /** Customers not added: no home geo-tag, already pending in a job, or outside the assignee's branch. */
-  skipped: { customerId: string; reason: string }[];
+  /** Members not added: no home geo-tag, location not verified, already pending in a job, or outside the assignee's branch. */
+  skipped: { memberId: string; reason: string }[];
 }

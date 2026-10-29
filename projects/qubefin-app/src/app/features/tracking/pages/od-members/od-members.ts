@@ -12,19 +12,20 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { AlertService } from 'qubefin-core';
-import { OverdueCustomer } from '../../models/overdue-customer';
-import { OdFollowUpService } from '../../services/od-follow-up-service';
-import { OdFollowUpStore } from '../../stores/od-follow-up-store';
+import { OdMember } from '../../models/od-member';
+import { OdMemberService } from '../../services/od-member-service';
+import { OdMemberStore } from '../../stores/od-member-store';
 import { TrackingLookupStore } from '../../stores/tracking-lookup-store';
 import { JobStore } from '../../stores/job-store';
-import { AddOdToJobRequest } from '../../models/overdue-customer';
+import { AddOdToJobRequest } from '../../models/od-member';
 import { googleMapsLink } from '../../utils/geo-utils';
 import { JOB_TASK_STATUS, Tone } from '../../utils/tracking-labels';
+import { DPD_RANGES, dpdRangeOf } from '../../utils/dpd';
 import { AddToJobDialog, AddToJobDialogData } from '../../components/jobs/add-to-job-dialog/add-to-job-dialog';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
 
 @Component({
-  selector: 'qfin-od-follow-up',
+  selector: 'qfin-od-members',
   imports: [
     NgClass,
     DatePipe,
@@ -41,52 +42,66 @@ import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chi
     LucideDynamicIcon,
     TrackingChip,
   ],
-  templateUrl: './od-follow-up.html',
+  templateUrl: './od-members.html',
 })
-export class OdFollowUp {
-  readonly store = inject(OdFollowUpStore);
+export class OdMembers {
+  readonly store = inject(OdMemberStore);
   readonly lookup = inject(TrackingLookupStore);
   private readonly jobStore = inject(JobStore);
-  private readonly service = inject(OdFollowUpService);
+  private readonly service = inject(OdMemberService);
   private readonly alerts = inject(AlertService);
   private readonly dialog = inject(MatDialog);
 
   /** Widened for mat-table rows, which are typed `any` in templates. */
   readonly JOB_TASK_STATUS: Record<string, Tone> = JOB_TASK_STATUS;
   readonly googleMapsLink = googleMapsLink;
-  readonly dpdBuckets = [
-    { value: null, label: 'Any DPD' },
-    { value: 1, label: '1+ days' },
-    { value: 30, label: '30+ days' },
-    { value: 60, label: '60+ days' },
-    { value: 90, label: '90+ days' },
-  ];
-  readonly columns = ['select', 'customerName', 'group', 'overdueAmount', 'dpd', 'home', 'followUp'];
+  readonly DPD_RANGES = DPD_RANGES;
+  readonly columns = ['select', 'memberName', 'group', 'overdueAmount', 'dpd', 'home', 'followUp'];
 
   readonly searchDraft = signal(this.store.searchText());
-  readonly selected = signal<Map<string, OverdueCustomer>>(new Map());
+  readonly selected = signal<Map<string, OdMember>>(new Map());
 
   readonly selectedCount = computed(() => this.selected().size);
   readonly selectedAmount = computed(() => [...this.selected().values()].reduce((s, c) => s + c.overdueAmount, 0));
-  readonly assignableRows = computed(() => this.store.customers().filter((c) => this.canAssign(c)));
+  readonly assignableRows = computed(() => this.store.members().filter((c) => this.canAssign(c)));
   readonly allSelected = computed(() => this.assignableRows().length > 0 && this.assignableRows().every((c) => this.selected().has(c.id)));
 
-  hasOpenFollowUp(c: OverdueCustomer) {
+  hasOpenFollowUp(c: OdMember) {
     return c.followUp?.status === 'Pending';
   }
 
-  canAssign(c: OverdueCustomer) {
-    return !!c.homeLocation && !this.hasOpenFollowUp(c);
+  /** Home geo-tagged but not verified yet: cannot be put in a job until it is. */
+  isUnverified(c: OdMember) {
+    return !!c.homeLocation && !c.locationVerified;
   }
 
+  canAssign(c: OdMember) {
+    return !!c.homeLocation && c.locationVerified && !this.hasOpenFollowUp(c);
+  }
+
+  /** Why the row cannot be selected, for the checkbox tooltip. */
+  blockedReason(c: OdMember): string {
+    if (!c.homeLocation) return 'Home not geo-tagged yet';
+    if (!c.locationVerified) return 'Location not verified: the member can be added to a job once the home location is verified from the mobile app';
+    if (this.hasOpenFollowUp(c)) return 'Already pending in ' + c.followUp?.jobNo;
+    return '';
+  }
+
+  /** Same ranges as the DPD filter (`utils/dpd.ts`). */
   dpdClass(dpd: number) {
-    if (dpd >= 90) return 'bg-rose-600 text-white';
-    if (dpd >= 60) return 'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300';
-    if (dpd >= 30) return 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300';
-    return 'bg-slate-100 text-slate-600 dark:bg-slate-500/15 dark:text-slate-300';
+    switch (dpdRangeOf(dpd).value) {
+      case 'Over90':
+        return 'bg-rose-600 text-white';
+      case 'Days61To90':
+        return 'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300';
+      case 'Days31To60':
+        return 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300';
+      default:
+        return 'bg-slate-100 text-slate-600 dark:bg-slate-500/15 dark:text-slate-300';
+    }
   }
 
-  toggle(c: OverdueCustomer, checked: boolean) {
+  toggle(c: OdMember, checked: boolean) {
     const next = new Map(this.selected());
     if (checked) next.set(c.id, c);
     else next.delete(c.id);
@@ -122,7 +137,7 @@ export class OdFollowUp {
     if (!picked.length) return;
     this.dialog
       .open<AddToJobDialog, AddToJobDialogData, AddOdToJobRequest>(AddToJobDialog, {
-        data: { customers: picked },
+        data: { members: picked },
         panelClass: 'glass-modal',
         maxWidth: '96vw',
       })

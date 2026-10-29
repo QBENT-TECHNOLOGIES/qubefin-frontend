@@ -10,7 +10,7 @@ import { GeoTagPoint, GeoTagPointsResponse } from '../../../models/geo-tag';
 import { JobTaskPoint, NewTaskInput, TaskTarget, TaskTargetKind, TaskType } from '../../../models/job';
 import { TrackingLookupStore } from '../../../stores/tracking-lookup-store';
 import { formatCoords, toDateKey } from '../../../utils/geo-utils';
-import { PICKER_KINDS, TYPES_FOR_KIND, defaultTypeFor, targetKey } from '../../../utils/job-rules';
+import { LOCATION_NOT_VERIFIED, PICKER_KINDS, TYPES_FOR_KIND, defaultTypeFor, needsVerifiedLocation, targetKey } from '../../../utils/job-rules';
 import { TASK_TYPE } from '../../../utils/tracking-labels';
 import { FieldPointDraft, FieldPointMarker, FieldPointType, PlaceMultiSelect } from '../place-multi-select/place-multi-select';
 
@@ -90,11 +90,14 @@ export class TaskBuilder {
   private readonly keysInList = computed(() => new Set(this.tasks().map((t) => targetKey(t.type, t.target))));
   private readonly keysInJob = computed(() => new Set(this.existingKeys()));
 
-  /** Place id → why it cannot take its task now (with the type it would get). */
+  /**
+   * Place id → why it cannot take its task now (with the type it would get). Groups, members and OD members
+   * whose location is not verified cannot be put in a job until it is (verified from the mobile app).
+   */
   readonly blocked = computed(() => {
     const map = new Map<string, string>();
     this.branchPlaces().forEach((p) => {
-      const why = this.conflict(defaultTypeFor(p.kind as TaskTargetKind), this.targetOf(p));
+      const why = this.isUnverified(p) ? LOCATION_NOT_VERIFIED : this.conflict(defaultTypeFor(p.kind as TaskTargetKind), this.targetOf(p));
       if (why) map.set(p.id, why);
     });
     return map;
@@ -133,6 +136,10 @@ export class TaskBuilder {
     this.error.set(null);
   }
 
+  private isUnverified(p: GeoTagPoint) {
+    return needsVerifiedLocation(p.kind) && !p.verified;
+  }
+
   private targetOf(tag: GeoTagPoint): TaskTarget {
     return {
       kind: tag.kind as TaskTargetKind,
@@ -164,7 +171,7 @@ export class TaskBuilder {
     return hit ? `pending in ${hit.jobNo}${hit.assigneeName ? ' (' + hit.assigneeName + ')' : ''}` : null;
   }
 
-  /** An overdue job is still active today. */
+  /** A delayed job is still active today. */
   private activeEnd(completeBy: string) {
     const today = toDateKey();
     return completeBy < today ? today : completeBy;
@@ -180,7 +187,7 @@ export class TaskBuilder {
     const notes = this.notes().trim() || null;
     const fresh: NewTaskInput[] = [];
     this.branchPlaces()
-      .filter((p) => chosen.has(p.id))
+      .filter((p) => chosen.has(p.id) && !this.isUnverified(p))
       .forEach((p) => {
         const target = this.targetOf(p);
         const type = defaultTypeFor(target.kind);

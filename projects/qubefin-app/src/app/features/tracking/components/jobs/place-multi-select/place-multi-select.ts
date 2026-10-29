@@ -17,7 +17,8 @@ import { JobTaskPoint, TaskType } from '../../../models/job';
 import { MapsLoaderService } from '../../../services/maps-loader.service';
 import { PlannedRoute, RoutingService, TRAVEL_MODE_LABEL, formatDuration } from '../../../services/routing.service';
 import { DEFAULT_CENTER, distanceMeters, formatCoords } from '../../../utils/geo-utils';
-import { PICKER_KINDS, PickerKind } from '../../../utils/job-rules';
+import { LOCATION_NOT_VERIFIED, PICKER_KINDS, PickerKind, needsVerifiedLocation } from '../../../utils/job-rules';
+import { DPD_RANGES, DpdRange, dpdRangeOf, inDpdRange } from '../../../utils/dpd';
 import { MarkerContentCache, initials } from '../../../utils/marker-content';
 import { TASK_TYPE } from '../../../utils/tracking-labels';
 import { MapStatus } from '../../shared/map-status/map-status';
@@ -34,23 +35,7 @@ interface Cluster {
   members: GeoTagPoint[];
 }
 
-export interface DpdBucket {
-  min: number;
-  label: string;
-  color: string;
-}
-/** Days-past-due buckets, worst first. */
-export const DPD_BUCKETS: readonly DpdBucket[] = [
-  { min: 91, label: '91+', color: '#7F1D1D' },
-  { min: 61, label: '61–90', color: '#E11D48' },
-  { min: 31, label: '31–60', color: '#F97316' },
-  { min: 0, label: '1–30', color: '#F59E0B' },
-];
-export function dpdBucket(dpd: number): DpdBucket {
-  return DPD_BUCKETS.find((b) => dpd >= b.min) ?? DPD_BUCKETS[DPD_BUCKETS.length - 1];
-}
-const MIN_DPD_OPTIONS = [0, 31, 61, 91];
-const KIND_ORDER: Record<string, number> = { GroupCentre: 0, OdCustomer: 1, Customer: 2 };
+const KIND_ORDER: Record<string, number> = { GroupCentre: 0, OdMember: 1, Member: 2 };
 const kindOrder = (k: GeoTagKind) => KIND_ORDER[k] ?? 9;
 
 const VIEW_KEY = 'qfin.tracking.placePickerView';
@@ -77,8 +62,8 @@ export interface KindStyle {
 }
 export const KIND_STYLE: Record<PickerKind, KindStyle> = {
   GroupCentre: { label: 'Groups', becomes: 'Group Visit', color: TASK_TYPE.GroupVisit.color, icon: LucideUsers.icon, lucide: 'users' },
-  Customer: { label: 'Members', becomes: 'Member Visit', color: TASK_TYPE.MemberVisit.color, icon: LucideUserRound.icon, lucide: 'user-round' },
-  OdCustomer: { label: 'OD members', becomes: 'OD Follow-up', color: TASK_TYPE.OdFollowUp.color, icon: LucideIndianRupee.icon, lucide: 'indian-rupee' },
+  Member: { label: 'Members', becomes: 'Member Visit', color: TASK_TYPE.MemberVisit.color, icon: LucideUserRound.icon, lucide: 'user-round' },
+  OdMember: { label: 'OD members', becomes: 'OD Follow-up', color: TASK_TYPE.OdFollowUp.color, icon: LucideIndianRupee.icon, lucide: 'indian-rupee' },
 };
 const FIELD_ICON: Record<FieldPointType, LucideIconData> = { LeadSourcing: LucideTarget.icon, Survey: LucideClipboardCheck.icon };
 
@@ -144,6 +129,7 @@ function insidePolygon(x: number, y: number, poly: Px[]): boolean {
  * Clicking empty ground drops a field point for lead sourcing or a survey. "Trip estimate" routes a round trip
  * from the branch through the selection (two-wheeler, best order). The assignee's pending tasks and home are shown for context.
  * Places that cannot take the task (already in the list, or pending in an overlapping job) are shown but locked.
+ * Groups, members and OD members whose location is not verified get a "Location Not Verified" badge and are locked too.
  */
 @Component({
   selector: 'qfin-place-multi-select',
@@ -157,8 +143,8 @@ export class PlaceMultiSelect implements OnDestroy {
 
   /** Geo-tagged groups, members and OD members of the chosen branch. */
   readonly places = input<GeoTagPoint[]>([]);
-  /** Place id → why it cannot be selected. */
-  readonly blocked = input<Map<string, string>>(new Map());
+  /** Place id → why it cannot be selected (from the parent: duplicates, overlapping jobs…). */
+  readonly blockedBy = input<Map<string, string>>(new Map(), { alias: 'blocked' });
   readonly loading = input(false);
   /** Per kind: places in the branch that have no geo-tag yet (cannot get a task). */
   readonly untaggedByKind = input<Partial<Record<GeoTagKind, number>>>({});
@@ -178,7 +164,8 @@ export class PlaceMultiSelect implements OnDestroy {
 
   readonly view = signal<PlacePickerView>(readView());
   readonly filter = signal('');
-  readonly minDpd = signal(0);
+  /** OD members' days-past-due range; null = all. */
+  readonly dpdRange = signal<DpdRange | null>(null);
   readonly hiddenKinds = signal<ReadonlySet<PickerKind>>(new Set());
   readonly showAssignee = signal(true);
   /** Map legend; collapsed by default so it never hides pins. */
@@ -190,8 +177,8 @@ export class PlaceMultiSelect implements OnDestroy {
   readonly PIN_FREE = PIN_FREE;
   readonly PIN_BLOCKED = PIN_BLOCKED;
   readonly HOME_COLOR = HOME_COLOR;
-  readonly DPD_BUCKETS = DPD_BUCKETS;
-  readonly MIN_DPD_OPTIONS = MIN_DPD_OPTIONS;
+  readonly DPD_RANGES = DPD_RANGES;
+  readonly LOCATION_NOT_VERIFIED = LOCATION_NOT_VERIFIED;
   readonly TASK_TYPE = TASK_TYPE;
   readonly KIND_STYLE = KIND_STYLE;
   readonly PICKER_KINDS = PICKER_KINDS;
@@ -287,8 +274,19 @@ export class PlaceMultiSelect implements OnDestroy {
   // ---------- Selection & filters ----------
 
   readonly selectedSet = computed(() => new Set(this.selectedIds()));
+  /**
+   * Place id → why it cannot be selected: the parent's reasons, plus groups / members / OD members whose location
+   * is not verified (enforced here too, so no caller can offer them).
+   */
+  readonly blocked = computed(() => {
+    const map = new Map(this.blockedBy());
+    this.places().forEach((p) => {
+      if (this.isUnverified(p)) map.set(p.id, LOCATION_NOT_VERIFIED);
+    });
+    return map;
+  });
   readonly kindCounts = computed(() => {
-    const counts: Record<PickerKind, number> = { GroupCentre: 0, Customer: 0, OdCustomer: 0 };
+    const counts: Record<PickerKind, number> = { GroupCentre: 0, Member: 0, OdMember: 0 };
     this.places().forEach((p) => {
       if (p.kind in counts) counts[p.kind as PickerKind]++;
     });
@@ -301,15 +299,17 @@ export class PlaceMultiSelect implements OnDestroy {
       .join(', '),
   );
   /** OD members are shown, so the days-past-due filter applies. */
-  readonly hasDpd = computed(() => !this.hiddenKinds().has('OdCustomer') && this.kindCounts().OdCustomer > 0);
+  readonly hasDpd = computed(() => !this.hiddenKinds().has('OdMember') && this.kindCounts().OdMember > 0);
   /** Places after the kind and DPD filters: what the list, the map and the bulk actions work on. */
   readonly visible = computed(() => {
     const hidden = this.hiddenKinds();
-    const min = this.minDpd();
-    return this.places().filter((p) => !hidden.has(p.kind as PickerKind) && (p.kind !== 'OdCustomer' || !min || (p.dpd ?? 0) >= min));
+    const range = this.dpdRange();
+    return this.places().filter((p) => !hidden.has(p.kind as PickerKind) && (p.kind !== 'OdMember' || inDpdRange(p.dpd, range)));
   });
   readonly available = computed(() => this.visible().filter((p) => !this.blocked().has(p.id)));
-  readonly blockedVisible = computed(() => this.visible().length - this.available().length);
+  /** Shown places whose location is not verified (counted apart from the other unavailable places). */
+  readonly unverifiedVisible = computed(() => this.visible().filter((p) => this.isUnverified(p)).length);
+  readonly blockedVisible = computed(() => this.visible().length - this.available().length - this.unverifiedVisible());
   /** Selected places hidden by the filters (still selected). */
   readonly hiddenSelected = computed(() => {
     const vis = new Set(this.visible().map((p) => p.id));
@@ -398,7 +398,7 @@ export class PlaceMultiSelect implements OnDestroy {
       const style = KIND_STYLE[p.kind as PickerKind] ?? KIND_STYLE.GroupCentre;
       const why = blocked.get(p.id) ?? null;
       const on = sel.has(p.id);
-      const color = p.dpd != null ? dpdBucket(p.dpd).color : style.color;
+      const color = p.dpd != null ? dpdRangeOf(p.dpd).color : style.color;
       const n = seq.get(p.id);
       const content = why
         ? this.pins.iconPin(p.id, style.icon, PIN_BLOCKED, { small: true })
@@ -481,7 +481,12 @@ export class PlaceMultiSelect implements OnDestroy {
   }
 
   dpdColor(dpd: number) {
-    return dpdBucket(dpd).color;
+    return dpdRangeOf(dpd).color;
+  }
+
+  /** A group, member or OD member whose location is not verified yet: badge, and not selectable. */
+  isUnverified(p: GeoTagPoint) {
+    return needsVerifiedLocation(p.kind) && !p.verified;
   }
 
   money(n: number | null) {

@@ -383,30 +383,40 @@ The web side of the tracking system from the *Tracking Software* meeting minutes
 
 **Rules the screens guide and the backend enforces** (`utils/job-rules.ts`, shared with the mock):
 
-* CO, ABM and BM jobs stay inside their own branch; AM and DM jobs may span the branches they cover. (ABM is treated like BM — to confirm with the client.)
-* The same place cannot have the same task type pending in two open jobs whose date windows overlap (an overdue job stays active until today).
-* An OD customer can only be pending in one job. OD customers are never assigned on their own; they are added to an existing job (its details are shown first) or to a new job.
+* **Terminology:** *Member* (never "customer") is the primary business entity; an **OD Member** is a Member with an overdue loan account. Used everywhere: menus, labels, models (`OdMember`, kinds `Member` / `OdMember`), API (`od-members/*`) and reports. The OD Members page lives in `pages/od-members/` (store `OdMemberStore`, service `OdMemberService`); its URL stays `od-follow-up` because the Admin → Menus record is keyed by it.
+* **Roles** (contract §3.3): Admin (Super Admin = Application Administrator) > Division Manager > Area Manager > Branch Manager > (ABM) > Credit Officer. A user gives jobs to anyone in a lower role inside their own branch / area / division (usually the next role down). Jobs are never delegated: the assignee can't transfer them or add tasks on the web (they add tasks from the mobile app). The creator or anyone above the creator may transfer or cancel; managers above the assignee may also add tasks, extend and cancel tasks. The server sends the result as `job.permissions`, and the job panel shows only those buttons. (ABM is not in the client's role list; it sits between BM and CO until confirmed.)
+* CO, ABM and BM jobs stay inside their own branch; AM and DM jobs may span the branches they cover (a DM can give an AM one job across that AM's branches).
+* A transfer never moves completed tasks: once anything is done, the pending tasks go to a new linked job and the original stays with its assignee.
+* A job past its complete-by date with pending tasks is **Delayed** (not "Overdue", which means an OD member).
+* The same place cannot have the same task type pending in two open jobs whose date windows overlap (a delayed job stays active until today).
+* An OD member can only be pending in one job. OD members are never assigned on their own; they are added to an existing job (its details are shown first) or to a new job.
+* A group, member or OD member can be put in a job only when its location is **verified** (done from the mobile app). Unverified ones carry a "Location Not Verified" badge in the task picker, on the OD Members page and on Geo Tags/POIs, and cannot be selected; the server skips them (contract rule 3.2.13). Changing a group's location on the web makes it unverified again.
+* DPD filters (OD Members, Jobs & Tasks, task picker) all use the same four ranges: 1–30, 31–60, 61–90 and 90+ (91 and above) days (`utils/dpd.ts`).
 
-**Backend contract:** [`docs/TRACKING_API_CONTRACT.md`](./TRACKING_API_CONTRACT.md). Until `tracking-api` exists, `useTrackingMocks: true` (dev environment) makes `trackingMockInterceptor` answer every `tracking-api/*` call from an in-browser mock. The mock is lazy-loaded, so it is not in the main bundle. Its seed data uses the real units (Dhupguri Division; Falakata and Alipurduar areas; 7 branches) with approximate coordinates and fictional people, and simulates a GPS day per employee from which task completions are taken, so jobs, live map and day route agree.
+**Backend contract:** [`docs/TRACKING_API_CONTRACT.md`](./TRACKING_API_CONTRACT.md). Until `tracking-api` exists, `useTrackingMocks: true` (dev environment) makes `trackingMockInterceptor` answer every `tracking-api/*` call from an in-browser mock. The mock is lazy-loaded, so it is not in the main bundle. Its seed data uses the real units (Dhupguri Division; Falakata and Alipurduar areas; 7 branches) with approximate coordinates and fictional people, and simulates a GPS day per employee from which task completions are taken, so jobs, live tracking and tracking history agree. The mock answers as *Head Office Admin* by default; the **Mock · acting as** picker on the Jobs & Tasks page (`mocks/mock-actor-switch.ts`, shown only with `useTrackingMocks`) switches to any employee so the role rules can be tried.
 
-| Route (`/secure/tracking/…`) | Screen | What it does |
+Menu names (Admin → Menus) in drawer order: Jobs & Tasks, OD Members, Job Monitoring, Live Tracking, Alerts, Approvals, Geo Tags/POIs, Settings, Tracking History. Route paths kept their original names.
+
+| Route (`/secure/tracking/…`) | Menu | What it does |
 |---|---|---|
-| `jobs` | Jobs | KPIs, filters, list + panel. Create a job with a task picker (one branch: groups, members and OD members in a list or on a map; the place sets the task type; click empty ground for lead sourcing / survey; area drawing, clustering, DPD filter, trip estimate), assign now or later, transfer (whole / selected tasks), add tasks, extend the date, cancel a job or task, reject a self-added task, evidence per task, audit trail. `tasks` redirects here. |
-| `od-follow-up` | OD Follow-up | Overdue customers (Loan Status Report) with their latest follow-up task; multi-select → **Add to job** (existing job with details and tasks, or a new job) |
-| `monitoring` | Job Monitoring | Open / overdue / completed jobs; map of a job's task points with match radius, arrival and photo fixes and where the assignee is now; evidence per task; overview map of pending task points |
-| `live-map` | Live Map | Latest position and status of each employee (on task, at branch, moving, stationary, GPS off, offline, punched out), 30 km branch circles, 50 m home circle, today's route with designated / undesignated stops, link to the day route |
-| `route-history` | Day Route | One employee, one day: live while the day runs, playback afterwards (1–8×); distance, moving time, designated vs undesignated stops with durations, task points visited / completed, punch in / out |
-| `alerts` | Alerts | Near-home, GPS-off, stationary, outside-radius, location-mismatch and overdue-job alerts; acknowledge / resolve with remarks; link to the job |
-| `approvals` | Out-of-radius approvals | Approve or reject field work beyond the branch radius, with a map |
-| `geo-tags` | Geo-tag Registry | Branches, groups/centres, customer and OD homes, employee homes; map picker with reason and location history |
-| `settings` | Tracking Settings | Thresholds (incl. stop detection), working hours, who is notified, auto-allocation rules, management exceptions |
+| `jobs` | Jobs & Tasks | KPIs, filters (incl. days past due: jobs with OD member tasks in that range), list + panel. Create a job with a task picker (one branch: groups, members and OD members in a list or on a map; the place sets the task type; click empty ground for lead sourcing / survey; area drawing, clustering, DPD range filter, groups and members with an unverified location badged "Location Not Verified" and not selectable, trip estimate), assign now or later, transfer (whole / selected tasks), add tasks, extend the date, cancel a job or task, reject a self-added task, evidence per task, audit trail. `tasks` redirects here. |
+| `od-follow-up` | OD Members | OD members (Loan Status Report) with their latest follow-up task, filtered by branch and DPD range; members whose home location is not verified are badged and cannot be selected; multi-select → **Add to job** (existing job with details and tasks, or a new job) |
+| `monitoring` | Job Monitoring | Open / delayed / completed jobs; map of a job's task points with match radius, arrival and photo fixes and where the assignee is now; evidence per task; overview map of pending task points |
+| `live-map` | Live Tracking | Latest position and status of each employee (on task, at branch, moving, stationary, GPS off, offline, punched out), 30 km branch circles, 50 m home circle, today's route with designated / undesignated stops, link to the tracking history |
+| `route-history` | Tracking History | One employee, one day: live while the day runs, playback afterwards (1–8×); distance, moving time, designated vs undesignated stops with durations, task points visited / completed, punch in / out |
+| `alerts` | Alerts | Near-home, GPS-off, stationary, outside-radius, location-mismatch and delayed-job alerts; acknowledge / resolve with remarks; link to the job |
+| `approvals` | Approvals | Approve or reject field work beyond the branch radius, with a map |
+| `geo-tags` | Geo Tags/POIs | Branches, groups/centres, member and OD homes, employee homes; map picker with reason and location history; "Location Not Verified" for groups and member homes awaiting verification on the mobile app |
+| `settings` | Settings | Thresholds (incl. stop detection), working hours, who is notified, auto-allocation rules, management exceptions |
 
 **Folder:** `features/tracking/{models,services,stores,components/{jobs,tasks,shared},pages,utils,mocks}`. It follows the standard pattern: reads in stores (`httpResource`), writes in services, list + panel pages.
 
 * `models/job.ts`: jobs, tasks, history and every request / response; the source of truth for the contract.
-* `utils/job-rules.ts`: branch rule, duplicate key, task-type → place kinds.
+* `utils/job-rules.ts`: role ranks (`ROLE_RANK`, `canAssignWorkTo`, `inScope`), branch rule, duplicate key, task-type → place kinds, verified-location rule (`needsVerifiedLocation`).
+* `utils/dpd.ts`: the four days-past-due ranges (1–30, 31–60, 61–90, 90+) used by every DPD filter, with their colours.
+* `stores/tracking-lookup-store.ts`: `viewer` (`GET me`), branches and field officers in the user's scope.
 * `components/jobs/task-builder`: reusable task entry used by *Create job* and *Add tasks*; flags places already pending in an overlapping job. Type comes from the place (`TYPES_FOR_KIND` in `utils/job-rules.ts`) and can be switched per task where allowed.
-* `components/jobs/place-multi-select`: the list / map picker (`geo-tags/points`), with kind and DPD filters, clustering above 100 places, area drawing, field points and the trip estimate.
+* `components/jobs/place-multi-select`: the list / map picker (`geo-tags/points`), with kind and DPD range filters, the "Location Not Verified" lock, clustering above 100 places, area drawing, field points and the trip estimate.
 * `services/routing.service.ts` (Routes API, `Route` class, two-wheeler with car fallback, ≤ 25 stops, cached) and `services/roads.service.ts` (Roads API snap-to-roads via `fetch`, so no gateway prefix or bearer token goes to Google). Used by the picker, Job Monitoring ("Plan route") and Day Route (road-snapped trail, planned route).
 * `utils/poll.ts`: `pollWhileVisible()` refreshes every 30 s while the tab is visible.
 * `services/maps-loader.service.ts`: loads the Google Maps JS API once with `MAP_API_KEY`. Pages render `<google-map>` only when `status() === 'ready'` and otherwise show `<qfin-map-status>`.

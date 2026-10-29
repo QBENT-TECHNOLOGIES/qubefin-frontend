@@ -141,7 +141,7 @@
                         <svg lucideIcon="route" class="w-4 h-4"></svg> {{ showRoute() ? 'Hide route' : 'Show route' }}
                     </button>
                     @if (showRoute()) {
-                    <input type="date" class="trk-date-input" [max]="today()" [value]="store.routeDate()" (change)="setRouteDate($any($event.target).value)">
+                    <qfin-trk-date-field compact ariaLabel="Route date" [maxDate]="today()" [value]="store.routeDate()" (valueChange)="$event && setRouteDate($event)" />
                     }
                     <a class="trk-btn-secondary py-1.5!" [routerLink]="['/secure/tracking/route-history']" [queryParams]="{ employee: p.employeeId, date: store.routeDate() }">
                         <svg lucideIcon="history" class="w-4 h-4"></svg> Day history

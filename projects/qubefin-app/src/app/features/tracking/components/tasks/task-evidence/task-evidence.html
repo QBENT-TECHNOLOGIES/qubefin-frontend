@@ -58,7 +58,7 @@
         <svg lucideIcon="indian-rupee" class="w-4 h-4"></svg> OD visit outcome
     </p>
     @if (t.odOutcome; as o) {
-    <div class="flex justify-between"><span>Customer available</span><b>{{ o.customerAvailable ? 'Yes' : 'No' }}</b></div>
+    <div class="flex justify-between"><span>Member available</span><b>{{ o.memberAvailable ? 'Yes' : 'No' }}</b></div>
     <div class="flex justify-between"><span>Paid</span>
         <b [class.text-emerald-600]="o.paid" [class.text-rose-600]="!o.paid">{{ o.paid ? 'Yes – ₹' + (o.amountCollected | number) : 'No' }}</b>
     </div>

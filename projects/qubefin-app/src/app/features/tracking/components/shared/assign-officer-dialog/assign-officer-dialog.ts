@@ -11,6 +11,7 @@ import { ROLE_LABEL } from '../../../utils/tracking-labels';
 import { jobBranchConflict } from '../../../utils/job-rules';
 import { FieldOfficer } from '../../../models/field-officer';
 import { toDateKey } from '../../../utils/geo-utils';
+import { TrkDateField } from '../date-field/trk-date-field';
 
 export interface AssignOfficerDialogData {
   title: string;
@@ -40,7 +41,7 @@ export interface AssignOfficerDialogResult {
 
 @Component({
   selector: 'qfin-assign-officer-dialog',
-  imports: [FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, LucideDynamicIcon],
+  imports: [FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, LucideDynamicIcon, TrkDateField],
   templateUrl: './assign-officer-dialog.html',
 })
 export class AssignOfficerDialog {

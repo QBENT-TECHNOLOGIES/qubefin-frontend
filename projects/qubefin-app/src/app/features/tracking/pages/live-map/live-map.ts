@@ -17,6 +17,7 @@ import { TRACKING_POLL_MS, pollWhileVisible } from '../../utils/poll';
 import { LIVE_STATUS, ROLE_LABEL, STOP_KIND } from '../../utils/tracking-labels';
 import { MapStatus } from '../../components/shared/map-status/map-status';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
+import { TrkDateField } from '../../components/shared/date-field/trk-date-field';
 
 type StatusFilter = LiveStatus | 'All';
 
@@ -36,6 +37,7 @@ type StatusFilter = LiveStatus | 'All';
     MapPolyline,
     MapStatus,
     TrackingChip,
+    TrkDateField,
   ],
   templateUrl: './live-map.html',
 })

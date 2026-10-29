@@ -1,4 +1,5 @@
 import { OfficerRole } from './field-officer';
+import { DpdRange } from '../utils/dpd';
 import { GeoPoint, SortDirection } from './geo';
 
 /*
@@ -10,7 +11,7 @@ import { GeoPoint, SortDirection } from './geo';
 /** Group Visit also covers the group / centre meeting (one type since Oct 2026). */
 export type TaskType = 'GroupVisit' | 'MemberVisit' | 'OdFollowUp' | 'LeadSourcing' | 'Survey';
 
-export type JobStatus = 'Unassigned' | 'Assigned' | 'InProgress' | 'Completed' | 'Overdue' | 'Cancelled';
+export type JobStatus = 'Unassigned' | 'Assigned' | 'InProgress' | 'Completed' | 'Delayed' | 'Cancelled';
 
 /**
  * Pending → Completed from the mobile app (visit, GPS photo, remarks).
@@ -21,7 +22,7 @@ export type JobTaskStatus = 'Pending' | 'Completed' | 'Cancelled' | 'Transferred
 /** Assigned = put in the job by a manager; SelfAdded = added by the employee from the mobile app. */
 export type TaskOrigin = 'Assigned' | 'SelfAdded';
 
-export type TaskTargetKind = 'Customer' | 'OdCustomer' | 'GroupCentre' | 'Branch' | 'Custom';
+export type TaskTargetKind = 'Member' | 'OdMember' | 'GroupCentre' | 'Branch' | 'Custom';
 
 /** Where the task must be done. Required for every task. */
 export interface TaskTarget {
@@ -51,10 +52,10 @@ export interface TaskVerification {
 
 /** Outcome recorded on an OD follow-up visit. */
 export interface OdVisitOutcome {
-  customerAvailable: boolean;
+  memberAvailable: boolean;
   paid: boolean;
   amountCollected: number | null;
-  /** Promise-to-pay date, required when the customer did not pay. */
+  /** Promise-to-pay date, required when the member did not pay. */
   ptpDate: string | null;
 }
 
@@ -117,10 +118,30 @@ export interface JobSummary {
   transferredFromJobNo: string | null;
 }
 
+/**
+ * What the signed-in user may do with a job, computed by the server (rules in docs §3.3).
+ * The assignee never gets any of these on the web: work cannot be delegated, and tasks are
+ * added to one's own job from the mobile app only.
+ */
+export interface JobPermissions {
+  /** Assign an unassigned job: its creator or anyone above the creator. */
+  canAssign: boolean;
+  /** Move the job, or its pending tasks, to someone else: its creator or anyone above the creator. */
+  canTransfer: boolean;
+  /** Cancel the whole job: its creator or anyone above the creator. */
+  canCancel: boolean;
+  /**
+   * Add tasks, extend the date, cancel a task, reject a self-added task: the creator, anyone above the
+   * creator, or a manager above the assignee in their scope (e.g. the BM of a CO who got a job from the AM).
+   */
+  canUpdate: boolean;
+}
+
 export interface Job extends JobSummary {
   description: string | null;
   createdById: string;
   tasks: JobTask[];
+  permissions: JobPermissions;
 }
 
 export type JobHistoryAction =
@@ -135,7 +156,7 @@ export type JobHistoryAction =
   | 'TaskCancelled'
   | 'TaskRejected'
   | 'DateExtended'
-  | 'BecameOverdue'
+  | 'BecameDelayed'
   | 'Completed'
   | 'Cancelled';
 
@@ -158,13 +179,18 @@ export interface JobHistoryEntry {
 export interface JobSearchRequest {
   searchText: string | null;
   status: JobStatus | null;
-  /** true = Unassigned, Assigned, InProgress and Overdue only (ignored when `status` is set). */
+  /** true = Unassigned, Assigned, InProgress and Delayed only (ignored when `status` is set). */
   openOnly?: boolean;
   assigneeId: string | null;
   branchId: string | null;
   /** Includes jobs whose complete-by date falls in the range (yyyy-MM-dd, inclusive). */
   dueFrom: string | null;
   dueTo: string | null;
+  /**
+   * Jobs with at least one OD member task (OD follow-up, or a member visit to an OD member), pending or completed,
+   * whose member's current days past due is in this range (`utils/dpd.ts`). null = any job.
+   */
+  dpdRange?: DpdRange | null;
   pageIndex: number;
   pageSize: number;
   sortOn: 'completeBy' | 'createdAt' | 'assigneeName' | 'status';
@@ -176,7 +202,7 @@ export interface JobSummaryCounts {
   unassigned: number;
   assigned: number;
   inProgress: number;
-  overdue: number;
+  delayed: number;
   completed: number;
 }
 

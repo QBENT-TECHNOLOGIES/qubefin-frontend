@@ -48,13 +48,7 @@
     }
 
     @if (data.showDate) {
-    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-        <mat-label>Visit date</mat-label>
-        <div class="w-12 flex justify-center" matPrefix>
-            <svg lucideIcon="calendar-days" class="w-5 h-5"></svg>
-        </div>
-        <input matInput type="date" [min]="today" [ngModel]="scheduledDate()" (ngModelChange)="scheduledDate.set($event)">
-    </mat-form-field>
+    <qfin-trk-date-field label="Visit date" icon="calendar-days" [(value)]="scheduledDate" [minDate]="today" />
     }
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">

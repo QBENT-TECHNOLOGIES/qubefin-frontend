@@ -13,7 +13,7 @@
             </mat-form-field></div>
             <div class="trk-day-switch glass">
                 <button type="button" (click)="shiftDay(-1)" aria-label="Previous day"><svg lucideIcon="chevron-left" class="w-4 h-4"></svg></button>
-                <input type="date" [max]="today()" [value]="date()" (change)="setDate($any($event.target).value)" aria-label="Day">
+                <qfin-trk-date-field compact ariaLabel="Day" [maxDate]="today()" [value]="date()" (valueChange)="$event && setDate($event)" />
                 <button type="button" (click)="shiftDay(1)" [disabled]="isToday()" aria-label="Next day"><svg lucideIcon="chevron-right" class="w-4 h-4"></svg></button>
             </div>
             @if (!isToday()) { <button type="button" class="trk-link-btn" (click)="goToday()">Today</button> }

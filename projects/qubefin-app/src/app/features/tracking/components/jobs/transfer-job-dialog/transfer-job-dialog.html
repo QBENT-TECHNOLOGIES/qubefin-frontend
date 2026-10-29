@@ -16,15 +16,18 @@
 <div class="p-5 flex flex-col gap-4 w-[min(600px,92vw)] max-h-[70vh] overflow-y-auto scroll-thin trk-form">
     <div class="trk-tabs self-start">
         <button type="button" [class.is-active]="mode() === 'whole'" (click)="setMode('whole')">
-            <svg lucideIcon="briefcase" class="w-4 h-4"></svg> Whole job
+            <svg lucideIcon="briefcase" class="w-4 h-4"></svg> {{ hasDone ? 'All pending tasks' : 'Whole job' }}
         </button>
         <button type="button" [class.is-active]="mode() === 'partial'" (click)="setMode('partial')">
             <svg lucideIcon="list-checks" class="w-4 h-4"></svg> Selected tasks
         </button>
     </div>
     <p class="text-[11px] text-slate-500 -mt-2">
-        @if (mode() === 'whole') {
-        The job moves to the new person with its {{ pending.length }} pending task(s). Completed tasks stay credited to whoever did them.
+        @if (mode() === 'whole' && !hasDone) {
+        The job moves to the new person with its {{ pending.length }} pending task(s).
+        } @else if (mode() === 'whole') {
+        All {{ pending.length }} pending task(s) move into a new job linked to {{ job.jobNo }}.
+        The {{ job.doneCount }} completed task(s) stay with {{ job.assigneeName }}.
         } @else {
         The ticked pending tasks move into a new job linked to {{ job.jobNo }}. The rest stay here.
         }
@@ -73,12 +76,8 @@
     </mat-form-field>
     @if (submitted() && !assigneeId()) { <p class="trk-field-error -mt-2">Select who takes over.</p> }
 
-    @if (mode() === 'partial') {
-    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-        <mat-label>New job – complete by</mat-label>
-        <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="calendar-days" class="w-5 h-5"></svg></div>
-        <input matInput type="date" [min]="today" [ngModel]="completeBy()" (ngModelChange)="completeBy.set($event)">
-    </mat-form-field>
+    @if (createsNewJob()) {
+    <qfin-trk-date-field label="New job – complete by" icon="calendar-days" [(value)]="completeBy" [minDate]="today" />
     }
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -91,6 +90,6 @@
 <div class="trk-dialog-footer">
     <button type="button" (click)="cancel()" class="trk-btn-secondary"><svg lucideIcon="x" class="w-4 h-4"></svg> Cancel</button>
     <button type="button" (click)="confirm()" class="trk-btn-primary" [disabled]="submitted() && !valid()">
-        <svg lucideIcon="arrow-right-left" class="w-4 h-4"></svg> {{ mode() === 'whole' ? 'Transfer job' : 'Transfer ' + picked().size + ' task(s)' }}
+        <svg lucideIcon="arrow-right-left" class="w-4 h-4"></svg> {{ mode() === 'whole' ? (hasDone ? 'Transfer ' + pending.length + ' pending task(s)' : 'Transfer job') : 'Transfer ' + picked().size + ' task(s)' }}
     </button>
 </div>

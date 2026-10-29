@@ -11,7 +11,7 @@
                 <span><b class="text-slate-700 dark:text-slate-200">{{ jobs().length }}</b> jobs</span>
                 <span><b class="text-violet-600">{{ s.inProgress }}</b> in progress</span>
                 <span><b class="text-blue-600">{{ s.assigned }}</b> not started</span>
-                <span><b class="text-rose-600">{{ s.overdue }}</b> overdue</span>
+                <span><b class="text-rose-600">{{ s.delayed }}</b> delayed</span>
             </div>
             }
         </div>
@@ -35,7 +35,7 @@
                 </mat-select>
             </mat-form-field></div>
             <button type="button" class="trk-toggle" [class.is-on]="onlyIssues()" (click)="onlyIssues.set(!onlyIssues())">
-                <svg lucideIcon="triangle-alert" class="w-4 h-4"></svg> Overdue only
+                <svg lucideIcon="triangle-alert" class="w-4 h-4"></svg> Delayed only
             </button>
         </div>
     </div>
@@ -54,7 +54,7 @@
                     <qfin-trk-chip [tone]="JOB_STATUS[j.status]" [small]="true" [showIcon]="false" />
                 </div>
                 <div class="flex items-center gap-2 mt-2">
-                    <div class="trk-bar flex-1"><span [style.width.%]="pct(j)" [class.is-late]="j.status === 'Overdue'"></span></div>
+                    <div class="trk-bar flex-1"><span [style.width.%]="pct(j)" [class.is-late]="j.status === 'Delayed'"></span></div>
                     <span class="text-[11px] text-slate-500 tabular-nums">{{ j.doneCount }}/{{ j.taskCount }}</span>
                 </div>
                 <div class="flex items-center gap-1 mt-1.5">

@@ -15,10 +15,11 @@ import { TrackingLookupStore } from '../../stores/tracking-lookup-store';
 import { DEFAULT_CENTER, centroid, formatCoords, formatDistance, googleMapsLink } from '../../utils/geo-utils';
 import { MarkerContentCache } from '../../utils/marker-content';
 import { GEO_TAG_KIND } from '../../utils/tracking-labels';
+import { needsVerifiedLocation } from '../../utils/job-rules';
 import { MapPickerDialog, MapPickerDialogData, MapPickerDialogResult } from '../../components/shared/map-picker-dialog/map-picker-dialog';
 import { MapStatus } from '../../components/shared/map-status/map-status';
 
-/** Kinds whose location can be changed from the web. Customer homes are captured on the mobile app with a photo. */
+/** Kinds whose location can be changed from the web. Member homes are captured on the mobile app with a photo. */
 const EDITABLE: ReadonlySet<GeoTagKind> = new Set(['Branch', 'GroupCentre', 'EmployeeHome']);
 
 @Component({
@@ -100,12 +101,20 @@ export class GeoTagRegistry {
       .subscribe((res) => {
         if (!res) return;
         this.service.update(t.id, { location: res.location, radiusMeters: res.radiusMeters, reason: res.reason }).subscribe(() => {
-          this.popups.toast('success', 'Location saved');
+          this.popups.toast(
+            'success',
+            needsVerifiedLocation(t.kind) ? 'Location saved. It must be verified from the mobile app before it can get tasks.' : 'Location saved',
+          );
           this.store.refresh();
           this.lookup.refresh();
           this.selectedId.set(t.id);
         });
       });
+  }
+
+  /** Groups, members and OD members need a verified location (from the mobile app) before they can get tasks. */
+  unverified(t: GeoTag) {
+    return !!t.location && !t.verified && needsVerifiedLocation(t.kind);
   }
 
   openPhoto(t: GeoTag) {

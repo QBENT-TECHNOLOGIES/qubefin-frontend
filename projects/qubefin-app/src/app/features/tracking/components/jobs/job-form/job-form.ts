@@ -13,6 +13,7 @@ import { toDateKey } from '../../../utils/geo-utils';
 import { jobBranchConflict } from '../../../utils/job-rules';
 import { ROLE_LABEL } from '../../../utils/tracking-labels';
 import { TaskBuilder } from '../task-builder/task-builder';
+import { TrkDateField } from '../../shared/date-field/trk-date-field';
 
 interface JobFormModel {
   title: string;
@@ -32,7 +33,7 @@ function thisSaturday(): string {
 
 @Component({
   selector: 'qfin-job-form',
-  imports: [FormField, MatFormFieldModule, MatInputModule, MatSelectModule, LucideDynamicIcon, TaskBuilder],
+  imports: [FormField, MatFormFieldModule, MatInputModule, MatSelectModule, LucideDynamicIcon, TaskBuilder, TrkDateField],
   templateUrl: './job-form.html',
 })
 export class JobForm {

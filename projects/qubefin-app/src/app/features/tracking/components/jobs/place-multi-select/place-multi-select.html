@@ -14,6 +14,11 @@
             @if (blockedVisible()) {
             <span class="text-amber-600">{{ blockedVisible() }} unavailable</span>
             }
+            @if (unverifiedVisible()) {
+            <span class="trk-badge is-amber" matTooltip="Groups and members whose location is not verified cannot be put in a job until it is verified from the mobile app">
+                <svg lucideIcon="shield-alert" class="w-3 h-3"></svg> {{ unverifiedVisible() }} location not verified
+            </span>
+            }
             @if (untaggedTotal()) {
             <span class="flex items-center gap-1" [matTooltip]="'Not geo-tagged yet, so they cannot get a task: ' + untaggedText()">
                 <svg lucideIcon="map-pin-off" class="w-3.5 h-3.5"></svg> {{ untaggedTotal() }} not geo-tagged
@@ -47,10 +52,12 @@
         @if (hasDpd()) {
         <span class="w-px h-5 bg-slate-300/70 mx-1"></span>
         <span class="text-xs font-semibold text-slate-500">OD days past due</span>
-        @for (min of MIN_DPD_OPTIONS; track min) {
-        <button type="button" class="trk-filter-chip" [class.is-active]="minDpd() === min"
-            [style.--trk-color]="min ? dpdColor(min) : '#334155'" (click)="minDpd.set(min)">
-            @if (min) { <span class="trk-filter-dot"></span> {{ min }}+ } @else { All }
+        <button type="button" class="trk-filter-chip" [class.is-active]="dpdRange() === null" [style.--trk-color]="'#334155'"
+            (click)="dpdRange.set(null)">All</button>
+        @for (r of DPD_RANGES; track r.value) {
+        <button type="button" class="trk-filter-chip" [class.is-active]="dpdRange() === r.value" [style.--trk-color]="r.color"
+            (click)="dpdRange.set(r.value)" [matTooltip]="r.label + ' past due'">
+            <span class="trk-filter-dot"></span> {{ r.short }}
         </button>
         }
         }
@@ -92,7 +99,9 @@
         @for (p of shown(); track p.id) {
         @let why = blocked().get(p.id);
         @let st = kindStyle(p.kind);
-        <li class="trk-picker-row" [class.is-on]="isSelected(p.id)" [class.is-disabled]="!!why">
+        @let unverified = isUnverified(p);
+        <li class="trk-picker-row" [class.is-on]="isSelected(p.id)" [class.is-disabled]="!!why"
+            [matTooltip]="unverified ? 'Location not verified: can be put in a job once the location is verified from the mobile app' : ''">
             <mat-checkbox color="primary" [checked]="isSelected(p.id)" [disabled]="!!why" (change)="toggle(p.id)">
                 <span class="flex items-center gap-2 min-w-0">
                     <span class="trk-type-dot" [style.--trk-color]="st.color" [matTooltip]="st.becomes">
@@ -106,7 +115,9 @@
                         <span class="text-[11px] text-slate-400">
                             · {{ p.refCode }}{{ p.overdueAmount != null ? ' · ₹' + money(p.overdueAmount) : '' }}{{ p.address ? ' · ' + p.address : '' }}
                         </span>
-                        @if (why) { <span class="text-[11px] text-amber-600"> · {{ why }}</span> }
+                        @if (unverified) {
+                        <span class="trk-badge is-amber ml-1"><svg lucideIcon="shield-alert" class="w-3 h-3"></svg> Location Not Verified</span>
+                        } @else if (why) { <span class="text-[11px] text-amber-600"> · {{ why }}</span> }
                         @if (tripSeq().get(p.id); as n) { <span class="trk-badge ml-1">stop {{ n }}</span> }
                     </span>
                 </span>
@@ -269,13 +280,13 @@
         @if (hasDpd()) {
         <span class="flex items-center gap-2 flex-wrap">
             <span class="text-slate-400">OD by DPD</span>
-            @for (b of DPD_BUCKETS; track b.min) {
-            <span class="flex items-center gap-1"><span class="trk-legend-pin" [style.--trk-color]="b.color"></span> {{ b.label }}</span>
+            @for (r of DPD_RANGES; track r.value) {
+            <span class="flex items-center gap-1"><span class="trk-legend-pin" [style.--trk-color]="r.color"></span> {{ r.short }}</span>
             }
         </span>
         }
         <span class="flex items-center gap-3 flex-wrap">
-            <span class="flex items-center gap-1.5"><span class="trk-legend-pin" [style.--trk-color]="PIN_BLOCKED"></span> Unavailable</span>
+            <span class="flex items-center gap-1.5"><span class="trk-legend-pin" [style.--trk-color]="PIN_BLOCKED"></span> Unavailable (incl. location not verified)</span>
             <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#0F172A"></span> Branch</span>
             @if (branchRadiusMeters()) {
             <span class="flex items-center gap-1.5"><span class="inline-block w-3.5 h-3.5 rounded-full border-[1.5px] border-slate-700/60 bg-slate-900/5"></span> {{ branch()?.operatingRadiusKm }} km branch radius</span>

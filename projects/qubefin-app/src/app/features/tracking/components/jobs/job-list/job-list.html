@@ -57,7 +57,7 @@
         <ng-container matColumnDef="progress">
             <th mat-header-cell *matHeaderCellDef>Progress</th>
             <td mat-cell *matCellDef="let j" class="px-3 py-2 min-w-[140px]">
-                <div class="trk-bar"><span [style.width.%]="pct(j)" [class.is-late]="j.status === 'Overdue'"></span></div>
+                <div class="trk-bar"><span [style.width.%]="pct(j)" [class.is-late]="j.status === 'Delayed'"></span></div>
                 <p class="text-[11px] text-slate-500 mt-1 tabular-nums">{{ j.doneCount }} / {{ j.taskCount }} done{{ j.openCount ? ' · ' + j.openCount + ' pending' : '' }}</p>
             </td>
         </ng-container>

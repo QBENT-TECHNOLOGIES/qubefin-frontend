@@ -1,4 +1,4 @@
-import { OfficerRole } from '../models/field-officer';
+import { OfficerRole, ViewerRole } from '../models/field-officer';
 import { LiveStatus, StopKind } from '../models/live-position';
 import { AlertSeverity, AlertStatus, AlertType } from '../models/tracking-alert';
 import { JobStatus, JobTaskStatus, TaskType } from '../models/job';
@@ -28,7 +28,7 @@ export const JOB_STATUS: Record<JobStatus, Tone> = {
   Unassigned: tone('Unassigned', SLATE, 'user-plus', '#64748B'),
   Assigned: tone('Not started', BLUE, 'clipboard-list', '#2563EB'),
   InProgress: tone('In Progress', VIOLET, 'activity', '#7C3AED'),
-  Overdue: tone('Overdue', RED, 'hourglass', '#E11D48'),
+  Delayed: tone('Delayed', RED, 'hourglass', '#E11D48'),
   Completed: tone('Completed', GREEN, 'circle-check', '#16A34A'),
   Cancelled: tone('Cancelled', SLATE, 'ban', '#94A3B8'),
 };
@@ -80,7 +80,7 @@ export const ALERT_TYPE: Record<AlertType, Tone> = {
   Stationary: tone('Stationary', AMBER, 'timer', '#D97706'),
   OutsideBranchRadius: tone('Outside 30 km', VIOLET, 'map-pin-off', '#7C3AED'),
   LocationMismatch: tone('Location Mismatch', RED, 'crosshair', '#E11D48'),
-  OverdueJob: tone('Overdue Job', BLUE, 'hourglass', '#2563EB'),
+  DelayedJob: tone('Delayed Job', BLUE, 'hourglass', '#2563EB'),
 };
 
 export const ALERT_SEVERITY: Record<AlertSeverity, Tone> = {
@@ -103,7 +103,7 @@ export const APPROVAL_STATUS: Record<ApprovalStatus, Tone> = {
 
 export const ACTIVITY_LABEL: Record<OutOfRadiusActivity, string> = {
   LeadSourcing: 'New Lead Sourcing',
-  CustomerVisit: 'Customer Visit',
+  MemberVisit: 'Member Visit',
   Survey: 'Area Survey',
   Other: 'Other Field Activity',
 };
@@ -111,17 +111,19 @@ export const ACTIVITY_LABEL: Record<OutOfRadiusActivity, string> = {
 export const GEO_TAG_KIND: Record<GeoTagKind, Tone> = {
   Branch: tone('Branches', BLUE, 'building-2', '#2563EB'),
   GroupCentre: tone('Groups / Centres', VIOLET, 'users', '#7C3AED'),
-  Customer: tone('Customer Homes', GREEN, 'map-pin-house', '#16A34A'),
-  OdCustomer: tone('OD Customer Homes', RED, 'indian-rupee', '#E11D48'),
+  Member: tone('Member Homes', GREEN, 'map-pin-house', '#16A34A'),
+  OdMember: tone('OD Member Homes', RED, 'indian-rupee', '#E11D48'),
   EmployeeHome: tone('Employee Homes', AMBER, 'house', '#D97706'),
 };
 
-export const ROLE_LABEL: Record<OfficerRole, string> = {
+/** Admin = Super Admin or Application Administrator (same access in tracking). */
+export const ROLE_LABEL: Record<ViewerRole, string> = {
+  Admin: 'Administrator',
   CO: 'Credit Officer',
   ABM: 'Assistant Branch Manager',
   BM: 'Branch Manager',
   AM: 'Area Manager',
-  DM: 'Divisional Manager',
+  DM: 'Division Manager',
 };
 
 export function optionsOf<K extends string>(map: Record<K, Tone>): { value: K; label: string }[] {

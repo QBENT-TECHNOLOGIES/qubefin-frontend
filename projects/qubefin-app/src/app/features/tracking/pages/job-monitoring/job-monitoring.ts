@@ -23,7 +23,7 @@ import { MapStatus } from '../../components/shared/map-status/map-status';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
 import { TaskEvidence } from '../../components/tasks/task-evidence/task-evidence';
 
-type Scope = 'open' | 'Overdue' | 'Completed' | 'all';
+type Scope = 'open' | 'Delayed' | 'Completed' | 'all';
 
 /** Job-wise monitoring: every task point of a job on the map, with the evidence sent from the mobile app. */
 @Component({
@@ -52,7 +52,7 @@ export class JobMonitoring {
 
   readonly scopes: { key: Scope; label: string }[] = [
     { key: 'open', label: 'Open' },
-    { key: 'Overdue', label: 'Overdue' },
+    { key: 'Delayed', label: 'Delayed' },
     { key: 'Completed', label: 'Completed' },
     { key: 'all', label: 'All' },
   ];
@@ -277,7 +277,7 @@ export class JobMonitoring {
   }
 
   issueOf(j: JobSummary): string | null {
-    if (j.status === 'Overdue') return 'Overdue';
+    if (j.status === 'Delayed') return 'Delayed';
     return null;
   }
 

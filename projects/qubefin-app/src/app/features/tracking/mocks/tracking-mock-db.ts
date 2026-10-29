@@ -5,12 +5,12 @@
  * shapes in docs/TRACKING_API_CONTRACT.md and keeps changes for the lifetime of the browser tab.
  *
  * How the demo data hangs together:
- *   1. Org units (Dhupguri Division → 2 areas → 7 branches), staff, centres and customers are generated.
+ *   1. Org units (Dhupguri Division → 2 areas → 7 branches), staff, centres and members are generated.
  *   2. Jobs are created for every field employee with tasks planned across the current and previous week.
  *   3. A GPS day is simulated for each employee and day. Task completions (arrival, photo fix, time) are
  *      taken from that simulation, so the live map, day history and job progress always agree.
  *
- * Unit names are real; coordinates are approximate and every person / customer name is fictional.
+ * Unit names are real; coordinates are approximate and every person / member name is fictional.
  * Delete this folder once the real tracking-api is available.
  */
 import { FieldOfficer, OfficerRole } from '../models/field-officer';
@@ -24,7 +24,7 @@ import {
   RouteStop,
   RouteTaskPoint,
 } from '../models/live-position';
-import { OverdueCustomer } from '../models/overdue-customer';
+import { OdMember } from '../models/od-member';
 import { OutOfRadiusRequest } from '../models/approval-request';
 import { AlertSeverity, AlertType, TrackingAlert } from '../models/tracking-alert';
 import { TrackingSettings } from '../models/tracking-settings';
@@ -101,7 +101,8 @@ function evidencePhoto(title: string, p: GeoPoint, when: Date, hue: number): str
 // ---------------------------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------------------------
-const CURRENT_USER = { id: 'current-user', name: 'Current User' };
+/** The default mock user: a Super Admin / Application Administrator. */
+export const ADMIN_USER = { id: 'current-user', name: 'Head Office Admin' };
 const SYSTEM = { id: 'system', name: 'System' };
 
 interface Person {
@@ -121,9 +122,9 @@ export interface MockDb {
   branches: TrackingBranch[];
   officers: FieldOfficer[];
   groups: { id: string; code: string; name: string; branchId: string; location: GeoPoint; village: string }[];
-  customers: OverdueCustomer[];
+  odMembers: OdMember[];
   /** Regular (non-overdue) members, only used for geo-tags and visit targets. */
-  regularCustomers: { id: string; name: string; loanAccountNo: string; branchId: string; location: GeoPoint | null; address: string; groupName: string }[];
+  members: { id: string; name: string; loanAccountNo: string; branchId: string; location: GeoPoint | null; address: string; groupName: string }[];
   jobs: Job[];
   history: JobHistoryEntry[];
   alerts: TrackingAlert[];
@@ -206,7 +207,7 @@ const DESIGNATION: Record<OfficerRole, string> = {
   ABM: 'Assistant Branch Manager',
   BM: 'Branch Manager',
   AM: 'Area Manager',
-  DM: 'Divisional Manager',
+  DM: 'Division Manager',
 };
 
 const FIRST = ['Mitali', 'Sabina', 'Rekha', 'Jharna', 'Anjali', 'Sumitra', 'Laxmi', 'Rina', 'Tumpa', 'Shefali', 'Nasrin', 'Papiya', 'Kakali', 'Mampi', 'Sathi', 'Purnima', 'Bulbul', 'Rehana', 'Champa', 'Basanti', 'Dipali', 'Malati'];
@@ -235,7 +236,7 @@ export function refreshJob(job: Job, today = toDateKey()): Job {
   if (job.openCount === 0 && job.doneCount > 0) job.status = 'Completed';
   else if (job.openCount === 0) job.status = 'Cancelled';
   else if (!job.assigneeId) job.status = 'Unassigned';
-  else if (today > job.completeBy) job.status = 'Overdue';
+  else if (today > job.completeBy) job.status = 'Delayed';
   else if (job.doneCount > 0) job.status = 'InProgress';
   else job.status = 'Assigned';
   return job;
@@ -293,6 +294,8 @@ export function newJob(d: MockDb, init: { title: string; description: string | n
     transferredFromJobId: null,
     transferredFromJobNo: null,
     tasks: [],
+    // Filled in per request for whoever is asking (see the mock backend).
+    permissions: { canAssign: false, canTransfer: false, canCancel: false, canUpdate: false },
   };
 }
 
@@ -392,9 +395,9 @@ function buildDb(): MockDb {
     });
   });
 
-  // --- Members / overdue customers -------------------------------------------------------------
-  const customers: OverdueCustomer[] = [];
-  const regularCustomers: MockDb['regularCustomers'] = [];
+  // --- Members / OD members -------------------------------------------------------------
+  const odMembers: OdMember[] = [];
+  const members: MockDb['members'] = [];
   let custNo = 1;
   BRANCHES.forEach((b) => {
     const branchGroups = groups.filter((g) => g.branchId === b.id);
@@ -406,10 +409,10 @@ function buildDb(): MockDb {
       const address = `${intBetween(2, 140)}, ${group.village}, ${b.name}`;
       if (k < 8) {
         const dpd = pick([4, 7, 12, 18, 25, 33, 41, 58, 64, 90, 105]);
-        customers.push({
+        odMembers.push({
           id: uuid('c', custNo),
           loanAccountNo: loanNo,
-          customerName: name,
+          memberName: name,
           coBorrowerName: `${pick(CO_BORROWER)} ${name.split(' ')[1]}`,
           groupName: group.name,
           centreName: `${group.village} Centre`,
@@ -421,10 +424,11 @@ function buildDb(): MockDb {
           dpd,
           lastPaymentDate: toDateKey(addDays(now, -dpd - intBetween(5, 25))),
           homeLocation: location,
+          locationVerified: false, // set from the home geo-tag below
           followUp: null,
         });
       } else {
-        regularCustomers.push({ id: uuid('c', custNo), name, loanAccountNo: loanNo, branchId: b.id, location, address, groupName: group.name });
+        members.push({ id: uuid('c', custNo), name, loanAccountNo: loanNo, branchId: b.id, location, address, groupName: group.name });
       }
       custNo++;
     }
@@ -434,8 +438,8 @@ function buildDb(): MockDb {
     branches: BRANCHES,
     officers,
     groups,
-    customers,
-    regularCustomers,
+    odMembers,
+    members,
     jobs: [],
     history: [],
     alerts: [],
@@ -443,7 +447,7 @@ function buildDb(): MockDb {
     geoTags: [],
     settings: defaultSettings(now),
     days: new Map(),
-    currentUser: CURRENT_USER,
+    currentUser: ADMIN_USER,
     counters: { job: 0, task: 0, history: 0 },
   };
 
@@ -453,11 +457,11 @@ function buildDb(): MockDb {
     kind: 'GroupCentre', refId: g.id, name: `${g.name} (${g.code})`, address: `${g.village}, ${branchOf(g.branchId).name}`,
     location: g.location, branchId: g.branchId, branchName: branchOf(g.branchId).name, matchRadiusMeters: 150,
   });
-  const memberTarget = (c: MockDb['regularCustomers'][number]): TaskTarget => ({
-    kind: 'Customer', refId: c.id, name: c.name, address: c.address, location: c.location!, branchId: c.branchId, branchName: branchOf(c.branchId).name, matchRadiusMeters: 100,
+  const memberTarget = (c: MockDb['members'][number]): TaskTarget => ({
+    kind: 'Member', refId: c.id, name: c.name, address: c.address, location: c.location!, branchId: c.branchId, branchName: branchOf(c.branchId).name, matchRadiusMeters: 100,
   });
-  const odTarget = (c: OverdueCustomer): TaskTarget => ({
-    kind: 'OdCustomer', refId: c.id, name: c.customerName, address: c.address, location: c.homeLocation!, branchId: c.branchId, branchName: c.branchName, matchRadiusMeters: 100,
+  const odTarget = (c: OdMember): TaskTarget => ({
+    kind: 'OdMember', refId: c.id, name: c.memberName, address: c.address, location: c.homeLocation!, branchId: c.branchId, branchName: c.branchName, matchRadiusMeters: 100,
   });
   const pointTarget = (b: TrackingBranch, name: string, km: [number, number]): TaskTarget => {
     const village = pick(VILLAGES[b.code]);
@@ -487,7 +491,7 @@ function buildDb(): MockDb {
   };
   const usedOd = new Set<string>();
   const odFor = (branchId: string, n: number) => {
-    const list = customers.filter((c) => c.branchId === branchId && c.homeLocation && !usedOd.has(c.id)).sort((a, b) => b.dpd - a.dpd).slice(0, n);
+    const list = odMembers.filter((c) => c.branchId === branchId && c.homeLocation && !usedOd.has(c.id)).sort((a, b) => b.dpd - a.dpd).slice(0, n);
     list.forEach((c) => usedOd.add(c.id));
     return list;
   };
@@ -510,10 +514,10 @@ function buildDb(): MockDb {
   officers.filter((o) => o.role === 'CO').forEach((co, i) => {
     const branch = branchOf(co.branchId);
     const myGroups = shuffle(groups.filter((g) => g.branchId === branch.id));
-    const myMembers = shuffle(regularCustomers.filter((c) => c.branchId === branch.id && c.location));
+    const myMembers = shuffle(members.filter((c) => c.branchId === branch.id && c.location));
     const boss = supervisor(co);
 
-    // Last week's plan: mostly done; some COs left tasks behind (overdue).
+    // Last week's plan: mostly done; some COs left tasks behind (delayed).
     const prev = newJob(d, { title: 'Weekly field plan', description: 'Group and member visits for the week.', creator: boss, assignee: co, startFrom: lastMonday, completeBy: lastSaturday, createdAt: at(shiftKey(lastMonday, -2), 17, 10) });
     const prevDays = workDays(lastMonday, lastSaturday);
     [myGroups[0], myGroups[1]].forEach((g, k) => addPlanned(prev, 'GroupVisit', groupTarget(g), prevDays[k * 3], boss));
@@ -554,7 +558,7 @@ function buildDb(): MockDb {
     const ods = odFor(branch.id, i % 2 === 0 ? 3 : 2);
     if (ods.length) {
       const odStart = shiftKey(today, -2);
-      const od = newJob(d, { title: 'OD follow-up', description: 'Visit each overdue customer at home. Collect, or record the promise-to-pay date.', creator: boss, assignee: co, startFrom: odStart, completeBy: shiftKey(today, i % 5 === 0 ? -1 : 3), createdAt: at(odStart, 9, 5) });
+      const od = newJob(d, { title: 'OD follow-up', description: 'Visit each OD member at home. Collect, or record the promise-to-pay date.', creator: boss, assignee: co, startFrom: odStart, completeBy: shiftKey(today, i % 5 === 0 ? -1 : 3), createdAt: at(odStart, 9, 5) });
       const odDays = [odStart, shiftKey(odStart, 1), today, shiftKey(today, 1)].filter((k) => at(k, 12).getDay() !== 0);
       ods.forEach((c, k) => addPlanned(od, 'OdFollowUp', odTarget(c), odDays[k % odDays.length], boss, 'Assigned', `Overdue ₹${c.overdueAmount.toLocaleString('en-IN')} · ${c.dpd} DPD.`));
       d.jobs.push(od);
@@ -566,13 +570,13 @@ function buildDb(): MockDb {
   officers.filter((o) => o.role === 'BM' || o.role === 'ABM').forEach((m, i) => {
     const branch = branchOf(m.branchId);
     const boss = supervisor(m);
-    const job = newJob(d, { title: m.role === 'BM' ? 'Branch supervision visits' : 'Centre support visits', description: 'Surprise attendance at group meetings and high-DPD customer visits.', creator: boss, assignee: m, startFrom: thisMonday, completeBy: thisSaturday, createdAt: at(shiftKey(thisMonday, -3), 16, 40) });
+    const job = newJob(d, { title: m.role === 'BM' ? 'Branch supervision visits' : 'Centre support visits', description: 'Surprise attendance at group meetings and high-DPD member visits.', creator: boss, assignee: m, startFrom: thisMonday, completeBy: thisSaturday, createdAt: at(shiftKey(thisMonday, -3), 16, 40) });
     const days = workDays(thisMonday, thisSaturday);
     const g = shuffle(groups.filter((x) => x.branchId === branch.id));
     addPlanned(job, 'GroupVisit', groupTarget(g[0]), days[1], boss);
     addPlanned(job, 'GroupVisit', groupTarget(g[1]), days[weekday] ?? days[2], boss);
     const od = odFor(branch.id, 1)[0];
-    if (od) addPlanned(job, 'OdFollowUp', odTarget(od), days[Math.max(0, weekday - 1)], boss, 'Assigned', `High DPD (${od.dpd}). Meet the customer with the CO.`);
+    if (od) addPlanned(job, 'OdFollowUp', odTarget(od), days[Math.max(0, weekday - 1)], boss, 'Assigned', `High DPD (${od.dpd}). Meet the member with the CO.`);
     if (i % 2 === 0) addPlanned(job, 'Survey', pointTarget(branch, 'market survey', [4, 12]), days[4], boss);
     d.jobs.push(job);
   });
@@ -593,7 +597,7 @@ function buildDb(): MockDb {
   // Created now, to be assigned later.
   const dpg = branchByCode('DPG');
   const subhajit = byName('Subhajit Das');
-  const unassigned1 = newJob(d, { title: 'OD recovery – 60+ DPD', description: 'High-DPD customers. Decide who goes after the branch review.', creator: { ...subhajit, unitName: dpg.name }, assignee: null, startFrom: null, completeBy: shiftKey(today, 5), createdAt: addMinutes(now, -180) });
+  const unassigned1 = newJob(d, { title: 'OD recovery – 60+ DPD', description: 'High-DPD members. Decide who goes after the branch review.', creator: { ...subhajit, unitName: dpg.name }, assignee: null, startFrom: null, completeBy: shiftKey(today, 5), createdAt: addMinutes(now, -180) });
   reservedOd.forEach((c) => addPlanned(unassigned1, 'OdFollowUp', odTarget(c), shiftKey(today, 9), subhajit, 'Assigned', `Overdue ₹${c.overdueAmount.toLocaleString('en-IN')} · ${c.dpd} DPD.`));
   d.jobs.push(unassigned1);
   const flk = branchByCode('FLK');
@@ -639,7 +643,7 @@ function buildDb(): MockDb {
   // A whole-job transfer: Arindam's OD job used to be Priyanka's.
   const arindamOd = coJobs.find((x) => x.officer.name === 'Arindam Paul' && x.job.title === 'OD follow-up')?.job;
   if (arindamOd) {
-    pushHistory(d, arindamOd, 'Transferred', sourav, addMinutes(new Date(arindamOd.createdAt), 95), { fromAssigneeName: 'Priyanka Roy', toAssigneeName: 'Arindam Paul', remarks: 'Customers are in Arindam’s centres' });
+    pushHistory(d, arindamOd, 'Transferred', sourav, addMinutes(new Date(arindamOd.createdAt), 95), { fromAssigneeName: 'Priyanka Roy', toAssigneeName: 'Arindam Paul', remarks: 'Members are in Arindam’s centres' });
   }
 
   // A cancelled job.
@@ -674,8 +678,8 @@ function buildDb(): MockDb {
     };
     const paid = t.type === 'OdFollowUp' && r() < 0.4;
     if (t.type === 'OdFollowUp') {
-      const c = customers.find((x) => x.id === t.target.refId);
-      t.odOutcome = { customerAvailable: r() < 0.85, paid, amountCollected: paid ? (c?.overdueAmount ?? null) : null, ptpDate: paid ? null : toDateKey(addDays(done, 3 + Math.floor(r() * 9))) };
+      const c = odMembers.find((x) => x.id === t.target.refId);
+      t.odOutcome = { memberAvailable: r() < 0.85, paid, amountCollected: paid ? (c?.overdueAmount ?? null) : null, ptpDate: paid ? null : toDateKey(addDays(done, 3 + Math.floor(r() * 9))) };
       t.remarks = paid ? 'Full overdue collected' : pick(['Husband working outside, promised to pay', 'Crop sale pending', 'Medical expense this month']);
     } else {
       t.remarks = pick(['Meeting held, all members present', 'Done', 'Attendance 18/20, collection complete', 'Discussed loan renewal', 'Two interested households, details captured', null]);
@@ -697,7 +701,7 @@ function buildDb(): MockDb {
         .filter((j) => j.assigneeId === o.id && j.status !== 'Cancelled')
         .flatMap((j) => j.tasks.filter((t) => t.status === 'Pending' && plan.get(t.id) === day));
       const r = mulberry32(hashString(o.id + day));
-      // Days in the past: about 1 in 9 tasks is skipped (left pending → overdue job).
+      // Days in the past: about 1 in 9 tasks is skipped (left pending → delayed job).
       const visiting = day < today ? tasks.filter(() => r() > 0.11) : tasks;
       const sim = simulateDay(o, branchOf(o.branchId), day, visiting.map((t) => t.target), r, { nearHome: i % 9 === 4 && r() < 0.3, mismatchIdx: r() < 0.12 ? Math.floor(r() * visiting.length) : -1 });
       d.days.set(`${o.id}|${day}`, sim.day);
@@ -712,7 +716,7 @@ function buildDb(): MockDb {
     });
   });
 
-  // Overdue jobs from last week whose leftovers were never done → history + alerts.
+  // Delayed jobs from last week whose leftovers were never done → history + alerts.
   d.jobs.forEach((j) => refreshJob(j, today));
   d.jobs.forEach((j) => {
     const completed = j.tasks.filter((t) => t.completedAt).map((t) => t.completedAt!).sort();
@@ -723,12 +727,12 @@ function buildDb(): MockDb {
       pushHistory(d, j, 'TaskSelfAdded', { id: '', name: t.addedByName }, new Date(t.addedAt), { taskNos: [t.taskNo], remarks: 'Added from the mobile app' });
     });
     if (j.status === 'Completed' && completed.length) pushHistory(d, j, 'Completed', SYSTEM, addMinutes(new Date(completed[completed.length - 1]), 1), { remarks: 'All tasks done' });
-    if (j.status === 'Overdue') pushHistory(d, j, 'BecameOverdue', SYSTEM, at(shiftKey(j.completeBy, 1), 0, 5), { remarks: `${j.openCount} task(s) pending after the complete-by date` });
+    if (j.status === 'Delayed') pushHistory(d, j, 'BecameDelayed', SYSTEM, at(shiftKey(j.completeBy, 1), 0, 5), { remarks: `${j.openCount} task(s) pending after the complete-by date` });
   });
 
   // One deadline extension.
   const extended = d.jobs.find((j) => j.title === 'OD follow-up' && j.status !== 'Completed' && j.completeBy >= today);
-  if (extended) pushHistory(d, extended, 'DateExtended', { id: '', name: extended.createdByName }, addMinutes(new Date(extended.createdAt), 60 * 20), { remarks: `Extended from ${shiftKey(extended.completeBy, -2)} – customer travelling` });
+  if (extended) pushHistory(d, extended, 'DateExtended', { id: '', name: extended.createdByName }, addMinutes(new Date(extended.createdAt), 60 * 20), { remarks: `Extended from ${shiftKey(extended.completeBy, -2)} – member travelling` });
 
   d.jobs.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
@@ -736,6 +740,8 @@ function buildDb(): MockDb {
   d.alerts = seedAlerts(d, now);
   d.approvals = seedApprovals(fieldStaff, branchById, now);
   d.geoTags = seedGeoTags(d, branchById, now);
+  const odTags = new Map(d.geoTags.filter((g) => g.kind === 'OdMember').map((g) => [g.refId, g]));
+  d.odMembers.forEach((c) => (c.locationVerified = !!odTags.get(c.id)?.verified));
   return d;
 
 }
@@ -851,7 +857,7 @@ function taskPointsFor(d: MockDb, employeeId: string, day: string): (RouteTaskPo
     .forEach((j) => {
       j.tasks.forEach((t) => {
         const doneDay = t.completedAt ? dayOf(t.completedAt) : null;
-        const activeThatDay = day <= j.completeBy || j.status === 'Overdue';
+        const activeThatDay = day <= j.completeBy || j.status === 'Delayed';
         const relevant = doneDay === day || (t.status === 'Pending' && activeThatDay && dayOf(t.addedAt) <= day) || (doneDay !== null && doneDay > day && activeThatDay && dayOf(t.addedAt) <= day);
         if (!relevant) return;
         out.push({
@@ -978,7 +984,7 @@ export function simulateLivePositions(): LivePosition[] {
       const branch = branchById.get(o.branchId)!;
       const route = buildRoute(o.id, today);
       const openAlerts = d.alerts.filter((a) => a.employeeId === o.id && a.status === 'Open').length;
-      const openTaskCount = d.jobs.filter((j) => j.assigneeId === o.id && (j.status === 'Assigned' || j.status === 'InProgress' || j.status === 'Overdue')).reduce((s, j) => s + j.openCount, 0);
+      const openTaskCount = d.jobs.filter((j) => j.assigneeId === o.id && (j.status === 'Assigned' || j.status === 'InProgress' || j.status === 'Delayed')).reduce((s, j) => s + j.openCount, 0);
       const lastPoint = route.points[route.points.length - 1];
       const currentStop = route.stops.find((s) => new Date(s.to).getTime() >= now.getTime() - 90_000 && route.isLive);
 
@@ -1071,8 +1077,8 @@ function seedAlerts(d: MockDb, now: Date): TrackingAlert[] {
         location: t.verification!.completionLocation, measuredValue: t.verification!.completionDistanceMeters, measuredUnit: 'm', jobId: j.id, jobNo: j.jobNo, taskId: t.id,
       });
     });
-    if (j.status === 'Overdue') {
-      push(o, 'OverdueJob', 'Medium', `${j.jobNo} “${j.title}” passed its complete-by date with ${j.openCount} task(s) pending.`, at(shiftKey(j.completeBy, 1), 0, 5), {
+    if (j.status === 'Delayed') {
+      push(o, 'DelayedJob', 'Medium', `${j.jobNo} “${j.title}” passed its complete-by date with ${j.openCount} task(s) pending.`, at(shiftKey(j.completeBy, 1), 0, 5), {
         measuredValue: j.openCount, measuredUnit: 'tasks', jobId: j.id, jobNo: j.jobNo,
       });
     }
@@ -1113,7 +1119,7 @@ function seedApprovals(fieldStaff: FieldOfficer[], branchById: Map<string, Track
   const approvals: OutOfRadiusRequest[] = [];
   const reasons = [
     'Potential new centre – 18 women interested, referred by an existing borrower',
-    'Customer moved to a relative’s village, visiting for collection',
+    'Member moved to a relative’s village, visiting for collection',
     'Area survey requested by the DM for new branch feasibility',
     'Joint lead sourcing camp with the neighbouring branch',
     'Group leader’s house for a dispute resolution meeting',
@@ -1133,7 +1139,7 @@ function seedApprovals(fieldStaff: FieldOfficer[], branchById: Map<string, Track
       branchId: branch.id,
       branchName: branch.name,
       branchLocation: branch.location,
-      activity: pick(['LeadSourcing', 'LeadSourcing', 'CustomerVisit', 'Survey'] as const),
+      activity: pick(['LeadSourcing', 'LeadSourcing', 'MemberVisit', 'Survey'] as const),
       reason: pick(reasons),
       destinationName: `${pick(['Birpara', 'Mal Bazar', 'Jalpaiguri', 'Hasimara', 'Barobisha', 'Coochbehar', 'Mathabhanga', 'Nagrakata'])} (outside radius)`,
       destination: offsetPoint(branch.location!, dist * 1000, between(0, 360)),
@@ -1174,8 +1180,8 @@ function seedGeoTags(d: MockDb, branchById: Map<string, TrackingBranch>, now: Da
   };
   d.branches.forEach((b) => addTag('Branch', b.id, `${b.name} Branch`, b.code, b.id, `${b.name}, ${b.areaName}`, b.location, 30_000, false));
   d.groups.forEach((g) => addTag('GroupCentre', g.id, g.name, g.code, g.branchId, `${g.village}`, g.location, 150, false));
-  d.regularCustomers.forEach((c) => addTag('Customer', c.id, c.name, c.loanAccountNo, c.branchId, c.address, c.location, 100, true));
-  d.customers.forEach((c) => addTag('OdCustomer', c.id, c.customerName, c.loanAccountNo, c.branchId, c.address, c.homeLocation, 100, true));
+  d.members.forEach((c) => addTag('Member', c.id, c.name, c.loanAccountNo, c.branchId, c.address, c.location, 100, true));
+  d.odMembers.forEach((c) => addTag('OdMember', c.id, c.memberName, c.loanAccountNo, c.branchId, c.address, c.homeLocation, 100, true));
   d.officers.forEach((o) => addTag('EmployeeHome', o.id, o.name, o.employeeCode, o.branchId, null, o.homeLocation, 50, false));
   return geoTags;
 }
@@ -1187,4 +1193,4 @@ export function mockDb(): MockDb {
   return db;
 }
 
-export { CURRENT_USER, SYSTEM, evidencePhoto, uuid, dayOf };
+export { SYSTEM, evidencePhoto, uuid, dayOf };

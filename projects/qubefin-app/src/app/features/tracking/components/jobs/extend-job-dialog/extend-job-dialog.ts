@@ -7,10 +7,11 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { DatePipe } from '@angular/common';
 import { ExtendJobRequest, Job } from '../../../models/job';
 import { toDateKey } from '../../../utils/geo-utils';
+import { TrkDateField } from '../../shared/date-field/trk-date-field';
 
 @Component({
   selector: 'qfin-extend-job-dialog',
-  imports: [DatePipe, FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, LucideDynamicIcon],
+  imports: [DatePipe, FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, LucideDynamicIcon, TrkDateField],
   template: `
     <div class="trk-dialog-header">
       <div class="flex items-center gap-4">
@@ -25,11 +26,7 @@ import { toDateKey } from '../../../utils/geo-utils';
       <button type="button" (click)="cancel()" class="trk-dialog-close" aria-label="Close"><svg lucideIcon="x" class="w-5 h-5"></svg></button>
     </div>
     <div class="p-5 flex flex-col gap-4 w-[min(460px,90vw)] trk-form">
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-        <mat-label>New complete-by date</mat-label>
-        <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="calendar-days" class="w-5 h-5"></svg></div>
-        <input matInput type="date" [min]="minDate" [ngModel]="date()" (ngModelChange)="date.set($event)" />
-      </mat-form-field>
+      <qfin-trk-date-field label="New complete-by date" icon="calendar-days" [(value)]="date" [minDate]="minDate" />
       @if (submitted() && !dateOk()) {
         <p class="trk-field-error -mt-2">Choose a date after {{ job.completeBy | date: 'dd MMM' }} and not in the past.</p>
       }
