@@ -7,7 +7,7 @@
         </div>
         <div>
             <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 leading-tight">
-                Employee Transfer/ Promotion
+                Employee Transfer
             </h2>
         </div>
     </div>
@@ -130,8 +130,7 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="building-2" class="w-5 h-5"></svg>
             </div>
-            <mat-select [formField]="empTransferForm.organisationUnitId"
-                (selectionChange)="onOrganizationUnitChange($event.value)">
+            <mat-select [formField]="empTransferForm.organisationUnitId">
                 @for(item of organizationUnits(); track item.id){
                 <mat-option [value]="item.id">
                     {{item.name}}
@@ -140,51 +139,6 @@
             </mat-select>
             <mat-error class="cus-error">
                 {{ empTransferForm.organisationUnitId().errors()[0]?.message }}
-            </mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Designations</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="id-card" class="w-5 h-5"></svg>
-            </div>
-            <mat-select [formField]="empTransferForm.designationId"
-                (selectionChange)="onDesignationChange($event.value)">
-                @for(item of designations(); track item.id){
-                <mat-option [value]="item.id">
-                    {{item.name}}@if(item.employeeName){ - {{item.employeeName}}}
-                </mat-option>
-                }
-            </mat-select>
-            <mat-error class="cus-error">
-                {{ empTransferForm.designationId().errors()[0]?.message }}
-            </mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Salary Grade</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="tag" class="w-5 h-5"></svg>
-            </div>
-            <mat-select [formField]="empTransferForm.salaryGradeId"
-                (selectionChange)="onSalaryGradeChange($event.value)">
-                @for(item of salaryGrades(); track item.id){
-                <mat-option [value]="item.id">
-                    {{item.name}}
-                </mat-option>
-                }
-            </mat-select>
-            <mat-error class="cus-error">
-                {{ empTransferForm.designationId().errors()[0]?.message }}
-            </mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Gross Salary</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="indian-rupee" class="w-5 h-5"></svg>
-            </div>
-            <input matInput type="number" autocomplete="off" [formField]="empTransferForm.grossSalary"
-                placeholder="Gross Salary">
-            <mat-error class="cus-error">
-                {{ empTransferForm.grossSalary().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
