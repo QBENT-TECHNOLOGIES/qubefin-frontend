@@ -6,9 +6,11 @@ import Swal, { SweetAlertIcon, SweetAlertOptions, SweetAlertResult } from 'sweet
 })
 export class AlertService {
   private get targetElement(): HTMLElement | string {
-    const overlayPanes = document.querySelectorAll('.cdk-overlay-pane');
-    if (overlayPanes.length > 0) {
-      return overlayPanes[overlayPanes.length - 1] as HTMLElement;
+    const dialogPanes = document.querySelectorAll(
+      '.cdk-overlay-pane:has(.mat-mdc-dialog-container, .cdk-dialog-container)',
+    );
+    if (dialogPanes.length > 0) {
+      return dialogPanes[dialogPanes.length - 1] as HTMLElement;
     }
     return 'body';
   }
