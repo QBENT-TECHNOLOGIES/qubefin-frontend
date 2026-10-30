@@ -67,6 +67,11 @@ export class EmployeeComponentView {
   }
 
   async onViewDocument() {
+    if (!this.employeeStore.hasJoiningApproved()) {
+      this.alertService.warning(null, 'Need approval from the Managing Director.');
+      return;
+    }
+
     if (!this.employeeStore.hasJoiningInfo()) {
       this.alertService.warning(null, 'No Joining Info Found, please Add');
       return;

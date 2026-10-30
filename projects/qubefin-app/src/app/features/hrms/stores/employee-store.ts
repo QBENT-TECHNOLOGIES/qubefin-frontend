@@ -78,6 +78,7 @@ export class EmployeeStore {
   readonly error = computed(() => this.employeeListComponentsResource.error());
   // --- View Resource ---
   private readonly employeeInfoComponentResource = httpResource<{
+    hasJoiningApproved: boolean;
     hasJoiningInfo: boolean;
     personalInfo: IEmployeePersonalInfo;
     auditInfo: IAuditInfo;
@@ -94,6 +95,10 @@ export class EmployeeStore {
 
   readonly hasJoiningInfo = computed(
     () => this.employeeInfoComponentResource.value()?.hasJoiningInfo ?? false,
+  );
+
+  readonly hasJoiningApproved = computed(
+    () => this.employeeInfoComponentResource.value()?.hasJoiningApproved ?? false,
   );
   readonly employeeAuditInfo = computed(
     () => this.employeeInfoComponentResource.value()?.auditInfo ?? undefined,
