@@ -5,11 +5,10 @@ import Swal, { SweetAlertIcon, SweetAlertOptions, SweetAlertResult } from 'sweet
   providedIn: 'root',
 })
 export class AlertService {
-  // Only mount inside panes that host a dialog. Menus, tooltips, selects and autocompletes are
-  // transient overlays that close right after the click that opened the alert, which would take
-  // the alert (and its backdrop) down with them.
   private get targetElement(): HTMLElement | string {
-    const dialogPanes = document.querySelectorAll('.cdk-overlay-pane:has(.mat-mdc-dialog-container, .cdk-dialog-container)');
+    const dialogPanes = document.querySelectorAll(
+      '.cdk-overlay-pane:has(.mat-mdc-dialog-container, .cdk-dialog-container)',
+    );
     if (dialogPanes.length > 0) {
       return dialogPanes[dialogPanes.length - 1] as HTMLElement;
     }
