@@ -217,7 +217,7 @@
                                 [matTooltip]="!item.isActive ? 'Enable this designation first' : inchargeLocked() ? 'Please wait...' : ''">
                                 <mat-checkbox [checked]="currentInchargeId() === item.id"
                                     [disabled]="inchargeLocked() || !item.isActive || currentInchargeId() === item.id"
-                                    (change)="onInchargeChange(item.id, $event.checked)">
+                                    (change)="onInchargeChange(item.id, $event)">
                                 </mat-checkbox>
                             </div>
                         </td>

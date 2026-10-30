@@ -20,7 +20,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganizationUnitService } from '../../services/organization-unit-service';
 import { AlertService } from 'qubefin-core';
 import { delay, finalize, Observable, of } from 'rxjs';
-import { MatCheckbox } from '@angular/material/checkbox';
+import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 
 @Component({
   selector: 'qfin-organization-unit-view-component',
@@ -102,14 +102,31 @@ export class OrganizationUnitViewComponent {
         }
       });
   }
-  onInchargeChange(designationId: string, checked: boolean) {
-    if (this.inchargeLocked() || !checked) return;
+
+  onInchargeChange(designationId: string, event: MatCheckboxChange) {
+    if (this.inchargeLocked() || !event.checked) return;
+
     const unit = this.organizationUnit();
     const designationName =
       unit?.designations?.find((d) => d.id === designationId)?.name ?? 'Designation';
     const unitName = unit?.name ?? 'this unit';
-    const previousId = this.currentInchargeId();
 
+    this.alertService
+      .confirm(
+        'Confirmation',
+        `Are you sure you want to make ${designationName} the incharge of ${unitName}?`,
+      )
+      .then((result) => {
+        if (!result.isConfirmed) {
+          event.source.checked = false;
+          return;
+        }
+        this.saveIncharge(designationId, designationName, unitName);
+      });
+  }
+
+  private saveIncharge(designationId: string, designationName: string, unitName: string) {
+    const previousId = this.currentInchargeId();
     this.inchargeLocked.set(true);
     this.processingId.set(designationId);
     this.currentInchargeId.set(designationId);
@@ -123,7 +140,7 @@ export class OrganizationUnitViewComponent {
         }),
       )
       .subscribe({
-        next: (resp: any) => {
+        next: () => {
           this.alertService.success(
             'Success',
             `${designationName} is now incharge in ${unitName}.`,
