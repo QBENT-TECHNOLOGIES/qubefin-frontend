@@ -1,5 +1,5 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -19,6 +19,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { CompanyStore } from '../../../global/stores/company-store';
+import { ReportService } from '../../../Report/Service/report-service';
 
 @Component({
   selector: 'qfin-employee-component',
@@ -52,6 +53,8 @@ export class EmployeeComponent {
   // Injecting the store that manages pagination and filtering states
   readonly employeeStore = inject(EmployeeStore);
   readonly companyStore = inject(CompanyStore);
+  readonly reportService = inject(ReportService);
+  readonly alertService = inject(AlertService);
   constructor() {
     this.dateAdapter.setLocale('en-GB');
   }
@@ -132,6 +135,36 @@ export class EmployeeComponent {
     this.employeeStore.setCompanyId(null);
     this.applyFilters();
   }
+  protected exportEmployeeDetail() {
+    const companyId = this.employeeStore.companyId();
+
+    if (companyId == null) {
+      this.alertService.warning(
+        'Validation Error',
+        'Please select a company from the filter before exporting.',
+      );
+      return;
+    }
+    const year = new Date().getFullYear();
+    this.alertService
+      .confirm('Confirmation', `Do you want to export?`, 'Yes', 'No')
+      .then((result) => {
+        if (!result.isConfirmed) return;
+
+        this.reportService.exportEmployeeDetail(year, companyId).subscribe({
+          next: (blob: Blob) => {
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `export_employee_detail.xlsx`;
+            link.click();
+            window.URL.revokeObjectURL(downloadUrl);
+          },
+          error: () => {},
+        });
+      });
+  }
+
   onSortChanged(sort: Sort) {
     if (!sort.direction) {
       return;
