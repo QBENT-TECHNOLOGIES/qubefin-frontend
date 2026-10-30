@@ -76,7 +76,7 @@ export class JoiningAddressComponent {
   );
 
   protected readonly employeeAddressSchema: Schema<IEmployeeAddressInfo> = schema((path) => {
-    required(path.administrativeUnitId, { message: 'Location details are required' });
+    // required(path.administrativeUnitId, { message: 'Location details are required' });
     required(path.pinCode, { message: 'Pin Code is required' });
     pattern(path.pinCode, /^\d{6}$/, {
       message: 'Invalid pin code ',
@@ -194,7 +194,6 @@ export class JoiningAddressComponent {
     params: () => ({ id: this.employeeId(), editMode: this.isEditMode() }),
     stream: ({ params }) => {
       if (params.editMode && params.id !== EMPTY_UUID) {
-
         return this.employeeService.getAddressData(params.id).pipe(
           tap((resp: any) => {
             resp = withCandidateAddress(resp, this.joiningInfo());
