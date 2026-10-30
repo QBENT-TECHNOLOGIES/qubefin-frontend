@@ -1,9 +1,8 @@
 import { EMPLOYEE_RECORD_TABS, EmployeeRecordTab } from './employee-record';
 
-export type EmployeeApprovalTab = Extract<
-  EmployeeRecordTab,
-  'leave' | 'regularization' | 'prayer' | 'fitness'
->;
+export type EmployeeApprovalTab =
+  | Extract<EmployeeRecordTab, 'leave' | 'regularization' | 'prayer' | 'fitness'>
+  | 'joining';
 
 export interface IEmployeeApprovalTabConfig {
   key: EmployeeApprovalTab;
@@ -13,7 +12,7 @@ export interface IEmployeeApprovalTabConfig {
 }
 
 /** Attendance is the one record tab with no approval queue behind it. */
-const APPROVAL_TAB_KEYS: readonly EmployeeApprovalTab[] = [
+const APPROVAL_TAB_KEYS: readonly EmployeeRecordTab[] = [
   'leave',
   'regularization',
   'prayer',
@@ -26,10 +25,12 @@ const APPROVAL_TAB_KEYS: readonly EmployeeApprovalTab[] = [
  * there carries over here on its own.
  */
 export const EMPLOYEE_APPROVAL_TABS: readonly IEmployeeApprovalTabConfig[] =
-  EMPLOYEE_RECORD_TABS.filter((tab) =>
-    APPROVAL_TAB_KEYS.includes(tab.key as EmployeeApprovalTab),
-  ).map((tab) => ({
-    key: tab.key as EmployeeApprovalTab,
-    label: tab.label,
-    icon: tab.icon,
-  }));
+  [
+    ...EMPLOYEE_RECORD_TABS.filter((tab) => APPROVAL_TAB_KEYS.includes(tab.key)).map((tab) => ({
+      key: tab.key as EmployeeApprovalTab,
+      label: tab.label,
+      icon: tab.icon,
+    })),
+    // Joining approvals have no employee record tab, so this one is declared here.
+    { key: 'joining', label: 'Employee Joining', icon: 'UserCheck' },
+  ];

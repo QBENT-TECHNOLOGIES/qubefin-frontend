@@ -19,10 +19,12 @@ import { ApprovalRegularizationStore } from '../../stores/approval-regularizatio
 import { LeaveApprovalStore } from '../../stores/leave-approval-store';
 import { LeaveFitnessStore } from '../../stores/leave-fitness-store';
 import { LeavePrayerApprovalStore } from '../../stores/leave-prayer-approval-store';
+import { JoiningApprovalStore } from '../../stores/joining-approval-store';
 import { ApprovalRegularizations } from '../approval-regularizations/approval-regularizations';
 import { LeaveApprovalComponent } from '../leave-approval-component/leave-approval-component';
 import { LeaveFitnessComponent } from '../leave-fitness-component/leave-fitness-component';
 import { LeavePrayerApprovalComponent } from '../leave-prayer-approval-component/leave-prayer-approval-component';
+import { JoiningApprovalComponent } from '../joining-approval-component/joining-approval-component';
 
 @Component({
   selector: 'qfin-employee-approvals-component',
@@ -37,13 +39,13 @@ import { LeavePrayerApprovalComponent } from '../leave-prayer-approval-component
     LeaveApprovalComponent,
     LeavePrayerApprovalComponent,
     LeaveFitnessComponent,
+    JoiningApprovalComponent,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './employee-approvals-component.html',
 })
 export class EmployeeApprovalsComponent {
   readonly iconMap = APP_ICONS_MAP;
-  readonly tabs = EMPLOYEE_APPROVAL_TABS;
 
   // Every queue is injected up front so each tab badge shows its pending count without
   // the tab having been opened. The stores are root scoped and load on first injection.
@@ -51,6 +53,12 @@ export class EmployeeApprovalsComponent {
   private readonly leaveStore = inject(LeaveApprovalStore);
   private readonly prayerStore = inject(LeavePrayerApprovalStore);
   private readonly fitnessStore = inject(LeaveFitnessStore);
+  private readonly joiningStore = inject(JoiningApprovalStore);
+
+  /** The Employee Joining tab shows only for the MD, whose access the joining queue reports. */
+  readonly tabs = computed(() =>
+    EMPLOYEE_APPROVAL_TABS.filter((tab) => tab.key !== 'joining' || this.joiningStore.hasAccess()),
+  );
 
   private readonly employeeService = inject(EmployeeService);
   private readonly datePipe = inject(DatePipe);
@@ -86,11 +94,12 @@ export class EmployeeApprovalsComponent {
     leave: this.leaveStore.totalRecords(),
     prayer: this.prayerStore.totalRecords(),
     fitness: this.fitnessStore.listData().length,
+    joining: this.joiningStore.totalRecords(),
   }));
 
   readonly totalPending = computed(() => {
     const counts = this.pendingCounts();
-    return this.tabs.reduce((total, tab) => total + counts[tab.key], 0);
+    return this.tabs().reduce((total, tab) => total + counts[tab.key], 0);
   });
 
   protected onSelectTab(tab: EmployeeApprovalTab) {
@@ -142,6 +151,11 @@ export class EmployeeApprovalsComponent {
     this.prayerStore.setFromDateQuery(from);
     this.prayerStore.setToDateQuery(to);
     this.prayerStore.setSearchedEmployeeIdQuery(employeeId);
+
+    // Joining approvals filter on the employee's joining date.
+    this.joiningStore.setFromDateQuery(from);
+    this.joiningStore.setToDateQuery(to);
+    this.joiningStore.setSearchedEmployeeIdQuery(employeeId);
 
     // Fitness approvals have no server side filter, so they are narrowed by the
     // employee's name over the list already loaded.

@@ -55,6 +55,7 @@ export class UserDetail {
       employeeId: null,
       isActive: true,
       hasMfaEnabled: false,
+      isAttendanceOptional: false,
       employeeName: '',
     };
   }
@@ -104,6 +105,7 @@ export class UserDetail {
         employeeId: user.employeeId,
         isActive: user.isActive,
         hasMfaEnabled: user.hasMfaEnabled,
+        isAttendanceOptional: user.isAttendanceOptional,
         employeeName: user.employee,
       });
 

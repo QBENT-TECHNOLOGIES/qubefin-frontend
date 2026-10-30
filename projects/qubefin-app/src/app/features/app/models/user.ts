@@ -8,6 +8,7 @@ export interface User {
   mfaSecret: string;
   hasMfaEnabled: boolean;
   isActive: boolean;
+  isAttendanceOptional: boolean;
   createdBy: string;
   createdOn: Date;
   lastModifiedBy?: string;
@@ -41,6 +42,7 @@ export interface IUserDetail {
   employeeId: string | null;
   isActive?: boolean;
   hasMfaEnabled?: boolean;
+  isAttendanceOptional?: boolean;
   employeeName?: string; // used for display
 }
 export interface IUserDevice {

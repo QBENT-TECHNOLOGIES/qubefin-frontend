@@ -51,8 +51,8 @@
                 </mat-form-field>
                 }
 
-                @if(isEditMode()) {
                 <div class="flex items-center gap-4">
+                    @if(isEditMode()) {
                     <mat-checkbox [checked]="formModel().isActive" (change)="updateField('isActive', $event.checked)">
                         Is Active
                     </mat-checkbox>
@@ -60,8 +60,12 @@
                         (change)="updateField('hasMfaEnabled', $event.checked)">
                         MFA Enabled
                     </mat-checkbox>
+                    }
+                    <mat-checkbox [checked]="formModel().isAttendanceOptional"
+                        (change)="updateField('isAttendanceOptional', $event.checked)">
+                        Attendance Optional
+                    </mat-checkbox>
                 </div>
-                }
 
             </div>
         </div>
