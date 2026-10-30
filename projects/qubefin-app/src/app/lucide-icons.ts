@@ -204,6 +204,8 @@ import {
   LucideFiles,
   LucideFolder,
   LucideUserRoundPlus,
+  LucideCamera,
+  LucideSignature,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -412,6 +414,8 @@ export const APP_ICONS = [
   LucideFiles,
   LucideFolder,
   LucideUserRoundPlus,
+  LucideCamera,
+  LucideSignature,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -617,4 +621,6 @@ export const APP_ICONS_MAP: Record<string, any> = {
   Files: LucideFiles,
   Folder: LucideFolder,
   UserRoundPlus: LucideUserRoundPlus,
+  Camera: LucideCamera,
+  Siganture: LucideSignature,
 };
