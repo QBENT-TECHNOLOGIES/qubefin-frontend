@@ -785,4 +785,5 @@ export interface IJoiningInfo {
   employeeId: string;
   monthlyCtc: number | null;
   offerLetterDate: string | Date | null;
+  referenceNo: string;
 }

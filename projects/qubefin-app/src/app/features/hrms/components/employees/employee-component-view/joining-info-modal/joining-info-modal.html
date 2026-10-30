@@ -44,6 +44,17 @@
                 {{ joiningInfoForm.offerLetterDate().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Reference No</mat-label>
+            <div class="field-icon" matPrefix>
+                <svg lucideIcon="hash" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="text" autocomplete="off" [formField]="joiningInfoForm.referenceNo"
+                placeholder="Enter Reference No">
+            <mat-error class="cus-error">
+                {{ joiningInfoForm.referenceNo().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
     </div>
     <div class="flex items-center justify-between pt-4 bg-white/60 dark:bg-slate-800 border-t border-slate-200">
 

@@ -99,7 +99,7 @@ export class EmployeeComponentView {
   openJoiningModal() {
     this.dialog.open(JoiningInfoModal, {
       data: { employeeId: this.employeeId() },
-      maxWidth: '95vw',
+      maxWidth: '100vw',
       panelClass: 'glass-modal',
     });
   }

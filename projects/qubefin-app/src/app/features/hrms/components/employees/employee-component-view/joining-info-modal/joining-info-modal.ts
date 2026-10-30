@@ -41,6 +41,7 @@ export class JoiningInfoModal {
     employeeId: '',
     monthlyCtc: null,
     offerLetterDate: null,
+    referenceNo: '',
   });
   protected readonly joiningInfoSchema: Schema<IJoiningInfo> = schema((path) => {
     required(path.monthlyCtc);
@@ -62,6 +63,7 @@ export class JoiningInfoModal {
           employeeId: data.employeeId || this.empId(),
           monthlyCtc: data.monthlyCtc ?? null,
           offerLetterDate: data.offerLetterDate ? new Date(data.offerLetterDate) : null,
+          referenceNo: data.referenceNo ?? '',
         } as IJoiningInfo);
       }
     });
