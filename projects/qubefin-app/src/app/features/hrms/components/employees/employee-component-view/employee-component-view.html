@@ -219,14 +219,17 @@
                                 <svg lucideIcon="download" class="w-4 h-4"></svg>
                                 Download
                             </button>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <button type="button" matTooltip="Add Joining Info"
-                                class="global-btn ripple-btn shine-sweep lift whitespace-nowrap shrink-0"
-                                (click)="openJoiningModal()">
-                                <svg lucideIcon="plus" class="w-4 h-4"></svg>
-                                Add Joining Info
-                            </button>
-                        </div>
+                            @if(!this.employeeStore.hasJoiningApproved()) 
+                            {
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <button type="button" matTooltip="Add Joining Info"
+                                        class="global-btn ripple-btn shine-sweep lift whitespace-nowrap shrink-0"
+                                        (click)="openJoiningModal()">
+                                        <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                                        Add Joining Info
+                                    </button>
+                                </div>
+                            }
                     </div>
                 </div>
             </div>
