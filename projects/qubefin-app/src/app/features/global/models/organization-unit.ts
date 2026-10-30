@@ -34,6 +34,7 @@ export interface Designations {
   roleId: string;
   roleName: string;
   isActive: boolean;
+  isIncharge: boolean;
 }
 
 // An organization unit with the District / State it is located in (null when no District is saved).

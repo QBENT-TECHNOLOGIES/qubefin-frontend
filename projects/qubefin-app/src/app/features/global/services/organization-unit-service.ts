@@ -52,4 +52,9 @@ export class OrganizationUnitService {
       `${ApiPaths.GLOBAL}/organization-units/designation-activation/${designationId}`,
     );
   }
+  updateDesignationIncharge(designationId: any) {
+    return this.httpClient.get(
+      `${ApiPaths.GLOBAL}/organization-units/incharge-update/${designationId}`,
+    );
+  }
 }

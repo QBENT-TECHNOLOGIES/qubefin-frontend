@@ -79,10 +79,20 @@ export class PersonalComponentDetail {
   protected readonly employeeModel = signal<IEmployeePersonalInfo>(new EmployeePersonalInfo());
 
   protected readonly employeeSchema: Schema<IEmployeePersonalInfo> = schema((path) => {
-    required(path.code, { message: 'Code is required' });
+    //required(path.code, { message: 'Code is required' });
+    readonly(path.code, { when: () => true });
     required(path.firstName, { message: 'First name is required' });
+    pattern(path.firstName, /^[A-Za-z]{3,30}$/, {
+      message: 'Invalid first name.',
+    });
+    pattern(path.middleName, /^[A-Za-z]*$/, {
+      message: 'Invalid middle name.',
+    });
     required(path.nationality, { message: 'Nationality is required' });
     required(path.lastName, { message: 'Last name is required' });
+    pattern(path.lastName, /^[A-Za-z]{3,30}$/, {
+      message: 'Invalid last name.',
+    });
     required(path.dateOfBirth, { message: 'Date of birth is required' });
     required(path.gender, { message: 'Gender is required' });
     readonly(path.age, { when: () => true });
