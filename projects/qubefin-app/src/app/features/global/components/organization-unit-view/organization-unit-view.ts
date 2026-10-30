@@ -1,4 +1,13 @@
-import { Component, computed, effect, inject, model, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  linkedSignal,
+  model,
+  output,
+  signal,
+} from '@angular/core';
 import { EMPTY_UUID, PermissionStore } from 'qubefin-core';
 import { OrganizationUnitStore } from '../../stores/organization-unit-store';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -10,10 +19,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganizationUnitService } from '../../services/organization-unit-service';
 import { AlertService } from 'qubefin-core';
+import { delay, finalize, Observable, of } from 'rxjs';
+import { MatCheckbox } from '@angular/material/checkbox';
 
 @Component({
   selector: 'qfin-organization-unit-view-component',
-  imports: [DatePipe, LucideDynamicIcon, MatTableModule, MatTooltipModule],
+  imports: [DatePipe, LucideDynamicIcon, MatTableModule, MatTooltipModule, MatCheckbox],
   templateUrl: './organization-unit-view.html',
 })
 export class OrganizationUnitViewComponent {
@@ -28,6 +39,11 @@ export class OrganizationUnitViewComponent {
 
   showEdit = output<boolean>();
 
+  readonly inchargeLocked = signal(false);
+  readonly processingId = signal<string | null>(null);
+  readonly currentInchargeId = linkedSignal<string | null>(
+    () => this.organizationUnit()?.designations?.find((d) => d.isIncharge)?.id ?? null,
+  );
   organizationUnit = this.organizationUnitStore.organizationUnit;
   hasLocation = computed(() => {
     const unit = this.organizationUnit();
@@ -41,13 +57,11 @@ export class OrganizationUnitViewComponent {
     const url = `https://www.google.com/maps/search/?api=1&query=${unit.latitude},${unit.longitude}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   }
-  // readonly desigantions = [
-  //   { id: '1', name: 'Designation 1', post: 'post1', grade: 'grade1', role: 'role1' },
-  //   { id: '2', name: 'Designation 2', post: 'post2', grade: 'grade2', role: 'role2' },
-  //   { id: '3', name: 'Designation 3', post: 'post3', grade: 'grade3', role: 'role3' },
-  // ];
+
   displayedColumns = computed(() => {
-    return ['sl', 'name', 'post', 'grade', 'employee', 'isActive', 'actions'];
+    if (this.organizationUnit()?.organizationUnitTypeName === 'HeadOffice')
+      return ['sl', 'name', 'post', 'grade', 'employee', 'isActive', 'actions'];
+    else return ['sl', 'name', 'post', 'grade', 'employee', 'isActive', 'incharge', 'actions'];
   });
   constructor() {
     effect(() => {
@@ -86,6 +100,39 @@ export class OrganizationUnitViewComponent {
             error: (err: any) => {},
           });
         }
+      });
+  }
+  onInchargeChange(designationId: string, checked: boolean) {
+    if (this.inchargeLocked() || !checked) return;
+    const unit = this.organizationUnit();
+    const designationName =
+      unit?.designations?.find((d) => d.id === designationId)?.name ?? 'Designation';
+    const unitName = unit?.name ?? 'this unit';
+    const previousId = this.currentInchargeId();
+
+    this.inchargeLocked.set(true);
+    this.processingId.set(designationId);
+    this.currentInchargeId.set(designationId);
+
+    this.organizationUnitService
+      .updateDesignationIncharge(designationId)
+      .pipe(
+        finalize(() => {
+          this.processingId.set(null);
+          this.inchargeLocked.set(false);
+        }),
+      )
+      .subscribe({
+        next: (resp: any) => {
+          this.alertService.success(
+            'Success',
+            `${designationName} is now incharge in ${unitName}.`,
+          );
+          this.organizationUnitStore.refresh();
+        },
+        error: () => {
+          this.currentInchargeId.set(previousId);
+        },
       });
   }
 }

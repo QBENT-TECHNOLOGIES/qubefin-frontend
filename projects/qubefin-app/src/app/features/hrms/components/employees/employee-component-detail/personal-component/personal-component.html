@@ -13,9 +13,9 @@
                 <svg lucideIcon="id-card-lanyard" class="w-5 h-5"></svg>
             </div>
             <input matInput [formField]="employeeForm.code" autocomplete="off" placeholder="Enter code">
-            <mat-error class="cus-error">
+            <!-- <mat-error class="cus-error">
                 {{ employeeForm.code().errors()[0]?.message }}
-            </mat-error>
+            </mat-error> -->
         </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -49,6 +49,9 @@
             </div>
             <input matInput type="text" [formField]="$any(employeeForm)['middleName']" autocomplete="off"
                 placeholder="Enter middle name">
+            <mat-error class="cus-error">
+                {{ employeeForm.middleName().errors()[0]?.message }}
+            </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Last Name</mat-label>
