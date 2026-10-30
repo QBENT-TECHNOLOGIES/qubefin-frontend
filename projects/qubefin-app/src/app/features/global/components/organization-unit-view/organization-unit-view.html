@@ -215,9 +215,8 @@
                         <td mat-cell *matCellDef="let item">
                             <div class="flex items-center gap-2"
                                 [matTooltip]="!item.isActive ? 'Enable this designation first' : inchargeLocked() ? 'Please wait...' : ''">
-                                <mat-checkbox [checked]="currentInchargeId() === item.id"
-                                    [disabled]="inchargeLocked() || !item.isActive || currentInchargeId() === item.id"
-                                    (change)="onInchargeChange(item.id, $event)">
+                                <mat-checkbox [checked]="currentInchargeId() === item.id" [disabled]="inchargeLocked() || !item.isActive || currentInchargeId() === item.id
+                                    || !item.employeeName" (change)="onInchargeChange(item.id, $event)">
                                 </mat-checkbox>
                             </div>
                         </td>
