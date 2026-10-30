@@ -12,7 +12,7 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="id-card-lanyard" class="w-5 h-5"></svg>
             </div>
-            <input matInput [formField]="employeeForm.code" autocomplete="off" placeholder="Code">
+            <input matInput [formField]="employeeForm.code" autocomplete="off" placeholder="Enter code">
             <!-- <mat-error class="cus-error">
                 {{ employeeForm.code().errors()[0]?.message }}
             </mat-error> -->
@@ -128,23 +128,6 @@
                 placeholder="Enter Mother Name">
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Marital Status</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="tag" class="w-5 h-5"></svg>
-            </div>
-            <mat-select [formField]="employeeForm.maritalStatus" placeholder="Select Marital">
-                @for (mrst of maritalStatuses(); track mrst) {
-                <mat-option [value]="mrst.sysVal">
-                    {{ mrst.sysVal }}
-                </mat-option>
-                }
-            </mat-select>
-            <mat-error class="cus-error">
-                {{ employeeForm.maritalStatus().errors()[0]?.message }}
-            </mat-error>
-        </mat-form-field>
-        @if(employeeForm.maritalStatus()?.value()==="Married"){
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Spouse Name</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="user" class="w-5 h-5"></svg>
@@ -169,7 +152,6 @@
                 {{ employeeForm.religion().errors()[0]?.message }}
             </mat-error>
         </mat-form-field>
-        }
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Caste</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -230,8 +212,180 @@
                 }
             </mat-select>
         </mat-form-field>
-    </div>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Marital Status</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="employeeForm.maritalStatus" placeholder="Select Marital">
+                @for (mrst of maritalStatuses(); track mrst) {
+                <mat-option [value]="mrst.sysVal">
+                    {{ mrst.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ employeeForm.maritalStatus().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
 
+        <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
+            <mat-label>Photo Upload</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="paperclip" class="w-5 h-5 text-slate-500"></svg>
+            </div>
+            <input matInput [value]="photoFileName() || (photoFileUrl() ? 'Current document available' : '')" readonly
+                placeholder="No file chosen" />
+            <input hidden accept="image/*" (change)="onFileSelect($event)" #fileInput type="file">
+
+            <div matSuffix class="flex items-center gap-2 pr-1.5 py-1">
+                @if (photoFile()) {
+                <button type="button" mat-icon-button (click)="removeFile()" class="text-rose-500">
+                    <svg lucideIcon="x" class="w-4 h-4"></svg>
+                </button>
+                }
+
+                <button type="button"
+                    class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
+                    (click)="fileInput.click()">
+                    <svg lucideIcon="upload" class="w-3.5 h-3.5"></svg>
+                    Choose File
+                </button>
+
+                @if (photoFileUrl()) {
+                <button type="button" (click)="openFile()"
+                    class="bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-primary-200 dark:border-primary-800/30 cursor-pointer">
+                    <svg lucideIcon="eye" class="w-3.5 h-3.5"></svg>
+                    View
+                </button>
+                }
+            </div>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
+            <mat-label>Signature Upload</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="paperclip" class="w-5 h-5 text-slate-500"></svg>
+            </div>
+            <input matInput [value]="signatureFileName() || (signatureFileUrl() ? 'Current signature available' : '')"
+                readonly placeholder="No file chosen" />
+            <input hidden accept="image/*" (change)="onSignatureSelect($event)" #signatureInput type="file">
+
+            <div matSuffix class="flex items-center gap-2 pr-1.5 py-1">
+                @if (signatureFile()) {
+                <button type="button" mat-icon-button (click)="removeSignature()" class="text-rose-500">
+                    <svg lucideIcon="x" class="w-4 h-4"></svg>
+                </button>
+                }
+
+                <button type="button"
+                    class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
+                    (click)="signatureInput.click()">
+                    <svg lucideIcon="upload" class="w-3.5 h-3.5"></svg>
+                    Choose File
+                </button>
+
+                @if (signatureFileUrl()) {
+                <button type="button" (click)="openSignature()"
+                    class="bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors border border-primary-200 dark:border-primary-800/30 cursor-pointer">
+                    <svg lucideIcon="eye" class="w-3.5 h-3.5"></svg>
+                    View
+                </button>
+                }
+            </div>
+        </mat-form-field> -->
+    </div>
+    <div class="mt-6">
+        <!-- Header + Upload / change button -->
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="box-content-heading mb-2!">Photo and Signature</h3>
+                <div class="green-line"></div>
+            </div>
+            <button type="button" class="global-btn ripple-btn shine-sweep lift whitespace-nowrap"
+                (click)="showFileUpload.set(!showFileUpload())">
+                <svg lucideIcon="upload" class="w-4 h-4"></svg>
+                {{ showFileUpload() ? 'Done' : 'Upload / change' }}
+            </button>
+        </div>
+
+        @if (!showFileUpload()) {
+        <!-- VIEW STYLE -->
+        <div class="flex gap-4 mt-4">
+            <!-- Photo -->
+            <div class="flex flex-col items-center gap-2 shrink-0">
+                <div
+                    class="w-32 h-32 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 flex items-center justify-center overflow-hidden">
+                    @if (photoFileUrl()) {
+                    <img [src]="photoFileUrl()" alt="Photo" class="w-full h-full object-cover cursor-pointer"
+                        (click)="openFile()">
+                    } @else {
+                    <svg lucideIcon="user" class="w-8 h-8 text-slate-400"></svg>
+                    }
+                </div>
+                <span class="text-xs text-slate-500">Photo</span>
+            </div>
+
+            <!-- Signature -->
+            <div class="flex flex-col items-center gap-2 flex-1">
+                <div
+                    class="relative w-full h-32 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 flex items-center justify-center overflow-hidden">
+                    @if (signatureFileUrl()) {
+                    <img [src]="signatureFileUrl()" alt="Signature" class="max-w-full max-h-full object-contain p-3"
+                        (click)="openSignature()">
+                    <!-- <button type="button"
+                        class="absolute bottom-2 right-3 flex items-center gap-1 text-xs text-slate-500 hover:text-primary-600 cursor-pointer transition-colors"
+                        >
+                        <svg lucideIcon="maximize-2" class="w-3 h-3"></svg>
+                        Enlarge
+                    </button> -->
+                    } @else {
+                    <span class="text-sm text-slate-400">No signature uploaded</span>
+                    }
+                </div>
+                <span class="text-xs text-slate-500">Signature</span>
+            </div>
+        </div>
+        } @else {
+        <!-- UPLOAD STYLE (dashed boxes) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <!-- Photo -->
+            <div (click)="photoInput.click()"
+                class="relative h-44 rounded-xl border-2 border-dashed border-primary-500/40 bg-primary-500/5 hover:bg-primary-500/10 flex flex-col items-center justify-center gap-2 text-center cursor-pointer transition-colors overflow-hidden">
+                <input hidden accept="image/*" type="file" #photoInput (change)="onFileSelect($event)">
+
+                @if (photoFile()) {
+                <img [src]="photoFileUrl()" alt="Photo" class="h-full object-contain p-2">
+                <button type="button" (click)="$event.stopPropagation(); removeFile()"
+                    class="absolute top-2 right-2 bg-white/90 text-rose-500 p-1 rounded-lg border border-slate-200 cursor-pointer">
+                    <svg lucideIcon="x" class="w-4 h-4"></svg>
+                </button>
+                } @else {
+                <svg lucideIcon="camera" class="w-6 h-6 text-primary-600"></svg>
+                <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Upload photo</span>
+                <span class="text-xs text-slate-500">JPG or PNG, passport size</span>
+                }
+            </div>
+
+            <!-- Signature -->
+            <div (click)="signatureInput.click()"
+                class="relative h-44 rounded-xl border-2 border-dashed border-primary-500/40 bg-primary-500/5 hover:bg-primary-500/10 flex flex-col items-center justify-center gap-2 text-center cursor-pointer transition-colors overflow-hidden">
+                <input hidden accept="image/*" type="file" #signatureInput (change)="onSignatureSelect($event)">
+
+                @if (signatureFile()) {
+                <img [src]="signatureFileUrl()" alt="Signature" class="h-full w-full object-contain p-2 bg-white">
+                <button type="button" (click)="$event.stopPropagation(); removeSignature()"
+                    class="absolute top-2 right-2 bg-white/90 text-rose-500 p-1 rounded-lg border border-slate-200 cursor-pointer">
+                    <svg lucideIcon="x" class="w-4 h-4"></svg>
+                </button>
+                } @else {
+                <svg lucideIcon="signature" class="w-6 h-6 text-primary-600"></svg>
+                <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Upload signature</span>
+                <span class="text-xs text-slate-500">JPG or PNG, white background</span>
+                }
+            </div>
+        </div>
+        }
+    </div>
     <div class="step-footer-area">
 
         <div class="flex flex-1 justify-end items-center gap-3">

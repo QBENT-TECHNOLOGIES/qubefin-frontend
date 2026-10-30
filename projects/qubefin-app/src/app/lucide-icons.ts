@@ -203,6 +203,7 @@ import {
   LucideUnlink,
   LucideFiles,
   LucideFolder,
+  LucideUserRoundPlus,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -410,6 +411,7 @@ export const APP_ICONS = [
   LucideUnlink,
   LucideFiles,
   LucideFolder,
+  LucideUserRoundPlus,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -614,4 +616,5 @@ export const APP_ICONS_MAP: Record<string, any> = {
   Unlink: LucideUnlink,
   Files: LucideFiles,
   Folder: LucideFolder,
+  UserRoundPlus: LucideUserRoundPlus,
 };

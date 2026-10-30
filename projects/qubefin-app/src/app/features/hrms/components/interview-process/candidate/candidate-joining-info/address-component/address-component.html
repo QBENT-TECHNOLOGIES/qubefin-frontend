@@ -48,8 +48,8 @@
                     {{ police.name }}
                 </mat-option>
                 }
-            </mat-select>
-            <mat-error class="cus-error">
+            </mat-select> -->
+        <!-- <mat-error class="cus-error">
                 {{ presentAddressForm.policeStationId().errors()[0]?.message }}
             </mat-error>
         </mat-form-field> -->
@@ -149,7 +149,7 @@
     </div>
     <!-- <qfin-administrative-unit-cascade [columns]="4"
         [administrativeUnitId]="permanentAddressModel().administrativeUnitId" [emitAtEveryLevel]="true"
-        (selectedIdChanged)="updatePermanentAddressField('administrativeUnitId', $event)"
+        (selectedIdChanged)="updatePermanentAddressField('administrativeUnitId', $event)" */
         (districtChangedByUser)="onAdministrativeAreaChangedByUser('permanent')"
         (districtChanged)="onDistrictChangeForPoliceStation('permanent', $event)">
     </qfin-administrative-unit-cascade> -->
@@ -159,14 +159,14 @@
             <div class="w-12 flex justify-center" matPrefix>
                 <svg lucideIcon="siren" class="w-5 h-5"></svg>
             </div>
-            <mat-select [formField]="permanentAddressForm.policeStationId" placeholder="Select Police Station">
+            <!-- <mat-select [formField]="permanentAddressForm.policeStationId" placeholder="Select Police Station">
                 @for (police of permanentPoliceStations(); track police.id) {
                 <mat-option [value]="police.id">
                     {{ police.name }}
                 </mat-option>
                 }
-            </mat-select>
-            <mat-error class="cus-error">
+            </mat-select> -->
+        <!-- <mat-error class="cus-error">
                 {{ permanentAddressForm.policeStationId().errors()[0]?.message }}
             </mat-error>
         </mat-form-field> -->

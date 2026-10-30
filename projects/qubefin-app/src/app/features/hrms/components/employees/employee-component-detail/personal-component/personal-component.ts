@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { AlertService, EMPTY_UUID, nationalities } from 'qubefin-core';
+import { AlertService, DocumentModalService, EMPTY_UUID, nationalities } from 'qubefin-core';
 import {
   form,
   FormField,
@@ -72,6 +72,7 @@ export class PersonalComponentDetail {
   private readonly employeeStore = inject(EmployeeStore);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
+  readonly documentModal = inject(DocumentModalService);
   readonly iconMap = APP_ICONS_MAP;
   isEditMode = computed(() => !!this.empId() && this.empId() !== EMPTY_UUID);
 
@@ -100,6 +101,15 @@ export class PersonalComponentDetail {
 
   protected readonly employeeForm = form(this.employeeModel, this.employeeSchema);
 
+  protected readonly photoFileName = signal<string>('');
+  protected readonly photoFileUrl = signal<string>('');
+  protected readonly photoFile = signal<File | null>(null);
+  protected readonly signatureFileName = signal<string>('');
+  protected readonly signatureFileUrl = signal<string>('');
+  protected readonly signatureFile = signal<File | null>(null);
+
+  protected readonly showFileUpload = signal<boolean>(false);
+
   @ViewChild('stepper', { read: ElementRef })
   stepper!: ElementRef;
   protected readonly bloodGroups = computed(() => this.filterUtility('BLOODGROUP'));
@@ -107,7 +117,7 @@ export class PersonalComponentDetail {
   protected readonly genders = computed(() => this.filterUtility('GENDER'));
   protected readonly castes = computed(() => this.filterUtility('CASTE'));
   protected readonly religions = computed(() => this.filterUtility('RELIGION'));
-  protected readonly salutations = computed(() => this.filterUtility('SALUTAION')); // Kept matching typo from original code
+  protected readonly salutations = computed(() => this.filterUtility('SALUTAION'));
   protected readonly disabilityTypes = ['Yes', 'No'];
   private filterUtility(sysKey: string) {
     const list = this.utilities();
@@ -126,10 +136,18 @@ export class PersonalComponentDetail {
               resp.bloodGroup = resp.bloodGroup.trim();
             }
             this.employeeModel.set(new EmployeePersonalInfo(resp));
+            this.photoFileName.set(resp?.photoFileName ?? '');
+            this.photoFileUrl.set(resp?.photoFileUrl ?? '');
+            this.signatureFileName.set(resp?.signatureFileName ?? '');
+            this.signatureFileUrl.set(resp?.signatureFileUrl ?? '');
           }),
         );
       } else {
         this.employeeModel.set(new EmployeePersonalInfo());
+        this.photoFileName.set('');
+        this.photoFileUrl.set('');
+        this.signatureFileName.set('');
+        this.signatureFileUrl.set('');
         return of(null);
       }
     },
@@ -184,42 +202,129 @@ export class PersonalComponentDetail {
       ? this.utilities().filter((m: any) => m.sysKey == 'SALUTAION')
       : [];
   }
+  onFileSelect(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const file = inputElement.files?.[0];
+    if (file) {
+      const isImage = file.type.startsWith('image/');
+      if (!isImage) {
+        inputElement.value = '';
+        this.alertService.warning(null, 'Only image file can be selected.');
+        return;
+      }
+      this.photoFile.set(file);
+      this.photoFileUrl.set(URL.createObjectURL(file));
+      this.photoFileName.set(file.name);
+    }
+  }
+  openFile() {
+    if (!this.photoFileUrl() || !this.photoFileName()) {
+      return;
+    }
+    this.documentModal.open({
+      url: this.photoFileUrl(),
+      documentName: this.photoFileName(),
+      extension: this.photoFileName().split('.').pop()?.toLowerCase() || '',
+      downloadAccess: true,
+    });
+  }
+  removeFile() {
+    this.photoFile.set(null);
+    if (this.photoFileUrl().startsWith('blob:')) {
+      URL.revokeObjectURL(this.photoFileUrl());
+    }
+    this.photoFileUrl.set('');
+    this.photoFileName.set('');
+  }
+  onSignatureSelect(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const file = inputElement.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      inputElement.value = '';
+      this.alertService.warning(null, 'Only image file can be selected.');
+      return;
+    }
+
+    if (this.signatureFileUrl().startsWith('blob:')) {
+      URL.revokeObjectURL(this.signatureFileUrl());
+    }
+    this.signatureFile.set(file);
+    this.signatureFileUrl.set(URL.createObjectURL(file));
+    this.signatureFileName.set(file.name);
+  }
+
+  openSignature() {
+    if (!this.signatureFileUrl()) return;
+    const name = this.signatureFileName() || 'Signature.png';
+    this.documentModal.open({
+      url: this.signatureFileUrl(),
+      documentName: name,
+      extension: name.split('.').pop()?.toLowerCase() || 'png',
+      downloadAccess: true,
+    });
+  }
+
+  removeSignature() {
+    this.signatureFile.set(null);
+    if (this.signatureFileUrl().startsWith('blob:')) {
+      URL.revokeObjectURL(this.signatureFileUrl());
+    }
+    this.signatureFileUrl.set('');
+    this.signatureFileName.set('');
+  }
   onSubmit() {
     this.employeeForm().markAsTouched();
     if (!this.employeeForm().valid()) {
       return;
     }
     const formValue = this.employeeForm().value();
-    const dataToSave: any = {
-      ...formValue,
-      dateOfBirth: this.datePipe.transform(formValue.dateOfBirth, 'yyyy-MM-dd'),
-      firstName: formValue.firstName?.trim() === '' ? null : formValue.firstName,
-      middleName: formValue.middleName?.trim() === '' ? null : formValue.middleName,
-      lastName: formValue.lastName?.trim() === '' ? null : formValue.lastName,
-      fatherName: formValue.fatherName?.trim() === '' ? null : formValue.fatherName,
-      husbandName: formValue.husbandName?.trim() === '' ? null : formValue.husbandName,
-      motherName: formValue.motherName?.trim() === '' ? null : formValue.motherName,
-      caste: formValue.caste?.trim() === '' ? null : formValue.caste,
-      disabilityType: formValue.disablityType?.trim() === '' ? null : formValue.disablityType,
-      salutation: formValue.salutation?.trim() === '' ? null : formValue.salutation,
-    };
-    delete dataToSave.code;
+
+    const formData = new FormData();
+
+    formData.append('code', formValue.code ?? '');
+    formData.append('salutation', formValue.salutation ?? '');
+    formData.append('firstName', formValue.firstName ?? '');
+    formData.append('middleName', formValue.middleName ?? '');
+    formData.append('lastName', formValue.lastName ?? '');
+    formData.append('gender', formValue.gender ?? '');
+    formData.append('fatherName', formValue.fatherName ?? '');
+    formData.append('motherName', formValue.motherName ?? '');
+    formData.append('husbandName', formValue.husbandName ?? '');
+    formData.append('religion', formValue.religion ?? '');
+    formData.append('caste', formValue.caste ?? '');
+    formData.append('nationality', formValue.nationality ?? '');
+    formData.append('bloodGroup', formValue.bloodGroup ?? '');
+    formData.append('disablityType', formValue.disablityType ?? '');
+    formData.append('maritalStatus', formValue.maritalStatus ?? '');
+    const dateOfBirth = this.datePipe.transform(formValue.dateOfBirth, 'yyyy-MM-dd');
+    formData.append('dateOfBirth', dateOfBirth ?? '');
+
+    const photoFile = this.photoFile();
+    if (photoFile) {
+      formData.append('photo', photoFile);
+    }
+    const signatureFile = this.signatureFile();
+    if (signatureFile) {
+      formData.append('signature', signatureFile);
+    }
     if (!this.isEditMode()) {
-      this.employeeService.create(dataToSave).subscribe({
+      this.employeeService.create(formData).subscribe({
         next: (resp: any) => {
           this.alertService.success('Success', resp.message).then(() => {
             this.employeeStore.refreshList();
             const newId = resp.id;
-            // resp?.id || resp?.data?.id || resp?.data || (typeof resp === 'string' ? resp : null);
             this.onSave.emit(newId);
           });
         },
         error: (err: any) => {},
       });
     } else {
-      this.employeeService.updatePersonalInfo(this.empId(), dataToSave).subscribe({
+      this.employeeService.updatePersonalInfo(this.empId(), formData).subscribe({
         next: (resp: any) => {
           this.alertService.success('Success', resp).then(() => {
+            this.showFileUpload.set(false);
             this.employeeStore.refreshList();
             this.employeeStore.refreshDetail();
             this.onUpdate.emit();

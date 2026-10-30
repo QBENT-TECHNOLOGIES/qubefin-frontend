@@ -136,13 +136,14 @@ export class EmployeeComponent {
     this.applyFilters();
   }
   protected exportEmployeeDetail() {
-    const companyId = this.employeeStore.companyId();
+    const companyId = this.srchCompanyId();
 
     if (companyId == null) {
       this.alertService.warning(
         'Validation Error',
         'Please select a company from the filter before exporting.',
       );
+      this.showFilterArea.set(true);
       return;
     }
     const year = new Date().getFullYear();
