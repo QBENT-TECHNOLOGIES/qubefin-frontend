@@ -1,0 +1,132 @@
+<div class="mainCard-area glass w-full max-w-full min-w-0">
+    @if (joiningApprovalStore.loading()) {
+    <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="loader" class="w-5 h-5"></svg>
+        Loading employee joining approvals...
+    </div>
+    } @else if (joiningApprovalStore.error()) {
+    <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
+        Unable to load employee joining approvals.
+    </div>
+    } @else {
+    <!-- Eleven columns don't fit narrow screens, so the table keeps its natural width and scrolls sideways. -->
+    <div class="overflow-x-auto scroll-thin w-full max-w-full">
+        <table mat-table [dataSource]="joiningApprovalStore.joiningApprovals()" matSort matSortActive="createdOn"
+            matSortDirection="desc" matSortDisableClear (matSortChange)="onSortChanged($event)"
+            class="w-full min-w-max table whitespace-nowrap">
+
+            <ng-container matColumnDef="sl">
+                <th mat-header-cell *matHeaderCellDef>#</th>
+                <td mat-cell *matCellDef="let row; let i = index"
+                    class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                    {{ joiningApprovalStore.pageIndex() * joiningApprovalStore.pageSize() + i + 1 }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="employeeName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="employeeName">Employee Name</th>
+                <td mat-cell *matCellDef="let item">
+                    <span class="text-[13px] font-medium dark:text-slate-300">{{ item.employeeName }}</span><br />
+                    <span class="text-xs text-primary-700 dark:text-primary-600">{{ item.employeeCode }}</span>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="designation">
+                <th mat-header-cell *matHeaderCellDef>Designation</th>
+                <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                    {{ item.designation || '-' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="organizationUnit">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="organizationUnit">Organization Unit</th>
+                <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                    {{ item.organizationUnit || '-' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="company">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="company">Company</th>
+                <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                    {{ item.company || '-' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="monthlyCtc">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="monthlyCtc">Monthly CTC</th>
+                <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                    {{ item.monthlyCtc | currency: 'INR' : 'symbol' : '1.0-2' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="department">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="department">Department</th>
+                <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                    {{ item.department || '-' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="salaryGrade">
+                <th mat-header-cell *matHeaderCellDef>Salary Grade</th>
+                <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                    {{ item.salaryGrade || '-' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="joiningDate">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="joiningDate">Joining Date</th>
+                <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                    {{ item.joiningDate ? (item.joiningDate | date: 'dd-MM-yyyy') : '-' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="qualification">
+                <th mat-header-cell *matHeaderCellDef>Qualification</th>
+                <td mat-cell *matCellDef="let item" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                    {{ item.qualification || '-' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="action">
+                <th mat-header-cell *matHeaderCellDef class="text-right!">Action</th>
+                <td mat-cell *matCellDef="let item">
+                    <div class="w-full flex justify-end">
+                        <button mat-icon-button [matMenuTriggerFor]="actionMenu" matTooltip="Action"
+                            class="!w-9 !h-9 inline-flex items-center justify-center rounded-full hover:bg-primary-400/10">
+                            <svg lucideIcon="ellipsis-vertical" class="w-5 h-5 text-primary-500"></svg>
+                        </button>
+                        <mat-menu #actionMenu="matMenu" class="menus-area" xPosition="before">
+                            <button mat-menu-item class="!h-10 !min-h-10" (click)="onAction(item, true)">
+                                <svg lucideIcon="circle-check"
+                                    class="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400"></svg>
+                                <span class="text-[13px]">Approve</span>
+                            </button>
+                            <button mat-menu-item class="!h-10 !min-h-10" (click)="onAction(item, false)">
+                                <svg lucideIcon="x" class="w-4 h-4 shrink-0 text-red-600 dark:text-red-400"></svg>
+                                <span class="text-[13px]">Reject</span>
+                            </button>
+                        </mat-menu>
+                    </div>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns" class="transition-colors"></tr>
+
+            <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell px-8 text-center! text-slate-400 border-b-0" [attr.colspan]="columns.length">
+                    <div class="flex justify-center items-center gap-2">
+                        <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>
+                        No employee joining approvals found.
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <mat-paginator [length]="joiningApprovalStore.totalRecords()" [pageSize]="joiningApprovalStore.pageSize()"
+        [pageIndex]="joiningApprovalStore.pageIndex()" [pageSizeOptions]="[10,20,50]"
+        (page)="pageChanged($event)">
+    </mat-paginator>
+    }
+</div>

@@ -35,7 +35,7 @@
 
     <!-- approval-type rail -->
     <div class="flex items-center gap-1.5 flex-wrap">
-      @for (tab of tabs; track tab.key) {
+      @for (tab of tabs(); track tab.key) {
       <button type="button" (click)="onSelectTab(tab.key)"
         class="flex items-center gap-2 h-8 px-3 rounded-lg text-[12.5px] whitespace-nowrap cursor-pointer transition-all duration-200"
         [ngClass]="activeTab() === tab.key
@@ -138,6 +138,9 @@
   }
   @case ('fitness') {
   <qfin-leave-fitness-component></qfin-leave-fitness-component>
+  }
+  @case ('joining') {
+  <qfin-joining-approval-component></qfin-joining-approval-component>
   }
   }
 </div>

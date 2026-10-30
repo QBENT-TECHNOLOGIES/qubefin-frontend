@@ -60,6 +60,14 @@ export class ReportService {
       responseType: 'blob',
     });
   }
+  exportEmployeeDetail(year: number, companyId: string) {
+    return this.httpClient.get(
+      `${ApiPaths.REPORT}/generate-employee-detail-report/${year}/${companyId}`,
+      {
+        responseType: 'blob',
+      },
+    );
+  }
   // Employee Appoinment Letter After Entry
   getAppoinmentLetter(employeeId: string, companyId: string) {
     return this.httpClient.get(`${ApiPaths.REPORT}/employee/${employeeId}/${companyId}`, {
