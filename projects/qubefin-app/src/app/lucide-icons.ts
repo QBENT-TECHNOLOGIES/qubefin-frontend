@@ -206,6 +206,8 @@ import {
   LucideUserRoundPlus,
   LucideCamera,
   LucideSignature,
+  LucideBuildingComplex,
+  LucideArrowBigRightDash,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -416,6 +418,8 @@ export const APP_ICONS = [
   LucideUserRoundPlus,
   LucideCamera,
   LucideSignature,
+  LucideBuildingComplex,
+  LucideArrowBigRightDash,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -623,4 +627,6 @@ export const APP_ICONS_MAP: Record<string, any> = {
   UserRoundPlus: LucideUserRoundPlus,
   Camera: LucideCamera,
   Siganture: LucideSignature,
+  BuildingComplex: LucideBuildingComplex,
+  ArrowBigRightDash: LucideArrowBigRightDash,
 };

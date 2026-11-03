@@ -182,7 +182,7 @@
                 <svg lucideIcon="indian-rupee" class="w-5 h-5"></svg>
             </div>
             <input matInput type="number" autocomplete="off" [formField]="empTransferForm.grossSalary"
-                placeholder="Gross Salary">
+                (wheel)="$event.preventDefault()" placeholder="Gross Salary">
             <mat-error class="cus-error">
                 {{ empTransferForm.grossSalary().errors()[0]?.message }}
             </mat-error>

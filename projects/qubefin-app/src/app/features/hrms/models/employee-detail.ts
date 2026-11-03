@@ -787,3 +787,26 @@ export interface IJoiningInfo {
   offerLetterDate: string | Date | null;
   referenceNo: string;
 }
+export interface IEmployeeCurrentDetails {
+  companyId?: string;
+  organizationUnitId?: string;
+  organizationUnitName?: string;
+  separationDate?: Date | null | string;
+  companyName?: string;
+  designationId?: string;
+  designationName?: string;
+  salaryGrade?: string;
+  salaryGradeId?: string;
+  grossSalary?: number;
+}
+export interface ICompanyTransferDetails {
+  companyId: string;
+  organizationUnitTypeId: string;
+  OrganisationUnitId: string;
+  designation: string;
+  // designationName: string;
+  separationDate: Date | null;
+  joiningDate: Date | null;
+  gradeId: string;
+  grossSalary: number | null;
+}
