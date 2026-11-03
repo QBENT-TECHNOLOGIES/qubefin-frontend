@@ -35,7 +35,6 @@ export class LeaveRequestView {
 
   readonly leaveRequestId = model<string>(EMPTY_UUID);
   readonly delete = output<void>();
-  readonly edit = output<void>();
   cancelReasonControl = new FormControl('', {
     nonNullable: true,
     validators: [Validators.required],
@@ -81,32 +80,6 @@ export class LeaveRequestView {
       extension: name.split('.').pop()?.toLowerCase() || '',
       downloadAccess: true,
     });
-  }
-
-  onEdit() {
-    this.edit.emit();
-  }
-
-  onSubmit() {
-    this.alertService
-      .confirm('Confirmation', 'Do you want to submit your leave request?', 'Yes', 'No')
-      .then((result: any) => {
-        if (result.isConfirmed) {
-          this.leaveRequestService.submit(this.leaveRequestId()).subscribe({
-            next: (resp: any) => {
-              if (resp) {
-                this.alertService.success('Success', resp).then(() => {
-                  this.leaveRequestStore.refreshList();
-                  this.leaveRequestStore.refreshDetail();
-                });
-              } else {
-                this.alertService.error('Failed', resp);
-              }
-            },
-            error: (err: any) => {},
-          });
-        }
-      });
   }
 
   onCancel() {

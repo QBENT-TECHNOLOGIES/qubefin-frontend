@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, effect, inject, output, signal } from '@angular/core';
 import { form, FormField, readonly, required, schema, Schema } from '@angular/forms/signals';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -40,17 +40,8 @@ export class LeaveRequestDetail {
   readonly documentModal = inject(DocumentModalService);
   private readonly datePipe = inject(DatePipe);
 
-  readonly leaveRequestId = input<string>(EMPTY_UUID);
-
   readonly cancel = output<void>();
   readonly save = output<string | void>();
-
-  readonly isEditMode = computed(
-    () => !!this.leaveRequestId() && this.leaveRequestId() !== EMPTY_UUID,
-  );
-
-  readonly leaveRequest = this.leaveRequestStore.leaveRequest;
-  readonly loading = this.leaveRequestStore.leaveRequestLoading;
 
   readonly leaveTypeBalances = this.leaveRequestStore.leaveTypeBalances;
   readonly leaveTypeBalancesLoading = this.leaveRequestStore.leaveTypeBalancesLoading;
@@ -87,38 +78,6 @@ export class LeaveRequestDetail {
     this.dateAdapter.setLocale('en-GB');
 
     effect(() => {
-      this.leaveRequestStore.setLeaveRequestId(this.leaveRequestId());
-
-      if (!this.isEditMode()) {
-        this.leaveRequestModel.set({
-          id: EMPTY_UUID,
-          leaveTypeId: '',
-          fromDate: '',
-          toDate: '',
-          reason: '',
-          address: '',
-        });
-        this.selectedFile.set(null);
-        this.documentUrl.set('');
-        this.documentName.set('');
-        return;
-      }
-    });
-
-    effect(() => {
-      const request = this.leaveRequest();
-      if (request) {
-        this.leaveRequestModel.set({
-          ...request,
-          fromDate: request.fromDate ? new Date(request.fromDate) : null,
-          toDate: request.toDate ? new Date(request.toDate) : null,
-        });
-        this.documentUrl.set(request.enclosedDocUrl || '');
-        this.documentName.set(request.enclosedDocName || '');
-      }
-    });
-
-    effect(() => {
       const value = this.leaveRequestForm.fromDate().value();
 
       if (!value) {
@@ -128,7 +87,7 @@ export class LeaveRequestDetail {
 
       const fromDate = value instanceof Date ? value : new Date(value);
 
-      // Skip initial load (Create/Edit)
+      // Skip first selection
       if (this.previousFromDate === null) {
         this.previousFromDate = fromDate;
         return;
@@ -187,8 +146,8 @@ export class LeaveRequestDetail {
     if (this.documentUrl().startsWith('blob:')) {
       URL.revokeObjectURL(this.documentUrl());
     }
-    this.documentUrl.set(this.leaveRequest()?.enclosedDocUrl || '');
-    this.documentName.set(this.leaveRequest()?.enclosedDocName || '');
+    this.documentUrl.set('');
+    this.documentName.set('');
   }
 
   openDocument() {
@@ -211,9 +170,6 @@ export class LeaveRequestDetail {
   private buildFormData(): FormData {
     const dataToSave = this.leaveRequestForm().value();
     const formData = new FormData();
-    if (this.isEditMode()) {
-      formData.append('id', dataToSave.id);
-    }
     formData.append('leaveTypeId', dataToSave.leaveTypeId);
 
     const fromDateStr = this.datePipe.transform(dataToSave.fromDate, 'yyyy-MM-dd');
@@ -231,7 +187,7 @@ export class LeaveRequestDetail {
     return formData;
   }
 
-  protected onSaveAsDraft() {
+  protected onSubmit() {
     if (!this.leaveRequestForm().valid()) {
       return;
     }
@@ -249,12 +205,7 @@ export class LeaveRequestDetail {
     }
 
     this.alertService
-      .confirm(
-        'Confirmation',
-        `Do you want to ${this.isEditMode() ? 'update' : 'create'} your leave request?`,
-        'Yes',
-        'No',
-      )
+      .confirm('Confirmation', 'Do you want to apply for this leave?', 'Yes', 'No')
       .then((result: any) => {
         if (result.isConfirmed) {
           const formData = this.buildFormData();
