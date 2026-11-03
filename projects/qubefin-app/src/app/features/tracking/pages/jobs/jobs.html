@@ -39,9 +39,9 @@
             'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none': !isViewMode()
         }">
             @if (showFilters() && !hasPanel()) {
-            <div class="filter-area">
+            <div class="filter-area trk-filters">
                 <div class="filter-container flex-wrap!">
-                    <div class="flex-1 min-w-[220px]">
+                    <div class="flex-1 min-w-[200px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                             <mat-label>Search</mat-label>
                             <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="search" class="w-5 h-5"></svg></div>
@@ -49,7 +49,7 @@
                                 (keydown.enter)="applySearch()" (blur)="applySearch()" placeholder="Job / task no, title, employee, place">
                         </mat-form-field>
                     </div>
-                    <div class="min-w-[150px]">
+                    <div class="w-[140px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                             <mat-label>Status</mat-label>
                             <mat-select [value]="store.status()" (valueChange)="store.setFilter(store.status, $event)">
@@ -58,7 +58,7 @@
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="min-w-[150px]">
+                    <div class="w-[150px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                             <mat-label>Branch</mat-label>
                             <mat-select [value]="store.branchId()" (valueChange)="store.setFilter(store.branchId, $event)">
@@ -67,7 +67,7 @@
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="min-w-[190px]">
+                    <div class="w-[170px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                             <mat-label>Employee</mat-label>
                             <mat-select [value]="store.assigneeId()" (valueChange)="store.setFilter(store.assigneeId, $event)">
@@ -80,7 +80,7 @@
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="min-w-[160px]">
+                    <div class="w-[140px]">
                         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full"
                             matTooltip="Jobs with OD member tasks in this days-past-due range">
                             <mat-label>Days past due</mat-label>
@@ -90,15 +90,10 @@
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="w-[190px]">
-                        <qfin-trk-date-field label="Due from" clearable [value]="store.dueFrom() ?? ''" [maxDate]="store.dueTo()"
-                            (valueChange)="store.setFilter(store.dueFrom, $event || null)" />
+                    <div class="w-[230px]">
+                        <qfin-trk-date-range-field label="Due between" [from]="store.dueFrom()" [to]="store.dueTo()" (rangeChange)="setDue($event)" />
                     </div>
-                    <div class="w-[190px]">
-                        <qfin-trk-date-field label="Due to" clearable [value]="store.dueTo() ?? ''" [minDate]="store.dueFrom()"
-                            (valueChange)="store.setFilter(store.dueTo, $event || null)" />
-                    </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center">
                         <button type="button" class="trk-link-btn" (click)="resetFilters()">Reset</button>
                     </div>
                 </div>

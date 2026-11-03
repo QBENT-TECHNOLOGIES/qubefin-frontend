@@ -128,6 +128,11 @@ export interface JobSummary {
   selfAddedCount: number;
   /** Task types in the job, for chips in lists. */
   types: TaskType[];
+  /**
+   * Tasks per type (pending + completed, same basis as `taskCount`), e.g. `{ GroupVisit: 3, OdFollowUp: 1 }`.
+   * Optional: while absent, the list shows the type icons without numbers.
+   */
+  typeCounts?: Partial<Record<TaskType, number>>;
   transferredFromJobId: string | null;
   transferredFromJobNo: string | null;
 }

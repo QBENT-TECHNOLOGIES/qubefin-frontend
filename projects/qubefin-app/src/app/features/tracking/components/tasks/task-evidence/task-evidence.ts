@@ -1,5 +1,7 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DocumentModalService } from 'qubefin-core';
 import { JobTask } from '../../../models/job';
@@ -8,7 +10,7 @@ import { formatCoords, formatDistance, googleMapsLink } from '../../../utils/geo
 /** Location check + completion photo + remarks + OD outcome for one task (all captured on the mobile app). */
 @Component({
   selector: 'qfin-task-evidence',
-  imports: [DatePipe, DecimalPipe, LucideDynamicIcon],
+  imports: [DatePipe, DecimalPipe, RouterLink, MatTooltipModule, LucideDynamicIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './task-evidence.html',
 })
@@ -16,9 +18,10 @@ export class TaskEvidence {
   private readonly documents = inject(DocumentModalService);
 
   readonly task = input.required<JobTask>();
+  /** Show the "View on map" link to Job Monitoring. Off where the evidence already sits next to the map. */
+  readonly showMapLink = input(true);
 
   readonly formatDistance = formatDistance;
-  readonly formatCoords = formatCoords;
   readonly googleMapsLink = googleMapsLink;
 
   readonly verdict = computed(() => {
@@ -27,6 +30,17 @@ export class TaskEvidence {
     return v.locationMatched
       ? { ok: true, text: `Within ${this.task().target.matchRadiusMeters} m of the geo-tag` }
       : { ok: false, text: `Outside the ${this.task().target.matchRadiusMeters} m match radius` };
+  });
+
+  /** Raw GPS fixes kept out of the panel; available on hover for disputes. */
+  readonly arrivalTip = computed(() => {
+    const p = this.task().verification?.arrivalLocation;
+    return p ? `Arrival fix: ${formatCoords(p)}` : '';
+  });
+
+  readonly photoTip = computed(() => {
+    const p = this.task().verification?.completionLocation;
+    return p ? `Photo fix: ${formatCoords(p)}` : '';
   });
 
   readonly arrivalOk = computed(() => {

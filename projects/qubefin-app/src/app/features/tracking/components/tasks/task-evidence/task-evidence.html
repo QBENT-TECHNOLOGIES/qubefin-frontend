@@ -3,14 +3,16 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
     <div class="trk-stat-card">
         <p class="trk-stat-label">Arrival distance</p>
-        <p class="trk-stat-value" [class.text-emerald-600]="arrivalOk() === true" [class.text-rose-600]="arrivalOk() === false">
+        <p class="trk-stat-value w-fit" [class.text-emerald-600]="arrivalOk() === true" [class.text-rose-600]="arrivalOk() === false"
+            [matTooltip]="arrivalTip()" [matTooltipDisabled]="!arrivalTip()">
             {{ formatDistance(v?.arrivalDistanceMeters) }}
         </p>
         <p class="text-[11px] text-slate-400">GPS fix when the app recorded arrival</p>
     </div>
     <div class="trk-stat-card">
         <p class="trk-stat-label">Completion photo distance</p>
-        <p class="trk-stat-value" [class.text-emerald-600]="verdict()?.ok" [class.text-rose-600]="verdict() && !verdict()!.ok">
+        <p class="trk-stat-value w-fit" [class.text-emerald-600]="verdict()?.ok" [class.text-rose-600]="verdict() && !verdict()!.ok"
+            [matTooltip]="photoTip()" [matTooltipDisabled]="!photoTip()">
             {{ formatDistance(v?.completionDistanceMeters) }}
         </p>
         @if (verdict(); as vd) {
@@ -36,11 +38,10 @@
     </div>
     }
     <div class="text-xs flex flex-col gap-1.5 text-slate-600 dark:text-slate-300">
-        <div class="flex gap-2"><span class="w-28 text-slate-400">Target</span>
-            <a class="trk-link" [href]="googleMapsLink(t.target.location)" target="_blank" rel="noopener">{{ formatCoords(t.target.location) }}</a>
+        <div class="flex gap-2"><span class="w-28 text-slate-400 shrink-0">Target</span>
+            <a class="trk-link inline-flex items-center gap-1 min-w-0" [href]="googleMapsLink(t.target.location)" target="_blank" rel="noopener"
+                matTooltip="Open in Google Maps"><span class="truncate">{{ t.target.name }}</span><svg lucideIcon="external-link" class="w-3 h-3 shrink-0"></svg></a>
         </div>
-        <div class="flex gap-2"><span class="w-28 text-slate-400">Arrival fix</span><span class="tabular-nums">{{ formatCoords(v?.arrivalLocation) }}</span></div>
-        <div class="flex gap-2"><span class="w-28 text-slate-400">Photo fix</span><span class="tabular-nums">{{ formatCoords(v?.completionLocation) }}</span></div>
         <div class="flex gap-2"><span class="w-28 text-slate-400">Photo taken</span><span>{{ v?.photoTakenAt ? (v!.photoTakenAt | date: 'dd MMM, hh:mm:ss a') : '–' }}</span></div>
         <div class="flex gap-2"><span class="w-28 text-slate-400">Arrived</span><span>{{ t.arrivedAt ? (t.arrivedAt | date: 'dd MMM, hh:mm a') : '–' }}</span></div>
         <div class="flex gap-2"><span class="w-28 text-slate-400">Completed</span>
@@ -48,6 +49,12 @@
         </div>
         @if (t.remarks) {
         <div class="flex gap-2"><span class="w-28 text-slate-400 shrink-0">Remarks</span><span class="italic">“{{ t.remarks }}”</span></div>
+        }
+        @if (showMapLink() && v && (v.arrivalLocation || v.completionLocation)) {
+        <a class="trk-link inline-flex items-center gap-1 mt-1 w-fit" [routerLink]="['/secure/tracking/monitoring']"
+            [queryParams]="{ job: t.jobId, task: t.id }" matTooltip="Target, arrival fix and photo fix on the map">
+            <svg lucideIcon="map" class="w-3.5 h-3.5"></svg> View on map
+        </a>
         }
     </div>
 </div>

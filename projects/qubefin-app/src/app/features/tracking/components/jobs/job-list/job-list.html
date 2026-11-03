@@ -8,25 +8,42 @@
                 <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[440px]">{{ j.title }}</p>
                 <p class="text-[11px] text-slate-400 flex items-center gap-1.5 flex-wrap">
                     <span class="tabular-nums">{{ j.jobNo }}</span>
-                    · {{ j.taskCount }} task{{ j.taskCount === 1 ? '' : 's' }}
-                    @if (j.selfAddedCount) {
-                    <span class="trk-badge" matTooltip="Added by the employee from the mobile app">+{{ j.selfAddedCount }} self-added</span>
-                    }
                     @if (j.transferredFromJobNo) {
                     <span class="flex items-center gap-0.5" matTooltip="Created by a transfer"><svg lucideIcon="arrow-right-left" class="w-3 h-3"></svg>{{ j.transferredFromJobNo }}</span>
                     }
-                    @if (isCollapsed()) { · {{ j.assigneeName }} }
+                    @if (isCollapsed()) {
+                    · {{ j.taskCount }} task{{ j.taskCount === 1 ? '' : 's' }} · {{ j.assigneeName }}
+                    }
                 </p>
+                @if (isCollapsed()) {
                 <div class="flex items-center gap-1 mt-1">
                     @for (t of j.types; track t) {
-                    <span class="trk-type-dot" [style.--trk-color]="TASK_TYPE[t].color" [matTooltip]="TASK_TYPE[t].label">
+                    <span class="trk-type-dot" [style.--trk-color]="TASK_TYPE[t].color" [matTooltip]="typeTip(j, t)">
                         <svg [lucideIcon]="TASK_TYPE[t].icon" class="w-3 h-3"></svg>
                     </span>
                     }
-                    @if (isCollapsed()) {
                     <span class="ml-1"><qfin-trk-chip [tone]="JOB_STATUS[j.status]" [small]="true" /></span>
+                </div>
+                }
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="tasks">
+            <th mat-header-cell *matHeaderCellDef>Tasks</th>
+            <td mat-cell *matCellDef="let j" class="px-3 py-2">
+                <div class="flex items-center gap-1 flex-wrap max-w-[220px]">
+                    @for (t of j.types; track t) {
+                    <span class="trk-type-count" [style.--trk-color]="TASK_TYPE[t].color" [matTooltip]="typeTip(j, t)">
+                        <svg [lucideIcon]="TASK_TYPE[t].icon" class="w-3.5 h-3.5"></svg>
+                        @if (j.typeCounts?.[t]; as n) { {{ n }} }
+                    </span>
+                    } @empty {
+                    <span class="text-[11px] text-slate-400">–</span>
                     }
                 </div>
+                @if (j.selfAddedCount) {
+                <span class="trk-badge mt-1" matTooltip="Added by the employee from the mobile app">+{{ j.selfAddedCount }} self-added</span>
+                }
             </td>
         </ng-container>
 

@@ -43,6 +43,7 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 > `creditOfficerId/Name` and `groupId/Name` on `GeoTagPoint` (§8); `groupId`, `creditOfficerId/Name` on `OdMember` and
 > `creditOfficerId` / `groupId` filters on `od-members/search` (§4). The mapping **never limits assignment**: any place can still be
 > given to anyone the job rules (§3) allow, e.g. a point mapped to one CO can be given to another CO or to the BM.
+> **Added 3 Nov 2026** (list display only): `JobSummary.typeCounts` = tasks per type, e.g. `{ "GroupVisit": 3, "OdFollowUp": 1 }` (§3).
 
 ---
 
@@ -124,6 +125,11 @@ self-added on the mobile app; the web only offers them as a point clicked on the
 `OdMember` task, pending or completed, whose member's **current** DPD from the Loan Status Report is in the range), paging, and
 `sortOn` ∈ `completeBy`·`createdAt`·`assigneeName`·`status`. `summary` is computed over the same filters **excluding** status:
 `total, assigned, inProgress, delayed, completed`.
+
+**`JobSummary.typeCounts`** (every `JobSummary`, so also `jobs/open` and `Job`): number of tasks per `TaskType`, counted on the same
+basis as `taskCount` (pending + completed), e.g. `{ "GroupVisit": 3, "MemberVisit": 2, "OdFollowUp": 1 }`. Types with no task are
+left out; the values add up to `taskCount`. The Jobs & Tasks list shows it in its *Tasks* column. Optional: while it is absent the
+web shows the type icons (`types`) without numbers.
 
 **Task fields set on the web** (`NewTaskInput`, stored on `JobTask`, shown to the assignee on the mobile app):
 

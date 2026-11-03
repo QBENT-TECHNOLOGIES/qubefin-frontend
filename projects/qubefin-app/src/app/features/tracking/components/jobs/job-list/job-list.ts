@@ -30,8 +30,13 @@ export class JobList {
   readonly today = toDateKey();
 
   readonly columns = computed(() =>
-    this.isCollapsed() ? ['job', 'action'] : ['job', 'assigneeName', 'completeBy', 'progress', 'status', 'action'],
+    this.isCollapsed() ? ['job', 'action'] : ['job', 'tasks', 'assigneeName', 'completeBy', 'progress', 'status', 'action'],
   );
+
+  typeTip(j: JobSummary, t: string): string {
+    const n = j.typeCounts?.[t as keyof NonNullable<JobSummary['typeCounts']>];
+    return n ? `${n} ${this.TASK_TYPE[t].label}${n === 1 ? '' : 's'}` : this.TASK_TYPE[t].label;
+  }
 
   pct(j: JobSummary) {
     return j.taskCount ? Math.round((j.doneCount / j.taskCount) * 100) : 0;

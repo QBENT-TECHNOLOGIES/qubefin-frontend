@@ -20,7 +20,7 @@ import { pollWhileVisible } from '../../utils/poll';
 import { ALERT_SEVERITY, ALERT_STATUS, ALERT_TYPE, optionsOf, Tone } from '../../utils/tracking-labels';
 import { RemarksDialog, RemarksDialogData } from '../../components/shared/remarks-dialog/remarks-dialog';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
-import { TrkDateField } from '../../components/shared/date-field/trk-date-field';
+import { DateKeyRange, TrkDateRangeField } from '../../components/shared/date-field/trk-date-range-field';
 
 @Component({
   selector: 'qfin-tracking-alerts',
@@ -37,7 +37,7 @@ import { TrkDateField } from '../../components/shared/date-field/trk-date-field'
     LucideDynamicIcon,
     RouterLink,
     TrackingChip,
-    TrkDateField,
+    TrkDateRangeField,
   ],
   templateUrl: './tracking-alerts.html',
 })
@@ -67,6 +67,11 @@ export class TrackingAlerts {
 
   constructor() {
     pollWhileVisible(() => this.store.refresh());
+  }
+
+  setDates(r: DateKeyRange) {
+    this.store.fromDate.set(r.from || null);
+    this.store.setFilter(this.store.toDate, r.to || null);
   }
 
   filterType(type: AlertType) {

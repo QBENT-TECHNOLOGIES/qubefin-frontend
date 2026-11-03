@@ -10,7 +10,7 @@
     </div>
 
     <div class="mainCard-area glass w-full">
-        <div class="filter-area">
+        <div class="filter-area trk-filters">
             <div class="filter-container flex-wrap!">
                 <div class="min-w-[150px]">
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -48,13 +48,9 @@
                         </mat-select>
                     </mat-form-field>
                 </div>
-                <div class="w-[190px]">
-                    <qfin-trk-date-field label="From" clearable [value]="store.fromDate() ?? ''" [maxDate]="store.toDate() || today"
-                        (valueChange)="store.setFilter(store.fromDate, $event || null)" />
-                </div>
-                <div class="w-[190px]">
-                    <qfin-trk-date-field label="To" clearable [value]="store.toDate() ?? ''" [minDate]="store.fromDate()" [maxDate]="today"
-                        (valueChange)="store.setFilter(store.toDate, $event || null)" />
+                <div class="w-[230px]">
+                    <qfin-trk-date-range-field label="Raised between" [from]="store.fromDate()" [to]="store.toDate()" [maxDate]="today"
+                        (rangeChange)="setDates($event)" />
                 </div>
                 <span class="text-xs text-slate-500 ml-auto">{{ totalOpen() }} open · refreshes every 30 s</span>
             </div>

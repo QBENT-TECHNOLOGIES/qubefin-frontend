@@ -229,6 +229,8 @@ export function refreshJob(job: Job, today = toDateKey()): Job {
   job.selfAddedCount = counted.filter((t) => t.origin === 'SelfAdded').length;
   const source = counted.length ? counted : job.tasks;
   job.types = [...new Set(source.map((t) => t.type))];
+  job.typeCounts = {};
+  for (const t of counted) job.typeCounts[t.type] = (job.typeCounts[t.type] ?? 0) + 1;
   const branches = new Map(source.map((t) => [t.target.branchId, t.target.branchName]));
   job.branchIds = [...branches.keys()];
   job.branchNames = [...branches.values()];
@@ -292,6 +294,7 @@ export function newJob(d: MockDb, init: { title: string; description: string | n
     openCount: 0,
     selfAddedCount: 0,
     types: [],
+    typeCounts: {},
     transferredFromJobId: null,
     transferredFromJobNo: null,
     tasks: [],

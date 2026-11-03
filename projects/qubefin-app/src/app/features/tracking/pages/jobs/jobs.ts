@@ -21,12 +21,12 @@ import { JobForm } from '../../components/jobs/job-form/job-form';
 import { JobList } from '../../components/jobs/job-list/job-list';
 import { JobView } from '../../components/jobs/job-view/job-view';
 import { MockActorSwitch } from '../../mocks/mock-actor-switch';
-import { TrkDateField } from '../../components/shared/date-field/trk-date-field';
+import { DateKeyRange, TrkDateRangeField } from '../../components/shared/date-field/trk-date-range-field';
 
 /** Jobs: create (with tasks), assign now or later, transfer, extend, and audit. */
 @Component({
   selector: 'qfin-jobs',
-  imports: [NgClass, FormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatPaginatorModule, MatTooltipModule, LucideDynamicIcon, JobList, JobView, JobForm, MockActorSwitch, TrkDateField],
+  imports: [NgClass, FormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatPaginatorModule, MatTooltipModule, LucideDynamicIcon, JobList, JobView, JobForm, MockActorSwitch, TrkDateRangeField],
   templateUrl: './jobs.html',
 })
 export class Jobs {
@@ -95,6 +95,11 @@ export class Jobs {
 
   filterKpi(status: JobStatus | null) {
     this.store.setFilter(this.store.status, this.store.status() === status ? null : status);
+  }
+
+  setDue(r: DateKeyRange) {
+    this.store.dueFrom.set(r.from || null);
+    this.store.setFilter(this.store.dueTo, r.to || null);
   }
 
   resetFilters() {

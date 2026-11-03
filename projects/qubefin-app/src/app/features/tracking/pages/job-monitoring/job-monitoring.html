@@ -214,10 +214,10 @@
                         @if (task(); as t) {
                         <h4 class="box-content-heading">{{ t.taskNo }} · verification</h4>
                         <div class="green-line mb-3!"></div>
-                        <qfin-task-evidence [task]="t" />
+                        <qfin-task-evidence [task]="t" [showMapLink]="false" />
                         } @else {
                         <div class="trk-info-box h-full justify-center items-center text-center text-slate-500">
-                            Select a task (list or map) to see the arrival fix, completion photo and remarks.
+                            Select a task (list or map) to see the arrival and photo distances, completion photo and remarks.
                         </div>
                         }
                     </div>

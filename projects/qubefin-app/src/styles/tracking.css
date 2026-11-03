@@ -714,6 +714,22 @@
 .dark .trk-badge.is-green { color: #6ee7b7; }
 .dark .trk-badge.is-amber { color: #fcd34d; }
 
+/* Task-type chip with a count (Jobs & Tasks list, "Tasks" column). */
+.trk-type-count {
+  --trk-color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 22px;
+  padding: 0 0.4rem 0 0.3rem;
+  border-radius: 0.4rem;
+  font-size: 11.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--trk-color);
+  background: color-mix(in srgb, var(--trk-color) 12%, transparent);
+}
+
 .trk-type-dot {
   --trk-color: #2563eb;
   flex-shrink: 0;
@@ -938,3 +954,30 @@
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
 }
 .dark .trk-shared-place { background: rgba(15, 23, 42, 0.95); }
+
+/* ---------- Compact filter row (Tracking pages only) ---------- */
+/* ~38px fields, 13px text, no extra letter-spacing; the shared filter-container elsewhere is unchanged. */
+.trk-filters {
+  --mat-form-field-container-height: 38px;
+  --mat-form-field-container-vertical-padding: 8px;
+  --mat-form-field-container-text-size: 13px;
+  --mat-form-field-container-text-tracking: normal;
+  --mat-form-field-container-text-weight: 400;
+  --mat-form-field-outlined-label-text-size: 13px;
+  --mat-form-field-outlined-label-text-populated-size: 13px;
+  --mat-form-field-outlined-label-text-tracking: normal;
+  --mat-form-field-outlined-label-text-weight: 400;
+  --mat-select-trigger-text-size: 13px;
+  --mat-select-trigger-text-tracking: normal;
+  --mat-select-trigger-text-weight: 400;
+  --mat-icon-button-state-layer-size: 30px;
+  padding: 0.75rem 0.75rem 0.6rem;
+}
+.trk-filters .filter-container { gap: 0.6rem; }
+.trk-filters .mat-mdc-form-field-icon-prefix > div { width: 2.25rem; }
+.trk-filters .mat-mdc-form-field-icon-prefix svg { width: 16px; height: 16px; color: #94a3b8; }
+.trk-filters .mat-mdc-form-field-icon-suffix .mat-mdc-icon-button.mat-mdc-button-base { width: 30px; height: 30px; padding: 3px; }
+.trk-filters .mat-mdc-form-field-icon-suffix .mat-mdc-icon-button svg { width: 18px; height: 18px; }
+.trk-filters .trk-date-clear { width: 24px; height: 24px; }
+.trk-filters .mat-date-range-input { font-size: 13px; }
+.trk-filters .trk-link-btn { font-size: 13px; }

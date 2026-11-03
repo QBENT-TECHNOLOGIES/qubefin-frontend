@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { httpResource } from '@angular/common/http';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { GoogleMap, MapAdvancedMarker, MapCircle, MapPolyline } from '@angular/google-maps';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -66,7 +66,7 @@ export class JobMonitoring {
   readonly assigneeId = signal<string | null>(this.route.snapshot.queryParamMap.get('employee'));
   readonly onlyIssues = signal(false);
   readonly selectedJobId = signal<string | null>(this.route.snapshot.queryParamMap.get('job'));
-  readonly selectedTaskId = signal<string | null>(null);
+  readonly selectedTaskId = signal<string | null>(this.route.snapshot.queryParamMap.get('task'));
 
   private readonly query = toSignal(this.route.queryParamMap, { initialValue: this.route.snapshot.queryParamMap });
 
@@ -286,6 +286,12 @@ export class JobMonitoring {
       if (id && id !== this.selectedJobId()) this.selectedJobId.set(id);
     });
 
+    // "View on map" from a task's evidence links here with ?task=; react to the URL only.
+    effect(() => {
+      const taskId = this.query().get('task');
+      if (taskId) untracked(() => this.selectedTaskId.set(taskId));
+    });
+
     // Fit the view when the selection changes (not on every poll).
     let fitted = '';
     effect(() => {
@@ -327,7 +333,7 @@ export class JobMonitoring {
     if (id !== this.selectedJobId()) this.clearPlan();
     this.selectedJobId.set(id);
     this.selectedTaskId.set(null);
-    this.router.navigate([], { queryParams: { job: id }, queryParamsHandling: 'merge', replaceUrl: true });
+    this.router.navigate([], { queryParams: { job: id, task: null }, queryParamsHandling: 'merge', replaceUrl: true });
   }
 
   selectTask(t: JobTask | null) {
