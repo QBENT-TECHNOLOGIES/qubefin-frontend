@@ -6,7 +6,8 @@ import { TrackingBranch } from '../models/geo';
 
 /**
  * The signed-in user, plus the branches and field officers in their scope (cached for the session).
- * `officers` = the people below the user in their scope, i.e. whom they may give work to and monitor.
+ * `officers` = everyone the user may monitor (filters, Job Monitoring, Tracking History). `assignableOfficers` = the
+ * subset they may give work to (Assign to / Transfer to). A BM monitors the ABM of their branch but cannot assign them.
  */
 @Injectable({ providedIn: 'root' })
 export class TrackingLookupStore {
@@ -24,17 +25,20 @@ export class TrackingLookupStore {
   readonly branchById = computed(() => new Map(this.branches().map((b) => [b.id, b])));
   readonly officerById = computed(() => new Map(this.officers().map((o) => [o.id, o])));
 
-  /** Officers grouped for <mat-optgroup>, managers last. */
-  readonly officersByRole = computed(() => {
-    const order: OfficerRole[] = ['CO', 'ABM', 'BM', 'AM', 'DM'];
-    return order
-      .map((role) => ({ role, officers: this.officers().filter((o) => o.role === role) }))
-      .filter((g) => g.officers.length);
-  });
+  readonly assignableOfficers = computed(() => this.officers().filter((o) => o.canAssign));
+  /** Officers grouped for <mat-optgroup>, managers last: everyone the user may monitor (filters). */
+  readonly officersByRole = computed(() => groupByRole(this.officers()));
+  /** Same, only people the user may give work to (Assign to / Transfer to). */
+  readonly assignableByRole = computed(() => groupByRole(this.assignableOfficers()));
 
   refresh() {
     this.viewerResource.reload();
     this.branchesResource.reload();
     this.officersResource.reload();
   }
+}
+
+function groupByRole(officers: FieldOfficer[]) {
+  const order: OfficerRole[] = ['CO', 'ABM', 'BM', 'AM', 'DM'];
+  return order.map((role) => ({ role, officers: officers.filter((o) => o.role === role) })).filter((g) => g.officers.length);
 }

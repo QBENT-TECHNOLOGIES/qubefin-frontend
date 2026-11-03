@@ -14,9 +14,8 @@
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
                 <mat-label>Assign to</mat-label>
                 <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="user" class="w-5 h-5"></svg></div>
-                <mat-select [formField]="jobForm.assigneeId">
-                    <mat-option value="">Assign later</mat-option>
-                    @for (g of lookup.officersByRole(); track g.role) {
+                <mat-select [formField]="jobForm.assigneeId" placeholder="Select who will do this job">
+                    @for (g of lookup.assignableByRole(); track g.role) {
                     <mat-optgroup [label]="ROLE_LABEL[g.role] + 's'">
                         @for (o of g.officers; track o.id) {
                         <mat-option [value]="o.id">{{ o.name }} · {{ o.unitName }}</mat-option>
@@ -24,6 +23,9 @@
                     </mat-optgroup>
                     }
                 </mat-select>
+                @if (jobForm.assigneeId().touched() && jobForm.assigneeId().invalid()) {
+                <mat-error>{{ jobForm.assigneeId().errors()?.[0]?.message }}</mat-error>
+                }
             </mat-form-field>
 
             <qfin-trk-date-field label="Start from (optional)" icon="calendar-arrow-down" clearable [formField]="jobForm.startFrom"
@@ -45,7 +47,7 @@
             @if (assignee(); as a) {
             {{ ROLE_LABEL[a.role] }} jobs may only hold tasks in {{ a.unitName }}.
             } @else {
-            Without an assignee the job is saved and can be assigned later from the job details.
+            Choose who will do this job first. Places they already have pending are locked; places other people have are allowed, with a warning.
             }
         </p>
     </div>
@@ -53,7 +55,17 @@
     <div>
         <h3 class="text-base font-bold text-slate-800 dark:text-white">Tasks <span class="text-slate-400 font-medium">({{ tasks().length }})</span></h3>
         <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
-        <qfin-task-builder [(tasks)]="tasks" [allowedBranchIds]="allowedBranchIds()" [window]="window()" [assigneeId]="assignee()?.id ?? null" />
+        @if (assignee(); as a) {
+        <qfin-task-builder [(tasks)]="tasks" [allowedBranchIds]="allowedBranchIds()" [window]="window()" [assigneeId]="a.id" />
+        } @else {
+        <p class="trk-info-box text-xs flex items-center gap-2">
+            <svg lucideIcon="user" class="w-4 h-4 text-primary-600"></svg>
+            Select who will do this job (Assign to) to start adding tasks.
+        </p>
+        }
+        @if (blockedTasks(); as n) {
+        <p class="trk-field-error mt-2">{{ n }} {{ n === 1 ? 'task' : 'tasks' }} cannot go to {{ assignee()?.name }}. Remove {{ n === 1 ? 'it' : 'them' }} or choose someone else.</p>
+        }
         @if (branchConflict(); as c) {
         <p class="trk-field-error mt-2">{{ c }} Remove those tasks or choose someone else.</p>
         }
@@ -68,7 +80,7 @@
         </button>
         <button type="button" (click)="submit()" class="trk-btn-primary" [disabled]="saving()">
             <svg [lucideIcon]="saving() ? 'loader' : 'send'" class="w-4 h-4" [class.animate-spin]="saving()"></svg>
-            {{ model().assigneeId ? 'Create & assign' : 'Create job' }}
+            Create &amp; assign
         </button>
     </div>
 </div>

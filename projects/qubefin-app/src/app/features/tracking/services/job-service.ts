@@ -4,7 +4,6 @@ import { ApiPaths } from 'qubefin-core';
 import {
   AddTasksRequest,
   AddTasksResponse,
-  AssignJobRequest,
   CreateJobRequest,
   ExtendJobRequest,
   Job,
@@ -21,10 +20,6 @@ export class JobService {
 
   create(req: CreateJobRequest) {
     return this.http.post<AddTasksResponse>(this.basePath, req);
-  }
-
-  assign(jobId: string, req: AssignJobRequest) {
-    return this.http.put<Job>(`${this.basePath}/${jobId}/assign`, req);
   }
 
   transfer(jobId: string, req: TransferJobRequest) {

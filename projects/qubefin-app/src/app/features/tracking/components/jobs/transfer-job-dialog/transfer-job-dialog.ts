@@ -1,3 +1,4 @@
+import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -5,11 +6,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { ApiPaths } from 'qubefin-core';
 import { FieldOfficer } from '../../../models/field-officer';
-import { Job, TransferJobRequest } from '../../../models/job';
+import { Job, JobTask, JobTaskPoint, TransferJobRequest } from '../../../models/job';
 import { TrackingLookupStore } from '../../../stores/tracking-lookup-store';
 import { toDateKey } from '../../../utils/geo-utils';
-import { jobBranchConflict } from '../../../utils/job-rules';
+import { PendingElsewhere, duplicateCheck, jobBranchConflict, targetKey } from '../../../utils/job-rules';
 import { ROLE_LABEL, TASK_TYPE } from '../../../utils/tracking-labels';
 import { TrkDateField } from '../../shared/date-field/trk-date-field';
 
@@ -24,6 +26,8 @@ export interface TransferJobDialogData {
  * Whole job with completed tasks → every pending task moves into a new job linked to this one, so the
  * completed tasks (and the route / allowance behind them) stay with the original assignee.
  * Selected tasks → those pending tasks move into a new linked job.
+ * Tasks the new person already has pending (same type, same place, overlapping dates) do not move; they are listed here
+ * before saving and stay in this job.
  */
 @Component({
   selector: 'qfin-transfer-job-dialog',
@@ -59,8 +63,29 @@ export class TransferJobDialog {
       : [...new Set(this.pending.filter((t) => this.picked().has(t.id)).map((t) => t.target.branchId))],
   );
 
+  /** Pending tasks the chosen person already holds elsewhere, to say which tasks will not move. */
+  private readonly theirsResource = httpResource<JobTaskPoint[]>(() => {
+    const id = this.assigneeId();
+    return id ? { url: `${ApiPaths.TRACKING}/jobs/task-points`, params: { assigneeId: id, pendingOnly: 'true' } } : undefined;
+  });
+  readonly staying = computed<{ task: JobTask; reason: string }[]>(() => {
+    const id = this.assigneeId();
+    const theirs = (this.theirsResource.value() ?? []).filter((p) => p.jobId !== this.job.id && p.refId);
+    if (!id || !theirs.length) return [];
+    const window: [string, string] = [this.today, this.createsNewJob() ? this.completeBy() : this.job.completeBy];
+    const moving = this.mode() === 'whole' ? this.pending : this.pending.filter((t) => this.picked().has(t.id));
+    return moving.flatMap((task) => {
+      const key = targetKey(task.type, task.target);
+      const same: PendingElsewhere[] = theirs
+        .filter((p) => `${p.type}|${p.targetKind}:${p.refId}` === key)
+        .map((p) => ({ jobNo: p.jobNo, assigneeId: p.assigneeId, assigneeName: p.assigneeName, window: [p.jobStartFrom, p.jobCompleteBy < this.today ? this.today : p.jobCompleteBy] }));
+      const { block } = duplicateCheck(id, task.type, window, same);
+      return block ? [{ task, reason: block }] : [];
+    });
+  });
+
   readonly groups = computed(() =>
-    this.lookup.officersByRole().map((g) => ({
+    this.lookup.assignableByRole().map((g) => ({
       ...g,
       officers: g.officers.map((o) => ({ ...o, blockedReason: this.blocked(o) })),
     })),

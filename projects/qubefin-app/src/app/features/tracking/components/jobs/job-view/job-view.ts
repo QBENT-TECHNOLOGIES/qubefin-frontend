@@ -11,8 +11,7 @@ import { JobStore } from '../../../stores/job-store';
 import { TrackingLookupStore } from '../../../stores/tracking-lookup-store';
 import { googleMapsLink, toDateKey } from '../../../utils/geo-utils';
 import { isOpenJob } from '../../../utils/job-rules';
-import { JOB_STATUS, JOB_TASK_STATUS, ROLE_LABEL, TASK_TYPE } from '../../../utils/tracking-labels';
-import { AssignOfficerDialog, AssignOfficerDialogData, AssignOfficerDialogResult } from '../../shared/assign-officer-dialog/assign-officer-dialog';
+import { JOB_STATUS, JOB_TASK_STATUS, ROLE_LABEL, TASK_PRIORITY, TASK_TYPE } from '../../../utils/tracking-labels';
 import { RemarksDialog, RemarksDialogData } from '../../shared/remarks-dialog/remarks-dialog';
 import { TrackingChip } from '../../shared/tracking-chip/tracking-chip';
 import { TaskEvidence } from '../../tasks/task-evidence/task-evidence';
@@ -22,7 +21,6 @@ import { TransferJobDialog, TransferJobDialogData } from '../transfer-job-dialog
 
 const HISTORY: Record<JobHistoryAction, { label: string; icon: string }> = {
   Created: { label: 'Created', icon: 'plus' },
-  Assigned: { label: 'Assigned', icon: 'user-check' },
   Transferred: { label: 'Job transferred', icon: 'arrow-right-left' },
   TasksTransferredOut: { label: 'Tasks moved out', icon: 'arrow-right' },
   TasksTransferredIn: { label: 'Tasks moved in', icon: 'arrow-left' },
@@ -61,6 +59,7 @@ export class JobView {
   readonly JOB_STATUS = JOB_STATUS;
   readonly JOB_TASK_STATUS = JOB_TASK_STATUS;
   readonly TASK_TYPE = TASK_TYPE;
+  readonly TASK_PRIORITY = TASK_PRIORITY;
   readonly ROLE_LABEL = ROLE_LABEL;
   readonly HISTORY = HISTORY;
   readonly googleMapsLink = googleMapsLink;
@@ -75,10 +74,10 @@ export class JobView {
     const j = this.job();
     if (!j) return null;
     const p = j.permissions;
-    if (j.assigneeId && j.assigneeId === this.lookup.viewer()?.employeeId) {
+    if (j.assigneeId === this.lookup.viewer()?.employeeId) {
       return 'This job is assigned to you. Work cannot be transferred or delegated; new tasks for your own job are added from the mobile app.';
     }
-    if (!p.canUpdate && !p.canAssign) return `View only. ${j.createdByName} (who created the job) or someone above them can change it.`;
+    if (!p.canUpdate) return `View only. ${j.createdByName} (who created the job) or someone above them can change it.`;
     if (p.canUpdate && !p.canCancel) return `You can add tasks and extend the date. Only ${j.createdByName} or someone above them can transfer or cancel this job.`;
     return null;
   });
@@ -126,30 +125,6 @@ export class JobView {
   }
 
   // --- Job actions -----------------------------------------------------------------------------
-  assign() {
-    const j = this.job();
-    if (!j) return;
-    this.dialog
-      .open<AssignOfficerDialog, AssignOfficerDialogData, AssignOfficerDialogResult>(AssignOfficerDialog, {
-        data: {
-          title: `Assign ${j.jobNo}`,
-          subtitle: `${j.title} · ${j.taskCount} task(s) in ${j.branchNames.join(', ')}`,
-          workBranchIds: j.branchIds,
-          confirmText: 'Assign job',
-        },
-        panelClass: 'glass-modal',
-        maxWidth: '95vw',
-      })
-      .afterClosed()
-      .subscribe((res) => {
-        if (!res) return;
-        this.service.assign(j.id, { assigneeId: res.assigneeId, remarks: res.remarks || null }).subscribe((job) => {
-          this.alerts.toast('success', `${job.jobNo} assigned to ${job.assigneeName}`);
-          this.afterChange();
-        });
-      });
-  }
-
   transfer() {
     const j = this.job();
     if (!j) return;
@@ -158,8 +133,11 @@ export class JobView {
       .afterClosed()
       .subscribe((req) => {
         if (!req) return;
-        this.service.transfer(j.id, req).subscribe(({ job, newJob }) => {
-          if (newJob) {
+        this.service.transfer(j.id, req).subscribe(({ job, newJob, skipped }) => {
+          if (skipped.length) {
+            const moved = newJob ? `${newJob.taskCount} task(s) moved to ${newJob.jobNo} for ${newJob.assigneeName}.` : `${job.jobNo} transferred to ${job.assigneeName}.`;
+            this.alerts.warning(`${skipped.length} task(s) not moved`, `${moved} Not moved (they stay in ${j.jobNo}): ${skipped.map((s) => `${s.title} – ${s.reason}`).join(' · ')}`);
+          } else if (newJob) {
             this.alerts.success('Tasks transferred', `${newJob.taskCount} task(s) moved to ${newJob.jobNo} for ${newJob.assigneeName}.`);
           } else {
             this.alerts.toast('success', `${job.jobNo} transferred to ${job.assigneeName}`);
@@ -181,6 +159,7 @@ export class JobView {
           const added = tasks.length - skipped.length;
           if (skipped.length) this.alerts.warning(`${added} added, ${skipped.length} skipped`, skipped.map((s) => `${s.title} – ${s.reason}`).join(' · '));
           else this.alerts.toast('success', `${added} task(s) added`);
+          // Warnings ("also pending with …") were confirmed in the dialog already.
           this.afterChange();
         });
       });

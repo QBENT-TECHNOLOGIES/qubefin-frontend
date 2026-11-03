@@ -11,7 +11,8 @@ import { GeoPoint, SortDirection } from './geo';
 /** Group Visit also covers the group / centre meeting (one type since Oct 2026). */
 export type TaskType = 'GroupVisit' | 'MemberVisit' | 'OdFollowUp' | 'LeadSourcing' | 'Survey';
 
-export type JobStatus = 'Unassigned' | 'Assigned' | 'InProgress' | 'Completed' | 'Delayed' | 'Cancelled';
+/** Every job has an assignee from the moment it is created (no "assign later" since Nov 2026). */
+export type JobStatus = 'Assigned' | 'InProgress' | 'Completed' | 'Delayed' | 'Cancelled';
 
 /**
  * Pending → Completed from the mobile app (visit, GPS photo, remarks).
@@ -23,6 +24,11 @@ export type JobTaskStatus = 'Pending' | 'Completed' | 'Cancelled' | 'Transferred
 export type TaskOrigin = 'Assigned' | 'SelfAdded';
 
 export type TaskTargetKind = 'Member' | 'OdMember' | 'GroupCentre' | 'Branch' | 'Custom';
+
+/** How urgent a task is. Set per task on the web (default Medium) and shown to the assignee on the mobile app. */
+export type TaskPriority = 'VeryHigh' | 'High' | 'Medium' | 'Low';
+export const TASK_PRIORITIES: readonly TaskPriority[] = ['VeryHigh', 'High', 'Medium', 'Low'];
+export const DEFAULT_TASK_PRIORITY: TaskPriority = 'Medium';
 
 /** Where the task must be done. Required for every task. */
 export interface TaskTarget {
@@ -65,8 +71,15 @@ export interface JobTask {
   jobId: string;
   type: TaskType;
   title: string;
-  /** Manager's instructions. */
+  /** Instruction for the assignee (optional). */
   notes: string | null;
+  priority: TaskPriority;
+  /**
+   * Someone who goes along on this task (optional), e.g. the BM going with a CO. For information only:
+   * the task, its route and allowance stay with the job's assignee.
+   */
+  accompaniedById: string | null;
+  accompaniedByName: string | null;
   target: TaskTarget;
   status: JobTaskStatus;
   origin: TaskOrigin;
@@ -93,10 +106,11 @@ export interface JobSummary {
   jobNo: string;
   title: string;
   status: JobStatus;
-  assigneeId: string | null;
-  assigneeName: string | null;
-  assigneeRole: OfficerRole | null;
-  /** Branch / area / division the job belongs to (the assignee's unit, or the creator's while unassigned). */
+  /** Required: a job always has an assignee. */
+  assigneeId: string;
+  assigneeName: string;
+  assigneeRole: OfficerRole;
+  /** Branch / area / division the job belongs to (the assignee's unit). */
   unitName: string;
   /** Branches its tasks are in. */
   branchIds: string[];
@@ -124,8 +138,6 @@ export interface JobSummary {
  * added to one's own job from the mobile app only.
  */
 export interface JobPermissions {
-  /** Assign an unassigned job: its creator or anyone above the creator. */
-  canAssign: boolean;
   /** Move the job, or its pending tasks, to someone else: its creator or anyone above the creator. */
   canTransfer: boolean;
   /** Cancel the whole job: its creator or anyone above the creator. */
@@ -146,7 +158,6 @@ export interface Job extends JobSummary {
 
 export type JobHistoryAction =
   | 'Created'
-  | 'Assigned'
   | 'Transferred'
   | 'TasksTransferredOut'
   | 'TasksTransferredIn'
@@ -179,7 +190,7 @@ export interface JobHistoryEntry {
 export interface JobSearchRequest {
   searchText: string | null;
   status: JobStatus | null;
-  /** true = Unassigned, Assigned, InProgress and Delayed only (ignored when `status` is set). */
+  /** true = Assigned, InProgress and Delayed only (ignored when `status` is set). */
   openOnly?: boolean;
   assigneeId: string | null;
   branchId: string | null;
@@ -199,7 +210,6 @@ export interface JobSearchRequest {
 
 export interface JobSummaryCounts {
   total: number;
-  unassigned: number;
   assigned: number;
   inProgress: number;
   delayed: number;
@@ -216,23 +226,23 @@ export interface JobSearchResponse {
 export interface NewTaskInput {
   type: TaskType;
   title: string;
+  /** Instruction (optional). */
   notes: string | null;
+  /** Defaults to Medium when missing. */
+  priority: TaskPriority;
+  /** Optional companion; the server fills in the name. */
+  accompaniedById: string | null;
   target: TaskTarget;
 }
 
 export interface CreateJobRequest {
   title: string;
   description: string | null;
-  /** null = create now, assign later. */
-  assigneeId: string | null;
+  /** Required (400 when missing). */
+  assigneeId: string;
   startFrom: string | null;
   completeBy: string;
   tasks: NewTaskInput[];
-}
-
-export interface AssignJobRequest {
-  assigneeId: string;
-  remarks: string | null;
 }
 
 /** taskIds = null moves the whole job; a list moves only those tasks into a new linked job. */
@@ -248,14 +258,25 @@ export interface TransferJobResponse {
   job: Job;
   /** The new job created by a partial transfer. */
   newJob: Job | null;
+  /**
+   * Pending tasks that did not move because the new assignee already has the same task at the same place
+   * pending in another job. They stay in the original job.
+   */
+  skipped: SkippedTask[];
 }
 
 export interface AddTasksRequest {
   tasks: NewTaskInput[];
 }
 
-/** A task that was not added, with the reason (duplicate place, wrong branch…). */
+/** A task that was not added, with the reason (same person already has it, location not verified…). */
 export interface SkippedTask {
+  title: string;
+  reason: string;
+}
+
+/** A task that was added, but the same place has the same task pending with someone else. For information only. */
+export interface TaskWarning {
   title: string;
   reason: string;
 }
@@ -263,6 +284,7 @@ export interface SkippedTask {
 export interface AddTasksResponse {
   job: Job;
   skipped: SkippedTask[];
+  warnings: TaskWarning[];
 }
 
 export interface ExtendJobRequest {
@@ -283,12 +305,13 @@ export interface JobTaskPoint {
   /** Job window, for the overlap rule: startFrom (or the creation day) to completeBy. */
   jobStartFrom: string;
   jobCompleteBy: string;
-  assigneeId: string | null;
-  assigneeName: string | null;
+  assigneeId: string;
+  assigneeName: string;
   taskId: string;
   taskNo: string;
   title: string;
   type: TaskType;
+  priority: TaskPriority;
   status: JobTaskStatus;
   targetKind: TaskTargetKind;
   /** Geo-tagged entity id (null for a point on the map). */

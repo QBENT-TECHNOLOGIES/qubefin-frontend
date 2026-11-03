@@ -1,7 +1,7 @@
 import { OfficerRole } from './field-officer';
 import { DpdRange } from '../utils/dpd';
 import { GeoPoint } from './geo';
-import { Job, JobStatus, JobTaskStatus, OdVisitOutcome } from './job';
+import { Job, JobStatus, JobTaskStatus, OdVisitOutcome, TaskPriority } from './job';
 
 /** A row from the Loan Status Report that is past due (source: LOS/LMS). */
 export interface OdMember {
@@ -9,8 +9,13 @@ export interface OdMember {
   loanAccountNo: string;
   memberName: string;
   coBorrowerName: string | null;
+  /** The group the member is mapped to. */
+  groupId: string | null;
   groupName: string | null;
   centreName: string | null;
+  /** Mapped Credit Officer of the member (filter only; does not limit who can be given the follow-up). */
+  creditOfficerId: string | null;
+  creditOfficerName: string | null;
   branchId: string;
   branchName: string;
   phone: string | null;
@@ -27,6 +32,19 @@ export interface OdMember {
   locationVerified: boolean;
   /** Latest OD follow-up task for this member (in whichever job it was added to), if any. */
   followUp: OdFollowUpSummary | null;
+  /**
+   * Every pending OD follow-up for this member, one per job. Since Nov 2026 the same member may be pending with
+   * several people (e.g. a CO and the BM); only the same person twice is refused.
+   */
+  pendingWith: OdPendingFollowUp[];
+}
+
+export interface OdPendingFollowUp {
+  jobId: string;
+  jobNo: string;
+  taskNo: string;
+  assigneeId: string;
+  assigneeName: string;
 }
 
 export interface OdFollowUpSummary {
@@ -35,9 +53,8 @@ export interface OdFollowUpSummary {
   jobStatus: JobStatus;
   taskId: string;
   taskNo: string;
-  /** null while the job is not assigned yet. */
-  assigneeName: string | null;
-  assigneeRole: OfficerRole | null;
+  assigneeName: string;
+  assigneeRole: OfficerRole;
   completeBy: string;
   status: JobTaskStatus;
   outcome: OdVisitOutcome | null;
@@ -48,6 +65,10 @@ export interface OdMemberSearchRequest {
   branchId: string | null;
   /** Days-past-due range (`utils/dpd.ts`); null = any. */
   dpdRange: DpdRange | null;
+  /** Members mapped to this Credit Officer; null = any. */
+  creditOfficerId: string | null;
+  /** Members mapped to this group; null = any. */
+  groupId: string | null;
   /** true = only members without a pending follow-up task. */
   onlyUnassigned: boolean;
   pageIndex: number;
@@ -66,7 +87,8 @@ export interface OdMemberSearchResponse {
 export interface NewJobHeader {
   title: string;
   description: string | null;
-  assigneeId: string | null;
+  /** Required (400 when missing). */
+  assigneeId: string;
   startFrom: string | null;
   completeBy: string;
 }
@@ -76,16 +98,31 @@ export interface NewJobHeader {
  * Send exactly one of `jobId` (add to an existing open job) or `newJob`.
  */
 export interface AddOdToJobRequest {
-  memberIds: string[];
+  /** One entry per member; each becomes one OD follow-up task with its own priority, instruction and companion. */
+  members: OdTaskInput[];
   jobId: string | null;
   newJob: NewJobHeader | null;
-  /** Instructions copied to every task created. */
+}
+
+/** Task-level details for one OD member (there are no job-level defaults). */
+export interface OdTaskInput {
+  memberId: string;
+  /** Default Medium. */
+  priority: TaskPriority;
+  /** Instruction (optional). */
   notes: string | null;
+  /** Someone who goes along (optional). */
+  accompaniedById: string | null;
 }
 
 export interface AddOdToJobResponse {
   job: Job;
   addedTaskIds: string[];
-  /** Members not added: no home geo-tag, location not verified, already pending in a job, or outside the assignee's branch. */
+  /**
+   * Members not added: no home geo-tag, location not verified, already pending with the same person,
+   * or outside the assignee's branch.
+   */
   skipped: { memberId: string; reason: string }[];
+  /** Members added that are also pending with someone else (information only). */
+  warnings: { memberId: string; reason: string }[];
 }

@@ -12,7 +12,12 @@
             <span><b class="text-slate-800 dark:text-slate-100">{{ selectedIds().length }}</b> selected</span>
             <span>{{ available().length }} available</span>
             @if (blockedVisible()) {
-            <span class="text-amber-600">{{ blockedVisible() }} unavailable</span>
+            <span class="text-rose-600" matTooltip="Already in this job or list, or already pending with the same person in a job with overlapping dates">{{ blockedVisible() }} unavailable</span>
+            }
+            @if (warnedVisible()) {
+            <span class="trk-badge is-amber" matTooltip="Also pending with someone else. Can still be selected.">
+                <svg lucideIcon="triangle-alert" class="w-3 h-3"></svg> {{ warnedVisible() }} also with others
+            </span>
             }
             @if (unverifiedVisible()) {
             <span class="trk-badge is-amber" matTooltip="Groups and members whose location is not verified cannot be put in a job until it is verified from the mobile app">
@@ -61,6 +66,19 @@
         </button>
         }
         }
+        @if (creditOfficerOptions().length) {
+        <span class="w-px h-5 bg-slate-300/70 mx-1"></span>
+        <label class="trk-select" [class.is-active]="!!activeCreditOfficer()"
+            matTooltip="Places mapped to this Credit Officer. Filter only: any place can still be given to anyone.">
+            <svg lucideIcon="user-round-check" class="w-3.5 h-3.5"></svg>
+            <select [value]="activeCreditOfficer() ?? ''" (change)="creditOfficerId.set($any($event.target).value || null)" aria-label="Credit Officer">
+                <option value="">All Credit Officers</option>
+                @for (o of creditOfficerOptions(); track o.id) {
+                <option [value]="o.id" [selected]="o.id === activeCreditOfficer()">{{ o.name }} ({{ o.count }})</option>
+                }
+            </select>
+        </label>
+        }
     </div>
 
     @if (tripValid(); as t) {
@@ -91,7 +109,7 @@
         </mat-checkbox>
         <label class="trk-search flex-1 min-w-[200px]">
             <svg lucideIcon="search" class="w-4 h-4 text-slate-400"></svg>
-            <input [value]="filter()" (input)="filter.set($any($event.target).value)" placeholder="Filter by name, loan account, group code or address"
+            <input [value]="filter()" (input)="filter.set($any($event.target).value)" placeholder="Filter by name, loan account, group, CO or address"
                 aria-label="Filter places">
         </label>
     </div>
@@ -113,11 +131,14 @@
                         }
                         <span class="text-[13px] font-medium text-slate-700 dark:text-slate-200">{{ p.name }}</span>
                         <span class="text-[11px] text-slate-400">
-                            · {{ p.refCode }}{{ p.overdueAmount != null ? ' · ₹' + money(p.overdueAmount) : '' }}{{ p.address ? ' · ' + p.address : '' }}
+                            · {{ p.refCode }}{{ p.overdueAmount != null ? ' · ₹' + money(p.overdueAmount) : '' }}{{ p.groupName ? ' · ' + p.groupName : '' }}{{ p.creditOfficerName ? ' · CO: ' + p.creditOfficerName : '' }}{{ p.address ? ' · ' + p.address : '' }}
                         </span>
                         @if (unverified) {
                         <span class="trk-badge is-amber ml-1"><svg lucideIcon="shield-alert" class="w-3 h-3"></svg> Location Not Verified</span>
-                        } @else if (why) { <span class="text-[11px] text-amber-600"> · {{ why }}</span> }
+                        } @else if (why) { <span class="text-[11px] text-rose-600"> · {{ why }}</span> }
+                        @else if (warned().get(p.id); as w) {
+                        <span class="trk-badge is-amber ml-1" [matTooltip]="w + '. Can still be added: each person does their own task.'"><svg lucideIcon="triangle-alert" class="w-3 h-3"></svg> {{ w }}</span>
+                        }
                         @if (tripSeq().get(p.id); as n) { <span class="trk-badge ml-1">stop {{ n }}</span> }
                     </span>
                 </span>

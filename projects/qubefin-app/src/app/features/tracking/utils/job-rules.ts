@@ -8,9 +8,9 @@ import { JobStatus, JobTask, TaskTarget, TaskTargetKind, TaskType } from '../mod
 
 /**
  * Place in the hierarchy; a smaller number is higher. Admin = Super Admin or Application Administrator
- * (equal access in tracking). ABM sits between BM and CO (assumption, to confirm with the client).
+ * (equal access in tracking). BM and ABM (Additional Branch Manager) share a rank: same operational functionality.
  */
-export const ROLE_RANK: Record<ViewerRole, number> = { Admin: 0, DM: 1, AM: 2, BM: 3, ABM: 4, CO: 5 };
+export const ROLE_RANK: Record<ViewerRole, number> = { Admin: 0, DM: 1, AM: 2, BM: 3, ABM: 3, CO: 4 };
 
 /** True when `role` is below `than` in the hierarchy. */
 export function isBelow(role: ViewerRole, than: ViewerRole): boolean {
@@ -30,10 +30,28 @@ export function canAssignWorkTo(viewer: Pick<TrackingViewer, 'role' | 'branchIds
   return isBelow(officer.role, viewer.role) && inScope(viewer, officer.branchIds);
 }
 
-/** Roles whose jobs must stay inside their own branch. ABM follows BM (assumption, to confirm with the client). */
+/**
+ * Exception to "same level = no authority" (product owner, Nov 2026): BM and ABM share a rank, but a **BM oversees the
+ * ABM's jobs** in their branch: sees and monitors them and may update them (add tasks, extend, cancel / reject a task),
+ * exactly like a manager above the assignee. It does not let a BM give an ABM work, nor transfer / cancel their jobs
+ * (those still need the creator or someone above the creator). An ABM gets no such right over a BM's jobs.
+ */
+export function oversees(viewerRole: ViewerRole, assigneeRole: ViewerRole): boolean {
+  return isBelow(assigneeRole, viewerRole) || (viewerRole === 'BM' && assigneeRole === 'ABM');
+}
+
+/**
+ * Who the viewer may monitor (jobs, Job Monitoring, Tracking History filters): everyone they may give work to, plus the
+ * people whose jobs they oversee (a BM → the ABM of their branch).
+ */
+export function canMonitor(viewer: Pick<TrackingViewer, 'role' | 'branchIds'>, officer: FieldOfficer): boolean {
+  return oversees(viewer.role, officer.role) && inScope(viewer, officer.branchIds);
+}
+
+/** Roles whose jobs must stay inside their own branch. */
 export const SINGLE_BRANCH_ROLES: readonly OfficerRole[] = ['CO', 'ABM', 'BM'];
 
-export const OPEN_JOB_STATUSES: readonly JobStatus[] = ['Unassigned', 'Assigned', 'InProgress', 'Delayed'];
+export const OPEN_JOB_STATUSES: readonly JobStatus[] = ['Assigned', 'InProgress', 'Delayed'];
 
 export function isOpenJob(status: JobStatus): boolean {
   return OPEN_JOB_STATUSES.includes(status);
@@ -114,7 +132,7 @@ export function needsVerifiedLocation(kind: string): boolean {
   return (VERIFIED_LOCATION_KINDS as readonly string[]).includes(kind);
 }
 
-/** Key used to stop the same place getting the same kind of task twice while one is still pending. */
+/** Key of "this task type at this place", used by the duplicate rule below. */
 export function targetKey(type: TaskType, t: TaskTarget): string {
   const where = t.refId ? `${t.kind}:${t.refId}` : `pt:${t.location.lat.toFixed(4)},${t.location.lng.toFixed(4)}`;
   return `${type}|${where}`;
@@ -122,4 +140,41 @@ export function targetKey(type: TaskType, t: TaskTarget): string {
 
 export function isPending(t: Pick<JobTask, 'status'>): boolean {
   return t.status === 'Pending';
+}
+
+/** Days two jobs are active ([start, end], yyyy-MM-dd) share at least one day. */
+export function windowsOverlap(a: readonly [string, string], b: readonly [string, string]): boolean {
+  return a[0] <= b[1] && b[0] <= a[1];
+}
+
+/** The same task type at the same place, pending in another open job. */
+export interface PendingElsewhere {
+  jobNo: string;
+  assigneeId: string;
+  assigneeName: string;
+  /** Days that job is active (a delayed job stays active until today). */
+  window: readonly [string, string];
+}
+
+/**
+ * Duplicate rule (since Nov 2026; contract rule 3.2.3). A place may have the same task type pending in several
+ * open jobs, so an AM can give the BM the same groups the COs already have:
+ *  - the SAME person already has it pending in a job whose dates overlap → blocked (it would be double work);
+ *    for an OD follow-up the dates do not matter: one person, one pending follow-up per OD member;
+ *  - someone else has it pending → allowed, with a warning naming who.
+ * Each task is done and completed separately by its own assignee.
+ */
+export function duplicateCheck(
+  assigneeId: string | null,
+  type: TaskType,
+  window: readonly [string, string] | null,
+  others: readonly PendingElsewhere[],
+): { block: string | null; warn: string | null } {
+  const overlapping = others.filter((o) => !window || windowsOverlap(window, o.window));
+  const mine = assigneeId ? others.find((o) => o.assigneeId === assigneeId && (type === 'OdFollowUp' || overlapping.includes(o))) : undefined;
+  if (mine) return { block: `already pending with ${mine.assigneeName} in ${mine.jobNo}`, warn: null };
+  const rest = overlapping.filter((o) => o.assigneeId !== assigneeId);
+  if (!rest.length) return { block: null, warn: null };
+  const names = rest.slice(0, 2).map((o) => `${o.assigneeName} (${o.jobNo})`).join(', ');
+  return { block: null, warn: `also pending with ${names}${rest.length > 2 ? ` +${rest.length - 2} more` : ''}` };
 }

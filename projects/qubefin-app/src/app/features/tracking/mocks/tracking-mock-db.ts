@@ -28,7 +28,7 @@ import { OdMember } from '../models/od-member';
 import { OutOfRadiusRequest } from '../models/approval-request';
 import { AlertSeverity, AlertType, TrackingAlert } from '../models/tracking-alert';
 import { TrackingSettings } from '../models/tracking-settings';
-import { Job, JobHistoryEntry, JobTask, TaskOrigin, TaskTarget, TaskType } from '../models/job';
+import { Job, JobHistoryEntry, JobTask, TaskOrigin, TaskPriority, TaskTarget, TaskType } from '../models/job';
 import { distanceMeters, offsetPoint, toDateKey } from '../utils/geo-utils';
 import { TASK_TYPE } from '../utils/tracking-labels';
 
@@ -121,10 +121,12 @@ interface SimDay {
 export interface MockDb {
   branches: TrackingBranch[];
   officers: FieldOfficer[];
-  groups: { id: string; code: string; name: string; branchId: string; location: GeoPoint; village: string }[];
+  /** Each group is mapped to its branch and a Credit Officer when it is introduced (filter only). */
+  groups: { id: string; code: string; name: string; branchId: string; location: GeoPoint; village: string; creditOfficerId: string | null; creditOfficerName: string | null }[];
   odMembers: OdMember[];
   /** Regular (non-overdue) members, only used for geo-tags and visit targets. */
-  members: { id: string; name: string; loanAccountNo: string; branchId: string; location: GeoPoint | null; address: string; groupName: string }[];
+  /** Each member is mapped to a group, and to that group's branch and Credit Officer. */
+  members: { id: string; name: string; loanAccountNo: string; branchId: string; location: GeoPoint | null; address: string; groupId: string; groupName: string; creditOfficerId: string | null; creditOfficerName: string | null }[];
   jobs: Job[];
   history: JobHistoryEntry[];
   alerts: TrackingAlert[];
@@ -204,7 +206,7 @@ const OFFICER_SEED: [name: string, role: OfficerRole, branchCode: string][] = [
 
 const DESIGNATION: Record<OfficerRole, string> = {
   CO: 'Credit Officer',
-  ABM: 'Assistant Branch Manager',
+  ABM: 'Additional Branch Manager',
   BM: 'Branch Manager',
   AM: 'Area Manager',
   DM: 'Division Manager',
@@ -235,7 +237,6 @@ export function refreshJob(job: Job, today = toDateKey()): Job {
   if (job.status === 'Cancelled') return job;
   if (job.openCount === 0 && job.doneCount > 0) job.status = 'Completed';
   else if (job.openCount === 0) job.status = 'Cancelled';
-  else if (!job.assigneeId) job.status = 'Unassigned';
   else if (today > job.completeBy) job.status = 'Delayed';
   else if (job.doneCount > 0) job.status = 'InProgress';
   else job.status = 'Assigned';
@@ -267,18 +268,18 @@ export function pushHistory(d: MockDb, job: Job, action: JobHistoryEntry['action
   });
 }
 
-export function newJob(d: MockDb, init: { title: string; description: string | null; creator: Person & { unitName?: string }; assignee: FieldOfficer | null; startFrom: string | null; completeBy: string; createdAt: Date }): Job {
+export function newJob(d: MockDb, init: { title: string; description: string | null; creator: Person & { unitName?: string }; assignee: FieldOfficer; startFrom: string | null; completeBy: string; createdAt: Date }): Job {
   const id = uuid('j', d.counters.job + 1);
   return {
     id,
     jobNo: nextJobNo(d),
     title: init.title,
     description: init.description,
-    status: init.assignee ? 'Assigned' : 'Unassigned',
-    assigneeId: init.assignee?.id ?? null,
-    assigneeName: init.assignee?.name ?? null,
-    assigneeRole: init.assignee?.role ?? null,
-    unitName: init.assignee?.unitName ?? init.creator.unitName ?? DIVISION,
+    status: 'Assigned',
+    assigneeId: init.assignee.id,
+    assigneeName: init.assignee.name,
+    assigneeRole: init.assignee.role,
+    unitName: init.assignee.unitName,
     branchIds: [],
     branchNames: [],
     createdById: init.creator.id,
@@ -295,11 +296,15 @@ export function newJob(d: MockDb, init: { title: string; description: string | n
     transferredFromJobNo: null,
     tasks: [],
     // Filled in per request for whoever is asking (see the mock backend).
-    permissions: { canAssign: false, canTransfer: false, canCancel: false, canUpdate: false },
+    permissions: { canTransfer: false, canCancel: false, canUpdate: false },
   };
 }
 
-export function newTask(d: MockDb, job: Job, init: { type: TaskType; title: string; notes: string | null; target: TaskTarget; origin: TaskOrigin; addedBy: Person; addedAt: Date }): JobTask {
+export function newTask(
+  d: MockDb,
+  job: Job,
+  init: { type: TaskType; title: string; notes: string | null; priority?: TaskPriority; accompaniedBy?: Person | null; target: TaskTarget; origin: TaskOrigin; addedBy: Person; addedAt: Date },
+): JobTask {
   const task: JobTask = {
     id: uuid('t', d.counters.task + 1),
     taskNo: nextTaskNo(d),
@@ -307,6 +312,9 @@ export function newTask(d: MockDb, job: Job, init: { type: TaskType; title: stri
     type: init.type,
     title: init.title,
     notes: init.notes,
+    priority: init.priority ?? 'Medium',
+    accompaniedById: init.accompaniedBy?.id ?? null,
+    accompaniedByName: init.accompaniedBy?.name ?? null,
     target: init.target,
     status: 'Pending',
     origin: init.origin,
@@ -366,14 +374,15 @@ function buildDb(): MockDb {
       phone: `98${intBetween(30000000, 99999999)}`,
       homeLocation: name === 'Jayanta Rava' ? null : offsetPoint(branch.location!, between(2500, 8000), between(0, 360)),
       reportingOfficerName: null,
+      canAssign: false, // per caller: set by GET field-officers
     };
   });
-  // Reporting line: CO → BM (or ABM where there is no BM) → AM → DM.
+  // Reporting line: CO → BM (or ABM where there is no BM) → AM → DM. BM and ABM are the same level, both under the AM.
   officers.forEach((o) => {
     const inBranch = (r: OfficerRole) => officers.find((x) => x.role === r && x.branchId === o.branchId);
     const am = officers.find((x) => x.role === 'AM' && x.branchIds.includes(o.branchId));
     if (o.role === 'CO') o.reportingOfficerName = (inBranch('BM') ?? inBranch('ABM') ?? am)?.name ?? null;
-    else if (o.role === 'ABM') o.reportingOfficerName = (inBranch('BM') ?? am)?.name ?? null;
+    else if (o.role === 'ABM') o.reportingOfficerName = am?.name ?? null;
     else if (o.role === 'BM') o.reportingOfficerName = am?.name ?? null;
     else if (o.role === 'AM') o.reportingOfficerName = 'Partha Mukherjee';
   });
@@ -383,8 +392,13 @@ function buildDb(): MockDb {
   // --- Centres / groups -----------------------------------------------------------------------
   const groups: MockDb['groups'] = [];
   BRANCHES.forEach((b) => {
+    // Mapped Credit Officer: spread the branch's COs over its groups in turn (deterministic, no random draws).
+    const branchCos = officers.filter((o) => o.role === 'CO' && o.branchId === b.id);
     VILLAGES[b.code].slice(0, 6).forEach((village, j) => {
+      const co = branchCos.length ? branchCos[j % branchCos.length] : null;
       groups.push({
+        creditOfficerId: co?.id ?? null,
+        creditOfficerName: co?.name ?? null,
         id: uuid(`g${b.code.toLowerCase()}`, j + 1),
         code: `${b.code}-C${(j + 1).toString().padStart(2, '0')}`,
         name: `${village} Mahila Group`,
@@ -410,12 +424,16 @@ function buildDb(): MockDb {
       if (k < 8) {
         const dpd = pick([4, 7, 12, 18, 25, 33, 41, 58, 64, 90, 105]);
         odMembers.push({
+          pendingWith: [],
           id: uuid('c', custNo),
           loanAccountNo: loanNo,
           memberName: name,
           coBorrowerName: `${pick(CO_BORROWER)} ${name.split(' ')[1]}`,
+          groupId: group.id,
           groupName: group.name,
           centreName: `${group.village} Centre`,
+          creditOfficerId: group.creditOfficerId,
+          creditOfficerName: group.creditOfficerName,
           branchId: b.id,
           branchName: b.name,
           phone: `9${intBetween(100000000, 999999999)}`,
@@ -428,7 +446,7 @@ function buildDb(): MockDb {
           followUp: null,
         });
       } else {
-        members.push({ id: uuid('c', custNo), name, loanAccountNo: loanNo, branchId: b.id, location, address, groupName: group.name });
+        members.push({ id: uuid('c', custNo), name, loanAccountNo: loanNo, branchId: b.id, location, address, groupId: group.id, groupName: group.name, creditOfficerId: group.creditOfficerId, creditOfficerName: group.creditOfficerName });
       }
       custNo++;
     }
@@ -500,14 +518,19 @@ function buildDb(): MockDb {
     const s = byName(name);
     return { id: s.id, name: s.name, unitName: s.unitName };
   };
-  const addPlanned = (job: Job, type: TaskType, target: TaskTarget, day: string, by: Person, origin: TaskOrigin = 'Assigned', notes: string | null = null) => {
+  /** Seed priority: high-DPD OD members first, then OD, group and member visits; lead sourcing and surveys last. */
+  const priorityFor = (type: TaskType, target: TaskTarget): TaskPriority => {
+    if (type === 'OdFollowUp') return (odMembers.find((c) => c.id === target.refId)?.dpd ?? 0) > 60 ? 'VeryHigh' : 'High';
+    return type === 'GroupVisit' || type === 'MemberVisit' ? 'Medium' : 'Low';
+  };
+  const addPlanned = (job: Job, type: TaskType, target: TaskTarget, day: string, by: Person, origin: TaskOrigin = 'Assigned', notes: string | null = null, accompaniedBy: Person | null = null) => {
     const addedAt = origin === 'SelfAdded' ? at(day, 10, intBetween(0, 50)) : new Date(job.createdAt);
-    const t = newTask(d, job, { type, title: titleFor(type, target), notes, target, origin, addedBy: by, addedAt });
+    const t = newTask(d, job, { type, title: titleFor(type, target), notes, priority: priorityFor(type, target), accompaniedBy, target, origin, addedBy: by, addedAt });
     plan.set(t.id, day);
     return t;
   };
 
-  // Kept aside for a job that is created now and assigned later.
+  // Kept aside for the "OD recovery" job created today.
   const reservedOd = odFor(branchByCode('DPG').id, 2);
 
   const coJobs: { job: Job; officer: FieldOfficer }[] = [];
@@ -573,8 +596,15 @@ function buildDb(): MockDb {
     const job = newJob(d, { title: m.role === 'BM' ? 'Branch supervision visits' : 'Centre support visits', description: 'Surprise attendance at group meetings and high-DPD member visits.', creator: boss, assignee: m, startFrom: thisMonday, completeBy: thisSaturday, createdAt: at(shiftKey(thisMonday, -3), 16, 40) });
     const days = workDays(thisMonday, thisSaturday);
     const g = shuffle(groups.filter((x) => x.branchId === branch.id));
-    addPlanned(job, 'GroupVisit', groupTarget(g[0]), days[1], boss);
-    addPlanned(job, 'GroupVisit', groupTarget(g[1]), days[weekday] ?? days[2], boss);
+    // The AM first spreads the branch's groups across the COs, then sends the BM to some of the same groups
+    // (allowed since Nov 2026: the same place may be pending with different people). The CO goes along.
+    const coTask = coJobs
+      .filter((x) => x.officer.branchId === branch.id && x.job.startFrom === thisMonday && x.job.title === 'Weekly field plan')
+      .flatMap((x) => x.job.tasks.filter((t) => t.type === 'GroupVisit').map((t) => ({ refId: t.target.refId, co: x.officer })))[i % 2];
+    const shared = coTask ? g.find((x) => x.id === coTask.refId) : undefined;
+    const first = shared ?? g[0];
+    addPlanned(job, 'GroupVisit', groupTarget(first), days[1], boss, 'Assigned', shared ? 'Surprise attendance check during the CO’s meeting.' : null, shared ? { id: coTask!.co.id, name: coTask!.co.name } : null);
+    addPlanned(job, 'GroupVisit', groupTarget(g.find((x) => x !== first)!), days[weekday] ?? days[2], boss);
     const od = odFor(branch.id, 1)[0];
     if (od) addPlanned(job, 'OdFollowUp', odTarget(od), days[Math.max(0, weekday - 1)], boss, 'Assigned', `High DPD (${od.dpd}). Meet the member with the CO.`);
     if (i % 2 === 0) addPlanned(job, 'Survey', pointTarget(branch, 'market survey', [4, 12]), days[4], boss);
@@ -594,30 +624,29 @@ function buildDb(): MockDb {
     d.jobs.push(job);
   });
 
-  // Created now, to be assigned later.
+  // Recently created jobs (every job has an assignee from the start).
   const dpg = branchByCode('DPG');
   const subhajit = byName('Subhajit Das');
-  const unassigned1 = newJob(d, { title: 'OD recovery – 60+ DPD', description: 'High-DPD members. Decide who goes after the branch review.', creator: { ...subhajit, unitName: dpg.name }, assignee: null, startFrom: null, completeBy: shiftKey(today, 5), createdAt: addMinutes(now, -180) });
-  reservedOd.forEach((c) => addPlanned(unassigned1, 'OdFollowUp', odTarget(c), shiftKey(today, 9), subhajit, 'Assigned', `Overdue ₹${c.overdueAmount.toLocaleString('en-IN')} · ${c.dpd} DPD.`));
-  d.jobs.push(unassigned1);
+  const recent1 = newJob(d, { title: 'OD recovery – 60+ DPD', description: 'High-DPD members after the branch review.', creator: { ...subhajit, unitName: dpg.name }, assignee: byName('Rupa Mondal'), startFrom: null, completeBy: shiftKey(today, 5), createdAt: addMinutes(now, -180) });
+  reservedOd.forEach((c) => addPlanned(recent1, 'OdFollowUp', odTarget(c), shiftKey(today, 9), subhajit, 'Assigned', `Overdue ₹${c.overdueAmount.toLocaleString('en-IN')} · ${c.dpd} DPD.`));
+  d.jobs.push(recent1);
   const flk = branchByCode('FLK');
   const sourav = byName('Sourav Biswas');
-  const unassigned2 = newJob(d, { title: 'Lead sourcing drive', description: 'New villages along the highway.', creator: { ...sourav, unitName: flk.name }, assignee: null, startFrom: shiftKey(today, 3), completeBy: shiftKey(today, 10), createdAt: addMinutes(now, -60 * 26) });
-  addPlanned(unassigned2, 'LeadSourcing', pointTarget(flk, 'new lead sourcing', [8, 20]), shiftKey(today, 9), sourav);
-  addPlanned(unassigned2, 'LeadSourcing', pointTarget(flk, 'new lead sourcing', [8, 20]), shiftKey(today, 9), sourav);
-  addPlanned(unassigned2, 'Survey', pointTarget(flk, 'household survey', [6, 14]), shiftKey(today, 9), sourav);
-  d.jobs.push(unassigned2);
+  const recent2 = newJob(d, { title: 'Lead sourcing drive', description: 'New villages along the highway.', creator: { ...sourav, unitName: flk.name }, assignee: byName('Priyanka Roy'), startFrom: shiftKey(today, 3), completeBy: shiftKey(today, 10), createdAt: addMinutes(now, -60 * 26) });
+  addPlanned(recent2, 'LeadSourcing', pointTarget(flk, 'new lead sourcing', [8, 20]), shiftKey(today, 9), sourav);
+  addPlanned(recent2, 'LeadSourcing', pointTarget(flk, 'new lead sourcing', [8, 20]), shiftKey(today, 9), sourav);
+  addPlanned(recent2, 'Survey', pointTarget(flk, 'household survey', [6, 14]), shiftKey(today, 9), sourav);
+  d.jobs.push(recent2);
   const sanjay = byName('Sanjay Kundu');
-  const unassigned3 = newJob(d, { title: 'Joint centre audits – Dhupguri & Daukimari', description: 'Spans two branches, so only an AM or DM can hold it.', creator: { ...sanjay, unitName: sanjay.unitName }, assignee: null, startFrom: null, completeBy: shiftKey(today, 7), createdAt: addMinutes(now, -60 * 5) });
-  [dpg, branchByCode('DKM')].forEach((b) => addPlanned(unassigned3, 'GroupVisit', groupTarget(pick(groups.filter((g) => g.branchId === b.id))), shiftKey(today, 9), sanjay));
-  d.jobs.push(unassigned3);
+  const recent3 = newJob(d, { title: 'Joint centre audits – Dhupguri & Daukimari', description: 'Spans two branches, so only an AM or DM can hold it.', creator: { id: dm.id, name: dm.name, unitName: DIVISION }, assignee: sanjay, startFrom: null, completeBy: shiftKey(today, 7), createdAt: addMinutes(now, -60 * 5) });
+  [dpg, branchByCode('DKM')].forEach((b) => addPlanned(recent3, 'GroupVisit', groupTarget(pick(groups.filter((g) => g.branchId === b.id))), shiftKey(today, 9), dm));
+  d.jobs.push(recent3);
 
   // History for creation / assignment.
   d.jobs.forEach((job) => {
     pushHistory(d, job, 'Created', { id: job.createdById, name: job.createdByName }, new Date(job.createdAt), {
       toAssigneeName: job.assigneeName,
       taskNos: job.tasks.filter((t) => t.origin === 'Assigned').map((t) => t.taskNo),
-      remarks: job.assigneeId ? null : 'Created without an assignee',
     });
   });
 

@@ -145,6 +145,8 @@ export class PlaceMultiSelect implements OnDestroy {
   readonly places = input<GeoTagPoint[]>([]);
   /** Place id → why it cannot be selected (from the parent: duplicates, overlapping jobs…). */
   readonly blockedBy = input<Map<string, string>>(new Map(), { alias: 'blocked' });
+  /** Place id → "also pending with …" (from the parent). Still selectable; shown with a warning. */
+  readonly warned = input<Map<string, string>>(new Map());
   readonly loading = input(false);
   /** Per kind: places in the branch that have no geo-tag yet (cannot get a task). */
   readonly untaggedByKind = input<Partial<Record<GeoTagKind, number>>>({});
@@ -167,6 +169,11 @@ export class PlaceMultiSelect implements OnDestroy {
   /** OD members' days-past-due range; null = all. */
   readonly dpdRange = signal<DpdRange | null>(null);
   readonly hiddenKinds = signal<ReadonlySet<PickerKind>>(new Set());
+  /**
+   * Only places mapped to this Credit Officer; null = all. Filter only: the mapping does not limit who can be given
+   * a task there (anyone's point can be assigned to others).
+   */
+  readonly creditOfficerId = signal<string | null>(null);
   readonly showAssignee = signal(true);
   /** Map legend; collapsed by default so it never hides pins. */
   readonly showLegend = signal(false);
@@ -298,18 +305,38 @@ export class PlaceMultiSelect implements OnDestroy {
       .map((k) => `${this.untaggedByKind()[k]} ${KIND_STYLE[k].label.toLowerCase()}`)
       .join(', '),
   );
+  /** Credit Officers mapped to the branch's places, with how many places each has. */
+  readonly creditOfficerOptions = computed(() => {
+    const byId = new Map<string, { id: string; name: string; count: number }>();
+    this.places().forEach((p) => {
+      if (!p.creditOfficerId) return;
+      const o = byId.get(p.creditOfficerId);
+      if (o) o.count++;
+      else byId.set(p.creditOfficerId, { id: p.creditOfficerId, name: p.creditOfficerName ?? 'Credit Officer', count: 1 });
+    });
+    return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name));
+  });
+  /** The chosen Credit Officer, while they still have places here (switching branch clears it). */
+  readonly activeCreditOfficer = computed(() => {
+    const id = this.creditOfficerId();
+    return id && this.creditOfficerOptions().some((o) => o.id === id) ? id : null;
+  });
   /** OD members are shown, so the days-past-due filter applies. */
   readonly hasDpd = computed(() => !this.hiddenKinds().has('OdMember') && this.kindCounts().OdMember > 0);
   /** Places after the kind and DPD filters: what the list, the map and the bulk actions work on. */
   readonly visible = computed(() => {
     const hidden = this.hiddenKinds();
     const range = this.dpdRange();
-    return this.places().filter((p) => !hidden.has(p.kind as PickerKind) && (p.kind !== 'OdMember' || inDpdRange(p.dpd, range)));
+    const co = this.activeCreditOfficer();
+    return this.places().filter(
+      (p) => !hidden.has(p.kind as PickerKind) && (p.kind !== 'OdMember' || inDpdRange(p.dpd, range)) && (!co || p.creditOfficerId === co),
+    );
   });
   readonly available = computed(() => this.visible().filter((p) => !this.blocked().has(p.id)));
   /** Shown places whose location is not verified (counted apart from the other unavailable places). */
   readonly unverifiedVisible = computed(() => this.visible().filter((p) => this.isUnverified(p)).length);
   readonly blockedVisible = computed(() => this.visible().length - this.available().length - this.unverifiedVisible());
+  readonly warnedVisible = computed(() => this.available().filter((p) => this.warned().has(p.id)).length);
   /** Selected places hidden by the filters (still selected). */
   readonly hiddenSelected = computed(() => {
     const vis = new Set(this.visible().map((p) => p.id));
@@ -323,7 +350,7 @@ export class PlaceMultiSelect implements OnDestroy {
     const q = this.filter().trim().toLowerCase();
     if (!q) return this.ordered();
     return this.ordered().filter(
-      (p) => p.name.toLowerCase().includes(q) || p.refCode.toLowerCase().includes(q) || (p.address ?? '').toLowerCase().includes(q),
+      (p) => [p.name, p.refCode, p.address, p.groupName, p.creditOfficerName].some((v) => (v ?? '').toLowerCase().includes(q)),
     );
   });
   readonly shown = computed(() => this.filtered().slice(0, LIST_LIMIT));
@@ -405,8 +432,9 @@ export class PlaceMultiSelect implements OnDestroy {
         : on
           ? this.pins.iconPin(p.id, style.icon, color, { selected: true, label: n ? String(n) : null })
           : this.pins.iconPin(p.id, style.icon, color, { small: true, outline: true });
-      const extra = p.dpd != null ? ` · ${p.dpd} DPD · ₹${this.money(p.overdueAmount)}` : '';
-      const state = why ? ` · ${why}` : on ? `${n ? ` · stop ${n}` : ''} · selected (click to remove)` : ' · click to select';
+      const extra = (p.dpd != null ? ` · ${p.dpd} DPD · ₹${this.money(p.overdueAmount)}` : '') + (p.creditOfficerName ? ` · CO: ${p.creditOfficerName}` : '');
+      const warn = this.warned().get(p.id);
+      const state = (why ? ` · ${why}` : on ? `${n ? ` · stop ${n}` : ''} · selected (click to remove)` : ' · click to select') + (!why && warn ? ` · ⚠ ${warn}` : '');
       return { id: p.id, position: p.location, title: `${style.becomes}: ${p.name} · ${p.refCode}${extra}${state}`, content, z: on ? 300 : why ? 50 : 100 };
     });
   });

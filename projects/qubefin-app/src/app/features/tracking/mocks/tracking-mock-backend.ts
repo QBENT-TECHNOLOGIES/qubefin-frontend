@@ -16,7 +16,6 @@ import {
 import {
   AddTasksRequest,
   AddTasksResponse,
-  AssignJobRequest,
   CreateJobRequest,
   ExtendJobRequest,
   Job,
@@ -28,6 +27,7 @@ import {
   NewTaskInput,
   RemarksRequest,
   SkippedTask,
+  TaskWarning,
   TransferJobRequest,
   TransferJobResponse,
 } from '../models/job';
@@ -44,9 +44,10 @@ import { AlertSearchRequest, AlertSearchResponse, AlertType, ResolveAlertRequest
 import { ApprovalDecisionRequest } from '../models/approval-request';
 import { GeoTagKind, GeoTagPoint, GeoTagPointsResponse, UpdateGeoTagRequest } from '../models/geo-tag';
 import { TrackingSettings } from '../models/tracking-settings';
+import { TrackingGroup } from '../models/geo';
 import { MOCK_ACTOR_KEY } from './mock-actor-key';
 import { toDateKey } from '../utils/geo-utils';
-import { LOCATION_NOT_VERIFIED, ROLE_RANK, canAssignWorkTo, inScope, isBelow, isOpenJob, jobBranchConflict, needsVerifiedLocation, targetKey } from '../utils/job-rules';
+import { LOCATION_NOT_VERIFIED, PendingElsewhere, ROLE_RANK, canAssignWorkTo, canMonitor, duplicateCheck, inScope, isOpenJob, oversees, jobBranchConflict, needsVerifiedLocation, targetKey } from '../utils/job-rules';
 import { inDpdRange } from '../utils/dpd';
 import { ROLE_LABEL, TASK_TYPE } from '../utils/tracking-labels';
 
@@ -124,18 +125,17 @@ function rankOfPerson(d: MockDb, id: string): number {
 }
 
 /**
- * Jobs a user can see: everything for an Admin; their own jobs (created or assigned); jobs inside their
- * scope held by someone below them (a BM sees the jobs an AM gave to the COs of the branch); and
- * unassigned jobs inside their scope created by them or by someone below them.
+ * Jobs a user can see: everything for an Admin; their own jobs (created or assigned); and jobs inside their
+ * scope held by someone below them (a BM sees the jobs an AM gave to the COs of the branch) or by an ABM of a BM's branch.
  */
-function canSee(d: MockDb, j: Job): boolean {
+function canSee(_d: MockDb, j: Job): boolean {
   if (viewer.role === 'Admin' || j.assigneeId === viewer.id || j.createdById === viewer.id) return true;
   if (!j.branchIds.length || !inScope(viewer, j.branchIds)) return false;
-  return j.assigneeRole ? isBelow(j.assigneeRole, viewer.role) : ROLE_RANK[viewer.role] < rankOfPerson(d, j.createdById);
+  return oversees(viewer.role, j.assigneeRole);
 }
 
 /**
- * Contract §3.3. Senior = the creator, or anyone above the creator in scope: may assign, transfer and cancel.
+ * Contract §3.3. Senior = the creator, or anyone above the creator in scope: may transfer and cancel.
  * Managers above the assignee may also update (add tasks, extend, cancel / reject a task).
  * The assignee gets nothing on the web: no delegation, and own tasks are added from the mobile app.
  */
@@ -143,10 +143,10 @@ function permissionsOf(d: MockDb, j: Job): JobPermissions {
   const can = isOpenJob(j.status) && j.assigneeId !== viewer.id;
   const senior =
     viewer.role === 'Admin' || j.createdById === viewer.id || (ROLE_RANK[viewer.role] < rankOfPerson(d, j.createdById) && inScope(viewer, j.branchIds));
-  const managesAssignee = !!j.assigneeRole && isBelow(j.assigneeRole, viewer.role) && inScope(viewer, j.branchIds);
+  // Managers above the assignee, and a BM over the ABM of their branch (contract §3.3).
+  const managesAssignee = oversees(viewer.role, j.assigneeRole) && inScope(viewer, j.branchIds);
   return {
-    canAssign: can && !j.assigneeId && senior,
-    canTransfer: can && !!j.assigneeId && j.openCount > 0 && senior,
+    canTransfer: can && j.openCount > 0 && senior,
     canCancel: can && senior,
     canUpdate: can && (senior || managesAssignee),
   };
@@ -191,9 +191,21 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
     return me satisfies TrackingViewer;
   }
   if (m === 'GET' && path === 'branches') return d.branches.filter((b) => inScope(viewer, [b.id]));
+  if (m === 'GET' && path === 'groups') {
+    // Light lookup for filters: groups in scope with their mapped branch and Credit Officer.
+    const branchId = q.get('branchId');
+    const coId = q.get('creditOfficerId');
+    const branchName = new Map(d.branches.map((b) => [b.id, b.name]));
+    return d.groups
+      .filter((g) => inScope(viewer, [g.branchId]) && (!branchId || g.branchId === branchId) && (!coId || g.creditOfficerId === coId))
+      .map((g) => ({ id: g.id, code: g.code, name: g.name, branchId: g.branchId, branchName: branchName.get(g.branchId) ?? '', creditOfficerId: g.creditOfficerId, creditOfficerName: g.creditOfficerName }))
+      .sort((a, b) => a.name.localeCompare(b.name)) satisfies TrackingGroup[];
+  }
   if (m === 'GET' && path === 'field-officers') {
     const branchId = q.get('branchId');
-    return d.officers.filter((o) => canAssignWorkTo(viewer, o) && (!branchId || o.branchIds.includes(branchId)));
+    return d.officers
+      .filter((o) => canMonitor(viewer, o) && (!branchId || o.branchIds.includes(branchId)))
+      .map((o) => ({ ...o, canAssign: canAssignWorkTo(viewer, o) }));
   }
 
   // ---- Jobs ------------------------------------------------------------------------------
@@ -208,7 +220,6 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
     if (m === 'GET' && seg[2] === 'history') {
       return d.history.filter((h) => h.jobId === job.id).sort((a, b) => b.performedAt.localeCompare(a.performedAt) || b.id.localeCompare(a.id));
     }
-    if (m === 'PUT' && seg[2] === 'assign') return assignJob(d, job, body as AssignJobRequest);
     if (m === 'PUT' && seg[2] === 'transfer') return transferJob(d, job, body as TransferJobRequest);
     if (m === 'PUT' && seg[2] === 'extend') return extendJob(d, job, body as ExtendJobRequest);
     if (m === 'PUT' && seg[2] === 'cancel') return cancelJob(d, job, body as RemarksRequest);
@@ -278,13 +289,22 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
     const branchId = q.get('branchId');
     const all = d.geoTags.filter((g) => kinds.includes(g.kind) && (!branchId || g.branchId === branchId));
     const od = new Map(d.odMembers.map((c) => [c.id, c]));
+    const members = new Map(d.members.map((c) => [c.id, c]));
+    const groups = new Map(d.groups.map((g) => [g.id, g]));
     const untaggedByKind: Partial<Record<GeoTagKind, number>> = {};
     all.filter((g) => !g.location).forEach((g) => (untaggedByKind[g.kind] = (untaggedByKind[g.kind] ?? 0) + 1));
     const points: GeoTagPoint[] = all
       .filter((g) => !!g.location)
       .map((g) => {
         const c = g.kind === 'OdMember' ? od.get(g.refId) : undefined;
+        const mem = g.kind === 'Member' ? members.get(g.refId) : undefined;
+        const grp = g.kind === 'GroupCentre' ? groups.get(g.refId) : undefined;
+        const map = c ?? mem ?? grp;
         return {
+          creditOfficerId: map?.creditOfficerId ?? null,
+          creditOfficerName: map?.creditOfficerName ?? null,
+          groupId: c?.groupId ?? mem?.groupId ?? null,
+          groupName: c?.groupName ?? mem?.groupName ?? null,
           id: g.id, kind: g.kind, refId: g.refId, name: g.name, refCode: g.refCode, branchId: g.branchId, branchName: g.branchName,
           address: g.address, location: g.location!, radiusMeters: g.radiusMeters, verified: g.verified, dpd: c?.dpd ?? null, overdueAmount: c?.overdueAmount ?? null,
         };
@@ -388,19 +408,28 @@ function windowOf(j: Pick<Job, 'startFrom' | 'createdAt' | 'completeBy'>): [stri
 }
 
 /**
- * Conflict rule: the same place cannot have the same type of task pending in two open jobs whose
- * date windows overlap (so next week's centre meeting is fine, a second one this week is not).
+ * The same task type at the same place, pending in other open jobs (any dates). `duplicateCheck` (utils/job-rules)
+ * then decides: the same person with overlapping dates → skipped; someone else → added with a warning.
  */
-function pendingDuplicate(d: MockDb, t: NewTaskInput, window: [string, string]): { jobNo: string; taskNo: string } | null {
+function pendingElsewhere(d: MockDb, t: Pick<NewTaskInput, 'type' | 'target'>, excludeJobId: string): PendingElsewhere[] {
   const key = targetKey(t.type, t.target);
-  for (const j of d.jobs) {
-    if (!isOpenJob(j.status)) continue;
-    const [s, e] = windowOf(j);
-    if (s > window[1] || window[0] > e) continue;
-    const hit = j.tasks.find((x) => x.status === 'Pending' && targetKey(x.type, x.target) === key);
-    if (hit) return { jobNo: j.jobNo, taskNo: hit.taskNo };
-  }
-  return null;
+  return d.jobs
+    .filter((j) => j.id !== excludeJobId && isOpenJob(j.status))
+    .filter((j) => j.tasks.some((x) => x.status === 'Pending' && targetKey(x.type, x.target) === key))
+    .map((j) => ({ jobNo: j.jobNo, assigneeId: j.assigneeId, assigneeName: j.assigneeName, window: windowOf(j) }));
+}
+
+const PRIORITIES = ['VeryHigh', 'High', 'Medium', 'Low'];
+
+/** Who goes along on a task: an employee who works in the task's branch, or the caller. Never the assignee. */
+function companionOf(d: MockDb, job: Job, t: NewTaskInput): { id: string; name: string } | null {
+  if (!t.accompaniedById) return null;
+  if (t.accompaniedById === job.assigneeId) throw bad(`${t.title}: ${job.assigneeName} holds the job, so cannot also be the person going along.`);
+  if (t.accompaniedById === viewer.employeeId) return { id: viewer.id, name: viewer.name };
+  const o = d.officers.find((x) => x.id === t.accompaniedById);
+  if (!o) throw bad(`${t.title}: the person going along was not found.`);
+  if (!o.branchIds.includes(t.target.branchId)) throw bad(`${t.title}: ${o.name} does not work in ${t.target.branchName}.`);
+  return { id: o.id, name: o.name };
 }
 
 /** Groups, members and OD members can only be put in a job once their location is verified (from the mobile app). */
@@ -412,12 +441,16 @@ function locationVerified(d: MockDb, kind: string, refId: string | null): boolea
 function validateTaskInput(t: NewTaskInput): string | null {
   if (!t.title?.trim()) return 'Title is required.';
   if (!TASK_TYPE[t.type]) return 'Unknown task type.';
+  if (t.priority && !PRIORITIES.includes(t.priority)) return 'Unknown priority.';
   if (!t.target?.location || typeof t.target.location.lat !== 'number') return 'Every task needs a location.';
   if (!t.target.branchId) return 'The task location must belong to a branch.';
   return null;
 }
 
-/** Adds tasks, skipping (not failing) duplicates; the branch rule fails the whole request. */
+/**
+ * Adds tasks. Skipped (not failed): listed twice, already pending in this job, already pending with the same person,
+ * location not verified. Added with a warning: pending with someone else. The branch rule fails the whole request.
+ */
 function addTasks(d: MockDb, job: Job, tasks: NewTaskInput[], action: 'TasksAdded' | 'Created', silent = false): AddTasksResponse {
   if (!isOpenJob(job.status) && action === 'TasksAdded') throw bad(`${job.jobNo} is ${job.status.toLowerCase()}; tasks can no longer be added.`);
   if (action === 'TasksAdded') requirePermission(d, job, 'canUpdate', 'add tasks to it');
@@ -428,30 +461,43 @@ function addTasks(d: MockDb, job: Job, tasks: NewTaskInput[], action: 'TasksAdde
   });
   const outside = tasks.find((t) => !inScope(viewer, [t.target.branchId]));
   if (outside) throw forbidden(`${outside.target.branchName} is outside your ${viewer.unitName}.`);
-  if (job.assigneeId) {
-    const officer = officerOr400(d, job.assigneeId);
-    checkBranches(d, officer, [...new Set([...job.branchIds, ...tasks.map((t) => t.target.branchId)])]);
-  }
+  checkBranches(d, officerOr400(d, job.assigneeId), [...new Set([...job.branchIds, ...tasks.map((t) => t.target.branchId)])]);
+  const companions = tasks.map((t) => companionOf(d, job, t));
 
   const skipped: SkippedTask[] = [];
+  const warnings: TaskWarning[] = [];
   const seen = new Set<string>();
   const now = new Date();
   const added: string[] = [];
-  tasks.forEach((t) => {
+  tasks.forEach((t, i) => {
     const key = targetKey(t.type, t.target);
     if (seen.has(key)) return skipped.push({ title: t.title, reason: 'Listed twice in this request' });
     seen.add(key);
     if (!locationVerified(d, t.target.kind, t.target.refId)) return skipped.push({ title: t.title, reason: LOCATION_NOT_VERIFIED });
-    const dup = pendingDuplicate(d, t, windowOf(job));
-    if (dup) return skipped.push({ title: t.title, reason: `Already pending as ${dup.taskNo} in ${dup.jobNo}` });
-    const created = newTask(d, job, { type: t.type, title: t.title.trim(), notes: t.notes?.trim() || null, target: t.target, origin: 'Assigned', addedBy: d.currentUser, addedAt: now });
+    if (job.tasks.some((x) => x.status === 'Pending' && targetKey(x.type, x.target) === key)) return skipped.push({ title: t.title, reason: 'Already pending in this job' });
+    const dup = duplicateCheck(job.assigneeId, t.type, windowOf(job), pendingElsewhere(d, t, job.id));
+    if (dup.block) return skipped.push({ title: t.title, reason: cap(dup.block) });
+    if (dup.warn) warnings.push({ title: t.title, reason: cap(dup.warn) });
+    const created = newTask(d, job, {
+      type: t.type,
+      title: t.title.trim(),
+      notes: t.notes?.trim() || null,
+      priority: t.priority || 'Medium',
+      accompaniedBy: companions[i],
+      target: t.target,
+      origin: 'Assigned',
+      addedBy: d.currentUser,
+      addedAt: now,
+    });
     added.push(created.taskNo);
     return undefined;
   });
   refreshJob(job);
   if (added.length && !silent) pushHistory(d, job, action, d.currentUser, now, { taskNos: added });
-  return { job: out(d, job), skipped };
+  return { job: out(d, job), skipped, warnings };
 }
+
+const cap = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 function createJob(d: MockDb, r: CreateJobRequest): AddTasksResponse {
   if (!r.title?.trim()) throw bad('Job title is required.');
@@ -460,24 +506,20 @@ function createJob(d: MockDb, r: CreateJobRequest): AddTasksResponse {
   if (r.startFrom && r.startFrom > r.completeBy) throw bad('Start date must be on or before the complete-by date.');
   if (!r.tasks?.length) throw bad('A job needs at least one task.');
   if (!viewer.canCreateJobs) throw forbidden('There is nobody below you to give a job to.');
-  const assignee = r.assigneeId ? officerOr400(d, r.assigneeId) : null;
-  if (assignee) checkAssignable(assignee);
-  if (assignee) checkBranches(d, assignee, [...new Set(r.tasks.map((t) => t.target.branchId))]);
+  if (!r.assigneeId) throw bad('Select who will do this job.');
+  const assignee = officerOr400(d, r.assigneeId);
+  checkAssignable(assignee);
+  checkBranches(d, assignee, [...new Set(r.tasks.map((t) => t.target.branchId))]);
 
   const now = new Date();
   const job = newJob(d, { title: r.title.trim(), description: r.description?.trim() || null, creator: { ...d.currentUser, unitName: viewer.unitName }, assignee, startFrom: r.startFrom, completeBy: r.completeBy, createdAt: now });
-  if (assignee) job.unitName = assignee.unitName;
   const res = addTasks(d, job, r.tasks, 'Created', true);
   if (!job.tasks.length) {
     d.counters.job--;
     throw bad(`No task could be added: ${res.skipped.map((s) => `${s.title} – ${s.reason}`).join('; ')}`);
   }
-  if (!assignee) {
-    // Unit of an unassigned job = the branch its tasks are in, if just one.
-    job.unitName = job.branchNames.length === 1 ? job.branchNames[0] : 'Several branches';
-  }
   d.jobs.unshift(job);
-  pushHistory(d, job, 'Created', d.currentUser, now, { toAssigneeName: assignee?.name ?? null, taskNos: job.tasks.map((t) => t.taskNo), remarks: assignee ? null : 'Created without an assignee' });
+  pushHistory(d, job, 'Created', d.currentUser, now, { toAssigneeName: assignee.name, taskNos: job.tasks.map((t) => t.taskNo) });
   return { ...res, job: out(d, job) };
 }
 
@@ -488,21 +530,11 @@ function setAssignee(job: Job, o: FieldOfficer) {
   job.unitName = o.unitName;
 }
 
-function assignJob(d: MockDb, job: Job, r: AssignJobRequest): Job {
-  if (job.assigneeId) throw bad(`${job.jobNo} is already assigned to ${job.assigneeName}. Use Transfer instead.`);
-  if (!isOpenJob(job.status)) throw bad(`${job.jobNo} is ${job.status.toLowerCase()}.`);
-  requirePermission(d, job, 'canAssign', 'assign it');
-  const o = officerOr400(d, r.assigneeId);
-  checkAssignable(o);
-  checkBranches(d, o, job.branchIds);
-  setAssignee(job, o);
-  refreshJob(job);
-  pushHistory(d, job, 'Assigned', d.currentUser, new Date(), { toAssigneeName: o.name, remarks: r.remarks || null });
-  return out(d, job);
-}
-
+/**
+ * Transfer (contract rule 3.2.7). Pending tasks the new assignee already has pending elsewhere (same type, same place,
+ * overlapping dates) do not move: they stay in this job and come back in `skipped`.
+ */
 function transferJob(d: MockDb, job: Job, r: TransferJobRequest): TransferJobResponse {
-  if (!job.assigneeId) throw bad(`${job.jobNo} is not assigned yet. Use Assign instead.`);
   if (!isOpenJob(job.status)) throw bad(`${job.jobNo} is ${job.status.toLowerCase()} and cannot be transferred.`);
   requirePermission(d, job, 'canTransfer', 'transfer it');
   if (!r.remarks?.trim() || r.remarks.trim().length < 3) throw bad('A reason is required for a transfer.');
@@ -515,19 +547,30 @@ function transferJob(d: MockDb, job: Job, r: TransferJobRequest): TransferJobRes
   const from = job.assigneeName;
 
   const ids = r.taskIds?.length ? r.taskIds : null;
+  const requested = ids ? pending.filter((t) => ids.includes(t.id)) : pending;
+  if (ids && requested.length !== ids.length) throw bad('Only pending tasks of this job can be transferred.');
+
+  // Same person, same place, same task type, overlapping dates: that task stays here.
+  const skipped: SkippedTask[] = [];
+  const window: [string, string] = [toDateKey(now), r.completeBy || job.completeBy];
+  const moving = requested.filter((t) => {
+    const dup = duplicateCheck(o.id, t.type, window, pendingElsewhere(d, t, job.id));
+    if (dup.block) skipped.push({ title: t.title, reason: cap(dup.block) });
+    return !dup.block;
+  });
+  if (!moving.length) throw bad(`Nothing to transfer: ${o.name} already has ${requested.length > 1 ? 'these tasks' : 'this task'} pending (${skipped.map((s) => s.reason).join('; ')}).`);
+
   // Completed tasks stay with whoever did them (their route and allowance depend on it). So the job itself
-  // only changes hands while nothing is done; after that, the pending tasks move to a new linked job.
-  const whole = job.doneCount === 0 && (!ids || ids.length === pending.length);
+  // only changes hands while nothing is done and every pending task moves; otherwise they go to a new linked job.
+  const whole = job.doneCount === 0 && moving.length === pending.length;
   if (whole) {
     checkBranches(d, o, job.branchIds);
     setAssignee(job, o);
     refreshJob(job);
     pushHistory(d, job, 'Transferred', d.currentUser, now, { fromAssigneeName: from, toAssigneeName: o.name, taskNos: pending.map((t) => t.taskNo), remarks: r.remarks.trim() });
-    return { job: out(d, job), newJob: null };
+    return { job: out(d, job), newJob: null, skipped };
   }
 
-  const moving = ids ? pending.filter((t) => ids.includes(t.id)) : pending;
-  if (ids && moving.length !== ids.length) throw bad('Only pending tasks of this job can be transferred.');
   checkBranches(d, o, [...new Set(moving.map((t) => t.target.branchId))]);
   if (r.completeBy && r.completeBy < toDateKey()) throw bad('The new complete-by date cannot be in the past.');
 
@@ -542,7 +585,7 @@ function transferJob(d: MockDb, job: Job, r: TransferJobRequest): TransferJobRes
   pushHistory(d, job, 'TasksTransferredOut', d.currentUser, now, { fromAssigneeName: from, toAssigneeName: o.name, taskNos: moving.map((t) => t.taskNo), relatedJobId: target.id, relatedJobNo: target.jobNo, remarks });
   pushHistory(d, target, 'Created', d.currentUser, now, { toAssigneeName: o.name, remarks: `Created by a partial transfer from ${job.jobNo}` });
   pushHistory(d, target, 'TasksTransferredIn', d.currentUser, now, { fromAssigneeName: from, toAssigneeName: o.name, taskNos: target.tasks.map((t) => t.taskNo), relatedJobId: job.id, relatedJobNo: job.jobNo, remarks });
-  return { job: out(d, job), newJob: out(d, target) };
+  return { job: out(d, job), newJob: out(d, target), skipped };
 }
 
 function extendJob(d: MockDb, job: Job, r: ExtendJobRequest): Job {
@@ -612,17 +655,17 @@ function searchJobs(d: MockDb, r: JobSearchRequest): JobSearchResponse {
       (!r.dueTo || j.completeBy <= r.dueTo) &&
       hasOdInDpdRange(d, j, r.dpdRange) &&
       (!text ||
-        [j.jobNo, j.title, j.assigneeName ?? '', j.createdByName, ...j.tasks.flatMap((t) => [t.taskNo, t.target.name])].some((v) => v.toLowerCase().includes(text))),
+        [j.jobNo, j.title, j.assigneeName, j.createdByName, ...j.tasks.flatMap((t) => [t.taskNo, t.target.name])].some((v) => v.toLowerCase().includes(text))),
   );
   const filtered = base.filter((j) => (r.status ? j.status === r.status : !r.openOnly || isOpenJob(j.status)));
   const dir = r.sortDirection === 'desc' ? -1 : 1;
-  const value = (j: Job) => (r.sortOn === 'assigneeName' ? (j.assigneeName ?? '~') : r.sortOn === 'status' ? j.status : r.sortOn === 'createdAt' ? j.createdAt : j.completeBy);
+  const value = (j: Job) => (r.sortOn === 'assigneeName' ? j.assigneeName : r.sortOn === 'status' ? j.status : r.sortOn === 'createdAt' ? j.createdAt : j.completeBy);
   const sorted = [...filtered].sort((a, b) => value(a).localeCompare(value(b)) * dir || a.jobNo.localeCompare(b.jobNo));
   const count = (s: Job['status']) => base.filter((j) => j.status === s).length;
   return {
     jobs: sorted.slice(r.pageIndex * r.pageSize, (r.pageIndex + 1) * r.pageSize).map(summary),
     totalRecords: filtered.length,
-    summary: { total: base.length, unassigned: count('Unassigned'), assigned: count('Assigned'), inProgress: count('InProgress'), delayed: count('Delayed'), completed: count('Completed') },
+    summary: { total: base.length, assigned: count('Assigned'), inProgress: count('InProgress'), delayed: count('Delayed'), completed: count('Completed') },
   };
 }
 
@@ -638,7 +681,7 @@ function taskPoints(d: MockDb, q: URLSearchParams): JobTaskPoint[] {
         .filter((t) => (pendingOnly ? t.status === 'Pending' : t.status === 'Pending' || t.status === 'Completed') && (!branchId || t.target.branchId === branchId))
         .map((t) => ({
           jobId: j.id, jobNo: j.jobNo, jobTitle: j.title, jobStatus: j.status, jobStartFrom: j.startFrom ?? dayOf(j.createdAt), jobCompleteBy: j.completeBy, assigneeId: j.assigneeId, assigneeName: j.assigneeName,
-          taskId: t.id, taskNo: t.taskNo, title: t.title, type: t.type, status: t.status, targetKind: t.target.kind, refId: t.target.refId, location: t.target.location,
+          taskId: t.id, taskNo: t.taskNo, title: t.title, type: t.type, priority: t.priority, status: t.status, targetKind: t.target.kind, refId: t.target.refId, location: t.target.location,
           locationMismatch: t.verification?.locationMatched === false,
         })),
     );
@@ -653,7 +696,6 @@ function openJobs(d: MockDb, assigneeId: string | null, branchId: string | null)
     .filter((j) => isOpenJob(j.status) && canSee(d, j) && permissionsOf(d, j).canUpdate && (!assigneeId || j.assigneeId === assigneeId))
     .filter((j) => {
       if (!branchId) return true;
-      if (!j.assigneeId) return j.branchIds.includes(branchId);
       const o = d.officers.find((x) => x.id === j.assigneeId);
       return !!o && !jobBranchConflict(o, [...new Set([...j.branchIds, branchId])]);
     })
@@ -682,16 +724,29 @@ function followUpOf(d: MockDb, c: OdMember): OdFollowUpSummary | null {
   return best;
 }
 
+/** Pending OD follow-ups of a member, one per open job (several people may hold one since Nov 2026). */
+function pendingFollowUps(d: MockDb, memberId: string): OdMember['pendingWith'] {
+  return d.jobs
+    .filter((j) => isOpenJob(j.status))
+    .flatMap((j) =>
+      j.tasks
+        .filter((t) => t.type === 'OdFollowUp' && t.target.refId === memberId && t.status === 'Pending')
+        .map((t) => ({ jobId: j.id, jobNo: j.jobNo, taskNo: t.taskNo, assigneeId: j.assigneeId, assigneeName: j.assigneeName })),
+    );
+}
+
 function searchOverdue(d: MockDb, r: OdMemberSearchRequest): OdMemberSearchResponse {
   const text = (r.searchText ?? '').toLowerCase().trim();
-  const rows = d.odMembers.map((c) => ({ ...c, locationVerified: locationVerified(d, 'OdMember', c.id), followUp: followUpOf(d, c) }));
+  const rows = d.odMembers.map((c) => ({ ...c, locationVerified: locationVerified(d, 'OdMember', c.id), followUp: followUpOf(d, c), pendingWith: pendingFollowUps(d, c.id) }));
   const filtered = rows.filter(
     (c) =>
       inScope(viewer, [c.branchId]) &&
       (!r.branchId || c.branchId === r.branchId) &&
       inDpdRange(c.dpd, r.dpdRange) &&
+      (!r.creditOfficerId || c.creditOfficerId === r.creditOfficerId) &&
+      (!r.groupId || c.groupId === r.groupId) &&
       (!r.onlyUnassigned || c.followUp?.status !== 'Pending') &&
-      (!text || [c.memberName, c.loanAccountNo, c.groupName ?? ''].some((v) => v.toLowerCase().includes(text))),
+      (!text || [c.memberName, c.loanAccountNo, c.groupName ?? '', c.creditOfficerName ?? ''].some((v) => v.toLowerCase().includes(text))),
   );
   const dir = r.sortDirection === 'desc' ? -1 : 1;
   const sorted = [...filtered].sort((a, b) => {
@@ -707,24 +762,26 @@ function searchOverdue(d: MockDb, r: OdMemberSearchRequest): OdMemberSearchRespo
 }
 
 function addOdToJob(d: MockDb, r: AddOdToJobRequest): AddOdToJobResponse {
-  if (!r.memberIds?.length) throw bad('Select at least one member.');
+  if (!r.members?.length) throw bad('Select at least one member.');
   if (!!r.jobId === !!r.newJob) throw bad('Choose an existing job or describe a new one.');
 
   const skipped: AddOdToJobResponse['skipped'] = [];
   const inputs: { input: NewTaskInput; memberId: string }[] = [];
-  r.memberIds.forEach((id) => {
+  r.members.forEach((m) => {
+    const id = m.memberId;
     const c = d.odMembers.find((x) => x.id === id);
     if (!c) return skipped.push({ memberId: id, reason: 'Member not found' });
     if (!c.homeLocation) return skipped.push({ memberId: id, reason: `${c.memberName}: home is not geo-tagged` });
     if (!locationVerified(d, 'OdMember', c.id)) return skipped.push({ memberId: id, reason: `${c.memberName}: ${LOCATION_NOT_VERIFIED.toLowerCase()}` });
-    const f = followUpOf(d, c);
-    if (f?.status === 'Pending') return skipped.push({ memberId: id, reason: `${c.memberName}: already pending as ${f.taskNo} in ${f.jobNo}` });
+    // Pending with the same person → skipped; with someone else → added with a warning (both in addTasks).
     inputs.push({
       memberId: id,
       input: {
         type: 'OdFollowUp',
         title: `OD follow-up – ${c.memberName}`,
-        notes: [`Overdue ₹${c.overdueAmount.toLocaleString('en-IN')} · ${c.dpd} DPD.`, r.notes?.trim()].filter(Boolean).join(' '),
+        notes: [`Overdue ₹${c.overdueAmount.toLocaleString('en-IN')} · ${c.dpd} DPD.`, m.notes?.trim()].filter(Boolean).join(' '),
+        priority: m.priority || 'Medium',
+        accompaniedById: m.accompaniedById ?? null,
         target: { kind: 'OdMember', refId: c.id, name: c.memberName, address: c.address, location: c.homeLocation, branchId: c.branchId, branchName: c.branchName, matchRadiusMeters: d.settings.locationMatchRadiusMeters },
       },
     });
@@ -732,24 +789,25 @@ function addOdToJob(d: MockDb, r: AddOdToJobRequest): AddOdToJobResponse {
   });
 
   // Branch rule: CO / ABM / BM jobs only take their own branch's members.
-  let assignee: FieldOfficer | null = null;
+  let assignee: FieldOfficer;
   let job: Job | undefined;
   if (r.jobId) {
     job = d.jobs.find((j) => j.id === r.jobId);
     if (!job || !canSee(d, job)) throw new MockError(404, 'Job not found');
     if (!isOpenJob(job.status)) throw bad(`${job.jobNo} is ${job.status.toLowerCase()}; pick an open job.`);
     requirePermission(d, job, 'canUpdate', 'add tasks to it');
-    assignee = job.assigneeId ? officerOr400(d, job.assigneeId) : null;
+    assignee = officerOr400(d, job.assigneeId);
   } else {
     if (!r.newJob!.title?.trim()) throw bad('Job title is required.');
     validateDate(r.newJob!.completeBy, 'Complete-by date');
     if (r.newJob!.completeBy < toDateKey()) throw bad('The complete-by date cannot be in the past.');
     if (!viewer.canCreateJobs) throw forbidden('There is nobody below you to give a job to.');
-    assignee = r.newJob!.assigneeId ? officerOr400(d, r.newJob!.assigneeId) : null;
-    if (assignee) checkAssignable(assignee);
+    if (!r.newJob!.assigneeId) throw bad('Select who will do this job.');
+    assignee = officerOr400(d, r.newJob!.assigneeId);
+    checkAssignable(assignee);
   }
   const allowed = inputs.filter(({ input, memberId }) => {
-    const conflict = assignee ? jobBranchConflict(assignee, [...new Set([...(job?.branchIds ?? []), input.target.branchId])], branchName(d)) : null;
+    const conflict = jobBranchConflict(assignee, [...new Set([...(job?.branchIds ?? []), input.target.branchId])], branchName(d));
     if (conflict) skipped.push({ memberId, reason: `${input.target.name}: ${conflict}` });
     return !conflict;
   });
@@ -763,13 +821,24 @@ function addOdToJob(d: MockDb, r: AddOdToJobRequest): AddOdToJobResponse {
   }
   const before = new Set(job.tasks.map((t) => t.id));
   const isNew = job.tasks.length === 0;
-  const res = addTasks(d, job, allowed.map((a) => a.input), isNew ? 'Created' : 'TasksAdded', isNew);
-  res.skipped.forEach((s) => skipped.push({ memberId: allowed.find((a) => a.input.title === s.title)?.memberId ?? '', reason: `${s.title}: ${s.reason}` }));
-  if (isNew) {
-    if (!assignee) job.unitName = job.branchNames.length === 1 ? job.branchNames[0] : 'Several branches';
-    pushHistory(d, job, 'Created', d.currentUser, now, { toAssigneeName: assignee?.name ?? null, taskNos: job.tasks.map((t) => t.taskNo), remarks: 'Created from the OD follow-up screen' });
+  let res: AddTasksResponse;
+  try {
+    res = addTasks(d, job, allowed.map((a) => a.input), isNew ? 'Created' : 'TasksAdded', isNew);
+  } catch (e) {
+    if (isNew) d.jobs.splice(d.jobs.indexOf(job), 1);
+    throw e;
   }
-  return { job: out(d, job), addedTaskIds: job.tasks.filter((t) => !before.has(t.id)).map((t) => t.id), skipped };
+  const memberOf = (title: string) => allowed.find((a) => a.input.title === title)?.memberId ?? '';
+  res.skipped.forEach((s) => skipped.push({ memberId: memberOf(s.title), reason: `${s.title}: ${s.reason}` }));
+  const warnings = res.warnings.map((w) => ({ memberId: memberOf(w.title), reason: `${w.title}: ${w.reason}` }));
+  if (isNew && !job.tasks.length) {
+    d.jobs.splice(d.jobs.indexOf(job), 1);
+    throw bad(`Nothing to add. ${skipped.map((s) => s.reason).join(' · ')}`);
+  }
+  if (isNew) {
+    pushHistory(d, job, 'Created', d.currentUser, now, { toAssigneeName: assignee.name, taskNos: job.tasks.map((t) => t.taskNo), remarks: 'Created from the OD Members screen' });
+  }
+  return { job: out(d, job), addedTaskIds: job.tasks.filter((t) => !before.has(t.id)).map((t) => t.id), skipped, warnings };
 }
 
 // ---------------------------------------------------------------------------------------------

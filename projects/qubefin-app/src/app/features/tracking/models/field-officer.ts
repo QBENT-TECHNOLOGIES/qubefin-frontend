@@ -2,7 +2,8 @@ import { GeoPoint } from './geo';
 
 /**
  * Field roles, top to bottom (all of them are tracked):
- * DM = Division Manager > AM = Area Manager > BM = Branch Manager > ABM = Assistant Branch Manager > CO = Credit Officer.
+ * DM = Division Manager > AM = Area Manager > BM = Branch Manager = ABM = Additional Branch Manager > CO = Credit Officer.
+ * BM and ABM are the same level with the same operational functionality in tracking.
  */
 export type OfficerRole = 'CO' | 'ABM' | 'BM' | 'AM' | 'DM';
 
@@ -26,7 +27,7 @@ export interface TrackingViewer {
   canCreateJobs: boolean;
 }
 
-/** A field employee the current user is allowed to assign work to or monitor. */
+/** A field employee the current user may monitor; `canAssign` says whether they may also give them work. */
 export interface FieldOfficer {
   id: string;
   employeeCode: string;
@@ -44,4 +45,9 @@ export interface FieldOfficer {
   /** Geo-tagged residence used for the 50 m "near home" rule. */
   homeLocation: GeoPoint | null;
   reportingOfficerName: string | null;
+  /**
+   * True when the caller may give this person work (a lower role in their scope). False = monitor only: listed because
+   * the caller oversees their jobs (a BM sees the ABM of their branch), but never offered in Assign to / Transfer to.
+   */
+  canAssign: boolean;
 }

@@ -1,7 +1,7 @@
 import { OfficerRole, ViewerRole } from '../models/field-officer';
 import { LiveStatus, StopKind } from '../models/live-position';
 import { AlertSeverity, AlertStatus, AlertType } from '../models/tracking-alert';
-import { JobStatus, JobTaskStatus, TaskType } from '../models/job';
+import { JobStatus, JobTaskStatus, TaskPriority, TaskType } from '../models/job';
 import { ApprovalStatus, OutOfRadiusActivity } from '../models/approval-request';
 import { GeoTagKind } from '../models/geo-tag';
 
@@ -25,7 +25,6 @@ const SLATE = 'bg-slate-100 text-slate-600 ring-slate-500/20 dark:bg-slate-500/1
 const VIOLET = 'bg-violet-100 text-violet-700 ring-violet-600/20 dark:bg-violet-500/15 dark:text-violet-300';
 
 export const JOB_STATUS: Record<JobStatus, Tone> = {
-  Unassigned: tone('Unassigned', SLATE, 'user-plus', '#64748B'),
   Assigned: tone('Not started', BLUE, 'clipboard-list', '#2563EB'),
   InProgress: tone('In Progress', VIOLET, 'activity', '#7C3AED'),
   Delayed: tone('Delayed', RED, 'hourglass', '#E11D48'),
@@ -47,6 +46,14 @@ export const TASK_TYPE: Record<TaskType, Tone> = {
   OdFollowUp: tone('OD Follow-up', RED, 'indian-rupee', '#E11D48'),
   LeadSourcing: tone('Lead Sourcing', AMBER, 'target', '#D97706'),
   Survey: tone('Survey', INDIGO, 'clipboard-check', '#4F46E5'),
+};
+
+/** Task priority, highest first. */
+export const TASK_PRIORITY: Record<TaskPriority, Tone> = {
+  VeryHigh: tone('Very High', RED, 'zap', '#E11D48'),
+  High: tone('High', AMBER, 'chevron-up', '#D97706'),
+  Medium: tone('Medium', BLUE, 'flag', '#2563EB'),
+  Low: tone('Low', SLATE, 'chevron-down', '#64748B'),
 };
 
 /** Short code shown inside map pins. */
@@ -120,7 +127,7 @@ export const GEO_TAG_KIND: Record<GeoTagKind, Tone> = {
 export const ROLE_LABEL: Record<ViewerRole, string> = {
   Admin: 'Administrator',
   CO: 'Credit Officer',
-  ABM: 'Assistant Branch Manager',
+  ABM: 'Additional Branch Manager',
   BM: 'Branch Manager',
   AM: 'Area Manager',
   DM: 'Division Manager',

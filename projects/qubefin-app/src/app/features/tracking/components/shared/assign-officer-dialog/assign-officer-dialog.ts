@@ -60,7 +60,7 @@ export class AssignOfficerDialog {
 
   readonly groups = computed(() =>
     this.lookup
-      .officersByRole()
+      .assignableByRole()
       .filter((g) => !this.data.roles || this.data.roles.includes(g.role))
       .map((g) => ({
         ...g,

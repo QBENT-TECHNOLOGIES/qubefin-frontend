@@ -5,6 +5,12 @@
 > (`features/tracking/mocks/`). The backend team can build to this document. When the real service is up,
 > set `useTrackingMocks: false` in the environment file. No other frontend change should be needed.
 
+**Who builds what.** This team owns the **web frontend and its API integration**; the backend (`tracking-api`, database) is built
+by another developer. This document is the API requirement handed to them: endpoints, shapes and the rules the server must enforce.
+
+**Where the rules come from.** Some rules come from the *Tracking Software* meeting minutes; others were decided with the product
+owner afterwards. **Where the two conflict, the product owner's decisions (recorded in this document) win.**
+
 **Source of truth for shapes:** the TypeScript interfaces in
 `projects/qubefin-app/src/app/features/tracking/models/*.ts` (jobs and tasks: `models/job.ts`). This document
 names them and adds the rules the server must enforce. Shared business rules are also in `utils/job-rules.ts`.
@@ -18,6 +24,25 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 > `GeoTagKind`/`TaskTargetKind` `Customer` / `OdCustomer` → `Member` / `OdMember`, `OutOfRadiusActivity` `CustomerVisit` → `MemberVisit`.
 > Added 27 Oct 2026: DPD range filter (`dpdRange`) on `od-members/search` (replaces `minDpd`) and `jobs/search`;
 > location verification for groups and members (`GeoTagPoint.verified`, `OdMember.locationVerified`, rule 3.2.13).
+> **Changed 2 Nov 2026** (client request: an AM first spreads every point across the COs, then still needs to give the BM jobs
+> on the same points):
+> * **Duplicate rule relaxed** (rule 3.2.3, replaces the old "conflict rule" and rule 3.2.4): the same place may have the same
+>   task type pending with **different people**. Only the **same person** twice is refused. Pending with someone else → the task
+>   is added and returned in a new `warnings[]` list.
+> * **Assignee required** on `POST jobs` and `od-members/add-to-job` (`newJob.assigneeId`). "Assign later" is gone: no
+>   `Unassigned` status, no `PUT jobs/{id}/assign`, no `canAssign`, no `unassigned` count, no `Assigned` history entry.
+> * **New task fields:** `priority` (`VeryHigh` · `High` · `Medium` · `Low`, default `Medium`), `accompaniedById` / `accompaniedByName`
+>   (optional). The existing `notes` field is shown as **Instruction**. These are **task-level only** (set per task; no job-level defaults).
+> * `TransferJobResponse.skipped[]`, `OdMember.pendingWith[]`, `JobTaskPoint.priority`, `AddOdToJobRequest.members[]`
+>   (per-member `{ memberId, priority, notes, accompaniedById }`, replaces `memberIds` / `notes`), `AddOdToJobResponse.warnings[]`.
+> **Changed 3 Nov 2026:** ABM = **Additional** Branch Manager, the **same level as BM** with the same functionality (was: a level below BM),
+> with one exception: a **BM oversees the ABM's jobs** in their branch (see, monitor, update; not assign, transfer or cancel).
+> New `FieldOfficer.canAssign`: `field-officers` now lists everyone the caller may monitor, and `canAssign` says who may get work.
+> **Added 3 Nov 2026** (filters only, no rule change): when a group or member is introduced in the system it is mapped to a
+> **branch** and a **Credit Officer**, and each member is mapped to a **group**. New: `GET groups` lookup (§2);
+> `creditOfficerId/Name` and `groupId/Name` on `GeoTagPoint` (§8); `groupId`, `creditOfficerId/Name` on `OdMember` and
+> `creditOfficerId` / `groupId` filters on `od-members/search` (§4). The mapping **never limits assignment**: any place can still be
+> given to anyone the job rules (§3) allow, e.g. a point mapped to one CO can be given to another CO or to the BM.
 
 ---
 
@@ -26,7 +51,7 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 | Item | Rule |
 |---|---|
 | Base path | `{gatewayPath}tracking-api/…`. The frontend sends relative URLs (`ApiPaths.TRACKING`), and `AuthInterceptor` adds the gateway and `Authorization: Bearer <accessToken>`. |
-| Scope | Every list is filtered **server-side** to what the caller may see and act on (own branch / area / division, per the hierarchy Admin > DM > AM > BM > ABM > CO, §3.3). The UI never filters by hierarchy itself; it only shows or hides actions from `job.permissions`. |
+| Scope | Every list is filtered **server-side** to what the caller may see and act on (own branch / area / division, per the hierarchy Admin > DM > AM > BM = ABM > CO, §3.3). The UI never filters by hierarchy itself; it only shows or hides actions from `job.permissions`. |
 | Ids | GUID strings. |
 | Dates | `yyyy-MM-dd` for calendar days (`startFrom`, `completeBy`, `date`…). ISO-8601 with offset for instants (`createdAt`, `completedAt`, `performedAt`…). |
 | Coordinates | `{ "lat": number, "lng": number }`, WGS-84, 6 decimals (`GeoPoint`). |
@@ -43,11 +68,15 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 |---|---|---|
 | GET | `me` | `TrackingViewer`: `employeeId` (null for an admin without an employee record), name, `role` (`Admin`·`DM`·`AM`·`BM`·`ABM`·`CO`), `unitName`, `branchIds` (scope), `canCreateJobs` |
 | GET | `branches` | `TrackingBranch[]`: id, name, code, `areaName`, `divisionName`, `location` (nullable), `operatingRadiusKm` |
-| GET | `field-officers?branchId=` | `FieldOfficer[]`: id, employeeCode, name, `role` (`CO`·`ABM`·`BM`·`AM`·`DM`), designation, `branchId`/`branchName` (posting), `unitName` (branch / area / division in charge of), `branchIds` (branches they may work in), phone, `homeLocation`, reportingOfficerName |
+| GET | `groups?branchId=&creditOfficerId=` | `TrackingGroup[]`: id, code, name, `branchId`/`branchName`, `creditOfficerId`/`creditOfficerName` (mapped CO, nullable), sorted by name. Groups in the caller's scope; both filters optional. Feeds the Group filter on OD Members. |
+| GET | `field-officers?branchId=` | `FieldOfficer[]`: id, employeeCode, name, `role` (`CO`·`ABM`·`BM`·`AM`·`DM`), designation, `branchId`/`branchName` (posting), `unitName` (branch / area / division in charge of), `branchIds` (branches they may work in), phone, `homeLocation`, reportingOfficerName, `canAssign` |
 
 * `branches` returns the branches in the caller's scope (every branch for an Admin).
-* `field-officers` returns only people the caller may assign work to: a **lower role** whose `branchIds` all lie inside the
-  caller's scope (§3.3). The same list feeds the monitoring filters. `branchId` filters to people whose `branchIds` include it.
+* `field-officers` returns everyone the caller may **monitor**: people in a **lower role** whose `branchIds` all lie inside the
+  caller's scope, plus, for a BM, the ABM(s) of their branch (§3.3 exception). `canAssign` = the caller may give this person work
+  (true for the lower roles, **false for the ABM listed to a BM**). The web uses the whole list for monitoring filters (Jobs & Tasks,
+  Job Monitoring, Tracking History) and only `canAssign` people for *Assign to* / *Transfer to*. `branchId` filters to people whose
+  `branchIds` include it.
 * `me.role = "Admin"` covers both **Super Admin** and **Application Administrator**; they have the same access in tracking.
   `canCreateJobs` is false when nobody is below the caller (a CO).
 * `branchIds`: one branch for CO / ABM / BM; every branch of the area (AM) or division (DM).
@@ -56,7 +85,7 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 
 ## 3. Jobs and tasks
 
-A **job** is the unit of assignment: one assignee (or none yet), one `completeBy` date, and any number of **tasks** of
+A **job** is the unit of assignment: one assignee (required from creation), one `completeBy` date, and any number of **tasks** of
 mixed types. Tasks have a location but no time and no order.
 
 `TaskType`: `GroupVisit` · `MemberVisit` · `OdFollowUp` · `LeadSourcing` · `Survey`. (`CentreMeeting` was removed: a group /
@@ -82,9 +111,8 @@ self-added on the mobile app; the web only offers them as a point clicked on the
 | GET | `jobs/task-points?branchId=&assigneeId=&pendingOnly=true` | – | `JobTaskPoint[]`: task locations of open jobs (overview map, duplicate hints) |
 | GET | `jobs/{id}` | – | `Job` (with `tasks`) |
 | GET | `jobs/{id}/history` | – | `JobHistoryEntry[]` (newest first) |
-| POST | `jobs` | `CreateJobRequest` | `AddTasksResponse` `{ job, skipped }` |
-| PUT | `jobs/{id}/assign` | `{ assigneeId, remarks }` | `Job` |
-| PUT | `jobs/{id}/transfer` | `TransferJobRequest` | `TransferJobResponse` `{ job, newJob }` |
+| POST | `jobs` | `CreateJobRequest` (`assigneeId` **required**) | `AddTasksResponse` `{ job, skipped, warnings }` |
+| PUT | `jobs/{id}/transfer` | `TransferJobRequest` | `TransferJobResponse` `{ job, newJob, skipped }` |
 | POST | `jobs/{id}/tasks` | `{ tasks: NewTaskInput[] }` | `AddTasksResponse` |
 | PUT | `jobs/{id}/tasks/{taskId}/cancel` | `{ remarks }` | `Job` |
 | PUT | `jobs/{id}/tasks/{taskId}/reject` | `{ remarks }` | `Job` (self-added tasks only) |
@@ -95,7 +123,15 @@ self-added on the mobile app; the web only offers them as a point clicked on the
 (job has a task in that branch), `assigneeId`, `dueFrom`/`dueTo` (inclusive, on `completeBy`), `dpdRange` (job has at least one
 `OdMember` task, pending or completed, whose member's **current** DPD from the Loan Status Report is in the range), paging, and
 `sortOn` ∈ `completeBy`·`createdAt`·`assigneeName`·`status`. `summary` is computed over the same filters **excluding** status:
-`total, unassigned, assigned, inProgress, delayed, completed`.
+`total, assigned, inProgress, delayed, completed`.
+
+**Task fields set on the web** (`NewTaskInput`, stored on `JobTask`, shown to the assignee on the mobile app):
+
+| Field | Required | Notes |
+|---|---|---|
+| `priority` | yes (default `Medium`) | `VeryHigh` · `High` · `Medium` · `Low`. 400 for any other value. |
+| `notes` | no | Shown as **Instruction**. |
+| `accompaniedById` | no | Someone who goes along (e.g. the BM going with a CO). Must be an employee who works in the task's branch, or the caller; never the job's assignee (400). The server stores `accompaniedByName`. **Information only:** the task, its route and its allowance stay with the assignee; the companion gets no task. |
 
 ### 3.1 Status
 
@@ -105,10 +141,9 @@ self-added on the mobile app; the web only offers them as a point clicked on the
 |---|---|
 | `Cancelled` | Cancelled by a user, or every task was cancelled / rejected / moved out with none done |
 | `Completed` | No pending task left and at least one done |
-| `Unassigned` | No assignee yet |
 | `Delayed` | Pending tasks and today is after `completeBy`. Called *Delayed*, not *Overdue*, so it is never confused with an overdue (OD) member |
 | `InProgress` | At least one task done, some pending |
-| `Assigned` | Assigned, nothing done yet (shown as "Not started") |
+| `Assigned` | Nothing done yet (shown as "Not started"). Every job has an assignee from creation. |
 
 `JobTaskStatus`: `Pending` → `Completed` (mobile app), or `Cancelled` / `Rejected` / `Transferred`. Only `Pending` and
 `Completed` tasks count in `taskCount`, `doneCount`, `openCount`. `TaskOrigin`: `Assigned` (web) or `SelfAdded` (mobile).
@@ -118,15 +153,22 @@ self-added on the mobile app; the web only offers them as a point clicked on the
 1. **Every task needs a location** (`target.location`) and a `target.branchId`. Geo-tagged places (`kind` + `refId`) copy the
    location from the geo-tag at the time the task is added; `kind: "Custom"` is a point picked on the map.
 2. **Branch rule.** A CO, ABM or BM may only hold a job whose tasks are all in their own branch. An AM or DM may hold a job whose
-   tasks are in any branch they cover (`branchIds`). Checked on create, assign, transfer and add tasks. An unassigned job may span
-   branches; it can then only be assigned to someone who covers all of them. Return 400 with the reason.
-3. **Conflict rule.** The same place may not have the same task type `Pending` in two open jobs whose date windows overlap.
-   Window = `startFrom` (or the creation day) to `completeBy`; a delayed job stays active until today. Duplicates inside one request
-   are also refused. Conflicting tasks are **skipped, not failed**, and returned in `skipped[]` with the reason
-   (e.g. "Already pending as TSK-48001 in JOB-26001"). If nothing could be added on create, return 400.
-4. **OD members** can only be pending in one job at a time (any window).
+   tasks are in any branch they cover (`branchIds`). Checked on create, transfer and add tasks. Return 400 with the reason.
+3. **Duplicate rule** (since 2 Nov 2026; `duplicateCheck` in `utils/job-rules.ts`). Key = task type + place (`kind` + `refId`).
+   Window = `startFrom` (or the creation day) to `completeBy`; a delayed job stays active until today.
+   * Already in the same request, or already pending in the same job → **skipped** ("Listed twice in this request",
+     "Already pending in this job").
+   * The **same person** (the job's assignee) already has it pending in another open job whose window overlaps → **skipped**
+     ("Already pending with Rupa Mondal in JOB-26002"). For `OdFollowUp` the window does not matter: one person, one pending
+     follow-up per OD member.
+   * **Someone else** has it pending → **added**, and listed in `warnings[]` ("Also pending with Rupa Mondal (JOB-26002)").
+     Each task is done and completed separately by its own assignee; completing one never closes the other.
+   Skipped tasks are not failures; if nothing could be added on create, return 400.
+4. **OD members** follow rule 3 (they may be pending with several people, e.g. a CO and the BM). Auto-allocation (§8) still adds a
+   newly overdue member only when that CO does not already have it pending.
 5. `completeBy` cannot be in the past on create; `startFrom` ≤ `completeBy`. Extending needs a later date (not in the past) and a reason.
-6. **Assign** only an unassigned job; otherwise use transfer.
+6. **Assignee required.** `POST jobs` and a new job from `od-members/add-to-job` without `assigneeId` → 400 "Select who will do this job."
+   There is no assign endpoint; to change the person, use transfer.
 7. **Transfer** (open jobs with pending tasks, reason required; only the creator or someone above them, §3.3). Completed tasks
    always stay with whoever did them, because their route and travel allowance depend on it:
    * `taskIds: null` on a job with **nothing done** → **whole job**: the job gets the new assignee. History `Transferred`.
@@ -136,6 +178,9 @@ self-added on the mobile app; the web only offers them as a point clicked on the
      `transferredFromJobId/No` set, `completeBy` from the request (default: the original's). The original tasks become
      `Transferred` with `transferredToJobId/No`. History `TasksTransferredOut` on the old job, `Created` + `TasksTransferredIn` on the new one.
    * A partial transfer of every pending task of a job with nothing done is treated as a whole transfer.
+   * Tasks the **new assignee already has pending** (rule 3, same person) do **not** move: they stay in the original job and come
+     back in `TransferJobResponse.skipped[]`. If none can move, return 400 ("Nothing to transfer: … already has these tasks pending").
+     If some cannot move, the rest are handled as a partial transfer.
 8. **Cancel task**: pending only. **Reject task**: pending `SelfAdded` only. **Cancel job**: open jobs; pending tasks become
    `Cancelled`, completed ones stay on record.
 9. **Timestamps are server-generated** (`arrivedAt`, `completedAt`, `photoTakenAt`), stamped when the mobile event arrives.
@@ -143,7 +188,7 @@ self-added on the mobile app; the web only offers them as a point clicked on the
 10. On completion (mobile), store the photo URL, the photo's GPS fix, `completionDistanceMeters`, and
     `locationMatched = distance ≤ target.matchRadiusMeters` (requirement 3.2). `isLate` = completed after `completeBy`
     (or still pending after it).
-11. **Audit trail** (`JobHistoryEntry`) is append-only: `Created, Assigned, Transferred, TasksTransferredOut, TasksTransferredIn,
+11. **Audit trail** (`JobHistoryEntry`) is append-only: `Created, Transferred, TasksTransferredOut, TasksTransferredIn,
     TasksAdded, TaskSelfAdded, TaskCompleted, TaskCancelled, TaskRejected, DateExtended, BecameDelayed, Completed, Cancelled`,
     with performer, server time, from / to assignee, task numbers, related job and remarks.
 12. A nightly job writes `BecameDelayed` (and raises a `DelayedJob` alert, §6) for jobs that pass `completeBy` with pending tasks.
@@ -157,11 +202,19 @@ self-added on the mobile app; the web only offers them as a point clicked on the
 ### 3.3 Roles: who may see and do what
 
 Hierarchy, top to bottom: **Admin** (Super Admin and Application Administrator, equal access) > **DM** (Division Manager) >
-**AM** (Area Manager) > **BM** (Branch Manager) > **ABM** > **CO** (Credit Officer). DM, AM, BM, ABM and CO are tracked in the field;
-their tracking data feeds petrol and travel allowances. Scope = own branch (BM / ABM / CO), area (AM), division (DM), everything (Admin).
-(ABM is not in the client's role list; it is kept between BM and CO until confirmed.)
+**AM** (Area Manager) > **BM** (Branch Manager) = **ABM** (Additional Branch Manager) > **CO** (Credit Officer). DM, AM, BM, ABM and CO
+are tracked in the field; their tracking data feeds petrol and travel allowances. Scope = own branch (BM / ABM / CO), area (AM),
+division (DM), everything (Admin).
+**BM and ABM have the same operational functionality** in tracking: same level, same scope (their branch), same rights. Both can give
+jobs to the branch's COs and manage jobs held by COs; an AM or above gives jobs to either. Being the same level, a BM and an ABM do not
+give each other jobs (rule 1 compares levels).
+**Exception — a BM oversees the ABM's jobs** (product owner decision, 3 Nov 2026): for jobs held by an ABM of the BM's own branch,
+the BM is treated like a manager above the assignee: the BM **sees and monitors** them (rule 6) and may **update** them (rule 5: add
+tasks, extend the date, cancel a task, reject a self-added task). The BM still **cannot assign** work to the ABM (rule 1) and cannot
+**transfer or cancel** the ABM's jobs unless the BM created them (rule 4: creator or someone above the creator). It is one-way: an ABM
+gets no such right over a BM's jobs.
 
-1. **Who can get work from whom.** A user may create or assign jobs for anyone in a **lower role inside their own scope**: an AM for the
+1. **Who can get work from whom.** A user may create jobs for anyone in a **lower role inside their own scope**: an AM for the
    BMs and COs of their area, a DM for anyone in their division. Usually it is the next role down, but skipping is allowed (an AM may
    give a job straight to a CO, with no BM approval). Return 403 otherwise.
 2. **Multi-branch jobs.** Only an AM, DM or Admin can hold tasks in several branches (rule 3.2.2). A DM may give an AM one job with tasks
@@ -171,13 +224,13 @@ their tracking data feeds petrol and travel allowances. Scope = own branch (BM /
 4. **Cancel or transfer** an open job (whole, or its pending tasks): the job's **creator, or anyone above the creator** in scope
    (e.g. the DM above the AM who created it, or an Admin). This is how work moves when the assignee is on leave or has moved.
 5. **Update** (add tasks, extend the date, cancel a task, reject a self-added task): the creator, anyone above the creator, **and any
-   manager above the assignee** in scope. Example: an AM gives a job straight to a CO; the CO's BM can see, monitor and update it,
-   but only the AM (or someone above) can transfer or cancel it.
+   manager above the assignee** in scope, **and a BM for jobs held by an ABM of their branch**. Example: an AM gives a job straight to
+   a CO (or to the ABM); the branch's BM can see, monitor and update it, but only the AM (or someone above) can transfer or cancel it.
 6. **Visibility** (`jobs/search`, `jobs/{id}`, `jobs/task-points`, `jobs/open`): Admin sees everything; everyone sees jobs they
-   created or hold; plus jobs inside their scope held by someone below them, and unassigned jobs inside their scope created by them or
-   by someone below them. Anything else is 404. `jobs/open` (add to an existing job) lists only jobs the caller may update.
+   created or hold; plus jobs inside their scope held by someone below them, and, for a BM, jobs held by an ABM of their branch.
+   Anything else is 404. `jobs/open` (add to an existing job) lists only jobs the caller may update.
 7. **`Job.permissions`** (on `GET jobs/{id}` and every write that returns a `Job`) carries the result for the caller:
-   `{ canAssign, canTransfer, canCancel, canUpdate }`. The web shows the matching buttons and nothing else; the server still checks
+   `{ canTransfer, canCancel, canUpdate }`. The web shows the matching buttons and nothing else; the server still checks
    every write and answers 403 with a readable reason.
 
 ---
@@ -187,21 +240,29 @@ their tracking data feeds petrol and travel allowances. Scope = own branch (BM /
 | Method | Path | Body | Response |
 |---|---|---|---|
 | POST | `od-members/search` | `OdMemberSearchRequest` | `{ members: OdMember[], totalRecords, totalOverdueAmount }` |
-| POST | `od-members/add-to-job` | `AddOdToJobRequest` | `AddOdToJobResponse` `{ job, addedTaskIds[], skipped: [{ memberId, reason }] }` |
+| POST | `od-members/add-to-job` | `AddOdToJobRequest` | `AddOdToJobResponse` `{ job, addedTaskIds[], skipped: [{ memberId, reason }], warnings: [{ memberId, reason }] }` |
 
 * Data comes from the **Loan Status Report** (LOS/LMS). `dpd` = days past due.
-* `followUp` = the member's latest OD follow-up task (pending first, then most recent), with job no / status, assignee
-  (null while the job is unassigned), `completeBy`, task `status` and `outcome` (`OdVisitOutcome`: memberAvailable, paid,
+* `followUp` = the member's latest OD follow-up task (pending first, then most recent), with job no / status, assignee,
+  `completeBy`, task `status` and `outcome` (`OdVisitOutcome`: memberAvailable, paid,
   amountCollected, **ptpDate**). `onlyUnassigned=true` hides members with a pending follow-up.
-* Filters: `searchText`, `branchId`, `dpdRange` (§1 DPD ranges; replaces `minDpd`), `onlyUnassigned`, paging, `sortOn` ∈
+* `pendingWith` = every pending OD follow-up of the member, one per open job: `{ jobId, jobNo, taskNo, assigneeId, assigneeName }`.
+  The web uses it to lock the member for the same person and to warn for others (rule 3.2.3).
+* `groupId` / `groupName` = the group the member is mapped to; `creditOfficerId` / `creditOfficerName` = the member's mapped Credit
+  Officer (normally the group's CO). **Filter only**: the follow-up can be given to anyone the job rules allow.
+* Filters: `searchText` (member, loan account, group or CO name), `branchId`, `creditOfficerId` (mapped CO), `groupId` (mapped group),
+  `dpdRange` (§1 DPD ranges; replaces `minDpd`), `onlyUnassigned`, paging, `sortOn` ∈
   `dpd`·`memberName`·`overdueAmount`.
 * `locationVerified` = the member's home geo-tag is verified (rule 3.2.13). The web disables selection and shows a
   "Location Not Verified" badge when it is false.
 * OD members are **never assigned directly**. `add-to-job` takes exactly one of `jobId` (an open job) or `newJob`
-  (`NewJobHeader`: title, description, assigneeId (optional), startFrom, completeBy). Each member becomes one `OdFollowUp`
-  task at the geo-tagged home, with `notes` copied to every task.
-* Skip (do not fail) members with **no home geo-tag**, a home location that is **not verified** (rule 3.2.13), already **pending**
-  in a job, or outside the holder's branch (rule 3.2.2).
+  (`NewJobHeader`: title, description, **assigneeId (required)**, startFrom, completeBy). Members are sent as
+  `members: OdTaskInput[]` (`{ memberId, priority, notes, accompaniedById }`, replacing `memberIds`): each member becomes one
+  `OdFollowUp` task at the geo-tagged home with **its own** priority (default `Medium`), Instruction (`notes`) and optional
+  companion. There are no job-level defaults for these fields.
+* Skip (do not fail) members with **no home geo-tag**, a home location that is **not verified** (rule 3.2.13), already **pending
+  with the same person** (rule 3.2.3), or outside the holder's branch (rule 3.2.2). Members pending with **someone else** are added
+  and listed in `warnings[]`.
 * Outcome rules (mobile side, validated by the server): if paid, the photo is optional. If not paid, `ptpDate` is required.
 
 ---
@@ -289,7 +350,10 @@ Only authorised higher officials may decide. Remarks are required when rejecting
 * `geo-tags/points` is the **light** call behind the task picker: every geo-tagged place of the listed kinds in one branch, with no
   photo or history, so a branch with thousands of members stays small. `GeoTagPoint`: id, kind, refId, name, refCode, branchId/Name,
   address, location, radiusMeters, `verified` (rule 3.2.13: an unverified `Member` / `OdMember` is shown with a badge and cannot be
-  selected), and for `OdMember` only `dpd` and `overdueAmount` from the Loan Status Report (null otherwise).
+  selected), `creditOfficerId` / `creditOfficerName` (the mapped CO of a `GroupCentre`, `Member` or `OdMember`; null otherwise),
+  `groupId` / `groupName` (the mapped group of a `Member` / `OdMember`; null otherwise), and for `OdMember` only `dpd` and
+  `overdueAmount` from the Loan Status Report (null otherwise). The task picker filters by Credit Officer on these fields in the
+  browser (the branch is already loaded whole); they never block a selection.
   **One point per person:** a member who is currently overdue is returned once, as `OdMember` (not also as `Member`).
   `untaggedByKind` = per kind, places in the branch with no location yet. Same scope rules as `geo-tags`. If a branch ever gets too
   large even for this, add an optional `bbox=swLat,swLng,neLat,neLng` filter; the response shape stays the same.
@@ -329,8 +393,10 @@ Turn-by-turn navigation is a mobile-app concern: a "Navigate" button can open Go
 
 These events feed the data above. They come from the mobile app and are not called by the web: punch-in/out with odometer photos,
 periodic GPS fixes (with GPS-on/off state and battery), task arrival and completion with GPS photo + remarks, OD outcome (paid / PTP),
-**self-added tasks** (origin `SelfAdded`, same location and branch rules; history `TaskSelfAdded`), geo-tag capture with photo,
+**self-added tasks** (origin `SelfAdded`, same location and branch rules; history `TaskSelfAdded`; default priority `Medium`), geo-tag capture with photo,
 out-of-radius request, and the group-formation form (from LOS/MIS).
+The mobile app should show each task's **priority**, **Instruction** (`notes`) and **Accompanied by** (`accompaniedByName`),
+and can sort the task list by priority.
 
 ---
 

@@ -1,4 +1,4 @@
-import { Component, computed, inject, output, signal } from '@angular/core';
+import { Component, computed, inject, output, signal, viewChild } from '@angular/core';
 import { FormField, Schema, form, required, schema } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -61,6 +61,7 @@ export class JobForm {
 
   protected readonly jobSchema: Schema<JobFormModel> = schema((p) => {
     required(p.title, { message: 'Job title is required' });
+    required(p.assigneeId, { message: 'Select who will do this job' });
     required(p.completeBy, { message: 'Complete-by date is required' });
   });
 
@@ -68,8 +69,12 @@ export class JobForm {
 
   readonly assignee = computed(() => this.lookup.officerById().get(this.model().assigneeId) ?? null);
 
-  /** Branches places can come from: the assignee's branch(es), or anything while unassigned. */
-  readonly allowedBranchIds = computed(() => this.assignee()?.branchIds ?? null);
+  /** Branches places can come from: the assignee's branch(es). */
+  readonly allowedBranchIds = computed(() => this.assignee()?.branchIds ?? []);
+
+  private readonly builder = viewChild(TaskBuilder);
+  /** Tasks the assignee cannot take (e.g. the assignee was changed to someone who already has them pending). */
+  readonly blockedTasks = computed(() => this.builder()?.blockedTaskCount() ?? 0);
 
   readonly window = computed<[string, string]>(() => [this.model().startFrom || this.today, this.model().completeBy || this.today]);
 
@@ -87,10 +92,23 @@ export class JobForm {
     return null;
   });
 
-  submit() {
+  async submit() {
     this.submitted.set(true);
     this.jobForm().markAsTouched();
-    if (!this.jobForm().valid() || !this.tasks().length || this.branchConflict() || this.dateError()) return;
+    if (!this.jobForm().valid() || !this.assignee() || !this.tasks().length || this.branchConflict() || this.dateError() || this.blockedTasks()) return;
+
+    // Places pending with someone else are allowed; confirm once before saving.
+    const warned = this.builder()?.warnedTaskCount() ?? 0;
+    if (warned) {
+      const n = this.tasks().length;
+      const ok = await this.alerts.confirm(
+        'Some places are already with other people',
+        `${warned} of these ${n} tasks are already pending with someone else. ${this.assignee()!.name} will get their own task at those places. Create the job anyway?`,
+        'Create job',
+        'Go back',
+      );
+      if (!ok.isConfirmed) return;
+    }
 
     const m = this.model();
     this.saving.set(true);
@@ -98,7 +116,7 @@ export class JobForm {
       .create({
         title: m.title.trim(),
         description: m.description.trim() || null,
-        assigneeId: m.assigneeId || null,
+        assigneeId: m.assigneeId,
         startFrom: m.startFrom || null,
         completeBy: m.completeBy,
         tasks: this.tasks(),
@@ -106,7 +124,7 @@ export class JobForm {
       .subscribe({
         next: ({ job, skipped }) => {
           this.saving.set(false);
-          const who = job.assigneeName ? `assigned to ${job.assigneeName}` : 'not assigned yet';
+          const who = `assigned to ${job.assigneeName}`;
           const done = skipped.length
             ? this.alerts.warning(`${job.jobNo} created with ${job.taskCount} task(s)`, `Skipped: ${skipped.map((s) => `${s.title} – ${s.reason}`).join(' · ')}`)
             : this.alerts.success('Job created', `${job.jobNo} with ${job.taskCount} task(s), ${who}.`);

@@ -66,6 +66,15 @@ export interface GeoTagPoint {
    * verified are shown with a "Location Not Verified" badge in the task picker and cannot be put in a job until they are.
    */
   verified: boolean;
+  /**
+   * Mapped Credit Officer of the group / member (set when it was introduced in the system); null for other kinds or
+   * when none is mapped. **Filter only**: anyone allowed by the job rules can still be given a task here.
+   */
+  creditOfficerId: string | null;
+  creditOfficerName: string | null;
+  /** Members and OD members: the group they are mapped to (null for groups and other kinds). */
+  groupId: string | null;
+  groupName: string | null;
   /** OD members only (Loan Status Report): days past due. */
   dpd: number | null;
   /** OD members only: overdue amount (₹). */

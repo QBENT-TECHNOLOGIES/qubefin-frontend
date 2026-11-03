@@ -25,13 +25,8 @@
                 <div class="gen-icon"><svg lucideIcon="user" class="w-5 h-5 text-primary-700"></svg></div>
                 <div>
                     <label class="gen-label">Assigned to</label>
-                    @if (j.assigneeName) {
                     <p class="gen-title">{{ j.assigneeName }}</p>
-                    <p class="text-[11px] text-slate-400">{{ ROLE_LABEL[j.assigneeRole!] }} · {{ j.unitName }}</p>
-                    } @else {
-                    <p class="gen-title text-slate-400!">Not assigned yet</p>
-                    <p class="text-[11px] text-slate-400">{{ j.unitName }}</p>
-                    }
+                    <p class="text-[11px] text-slate-400">{{ ROLE_LABEL[j.assigneeRole] }} · {{ j.unitName }}</p>
                 </div>
             </div>
             <div class="gen-info">
@@ -74,9 +69,6 @@
         }
 
         <div class="px-4 pb-4 flex flex-wrap gap-2">
-            @if (j.permissions.canAssign) {
-            <button type="button" class="trk-btn-primary" (click)="assign()"><svg lucideIcon="user-check" class="w-4 h-4"></svg> Assign</button>
-            }
             @if (j.permissions.canTransfer) {
             <button type="button" class="trk-btn-secondary" (click)="transfer()"><svg lucideIcon="arrow-right-left" class="w-4 h-4"></svg> Transfer</button>
             }
@@ -90,11 +82,9 @@
             <a class="trk-btn-secondary" [routerLink]="['/secure/tracking/monitoring']" [queryParams]="{ job: j.id }">
                 <svg lucideIcon="map" class="w-4 h-4"></svg> Monitor on map
             </a>
-            @if (j.assigneeId) {
             <a class="trk-btn-secondary" [routerLink]="['/secure/tracking/route-history']" [queryParams]="{ employee: j.assigneeId }">
                 <svg lucideIcon="route" class="w-4 h-4"></svg> Today's route
             </a>
-            }
         </div>
     </div>
 
@@ -120,6 +110,9 @@
                     <div class="min-w-0 flex-1">
                         <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2 flex-wrap">
                             <span class="truncate">{{ t.title }}</span>
+                            <span class="trk-priority-chip" [style.--trk-color]="TASK_PRIORITY[t.priority].color" matTooltip="Priority">
+                                <svg [lucideIcon]="TASK_PRIORITY[t.priority].icon" class="w-3 h-3"></svg> {{ TASK_PRIORITY[t.priority].label }}
+                            </span>
                             @if (t.origin === 'SelfAdded') { <span class="trk-badge" matTooltip="Added by {{ t.addedByName }} from the mobile app"><svg lucideIcon="smartphone" class="w-3 h-3"></svg> Self-added</span> }
                             @if (t.isLate && t.status === 'Completed') { <span class="trk-badge is-red">Late</span> }
                             @if (t.verification?.locationMatched === false) { <span class="trk-badge is-red"><svg lucideIcon="crosshair" class="w-3 h-3"></svg> {{ t.verification?.completionDistanceMeters }} m off</span> }
@@ -130,7 +123,12 @@
                             · {{ t.target.branchName }}
                             @if (t.completedAt) { · done {{ t.completedAt | date: 'dd MMM, hh:mm a' }} by {{ t.completedByName }} }
                         </p>
-                        @if (t.notes) { <p class="text-[11px] text-slate-500 mt-0.5">{{ t.notes }}</p> }
+                        @if (t.notes) {
+                        <p class="text-[11px] text-slate-500 mt-0.5 flex items-start gap-1"><svg lucideIcon="sticky-note" class="w-3 h-3 mt-0.5 shrink-0"></svg> <span><b class="font-semibold">Instruction:</b> {{ t.notes }}</span></p>
+                        }
+                        @if (t.accompaniedByName) {
+                        <p class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1"><svg lucideIcon="user-plus" class="w-3 h-3"></svg> <b class="font-semibold">Accompanied by</b> {{ t.accompaniedByName }}</p>
+                        }
                         @if (t.status === 'Transferred' && t.transferredToJobId) {
                         <button type="button" class="trk-link text-[11px] mt-0.5" (click)="$event.stopPropagation(); openJob.emit(t.transferredToJobId)">Moved to {{ t.transferredToJobNo }} →</button>
                         } @else if (t.closedReason && t.status !== 'Completed') {

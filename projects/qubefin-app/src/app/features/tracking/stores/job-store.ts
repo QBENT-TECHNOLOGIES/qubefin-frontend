@@ -5,7 +5,7 @@ import { Job, JobHistoryEntry, JobSearchRequest, JobSearchResponse, JobStatus } 
 import { SortDirection } from '../models/geo';
 import { DpdRange } from '../utils/dpd';
 
-const EMPTY_SUMMARY = { total: 0, unassigned: 0, assigned: 0, inProgress: 0, delayed: 0, completed: 0 };
+const EMPTY_SUMMARY = { total: 0, assigned: 0, inProgress: 0, delayed: 0, completed: 0 };
 
 @Injectable({ providedIn: 'root' })
 export class JobStore {

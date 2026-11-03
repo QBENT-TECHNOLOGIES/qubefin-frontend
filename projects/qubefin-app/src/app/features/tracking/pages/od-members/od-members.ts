@@ -1,5 +1,5 @@
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -61,6 +61,28 @@ export class OdMembers {
   readonly searchDraft = signal(this.store.searchText());
   readonly selected = signal<Map<string, OdMember>>(new Map());
 
+  /**
+   * Credit Officers for the filter (in the chosen branch). The mapping of a member / group to a CO is for filtering only:
+   * it does not limit who can be given the follow-up.
+   */
+  readonly creditOfficers = computed(() => {
+    const branchId = this.store.branchId();
+    return this.lookup
+      .officers()
+      .filter((o) => o.role === 'CO' && (!branchId || o.branchIds.includes(branchId)))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
+  /** The group list needs a branch or a Credit Officer first, unless the user's scope is a single branch. */
+  readonly groupHint = computed(() => (!this.store.branchId() && !this.store.creditOfficerId() && this.lookup.branches().length !== 1 ? 'Choose a branch or Credit Officer first' : null));
+
+  constructor() {
+    effect(() => this.store.groupsEnabled.set(this.lookup.branches().length === 1));
+  }
+
+  onBranch(branchId: string | null) {
+    this.store.setBranch(branchId, (id) => this.lookup.officerById().get(id)?.branchIds);
+  }
+
   readonly selectedCount = computed(() => this.selected().size);
   readonly selectedAmount = computed(() => [...this.selected().values()].reduce((s, c) => s + c.overdueAmount, 0));
   readonly assignableRows = computed(() => this.store.members().filter((c) => this.canAssign(c)));
@@ -75,15 +97,16 @@ export class OdMembers {
     return !!c.homeLocation && !c.locationVerified;
   }
 
+  /** A member pending with someone already can still be added for another person (only the same person twice is refused). */
   canAssign(c: OdMember) {
-    return !!c.homeLocation && c.locationVerified && !this.hasOpenFollowUp(c);
+    return !!c.homeLocation && c.locationVerified;
   }
 
   /** Why the row cannot be selected, for the checkbox tooltip. */
   blockedReason(c: OdMember): string {
     if (!c.homeLocation) return 'Home not geo-tagged yet';
     if (!c.locationVerified) return 'Location not verified: the member can be added to a job once the home location is verified from the mobile app';
-    if (this.hasOpenFollowUp(c)) return 'Already pending in ' + c.followUp?.jobNo;
+    if (c.pendingWith.length) return 'Already pending with ' + c.pendingWith.map((p) => `${p.assigneeName} (${p.jobNo})`).join(', ') + '. Can still be added for someone else.';
     return '';
   }
 
@@ -149,9 +172,11 @@ export class OdMembers {
           this.store.refresh();
           this.jobStore.refreshList();
           const n = r.addedTaskIds.length;
-          const where = `${r.job.jobNo}${r.job.assigneeName ? ' (' + r.job.assigneeName + ')' : ' – not assigned yet'}`;
+          const where = `${r.job.jobNo} (${r.job.assigneeName})`;
           if (r.skipped.length) {
             this.alerts.warning(`${n} added to ${where}, ${r.skipped.length} skipped`, r.skipped.map((s) => s.reason).join(' · '));
+          } else if (r.warnings.length) {
+            this.alerts.success('Added to job', `${n} OD follow-up task${n > 1 ? 's' : ''} in ${where}. ${r.warnings.length} also pending with someone else.`);
           } else {
             this.alerts.success('Added to job', `${n} OD follow-up task${n > 1 ? 's' : ''} in ${where}.`);
           }

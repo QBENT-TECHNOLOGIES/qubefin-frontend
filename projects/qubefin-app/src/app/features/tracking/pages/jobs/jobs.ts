@@ -51,7 +51,6 @@ export class Jobs {
     const s = this.store.summary();
     return [
       { key: null, label: 'All jobs', value: s.total, icon: 'briefcase', color: '#334155' },
-      { key: 'Unassigned' as JobStatus, label: 'Unassigned', value: s.unassigned, icon: 'user-plus', color: '#64748B' },
       { key: 'Assigned' as JobStatus, label: 'Not started', value: s.assigned, icon: 'clipboard-list', color: '#2563EB' },
       { key: 'InProgress' as JobStatus, label: 'In progress', value: s.inProgress, icon: 'activity', color: '#7C3AED' },
       { key: 'Delayed' as JobStatus, label: 'Delayed', value: s.delayed, icon: 'hourglass', color: '#E11D48' },

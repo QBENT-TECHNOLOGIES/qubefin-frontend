@@ -18,7 +18,7 @@ import { TrackingLookupStore } from '../../stores/tracking-lookup-store';
 import { DEFAULT_CENTER, centroid, formatDistance, toDateKey } from '../../utils/geo-utils';
 import { MarkerContentCache, initials } from '../../utils/marker-content';
 import { pollWhileVisible } from '../../utils/poll';
-import { JOB_STATUS, JOB_TASK_STATUS, LIVE_STATUS, ROLE_LABEL, TASK_TYPE, TASK_TYPE_CODE } from '../../utils/tracking-labels';
+import { JOB_STATUS, JOB_TASK_STATUS, LIVE_STATUS, ROLE_LABEL, TASK_PRIORITY, TASK_TYPE, TASK_TYPE_CODE } from '../../utils/tracking-labels';
 import { MapStatus } from '../../components/shared/map-status/map-status';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
 import { TaskEvidence } from '../../components/tasks/task-evidence/task-evidence';
@@ -26,6 +26,9 @@ import { TaskEvidence } from '../../components/tasks/task-evidence/task-evidence
 type Scope = 'open' | 'Delayed' | 'Completed' | 'all';
 
 /** Job-wise monitoring: every task point of a job on the map, with the evidence sent from the mobile app. */
+/** Marker colour for a place with tasks in more than one job. */
+const SHARED_PLACE_COLOR = '#D97706';
+
 @Component({
   selector: 'qfin-job-monitoring',
   imports: [DatePipe, RouterLink, MatFormFieldModule, MatSelectModule, MatTooltipModule, LucideDynamicIcon, GoogleMap, MapAdvancedMarker, MapCircle, MapPolyline, MapStatus, TrackingChip, TaskEvidence],
@@ -43,6 +46,7 @@ export class JobMonitoring {
   readonly TASK_TYPE = TASK_TYPE;
   readonly LIVE_STATUS = LIVE_STATUS;
   readonly ROLE_LABEL = ROLE_LABEL;
+  readonly TASK_PRIORITY = TASK_PRIORITY;
   readonly formatDistance = formatDistance;
   readonly formatDuration = formatDuration;
   readonly TRAVEL_MODE_LABEL = TRAVEL_MODE_LABEL;
@@ -189,17 +193,46 @@ export class JobMonitoring {
   readonly center = signal(DEFAULT_CENTER);
   readonly zoom = signal(10);
 
-  readonly overviewMarkers = computed(() =>
-    this.selectedJobId()
-      ? []
-      : (this.pointsResource.value() ?? []).map((p) => ({
+  /**
+   * One marker per place. Since Nov 2026 the same place can be pending in several jobs (e.g. a CO and the BM);
+   * those share one amber marker showing the number of tasks, and clicking it lists them.
+   */
+  readonly overviewMarkers = computed(() => {
+    if (this.selectedJobId()) return [];
+    const byPlace = new Map<string, JobTaskPoint[]>();
+    (this.pointsResource.value() ?? []).forEach((p) => {
+      const key = p.refId ? `${p.targetKind}:${p.refId}` : `${p.location.lat.toFixed(5)},${p.location.lng.toFixed(5)}`;
+      byPlace.set(key, [...(byPlace.get(key) ?? []), p]);
+    });
+    return [...byPlace].map(([key, points]) => {
+      const p = points[0];
+      if (points.length === 1) {
+        return {
           key: p.taskId,
-          jobId: p.jobId,
+          points,
           position: p.location,
-          title: `${p.jobNo} · ${p.title}${p.assigneeName ? ' · ' + p.assigneeName : ''}`,
+          title: `${p.jobNo} · ${p.title} · ${p.assigneeName}`,
           content: this.markers.pin(`ov-${p.taskId}`, TASK_TYPE_CODE[p.type], JOB_STATUS[p.jobStatus].color, { small: true }),
-        })),
-  );
+        };
+      }
+      return {
+        key: `place-${key}`,
+        points,
+        position: p.location,
+        title: `${points.length} tasks here: ${points.map((x) => `${x.jobNo} (${x.assigneeName})`).join(', ')} · click to see them`,
+        content: this.markers.pin(`ovp-${key}`, String(points.length), SHARED_PLACE_COLOR, { small: true }),
+      };
+    });
+  });
+
+  /** A shared place that was clicked: its tasks are listed over the map. */
+  readonly sharedKey = signal<string | null>(null);
+  readonly sharedPoints = computed(() => this.overviewMarkers().find((m) => m.key === this.sharedKey())?.points ?? []);
+
+  openOverviewMarker(m: { key: string; points: JobTaskPoint[] }) {
+    if (m.points.length === 1) this.selectJob(m.points[0].jobId);
+    else this.sharedKey.set(m.key);
+  }
 
   readonly taskMarkers = computed(() => {
     const seq = this.planSeq();
@@ -290,6 +323,7 @@ export class JobMonitoring {
   }
 
   selectJob(id: string | null) {
+    this.sharedKey.set(null);
     if (id !== this.selectedJobId()) this.clearPlan();
     this.selectedJobId.set(id);
     this.selectedTaskId.set(null);

@@ -37,15 +37,41 @@
                         <mat-label>Search</mat-label>
                         <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="search" class="w-5 h-5"></svg></div>
                         <input matInput [ngModel]="searchDraft()" (ngModelChange)="searchDraft.set($event)" (keydown.enter)="applySearch()"
-                            (blur)="applySearch()" placeholder="Member, loan account or group">
+                            (blur)="applySearch()" placeholder="Member, loan account, group or CO">
                     </mat-form-field>
                 </div>
                 <div class="min-w-[160px]">
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Branch</mat-label>
-                        <mat-select [value]="store.branchId()" (valueChange)="store.setFilter(store.branchId, $event)">
+                        <mat-select [value]="store.branchId()" (valueChange)="onBranch($event)">
                             <mat-option [value]="null">All branches</mat-option>
                             @for (b of lookup.branches(); track b.id) { <mat-option [value]="b.id">{{ b.name }}</mat-option> }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                @if (creditOfficers().length) {
+                <div class="min-w-[180px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Credit Officer</mat-label>
+                        <mat-select [value]="store.creditOfficerId()" (valueChange)="store.setCreditOfficer($event)">
+                            <mat-option [value]="null">All Credit Officers</mat-option>
+                            @for (o of creditOfficers(); track o.id) {
+                            <mat-option [value]="o.id">{{ o.name }}@if (!store.branchId()) { <span class="text-[11px] text-slate-400"> · {{ o.branchName }}</span> }</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                }
+                <div class="min-w-[200px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full" [matTooltip]="groupHint() ?? ''">
+                        <mat-label>Group</mat-label>
+                        <mat-select [value]="store.groupId()" (valueChange)="store.setFilter(store.groupId, $event)" [disabled]="!!groupHint()">
+                            <mat-option [value]="null">{{ store.groupsLoading() ? 'Loading groups…' : 'All groups' }}</mat-option>
+                            @for (g of store.groups(); track g.id) {
+                            <mat-option [value]="g.id">
+                                {{ g.name }} <span class="text-[11px] text-slate-400">· {{ g.code }}{{ !store.creditOfficerId() && g.creditOfficerName ? ' · ' + g.creditOfficerName : '' }}</span>
+                            </mat-option>
+                            }
                         </mat-select>
                     </mat-form-field>
                 </div>
@@ -97,10 +123,10 @@
                 </ng-container>
 
                 <ng-container matColumnDef="group">
-                    <th mat-header-cell *matHeaderCellDef>Group / Branch</th>
+                    <th mat-header-cell *matHeaderCellDef>Group / Branch / CO</th>
                     <td mat-cell *matCellDef="let c" class="px-3 py-2">
                         <p class="text-[13px] dark:text-slate-300">{{ c.groupName ?? '–' }}</p>
-                        <p class="text-[11px] text-slate-400">{{ c.branchName }}</p>
+                        <p class="text-[11px] text-slate-400">{{ c.branchName }}{{ c.creditOfficerName ? ' · CO: ' + c.creditOfficerName : '' }}</p>
                     </td>
                 </ng-container>
 
@@ -145,7 +171,10 @@
                             <qfin-trk-chip [tone]="JOB_TASK_STATUS[f.status]" [small]="true" />
                             <a class="trk-link text-[11px] tabular-nums" [routerLink]="['/secure/tracking/jobs']" [queryParams]="{ job: f.jobId }">{{ f.jobNo }}</a>
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-0.5">{{ f.assigneeName ? f.assigneeName + ' (' + f.assigneeRole + ')' : 'Job not assigned yet' }} · by {{ f.completeBy | date: 'dd MMM' }}</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">{{ f.assigneeName + ' (' + f.assigneeRole + ')' }} · by {{ f.completeBy | date: 'dd MMM' }}</p>
+                        @if (c.pendingWith.length > 1) {
+                        <p class="text-[11px] text-amber-600 mt-0.5" [matTooltip]="blockedReason(c)">Pending with {{ c.pendingWith.length }} people</p>
+                        }
                         @if (f.outcome; as o) {
                         <p class="text-[11px] font-medium mt-0.5" [class.text-emerald-600]="o.paid" [class.text-amber-600]="!o.paid">
                             {{ o.paid ? 'Paid ₹' + (o.amountCollected | number) : (o.ptpDate ? 'PTP ' + (o.ptpDate | date: 'dd MMM') : 'Not paid') }}

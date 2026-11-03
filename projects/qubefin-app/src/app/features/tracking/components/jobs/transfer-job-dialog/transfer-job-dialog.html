@@ -75,6 +75,15 @@
         </mat-select>
     </mat-form-field>
     @if (submitted() && !assigneeId()) { <p class="trk-field-error -mt-2">Select who takes over.</p> }
+    @if (staying().length) {
+    <div class="trk-warn-box -mt-2 flex-col gap-1!">
+        <p class="flex items-center gap-1.5 font-semibold"><svg lucideIcon="triangle-alert" class="w-4 h-4"></svg> {{ staying().length }} task(s) will not move</p>
+        <p>The new person already has these pending, so they stay in {{ job.jobNo }}:</p>
+        <ul class="list-disc pl-5">
+            @for (s of staying(); track s.task.id) { <li>{{ s.task.title }} – {{ s.reason }}</li> }
+        </ul>
+    </div>
+    }
 
     @if (createsNewJob()) {
     <qfin-trk-date-field label="New job – complete by" icon="calendar-days" [(value)]="completeBy" [minDate]="today" />

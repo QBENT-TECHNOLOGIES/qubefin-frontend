@@ -25,19 +25,16 @@
 
     <div class="mt-3">
         @if (branch(); as b) {
-        <qfin-place-multi-select [places]="branchPlaces()" [blocked]="blocked()" [loading]="pointsLoading()"
+        <qfin-place-multi-select [places]="branchPlaces()" [blocked]="blocked()" [warned]="warned()" [loading]="pointsLoading()"
             [untaggedByKind]="untaggedByKind()" [branch]="b" [assigneeName]="assignee()?.name ?? null"
             [assigneeHome]="assignee()?.homeLocation ?? null" [assigneeTasks]="assigneeTasks()" [fieldPoints]="fieldPoints()"
             [(selectedIds)]="selectedIds" (addFieldPoint)="addFieldPoint($event)" />
 
-        <div class="mt-3 flex flex-wrap gap-3 items-start">
-            <div class="flex-1 min-w-[260px]">
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Instructions for all selected (optional)</mat-label>
-                    <input matInput [value]="notes()" (input)="notes.set($any($event.target).value)" (keydown.enter)="addSelected()"
-                        placeholder="Copied to every task, e.g. collect attendance and check passbooks">
-                </mat-form-field>
-            </div>
+        <div class="mt-3 flex flex-wrap gap-3 items-center justify-end">
+            <p class="text-[11px] text-slate-500 flex items-center gap-1.5 flex-1 min-w-[240px]">
+                <svg lucideIcon="info" class="w-3.5 h-3.5 shrink-0"></svg>
+                Priority (default Medium), instruction and accompanied by are set on each task below.
+            </p>
             <div class="w-full sm:w-auto">
                 <button type="button" class="trk-btn-primary h-[52px] w-full sm:min-w-[160px] justify-center" (click)="addSelected()"
                     [disabled]="!selectedIds().length">
@@ -67,32 +64,62 @@
             </button>
         </div>
         }
+        @if (warnedTaskCount()) {
+        <p class="trk-warn-box mb-2">
+            <svg lucideIcon="triangle-alert" class="w-4 h-4 shrink-0"></svg>
+            {{ warnedTaskCount() }} {{ warnedTaskCount() === 1 ? 'task is' : 'tasks are' }} also pending with someone else. That is allowed: each person does and completes their own task.
+        </p>
+        }
         <ul class="flex flex-col gap-2">
             @for (t of tasks(); track $index; let i = $index) {
             @let types = TYPES_FOR_KIND[t.target.kind];
-            <li class="trk-builder-item">
-                <span class="trk-type-icon" [style.--trk-color]="TASK_TYPE[t.type].color" [matTooltip]="TASK_TYPE[t.type].label">
-                    <svg [lucideIcon]="TASK_TYPE[t.type].icon" class="w-4 h-4"></svg>
-                </span>
-                <div class="min-w-0 flex-1">
-                    <input class="trk-inline-input" [value]="t.title" (change)="rename(i, $any($event.target).value)" aria-label="Task title">
-                    <p class="text-[11px] text-slate-400 truncate">
-                        {{ t.target.name }} · {{ t.target.branchName }}{{ t.notes ? ' · ' + t.notes : '' }}
-                    </p>
-                </div>
-                @if (types.length > 1) {
-                <select class="trk-inline-select" [value]="t.type" (change)="changeType(i, $any($event.target).value)"
-                    [attr.aria-label]="'Task type for ' + t.target.name" matTooltip="Change the task type for this place">
-                    @for (ty of types; track ty) {
-                    <option [value]="ty" [selected]="ty === t.type">{{ TASK_TYPE[ty].label }}</option>
+            @let c = taskChecks()[i];
+            @let companions = companionsByBranch().get(t.target.branchId) ?? [];
+            <li class="trk-builder-item is-stacked" [class.is-blocked]="!!c?.block" [class.is-warned]="!!c?.warn">
+                <div class="flex items-center gap-3 w-full">
+                    <span class="trk-type-icon" [style.--trk-color]="TASK_TYPE[t.type].color" [matTooltip]="TASK_TYPE[t.type].label">
+                        <svg [lucideIcon]="TASK_TYPE[t.type].icon" class="w-4 h-4"></svg>
+                    </span>
+                    <div class="min-w-0 flex-1">
+                        <input class="trk-inline-input" [value]="t.title" (change)="rename(i, $any($event.target).value)" aria-label="Task title">
+                        <p class="text-[11px] text-slate-400 truncate">{{ t.target.name }} · {{ t.target.branchName }}</p>
+                    </div>
+                    <select class="trk-inline-select trk-priority-select" [style.--trk-color]="TASK_PRIORITY[t.priority].color"
+                        (change)="update(i, { priority: $any($event.target).value })" [attr.aria-label]="'Priority for ' + t.title" matTooltip="Priority">
+                        @for (p of TASK_PRIORITIES; track p) {
+                        <option [value]="p" [selected]="p === t.priority">{{ TASK_PRIORITY[p].label }}</option>
+                        }
+                    </select>
+                    @if (types.length > 1) {
+                    <select class="trk-inline-select" [value]="t.type" (change)="changeType(i, $any($event.target).value)"
+                        [attr.aria-label]="'Task type for ' + t.target.name" matTooltip="Change the task type for this place">
+                        @for (ty of types; track ty) {
+                        <option [value]="ty" [selected]="ty === t.type">{{ TASK_TYPE[ty].label }}</option>
+                        }
+                    </select>
+                    } @else {
+                    <span class="text-[11px] font-medium text-slate-500 whitespace-nowrap">{{ TASK_TYPE[t.type].label }}</span>
                     }
-                </select>
-                } @else {
-                <span class="text-[11px] font-medium text-slate-500 whitespace-nowrap">{{ TASK_TYPE[t.type].label }}</span>
+                    <button type="button" class="trk-icon-btn" matTooltip="Remove" (click)="remove(i)" [attr.aria-label]="'Remove ' + t.title">
+                        <svg lucideIcon="trash-2" class="w-4 h-4 text-rose-600"></svg>
+                    </button>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full pl-8">
+                    <input class="trk-inline-input is-small flex-1 min-w-[200px]" [value]="t.notes ?? ''" placeholder="Instruction (optional)"
+                        (change)="update(i, { notes: $any($event.target).value.trim() || null })" [attr.aria-label]="'Instruction for ' + t.title">
+                    <select class="trk-inline-select" (change)="update(i, { accompaniedById: $any($event.target).value || null })"
+                        [attr.aria-label]="'Accompanied by, for ' + t.title" matTooltip="Accompanied by (optional)">
+                        <option value="" [selected]="!t.accompaniedById">Accompanied by: nobody</option>
+                        @for (p of companions; track p.id) {
+                        <option [value]="p.id" [selected]="p.id === t.accompaniedById">With {{ p.label }}</option>
+                        }
+                    </select>
+                </div>
+                @if (c?.block; as why) {
+                <p class="trk-field-error pl-8 w-full flex items-center gap-1.5"><svg lucideIcon="circle-x" class="w-3.5 h-3.5"></svg> Cannot be added: {{ why }}. Remove it or choose someone else.</p>
+                } @else if (c?.warn; as note) {
+                <p class="text-[11px] text-amber-700 dark:text-amber-300 pl-8 w-full flex items-center gap-1.5"><svg lucideIcon="triangle-alert" class="w-3.5 h-3.5"></svg> {{ note }}</p>
                 }
-                <button type="button" class="trk-icon-btn" matTooltip="Remove" (click)="remove(i)" [attr.aria-label]="'Remove ' + t.title">
-                    <svg lucideIcon="trash-2" class="w-4 h-4 text-rose-600"></svg>
-                </button>
             </li>
             }
         </ul>
