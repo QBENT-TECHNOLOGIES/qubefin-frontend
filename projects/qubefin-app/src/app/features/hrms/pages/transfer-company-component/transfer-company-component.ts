@@ -121,7 +121,27 @@ export class TransferCompanyComponent {
         this.transferModel.update((state) => ({ ...state, companyId: other?.id ?? '' })),
       );
     });
+    effect(() => {
+      const current = this.currentDetails();
+      const grades = this.salaryGrades();
+      if (!current) return;
 
+      const currentGradeName = current.salaryGrade?.trim().toLowerCase();
+      const grade = (grades as any[]).find(
+        (g) =>
+          (current.salaryGradeId && g.id === current.salaryGradeId) ||
+          (currentGradeName && g.name?.trim().toLowerCase() === currentGradeName),
+      );
+
+      if (!grade) return;
+
+      untracked(() =>
+        this.transferModel.update((state) => ({
+          ...state,
+          gradeId: grade.id,
+        })),
+      );
+    });
     this.employeeSearch$
       .pipe(
         debounceTime(250),
@@ -166,6 +186,7 @@ export class TransferCompanyComponent {
           ...this.emptyTransfer(),
           designation: res?.designationName ?? '',
           separationDate: res?.separationDate ? new Date(res?.separationDate) : null,
+          grossSalary: res?.grossSalary ?? null,
         });
         this.organizationUnits.set([]);
         this.designations.set([]);
@@ -228,18 +249,31 @@ export class TransferCompanyComponent {
       joiningDate: this.datePipe.transform(v.joiningDate, 'yyyy-MM-dd'),
       separationDate: this.datePipe.transform(v.separationDate, 'yyyy-MM-dd'),
     };
+    const toCompany =
+      this.companies()
+        .find((c) => c.id === v.companyId)
+        ?.name?.trim() ?? '';
 
     this.saving.set(true);
-    this.employeeService
-      .transferCompany(payload)
-      .pipe(finalize(() => this.saving.set(false)))
-      .subscribe({
-        next: () => {
-          this.alertService
-            .success('Success', 'Company transfer saved successfully.')
-            .then(() => this.onCancel());
-        },
-        error: () => {},
+    this.alertService
+      .confirm(
+        'Confirmation',
+        `Are you sure you want to transfer ${employee.employeeName} from ${this.currentDetails()?.companyName} to ${toCompany}?`,
+      )
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.employeeService
+            .transferCompany(payload)
+            .pipe(finalize(() => this.saving.set(false)))
+            .subscribe({
+              next: () => {
+                this.alertService
+                  .success('Success', 'Company transfer saved successfully.')
+                  .then(() => this.onCancel());
+              },
+              error: () => {},
+            });
+        }
       });
   }
 
