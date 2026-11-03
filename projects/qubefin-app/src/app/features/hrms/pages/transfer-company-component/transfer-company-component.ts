@@ -254,7 +254,6 @@ export class TransferCompanyComponent {
         .find((c) => c.id === v.companyId)
         ?.name?.trim() ?? '';
 
-    this.saving.set(true);
     this.alertService
       .confirm(
         'Confirmation',
@@ -262,6 +261,7 @@ export class TransferCompanyComponent {
       )
       .then((result) => {
         if (result.isConfirmed) {
+          this.saving.set(true);
           this.employeeService
             .transferCompany(payload)
             .pipe(finalize(() => this.saving.set(false)))
