@@ -137,4 +137,7 @@ export class EmployeeService {
   addJoiningInfo(data: any) {
     return this.httpClient.post(`${ApiPaths.HRMS}/employees/joining-info`, data);
   }
+  transferCompany(data: any) {
+    return this.httpClient.post(`${ApiPaths.HRMS}/employees/company-transfer`, data);
+  }
 }

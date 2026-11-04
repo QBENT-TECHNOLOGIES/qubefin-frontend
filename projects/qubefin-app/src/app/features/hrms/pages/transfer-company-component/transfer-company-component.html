@@ -1,0 +1,241 @@
+<div class="space-y-4 animate-fade-in">
+    <div class="box glass p-4 pb-6 m-2 mt-0">
+        <div class="flex flex-col gap-3">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full max-w-sm">
+                <mat-label>Select Employee</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="user-search" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [value]="employeeSearchText()" (input)="searchEmployees($any($event.target).value)"
+                    [matAutocomplete]="employeeAuto" autocomplete="off" placeholder="Search employee" />
+                <mat-autocomplete class="autoList" #employeeAuto="matAutocomplete" [displayWith]="displayEmployeeName"
+                    (optionSelected)="selectEmployee($event)">
+                    @for (employee of employeeOptions(); track employee.id) {
+                    <mat-option [value]="employee">
+                        {{ employee.employeeName }}
+                    </mat-option>
+                    } @empty {
+                    @if (employeeSearchText().trim()) {
+                    <mat-option disabled>No employees found</mat-option>
+                    }
+                    }
+                </mat-autocomplete>
+            </mat-form-field>
+
+        </div>
+    </div>
+
+    <div class="box glass p-4 pb-6 m-2 mt-0">
+        <div class="flex flex-col gap-3">
+            <div>
+                <h4 class="box-content-heading">
+                    Current Details
+                </h4>
+                <div class="blue-line mb-2!"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-3">
+                @if (currentDetails(); as cur) {
+                <div class="gen-info">
+                    <div class="gen-icon">
+                        <svg lucideIcon="building-2" class="w-5 h-5 text-primary-700"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Company</label>
+                        <p class="gen-title">{{ cur.companyName || '—' }}</p>
+                    </div>
+                </div>
+                <div class="gen-info">
+                    <div class="gen-icon">
+                        <svg lucideIcon="landmark" class="w-5 h-5 text-primary-700"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Organization Unit</label>
+                        <p class="gen-title">{{ cur.organizationUnitName || '—' }}</p>
+                    </div>
+                </div>
+                <div class="gen-info">
+                    <div class="gen-icon">
+                        <svg lucideIcon="id-card" class="w-5 h-5 text-primary-700"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Designation</label>
+                        <p class="gen-title">{{ cur.designationName || '—' }}</p>
+                    </div>
+                </div>
+                <div class="gen-info">
+                    <div class="gen-icon">
+                        <svg lucideIcon="tag" class="w-5 h-5 text-primary-700"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Grade</label>
+                        <p class="gen-title">{{ cur.salaryGrade || '—' }}</p>
+                    </div>
+                </div>
+                <div class="gen-info">
+                    <div class="gen-icon">
+                        <svg lucideIcon="indian-rupee" class="w-5 h-5 text-primary-700"></svg>
+                    </div>
+                    <div>
+                        <label class="gen-label">Gross Salary</label>
+                        <p class="gen-title">{{ cur.grossSalary != null ? (cur.grossSalary | number) : '—' }}</p>
+                    </div>
+                </div>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Separation Date</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-sync" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [matDatepicker]="separationPicker" [formField]="compTransferForm.separationDate"
+                        matInput autocomplete="off" (keydown)="$event.preventDefault()" placeholder="Select Date" />
+                    <mat-datepicker-toggle matIconSuffix [for]="separationPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #separationPicker></mat-datepicker>
+                    <mat-error class="cus-error">
+                        {{ compTransferForm.separationDate().errors()[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+                } @else {
+                <p class="text-sm text-slate-500 italic col-span-full">
+                    Select an employee to see current details.
+                </p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="box glass p-4 pb-6 m-2 mt-0">
+        <div class="flex flex-col gap-3">
+            <div>
+                <h4 class="box-content-heading">
+                    Transfer To
+                </h4>
+                <div class="blue-line mb-2!"></div>
+            </div>
+        </div>
+        @if (currentDetails(); as cur) {
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-3">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Company</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="compTransferForm.companyId" placeholder="Select Company">
+                    @for (company of companies(); track company.id) {
+                    <mat-option [value]="company.id">{{ company.name }}</mat-option>
+                    }
+                </mat-select>
+                <mat-error class="cus-error">
+                    {{ compTransferForm.companyId().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Organization Unit Type</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="compTransferForm.organizationUnitTypeId"
+                    (selectionChange)="onOrganizationUnitTypeChange($event.value)">
+                    @for(item of organizationUnitTypes(); track item.id){
+                    <mat-option [value]="item.id">
+                        {{item.name}}
+                    </mat-option>
+                    }
+                </mat-select>
+                <mat-error class="cus-error">
+                    {{ compTransferForm.organizationUnitTypeId().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Organization Unit </mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="landmark" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="compTransferForm.OrganisationUnitId">
+                    @for(item of organizationUnits(); track item.id){
+                    <mat-option [value]="item.id">
+                        {{item.name}}
+                    </mat-option>
+                    }
+                </mat-select>
+                <mat-error class="cus-error">
+                    {{ compTransferForm.OrganisationUnitId().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Designation</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="id-card" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" [formField]="compTransferForm.designation"
+                    placeholder="Enter Designation Name">
+                <mat-error class="cus-error">
+                    {{ compTransferForm.designation().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Salary Grade</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="compTransferForm.gradeId"
+                    (selectionChange)="onSalaryGradeChange($event.value)">
+                    @for(item of salaryGrades(); track item.id){
+                    <mat-option [value]="item.id">
+                        {{item.name}}
+                    </mat-option>
+                    }
+                </mat-select>
+                <mat-error class="cus-error">
+                    {{ compTransferForm.gradeId().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Gross Salary</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="indian-rupee" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" autocomplete="off" [formField]="compTransferForm.grossSalary"
+                    (wheel)="$event.preventDefault()" placeholder="Gross Salary">
+                <mat-error class="cus-error">
+                    {{ compTransferForm.grossSalary().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Joining Date</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [matDatepicker]="picker" [formField]="compTransferForm.joiningDate" matInput
+                    autocomplete="off" (keydown)="$event.preventDefault()" placeholder="Select Date" />
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+                <mat-error class="cus-error">
+                    {{ compTransferForm.joiningDate().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+        </div>
+        }
+        @else {
+        <p class="text-sm text-slate-500 italic col-span-full">
+            Select an employee to add transfer details.
+        </p>
+        }
+
+        <div class="pt-4 bg-white/60 dark:bg-slate-800 border-t border-slate-200">
+            <div class="flex justify-end gap-3">
+                <button type="button" (click)="onSave()" [disabled]="saving()"
+                    class="global-btn shine-sweep lift disabled:opacity-60 disabled:cursor-not-allowed">
+                    <svg lucideIcon="arrow-big-right-dash" class="w-5 h-5"></svg>
+                    {{ saving() ? 'Transfering...' : 'Transfer' }}
+                </button>
+
+                <button type="button" (click)="onCancel()" [disabled]="saving()"
+                    class="cursor-pointer px-5 py-2.5 flex items-center gap-2 bg-white border border-slate-300 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 text-slate-700 text-sm font-semibold rounded-lg shadow-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed">
+                    <svg lucideIcon="x" class="w-4 h-4"></svg>
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

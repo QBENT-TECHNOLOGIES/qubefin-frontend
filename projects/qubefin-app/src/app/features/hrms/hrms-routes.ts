@@ -167,6 +167,13 @@ export const HrmsRoutes: Routes = [
             (m) => m.InterviewComponent,
           ),
       },
+      {
+        path: 'company-transfer',
+        loadComponent: () =>
+          import('./pages/transfer-company-component/transfer-company-component').then(
+            (m) => m.TransferCompanyComponent,
+          ),
+      },
       // {
       //   path: 'interview-panel',
       //   loadComponent: () =>
