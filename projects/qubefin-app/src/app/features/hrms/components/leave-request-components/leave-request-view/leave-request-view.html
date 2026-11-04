@@ -13,12 +13,6 @@
               <h1 class="box-title">
                 Leave Request
               </h1>
-
-              @if (!request.isSubmitted && request.isCancellable) {
-              <div class="box-edit-btn" matTooltip="Edit" (click)="onEdit()">
-                <svg lucideIcon="edit" class="w-4 h-4 text-primary-600 dark:text-primary-400"></svg>
-              </div>
-              }
             </div>
             <p class="box-subTitle text-xs!">Details</p>
           </div>
@@ -352,12 +346,6 @@
         }
         Cancel Request
       </button>
-      @if (!request.isSubmitted) {
-      <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shine-sweep lift">
-        <svg lucideIcon="check" class="w-4 h-4"></svg>
-        Submit Request
-      </button>
-      }
     </div>
   </div>
   }

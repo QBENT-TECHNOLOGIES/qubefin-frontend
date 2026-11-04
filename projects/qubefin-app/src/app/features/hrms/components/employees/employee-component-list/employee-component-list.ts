@@ -25,6 +25,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { GrossSalaryModal } from '../gross-salary-modal/gross-salary-modal';
 import { AttendanceCalendarModal } from '../../attendance-history-components/attendance-calendar-modal/attendance-calendar-modal';
 import { EmployeeDocumentsModal } from '../employee-documents-modal/employee-documents-modal';
+import { EmployeeTeamModal } from '../employee-team-modal/employee-team-modal';
+import { MatMenuModule } from '@angular/material/menu';
 @Component({
   selector: 'qfin-employee-component-list',
   imports: [
@@ -32,6 +34,7 @@ import { EmployeeDocumentsModal } from '../employee-documents-modal/employee-doc
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    MatMenuModule,
     LucideDynamicIcon,
     MatPaginatorModule,
     MatTableModule,
@@ -80,6 +83,15 @@ export class EmployeeComponentList {
   openDocumentsModal(id: string) {
     this.dialog.open(EmployeeDocumentsModal, {
       data: { id: id },
+      maxWidth: '95vw',
+      panelClass: 'glass-modal',
+    });
+  }
+
+  openTeamModal(employee: IEmployeesBySearchResult) {
+    this.dialog.open(EmployeeTeamModal, {
+      data: { id: employee.id, name: employee.fullName },
+      width: '900px',
       maxWidth: '95vw',
       panelClass: 'glass-modal',
     });

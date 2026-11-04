@@ -10,6 +10,11 @@ export const HrmsRoutes: Routes = [
           import('./pages/employee-component/employee-component').then((m) => m.EmployeeComponent),
       },
       {
+        path: 'my-team',
+        loadComponent: () =>
+          import('./pages/my-team-component/my-team-component').then((m) => m.MyTeamComponent),
+      },
+      {
         path: 'approval-workflows',
         loadComponent: () =>
           import('./pages/approval-workflow/approval-workflow').then((m) => m.ApprovalWorkflow),

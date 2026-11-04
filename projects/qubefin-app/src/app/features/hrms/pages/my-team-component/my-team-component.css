@@ -1,0 +1,79 @@
+/* Top-down org chart: connector lines are drawn with borders on ul/li */
+.org-chart ul {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  padding: 18px 0 0;
+}
+
+.org-chart > ul {
+  padding-top: 0;
+}
+
+.org-chart li {
+  position: relative;
+  list-style: none;
+  text-align: center;
+  padding: 18px 6px 0;
+}
+
+.org-chart li::before,
+.org-chart li::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 50%;
+  width: 50%;
+  height: 18px;
+  border-top: 1px solid var(--color-slate-300);
+}
+
+.org-chart li::after {
+  right: auto;
+  left: 50%;
+  border-left: 1px solid var(--color-slate-300);
+}
+
+.org-chart li:only-child {
+  padding-top: 0;
+}
+
+.org-chart li:only-child::before,
+.org-chart li:only-child::after {
+  display: none;
+}
+
+.org-chart li:first-child::before,
+.org-chart li:last-child::after {
+  border: 0 none;
+}
+
+.org-chart li:last-child::before {
+  border-right: 1px solid var(--color-slate-300);
+  border-radius: 0 6px 0 0;
+}
+
+.org-chart li:first-child::after {
+  border-radius: 6px 0 0 0;
+}
+
+.org-chart ul ul::before,
+.org-stack::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 18px;
+  border-left: 1px solid var(--color-slate-300);
+}
+
+/* Leaf-only teams hang below their manager in a single column */
+.org-stack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-top: 18px;
+}

@@ -65,10 +65,8 @@
                 <h2 class="viewArea-title">
                   @if (selectedLeaveRequestId() === EMPTY_UUID) {
                   Create Leave Request
-                  } @else if (isViewMode()) {
-                  Leave Request Details
                   } @else {
-                  Edit Leave Request
+                  Leave Request Details
                   }
                 </h2>
                 <div
@@ -77,10 +75,8 @@
                   <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
                     @if (selectedLeaveRequestId() === EMPTY_UUID) {
                     New Mode
-                    } @else if (isViewMode()) {
-                    View Mode
                     } @else {
-                    Edit Mode
+                    View Mode
                     }
                   </span>
                 </div>
@@ -88,10 +84,8 @@
               <p class="viewArea-description">
                 @if (selectedLeaveRequestId() === EMPTY_UUID) {
                 Submit a new leave request for approval.
-                } @else if (isViewMode()) {
-                Review leave request details and history.
                 } @else {
-                Update the selected leave request details.
+                Review leave request details and history.
                 }
               </p>
             </div>
@@ -106,11 +100,10 @@
 
       <div>
         @if (isViewMode() && selectedLeaveRequestId() !== EMPTY_UUID) {
-        <qfin-leave-request-view [leaveRequestId]="selectedLeaveRequestId()" (delete)="closePanel()"
-          (edit)="onEditRequest()">
+        <qfin-leave-request-view [leaveRequestId]="selectedLeaveRequestId()" (delete)="closePanel()">
         </qfin-leave-request-view>
         } @else {
-        <qfin-leave-request-detail [leaveRequestId]="selectedLeaveRequestId()" (cancel)="closePanel()"
+        <qfin-leave-request-detail (cancel)="closePanel()"
           (save)="onSaveRequest()">
         </qfin-leave-request-detail>
         }
