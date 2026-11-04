@@ -51,7 +51,7 @@ export class LeaveRequestDetail {
   public readonly documentUrl = signal<string>('');
   public readonly documentName = signal<string>('');
   public readonly minDate = signal<Date>(
-    new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+    new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1),
   );
 
   protected readonly leaveRequestModel = signal<ILeaveRequestDetailItem>({
