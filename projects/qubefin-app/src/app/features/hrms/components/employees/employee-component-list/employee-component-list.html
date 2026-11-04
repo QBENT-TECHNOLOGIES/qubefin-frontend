@@ -56,31 +56,36 @@
             <th mat-header-cell *matHeaderCellDef class="!text-right"> Action </th>
             <td mat-cell *matCellDef="let item" class="p-3 text-sm text-right">
                 <div class="w-full flex justify-end">
-                    <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10 transition-colors"
-                        matTooltip="Documents" (click)="openDocumentsModal(item.id)">
-                        <svg lucideIcon="files"
-                            class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
-                    </div>
-                    <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
-                        matTooltip="Gross Salary" (click)="openGradeModal(item.id)">
-                        <svg lucideIcon="badge-indian-rupee"
-                            class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
-                    </div>
-                    <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
-                        matTooltip="Monthly Calendar" (click)="openCalendarModal(item)">
-                        <svg lucideIcon="calendar-days"
-                            class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
-                    </div>
-                    <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
-                        matTooltip="Transfer" (click)="openEmpTransferModal(item.id)">
-                        <svg lucideIcon="user-check"
-                            class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
-                    </div>
-                    <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
-                        matTooltip="View" (click)="onDetailView(item.id)">
-                        <svg lucideIcon="chevron-right"
-                            class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
-                    </div>
+                    <button mat-icon-button [matMenuTriggerFor]="actions" matTooltip="Actions"
+                        class="!w-9 !h-9 inline-flex items-center justify-center rounded-full hover:bg-primary-400/10">
+                        <svg lucideIcon="ellipsis-vertical" class="w-5 h-5 text-primary-500"></svg>
+                    </button>
+                    <mat-menu #actions="matMenu" class="menus-area" xPosition="before">
+                        <button mat-menu-item class="!h-10 !min-h-10" (click)="onDetailView(item.id)">
+                            <svg lucideIcon="chevron-right" class="w-4 h-4 shrink-0 text-primary-500"></svg>
+                            <span class="text-[13px]">View Details</span>
+                        </button>
+                        <button mat-menu-item class="!h-10 !min-h-10" (click)="openTeamModal(item)">
+                            <svg lucideIcon="network" class="w-4 h-4 shrink-0 text-primary-500"></svg>
+                            <span class="text-[13px]">View Teams</span>
+                        </button>
+                        <button mat-menu-item class="!h-10 !min-h-10" (click)="openDocumentsModal(item.id)">
+                            <svg lucideIcon="files" class="w-4 h-4 shrink-0 text-primary-500"></svg>
+                            <span class="text-[13px]">Documents</span>
+                        </button>
+                        <button mat-menu-item class="!h-10 !min-h-10" (click)="openGradeModal(item.id)">
+                            <svg lucideIcon="badge-indian-rupee" class="w-4 h-4 shrink-0 text-primary-500"></svg>
+                            <span class="text-[13px]">Gross Salary</span>
+                        </button>
+                        <button mat-menu-item class="!h-10 !min-h-10" (click)="openCalendarModal(item)">
+                            <svg lucideIcon="calendar-days" class="w-4 h-4 shrink-0 text-primary-500"></svg>
+                            <span class="text-[13px]">Monthly Calendar</span>
+                        </button>
+                        <button mat-menu-item class="!h-10 !min-h-10" (click)="openEmpTransferModal(item.id)">
+                            <svg lucideIcon="user-check" class="w-4 h-4 shrink-0 text-primary-500"></svg>
+                            <span class="text-[13px]">Transfer</span>
+                        </button>
+                    </mat-menu>
                 </div>
             </td>
         </ng-container>

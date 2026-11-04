@@ -111,7 +111,11 @@ export class AttendanceRegularizationApply {
     });
     effect(() => {
       const today = new Date();
-      const firstDateOfCurrentMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+      const firstDateOfCurrentMonth = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth() - 2,
+        1,
+      );
 
       this.minDate =
         this.applyForm.regularizationType().value() === 'ATTENDANCE'

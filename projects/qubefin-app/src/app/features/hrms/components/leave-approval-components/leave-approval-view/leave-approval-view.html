@@ -202,17 +202,17 @@
                   {{ item.eventStatus }}
                 </span>
                 <div
-                  class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                  class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400">
                   <div class="flex items-center gap-2">
                     <svg lucideIcon="calendar-days" class="w-4 h-4"></svg>
                     {{ item.eventDate | date:'dd MMM yyyy • hh:mm a' }}
                   </div>
                 </div>
                 <div
-                  class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                  <div class="flex items-center gap-2">
+                  class="flex items-center gap-4 mt-2 text-[12px] text-slate-500 dark:text-slate-400">
+                  <div class="flex items-center gap-2 break-words">
                     <svg lucideIcon="user-round" class="w-4 h-4"></svg>
-                    {{ item.designation }}
+                    <span>{{ item.designation }}</span>
                   </div>
                 </div>
 

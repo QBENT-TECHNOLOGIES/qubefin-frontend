@@ -95,10 +95,6 @@ export class LeaveRequestComponent {
   // ===========================
   // Form Events
   // ===========================
-  protected onEditRequest() {
-    this.isViewMode.set(false);
-  }
-
   protected onSaveRequest() {
     this.closePanel();
   }
