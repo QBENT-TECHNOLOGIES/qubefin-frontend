@@ -1,11 +1,18 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { OrganizationUnit } from '../../../../global/models/organization-unit';
-import { IDesignation } from '../../../models/designation';
 import { OrganizationUnitTypeStore } from '../../../../global/stores/organization-unit-type-store';
 import { DateAdapter, MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { IEmpTransfer, IEmpTransferHistory } from '../../../models/employee-detail';
-import { form, FormField, required, schema, Schema, validate } from '@angular/forms/signals';
+import {
+  disabled,
+  form,
+  FormField,
+  required,
+  schema,
+  Schema,
+  validate,
+} from '@angular/forms/signals';
 import { OrganizationUnitService } from '../../../../global/services/organization-unit-service';
 import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { EmployeeService } from '../../../services/employee-service';
@@ -23,7 +30,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { EmployeeStore } from '../../../stores/employee-store';
-import { ApprovalWorkflowStore } from '../../../stores/approval-workflow-store';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, tap } from 'rxjs';
 @Component({
@@ -54,7 +60,6 @@ export class EmployeeTransferModal {
   private readonly organizationUnitService = inject(OrganizationUnitService);
   private readonly organizationUnitTypeStore = inject(OrganizationUnitTypeStore);
   private readonly employeeStore = inject(EmployeeStore);
-  private readonly approvalWorkflowStore = inject(ApprovalWorkflowStore);
 
   readonly displayedColumns = computed(() => {
     return [
@@ -70,10 +75,8 @@ export class EmployeeTransferModal {
   });
 
   empTransferHistoryList = signal<IEmpTransferHistory[]>([]);
-  readonly salaryGrades = this.approvalWorkflowStore.salaryGrades;
   readonly organizationUnitTypes = this.organizationUnitTypeStore.organizationUnitTypes;
   organizationUnits = signal<OrganizationUnit[]>([]);
-  designations = signal<IDesignation[]>([]);
   // Latest 'From Date' in the transfer history (date part only)
   readonly lastFromDate = computed<Date | null>(() => {
     const times = this.empTransferHistoryList()
@@ -98,17 +101,12 @@ export class EmployeeTransferModal {
     employeeId: '',
     organisationUnitTypeId: '',
     organisationUnitId: '',
-    designationId: '',
-    salaryGradeId: '',
-    grossSalary: null,
     effectiveFrom: null,
   });
   protected readonly transferSchema: Schema<IEmpTransfer> = schema((path) => {
     required(path.organisationUnitTypeId, { message: 'Orga Unit Type required' });
+    disabled(path.organisationUnitTypeId);
     required(path.organisationUnitId, { message: 'Organization Unit is required' });
-    required(path.designationId, { message: 'Designation is required' });
-    required(path.salaryGradeId, { message: 'Grade is required' });
-    required(path.grossSalary, { message: 'Gross Salary is required' });
     required(path.effectiveFrom, { message: 'Effective From is required' });
     validate(path.effectiveFrom, ({ value }) => {
       const minDate = this.minEffectiveDate();
@@ -166,20 +164,11 @@ export class EmployeeTransferModal {
                   ...state,
                   organisationUnitTypeId: officialInfo.organisationUnitTypeId || '',
                   organisationUnitId: officialInfo.organisationUnitId || '',
-                  designationId: officialInfo.designationId || '',
-                  grossSalary: officialInfo.grossSalary || null,
-                  salaryGradeId: officialInfo.salaryGradeId || '',
                   effectiveFrom: null,
                 }));
 
                 if (officialInfo.organisationUnitTypeId) {
                   this.onOrganizationUnitTypeChange(officialInfo.organisationUnitTypeId);
-                }
-                if (officialInfo.organisationUnitId) {
-                  this.onOrganizationUnitChange(officialInfo.organisationUnitId);
-                }
-                if (officialInfo.designationId) {
-                  this.onDesignationChange(officialInfo.designationId);
                 }
               }
             }
@@ -200,58 +189,6 @@ export class EmployeeTransferModal {
       },
     });
   }
-  onOrganizationUnitChange(id: string) {
-    if (!id || id === EMPTY_UUID) {
-      return;
-    }
-
-    const units = this.organizationUnits();
-    const selectedUnit = units.find((x: any) => x.id === id);
-
-    if (selectedUnit) {
-      this.transferModel.update((state) => ({
-        ...state,
-        organizationUnitId: id,
-      }));
-    }
-    this.employeeService.getDisignationByOrganizationUnit(id).subscribe({
-      next: (res: any) => {
-        this.designations.set(res);
-      },
-    });
-  }
-  onDesignationChange(id: string) {
-    if (!id || id === EMPTY_UUID) {
-      return;
-    }
-
-    const designations = this.designations();
-    const selectedDesignation = designations.find((x: any) => x.id === id);
-
-    if (selectedDesignation) {
-      this.transferModel.update((state) => ({
-        ...state,
-        designationId: id,
-        salaryGradeId: selectedDesignation.salaryGradeId || '',
-        grossSalary: selectedDesignation.grossSalary || null,
-      }));
-    }
-  }
-  onSalaryGradeChange(id: string) {
-    if (!id || id === EMPTY_UUID) {
-      return;
-    }
-
-    const selectedGrade = this.salaryGrades().find((grade: any) => grade.id === id);
-
-    if (selectedGrade) {
-      this.transferModel.update((state) => ({
-        ...state,
-        salaryGradeId: id,
-        grossSalary: selectedGrade.grossSalary,
-      }));
-    }
-  }
   onSave() {
     this.empTransferForm().markAsTouched();
     if (!this.empTransferForm().valid()) {
@@ -260,9 +197,9 @@ export class EmployeeTransferModal {
 
     const formValue = this.empTransferForm().value();
     const dataToSave = {
-      ...formValue,
-      effectiveFrom: this.datePipe.transform(formValue.effectiveFrom, 'yyyy-MM-dd'),
       employeeId: this.empId(),
+      organisationUnitId: formValue.organisationUnitId,
+      effectiveFrom: this.datePipe.transform(formValue.effectiveFrom, 'yyyy-MM-dd'),
     };
     this.alertService
       .confirm('Confirmation', 'Do you want to transfer this employee?')

@@ -732,9 +732,6 @@ export interface IEmpTransfer {
   employeeId: string;
   organisationUnitTypeId: string;
   organisationUnitId: string;
-  designationId: string;
-  salaryGradeId: string;
-  grossSalary: number | null;
   effectiveFrom: Date | null;
 }
 export interface IEmpGrossChangeHistory {
