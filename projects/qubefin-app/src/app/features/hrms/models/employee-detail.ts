@@ -701,6 +701,8 @@ export interface IEmployeesBySearchResult {
   companyName?: string | null;
   organizationUnitName?: string | null;
   gender?: string | null;
+  designation?: string | null;
+  grade?: string | null;
 }
 
 export class Utility {

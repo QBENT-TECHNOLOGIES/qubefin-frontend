@@ -54,7 +54,7 @@ export class EmployeeApprovalsComponent {
   private readonly prayerStore = inject(LeavePrayerApprovalStore);
   private readonly fitnessStore = inject(LeaveFitnessStore);
   private readonly joiningStore = inject(JoiningApprovalStore);
-
+  private readonly leaveRequestStore = inject(LeaveApprovalStore);
   /** The Employee Joining tab shows only for the MD, whose access the joining queue reports. */
   readonly tabs = computed(() =>
     EMPLOYEE_APPROVAL_TABS.filter((tab) => tab.key !== 'joining' || this.joiningStore.hasAccess()),
@@ -77,7 +77,9 @@ export class EmployeeApprovalsComponent {
 
   constructor() {
     this.dateAdapter.setLocale('en-GB');
-
+    this.leaveRequestStore.reset();
+    this.prayerStore.reset();
+    this.regularizationStore.reset();
     this.employeeSearch$
       .pipe(
         debounceTime(250),

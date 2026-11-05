@@ -70,6 +70,7 @@ export class AttendanceRegularizations {
   readonly attendanceRegularizations = this.attendanceRegularizationsStore.attendanceRegularization;
   constructor() {
     this.dateAdapter.setLocale('en-GB');
+    this.attendanceRegularizationsStore.reset();
   }
   readonly hasSelectedRegularization = computed(
     () => this.selectedAttendanceRegularizationId() !== EMPTY_UUID || !this.isViewMode(),

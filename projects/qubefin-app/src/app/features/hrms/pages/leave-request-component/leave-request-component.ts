@@ -44,6 +44,9 @@ export class LeaveRequestComponent {
   // Dependency Injection
   // ===========================
   readonly leaveRequestStore = inject(LeaveRequestStore);
+  constructor() {
+    this.leaveRequestStore.reset();
+  }
 
   // ===========================
   // Component State
@@ -87,10 +90,7 @@ export class LeaveRequestComponent {
   onYearChange(year: number) {
     this.selectedYear.set(year);
     this.leaveRequestStore.setYearQuery(year);
-
   }
-
-
 
   // ===========================
   // Form Events
