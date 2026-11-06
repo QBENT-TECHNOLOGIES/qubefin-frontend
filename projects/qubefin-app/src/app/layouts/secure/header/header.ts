@@ -11,6 +11,7 @@ import { LoggedInUserInfoStore } from '../store/logged-in-user-info-store';
 import { AuthStore } from 'qubefin-core';
 import { Router } from '@angular/router';
 import { NotificationStore } from '../store/notification-store';
+import { TrackingViewerStore } from '../../../features/tracking/stores/tracking-viewer-store';
 import { NotificationService } from '../../../services/notification-service';
 import { DatePipe } from '@angular/common';
 import { interval } from 'rxjs';
@@ -35,6 +36,8 @@ export class Header {
   readonly notificationStore = inject(NotificationStore);
   readonly authStore = inject(AuthStore);
   readonly userStore = inject(LoggedInUserInfoStore);
+  /** Calls tracking-api/me right after login; its unitName is shown in the profile menu. */
+  readonly trackingViewer = inject(TrackingViewerStore);
 
   readonly router = inject(Router);
   pageData = input<Menu | null>(null);

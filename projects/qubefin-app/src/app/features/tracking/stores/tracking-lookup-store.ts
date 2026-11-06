@@ -1,8 +1,9 @@
 import { httpResource } from '@angular/common/http';
-import { Injectable, computed } from '@angular/core';
+import { Injectable, computed, inject } from '@angular/core';
 import { ApiPaths } from 'qubefin-core';
-import { FieldOfficer, OfficerRole, TrackingViewer } from '../models/field-officer';
+import { FieldOfficer, OfficerRole } from '../models/field-officer';
 import { TrackingBranch } from '../models/geo';
+import { TrackingViewerStore } from './tracking-viewer-store';
 
 /**
  * The signed-in user, plus the branches and field officers in their scope (cached for the session).
@@ -11,11 +12,12 @@ import { TrackingBranch } from '../models/geo';
  */
 @Injectable({ providedIn: 'root' })
 export class TrackingLookupStore {
-  private readonly viewerResource = httpResource<TrackingViewer>(() => `${ApiPaths.TRACKING}/me`);
+  private readonly viewerStore = inject(TrackingViewerStore);
   private readonly branchesResource = httpResource<TrackingBranch[]>(() => `${ApiPaths.TRACKING}/branches`);
   private readonly officersResource = httpResource<FieldOfficer[]>(() => `${ApiPaths.TRACKING}/field-officers`);
 
-  readonly viewer = computed(() => this.viewerResource.value() ?? null);
+  /** The signed-in user (GET me), loaded at login by `TrackingViewerStore`. */
+  readonly viewer = this.viewerStore.viewer;
   /** False until the viewer is known, and for a CO (nobody below them). */
   readonly canCreateJobs = computed(() => !!this.viewer()?.canCreateJobs);
   readonly branches = computed(() => this.branchesResource.value() ?? []);
@@ -32,7 +34,7 @@ export class TrackingLookupStore {
   readonly assignableByRole = computed(() => groupByRole(this.assignableOfficers()));
 
   refresh() {
-    this.viewerResource.reload();
+    this.viewerStore.refresh();
     this.branchesResource.reload();
     this.officersResource.reload();
   }

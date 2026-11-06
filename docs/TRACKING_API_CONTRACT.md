@@ -84,6 +84,10 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 | GET | `groups?branchId=&creditOfficerId=` | `TrackingGroup[]`: id, code, name, `branchId`/`branchName`, `creditOfficerId`/`creditOfficerName` (mapped CO, nullable), sorted by name. Groups in the caller's scope; both filters optional. Feeds the Group filter on OD Members. |
 | GET | `field-officers?branchId=` | `FieldOfficer[]`: id, employeeCode, name, `role` (`CO`·`ABM`·`BM`·`AM`·`DM`), designation, `branchId`/`branchName` (posting), `unitName` (branch / area / division in charge of), `branchIds` (branches they may work in), phone, `homeLocation`, reportingOfficerName, `canAssign` |
 
+* **`me` as built (A1, live since 6 Nov 2026):** the backend sends `organisationUnitIds` instead of `branchIds` (same meaning) and
+  `role` as a display name (`Super Admin`, `Application Administrator`, `Division Manager`, `Area Manager`, `Branch Manager`,
+  `Additional Branch Manager`, `Credit Officer`) instead of the code. The web maps both in `utils/tracking-api-adapters.ts`
+  (`toTrackingViewer`); either form is accepted. An unknown role name is treated as a Credit Officer (no web actions) and logged.
 * `branches` returns the branches in the caller's scope (every branch for an Admin).
 * `field-officers` returns everyone the caller may **monitor**: people in a **lower role** whose `branchIds` all lie inside the
   caller's scope, plus, for a BM, the ABM(s) of their branch (§3.3 exception). `canAssign` = the caller may give this person work
@@ -435,6 +439,8 @@ and can sort the task list by priority.
 ## 11. Switching from mock to real backend
 
 1. Implement the endpoints above under `tracking-api` on the gateway.
-2. In `environment*.ts`, set `useTrackingMocks: false`.
+2. **Step by step:** while `useTrackingMocks` is true, endpoints listed in `trackingLiveEndpoints` (dev environment, format
+   `'METHOD path'`, `{x}` = one path segment, e.g. `'GET jobs/{id}'`) already go to the real backend; the mock answers the rest.
+   Add each endpoint there as the backend delivers it. When all are live, set `useTrackingMocks: false` in `environment*.ts`.
 3. Remove `trackingMockInterceptor` from `app.config.ts`, remove `<qfin-trk-mock-actor>` (the mock-only "acting as" picker) from
    `pages/jobs/jobs.html` and its import in `jobs.ts`, and delete `features/tracking/mocks/`.

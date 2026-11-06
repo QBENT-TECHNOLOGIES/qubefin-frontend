@@ -125,6 +125,12 @@
                         <div class="info">
                             <h4>{{userStore.loggedInUserInfo()?.employee}}</h4>
                             <p>{{userStore.loggedInUserInfo()?.designation}}</p>
+                            @if (trackingViewer.viewer()?.unitName; as unitName) {
+                            <p class="flex items-center gap-1" [title]="unitName">
+                                <svg lucideIcon="map-pin" class="w-3.5 h-3.5 shrink-0" style="margin-right: 0; color: inherit"></svg>
+                                {{ unitName }}
+                            </p>
+                            }
                         </div>
                     </div>
                     <button mat-menu-item>
