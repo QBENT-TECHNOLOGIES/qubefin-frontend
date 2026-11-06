@@ -47,10 +47,8 @@
                 <span>{{ store.tags().length }} records · {{ tagged().length }} tagged
                     @if (store.untaggedCount()) { · <b class="text-amber-600">{{ store.untaggedCount() }} missing</b>
                     }</span>
-                @if (!editable()) {
                 <span class="flex items-center gap-1"><svg lucideIcon="smartphone"
-                         class="w-3.5 h-3.5"></svg> Captured from the mobile app with a photo</span>
-                }
+                         class="w-3.5 h-3.5"></svg> View only · captured from the mobile app</span>
             </div>
             <div class="max-h-[calc(100vh-260px)] overflow-y-auto scroll-thin">
                 <table class="w-full trk-simple-table">
@@ -59,7 +57,6 @@
                             <th>Name</th>
                             <th>Branch</th>
                             <th>Location</th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -96,21 +93,10 @@
                                          class="w-3.5 h-3.5"></svg> Missing</span>
                                 }
                             </td>
-                            <td class="text-right">
-                                @if (editable()) {
-                                <button type="button"
-                                        class="trk-icon-btn"
-                                        [matTooltip]="t.location ? 'Change location' : 'Geo-tag now'"
-                                        (click)="$event.stopPropagation(); edit(t)">
-                                    <svg [lucideIcon]="t.location ? 'pencil' : 'map-pinned'"
-                                         class="w-4 h-4"></svg>
-                                </button>
-                                }
-                            </td>
                         </tr>
                         } @empty {
                         <tr>
-                            <td colspan="4"
+                            <td colspan="3"
                                 class="text-center text-slate-400 py-8">{{ store.loading() ? 'Loading…' : 'Nothing
                                 here.' }}</td>
                         </tr>

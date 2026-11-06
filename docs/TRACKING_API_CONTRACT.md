@@ -44,6 +44,17 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 > `creditOfficerId` / `groupId` filters on `od-members/search` (§4). The mapping **never limits assignment**: any place can still be
 > given to anyone the job rules (§3) allow, e.g. a point mapped to one CO can be given to another CO or to the BM.
 > **Added 3 Nov 2026** (list display only): `JobSummary.typeCounts` = tasks per type, e.g. `{ "GroupVisit": 3, "OdFollowUp": 1 }` (§3).
+> **Changed 4 Nov 2026** (product owner, after the access-control test of the tracking screens):
+> * **Settings:** `PUT settings` is for **Admin only** (Super Admin / Application Administrator), otherwise 403. `GET settings` stays
+>   open to every tracking user (Live Tracking, Tracking History and the mobile app read it). §8.
+> * **Out-of-radius approvals:** for the time being only an **Admin** decides (`PUT approvals/{id}/decision`, otherwise 403). §7.
+> * **Scope on the monitoring screens** (applies §1 and §2, which these endpoints did not yet spell out): `live/positions`,
+>   `employees/{id}/route` and `approvals` cover only the people the caller may **monitor** (the `field-officers` list, §2);
+>   anyone else is 404 / left out. `geo-tags` and `geo-tags/points` cover the caller's branches; employee homes only the people
+>   they may monitor. §5, §7, §8.
+> * **Geo Tags/POIs is view only on the web:** `PUT geo-tags/{id}` is **removed**. No location is changed from the web (this replaces
+>   requirement 2.5 "change of group meeting location" from the minutes). Locations are captured and verified on the mobile app. §8, rule 3.2.13.
+> * **Alerts:** who may see, acknowledge and resolve an alert is **still to be agreed** (§6). Until then the endpoints are unchanged.
 
 ---
 
@@ -52,7 +63,8 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 | Item | Rule |
 |---|---|
 | Base path | `{gatewayPath}tracking-api/…`. The frontend sends relative URLs (`ApiPaths.TRACKING`), and `AuthInterceptor` adds the gateway and `Authorization: Bearer <accessToken>`. |
-| Scope | Every list is filtered **server-side** to what the caller may see and act on (own branch / area / division, per the hierarchy Admin > DM > AM > BM = ABM > CO, §3.3). The UI never filters by hierarchy itself; it only shows or hides actions from `job.permissions`. |
+| Scope | Every list is filtered **server-side** to what the caller may see and act on (own branch / area / division, per the hierarchy Admin > DM > AM > BM = ABM > CO, §3.3). The UI never filters by hierarchy itself; it only shows or hides actions from `job.permissions`. Direct calls outside the caller's scope (an id from another branch) answer 404, exactly as if the record did not exist. |
+| Screen access | The web opens a tracking screen only when the user has its menu (Admin → Menus, `app-api/menus/tree-by-user`); typing the URL of a hidden screen goes to `/unauthorized`. This is a convenience, not security: **every `tracking-api` call must still be checked on the server** for the caller's role and scope. |
 | Ids | GUID strings. |
 | Dates | `yyyy-MM-dd` for calendar days (`startFrom`, `completeBy`, `date`…). ISO-8601 with offset for instants (`createdAt`, `completedAt`, `performedAt`…). |
 | Coordinates | `{ "lat": number, "lng": number }`, WGS-84, 6 decimals (`GeoPoint`). |
@@ -201,9 +213,8 @@ web shows the type icons (`types`) without numbers.
 13. **Verified locations only.** A `GroupCentre`, `Member` or `OdMember` target can be put in a job (create, add tasks,
     `od-members/add-to-job`) only when its geo-tag is **verified**. Otherwise the task is **skipped** with the reason
     "Location not verified" (same as rule 3 conflicts). The web shows these places with a "Location Not Verified" badge and does not
-    let them be selected. Verification is done from the **mobile app**; when a group location is changed on the web (§8), `verified`
-    goes back to false until it is verified again on the mobile app. Branches and map points are not affected. Tasks already in a job,
-    and tasks self-added on the mobile app, are not affected.
+    let them be selected. Verification is done from the **mobile app** (the web never changes a location, §8). Branches and map points
+    are not affected. Tasks already in a job, and tasks self-added on the mobile app, are not affected.
 
 ### 3.3 Roles: who may see and do what
 
@@ -280,6 +291,11 @@ gets no such right over a BM's jobs.
 | GET | `live/positions?branchId=` | `LivePosition[]`: latest fix per employee in scope |
 | GET | `employees/{id}/route?date=yyyy-MM-dd` | `EmployeeRoute` |
 
+**Who may see whom** (4 Nov 2026): both endpoints cover only the people the caller may **monitor**, i.e. the `field-officers` list
+(§2: lower roles in the caller's scope, plus the ABM for a BM; everyone for an Admin). `live/positions` leaves everyone else out;
+`employees/{id}/route` for anyone else answers 404 "Employee not found". Tracking History therefore never shows a manager's or a
+peer's route.
+
 `LivePosition.status` (server-side): `OnTask` (inside a pending task's radius) · `AtBranch` · `Moving` · `Idle` (stationary
 elsewhere) · `GpsOff` · `Offline` (no fix for longer than about 3× the position interval) · `NotPunchedIn` · `PunchedOut`.
 Also return `currentTaskId/Title`, `currentJobId/No`, `openTaskCount` (pending tasks in open jobs), `distanceTodayKm`,
@@ -328,6 +344,9 @@ Alert types and the rules the **backend** evaluates (thresholds from §8, subjec
 `jobId`/`jobNo`/`taskId` link an alert to its job when there is one. `notifiedTo` lists who received it (reporting officer, CO,
 "Administration"). The backend should also push these into the existing `global-api/notifications` feed so the header bell picks them up.
 
+> **Open (4 Nov 2026):** who may **see**, **acknowledge** and **resolve** an alert is not settled yet. The meeting minutes only say who
+> is *notified*. To be agreed with the product owner; until then the endpoints are unchanged.
+
 ---
 
 ## 7. Out-of-radius approvals
@@ -338,8 +357,11 @@ Alert types and the rules the **backend** evaluates (thresholds from §8, subjec
 | PUT | `approvals/{id}/decision` | `{ approved: boolean, remarks }` | `OutOfRadiusRequest` |
 
 Requests are raised from the mobile app before lead sourcing or other field activity beyond the branch radius (requirement 1.7).
-Only authorised higher officials may decide. Remarks are required when rejecting. An approved request suppresses
-`OutsideBranchRadius` alerts for that employee, date and destination area.
+**Who decides** (product owner, 4 Nov 2026): for the time being only an **Admin** (Super Admin / Application Administrator).
+Anyone else gets 403 "Only a Super Admin or Application Administrator can approve or reject out-of-radius requests." The web shows
+Approve / Reject only to an Admin (`me.role = "Admin"`); other users see "Waiting for a Super Admin or Application Administrator to decide."
+**Who sees** the requests: `GET approvals` lists only requests of people the caller may monitor (§2); a decision on any other request is 404.
+Remarks are required when rejecting. An approved request suppresses `OutsideBranchRadius` alerts for that employee, date and destination area.
 
 ---
 
@@ -349,7 +371,6 @@ Only authorised higher officials may decide. Remarks are required when rejecting
 |---|---|---|---|
 | GET | `geo-tags?kind=&searchText=&branchIds=&onlyUntagged=` | – | `GeoTag[]` |
 | GET | `geo-tags/points?branchId=&kinds=GroupCentre,Member,OdMember` | – | `GeoTagPointsResponse` `{ points: GeoTagPoint[], untaggedByKind }` |
-| PUT | `geo-tags/{id}` | `{ location, radiusMeters, reason }` | `GeoTag` |
 | GET | `settings` | – | `TrackingSettings` |
 | PUT | `settings` | `TrackingSettings` | `TrackingSettings` |
 
@@ -363,18 +384,23 @@ Only authorised higher officials may decide. Remarks are required when rejecting
   **One point per person:** a member who is currently overdue is returned once, as `OdMember` (not also as `Member`).
   `untaggedByKind` = per kind, places in the branch with no location yet. Same scope rules as `geo-tags`. If a branch ever gets too
   large even for this, add an optional `bbox=swLat,swLng,neLat,neLng` filter; the response shape stays the same.
-* `verified` on `GroupCentre`, `Member` and `OdMember` geo-tags is set from the mobile app (rule 3.2.13). A `PUT geo-tags/{id}` on a
-  `GroupCentre` resets it to false; the Geo Tags page shows "Location Not Verified" for these.
+* `verified` on `GroupCentre`, `Member` and `OdMember` geo-tags is set from the mobile app (rule 3.2.13); the Geo Tags page shows
+  "Location Not Verified" for those still waiting.
 * `GeoTagKind`: `Branch` · `GroupCentre` · `Member` · `OdMember` · `EmployeeHome`. `branchIds` is a comma-separated list
   (the task builder searches the assignee's branches).
-* The web UI edits **Branch, GroupCentre and EmployeeHome** (requirement 2.5, "change of group meeting location"). Member and
-  OD member homes are captured on the mobile app with the borrower and co-borrower photo, so the UI shows them read-only.
-* Every change appends to `history` (`GeoTagChange` with reason). `reason` is required. A branch geo-tag should stay in sync with the
+* **View only on the web** (product owner, 4 Nov 2026; replaces requirement 2.5 "change of group meeting location"). There is no
+  `PUT geo-tags`: the web never changes a location. Group, member, OD member and employee-home locations are captured on the mobile
+  app (member homes with the borrower and co-borrower photo) and verified there. A branch geo-tag stays in sync with the
   Organisation Unit's latitude/longitude.
+* **Scope** (4 Nov 2026): `geo-tags` and `geo-tags/points` cover places in the caller's branches (every branch for an Admin).
+  `EmployeeHome` geo-tags cover only the people the caller may monitor (§2), so a BM cannot see their AM's home.
+* `history` lists every location change (`GeoTagChange`: location, radius, who, when, reason), shown read-only on the Geo Tags page.
 * `TrackingSettings` holds the §6 thresholds, **stop detection** (`stopMinMinutes`, default 5; `stopRadiusMeters`, default 75),
   working hours, notification switches, auto-allocation rules (`autoAssignOdFollowUps` + `autoAssignOdMinDpd` = add newly overdue
   members to the CO's open OD job; `autoAssignGroupVisits` (renamed from `autoAssignGroupMeetings`) = add group visits to the CO's weekly job from the group meeting schedule; `autoAllocationTime`),
   and management-defined `exceptions[]`. The mobile app must read the same settings (for example `positionIntervalSeconds`).
+* **Who may change settings** (product owner, 4 Nov 2026): `PUT settings` is **Admin only** (Super Admin / Application Administrator);
+  anyone else gets 403. `GET settings` stays open to every tracking user. The Settings menu is created for Admins only.
 
 ---
 

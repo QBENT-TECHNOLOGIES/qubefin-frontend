@@ -1,0 +1,335 @@
+{
+  "id": "6f1c2a9e-3b4d-4e8a-9c71-2d5f8a0b1e47",
+  "jobNo": "JOB-26014",
+  "title": "Falakata weekly field work – Week 45",
+  "description": "Group visits, member follow-ups and OD collections for the week.",
+  "status": "InProgress",
+  "assigneeId": "a3e5b7c9-1d2f-4a6b-8c0e-9f1a2b3c4d5e",
+  "assigneeName": "Rahul Barman",
+  "assigneeRole": "CO",
+  "unitName": "Falakata Branch",
+  "branchIds": [
+    "b1f2e3d4-5c6b-4a79-8e0d-1c2b3a4f5e6d"
+  ],
+  "branchNames": [
+    "Falakata"
+  ],
+  "createdById": "c7d8e9f0-a1b2-4c3d-9e4f-5a6b7c8d9e0f",
+  "createdByName": "Sanjay Roy",
+  "createdAt": "2026-10-28T10:15:00+05:30",
+  "startFrom": "2026-10-29",
+  "completeBy": "2026-11-05",
+  "taskCount": 4,
+  "doneCount": 2,
+  "openCount": 2,
+  "selfAddedCount": 1,
+  "types": [
+    "OdFollowUp",
+    "GroupVisit",
+    "MemberVisit",
+    "LeadSourcing"
+  ],
+  "typeCounts": {
+    "OdFollowUp": 1,
+    "GroupVisit": 1,
+    "MemberVisit": 1,
+    "LeadSourcing": 1
+  },
+  "transferredFromJobId": null,
+  "transferredFromJobNo": null,
+  "permissions": {
+    "canTransfer": true,
+    "canCancel": true,
+    "canUpdate": true
+  },
+  "tasks": [
+    {
+      "id": "d1a2b3c4-0001-4e5f-8a9b-0c1d2e3f4a01",
+      "taskNo": "TSK-48101",
+      "jobId": "6f1c2a9e-3b4d-4e8a-9c71-2d5f8a0b1e47",
+      "type": "OdFollowUp",
+      "title": "OD follow-up – Mina Das",
+      "notes": "DPD 42. Collect at least one EMI or get a PTP date.",
+      "priority": "High",
+      "accompaniedById": null,
+      "accompaniedByName": null,
+      "target": {
+        "kind": "OdMember",
+        "refId": "e5f6a7b8-1111-4c2d-9e3f-4a5b6c7d8e01",
+        "name": "Mina Das",
+        "address": "Ward 7, Near Kali Mandir, Falakata",
+        "location": {
+          "lat": 26.523145,
+          "lng": 89.209876
+        },
+        "branchId": "b1f2e3d4-5c6b-4a79-8e0d-1c2b3a4f5e6d",
+        "branchName": "Falakata",
+        "matchRadiusMeters": 100
+      },
+      "status": "Completed",
+      "origin": "Assigned",
+      "addedByName": "Sanjay Roy",
+      "addedAt": "2026-10-28T10:15:00+05:30",
+      "arrivedAt": "2026-10-30T11:02:18+05:30",
+      "completedAt": "2026-10-30T11:24:40+05:30",
+      "completedByName": "Rahul Barman",
+      "remarks": "Member paid one EMI in cash.",
+      "verification": {
+        "arrivalLocation": {
+          "lat": 26.523201,
+          "lng": 89.209812
+        },
+        "arrivalDistanceMeters": 8.4,
+        "completionLocation": {
+          "lat": 26.523188,
+          "lng": 89.209901
+        },
+        "completionDistanceMeters": 5.3,
+        "locationMatched": true,
+        "photoUrl": "https://files.example.com/tracking/tasks/TSK-48101/photo.jpg",
+        "photoTakenAt": "2026-10-30T11:23:55+05:30"
+      },
+      "odOutcome": {
+        "memberAvailable": true,
+        "paid": true,
+        "amountCollected": 1250.0,
+        "ptpDate": null
+      },
+      "isLate": false,
+      "transferredToJobId": null,
+      "transferredToJobNo": null,
+      "closedReason": null
+    },
+    {
+      "id": "d1a2b3c4-0002-4e5f-8a9b-0c1d2e3f4a02",
+      "taskNo": "TSK-48102",
+      "jobId": "6f1c2a9e-3b4d-4e8a-9c71-2d5f8a0b1e47",
+      "type": "GroupVisit",
+      "title": "Group meeting – Joyanti Mahila Group",
+      "notes": "Weekly centre meeting. Check attendance and loan utilisation.",
+      "priority": "Medium",
+      "accompaniedById": "c7d8e9f0-a1b2-4c3d-9e4f-5a6b7c8d9e0f",
+      "accompaniedByName": "Sanjay Roy",
+      "target": {
+        "kind": "GroupCentre",
+        "refId": "f9e8d7c6-2222-4b3a-8c9d-0e1f2a3b4c02",
+        "name": "Joyanti Mahila Group",
+        "address": "Primary School ground, Jateswar Road, Falakata",
+        "location": {
+          "lat": 26.531802,
+          "lng": 89.215467
+        },
+        "branchId": "b1f2e3d4-5c6b-4a79-8e0d-1c2b3a4f5e6d",
+        "branchName": "Falakata",
+        "matchRadiusMeters": 100
+      },
+      "status": "Completed",
+      "origin": "Assigned",
+      "addedByName": "Sanjay Roy",
+      "addedAt": "2026-10-28T10:15:00+05:30",
+      "arrivedAt": "2026-10-31T09:40:05+05:30",
+      "completedAt": "2026-10-31T10:35:12+05:30",
+      "completedByName": "Rahul Barman",
+      "remarks": "18 of 20 members present.",
+      "verification": {
+        "arrivalLocation": {
+          "lat": 26.53176,
+          "lng": 89.21539
+        },
+        "arrivalDistanceMeters": 9.1,
+        "completionLocation": {
+          "lat": 26.531955,
+          "lng": 89.216412
+        },
+        "completionDistanceMeters": 95.6,
+        "locationMatched": true,
+        "photoUrl": "https://files.example.com/tracking/tasks/TSK-48102/photo.jpg",
+        "photoTakenAt": "2026-10-31T10:34:30+05:30"
+      },
+      "odOutcome": null,
+      "isLate": false,
+      "transferredToJobId": null,
+      "transferredToJobNo": null,
+      "closedReason": null
+    },
+    {
+      "id": "d1a2b3c4-0003-4e5f-8a9b-0c1d2e3f4a03",
+      "taskNo": "TSK-48103",
+      "jobId": "6f1c2a9e-3b4d-4e8a-9c71-2d5f8a0b1e47",
+      "type": "MemberVisit",
+      "title": "Loan utilisation check – Rekha Sarkar",
+      "notes": "Verify the tailoring machine bought with the loan.",
+      "priority": "Medium",
+      "accompaniedById": null,
+      "accompaniedByName": null,
+      "target": {
+        "kind": "Member",
+        "refId": "a0b1c2d3-3333-4e4f-9a5b-6c7d8e9f0a03",
+        "name": "Rekha Sarkar",
+        "address": "Purba Para, Falakata",
+        "location": {
+          "lat": 26.518934,
+          "lng": 89.201245
+        },
+        "branchId": "b1f2e3d4-5c6b-4a79-8e0d-1c2b3a4f5e6d",
+        "branchName": "Falakata",
+        "matchRadiusMeters": 100
+      },
+      "status": "Pending",
+      "origin": "Assigned",
+      "addedByName": "Sanjay Roy",
+      "addedAt": "2026-10-28T10:15:00+05:30",
+      "arrivedAt": null,
+      "completedAt": null,
+      "completedByName": null,
+      "remarks": null,
+      "verification": null,
+      "odOutcome": null,
+      "isLate": false,
+      "transferredToJobId": null,
+      "transferredToJobNo": null,
+      "closedReason": null
+    },
+    {
+      "id": "d1a2b3c4-0004-4e5f-8a9b-0c1d2e3f4a04",
+      "taskNo": "TSK-48104",
+      "jobId": "6f1c2a9e-3b4d-4e8a-9c71-2d5f8a0b1e47",
+      "type": "LeadSourcing",
+      "title": "New group lead – Deogaon market",
+      "notes": "Women vendors interested in forming a group.",
+      "priority": "Low",
+      "accompaniedById": null,
+      "accompaniedByName": null,
+      "target": {
+        "kind": "Custom",
+        "refId": null,
+        "name": "Deogaon market",
+        "address": "Deogaon Haat, Falakata",
+        "location": {
+          "lat": 26.54521,
+          "lng": 89.228734
+        },
+        "branchId": "b1f2e3d4-5c6b-4a79-8e0d-1c2b3a4f5e6d",
+        "branchName": "Falakata",
+        "matchRadiusMeters": 150
+      },
+      "status": "Pending",
+      "origin": "SelfAdded",
+      "addedByName": "Rahul Barman",
+      "addedAt": "2026-10-31T16:20:44+05:30",
+      "arrivedAt": null,
+      "completedAt": null,
+      "completedByName": null,
+      "remarks": null,
+      "verification": null,
+      "odOutcome": null,
+      "isLate": false,
+      "transferredToJobId": null,
+      "transferredToJobNo": null,
+      "closedReason": null
+    },
+    {
+      "id": "d1a2b3c4-0005-4e5f-8a9b-0c1d2e3f4a05",
+      "taskNo": "TSK-48105",
+      "jobId": "6f1c2a9e-3b4d-4e8a-9c71-2d5f8a0b1e47",
+      "type": "MemberVisit",
+      "title": "KYC re-check – Anjali Roy",
+      "notes": null,
+      "priority": "Low",
+      "accompaniedById": null,
+      "accompaniedByName": null,
+      "target": {
+        "kind": "Member",
+        "refId": "b2c3d4e5-4444-4f5a-8b6c-7d8e9f0a1b04",
+        "name": "Anjali Roy",
+        "address": "Station Road, Falakata",
+        "location": {
+          "lat": 26.52761,
+          "lng": 89.21298
+        },
+        "branchId": "b1f2e3d4-5c6b-4a79-8e0d-1c2b3a4f5e6d",
+        "branchName": "Falakata",
+        "matchRadiusMeters": 100
+      },
+      "status": "Cancelled",
+      "origin": "Assigned",
+      "addedByName": "Sanjay Roy",
+      "addedAt": "2026-10-28T10:15:00+05:30",
+      "arrivedAt": null,
+      "completedAt": null,
+      "completedByName": null,
+      "remarks": null,
+      "verification": null,
+      "odOutcome": null,
+      "isLate": false,
+      "transferredToJobId": null,
+      "transferredToJobNo": null,
+      "closedReason": "KYC already updated at branch."
+    }
+  ],
+  "history": [
+    {
+      "id": "h0000001-aaaa-4b1c-8d2e-3f4a5b6c7d01",
+      "jobId": "6f1c2a9e-3b4d-4e8a-9c71-2d5f8a0b1e47",
+      "action": "Created",
+      "performedByName": "Sanjay Roy",
+      "performedAt": "2026-10-28T10:15:00+05:30",
+      "fromAssigneeName": null,
+      "toAssigneeName": "Rahul Barman",
+      "taskNos": [
+        "TSK-48101",
+        "TSK-48102",
+        "TSK-48103",
+        "TSK-48105"
+      ],
+      "relatedJobId": null,
+      "relatedJobNo": null,
+      "remarks": null
+    },
+    {
+      "id": "h0000002-aaaa-4b1c-8d2e-3f4a5b6c7d02",
+      "jobId": "6f1c2a9e-3b4d-4e8a-9c71-2d5f8a0b1e47",
+      "action": "TaskCompleted",
+      "performedByName": "Rahul Barman",
+      "performedAt": "2026-10-30T11:24:40+05:30",
+      "fromAssigneeName": null,
+      "toAssigneeName": null,
+      "taskNos": [
+        "TSK-48101"
+      ],
+      "relatedJobId": null,
+      "relatedJobNo": null,
+      "remarks": "Member paid one EMI in cash."
+    },
+    {
+      "id": "h0000003-aaaa-4b1c-8d2e-3f4a5b6c7d03",
+      "jobId": "6f1c2a9e-3b4d-4e8a-9c71-2d5f8a0b1e47",
+      "action": "TaskSelfAdded",
+      "performedByName": "Rahul Barman",
+      "performedAt": "2026-10-31T16:20:44+05:30",
+      "fromAssigneeName": null,
+      "toAssigneeName": null,
+      "taskNos": [
+        "TSK-48104"
+      ],
+      "relatedJobId": null,
+      "relatedJobNo": null,
+      "remarks": null
+    },
+    {
+      "id": "h0000004-aaaa-4b1c-8d2e-3f4a5b6c7d04",
+      "jobId": "6f1c2a9e-3b4d-4e8a-9c71-2d5f8a0b1e47",
+      "action": "TaskCancelled",
+      "performedByName": "Sanjay Roy",
+      "performedAt": "2026-11-01T12:05:10+05:30",
+      "fromAssigneeName": null,
+      "toAssigneeName": null,
+      "taskNos": [
+        "TSK-48105"
+      ],
+      "relatedJobId": null,
+      "relatedJobNo": null,
+      "remarks": "KYC already updated at branch."
+    }
+  ]
+}

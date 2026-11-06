@@ -1,9 +1,12 @@
 import { Routes } from '@angular/router';
+import { trackingMenuGuard } from './guards/tracking-menu.guard';
 
 /** /secure/tracking/* — employee task assignment and GPS monitoring (web side). */
 export const TrackingRoutes: Routes = [
   {
     path: '',
+    // URL blocking: a tracking page opens only if the user has its menu (Admin → Menus). Tracking screens only.
+    canActivateChild: [trackingMenuGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'jobs' },
       // Old Phase-1 link; tasks now live inside jobs.

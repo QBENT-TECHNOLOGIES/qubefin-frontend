@@ -41,6 +41,9 @@ export class OutOfRadiusApprovals {
   ];
   private readonly markers = new MarkerContentCache();
 
+  /** Product owner, 4 Nov 2026: for now only a Super Admin / Application Administrator decides (contract §7). */
+  readonly canDecide = computed(() => this.lookup.viewer()?.role === 'Admin');
+
   readonly selectedId = signal<string | null>(null);
   readonly selected = computed(() => {
     const list = this.store.requests();

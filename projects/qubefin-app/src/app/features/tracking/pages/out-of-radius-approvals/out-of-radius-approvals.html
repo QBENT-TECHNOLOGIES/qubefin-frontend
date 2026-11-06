@@ -64,7 +64,10 @@
             <div class="p-4">
                 <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ r.destinationName }}</p>
                 <p class="text-xs text-slate-500">{{ r.distanceFromBranchKm | number: '1.0-1' }} km from {{ r.branchName }} — {{ (r.distanceFromBranchKm - radiusKm()) | number: '1.0-1' }} km beyond the {{ radiusKm() }} km limit.</p>
-                @if (r.status === 'Pending') {
+                @if (r.status === 'Pending' && !canDecide()) {
+                <p class="text-xs text-slate-500 mt-4">Waiting for a Super Admin or Application Administrator to decide.</p>
+                }
+                @if (r.status === 'Pending' && canDecide()) {
                 <div class="flex gap-2 mt-4">
                     <button type="button" class="trk-btn-danger flex-1 justify-center" (click)="decide(r, false)">
                         <svg lucideIcon="circle-x" class="w-4 h-4"></svg> Reject

@@ -42,7 +42,7 @@ import {
 import { FieldOfficer, TrackingViewer } from '../models/field-officer';
 import { AlertSearchRequest, AlertSearchResponse, AlertType, ResolveAlertRequest } from '../models/tracking-alert';
 import { ApprovalDecisionRequest } from '../models/approval-request';
-import { GeoTagKind, GeoTagPoint, GeoTagPointsResponse, UpdateGeoTagRequest } from '../models/geo-tag';
+import { GeoTagKind, GeoTagPoint, GeoTagPointsResponse } from '../models/geo-tag';
 import { TrackingSettings } from '../models/tracking-settings';
 import { TrackingGroup } from '../models/geo';
 import { MOCK_ACTOR_KEY } from './mock-actor-key';
@@ -175,6 +175,24 @@ function checkAssignable(o: FieldOfficer) {
   }
 }
 
+/** Someone the caller may monitor (contract §2 field-officers): everyone for an Admin. */
+function monitors(d: MockDb, employeeId: string): boolean {
+  if (viewer.role === 'Admin') return true;
+  const o = d.officers.find((x) => x.id === employeeId);
+  return !!o && canMonitor(viewer, o);
+}
+
+/** Geo-tags in the caller's scope (§8): employee homes of people they may monitor, other places in their branches. */
+function geoTagVisible(d: MockDb, g: { kind: GeoTagKind; refId: string; branchId: string }): boolean {
+  if (viewer.role === 'Admin') return true;
+  if (g.kind === 'EmployeeHome') return monitors(d, g.refId);
+  return inScope(viewer, [g.branchId]);
+}
+
+const adminOnly = (what: string) => {
+  if (viewer.role !== 'Admin') throw forbidden(`Only a Super Admin or Application Administrator can ${what}.`);
+};
+
 function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unknown {
   const d = mockDb();
   const seg = path.split('/');
@@ -234,9 +252,10 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
   // ---- Live ------------------------------------------------------------------------------
   if (m === 'GET' && path === 'live/positions') {
     const branchId = q.get('branchId');
-    return simulateLivePositions().filter((p) => !branchId || p.branchId === branchId);
+    return simulateLivePositions().filter((p) => monitors(d, p.employeeId) && (!branchId || p.branchId === branchId));
   }
   if (m === 'GET' && seg[0] === 'employees' && seg[2] === 'route') {
+    if (!monitors(d, seg[1])) throw new MockError(404, 'Employee not found');
     return buildRoute(seg[1], q.get('date') ?? today);
   }
 
@@ -269,11 +288,13 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
   // ---- Approvals -------------------------------------------------------------------------
   if (m === 'GET' && path === 'approvals') {
     const status = q.get('status');
-    return d.approvals.filter((a) => !status || a.status === status);
+    return d.approvals.filter((a) => monitors(d, a.employeeId) && (!status || a.status === status));
   }
   if (m === 'PUT' && seg[0] === 'approvals' && seg[2] === 'decision') {
-    const req2 = d.approvals.find((a) => a.id === seg[1]);
+    const req2 = d.approvals.find((a) => a.id === seg[1] && monitors(d, a.employeeId));
     if (!req2) throw new MockError(404, 'Request not found');
+    // Product owner, 4 Nov 2026: for now only a Super Admin / Application Administrator decides (contract §7).
+    adminOnly('approve or reject out-of-radius requests');
     if (req2.status !== 'Pending') throw bad('This request has already been decided.');
     const dec = body as ApprovalDecisionRequest;
     req2.status = dec.approved ? 'Approved' : 'Rejected';
@@ -287,7 +308,7 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
   if (m === 'GET' && path === 'geo-tags/points') {
     const kinds = (q.get('kinds') ?? q.get('kind') ?? 'GroupCentre').split(',').filter(Boolean) as GeoTagKind[];
     const branchId = q.get('branchId');
-    const all = d.geoTags.filter((g) => kinds.includes(g.kind) && (!branchId || g.branchId === branchId));
+    const all = d.geoTags.filter((g) => kinds.includes(g.kind) && (!branchId || g.branchId === branchId) && geoTagVisible(d, g));
     const od = new Map(d.odMembers.map((c) => [c.id, c]));
     const members = new Map(d.members.map((c) => [c.id, c]));
     const groups = new Map(d.groups.map((g) => [g.id, g]));
@@ -319,49 +340,18 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
     return d.geoTags.filter(
       (g) =>
         g.kind === kind &&
+        geoTagVisible(d, g) &&
         (!branchIds.length || branchIds.includes(g.branchId)) &&
         (!onlyUntagged || !g.location) &&
         (!text || g.name.toLowerCase().includes(text) || g.refCode.toLowerCase().includes(text)),
     );
   }
-  if (m === 'PUT' && seg[0] === 'geo-tags' && seg.length === 2) {
-    const tag = d.geoTags.find((g) => g.id === seg[1]);
-    if (!tag) throw new MockError(404, 'Geo-tag not found');
-    const r = body as UpdateGeoTagRequest;
-    if (!r.reason?.trim()) throw bad('A reason is required when changing a location.');
-    tag.location = r.location;
-    tag.radiusMeters = r.radiusMeters;
-    // Groups / members are verified from the mobile app: a location changed on the web needs verifying again.
-    tag.verified = !needsVerifiedLocation(tag.kind);
-    tag.taggedByName = d.currentUser.name;
-    tag.taggedAt = new Date().toISOString();
-    tag.history.unshift({ location: r.location, radiusMeters: r.radiusMeters, changedByName: d.currentUser.name, changedAt: tag.taggedAt, reason: r.reason });
-    if (tag.kind === 'Branch') {
-      const b = d.branches.find((x) => x.id === tag.refId);
-      if (b) b.location = r.location;
-    }
-    if (tag.kind === 'GroupCentre') {
-      const g = d.groups.find((x) => x.id === tag.refId);
-      if (g) g.location = r.location;
-    }
-    if (tag.kind === 'EmployeeHome') {
-      const o = d.officers.find((x) => x.id === tag.refId);
-      if (o) o.homeLocation = r.location;
-    }
-    if (tag.kind === 'OdMember') {
-      const c = d.odMembers.find((x) => x.id === tag.refId);
-      if (c) c.homeLocation = r.location;
-    }
-    if (tag.kind === 'Member') {
-      const c = d.members.find((x) => x.id === tag.refId);
-      if (c) c.location = r.location;
-    }
-    return tag;
-  }
+  // No PUT geo-tags: Geo Tags/POIs is view only on the web (product owner, 4 Nov 2026). Locations come from the mobile app.
 
   // ---- Settings --------------------------------------------------------------------------
   if (m === 'GET' && path === 'settings') return d.settings;
   if (m === 'PUT' && path === 'settings') {
+    adminOnly('change tracking settings'); // product owner, 4 Nov 2026
     const s = body as TrackingSettings;
     if (s.homeRadiusMeters <= 0 || s.stationaryMinutes <= 0 || s.branchRadiusKm <= 0 || s.stopMinMinutes <= 0 || s.stopRadiusMeters <= 0) {
       throw bad('Thresholds must be greater than zero.');
