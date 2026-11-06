@@ -69,7 +69,7 @@ export class OdMembers {
     const branchId = this.store.branchId();
     return this.lookup
       .officers()
-      .filter((o) => o.role === 'CO' && (!branchId || o.branchIds.includes(branchId)))
+      .filter((o) => o.role === 'Credit Officer' && (!branchId || o.organisationUnitIds.includes(branchId)))
       .sort((a, b) => a.name.localeCompare(b.name));
   });
   /** The group list needs a branch or a Credit Officer first, unless the user's scope is a single branch. */
@@ -80,7 +80,7 @@ export class OdMembers {
   }
 
   onBranch(branchId: string | null) {
-    this.store.setBranch(branchId, (id) => this.lookup.officerById().get(id)?.branchIds);
+    this.store.setBranch(branchId, (id) => this.lookup.officerById().get(id)?.organisationUnitIds);
   }
 
   readonly selectedCount = computed(() => this.selected().size);

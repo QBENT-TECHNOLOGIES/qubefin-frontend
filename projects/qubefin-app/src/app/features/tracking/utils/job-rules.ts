@@ -1,4 +1,4 @@
-import { FieldOfficer, OfficerRole, TrackingViewer, ViewerRole } from '../models/field-officer';
+import { FieldOfficer, OfficerRole, TrackingViewer, ViewerRole, isAdminRole } from '../models/field-officer';
 import { JobStatus, JobTask, TaskTarget, TaskTargetKind, TaskType } from '../models/job';
 
 /*
@@ -10,24 +10,34 @@ import { JobStatus, JobTask, TaskTarget, TaskTargetKind, TaskType } from '../mod
  * Place in the hierarchy; a smaller number is higher. Admin = Super Admin or Application Administrator
  * (equal access in tracking). BM and ABM (Additional Branch Manager) share a rank: same operational functionality.
  */
-export const ROLE_RANK: Record<ViewerRole, number> = { Admin: 0, DM: 1, AM: 2, BM: 3, ABM: 3, CO: 4 };
+export const ROLE_RANK: Record<ViewerRole, number> = {
+  'Super Admin': 0,
+  'Application Administrator': 0,
+  'Division Manager': 1,
+  'Area Manager': 2,
+  'Branch Manager': 3,
+  'Additional Branch Manager': 3,
+  'Credit Officer': 4,
+};
 
-/** True when `role` is below `than` in the hierarchy. */
+/** True when `role` is below `than` in the hierarchy. A role name tracking does not know is never below or above anyone. */
 export function isBelow(role: ViewerRole, than: ViewerRole): boolean {
-  return ROLE_RANK[role] > ROLE_RANK[than];
+  const a = ROLE_RANK[role];
+  const b = ROLE_RANK[than];
+  return a !== undefined && b !== undefined && a > b;
 }
 
 /** Every branch in `branchIds` is inside the viewer's own branch / area / division (always true for Admin). */
-export function inScope(viewer: Pick<TrackingViewer, 'role' | 'branchIds'>, branchIds: readonly string[]): boolean {
-  return viewer.role === 'Admin' || branchIds.every((b) => viewer.branchIds.includes(b));
+export function inScope(viewer: Pick<TrackingViewer, 'role' | 'organisationUnitIds'>, branchIds: readonly string[]): boolean {
+  return isAdminRole(viewer.role) || branchIds.every((b) => viewer.organisationUnitIds.includes(b));
 }
 
 /**
  * Who may get work from the viewer: anyone in a lower role whose branches all lie inside the viewer's scope.
  * An AM can give jobs to the BMs and COs of their own area, a DM to anyone in their division, an Admin to everyone.
  */
-export function canAssignWorkTo(viewer: Pick<TrackingViewer, 'role' | 'branchIds'>, officer: FieldOfficer): boolean {
-  return isBelow(officer.role, viewer.role) && inScope(viewer, officer.branchIds);
+export function canAssignWorkTo(viewer: Pick<TrackingViewer, 'role' | 'organisationUnitIds'>, officer: FieldOfficer): boolean {
+  return isBelow(officer.role, viewer.role) && inScope(viewer, officer.organisationUnitIds);
 }
 
 /**
@@ -37,19 +47,19 @@ export function canAssignWorkTo(viewer: Pick<TrackingViewer, 'role' | 'branchIds
  * (those still need the creator or someone above the creator). An ABM gets no such right over a BM's jobs.
  */
 export function oversees(viewerRole: ViewerRole, assigneeRole: ViewerRole): boolean {
-  return isBelow(assigneeRole, viewerRole) || (viewerRole === 'BM' && assigneeRole === 'ABM');
+  return isBelow(assigneeRole, viewerRole) || (viewerRole === 'Branch Manager' && assigneeRole === 'Additional Branch Manager');
 }
 
 /**
  * Who the viewer may monitor (jobs, Job Monitoring, Tracking History filters): everyone they may give work to, plus the
  * people whose jobs they oversee (a BM → the ABM of their branch).
  */
-export function canMonitor(viewer: Pick<TrackingViewer, 'role' | 'branchIds'>, officer: FieldOfficer): boolean {
-  return oversees(viewer.role, officer.role) && inScope(viewer, officer.branchIds);
+export function canMonitor(viewer: Pick<TrackingViewer, 'role' | 'organisationUnitIds'>, officer: FieldOfficer): boolean {
+  return oversees(viewer.role, officer.role) && inScope(viewer, officer.organisationUnitIds);
 }
 
 /** Roles whose jobs must stay inside their own branch. */
-export const SINGLE_BRANCH_ROLES: readonly OfficerRole[] = ['CO', 'ABM', 'BM'];
+export const SINGLE_BRANCH_ROLES: readonly OfficerRole[] = ['Credit Officer', 'Additional Branch Manager', 'Branch Manager'];
 
 export const OPEN_JOB_STATUSES: readonly JobStatus[] = ['Assigned', 'InProgress', 'Delayed'];
 
@@ -64,10 +74,10 @@ export function isOpenJob(status: JobStatus): boolean {
 export function jobBranchConflict(officer: FieldOfficer, branchIds: readonly string[], branchNames?: (id: string) => string): string | null {
   const name = (id: string) => branchNames?.(id) ?? 'another branch';
   if (SINGLE_BRANCH_ROLES.includes(officer.role)) {
-    const other = branchIds.find((b) => b !== officer.branchId);
-    return other ? `${officer.role} jobs must stay in ${officer.branchName}; this job has tasks in ${name(other)}.` : null;
+    const other = branchIds.find((b) => b !== officer.organisationUnitId);
+    return other ? `${officer.role} jobs must stay in ${officer.organisationUnitName}; this job has tasks in ${name(other)}.` : null;
   }
-  const outside = branchIds.find((b) => !officer.branchIds.includes(b));
+  const outside = branchIds.find((b) => !officer.organisationUnitIds.includes(b));
   return outside ? `${name(outside)} is outside ${officer.name}'s ${officer.unitName}.` : null;
 }
 

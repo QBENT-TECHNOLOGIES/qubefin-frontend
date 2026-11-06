@@ -70,7 +70,7 @@ export class JobForm {
   readonly assignee = computed(() => this.lookup.officerById().get(this.model().assigneeId) ?? null);
 
   /** Branches places can come from: the assignee's branch(es). */
-  readonly allowedBranchIds = computed(() => this.assignee()?.branchIds ?? []);
+  readonly allowedBranchIds = computed(() => this.assignee()?.organisationUnitIds ?? []);
 
   private readonly builder = viewChild(TaskBuilder);
   /** Tasks the assignee cannot take (e.g. the assignee was changed to someone who already has them pending). */

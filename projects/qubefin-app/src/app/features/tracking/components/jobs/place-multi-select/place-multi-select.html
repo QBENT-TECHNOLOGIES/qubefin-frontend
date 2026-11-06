@@ -310,7 +310,7 @@
             <span class="flex items-center gap-1.5"><span class="trk-legend-pin" [style.--trk-color]="PIN_BLOCKED"></span> Unavailable (incl. location not verified)</span>
             <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#0F172A"></span> Branch</span>
             @if (branchRadiusMeters()) {
-            <span class="flex items-center gap-1.5"><span class="inline-block w-3.5 h-3.5 rounded-full border-[1.5px] border-slate-700/60 bg-slate-900/5"></span> {{ branch()?.operatingRadiusKm }} km branch radius</span>
+            <span class="flex items-center gap-1.5"><span class="inline-block w-3.5 h-3.5 rounded-full border-[1.5px] border-slate-700/60 bg-slate-900/5"></span> {{ (branch()?.branchOperatingRadiusInKm ?? 0) / 1000 }} km branch radius</span>
             }
             <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#64748B"></span> Group of places · click to zoom in</span>
             @if (tripValid()) {

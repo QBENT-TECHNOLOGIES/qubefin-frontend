@@ -184,11 +184,11 @@ export class RouteHistory {
   );
 
   readonly branchMarker = computed(() => {
-    const b = this.officer() ? this.lookup.branchById().get(this.officer()!.branchId) : undefined;
+    const b = this.officer() ? this.lookup.branchById().get(this.officer()!.organisationUnitId) : undefined;
     return b?.location ? { position: b.location, title: `${b.name} Branch`, content: this.markers.pin('branch', b.code, '#0F172A', { small: true }) } : null;
   });
   readonly homeMarker = computed(() => {
-    const h = this.officer()?.homeLocation;
+    const h = this.officer()?.presentLocation;
     return h ? { position: h, content: this.markers.pin('home', '⌂', '#D97706', { small: true }) } : null;
   });
   readonly headMarker = computed(() => {
@@ -254,7 +254,7 @@ export class RouteHistory {
         this.selectedStop.set(null);
         this.playIndex.set(Math.max(0, r.points.length - 1));
         const pts = [...r.points, ...r.taskPoints.map((p) => p.location)];
-        this.center.set(centroid(pts.length ? pts : [this.officer()?.homeLocation ?? DEFAULT_CENTER], DEFAULT_CENTER));
+        this.center.set(centroid(pts.length ? pts : [this.officer()?.presentLocation ?? DEFAULT_CENTER], DEFAULT_CENTER));
         this.zoom.set(12);
       } else if (atEnd && !this.playing()) {
         // Live day: keep the head at the latest fix.
@@ -334,7 +334,7 @@ export class RouteHistory {
     }
     const r = this.data();
     if (!r?.taskPoints.length) return;
-    const branch = this.officer() ? this.lookup.branchById().get(this.officer()!.branchId) : undefined;
+    const branch = this.officer() ? this.lookup.branchById().get(this.officer()!.organisationUnitId) : undefined;
     const first = r.points[0];
     const last = r.points[r.points.length - 1];
     const origin: GeoPoint | null = first ? { lat: first.lat, lng: first.lng } : (branch?.location ?? null);

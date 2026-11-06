@@ -115,7 +115,7 @@ export class TaskBuilder {
       const list: Companion[] = me?.employeeId && me.employeeId !== assignee ? [{ id: me.employeeId, label: `${me.name} (me)` }] : [];
       this.lookup
         .officers()
-        .filter((o) => o.id !== assignee && o.branchIds.includes(b.id))
+        .filter((o) => o.id !== assignee && o.organisationUnitIds.includes(b.id))
         .forEach((o) => list.push({ id: o.id, label: `${o.name} · ${ROLE_LABEL[o.role]}` }));
       map.set(b.id, list);
     });

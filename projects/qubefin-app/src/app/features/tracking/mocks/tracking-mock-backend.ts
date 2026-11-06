@@ -39,7 +39,7 @@ import {
   OdMemberSearchRequest,
   OdMemberSearchResponse,
 } from '../models/od-member';
-import { FieldOfficer, TrackingViewer } from '../models/field-officer';
+import { FieldOfficer, TrackingViewer, isAdminRole } from '../models/field-officer';
 import { AlertSearchRequest, AlertSearchResponse, AlertType, ResolveAlertRequest } from '../models/tracking-alert';
 import { ApprovalDecisionRequest } from '../models/approval-request';
 import { GeoTagKind, GeoTagPoint, GeoTagPointsResponse } from '../models/geo-tag';
@@ -111,17 +111,17 @@ function currentViewer(d: MockDb): Viewer {
   const o = d.officers.find((x) => x.id === readActorId());
   if (!o) {
     d.currentUser = ADMIN_USER;
-    return { id: ADMIN_USER.id, employeeId: null, name: ADMIN_USER.name, role: 'Admin', unitName: 'All branches', branchIds: d.branches.map((b) => b.id), canCreateJobs: true };
+    return { id: ADMIN_USER.id, employeeId: null, name: ADMIN_USER.name, role: 'Super Admin', unitName: 'All branches', organisationUnitIds: d.branches.map((b) => b.id), canCreateJobs: true };
   }
   d.currentUser = { id: o.id, name: o.name };
-  const v = { role: o.role, branchIds: o.branchIds };
-  return { id: o.id, employeeId: o.id, name: o.name, role: o.role, unitName: o.unitName, branchIds: o.branchIds, canCreateJobs: d.officers.some((x) => canAssignWorkTo(v, x)) };
+  const v = { role: o.role, organisationUnitIds: o.organisationUnitIds };
+  return { id: o.id, employeeId: o.id, name: o.name, role: o.role, unitName: o.unitName, organisationUnitIds: o.organisationUnitIds, canCreateJobs: d.officers.some((x) => canAssignWorkTo(v, x)) };
 }
 
 /** Rank of whoever created a job (an officer, or an administrator). */
 function rankOfPerson(d: MockDb, id: string): number {
   const o = d.officers.find((x) => x.id === id);
-  return o ? ROLE_RANK[o.role] : ROLE_RANK.Admin;
+  return o ? ROLE_RANK[o.role] : ROLE_RANK['Super Admin'];
 }
 
 /**
@@ -129,7 +129,7 @@ function rankOfPerson(d: MockDb, id: string): number {
  * scope held by someone below them (a BM sees the jobs an AM gave to the COs of the branch) or by an ABM of a BM's branch.
  */
 function canSee(_d: MockDb, j: Job): boolean {
-  if (viewer.role === 'Admin' || j.assigneeId === viewer.id || j.createdById === viewer.id) return true;
+  if (isAdminRole(viewer.role) || j.assigneeId === viewer.id || j.createdById === viewer.id) return true;
   if (!j.branchIds.length || !inScope(viewer, j.branchIds)) return false;
   return oversees(viewer.role, j.assigneeRole);
 }
@@ -142,7 +142,7 @@ function canSee(_d: MockDb, j: Job): boolean {
 function permissionsOf(d: MockDb, j: Job): JobPermissions {
   const can = isOpenJob(j.status) && j.assigneeId !== viewer.id;
   const senior =
-    viewer.role === 'Admin' || j.createdById === viewer.id || (ROLE_RANK[viewer.role] < rankOfPerson(d, j.createdById) && inScope(viewer, j.branchIds));
+    isAdminRole(viewer.role) || j.createdById === viewer.id || (ROLE_RANK[viewer.role] < rankOfPerson(d, j.createdById) && inScope(viewer, j.branchIds));
   // Managers above the assignee, and a BM over the ABM of their branch (contract §3.3).
   const managesAssignee = oversees(viewer.role, j.assigneeRole) && inScope(viewer, j.branchIds);
   return {
@@ -177,20 +177,20 @@ function checkAssignable(o: FieldOfficer) {
 
 /** Someone the caller may monitor (contract §2 field-officers): everyone for an Admin. */
 function monitors(d: MockDb, employeeId: string): boolean {
-  if (viewer.role === 'Admin') return true;
+  if (isAdminRole(viewer.role)) return true;
   const o = d.officers.find((x) => x.id === employeeId);
   return !!o && canMonitor(viewer, o);
 }
 
 /** Geo-tags in the caller's scope (§8): employee homes of people they may monitor, other places in their branches. */
 function geoTagVisible(d: MockDb, g: { kind: GeoTagKind; refId: string; branchId: string }): boolean {
-  if (viewer.role === 'Admin') return true;
+  if (isAdminRole(viewer.role)) return true;
   if (g.kind === 'EmployeeHome') return monitors(d, g.refId);
   return inScope(viewer, [g.branchId]);
 }
 
 const adminOnly = (what: string) => {
-  if (viewer.role !== 'Admin') throw forbidden(`Only a Super Admin or Application Administrator can ${what}.`);
+  if (!isAdminRole(viewer.role)) throw forbidden(`Only a Super Admin or Application Administrator can ${what}.`);
 };
 
 function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unknown {
@@ -208,7 +208,7 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
     const { id: _id, ...me } = viewer;
     return me satisfies TrackingViewer;
   }
-  if (m === 'GET' && path === 'branches') return d.branches.filter((b) => inScope(viewer, [b.id]));
+  if (m === 'GET' && path === 'organization-units') return d.branches.filter((b) => inScope(viewer, [b.id]));
   if (m === 'GET' && path === 'groups') {
     // Light lookup for filters: groups in scope with their mapped branch and Credit Officer.
     const branchId = q.get('branchId');
@@ -220,9 +220,9 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
       .sort((a, b) => a.name.localeCompare(b.name)) satisfies TrackingGroup[];
   }
   if (m === 'GET' && path === 'field-officers') {
-    const branchId = q.get('branchId');
+    const branchId = q.get('organizationUnitId'); // the API spells the query parameter with a z
     return d.officers
-      .filter((o) => canMonitor(viewer, o) && (!branchId || o.branchIds.includes(branchId)))
+      .filter((o) => canMonitor(viewer, o) && (!branchId || o.organisationUnitIds.includes(branchId)))
       .map((o) => ({ ...o, canAssign: canAssignWorkTo(viewer, o) }));
   }
 
@@ -357,7 +357,7 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
       throw bad('Thresholds must be greater than zero.');
     }
     d.settings = { ...s, lastModifiedByName: d.currentUser.name, lastModifiedAt: new Date().toISOString() };
-    d.branches.forEach((b) => (b.operatingRadiusKm = s.branchRadiusKm));
+    d.branches.forEach((b) => (b.branchOperatingRadiusInKm = s.branchRadiusKm * 1000)); // metres
     return d.settings;
   }
 
@@ -418,7 +418,7 @@ function companionOf(d: MockDb, job: Job, t: NewTaskInput): { id: string; name: 
   if (t.accompaniedById === viewer.employeeId) return { id: viewer.id, name: viewer.name };
   const o = d.officers.find((x) => x.id === t.accompaniedById);
   if (!o) throw bad(`${t.title}: the person going along was not found.`);
-  if (!o.branchIds.includes(t.target.branchId)) throw bad(`${t.title}: ${o.name} does not work in ${t.target.branchName}.`);
+  if (!o.organisationUnitIds.includes(t.target.branchId)) throw bad(`${t.title}: ${o.name} does not work in ${t.target.branchName}.`);
   return { id: o.id, name: o.name };
 }
 

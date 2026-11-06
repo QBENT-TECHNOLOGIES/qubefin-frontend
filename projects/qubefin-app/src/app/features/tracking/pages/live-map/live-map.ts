@@ -114,7 +114,7 @@ export class LiveMap {
 
   readonly homeMarker = computed(() => {
     const o = this.selectedOfficer();
-    return o?.homeLocation ? { position: o.homeLocation, content: this.markers.pin('home', '⌂', '#D97706', { small: true }) } : null;
+    return o?.presentLocation ? { position: o.presentLocation, content: this.markers.pin('home', '⌂', '#D97706', { small: true }) } : null;
   });
 
   // --- Route playback ------------------------------------------------------------------------
@@ -211,7 +211,7 @@ export class LiveMap {
 
   homeDistance(p: LivePosition): string | null {
     const o = this.lookup.officerById().get(p.employeeId);
-    return o?.homeLocation && p.location ? formatDistance(distanceMeters(o.homeLocation, p.location)) : null;
+    return o?.presentLocation && p.location ? formatDistance(distanceMeters(o.presentLocation, p.location)) : null;
   }
 
   toggleRoute() {

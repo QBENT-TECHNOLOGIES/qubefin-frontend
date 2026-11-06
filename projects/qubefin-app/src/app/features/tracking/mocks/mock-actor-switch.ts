@@ -52,7 +52,7 @@ export class MockActorSwitch {
   private readonly officers = signal<FieldOfficer[]>([]);
 
   readonly groups = computed(() =>
-    (['DM', 'AM', 'BM', 'ABM', 'CO'] as OfficerRole[])
+    (['Division Manager', 'Area Manager', 'Branch Manager', 'Additional Branch Manager', 'Credit Officer'] as OfficerRole[])
       .map((role) => ({ role, officers: this.officers().filter((o) => o.role === role) }))
       .filter((g) => g.officers.length),
   );

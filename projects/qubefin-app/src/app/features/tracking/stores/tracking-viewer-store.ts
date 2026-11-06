@@ -3,7 +3,6 @@ import { Injectable, computed, inject } from '@angular/core';
 import { ApiPaths, AuthStore } from 'qubefin-core';
 import { SKIP_ERROR_ALERT } from '../../../interceptors/http-error.interceptor';
 import { TrackingViewer } from '../models/field-officer';
-import { toTrackingViewer } from '../utils/tracking-api-adapters';
 
 /**
  * The signed-in user as tracking sees them (A1, GET tracking-api/me): role, unit and branch scope.
@@ -16,14 +15,11 @@ import { toTrackingViewer } from '../utils/tracking-api-adapters';
 export class TrackingViewerStore {
   private readonly auth = inject(AuthStore);
 
-  private readonly resource = httpResource<TrackingViewer>(
-    () => {
-      const token = this.auth.accessToken(); // read so a new login (new token) fetches again
-      if (!token || !this.auth.isAuthenticated()) return undefined;
-      return { url: `${ApiPaths.TRACKING}/me`, context: new HttpContext().set(SKIP_ERROR_ALERT, true) };
-    },
-    { parse: toTrackingViewer },
-  );
+  private readonly resource = httpResource<TrackingViewer>(() => {
+    const token = this.auth.accessToken(); // read so a new login (new token) fetches again
+    if (!token || !this.auth.isAuthenticated()) return undefined;
+    return { url: `${ApiPaths.TRACKING}/me`, context: new HttpContext().set(SKIP_ERROR_ALERT, true) };
+  });
 
   readonly viewer = computed<TrackingViewer | null>(() => (this.resource.hasValue() ? this.resource.value() : null));
   readonly loading = computed(() => this.resource.isLoading());

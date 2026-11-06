@@ -155,7 +155,7 @@ export class JobMonitoring {
     const tasks = this.pendingTasks();
     if (!tasks.length) return;
     const officer = j.assigneeId ? this.lookup.officerById().get(j.assigneeId) : undefined;
-    const branch = this.lookup.branchById().get(officer?.branchId ?? tasks[0].target.branchId);
+    const branch = this.lookup.branchById().get(officer?.organisationUnitId ?? tasks[0].target.branchId);
     const now = this.assigneeNow();
     const onDuty = !!now?.location && ['OnTask', 'AtBranch', 'Moving', 'Idle'].includes(now.status);
     const origin: GeoPoint | null = onDuty ? now!.location! : (branch?.location ?? null);

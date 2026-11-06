@@ -133,7 +133,7 @@ export class AddToJobDialog {
       const list = me?.employeeId && me.employeeId !== holder ? [{ id: me.employeeId, label: `${me.name} (me)` }] : [];
       this.lookup
         .officers()
-        .filter((o) => o.id !== holder && o.branchIds.includes(b))
+        .filter((o) => o.id !== holder && o.organisationUnitIds.includes(b))
         .forEach((o) => list.push({ id: o.id, label: `${o.name} · ${ROLE_LABEL[o.role]}` }));
       map.set(b, list);
     });

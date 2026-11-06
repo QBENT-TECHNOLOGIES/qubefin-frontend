@@ -160,7 +160,7 @@ const BRANCHES: TrackingBranch[] = BRANCH_SEED.map(([code, name, areaName, lat, 
   areaName,
   divisionName: DIVISION,
   location: { lat, lng },
-  operatingRadiusKm: 30,
+  branchOperatingRadiusInKm: 30000, // metres, as the API sends it
 }));
 const branchByCode = (code: string) => BRANCHES.find((b) => b.code === code)!;
 
@@ -175,41 +175,41 @@ const VILLAGES: Record<string, string[]> = {
 };
 
 const OFFICER_SEED: [name: string, role: OfficerRole, branchCode: string][] = [
-  ['Partha Mukherjee', 'DM', 'DPG'],
-  ['Sanjay Kundu', 'AM', 'FLK'],
-  ['Ranjit Barman', 'AM', 'APD'],
-  ['Subhajit Das', 'BM', 'DPG'],
-  ['Sourav Biswas', 'BM', 'FLK'],
-  ['Tanmoy Sarkar', 'BM', 'MDH'],
-  ['Bappaditya Roy', 'BM', 'DKM'],
-  ['Amitava Dey', 'BM', 'APD'],
-  ['Dipankar Saha', 'BM', 'KMG'],
-  ['Moumita Saha', 'ABM', 'DPG'],
-  ['Sudipa Paul', 'ABM', 'APD'],
-  ['Rahul Adhikary', 'ABM', 'KMR'],
-  ['Rupa Mondal', 'CO', 'DPG'],
-  ['Ankit Ghosh', 'CO', 'DPG'],
-  ['Nirmal Roy', 'CO', 'DPG'],
-  ['Priyanka Roy', 'CO', 'FLK'],
-  ['Arindam Paul', 'CO', 'FLK'],
-  ['Riya Banerjee', 'CO', 'MDH'],
-  ['Debasish Pal', 'CO', 'MDH'],
-  ['Suman Barman', 'CO', 'DKM'],
-  ['Tapasi Sarkar', 'CO', 'DKM'],
-  ['Biswajit Das', 'CO', 'APD'],
-  ['Mithun Karjee', 'CO', 'APD'],
-  ['Pallabi Ghosh', 'CO', 'KMG'],
-  ['Jayanta Rava', 'CO', 'KMG'],
-  ['Sanchita Basak', 'CO', 'KMR'],
-  ['Uttam Narzary', 'CO', 'KMR'],
+  ['Partha Mukherjee', 'Division Manager', 'DPG'],
+  ['Sanjay Kundu', 'Area Manager', 'FLK'],
+  ['Ranjit Barman', 'Area Manager', 'APD'],
+  ['Subhajit Das', 'Branch Manager', 'DPG'],
+  ['Sourav Biswas', 'Branch Manager', 'FLK'],
+  ['Tanmoy Sarkar', 'Branch Manager', 'MDH'],
+  ['Bappaditya Roy', 'Branch Manager', 'DKM'],
+  ['Amitava Dey', 'Branch Manager', 'APD'],
+  ['Dipankar Saha', 'Branch Manager', 'KMG'],
+  ['Moumita Saha', 'Additional Branch Manager', 'DPG'],
+  ['Sudipa Paul', 'Additional Branch Manager', 'APD'],
+  ['Rahul Adhikary', 'Additional Branch Manager', 'KMR'],
+  ['Rupa Mondal', 'Credit Officer', 'DPG'],
+  ['Ankit Ghosh', 'Credit Officer', 'DPG'],
+  ['Nirmal Roy', 'Credit Officer', 'DPG'],
+  ['Priyanka Roy', 'Credit Officer', 'FLK'],
+  ['Arindam Paul', 'Credit Officer', 'FLK'],
+  ['Riya Banerjee', 'Credit Officer', 'MDH'],
+  ['Debasish Pal', 'Credit Officer', 'MDH'],
+  ['Suman Barman', 'Credit Officer', 'DKM'],
+  ['Tapasi Sarkar', 'Credit Officer', 'DKM'],
+  ['Biswajit Das', 'Credit Officer', 'APD'],
+  ['Mithun Karjee', 'Credit Officer', 'APD'],
+  ['Pallabi Ghosh', 'Credit Officer', 'KMG'],
+  ['Jayanta Rava', 'Credit Officer', 'KMG'],
+  ['Sanchita Basak', 'Credit Officer', 'KMR'],
+  ['Uttam Narzary', 'Credit Officer', 'KMR'],
 ];
 
 const DESIGNATION: Record<OfficerRole, string> = {
-  CO: 'Credit Officer',
-  ABM: 'Additional Branch Manager',
-  BM: 'Branch Manager',
-  AM: 'Area Manager',
-  DM: 'Division Manager',
+  'Credit Officer': 'Credit Officer',
+  'Additional Branch Manager': 'Additional Branch Manager',
+  'Branch Manager': 'Branch Manager',
+  'Area Manager': 'Area Manager',
+  'Division Manager': 'Division Manager',
 };
 
 const FIRST = ['Mitali', 'Sabina', 'Rekha', 'Jharna', 'Anjali', 'Sumitra', 'Laxmi', 'Rina', 'Tumpa', 'Shefali', 'Nasrin', 'Papiya', 'Kakali', 'Mampi', 'Sathi', 'Purnima', 'Bulbul', 'Rehana', 'Champa', 'Basanti', 'Dipali', 'Malati'];
@@ -362,41 +362,41 @@ function buildDb(): MockDb {
   const areaBranches = (area: string) => BRANCHES.filter((b) => b.areaName === area).map((b) => b.id);
   const officers: FieldOfficer[] = OFFICER_SEED.map(([name, role, code], i) => {
     const branch = branchByCode(code);
-    const unitName = role === 'DM' ? DIVISION : role === 'AM' ? branch.areaName : branch.name;
-    const branchIds = role === 'DM' ? BRANCHES.map((b) => b.id) : role === 'AM' ? areaBranches(branch.areaName) : [branch.id];
+    const unitName = role === 'Division Manager' ? DIVISION : role === 'Area Manager' ? branch.areaName : branch.name;
+    const branchIds = role === 'Division Manager' ? BRANCHES.map((b) => b.id) : role === 'Area Manager' ? areaBranches(branch.areaName) : [branch.id];
     return {
       id: uuid('e', i + 1),
       employeeCode: `QF${(2040 + i * 7).toString()}`,
       name,
       role,
       designation: DESIGNATION[role],
-      branchId: branch.id,
-      branchName: branch.name,
+      organisationUnitId: branch.id,
+      organisationUnitName: branch.name,
       unitName,
-      branchIds,
+      organisationUnitIds: branchIds,
       phone: `98${intBetween(30000000, 99999999)}`,
-      homeLocation: name === 'Jayanta Rava' ? null : offsetPoint(branch.location!, between(2500, 8000), between(0, 360)),
+      presentLocation: name === 'Jayanta Rava' ? null : offsetPoint(branch.location!, between(2500, 8000), between(0, 360)),
       reportingOfficerName: null,
       canAssign: false, // per caller: set by GET field-officers
     };
   });
   // Reporting line: CO → BM (or ABM where there is no BM) → AM → DM. BM and ABM are the same level, both under the AM.
   officers.forEach((o) => {
-    const inBranch = (r: OfficerRole) => officers.find((x) => x.role === r && x.branchId === o.branchId);
-    const am = officers.find((x) => x.role === 'AM' && x.branchIds.includes(o.branchId));
-    if (o.role === 'CO') o.reportingOfficerName = (inBranch('BM') ?? inBranch('ABM') ?? am)?.name ?? null;
-    else if (o.role === 'ABM') o.reportingOfficerName = am?.name ?? null;
-    else if (o.role === 'BM') o.reportingOfficerName = am?.name ?? null;
-    else if (o.role === 'AM') o.reportingOfficerName = 'Partha Mukherjee';
+    const inBranch = (r: OfficerRole) => officers.find((x) => x.role === r && x.organisationUnitId === o.organisationUnitId);
+    const am = officers.find((x) => x.role === 'Area Manager' && x.organisationUnitIds.includes(o.organisationUnitId));
+    if (o.role === 'Credit Officer') o.reportingOfficerName = (inBranch('Branch Manager') ?? inBranch('Additional Branch Manager') ?? am)?.name ?? null;
+    else if (o.role === 'Additional Branch Manager') o.reportingOfficerName = am?.name ?? null;
+    else if (o.role === 'Branch Manager') o.reportingOfficerName = am?.name ?? null;
+    else if (o.role === 'Area Manager') o.reportingOfficerName = 'Partha Mukherjee';
   });
   const byName = (n: string) => officers.find((o) => o.name === n)!;
-  const fieldStaff = officers.filter((o) => o.role !== 'DM');
+  const fieldStaff = officers.filter((o) => o.role !== 'Division Manager');
 
   // --- Centres / groups -----------------------------------------------------------------------
   const groups: MockDb['groups'] = [];
   BRANCHES.forEach((b) => {
     // Mapped Credit Officer: spread the branch's COs over its groups in turn (deterministic, no random draws).
-    const branchCos = officers.filter((o) => o.role === 'CO' && o.branchId === b.id);
+    const branchCos = officers.filter((o) => o.role === 'Credit Officer' && o.organisationUnitId === b.id);
     VILLAGES[b.code].slice(0, 6).forEach((village, j) => {
       const co = branchCos.length ? branchCos[j % branchCos.length] : null;
       groups.push({
@@ -537,8 +537,8 @@ function buildDb(): MockDb {
   const reservedOd = odFor(branchByCode('DPG').id, 2);
 
   const coJobs: { job: Job; officer: FieldOfficer }[] = [];
-  officers.filter((o) => o.role === 'CO').forEach((co, i) => {
-    const branch = branchOf(co.branchId);
+  officers.filter((o) => o.role === 'Credit Officer').forEach((co, i) => {
+    const branch = branchOf(co.organisationUnitId);
     const myGroups = shuffle(groups.filter((g) => g.branchId === branch.id));
     const myMembers = shuffle(members.filter((c) => c.branchId === branch.id && c.location));
     const boss = supervisor(co);
@@ -593,16 +593,16 @@ function buildDb(): MockDb {
   });
 
   // Branch managers / ABMs: supervision visits set by the area manager.
-  officers.filter((o) => o.role === 'BM' || o.role === 'ABM').forEach((m, i) => {
-    const branch = branchOf(m.branchId);
+  officers.filter((o) => o.role === 'Branch Manager' || o.role === 'Additional Branch Manager').forEach((m, i) => {
+    const branch = branchOf(m.organisationUnitId);
     const boss = supervisor(m);
-    const job = newJob(d, { title: m.role === 'BM' ? 'Branch supervision visits' : 'Centre support visits', description: 'Surprise attendance at group meetings and high-DPD member visits.', creator: boss, assignee: m, startFrom: thisMonday, completeBy: thisSaturday, createdAt: at(shiftKey(thisMonday, -3), 16, 40) });
+    const job = newJob(d, { title: m.role === 'Branch Manager' ? 'Branch supervision visits' : 'Centre support visits', description: 'Surprise attendance at group meetings and high-DPD member visits.', creator: boss, assignee: m, startFrom: thisMonday, completeBy: thisSaturday, createdAt: at(shiftKey(thisMonday, -3), 16, 40) });
     const days = workDays(thisMonday, thisSaturday);
     const g = shuffle(groups.filter((x) => x.branchId === branch.id));
     // The AM first spreads the branch's groups across the COs, then sends the BM to some of the same groups
     // (allowed since Nov 2026: the same place may be pending with different people). The CO goes along.
     const coTask = coJobs
-      .filter((x) => x.officer.branchId === branch.id && x.job.startFrom === thisMonday && x.job.title === 'Weekly field plan')
+      .filter((x) => x.officer.organisationUnitId === branch.id && x.job.startFrom === thisMonday && x.job.title === 'Weekly field plan')
       .flatMap((x) => x.job.tasks.filter((t) => t.type === 'GroupVisit').map((t) => ({ refId: t.target.refId, co: x.officer })))[i % 2];
     const shared = coTask ? g.find((x) => x.id === coTask.refId) : undefined;
     const first = shared ?? g[0];
@@ -616,14 +616,14 @@ function buildDb(): MockDb {
 
   // Area managers: centre audits across their branches, set by the DM.
   const dm = byName('Partha Mukherjee');
-  officers.filter((o) => o.role === 'AM').forEach((am) => {
+  officers.filter((o) => o.role === 'Area Manager').forEach((am) => {
     const job = newJob(d, { title: 'Area review – centre audits', description: 'Audit one group meeting in each branch and check the registers.', creator: { id: dm.id, name: dm.name, unitName: DIVISION }, assignee: am, startFrom: thisMonday, completeBy: shiftKey(thisSaturday, 7), createdAt: at(shiftKey(thisMonday, -4), 11, 0) });
     const days = workDays(thisMonday, thisSaturday);
-    am.branchIds.forEach((bid, k) => {
+    am.organisationUnitIds.forEach((bid, k) => {
       const g = pick(groups.filter((x) => x.branchId === bid));
       addPlanned(job, 'GroupVisit', groupTarget(g), days[(k * 2) % days.length], { id: dm.id, name: dm.name });
     });
-    addPlanned(job, 'Survey', pointTarget(branchOf(am.branchIds[am.branchIds.length - 1]), 'new branch feasibility survey', [12, 22]), shiftKey(thisSaturday, 3), { id: dm.id, name: dm.name });
+    addPlanned(job, 'Survey', pointTarget(branchOf(am.organisationUnitIds[am.organisationUnitIds.length - 1]), 'new branch feasibility survey', [12, 22]), shiftKey(thisSaturday, 3), { id: dm.id, name: dm.name });
     d.jobs.push(job);
   });
 
@@ -735,7 +735,7 @@ function buildDb(): MockDb {
       const r = mulberry32(hashString(o.id + day));
       // Days in the past: about 1 in 9 tasks is skipped (left pending → delayed job).
       const visiting = day < today ? tasks.filter(() => r() > 0.11) : tasks;
-      const sim = simulateDay(o, branchOf(o.branchId), day, visiting.map((t) => t.target), r, { nearHome: i % 9 === 4 && r() < 0.3, mismatchIdx: r() < 0.12 ? Math.floor(r() * visiting.length) : -1 });
+      const sim = simulateDay(o, branchOf(o.organisationUnitId), day, visiting.map((t) => t.target), r, { nearHome: i % 9 === 4 && r() < 0.3, mismatchIdx: r() < 0.12 ? Math.floor(r() * visiting.length) : -1 });
       d.days.set(`${o.id}|${day}`, sim.day);
 
       visiting.forEach((t, k) => {
@@ -818,7 +818,7 @@ function simulateDay(
   r: () => number,
   opts: { nearHome: boolean; mismatchIdx: number },
 ): { day: SimDay; taskStops: ({ location: GeoPoint; from: string; to: string } | undefined)[] } {
-  const home = o.homeLocation ?? offsetPoint(branch.location!, 4000, 200);
+  const home = o.presentLocation ?? offsetPoint(branch.location!, 4000, 200);
   type Wp = { p: GeoPoint; stay: number; task?: number };
   const order = targets.map((t, k) => ({ t, k })).sort((a, b) => distanceMeters(branch.location!, a.t.location) - distanceMeters(branch.location!, b.t.location));
   const wps: Wp[] = [
@@ -835,7 +835,7 @@ function simulateDay(
   if (r() < 0.55) wps.splice(2 + Math.floor(r() * Math.max(1, order.length)), 0, { p: offsetPoint(branch.location!, 1800 + r() * 4000, r() * 360), stay: 12 + Math.floor(r() * 18) });
   // Lunch at a roadside hotel on most days (undesignated).
   if (order.length >= 2 && r() < 0.7) wps.splice(2 + Math.ceil(order.length / 2), 0, { p: offsetPoint(order[0].t.location, 900 + r() * 1500, r() * 360), stay: 30 + Math.floor(r() * 15) });
-  if (opts.nearHome && o.homeLocation) wps.splice(wps.length - 1, 0, { p: offsetPoint(o.homeLocation, 15 + r() * 20, r() * 360), stay: 25 + Math.floor(r() * 25) });
+  if (opts.nearHome && o.presentLocation) wps.splice(wps.length - 1, 0, { p: offsetPoint(o.presentLocation, 15 + r() * 20, r() * 360), stay: 25 + Math.floor(r() * 25) });
 
   const points: RoutePoint[] = [];
   const stops: SimDay['stops'] = [];
@@ -924,7 +924,7 @@ function routeFrom(d: MockDb, employeeId: string, dateKey: string): EmployeeRout
     summary: { totalDistanceKm: 0, movingMinutes: 0, designatedStops: 0, designatedMinutes: 0, undesignatedStops: 0, undesignatedMinutes: 0, tasksCompleted: 0, taskPointsVisited: 0, taskPointsPlanned: 0, firstFixAt: null, lastFixAt: null },
   };
   if (!officer) return empty;
-  const branch = d.branches.find((b) => b.id === officer.branchId)!;
+  const branch = d.branches.find((b) => b.id === officer.organisationUnitId)!;
   const taskPoints = taskPointsFor(d, employeeId, dateKey);
   empty.taskPoints = taskPoints.map(({ completedAtIso: _x, ...p }) => p);
   empty.summary.taskPointsPlanned = taskPoints.length;
@@ -963,7 +963,7 @@ function routeFrom(d: MockDb, employeeId: string, dateKey: string): EmployeeRout
     }
     const dBranch = distanceMeters(s.location, branch.location!);
     if (dBranch <= 200) return { ...base, kind: 'Designated', place: 'Branch', label: `${branch.name} Branch`, distanceMeters: Math.round(dBranch) };
-    if (officer.homeLocation && distanceMeters(s.location, officer.homeLocation) <= d.settings.homeRadiusMeters + tolerance) {
+    if (officer.presentLocation && distanceMeters(s.location, officer.presentLocation) <= d.settings.homeRadiusMeters + tolerance) {
       return { ...base, kind: 'Undesignated', place: 'Home', label: 'Near registered home', distanceMeters: tp ? Math.round(bestD) : null };
     }
     return { ...base, kind: 'Undesignated', place: null, label: null, distanceMeters: tp ? Math.round(bestD) : null };
@@ -1011,9 +1011,9 @@ export function simulateLivePositions(): LivePosition[] {
   const branchById = new Map(d.branches.map((b) => [b.id, b]));
 
   return d.officers
-    .filter((o) => o.role !== 'DM')
+    .filter((o) => o.role !== 'Division Manager')
     .map((o, i) => {
-      const branch = branchById.get(o.branchId)!;
+      const branch = branchById.get(o.organisationUnitId)!;
       const route = buildRoute(o.id, today);
       const openAlerts = d.alerts.filter((a) => a.employeeId === o.id && a.status === 'Open').length;
       const openTaskCount = d.jobs.filter((j) => j.assigneeId === o.id && (j.status === 'Assigned' || j.status === 'InProgress' || j.status === 'Delayed')).reduce((s, j) => s + j.openCount, 0);
@@ -1038,8 +1038,8 @@ export function simulateLivePositions(): LivePosition[] {
         employeeId: o.id,
         employeeName: o.name,
         role: o.role,
-        branchId: o.branchId,
-        branchName: o.branchName,
+        branchId: o.organisationUnitId,
+        branchName: o.organisationUnitName,
         location,
         accuracyMeters: status === 'GpsOff' || !location ? null : 6 + (i % 5) * 3,
         speedKmph: status === 'Moving' ? (lastPoint?.speedKmph ?? 20) : 0,
@@ -1079,8 +1079,8 @@ function seedAlerts(d: MockDb, now: Date): TrackingAlert[] {
       employeeId: o.id,
       employeeName: o.name,
       role: o.role,
-      branchId: o.branchId,
-      branchName: o.branchName,
+      branchId: o.organisationUnitId,
+      branchName: o.organisationUnitName,
       message,
       location: null,
       measuredValue: null,
@@ -1132,11 +1132,11 @@ function seedAlerts(d: MockDb, now: Date): TrackingAlert[] {
     { type: 'GpsOff', severity: 'High', msg: (o, v) => `GPS / location was switched off on ${o.name}'s device for ${v} minutes.`, unit: 'min', value: () => intBetween(6, 55) },
     { type: 'OutsideBranchRadius', severity: 'High', msg: (o, v) => `${o.name} is ${v} km from the assigned branch (limit 30 km) without approval.`, unit: 'km', value: () => +between(31, 46).toFixed(1) },
   ];
-  const staff = d.officers.filter((o) => o.role !== 'DM');
+  const staff = d.officers.filter((o) => o.role !== 'Division Manager');
   for (let i = 0; i < 14; i++) {
     const tpl = pick(templates);
     const o = pick(staff);
-    const b = branchById.get(o.branchId)!;
+    const b = branchById.get(o.organisationUnitId)!;
     const v = tpl.value();
     push(o, tpl.type, tpl.severity, tpl.msg(o, v), addMinutes(now, -intBetween(5, 60 * 24 * 5)), {
       location: tpl.type === 'OutsideBranchRadius' ? offsetPoint(b.location!, v * 1000, between(0, 360)) : offsetPoint(b.location!, between(1500, 12000), between(0, 360)),
@@ -1157,8 +1157,8 @@ function seedApprovals(fieldStaff: FieldOfficer[], branchById: Map<string, Track
     'Group leader’s house for a dispute resolution meeting',
   ];
   for (let i = 0; i < 8; i++) {
-    const officer = pick(fieldStaff.filter((o) => o.role !== 'AM'));
-    const branch = branchById.get(officer.branchId)!;
+    const officer = pick(fieldStaff.filter((o) => o.role !== 'Area Manager'));
+    const branch = branchById.get(officer.organisationUnitId)!;
     const dist = +between(31, 52).toFixed(1);
     const requestedAt = addMinutes(now, -intBetween(20, 60 * 24 * 3));
     const status = i < 4 ? 'Pending' : pick(['Approved', 'Approved', 'Rejected'] as const);
@@ -1214,7 +1214,7 @@ function seedGeoTags(d: MockDb, branchById: Map<string, TrackingBranch>, now: Da
   d.groups.forEach((g) => addTag('GroupCentre', g.id, g.name, g.code, g.branchId, `${g.village}`, g.location, 150, false));
   d.members.forEach((c) => addTag('Member', c.id, c.name, c.loanAccountNo, c.branchId, c.address, c.location, 100, true));
   d.odMembers.forEach((c) => addTag('OdMember', c.id, c.memberName, c.loanAccountNo, c.branchId, c.address, c.homeLocation, 100, true));
-  d.officers.forEach((o) => addTag('EmployeeHome', o.id, o.name, o.employeeCode, o.branchId, null, o.homeLocation, 50, false));
+  d.officers.forEach((o) => addTag('EmployeeHome', o.id, o.name, o.employeeCode, o.organisationUnitId, null, o.presentLocation, 50, false));
   return geoTags;
 }
 

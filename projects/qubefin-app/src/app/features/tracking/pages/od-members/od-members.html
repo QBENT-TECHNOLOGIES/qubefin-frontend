@@ -56,7 +56,7 @@
                         <mat-select [value]="store.creditOfficerId()" (valueChange)="store.setCreditOfficer($event)">
                             <mat-option [value]="null">All Credit Officers</mat-option>
                             @for (o of creditOfficers(); track o.id) {
-                            <mat-option [value]="o.id">{{ o.name }}@if (!store.branchId()) { <span class="text-[11px] text-slate-400"> · {{ o.branchName }}</span> }</mat-option>
+                            <mat-option [value]="o.id">{{ o.name }}@if (!store.branchId()) { <span class="text-[11px] text-slate-400"> · {{ o.organisationUnitName }}</span> }</mat-option>
                             }
                         </mat-select>
                     </mat-form-field>

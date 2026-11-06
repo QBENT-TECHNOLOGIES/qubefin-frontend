@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { Injectable, computed, inject } from '@angular/core';
-import { ApiPaths } from 'qubefin-core';
+import { ApiPaths, AuthStore } from 'qubefin-core';
 import { FieldOfficer, OfficerRole } from '../models/field-officer';
 import { TrackingBranch } from '../models/geo';
 import { TrackingViewerStore } from './tracking-viewer-store';
@@ -12,9 +12,20 @@ import { TrackingViewerStore } from './tracking-viewer-store';
  */
 @Injectable({ providedIn: 'root' })
 export class TrackingLookupStore {
+  private readonly auth = inject(AuthStore);
   private readonly viewerStore = inject(TrackingViewerStore);
-  private readonly branchesResource = httpResource<TrackingBranch[]>(() => `${ApiPaths.TRACKING}/branches`);
-  private readonly officersResource = httpResource<FieldOfficer[]>(() => `${ApiPaths.TRACKING}/field-officers`);
+
+  /** URL only while signed in; reading the token makes a new login (another user on this tab) fetch again. */
+  private signedIn(url: string): string | undefined {
+    return this.auth.accessToken() && this.auth.isAuthenticated() ? url : undefined;
+  }
+
+  /** A2: contract `GET branches`, served by the backend as `organization-units`. */
+  private readonly branchesResource = httpResource<TrackingBranch[]>(() =>
+    this.signedIn(`${ApiPaths.TRACKING}/organization-units`),
+  );
+  /** A3: everyone the caller may monitor (`canAssign` = may also give them work). Optional filter: `?organizationUnitId=`. */
+  private readonly officersResource = httpResource<FieldOfficer[]>(() => this.signedIn(`${ApiPaths.TRACKING}/field-officers`));
 
   /** The signed-in user (GET me), loaded at login by `TrackingViewerStore`. */
   readonly viewer = this.viewerStore.viewer;
@@ -41,6 +52,6 @@ export class TrackingLookupStore {
 }
 
 function groupByRole(officers: FieldOfficer[]) {
-  const order: OfficerRole[] = ['CO', 'ABM', 'BM', 'AM', 'DM'];
+  const order: OfficerRole[] = ['Credit Officer', 'Additional Branch Manager', 'Branch Manager', 'Area Manager', 'Division Manager'];
   return order.map((role) => ({ role, officers: officers.filter((o) => o.role === role) })).filter((g) => g.officers.length);
 }

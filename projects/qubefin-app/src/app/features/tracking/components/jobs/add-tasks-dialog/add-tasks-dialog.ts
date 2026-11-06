@@ -53,7 +53,7 @@ export class AddTasksDialog {
   readonly tasks = signal<NewTaskInput[]>([]);
   readonly existingKeys = this.job.tasks.filter((t) => t.status === 'Pending').map((t) => targetKey(t.type, t.target));
   readonly window: [string, string] = [this.job.startFrom ?? this.job.createdAt.slice(0, 10), this.job.completeBy < toDateKey() ? toDateKey() : this.job.completeBy];
-  readonly allowedBranchIds = computed(() => this.lookup.officerById().get(this.job.assigneeId)?.branchIds ?? null);
+  readonly allowedBranchIds = computed(() => this.lookup.officerById().get(this.job.assigneeId)?.organisationUnitIds ?? null);
 
   cancel() {
     this.dialogRef.close();

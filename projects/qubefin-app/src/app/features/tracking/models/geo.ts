@@ -5,6 +5,7 @@ export interface GeoPoint {
 }
 
 /** Lightweight branch record used for filters and the 30 km radius overlay. */
+/** A2, GET tracking-api/organization-units; names as the API sends them. */
 export interface TrackingBranch {
   id: string;
   name: string;
@@ -13,8 +14,11 @@ export interface TrackingBranch {
   areaName: string;
   divisionName: string;
   location: GeoPoint | null;
-  /** Allowed operating radius around the branch, in kilometres (default 30). */
-  operatingRadiusKm: number;
+  /**
+   * Allowed operating radius around the branch. **In metres** despite the API name (30000 = 30 km); divide by 1000
+   * when showing or comparing kilometres.
+   */
+  branchOperatingRadiusInKm: number;
 }
 
 /**

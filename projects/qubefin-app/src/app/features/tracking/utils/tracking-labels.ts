@@ -123,14 +123,15 @@ export const GEO_TAG_KIND: Record<GeoTagKind, Tone> = {
   EmployeeHome: tone('Employee Homes', AMBER, 'house', '#D97706'),
 };
 
-/** Admin = Super Admin or Application Administrator (same access in tracking). */
+/** Display label per role. The API already sends readable names; kept so a label can be shortened in one place. */
 export const ROLE_LABEL: Record<ViewerRole, string> = {
-  Admin: 'Administrator',
-  CO: 'Credit Officer',
-  ABM: 'Additional Branch Manager',
-  BM: 'Branch Manager',
-  AM: 'Area Manager',
-  DM: 'Division Manager',
+  'Super Admin': 'Super Admin',
+  'Application Administrator': 'Application Administrator',
+  'Credit Officer': 'Credit Officer',
+  'Additional Branch Manager': 'Additional Branch Manager',
+  'Branch Manager': 'Branch Manager',
+  'Area Manager': 'Area Manager',
+  'Division Manager': 'Division Manager',
 };
 
 export function optionsOf<K extends string>(map: Record<K, Tone>): { value: K; label: string }[] {

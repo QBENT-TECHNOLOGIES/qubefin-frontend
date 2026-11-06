@@ -63,7 +63,7 @@
                 @for (b of branchMarkers(); track b.id) {
                 <map-advanced-marker [position]="b.location" [content]="b.content" [title]="b.name + ' Branch'" [zIndex]="50" />
                 @if (showBranchRadius()) {
-                <map-circle [center]="b.location" [radius]="b.operatingRadiusKm * 1000" [options]="branchCircle" />
+                <map-circle [center]="b.location" [radius]="b.branchOperatingRadiusInKm" [options]="branchCircle" />
                 }
                 }
 

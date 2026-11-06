@@ -216,7 +216,8 @@ export class PlaceMultiSelect implements OnDestroy {
     const b = this.branch();
     if (!d || !b?.location) return null;
     const km = distanceMeters(d, b.location) / 1000;
-    return km > b.operatingRadiusKm ? { km, limit: b.operatingRadiusKm } : null;
+    const limit = b.branchOperatingRadiusInKm / 1000; // metres → km
+    return km > limit ? { km, limit } : null;
   });
   readonly fieldMarkers = computed(() =>
     this.fieldPoints().map((f) => ({
@@ -268,7 +269,7 @@ export class PlaceMultiSelect implements OnDestroy {
   readonly center = computed(() => this.branch()?.location ?? DEFAULT_CENTER);
   readonly branchContent = this.pins.badge('__branch', 'BR', '#0F172A');
   /** The branch's operating radius (default 30 km): work beyond it needs an out-of-radius approval. */
-  readonly branchRadiusMeters = computed(() => (this.branch()?.operatingRadiusKm ?? 0) * 1000);
+  readonly branchRadiusMeters = computed(() => this.branch()?.branchOperatingRadiusInKm ?? 0); // already metres
   readonly branchRadiusOptions: google.maps.CircleOptions = {
     strokeColor: '#0F172A',
     strokeOpacity: 0.55,
