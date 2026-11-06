@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
-import { computed, Injectable, signal } from '@angular/core';
-import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { ApiPaths, AuthStore, EMPTY_UUID } from 'qubefin-core';
 import { MenuTreeNode, ParentMenu } from '../models/menu';
 import { Menu } from '../models/menu';
 
@@ -14,6 +14,20 @@ export class MenuStore {
   private readonly shouldLoadmenuTreeByUser = signal<boolean>(false);
   private readonly shouldLoadParentMenus = signal<boolean>(false);
   private readonly shouldLoadParentMenusByUser = signal<boolean>(false);
+
+  private readonly authStore = inject(AuthStore);
+
+  constructor() {
+    effect(() => {
+      if (!this.authStore.accessToken()) {
+        this.shouldLoadmenuTreeByUser.set(false);
+        this.shouldLoadParentMenusByUser.set(false);
+        this.shouldLoadmenuTree.set(false);
+        this.shouldLoadParentMenus.set(false);
+        this.menuId.set(undefined);
+      }
+    });
+  }
 
   // All Menus as Tree
   menuTreeResource = httpResource<MenuTreeNode[]>(() => {

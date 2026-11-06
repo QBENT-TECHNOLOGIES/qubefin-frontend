@@ -95,6 +95,6 @@ export class Header {
   }
   onLogout() {
     this.authStore.logout();
-    this.router.navigate(['/public/auth/login']);
+    this.router.navigate(['/public/auth/login']).then(() => window.location.reload());
   }
 }
