@@ -43,6 +43,10 @@ export const routes: Routes = [
             {
                 path: 'payroll',
                 loadChildren: () => import('./features/payroll/payroll-routes').then(m => m.PayrollRoutes)
+            },
+            {
+                path: 'collection',
+                loadChildren: () => import('./features/collection/collection-routes').then(m => m.CollectionRoutes)
             }
         ]
     },
