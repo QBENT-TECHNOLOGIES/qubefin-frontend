@@ -204,10 +204,6 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
   viewer = currentViewer(d);
 
   // ---- Lookups ---------------------------------------------------------------------------
-  if (m === 'GET' && path === 'me') {
-    const { id: _id, ...me } = viewer;
-    return me satisfies TrackingViewer;
-  }
   if (m === 'GET' && path === 'organization-units') return d.branches.filter((b) => inScope(viewer, [b.id]));
   if (m === 'GET' && path === 'groups') {
     // Light lookup for filters: groups in scope with their mapped branch and Credit Officer.

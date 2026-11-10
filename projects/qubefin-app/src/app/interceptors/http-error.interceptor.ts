@@ -1,4 +1,4 @@
-import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn, HttpStatusCode } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn, HttpStatusCode } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, map } from 'rxjs';
 import { AlertService } from 'qubefin-core';
@@ -17,14 +17,7 @@ class HttpNoNetworkConnectionError extends Error {
   }
 }
 
-/**
- * Set on a request (`context: new HttpContext().set(SKIP_ERROR_ALERT, true)`) when a failure is expected and handled by
- * the caller, e.g. background lookups that some users are not allowed to call. The error is still passed on, just no popup.
- */
-export const SKIP_ERROR_ALERT = new HttpContextToken<boolean>(() => false);
-
 export const HttpErrorInterceptor: HttpInterceptorFn = (req, next) => {
-  if (req.context.get(SKIP_ERROR_ALERT)) return next(req);
   const alertService = inject(AlertService);
 
   return next(req).pipe(

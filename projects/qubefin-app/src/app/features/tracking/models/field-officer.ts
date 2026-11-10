@@ -20,7 +20,10 @@ export function isAdminRole(role: string | null | undefined): role is AdminRole 
   return ADMIN_ROLES.includes(role as AdminRole);
 }
 
-/** The signed-in user as tracking sees them (A1, GET tracking-api/me); names as the API sends them. */
+/**
+ * The signed-in user as tracking sees them, built by `TrackingViewerStore` from GET app-api/users/login-info
+ * (`EmployeeProfileResponse`; replaced GET tracking-api/me on 10 Nov 2026).
+ */
 export interface TrackingViewer {
   /** Employee id; null for an administrator without an employee record. */
   employeeId: string | null;

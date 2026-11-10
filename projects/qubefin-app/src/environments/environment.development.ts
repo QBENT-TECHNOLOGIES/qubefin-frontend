@@ -9,7 +9,6 @@ export const environment = {
     // Step-by-step integration: these tracking-api endpoints go to the real backend while the mock answers the rest.
     // Format 'METHOD path'; {x} matches one path segment. Add each endpoint here once the backend has it.
     trackingLiveEndpoints: [
-      'GET me', // A1
       'GET organization-units', // A2 (contract: branches)
       'GET field-officers', // A3
     ],

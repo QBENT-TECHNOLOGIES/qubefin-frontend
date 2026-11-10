@@ -1,31 +1,34 @@
-import { HttpContext, httpResource } from '@angular/common/http';
 import { Injectable, computed, inject } from '@angular/core';
-import { ApiPaths, AuthStore } from 'qubefin-core';
-import { SKIP_ERROR_ALERT } from '../../../interceptors/http-error.interceptor';
-import { TrackingViewer } from '../models/field-officer';
+import { LoggedInUserInfoStore } from '../../../layouts/secure/store/logged-in-user-info-store';
+import { TrackingViewer, ViewerRole } from '../models/field-officer';
 
 /**
- * The signed-in user as tracking sees them (A1, GET tracking-api/me): role, unit and branch scope.
+ * The signed-in user as tracking sees them: role, unit and branch scope.
  *
- * Loaded as soon as there is a valid access token (the header injects this store, so that is right after login), loaded
- * again when another user logs in on the same tab, and cleared on logout. Users without tracking access may get an error
- * here; that is expected, so no error popup is shown and `viewer` stays null.
+ * Comes from GET app-api/users/login-info (`LoggedInUserInfoStore`, loaded right after login), which replaced
+ * GET tracking-api/me on 10 Nov 2026, so there is no extra request. `organisationUnitIds` are the ids of
+ * `accessOrganizationUnits`. Null until login-info has loaded and after logout.
  */
 @Injectable({ providedIn: 'root' })
 export class TrackingViewerStore {
-  private readonly auth = inject(AuthStore);
+  private readonly userStore = inject(LoggedInUserInfoStore);
 
-  private readonly resource = httpResource<TrackingViewer>(() => {
-    const token = this.auth.accessToken(); // read so a new login (new token) fetches again
-    if (!token || !this.auth.isAuthenticated()) return undefined;
-    return { url: `${ApiPaths.TRACKING}/me`, context: new HttpContext().set(SKIP_ERROR_ALERT, true) };
+  readonly viewer = computed<TrackingViewer | null>(() => {
+    const u = this.userStore.loggedInUserInfo();
+    if (!u) return null;
+    return {
+      employeeId: u.employeeId || null,
+      name: u.employee,
+      role: u.role as ViewerRole, // a role name tracking does not know gets no rank (no rights), see ROLE_RANK
+      unitName: u.unitName,
+      organisationUnitIds: (u.accessOrganizationUnits ?? []).map((ou) => ou.id),
+      canCreateJobs: !!u.canCreateJobs,
+    };
   });
-
-  readonly viewer = computed<TrackingViewer | null>(() => (this.resource.hasValue() ? this.resource.value() : null));
-  readonly loading = computed(() => this.resource.isLoading());
-  readonly error = computed(() => this.resource.error());
+  readonly loading = this.userStore.loading;
+  readonly error = this.userStore.error;
 
   refresh() {
-    this.resource.reload();
+    this.userStore.refresh();
   }
 }

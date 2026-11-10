@@ -27,7 +27,7 @@ export class TrackingLookupStore {
   /** A3: everyone the caller may monitor (`canAssign` = may also give them work). Optional filter: `?organizationUnitId=`. */
   private readonly officersResource = httpResource<FieldOfficer[]>(() => this.signedIn(`${ApiPaths.TRACKING}/field-officers`));
 
-  /** The signed-in user (GET me), loaded at login by `TrackingViewerStore`. */
+  /** The signed-in user (from app-api/users/login-info), see `TrackingViewerStore`. */
   readonly viewer = this.viewerStore.viewer;
   /** False until the viewer is known, and for a CO (nobody below them). */
   readonly canCreateJobs = computed(() => !!this.viewer()?.canCreateJobs);

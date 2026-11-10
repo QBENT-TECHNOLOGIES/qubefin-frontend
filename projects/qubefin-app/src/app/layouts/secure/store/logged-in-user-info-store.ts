@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
 import { ApiPaths, AuthStore } from 'qubefin-core';
-import { LoggedInUserInfoResponse } from '../../../models/logged-in-user-info-response';
+import { EmployeeProfileResponse } from '../../../models/employee-profile-response';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +11,7 @@ export class LoggedInUserInfoStore {
 
   private readonly basePath = `${ApiPaths.APP}/users`;
 
-  readonly loggedInUserInfoResource = httpResource<LoggedInUserInfoResponse>(() =>
+  readonly loggedInUserInfoResource = httpResource<EmployeeProfileResponse>(() =>
     this.authStore.isAuthenticated() ? `${this.basePath}/login-info` : undefined,
   );
 

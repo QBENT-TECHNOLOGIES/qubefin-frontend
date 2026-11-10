@@ -79,7 +79,6 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 
 | Method | Path | Response |
 |---|---|---|
-| GET | `me` | `TrackingViewer`: `employeeId` (null for an admin without an employee record), name, `role` (role name, see below), `unitName`, `organisationUnitIds` (branch ids in scope), `canCreateJobs` |
 | GET | `organization-units` (was `branches`) | `TrackingBranch[]`: id, name, code, `areaName`, `divisionName`, `location` (nullable), `branchOperatingRadiusInKm` (**metres**, see below) |
 | GET | `groups?branchId=&creditOfficerId=` | `TrackingGroup[]`: id, code, name, `branchId`/`branchName`, `creditOfficerId`/`creditOfficerName` (mapped CO, nullable), sorted by name. Groups in the caller's scope; both filters optional. Feeds the Group filter on OD Members. |
 | GET | `field-officers?organizationUnitId=` | `FieldOfficer[]`: id, employeeCode, name, `role` (role name, e.g. `Credit Officer`), designation, `organisationUnitId`/`organisationUnitName` (posting branch), `unitName` (branch / area / division in charge of), `organisationUnitIds` (branches they may work in), phone, `presentLocation` (home, nullable), reportingOfficerName, `canAssign` |
@@ -87,7 +86,11 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 * **Names follow the backend as built** (decided 6 Nov 2026). The frontend models (`models/*.ts`) use the backend's own paths,
   property names and values, with no mapping layer, and the mock answers in the same shape. When an endpoint is delivered
   with different names, the model, the screens and the mock are renamed to match. So far:
-  * `me` (A1): `organisationUnitIds` (= branch ids in scope; was `branchIds`).
+  * `me` (A1) is **removed** (10 Nov 2026): the signed-in user's tracking scope comes from the existing
+    `GET app-api/users/login-info` (`EmployeeProfileResponse` in `app/models/employee-profile-response.ts`), which now also
+    returns `role`, `unitName`, `canCreateJobs` and `accessOrganizationUnits[]` (`{ id, name, latitude, longitude,
+    attendanceInTime, attendanceOutTime, checkRadiusInMeter }`; the ids are the branch scope). `TrackingViewerStore` builds the
+    web's `TrackingViewer` from it, so no tracking call is made for the user.
   * `branches` (A2) is served at `organization-units`. `branchOperatingRadiusInKm` holds **metres** despite its name
     (`30000` = 30 km); screens divide by 1000 to show or compare km (was `operatingRadiusKm` in km).
   * `field-officers` (A3): query `organizationUnitId` (spelled with **z**; was `branchId`); `organisationUnitId` /
@@ -104,9 +107,10 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
   (true for the lower roles, **false for the ABM listed to a BM**). The web uses the whole list for monitoring filters (Jobs & Tasks,
   Job Monitoring, Tracking History) and only `canAssign` people for *Assign to* / *Transfer to*. `organizationUnitId` filters to
   people whose `organisationUnitIds` include it.
-* `me.role` `Super Admin` and `Application Administrator` have the same access in tracking (`isAdminRole()`).
+* login-info `role` `Super Admin` and `Application Administrator` have the same access in tracking (`isAdminRole()`).
   `canCreateJobs` is false when nobody is below the caller (a CO).
-* `organisationUnitIds`: one branch for CO / ABM / BM; every branch of the area (AM) or division (DM).
+* login-info `accessOrganizationUnits` and field-officers `organisationUnitIds`: one branch for CO / ABM / BM; every branch of the
+  area (AM) or division (DM); every branch for an Admin.
 
 ---
 
@@ -373,7 +377,7 @@ Alert types and the rules the **backend** evaluates (thresholds from §8, subjec
 Requests are raised from the mobile app before lead sourcing or other field activity beyond the branch radius (requirement 1.7).
 **Who decides** (product owner, 4 Nov 2026): for the time being only an **Admin** (Super Admin / Application Administrator).
 Anyone else gets 403 "Only a Super Admin or Application Administrator can approve or reject out-of-radius requests." The web shows
-Approve / Reject only to an Admin (`me.role` = `Super Admin` or `Application Administrator`); other users see "Waiting for a Super Admin or Application Administrator to decide."
+Approve / Reject only to an Admin (login-info `role` = `Super Admin` or `Application Administrator`); other users see "Waiting for a Super Admin or Application Administrator to decide."
 **Who sees** the requests: `GET approvals` lists only requests of people the caller may monitor (§2); a decision on any other request is 404.
 Remarks are required when rejecting. An approved request suppresses `OutsideBranchRadius` alerts for that employee, date and destination area.
 

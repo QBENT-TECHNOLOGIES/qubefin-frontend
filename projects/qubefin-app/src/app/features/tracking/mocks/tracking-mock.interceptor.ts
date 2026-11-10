@@ -7,7 +7,7 @@ import { ENV_CONFIG } from 'qubefin-core';
  * Answers `tracking-api/*` requests from an in-browser mock when `useTrackingMocks` is true in the environment;
  * everything else passes through untouched.
  *
- * Step-by-step integration: endpoints listed in `trackingLiveEndpoints` (e.g. `'GET me'`, `'GET jobs/{id}'`) go to the
+ * Step-by-step integration: endpoints listed in `trackingLiveEndpoints` (e.g. `'GET field-officers'`, `'GET jobs/{id}'`) go to the
  * real backend even while the mock is on. `{x}` matches one path segment; the query string is ignored.
  *
  * Register it LAST so the auth and error interceptors still run.
