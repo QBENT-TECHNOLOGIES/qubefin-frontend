@@ -3,9 +3,14 @@ import { inject, Injectable } from '@angular/core';
 import { ApiPaths } from 'qubefin-core';
 import { IBcGroup } from '../models/bc-group';
 import { ICreditOfficer } from '../models/credit-officer';
-import { IGroupWiseLoans, IGroupWiseLoanSearchParam } from '../models/group-wise-loan';
+import {
+  IGroupWiseLoan,
+  IGroupWiseLoans,
+  IGroupWiseLoanSearchParam,
+} from '../models/group-wise-loan';
 import { ISaveGroupCollectionRequest } from '../models/group-collection';
 import { buildGroupWiseLoanQuery } from './group-wise-loan-query';
+import { ILoanSearchByText } from '../models/bc-group-collection';
 
 @Injectable({
   providedIn: 'root',
@@ -30,5 +35,19 @@ export class CreditOfficerService {
 
   saveGroupCollection(request: ISaveGroupCollectionRequest) {
     return this.httpClient.post<string>(`${this.basePath}/save-bc-collection`, request);
+  }
+  getGroupLoanPaymentDetail(designationId: string, bcGroupId: string, loanId: string) {
+    return this.httpClient.get<IGroupWiseLoan>(
+      `${this.basePath}/bc-group-loans-payment/${designationId}`,
+      { params: { bcGroupId, loanId } },
+    );
+  }
+
+  searchLoansByText(searchText: string) {
+    return this.httpClient.post<ILoanSearchByText[]>(
+      `${this.basePath}/employees/search-loan-by-text`,
+      null,
+      { params: { searchText } },
+    );
   }
 }

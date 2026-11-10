@@ -49,3 +49,7 @@ export interface LoanUtrChange {
   loanId: string;
   value: string;
 }
+export interface ILoanSearchByText {
+  id: string;
+  loanNo: string;
+}

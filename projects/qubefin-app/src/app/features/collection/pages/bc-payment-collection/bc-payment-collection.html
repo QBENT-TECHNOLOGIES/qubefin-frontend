@@ -1,3 +1,264 @@
-<div class="flex flex-col">
-  <!-- BC Payment Collection page content goes here -->
+<div class="flex flex-col gap-4">
+
+
+  <div class="glass rounded-xl shadow-glass dark:shadow p-3">
+    <div class="flex flex-wrap md:flex-nowrap items-end gap-5 w-full">
+
+
+      <div class="flex-1 min-w-[200px]">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <mat-label>Credit Officer</mat-label>
+          <div class="w-12 flex justify-center" matPrefix>
+            <svg lucideIcon="user-check" class="w-5 h-5"></svg>
+          </div>
+          <input matInput [value]="officerSearchText()" (input)="searchOfficers($any($event.target).value)"
+            [matAutocomplete]="officerAuto" autocomplete="off" required
+            [placeholder]="creditOfficersLoading() ? 'Loading ...' : 'Search name, code or branch'" />
+          <mat-autocomplete #officerAuto="matAutocomplete" [displayWith]="officerLabel"
+            (optionSelected)="selectOfficer($event)">
+            @for (branch of officerBranches(); track branch.name) {
+            <mat-optgroup [label]="branch.name">
+              <span class="ml-1.5 px-1.5 rounded-full text-[10px] font-semibold bg-secondary-500/10 text-secondary-500">
+                {{ branch.officers.length }}
+              </span>
+
+              @for (officer of branch.officers; track officer.employeeId + officer.designationId) {
+              <mat-option [value]="officer">
+                <div class="flex items-center gap-3 py-1">
+                  <span
+                    class="w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-[11px] font-semibold text-white bg-linear-to-br from-primary-500 to-secondary-500">
+                    {{ getInitials(officer.employeeName) }}
+                  </span>
+                  <div class="flex flex-col leading-tight min-w-0">
+                    <span class="text-sm font-medium truncate">{{ officer.employeeName }}</span>
+                    <span class="text-[11px] text-slate-400 truncate">{{ officer.designationName }}</span>
+                  </div>
+                  @if (officer.employeeCode) {
+                  <span
+                    class="ml-auto shrink-0 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-primary-500/10 text-primary-700 dark:text-primary-400">
+                    {{ officer.employeeCode }}
+                  </span>
+                  }
+                </div>
+              </mat-option>
+              }
+            </mat-optgroup>
+            } @empty {
+            @if (!creditOfficersLoading()) {
+            <mat-option disabled>No credit officers found</mat-option>
+            }
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+
+
+      <div class="flex-1 min-w-[200px]">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <mat-label>Group</mat-label>
+          <div class="w-12 flex justify-center" matPrefix>
+            <svg lucideIcon="users" class="w-5 h-5"></svg>
+          </div>
+          <mat-select [placeholder]="groupsLoading() ? 'Loading ...' : 'Select group'" [(ngModel)]="groupId"
+            (selectionChange)="clearDetail()" required>
+            @for (group of officerGroups(); track group.id) {
+            <mat-option [value]="group.id">{{ group.code }} - {{ group.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+
+      <div class="flex-1 min-w-[200px]">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <mat-label>Loan No</mat-label>
+          <div class="w-12 flex justify-center" matPrefix>
+            <svg lucideIcon="receipt-text" class="w-5 h-5"></svg>
+          </div>
+          <input matInput [value]="loanSearchText()" (input)="searchLoans($any($event.target).value)"
+            [matAutocomplete]="loanAuto" autocomplete="off" required placeholder="Type at least 3 characters" />
+          <mat-autocomplete #loanAuto="matAutocomplete" [displayWith]="loanLabel" (optionSelected)="selectLoan($event)">
+            @for (item of loanOptions(); track item.id) {
+            <mat-option [value]="item">{{ item.loanNo }}</mat-option>
+            } @empty {
+            @if (loanSearchText().trim().length >= 3) {
+            <mat-option disabled>{{ loanSearching() ? 'Searching ...' : 'No loans found' }}</mat-option>
+            }
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+
+      <div class="flex items-center gap-2.5 shrink-0">
+        <button type="button" (click)="search()" [disabled]="detailLoading()"
+          class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition lift cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+          <svg lucideIcon="search" class="w-4 h-4"></svg>
+          Search
+        </button>
+        <button type="button" (click)="resetFilters()"
+          class="glass-input dark:text-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+          <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (detailLoading()) {
+  <div class="glass rounded-xl shadow-glass dark:shadow px-4 py-10 text-sm text-slate-500 text-center">
+    Loading loan details ...
+  </div>
+  }
+
+  @if (loan(); as ln) {
+  @if (!detailLoading()) {
+
+  <div class="glass rounded-xl shadow-glass dark:shadow p-4">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h4 class="box-content-heading">Loan Details</h4>
+        <div class="blue-line mb-2!"></div>
+      </div>
+      <span
+        class="shrink-0 px-2.5 py-1 rounded-md text-xs font-semibold bg-primary-500/10 text-primary-700 dark:text-primary-400">
+        {{ ln.groupCode }} - {{ ln.groupName }}
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-3">
+      <div class="gen-info">
+        <div class="gen-icon"><svg lucideIcon="binary" class="w-5 h-5 text-primary-700"></svg></div>
+        <div>
+          <label class="gen-label">Loan No</label>
+          <p class="gen-title">{{ ln.loanNo }}</p>
+        </div>
+      </div>
+      <div class="gen-info">
+        <div class="gen-icon"><svg lucideIcon="user" class="w-5 h-5 text-primary-700"></svg></div>
+        <div>
+          <label class="gen-label">Member Name</label>
+          <p class="gen-title">{{ ln.memberName || '—' }}</p>
+        </div>
+      </div>
+      <div class="gen-info">
+        <div class="gen-icon"><svg lucideIcon="banknote" class="w-5 h-5 text-primary-700"></svg></div>
+        <div>
+          <label class="gen-label">Loan Amount</label>
+          <p class="gen-title">{{ ln.loanAmount != null ? (ln.loanAmount | number) : '—' }}</p>
+        </div>
+      </div>
+      <div class="gen-info">
+        <div class="gen-icon"><svg lucideIcon="wallet" class="w-5 h-5 text-primary-700"></svg></div>
+        <div>
+          <label class="gen-label">Outstanding</label>
+          <p class="gen-title">{{ ln.currentOutstandingAmount != null ? (ln.currentOutstandingAmount | number) : '—' }}
+          </p>
+        </div>
+      </div>
+      <div class="gen-info">
+        <div class="gen-icon"><svg lucideIcon="circle-alert" class="w-5 h-5 text-primary-700"></svg></div>
+        <div>
+          <label class="gen-label">Overdue</label>
+          <p class="gen-title" [class.text-rose-600]="(ln.overdueAmount ?? 0) > 0">
+            {{ ln.overdueAmount != null ? (ln.overdueAmount | number) : '—' }}
+          </p>
+        </div>
+      </div>
+      <div class="gen-info">
+        <div class="gen-icon"><svg lucideIcon="indian-rupee" class="w-5 h-5 text-primary-700"></svg></div>
+        <div>
+          <label class="gen-label">EMI</label>
+          <p class="gen-title">{{ emiAmount() | number }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass rounded-xl shadow-glass dark:shadow p-4">
+    <div>
+      <h4 class="box-content-heading">Payment</h4>
+      <div class="blue-line mb-2!"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-3 items-start">
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Collection Date</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="calendar" class="w-5 h-5"></svg>
+        </div>
+        <input matInput [matDatepicker]="collectionDatePicker" [formField]="payForm.collectionDate" autocomplete="off"
+          (keydown)="$event.preventDefault()" placeholder="Pick collection date" />
+        <mat-datepicker-toggle matIconSuffix [for]="collectionDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #collectionDatePicker></mat-datepicker>
+        <mat-error class="cus-error">
+          {{ payForm.collectionDate().errors()[0]?.message }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Paid Amount</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="indian-rupee" class="w-5 h-5"></svg>
+        </div>
+        <input matInput type="number" autocomplete="off" [formField]="payForm.paidAmount"
+          (wheel)="$event.preventDefault()" placeholder="Paid amount" />
+        <mat-error class="cus-error">
+          {{ payForm.paidAmount().errors()[0]?.message }}
+        </mat-error>
+      </mat-form-field>
+
+      <div class="flex flex-col gap-1.5">
+        <div class="inline-flex w-fit p-1 rounded-lg bg-slate-100 dark:bg-slate-700/50">
+          <button type="button" (click)="setPaymentMode('CASH')"
+            class="px-4 py-2 rounded-md text-sm font-semibold transition cursor-pointer"
+            [class]="!isUpi() ? 'bg-white text-primary-700 shadow' : 'text-slate-500'">
+            Cash
+          </button>
+          <button type="button" (click)="setPaymentMode('UPI')"
+            class="px-4 py-2 rounded-md text-sm font-semibold transition cursor-pointer"
+            [class]="isUpi() ? 'bg-white text-primary-700 shadow' : 'text-slate-500'">
+            UPI
+          </button>
+        </div>
+      </div>
+
+      @if (isUpi()) {
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>UTR No</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="smartphone" class="w-5 h-5"></svg>
+        </div>
+        <input matInput autocomplete="off" [formField]="payForm.utrNo" placeholder="Enter UTR No" />
+      </mat-form-field>
+      }
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full"
+        [class]="isUpi() ? 'md:col-span-2' : 'md:col-span-3'">
+        <mat-label>Remarks</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+        </div>
+        <input matInput autocomplete="off" [formField]="payForm.remarks"
+          [placeholder]="isShortPaid() ? 'Required for short payment' : 'Remarks'" />
+        @if (isShortPaid()) {
+        <mat-hint class="text-amber-600">Short paid - remarks required</mat-hint>
+        }
+        <mat-error class="cus-error">
+          {{ payForm.remarks().errors()[0]?.message }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="pt-4 border-t border-slate-200 flex justify-end">
+      <button type="button" (click)="save()" [disabled]="saving()"
+        class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition lift cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+        <svg lucideIcon="save" class="w-4 h-4"></svg>
+        {{ saving() ? 'Saving ...' : 'Save Collection' }}
+      </button>
+    </div>
+  </div>
+
+  }
+  }
+
 </div>
