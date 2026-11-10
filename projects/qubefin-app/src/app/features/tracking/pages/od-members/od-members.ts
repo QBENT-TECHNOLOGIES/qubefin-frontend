@@ -172,7 +172,7 @@ export class OdMembers {
           this.store.refresh();
           this.jobStore.refreshList();
           const n = r.addedTaskIds.length;
-          const where = `${r.job.jobNo} (${r.job.assigneeName})`;
+          const where = `${r.job.jobCode} (${r.job.assigneeName})`;
           if (r.skipped.length) {
             this.alerts.warning(`${n} added to ${where}, ${r.skipped.length} skipped`, r.skipped.map((s) => s.reason).join(' · '));
           } else if (r.warnings.length) {

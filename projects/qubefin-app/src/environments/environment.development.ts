@@ -7,9 +7,12 @@ export const environment = {
     // Answer tracking-api calls from the in-browser mock until the backend is ready.
     useTrackingMocks: true,
     // Step-by-step integration: these tracking-api endpoints go to the real backend while the mock answers the rest.
-    // Format 'METHOD path'; {x} matches one path segment. Add each endpoint here once the backend has it.
+    // Format 'METHOD path'; {x} matches one GUID segment. Add each endpoint here once the backend has it.
     trackingLiveEndpoints: [
       'GET organization-units', // A2 (contract: branches)
       'GET field-officers', // A3
+      'POST jobs/search', // B1
+      'GET jobs/{id}', // B2
+      'GET jobs/{id}/history', // B3
     ],
 };

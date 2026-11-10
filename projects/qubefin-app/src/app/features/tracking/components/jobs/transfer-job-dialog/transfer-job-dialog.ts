@@ -50,7 +50,7 @@ export class TransferJobDialog {
   readonly mode = signal<'whole' | 'partial'>('whole');
   readonly picked = signal<ReadonlySet<string>>(new Set());
   readonly assigneeId = signal<string | null>(null);
-  readonly completeBy = signal(this.job.completeBy < this.today ? this.today : this.job.completeBy);
+  readonly completeBy = signal(this.job.endDate < this.today ? this.today : this.job.endDate);
   readonly remarks = signal('');
   readonly submitted = signal(false);
 
@@ -59,8 +59,8 @@ export class TransferJobDialog {
 
   readonly workBranchIds = computed(() =>
     this.mode() === 'whole'
-      ? this.job.branchIds
-      : [...new Set(this.pending.filter((t) => this.picked().has(t.id)).map((t) => t.target.branchId))],
+      ? this.job.organisationUnitIds
+      : [...new Set(this.pending.filter((t) => this.picked().has(t.id)).map((t) => t.target.organisationUnitId))],
   );
 
   /** Pending tasks the chosen person already holds elsewhere, to say which tasks will not move. */
@@ -72,14 +72,14 @@ export class TransferJobDialog {
     const id = this.assigneeId();
     const theirs = (this.theirsResource.value() ?? []).filter((p) => p.jobId !== this.job.id && p.refId);
     if (!id || !theirs.length) return [];
-    const window: [string, string] = [this.today, this.createsNewJob() ? this.completeBy() : this.job.completeBy];
+    const window: [string, string] = [this.today, this.createsNewJob() ? this.completeBy() : this.job.endDate];
     const moving = this.mode() === 'whole' ? this.pending : this.pending.filter((t) => this.picked().has(t.id));
     return moving.flatMap((task) => {
-      const key = targetKey(task.type, task.target);
+      const key = targetKey(task.taskType, task.target);
       const same: PendingElsewhere[] = theirs
         .filter((p) => `${p.type}|${p.targetKind}:${p.refId}` === key)
         .map((p) => ({ jobNo: p.jobNo, assigneeId: p.assigneeId, assigneeName: p.assigneeName, window: [p.jobStartFrom, p.jobCompleteBy < this.today ? this.today : p.jobCompleteBy] }));
-      const { block } = duplicateCheck(id, task.type, window, same);
+      const { block } = duplicateCheck(id, task.taskType, window, same);
       return block ? [{ task, reason: block }] : [];
     });
   });

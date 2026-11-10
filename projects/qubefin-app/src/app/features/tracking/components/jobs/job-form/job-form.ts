@@ -78,7 +78,7 @@ export class JobForm {
 
   readonly window = computed<[string, string]>(() => [this.model().startFrom || this.today, this.model().completeBy || this.today]);
 
-  readonly taskBranchIds = computed(() => [...new Set(this.tasks().map((t) => t.target.branchId))]);
+  readonly taskBranchIds = computed(() => [...new Set(this.tasks().map((t) => t.target.organisationUnitId))]);
 
   readonly branchConflict = computed(() => {
     const o = this.assignee();
@@ -126,8 +126,8 @@ export class JobForm {
           this.saving.set(false);
           const who = `assigned to ${job.assigneeName}`;
           const done = skipped.length
-            ? this.alerts.warning(`${job.jobNo} created with ${job.taskCount} task(s)`, `Skipped: ${skipped.map((s) => `${s.title} – ${s.reason}`).join(' · ')}`)
-            : this.alerts.success('Job created', `${job.jobNo} with ${job.taskCount} task(s), ${who}.`);
+            ? this.alerts.warning(`${job.jobCode} created with ${job.taskCount} task(s)`, `Skipped: ${skipped.map((s) => `${s.title} – ${s.reason}`).join(' · ')}`)
+            : this.alerts.success('Job created', `${job.jobCode} with ${job.taskCount} task(s), ${who}.`);
           Promise.resolve(done).then(() => {
             this.store.refreshList();
             this.saved.emit(job.id);

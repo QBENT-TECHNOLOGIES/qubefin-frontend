@@ -48,8 +48,8 @@
             <button type="button" class="trk-task-card" [class.is-selected]="selectedJobId() === j.id" (click)="selectJob(j.id)">
                 <div class="flex items-start gap-2.5">
                     <div class="min-w-0 flex-1 text-left">
-                        <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate">{{ j.title }}</p>
-                        <p class="text-[11px] text-slate-400 truncate">{{ j.jobNo }} · {{ j.assigneeName }} · due {{ j.completeBy | date: 'dd MMM' }}</p>
+                        <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate">{{ j.jobTitle }}</p>
+                        <p class="text-[11px] text-slate-400 truncate">{{ j.jobCode }} · {{ j.assigneeName }} · due {{ j.endDate | date: 'dd MMM' }}</p>
                     </div>
                     <qfin-trk-chip [tone]="JOB_STATUS[j.status]" [small]="true" [showIcon]="false" />
                 </div>
@@ -77,8 +77,8 @@
                     <map-advanced-marker [position]="m.position" [title]="m.title" [content]="m.content" [zIndex]="m.points.length > 1 ? 200 : 100" (mapClick)="openOverviewMarker(m)" />
                     }
                     @for (m of taskMarkers(); track m.task.id) {
-                    <map-circle [center]="m.task.target.location" [radius]="m.task.target.matchRadiusMeters" [options]="circleOptions(colorOf(m.task))" />
-                    <map-advanced-marker [position]="m.task.target.location" [title]="m.task.taskNo + ' · ' + m.task.title" [content]="m.content"
+                    <map-circle [center]="m.task.target.targetLocation" [radius]="m.task.target.radiusMeters" [options]="circleOptions(colorOf(m.task))" />
+                    <map-advanced-marker [position]="m.task.target.targetLocation" [title]="m.task.taskNo + ' · ' + m.task.taskTitle" [content]="m.content"
                         [zIndex]="m.task.id === selectedTaskId() ? 900 : 100" (mapClick)="selectTask(m.task)" />
                     }
                     @for (m of evidenceMarkers(); track m.key) {
@@ -165,8 +165,8 @@
             <div class="glass rounded-2xl p-4">
                 <div class="flex items-start justify-between gap-4 mb-3">
                     <div class="min-w-0">
-                        <p class="text-[11px] text-slate-400 tabular-nums">{{ j.jobNo }} · due {{ j.completeBy | date: 'EEE, dd MMM' }}</p>
-                        <h2 class="text-lg font-bold text-slate-800 dark:text-white truncate">{{ j.title }}</h2>
+                        <p class="text-[11px] text-slate-400 tabular-nums">{{ j.jobCode }} · due {{ j.endDate | date: 'EEE, dd MMM' }}</p>
+                        <h2 class="text-lg font-bold text-slate-800 dark:text-white truncate">{{ j.jobTitle }}</h2>
                         <p class="text-xs text-slate-500">
                             {{ j.assigneeName + ' (' + ROLE_LABEL[j.assigneeRole] + ')' }} · {{ j.branchNames.join(', ') }}
                             · {{ j.doneCount }}/{{ j.taskCount }} done
@@ -189,13 +189,13 @@
                         <li>
                             <button type="button" class="trk-task-card py-2!" [class.is-selected]="selectedTaskId() === t.id" (click)="selectTask(t)">
                                 <div class="flex items-center gap-2.5">
-                                    <span class="trk-type-icon" [style.--trk-color]="TASK_TYPE[t.type].color"><svg [lucideIcon]="TASK_TYPE[t.type].icon" class="w-4 h-4"></svg></span>
+                                    <span class="trk-type-icon" [style.--trk-color]="TASK_TYPE[t.taskType].color"><svg [lucideIcon]="TASK_TYPE[t.taskType].icon" class="w-4 h-4"></svg></span>
                                     <div class="min-w-0 flex-1 text-left">
-                                        <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate">{{ t.title }}</p>
+                                        <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200 truncate">{{ t.taskTitle }}</p>
                                         <p class="text-[11px] text-slate-400 truncate">
                                             <span class="trk-priority-chip mr-1" [style.--trk-color]="TASK_PRIORITY[t.priority].color">{{ TASK_PRIORITY[t.priority].label }}</span>
-                                            {{ t.taskNo }}{{ t.origin === 'SelfAdded' ? ' · self-added' : '' }}{{ t.accompaniedByName ? ' · with ' + t.accompaniedByName : '' }}
-                                            @if (t.completedAt) { · {{ t.completedAt | date: 'dd MMM, hh:mm a' }} }
+                                            {{ t.taskNo }}{{ t.origin === 'SelfAdded' ? ' · self-added' : '' }}{{ t.coOrdinatedByName ? ' · with ' + t.coOrdinatedByName : '' }}
+                                            @if (t.taskCompletedOn) { · {{ t.taskCompletedOn | date: 'dd MMM, hh:mm a' }} }
                                         </p>
                                     </div>
                                     @if (planSeq().get(t.id); as n) {

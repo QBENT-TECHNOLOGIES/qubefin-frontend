@@ -144,7 +144,7 @@ export function needsVerifiedLocation(kind: string): boolean {
 
 /** Key of "this task type at this place", used by the duplicate rule below. */
 export function targetKey(type: TaskType, t: TaskTarget): string {
-  const where = t.refId ? `${t.kind}:${t.refId}` : `pt:${t.location.lat.toFixed(4)},${t.location.lng.toFixed(4)}`;
+  const where = t.originRefId ? `${t.kind}:${t.originRefId}` : `pt:${t.targetLocation.lat.toFixed(4)},${t.targetLocation.lng.toFixed(4)}`;
   return `${type}|${where}`;
 }
 

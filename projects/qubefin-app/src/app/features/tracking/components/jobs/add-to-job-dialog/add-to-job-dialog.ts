@@ -87,7 +87,7 @@ export class AddToJobDialog {
   readonly openJobs = computed(() => {
     const text = this.jobSearch().trim().toLowerCase();
     return (this.openResource.value() ?? []).filter(
-      (j) => !text || [j.jobNo, j.title, j.assigneeName].some((v) => v.toLowerCase().includes(text)),
+      (j) => !text || [j.jobCode, j.jobTitle, j.assigneeName].some((v) => v.toLowerCase().includes(text)),
     );
   });
   readonly openLoading = computed(() => this.openResource.isLoading());
@@ -158,10 +158,10 @@ export class AddToJobDialog {
     const holder = this.holder();
     this.members.forEach((c) => {
       if (!c.homeLocation) return map.set(c.id, 'home not geo-tagged');
-      if (j?.tasks.some((t) => t.type === 'OdFollowUp' && t.target.refId === c.id && t.status === 'Pending')) return map.set(c.id, 'already in this job');
+      if (j?.tasks.some((t) => t.taskType === 'OdFollowUp' && t.target.originRefId === c.id && t.status === 'Pending')) return map.set(c.id, 'already in this job');
       const mine = holder ? c.pendingWith.find((p) => p.assigneeId === holder.id) : undefined;
       if (mine) return map.set(c.id, `already pending with ${mine.assigneeName} in ${mine.jobNo}`);
-      const conflict = holder ? jobBranchConflict(holder, [...new Set([...(j?.branchIds ?? []), c.branchId])]) : null;
+      const conflict = holder ? jobBranchConflict(holder, [...new Set([...(j?.organisationUnitIds ?? []), c.branchId])]) : null;
       if (conflict) return map.set(c.id, `${c.branchName} is outside ${holder!.name}'s ${holder!.unitName}`);
       return undefined;
     });

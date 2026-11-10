@@ -96,6 +96,22 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
   * `field-officers` (A3): query `organizationUnitId` (spelled with **z**; was `branchId`); `organisationUnitId` /
     `organisationUnitName` (posting branch; were `branchId` / `branchName`), `organisationUnitIds` (were `branchIds`),
     `presentLocation` (the geo-tagged present / home address used for the near-home rule; was `homeLocation`).
+  * `jobs/search` (B1): request `organisationUnitId` (was `branchId`), `sortOn` ∈ `endDate`·`createdOn`·`assigneeName`·`status`
+    (were `completeBy`·`createdAt`). `JobSummary` (and so `Job`): `jobCode` (was `jobNo`), `jobTitle` (`title`),
+    `organisationUnitIds` (`branchIds`), `createdOn` (`createdAt`), `startDate` (`startFrom`), `endDate` (`completeBy`),
+    `transferJobRefId` / `transferJobRefCode` (the job it was split from; were `transferredFromJobId` / `transferredFromJobNo`).
+    *Complete by* and *start from* stay the labels on screen. `typeCounts` is not sent yet (optional; the list shows type icons
+    without numbers). Request bodies of the job writes (`CreateJobRequest`, transfer, extend) keep the contract names until delivered.
+  * `jobs/{id}` (B2): `Job` adds `jobDescription` (was `description`) and `createdBy` (creator's id; was `createdById`).
+    `JobTask`: `taskType` (`type`), `taskTitle` (`title`), `coOrdinatedBy` / `coOrdinatedByName` (the companion shown as
+    *Accompanied by*; were `accompaniedById` / `accompaniedByName`), `taskAddedOn` (`addedAt`), `arrivedOn` (`arrivedAt`),
+    `taskCompletedOn` (`completedAt`), `transferredToJobCode` (`transferredToJobNo`), `taskCancelReason` (`closedReason`), and new
+    **`canReject`** (per caller: the web shows *Reject* only when it is true). `TaskTarget`: `originRefId` (`refId`), `targetName`
+    (`name`), `targetLocation` (`location`), `organisationUnitId` (`branchId`), `radiusMeters` (the match radius; was
+    `matchRadiusMeters`); `address` is **not** sent. The same `TaskTarget` is sent inside new tasks (`NewTaskInput.target`).
+    `verification` and `odOutcome` keep the contract shape (`TaskVerification`, `OdVisitOutcome`) until a sample with values arrives.
+  * `jobs/{id}/history` (B3): `relatedJobCode` (was `relatedJobNo`); new `oldCompleteBy` / `newCompleteBy` on `DateExtended`
+    entries (the timeline shows "old → new").
 * **Role values are the role names** (since 6 Nov 2026; were codes): `Super Admin`, `Application Administrator`,
   `Division Manager`, `Area Manager`, `Branch Manager`, `Additional Branch Manager`, `Credit Officer` (`ViewerRole` /
   `OfficerRole` in `models/field-officer.ts`). The same values are expected in every `role` / `assigneeRole` field
@@ -150,10 +166,10 @@ self-added on the mobile app; the web only offers them as a point clicked on the
 | PUT | `jobs/{id}/extend` | `{ completeBy, remarks }` | `Job` |
 | PUT | `jobs/{id}/cancel` | `{ remarks }` | `Job` |
 
-**Search filters:** `searchText` (job no, title, assignee, creator, task no, place name), `status`, `openOnly`, `branchId`
-(job has a task in that branch), `assigneeId`, `dueFrom`/`dueTo` (inclusive, on `completeBy`), `dpdRange` (job has at least one
+**Search filters:** `searchText` (job code, title, assignee, creator, task no, place name), `status`, `openOnly`, `organisationUnitId`
+(job has a task in that branch), `assigneeId`, `dueFrom`/`dueTo` (inclusive, on `endDate`), `dpdRange` (job has at least one
 `OdMember` task, pending or completed, whose member's **current** DPD from the Loan Status Report is in the range), paging, and
-`sortOn` ∈ `completeBy`·`createdAt`·`assigneeName`·`status`. `summary` is computed over the same filters **excluding** status:
+`sortOn` ∈ `endDate`·`createdOn`·`assigneeName`·`status`, `sortDirection` `asc`·`desc`. `summary` is computed over the same filters **excluding** status:
 `total, assigned, inProgress, delayed, completed`.
 
 **`JobSummary.typeCounts`** (every `JobSummary`, so also `jobs/open` and `Job`): number of tasks per `TaskType`, counted on the same
@@ -454,7 +470,7 @@ and can sort the task list by priority.
 
 1. Implement the endpoints above under `tracking-api` on the gateway.
 2. **Step by step:** while `useTrackingMocks` is true, endpoints listed in `trackingLiveEndpoints` (dev environment, format
-   `'METHOD path'`, `{x}` = one path segment, e.g. `'GET jobs/{id}'`) already go to the real backend; the mock answers the rest.
+   `'METHOD path'`, `{x}` = one GUID path segment, e.g. `'GET jobs/{id}'`, which does not match `jobs/open`) already go to the real backend; the mock answers the rest.
    Add each endpoint there as the backend delivers it. When all are live, set `useTrackingMocks: false` in `environment*.ts`.
 3. Remove `trackingMockInterceptor` from `app.config.ts`, remove `<qfin-trk-mock-actor>` (the mock-only "acting as" picker) from
    `pages/jobs/jobs.html` and its import in `jobs.ts`, and delete `features/tracking/mocks/`.

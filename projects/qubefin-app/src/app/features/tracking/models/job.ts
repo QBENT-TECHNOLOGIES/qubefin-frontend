@@ -31,18 +31,18 @@ export const TASK_PRIORITIES: readonly TaskPriority[] = ['VeryHigh', 'High', 'Me
 export const DEFAULT_TASK_PRIORITY: TaskPriority = 'Medium';
 
 /** Where the task must be done. Required for every task. */
+/** Where a task is done (B2, inside `JobTask`; also sent in new tasks). Names as the API sends them. */
 export interface TaskTarget {
   kind: TaskTargetKind;
-  /** Id of the geo-tagged entity; null for a point picked on the map. */
-  refId: string | null;
-  name: string;
-  address: string;
-  location: GeoPoint;
+  /** Id of the geo-tagged entity (group, member, OD member, branch); null for a point picked on the map. */
+  originRefId: string | null;
+  targetName: string;
+  targetLocation: GeoPoint;
   /** Branch the place belongs to: CO / ABM / BM jobs may only hold tasks of their own branch. */
-  branchId: string;
+  organisationUnitId: string;
   branchName: string;
-  /** Arrival and the completion photo must be within this distance of `location`. */
-  matchRadiusMeters: number;
+  /** Arrival and the completion photo must be within this distance of `targetLocation` (match radius). */
+  radiusMeters: number;
 }
 
 export interface TaskVerification {
@@ -65,12 +65,13 @@ export interface OdVisitOutcome {
   ptpDate: string | null;
 }
 
+/** A task of a job (B2, `Job.tasks`); names as the API sends them. */
 export interface JobTask {
   id: string;
   taskNo: string;
   jobId: string;
-  type: TaskType;
-  title: string;
+  taskType: TaskType;
+  taskTitle: string;
   /** Instruction for the assignee (optional). */
   notes: string | null;
   priority: TaskPriority;
@@ -78,16 +79,16 @@ export interface JobTask {
    * Someone who goes along on this task (optional), e.g. the BM going with a CO. For information only:
    * the task, its route and allowance stay with the job's assignee.
    */
-  accompaniedById: string | null;
-  accompaniedByName: string | null;
+  coOrdinatedBy: string | null;
+  coOrdinatedByName: string | null;
   target: TaskTarget;
   status: JobTaskStatus;
   origin: TaskOrigin;
   addedByName: string;
-  addedAt: string;
+  taskAddedOn: string;
   /** Server-stamped from the mobile app; never sent by the web. */
-  arrivedAt: string | null;
-  completedAt: string | null;
+  arrivedOn: string | null;
+  taskCompletedOn: string | null;
   completedByName: string | null;
   /** Employee's remarks entered when completing. */
   remarks: string | null;
@@ -96,15 +97,18 @@ export interface JobTask {
   /** Completed after the job's complete-by date. */
   isLate: boolean;
   transferredToJobId: string | null;
-  transferredToJobNo: string | null;
+  transferredToJobCode: string | null;
   /** Why it was cancelled / rejected. */
-  closedReason: string | null;
+  taskCancelReason: string | null;
+  /** The caller may reject this task (a pending self-added task, and the caller may update the job). Set by the server. */
+  canReject: boolean;
 }
 
+/** A job in lists (B1, POST tracking-api/jobs/search); names as the API sends them. `Job` adds the detail. */
 export interface JobSummary {
   id: string;
-  jobNo: string;
-  title: string;
+  jobCode: string;
+  jobTitle: string;
   status: JobStatus;
   /** Required: a job always has an assignee. */
   assigneeId: string;
@@ -112,15 +116,16 @@ export interface JobSummary {
   assigneeRole: OfficerRole;
   /** Branch / area / division the job belongs to (the assignee's unit). */
   unitName: string;
-  /** Branches its tasks are in. */
-  branchIds: string[];
+  /** Branch ids its tasks are in. */
+  organisationUnitIds: string[];
   branchNames: string[];
   createdByName: string;
-  createdAt: string;
-  /** yyyy-MM-dd; the job shows in lists from this day. */
-  startFrom: string | null;
-  /** yyyy-MM-dd; every task should be done by the end of this day. */
-  completeBy: string;
+  /** When the job was created (server time). */
+  createdOn: string;
+  /** yyyy-MM-dd; the job shows in lists from this day (contract: start from). */
+  startDate: string | null;
+  /** yyyy-MM-dd; every task should be done by the end of this day (contract: complete by). */
+  endDate: string;
   taskCount: number;
   doneCount: number;
   /** Pending tasks still to do. */
@@ -133,8 +138,9 @@ export interface JobSummary {
    * Optional: while absent, the list shows the type icons without numbers.
    */
   typeCounts?: Partial<Record<TaskType, number>>;
-  transferredFromJobId: string | null;
-  transferredFromJobNo: string | null;
+  /** The job this one was split from by a partial transfer (id / code); null otherwise. */
+  transferJobRefId: string | null;
+  transferJobRefCode: string | null;
 }
 
 /**
@@ -154,9 +160,11 @@ export interface JobPermissions {
   canUpdate: boolean;
 }
 
+/** One job with its tasks (B2, GET tracking-api/jobs/{id}); names as the API sends them. */
 export interface Job extends JobSummary {
-  description: string | null;
-  createdById: string;
+  jobDescription: string | null;
+  /** Id of the user who created the job. */
+  createdBy: string;
   tasks: JobTask[];
   permissions: JobPermissions;
 }
@@ -177,6 +185,7 @@ export type JobHistoryAction =
   | 'Cancelled';
 
 /** Append-only audit trail of a job. */
+/** One audit-trail entry (B3, GET tracking-api/jobs/{id}/history, newest first). */
 export interface JobHistoryEntry {
   id: string;
   jobId: string;
@@ -188,7 +197,10 @@ export interface JobHistoryEntry {
   taskNos: string[];
   /** The other job in a partial transfer. */
   relatedJobId: string | null;
-  relatedJobNo: string | null;
+  relatedJobCode: string | null;
+  /** DateExtended only: the end date (complete by) before and after (yyyy-MM-dd); null otherwise. */
+  oldCompleteBy: string | null;
+  newCompleteBy: string | null;
   remarks: string | null;
 }
 
@@ -198,8 +210,9 @@ export interface JobSearchRequest {
   /** true = Assigned, InProgress and Delayed only (ignored when `status` is set). */
   openOnly?: boolean;
   assigneeId: string | null;
-  branchId: string | null;
-  /** Includes jobs whose complete-by date falls in the range (yyyy-MM-dd, inclusive). */
+  /** Jobs with a task in this branch. */
+  organisationUnitId: string | null;
+  /** Includes jobs whose end date (complete by) falls in the range (yyyy-MM-dd, inclusive). */
   dueFrom: string | null;
   dueTo: string | null;
   /**
@@ -209,7 +222,7 @@ export interface JobSearchRequest {
   dpdRange?: DpdRange | null;
   pageIndex: number;
   pageSize: number;
-  sortOn: 'completeBy' | 'createdAt' | 'assigneeName' | 'status';
+  sortOn: 'endDate' | 'createdOn' | 'assigneeName' | 'status';
   sortDirection: SortDirection;
 }
 

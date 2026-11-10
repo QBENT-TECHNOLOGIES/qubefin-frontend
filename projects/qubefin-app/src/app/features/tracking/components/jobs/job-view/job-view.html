@@ -5,13 +5,13 @@
             <div class="box-group">
                 <span class="trk-type-icon is-lg" style="--trk-color:#0F766E"><svg lucideIcon="briefcase" class="w-5 h-5"></svg></span>
                 <div>
-                    <div class="box-title-group"><h1 class="box-title">{{ j.title }}</h1></div>
+                    <div class="box-title-group"><h1 class="box-title">{{ j.jobTitle }}</h1></div>
                     <p class="box-subTitle text-xs! flex items-center gap-2 flex-wrap">
-                        <span class="tabular-nums">{{ j.jobNo }}</span>
-                        · created by {{ j.createdByName }} on {{ j.createdAt | date: 'dd MMM, hh:mm a' }}
-                        @if (j.transferredFromJobId) {
-                        · <button type="button" class="trk-link flex items-center gap-1" (click)="openJob.emit(j.transferredFromJobId!)">
-                            <svg lucideIcon="arrow-right-left" class="w-3 h-3"></svg> from {{ j.transferredFromJobNo }}
+                        <span class="tabular-nums">{{ j.jobCode }}</span>
+                        · created by {{ j.createdByName }} on {{ j.createdOn | date: 'dd MMM, hh:mm a' }}
+                        @if (j.transferJobRefId) {
+                        · <button type="button" class="trk-link flex items-center gap-1" (click)="openJob.emit(j.transferJobRefId!)">
+                            <svg lucideIcon="arrow-right-left" class="w-3 h-3"></svg> from {{ j.transferJobRefCode }}
                         </button>
                         }
                     </p>
@@ -33,11 +33,11 @@
                 <div class="gen-icon"><svg lucideIcon="calendar-days" class="w-5 h-5 text-primary-700"></svg></div>
                 <div>
                     <label class="gen-label">Complete by</label>
-                    <p class="gen-title">{{ j.completeBy | date: 'EEE, dd MMM yyyy' }}</p>
+                    <p class="gen-title">{{ j.endDate | date: 'EEE, dd MMM yyyy' }}</p>
                     <p class="text-[11px]" [class.text-rose-600]="j.status === 'Delayed'" [class.text-slate-400]="j.status !== 'Delayed'">
                         @if (j.status === 'Delayed') { {{ -daysLeft() }} day(s) delayed }
                         @else if (isOpen()) { {{ daysLeft() === 0 ? 'Due today' : daysLeft() + ' day(s) left' }} }
-                        @if (j.startFrom) { · from {{ j.startFrom | date: 'dd MMM' }} }
+                        @if (j.startDate) { · from {{ j.startDate | date: 'dd MMM' }} }
                     </p>
                 </div>
             </div>
@@ -58,8 +58,8 @@
             <div class="trk-bar h-2!"><span [style.width.%]="pct()" [class.is-late]="j.status === 'Delayed'"></span></div>
         </div>
 
-        @if (j.description) {
-        <p class="mx-4 mb-4 text-xs text-slate-600 dark:text-slate-300 trk-info-box">{{ j.description }}</p>
+        @if (j.jobDescription) {
+        <p class="mx-4 mb-4 text-xs text-slate-600 dark:text-slate-300 trk-info-box">{{ j.jobDescription }}</p>
         }
 
         @if (isOpen() && accessNote(); as note) {
@@ -104,12 +104,12 @@
             @for (t of tasks(); track t.id) {
             <li class="trk-job-task" [class.is-closed]="t.status !== 'Pending' && t.status !== 'Completed'" [class.is-open]="expandedId() === t.id">
                 <div class="flex items-start gap-3 cursor-pointer" (click)="toggle(t)">
-                    <span class="trk-type-icon" [style.--trk-color]="TASK_TYPE[t.type].color" [matTooltip]="TASK_TYPE[t.type].label">
-                        <svg [lucideIcon]="TASK_TYPE[t.type].icon" class="w-4 h-4"></svg>
+                    <span class="trk-type-icon" [style.--trk-color]="TASK_TYPE[t.taskType].color" [matTooltip]="TASK_TYPE[t.taskType].label">
+                        <svg [lucideIcon]="TASK_TYPE[t.taskType].icon" class="w-4 h-4"></svg>
                     </span>
                     <div class="min-w-0 flex-1">
                         <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2 flex-wrap">
-                            <span class="truncate">{{ t.title }}</span>
+                            <span class="truncate">{{ t.taskTitle }}</span>
                             <span class="trk-priority-chip" [style.--trk-color]="TASK_PRIORITY[t.priority].color" matTooltip="Priority">
                                 <svg [lucideIcon]="TASK_PRIORITY[t.priority].icon" class="w-3 h-3"></svg> {{ TASK_PRIORITY[t.priority].label }}
                             </span>
@@ -119,26 +119,26 @@
                         </p>
                         <p class="text-[11px] text-slate-400 truncate">
                             <span class="tabular-nums">{{ t.taskNo }}</span> ·
-                            <a class="trk-link" [href]="googleMapsLink(t.target.location)" target="_blank" rel="noopener" (click)="$event.stopPropagation()">{{ t.target.name }}</a>
+                            <a class="trk-link" [href]="googleMapsLink(t.target.targetLocation)" target="_blank" rel="noopener" (click)="$event.stopPropagation()">{{ t.target.targetName }}</a>
                             · {{ t.target.branchName }}
-                            @if (t.completedAt) { · done {{ t.completedAt | date: 'dd MMM, hh:mm a' }} by {{ t.completedByName }} }
+                            @if (t.taskCompletedOn) { · done {{ t.taskCompletedOn | date: 'dd MMM, hh:mm a' }} by {{ t.completedByName }} }
                         </p>
                         @if (t.notes) {
                         <p class="text-[11px] text-slate-500 mt-0.5 flex items-start gap-1"><svg lucideIcon="sticky-note" class="w-3 h-3 mt-0.5 shrink-0"></svg> <span><b class="font-semibold">Instruction:</b> {{ t.notes }}</span></p>
                         }
-                        @if (t.accompaniedByName) {
-                        <p class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1"><svg lucideIcon="user-plus" class="w-3 h-3"></svg> <b class="font-semibold">Accompanied by</b> {{ t.accompaniedByName }}</p>
+                        @if (t.coOrdinatedByName) {
+                        <p class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1"><svg lucideIcon="user-plus" class="w-3 h-3"></svg> <b class="font-semibold">Accompanied by</b> {{ t.coOrdinatedByName }}</p>
                         }
                         @if (t.status === 'Transferred' && t.transferredToJobId) {
-                        <button type="button" class="trk-link text-[11px] mt-0.5" (click)="$event.stopPropagation(); openJob.emit(t.transferredToJobId)">Moved to {{ t.transferredToJobNo }} →</button>
-                        } @else if (t.closedReason && t.status !== 'Completed') {
-                        <p class="text-[11px] text-slate-500 italic mt-0.5">“{{ t.closedReason }}”</p>
+                        <button type="button" class="trk-link text-[11px] mt-0.5" (click)="$event.stopPropagation(); openJob.emit(t.transferredToJobId)">Moved to {{ t.transferredToJobCode }} →</button>
+                        } @else if (t.taskCancelReason && t.status !== 'Completed') {
+                        <p class="text-[11px] text-slate-500 italic mt-0.5">“{{ t.taskCancelReason }}”</p>
                         }
                     </div>
                     <div class="flex items-center gap-1 shrink-0" (click)="$event.stopPropagation()">
                         <qfin-trk-chip [tone]="JOB_TASK_STATUS[t.status]" [small]="true" />
                         @if (t.status === 'Pending' && j.permissions.canUpdate) {
-                        @if (t.origin === 'SelfAdded') {
+                        @if (t.canReject) {
                         <button type="button" class="trk-icon-btn" matTooltip="Reject self-added task" (click)="rejectTask(t)"><svg lucideIcon="circle-x" class="w-4 h-4 text-rose-600"></svg></button>
                         }
                         <button type="button" class="trk-icon-btn" matTooltip="Cancel task" (click)="cancelTask(t)"><svg lucideIcon="x" class="w-4 h-4 text-rose-600"></svg></button>
@@ -153,7 +153,7 @@
                     } @else {
                     <p class="text-xs text-slate-400 flex items-center gap-1.5">
                         <svg lucideIcon="smartphone" class="w-4 h-4"></svg>
-                        Completed from the mobile app with a GPS photo and remarks at {{ t.target.name }} (within {{ t.target.matchRadiusMeters }} m).
+                        Completed from the mobile app with a GPS photo and remarks at {{ t.target.targetName }} (within {{ t.target.radiusMeters }} m).
                     </p>
                     }
                 </div>
@@ -178,8 +178,9 @@
                         @if (h.fromAssigneeName && h.toAssigneeName) { – {{ h.fromAssigneeName }} → {{ h.toAssigneeName }} }
                         @else if (h.toAssigneeName) { – to {{ h.toAssigneeName }} }
                         @if (h.relatedJobId) {
-                        · <button type="button" class="trk-link" (click)="openJob.emit(h.relatedJobId!)">{{ h.relatedJobNo }}</button>
+                        · <button type="button" class="trk-link" (click)="openJob.emit(h.relatedJobId!)">{{ h.relatedJobCode }}</button>
                         }
+                        @if (h.oldCompleteBy && h.newCompleteBy) { – {{ h.oldCompleteBy | date: 'dd MMM yyyy' }} → {{ h.newCompleteBy | date: 'dd MMM yyyy' }} }
                     </p>
                     @if (h.taskNos.length) {
                     <p class="text-slate-500 tabular-nums">{{ h.taskNos.length > 4 ? h.taskNos.slice(0, 4).join(', ') + ' +' + (h.taskNos.length - 4) + ' more' : h.taskNos.join(', ') }}</p>

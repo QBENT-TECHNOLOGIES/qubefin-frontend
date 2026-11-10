@@ -8,7 +8,7 @@ import { ENV_CONFIG } from 'qubefin-core';
  * everything else passes through untouched.
  *
  * Step-by-step integration: endpoints listed in `trackingLiveEndpoints` (e.g. `'GET field-officers'`, `'GET jobs/{id}'`) go to the
- * real backend even while the mock is on. `{x}` matches one path segment; the query string is ignored.
+ * real backend even while the mock is on. `{x}` matches one GUID path segment; the query string is ignored.
  *
  * Register it LAST so the auth and error interceptors still run.
  * The mock itself is lazy-loaded, so production bundles only carry this small check.
@@ -21,6 +21,9 @@ export const trackingMockInterceptor: HttpInterceptorFn = (req, next) => {
   return from(import('./tracking-mock-backend')).pipe(switchMap((m) => m.handleMockRequest(req)));
 };
 
+/** `{x}` segments match a GUID only, so `GET jobs/{id}` does not also catch `GET jobs/open` or `GET jobs/task-points`. */
+const GUID = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
+
 const patternCache = new Map<string, { method: string; regex: RegExp }>();
 
 function isLive(req: HttpRequest<unknown>, endpoints: readonly string[] | undefined): boolean {
@@ -30,7 +33,7 @@ function isLive(req: HttpRequest<unknown>, endpoints: readonly string[] | undefi
     let p = patternCache.get(e);
     if (!p) {
       const [method, route = ''] = e.trim().split(/\s+/);
-      const body = route.replace(/^\/+|\/+$/g, '').split('/').map((s) => (/^\{.+\}$/.test(s) ? '[^/]+' : s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))).join('/');
+      const body = route.replace(/^\/+|\/+$/g, '').split('/').map((s) => (/^\{.+\}$/.test(s) ? GUID : s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))).join('/');
       p = { method: method.toUpperCase(), regex: new RegExp(`^${body}$`) };
       patternCache.set(e, p);
     }

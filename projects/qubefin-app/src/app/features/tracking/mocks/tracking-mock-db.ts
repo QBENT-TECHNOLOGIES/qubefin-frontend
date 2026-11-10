@@ -228,18 +228,18 @@ export function refreshJob(job: Job, today = toDateKey()): Job {
   job.openCount = counted.filter((t) => t.status === 'Pending').length;
   job.selfAddedCount = counted.filter((t) => t.origin === 'SelfAdded').length;
   const source = counted.length ? counted : job.tasks;
-  job.types = [...new Set(source.map((t) => t.type))];
+  job.types = [...new Set(source.map((t) => t.taskType))];
   job.typeCounts = {};
-  for (const t of counted) job.typeCounts[t.type] = (job.typeCounts[t.type] ?? 0) + 1;
-  const branches = new Map(source.map((t) => [t.target.branchId, t.target.branchName]));
-  job.branchIds = [...branches.keys()];
+  for (const t of counted) job.typeCounts[t.taskType] = (job.typeCounts[t.taskType] ?? 0) + 1;
+  const branches = new Map(source.map((t) => [t.target.organisationUnitId, t.target.branchName]));
+  job.organisationUnitIds = [...branches.keys()];
   job.branchNames = [...branches.values()];
-  counted.forEach((t) => (t.isLate = t.status === 'Completed' ? !!t.completedAt && dayOf(t.completedAt) > job.completeBy : today > job.completeBy));
+  counted.forEach((t) => (t.isLate = t.status === 'Completed' ? !!t.taskCompletedOn && dayOf(t.taskCompletedOn) > job.endDate : today > job.endDate));
 
   if (job.status === 'Cancelled') return job;
   if (job.openCount === 0 && job.doneCount > 0) job.status = 'Completed';
   else if (job.openCount === 0) job.status = 'Cancelled';
-  else if (today > job.completeBy) job.status = 'Delayed';
+  else if (today > job.endDate) job.status = 'Delayed';
   else if (job.doneCount > 0) job.status = 'InProgress';
   else job.status = 'Assigned';
   return job;
@@ -264,7 +264,9 @@ export function pushHistory(d: MockDb, job: Job, action: JobHistoryEntry['action
     toAssigneeName: null,
     taskNos: [],
     relatedJobId: null,
-    relatedJobNo: null,
+    relatedJobCode: null,
+    oldCompleteBy: null,
+    newCompleteBy: null,
     remarks: null,
     ...extra,
   });
@@ -274,29 +276,29 @@ export function newJob(d: MockDb, init: { title: string; description: string | n
   const id = uuid('j', d.counters.job + 1);
   return {
     id,
-    jobNo: nextJobNo(d),
-    title: init.title,
-    description: init.description,
+    jobCode: nextJobNo(d),
+    jobTitle: init.title,
+    jobDescription: init.description,
     status: 'Assigned',
     assigneeId: init.assignee.id,
     assigneeName: init.assignee.name,
     assigneeRole: init.assignee.role,
     unitName: init.assignee.unitName,
-    branchIds: [],
+    organisationUnitIds: [],
     branchNames: [],
-    createdById: init.creator.id,
+    createdBy: init.creator.id,
     createdByName: init.creator.name,
-    createdAt: iso(init.createdAt),
-    startFrom: init.startFrom,
-    completeBy: init.completeBy,
+    createdOn: iso(init.createdAt),
+    startDate: init.startFrom,
+    endDate: init.completeBy,
     taskCount: 0,
     doneCount: 0,
     openCount: 0,
     selfAddedCount: 0,
     types: [],
     typeCounts: {},
-    transferredFromJobId: null,
-    transferredFromJobNo: null,
+    transferJobRefId: null,
+    transferJobRefCode: null,
     tasks: [],
     // Filled in per request for whoever is asking (see the mock backend).
     permissions: { canTransfer: false, canCancel: false, canUpdate: false },
@@ -312,27 +314,28 @@ export function newTask(
     id: uuid('t', d.counters.task + 1),
     taskNo: nextTaskNo(d),
     jobId: job.id,
-    type: init.type,
-    title: init.title,
+    taskType: init.type,
+    taskTitle: init.title,
     notes: init.notes,
     priority: init.priority ?? 'Medium',
-    accompaniedById: init.accompaniedBy?.id ?? null,
-    accompaniedByName: init.accompaniedBy?.name ?? null,
+    coOrdinatedBy: init.accompaniedBy?.id ?? null,
+    coOrdinatedByName: init.accompaniedBy?.name ?? null,
     target: init.target,
     status: 'Pending',
     origin: init.origin,
     addedByName: init.addedBy.name,
-    addedAt: iso(init.addedAt),
-    arrivedAt: null,
-    completedAt: null,
+    taskAddedOn: iso(init.addedAt),
+    arrivedOn: null,
+    taskCompletedOn: null,
     completedByName: null,
     remarks: null,
     verification: null,
     odOutcome: null,
     isLate: false,
     transferredToJobId: null,
-    transferredToJobNo: null,
-    closedReason: null,
+    transferredToJobCode: null,
+    taskCancelReason: null,
+    canReject: false, // per caller: set when the job is returned
   };
   job.tasks.push(task);
   return task;
@@ -340,12 +343,12 @@ export function newTask(
 
 /** Copy of a pending task for a partial transfer. */
 export function moveTask(d: MockDb, task: JobTask, from: Job, to: Job, when: Date): JobTask {
-  const copy: JobTask = { ...task, id: uuid('t', d.counters.task + 1), taskNo: nextTaskNo(d), jobId: to.id, addedAt: iso(when), addedByName: d.currentUser.name };
+  const copy: JobTask = { ...task, id: uuid('t', d.counters.task + 1), taskNo: nextTaskNo(d), jobId: to.id, taskAddedOn: iso(when), addedByName: d.currentUser.name };
   to.tasks.push(copy);
   task.status = 'Transferred';
   task.transferredToJobId = to.id;
-  task.transferredToJobNo = to.jobNo;
-  task.closedReason = `Moved to ${to.jobNo}`;
+  task.transferredToJobCode = to.jobCode;
+  task.taskCancelReason = `Moved to ${to.jobCode}`;
   void from;
   return copy;
 }
@@ -475,27 +478,27 @@ function buildDb(): MockDb {
   // --- Targets --------------------------------------------------------------------------------
   const branchOf = (id: string) => branchById.get(id)!;
   const groupTarget = (g: MockDb['groups'][number]): TaskTarget => ({
-    kind: 'GroupCentre', refId: g.id, name: `${g.name} (${g.code})`, address: `${g.village}, ${branchOf(g.branchId).name}`,
-    location: g.location, branchId: g.branchId, branchName: branchOf(g.branchId).name, matchRadiusMeters: 150,
+    kind: 'GroupCentre', originRefId: g.id, targetName: `${g.name} (${g.code})`, 
+    targetLocation: g.location, organisationUnitId: g.branchId, branchName: branchOf(g.branchId).name, radiusMeters: 150,
   });
   const memberTarget = (c: MockDb['members'][number]): TaskTarget => ({
-    kind: 'Member', refId: c.id, name: c.name, address: c.address, location: c.location!, branchId: c.branchId, branchName: branchOf(c.branchId).name, matchRadiusMeters: 100,
+    kind: 'Member', originRefId: c.id, targetName: c.name, targetLocation: c.location!, organisationUnitId: c.branchId, branchName: branchOf(c.branchId).name, radiusMeters: 100,
   });
   const odTarget = (c: OdMember): TaskTarget => ({
-    kind: 'OdMember', refId: c.id, name: c.memberName, address: c.address, location: c.homeLocation!, branchId: c.branchId, branchName: c.branchName, matchRadiusMeters: 100,
+    kind: 'OdMember', originRefId: c.id, targetName: c.memberName, targetLocation: c.homeLocation!, organisationUnitId: c.branchId, branchName: c.branchName, radiusMeters: 100,
   });
   const pointTarget = (b: TrackingBranch, name: string, km: [number, number]): TaskTarget => {
     const village = pick(VILLAGES[b.code]);
     return {
-      kind: 'Custom', refId: null, name: `${village} – ${name}`, address: `${village}, ${b.name}`,
-      location: offsetPoint(b.location!, between(km[0] * 1000, km[1] * 1000), between(0, 360)), branchId: b.id, branchName: b.name, matchRadiusMeters: 300,
+      kind: 'Custom', originRefId: null, targetName: `${village} – ${name}`, 
+      targetLocation: offsetPoint(b.location!, between(km[0] * 1000, km[1] * 1000), between(0, 360)), organisationUnitId: b.id, branchName: b.name, radiusMeters: 300,
     };
   };
   const titleFor = (type: TaskType, t: TaskTarget) =>
-    type === 'GroupVisit' ? `Group visit – ${t.name.split(' (')[0]}` :
-    type === 'Survey' ? `Survey – ${t.name}` :
-    type === 'LeadSourcing' ? `Lead sourcing – ${t.name.split(' – ')[0]}` :
-    `${TASK_TYPE[type].label} – ${t.name}`;
+    type === 'GroupVisit' ? `Group visit – ${t.targetName.split(' (')[0]}` :
+    type === 'Survey' ? `Survey – ${t.targetName}` :
+    type === 'LeadSourcing' ? `Lead sourcing – ${t.targetName.split(' – ')[0]}` :
+    `${TASK_TYPE[type].label} – ${t.targetName}`;
 
   // --- Jobs -----------------------------------------------------------------------------------
   /** Day each task is planned for in the simulation (mock-only; real tasks have no date). */
@@ -523,11 +526,11 @@ function buildDb(): MockDb {
   };
   /** Seed priority: high-DPD OD members first, then OD, group and member visits; lead sourcing and surveys last. */
   const priorityFor = (type: TaskType, target: TaskTarget): TaskPriority => {
-    if (type === 'OdFollowUp') return (odMembers.find((c) => c.id === target.refId)?.dpd ?? 0) > 60 ? 'VeryHigh' : 'High';
+    if (type === 'OdFollowUp') return (odMembers.find((c) => c.id === target.originRefId)?.dpd ?? 0) > 60 ? 'VeryHigh' : 'High';
     return type === 'GroupVisit' || type === 'MemberVisit' ? 'Medium' : 'Low';
   };
   const addPlanned = (job: Job, type: TaskType, target: TaskTarget, day: string, by: Person, origin: TaskOrigin = 'Assigned', notes: string | null = null, accompaniedBy: Person | null = null) => {
-    const addedAt = origin === 'SelfAdded' ? at(day, 10, intBetween(0, 50)) : new Date(job.createdAt);
+    const addedAt = origin === 'SelfAdded' ? at(day, 10, intBetween(0, 50)) : new Date(job.createdOn);
     const t = newTask(d, job, { type, title: titleFor(type, target), notes, priority: priorityFor(type, target), accompaniedBy, target, origin, addedBy: by, addedAt });
     plan.set(t.id, day);
     return t;
@@ -602,8 +605,8 @@ function buildDb(): MockDb {
     // The AM first spreads the branch's groups across the COs, then sends the BM to some of the same groups
     // (allowed since Nov 2026: the same place may be pending with different people). The CO goes along.
     const coTask = coJobs
-      .filter((x) => x.officer.organisationUnitId === branch.id && x.job.startFrom === thisMonday && x.job.title === 'Weekly field plan')
-      .flatMap((x) => x.job.tasks.filter((t) => t.type === 'GroupVisit').map((t) => ({ refId: t.target.refId, co: x.officer })))[i % 2];
+      .filter((x) => x.officer.organisationUnitId === branch.id && x.job.startDate === thisMonday && x.job.jobTitle === 'Weekly field plan')
+      .flatMap((x) => x.job.tasks.filter((t) => t.taskType === 'GroupVisit').map((t) => ({ refId: t.target.originRefId, co: x.officer })))[i % 2];
     const shared = coTask ? g.find((x) => x.id === coTask.refId) : undefined;
     const first = shared ?? g[0];
     addPlanned(job, 'GroupVisit', groupTarget(first), days[1], boss, 'Assigned', shared ? 'Surprise attendance check during the CO’s meeting.' : null, shared ? { id: coTask!.co.id, name: coTask!.co.name } : null);
@@ -647,7 +650,7 @@ function buildDb(): MockDb {
 
   // History for creation / assignment.
   d.jobs.forEach((job) => {
-    pushHistory(d, job, 'Created', { id: job.createdById, name: job.createdByName }, new Date(job.createdAt), {
+    pushHistory(d, job, 'Created', { id: job.createdBy, name: job.createdByName }, new Date(job.createdOn), {
       toAssigneeName: job.assigneeName,
       taskNos: job.tasks.filter((t) => t.origin === 'Assigned').map((t) => t.taskNo),
     });
@@ -656,26 +659,26 @@ function buildDb(): MockDb {
   // A partial transfer: Ankit was on leave, two tasks moved to Nirmal.
   const ankit = byName('Ankit Ghosh');
   const nirmal = byName('Nirmal Roy');
-  const ankitWeek = coJobs.find((x) => x.officer.id === ankit.id && x.job.startFrom === thisMonday && x.job.title === 'Weekly field plan')!.job;
+  const ankitWeek = coJobs.find((x) => x.officer.id === ankit.id && x.job.startDate === thisMonday && x.job.jobTitle === 'Weekly field plan')!.job;
   const toMove = ankitWeek.tasks.filter((t) => (plan.get(t.id) ?? '') >= today).slice(0, 2);
   if (toMove.length) {
     const when = addMinutes(at(today, 9, 10), -60 * 24);
-    const moved = newJob(d, { title: `${ankitWeek.title} (from ${ankitWeek.jobNo})`, description: ankitWeek.description, creator: { id: subhajit.id, name: subhajit.name, unitName: dpg.name }, assignee: nirmal, startFrom: toDateKey(when), completeBy: ankitWeek.completeBy, createdAt: when });
-    moved.transferredFromJobId = ankitWeek.id;
-    moved.transferredFromJobNo = ankitWeek.jobNo;
+    const moved = newJob(d, { title: `${ankitWeek.jobTitle} (from ${ankitWeek.jobCode})`, description: ankitWeek.jobDescription, creator: { id: subhajit.id, name: subhajit.name, unitName: dpg.name }, assignee: nirmal, startFrom: toDateKey(when), completeBy: ankitWeek.endDate, createdAt: when });
+    moved.transferJobRefId = ankitWeek.id;
+    moved.transferJobRefCode = ankitWeek.jobCode;
     toMove.forEach((t) => plan.set(moveTask(d, t, ankitWeek, moved, when).id, plan.get(t.id)!));
     moved.tasks.forEach((t) => (t.addedByName = subhajit.name));
     const nos = toMove.map((t) => t.taskNo);
-    pushHistory(d, ankitWeek, 'TasksTransferredOut', subhajit, when, { fromAssigneeName: ankit.name, toAssigneeName: nirmal.name, taskNos: nos, relatedJobId: moved.id, relatedJobNo: moved.jobNo, remarks: 'Ankit on leave on these days' });
-    pushHistory(d, moved, 'Created', subhajit, when, { toAssigneeName: nirmal.name, remarks: `Created by a partial transfer from ${ankitWeek.jobNo}` });
-    pushHistory(d, moved, 'TasksTransferredIn', subhajit, when, { fromAssigneeName: ankit.name, toAssigneeName: nirmal.name, taskNos: moved.tasks.map((t) => t.taskNo), relatedJobId: ankitWeek.id, relatedJobNo: ankitWeek.jobNo, remarks: 'Ankit on leave on these days' });
+    pushHistory(d, ankitWeek, 'TasksTransferredOut', subhajit, when, { fromAssigneeName: ankit.name, toAssigneeName: nirmal.name, taskNos: nos, relatedJobId: moved.id, relatedJobCode: moved.jobCode, remarks: 'Ankit on leave on these days' });
+    pushHistory(d, moved, 'Created', subhajit, when, { toAssigneeName: nirmal.name, remarks: `Created by a partial transfer from ${ankitWeek.jobCode}` });
+    pushHistory(d, moved, 'TasksTransferredIn', subhajit, when, { fromAssigneeName: ankit.name, toAssigneeName: nirmal.name, taskNos: moved.tasks.map((t) => t.taskNo), relatedJobId: ankitWeek.id, relatedJobCode: ankitWeek.jobCode, remarks: 'Ankit on leave on these days' });
     d.jobs.push(moved);
   }
 
   // A whole-job transfer: Arindam's OD job used to be Priyanka's.
-  const arindamOd = coJobs.find((x) => x.officer.name === 'Arindam Paul' && x.job.title === 'OD follow-up')?.job;
+  const arindamOd = coJobs.find((x) => x.officer.name === 'Arindam Paul' && x.job.jobTitle === 'OD follow-up')?.job;
   if (arindamOd) {
-    pushHistory(d, arindamOd, 'Transferred', sourav, addMinutes(new Date(arindamOd.createdAt), 95), { fromAssigneeName: 'Priyanka Roy', toAssigneeName: 'Arindam Paul', remarks: 'Members are in Arindam’s centres' });
+    pushHistory(d, arindamOd, 'Transferred', sourav, addMinutes(new Date(arindamOd.createdOn), 95), { fromAssigneeName: 'Priyanka Roy', toAssigneeName: 'Arindam Paul', remarks: 'Members are in Arindam’s centres' });
   }
 
   // A cancelled job.
@@ -684,40 +687,40 @@ function buildDb(): MockDb {
   addPlanned(cancelled, 'Survey', pointTarget(branchByCode('MDH'), 'flood damage survey', [4, 10]), shiftKey(today, 9), tanmoy);
   cancelled.tasks.forEach((t) => {
     t.status = 'Cancelled';
-    t.closedReason = 'Job cancelled';
+    t.taskCancelReason = 'Job cancelled';
   });
   cancelled.status = 'Cancelled';
-  pushHistory(d, cancelled, 'Created', tanmoy, new Date(cancelled.createdAt), { toAssigneeName: cancelled.assigneeName, taskNos: cancelled.tasks.map((t) => t.taskNo) });
+  pushHistory(d, cancelled, 'Created', tanmoy, new Date(cancelled.createdOn), { toAssigneeName: cancelled.assigneeName, taskNos: cancelled.tasks.map((t) => t.taskNo) });
   pushHistory(d, cancelled, 'Cancelled', tanmoy, at(shiftKey(today, -3), 11, 20), { remarks: 'District administration is doing the survey' });
   d.jobs.push(cancelled);
 
   function completeTask(t: JobTask, o: FieldOfficer, stop: { location: GeoPoint; from: string; to: string }, done: Date, job: Job, r: () => number) {
     const arrival = offsetPoint(stop.location, r() * 20, r() * 360);
     const photo = offsetPoint(stop.location, r() * 12, r() * 360);
-    const dist = Math.round(distanceMeters(photo, t.target.location));
+    const dist = Math.round(distanceMeters(photo, t.target.targetLocation));
     t.status = 'Completed';
-    t.arrivedAt = stop.from;
-    t.completedAt = iso(done);
+    t.arrivedOn = stop.from;
+    t.taskCompletedOn = iso(done);
     t.completedByName = o.name;
     t.verification = {
       arrivalLocation: arrival,
-      arrivalDistanceMeters: Math.round(distanceMeters(arrival, t.target.location)),
+      arrivalDistanceMeters: Math.round(distanceMeters(arrival, t.target.targetLocation)),
       completionLocation: photo,
       completionDistanceMeters: dist,
-      locationMatched: dist <= t.target.matchRadiusMeters,
+      locationMatched: dist <= t.target.radiusMeters,
       photoUrl: null,
       photoTakenAt: null,
     };
-    const paid = t.type === 'OdFollowUp' && r() < 0.4;
-    if (t.type === 'OdFollowUp') {
-      const c = odMembers.find((x) => x.id === t.target.refId);
+    const paid = t.taskType === 'OdFollowUp' && r() < 0.4;
+    if (t.taskType === 'OdFollowUp') {
+      const c = odMembers.find((x) => x.id === t.target.originRefId);
       t.odOutcome = { memberAvailable: r() < 0.85, paid, amountCollected: paid ? (c?.overdueAmount ?? null) : null, ptpDate: paid ? null : toDateKey(addDays(done, 3 + Math.floor(r() * 9))) };
       t.remarks = paid ? 'Full overdue collected' : pick(['Husband working outside, promised to pay', 'Crop sale pending', 'Medical expense this month']);
     } else {
       t.remarks = pick(['Meeting held, all members present', 'Done', 'Attendance 18/20, collection complete', 'Discussed loan renewal', 'Two interested households, details captured', null]);
     }
     if (!paid || r() < 0.5) {
-      t.verification.photoUrl = evidencePhoto(t.title, photo, done, hashString(t.id) % 360);
+      t.verification.photoUrl = evidencePhoto(t.taskTitle, photo, done, hashString(t.id) % 360);
       t.verification.photoTakenAt = iso(addMinutes(done, -1));
     }
     void job;
@@ -751,22 +754,22 @@ function buildDb(): MockDb {
   // Delayed jobs from last week whose leftovers were never done → history + alerts.
   d.jobs.forEach((j) => refreshJob(j, today));
   d.jobs.forEach((j) => {
-    const completed = j.tasks.filter((t) => t.completedAt).map((t) => t.completedAt!).sort();
+    const completed = j.tasks.filter((t) => t.taskCompletedOn).map((t) => t.taskCompletedOn!).sort();
     j.tasks.filter((t) => t.status === 'Completed').forEach((t) => {
-      pushHistory(d, j, 'TaskCompleted', { id: j.assigneeId ?? '', name: t.completedByName ?? '' }, new Date(t.completedAt!), { taskNos: [t.taskNo], remarks: t.verification?.locationMatched === false ? `Photo ${t.verification.completionDistanceMeters} m from the geo-tag` : null });
+      pushHistory(d, j, 'TaskCompleted', { id: j.assigneeId ?? '', name: t.completedByName ?? '' }, new Date(t.taskCompletedOn!), { taskNos: [t.taskNo], remarks: t.verification?.locationMatched === false ? `Photo ${t.verification.completionDistanceMeters} m from the geo-tag` : null });
     });
     j.tasks.filter((t) => t.origin === 'SelfAdded').forEach((t) => {
-      pushHistory(d, j, 'TaskSelfAdded', { id: '', name: t.addedByName }, new Date(t.addedAt), { taskNos: [t.taskNo], remarks: 'Added from the mobile app' });
+      pushHistory(d, j, 'TaskSelfAdded', { id: '', name: t.addedByName }, new Date(t.taskAddedOn), { taskNos: [t.taskNo], remarks: 'Added from the mobile app' });
     });
     if (j.status === 'Completed' && completed.length) pushHistory(d, j, 'Completed', SYSTEM, addMinutes(new Date(completed[completed.length - 1]), 1), { remarks: 'All tasks done' });
-    if (j.status === 'Delayed') pushHistory(d, j, 'BecameDelayed', SYSTEM, at(shiftKey(j.completeBy, 1), 0, 5), { remarks: `${j.openCount} task(s) pending after the complete-by date` });
+    if (j.status === 'Delayed') pushHistory(d, j, 'BecameDelayed', SYSTEM, at(shiftKey(j.endDate, 1), 0, 5), { remarks: `${j.openCount} task(s) pending after the complete-by date` });
   });
 
   // One deadline extension.
-  const extended = d.jobs.find((j) => j.title === 'OD follow-up' && j.status !== 'Completed' && j.completeBy >= today);
-  if (extended) pushHistory(d, extended, 'DateExtended', { id: '', name: extended.createdByName }, addMinutes(new Date(extended.createdAt), 60 * 20), { remarks: `Extended from ${shiftKey(extended.completeBy, -2)} – member travelling` });
+  const extended = d.jobs.find((j) => j.jobTitle === 'OD follow-up' && j.status !== 'Completed' && j.endDate >= today);
+  if (extended) pushHistory(d, extended, 'DateExtended', { id: '', name: extended.createdByName }, addMinutes(new Date(extended.createdOn), 60 * 20), { oldCompleteBy: shiftKey(extended.endDate, -2), newCompleteBy: extended.endDate, remarks: 'Member travelling' });
 
-  d.jobs.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  d.jobs.sort((a, b) => b.createdOn.localeCompare(a.createdOn));
 
   // --- Alerts, approvals, geo-tags ------------------------------------------------------------------
   d.alerts = seedAlerts(d, now);
@@ -820,12 +823,12 @@ function simulateDay(
 ): { day: SimDay; taskStops: ({ location: GeoPoint; from: string; to: string } | undefined)[] } {
   const home = o.presentLocation ?? offsetPoint(branch.location!, 4000, 200);
   type Wp = { p: GeoPoint; stay: number; task?: number };
-  const order = targets.map((t, k) => ({ t, k })).sort((a, b) => distanceMeters(branch.location!, a.t.location) - distanceMeters(branch.location!, b.t.location));
+  const order = targets.map((t, k) => ({ t, k })).sort((a, b) => distanceMeters(branch.location!, a.t.targetLocation) - distanceMeters(branch.location!, b.t.targetLocation));
   const wps: Wp[] = [
     { p: home, stay: 0 },
     { p: branch.location!, stay: 45 + Math.floor(r() * 35) },
     ...order.map(({ t, k }) => ({
-      p: k === opts.mismatchIdx ? offsetPoint(t.location, 260 + r() * 300, r() * 360) : offsetPoint(t.location, r() * 25, r() * 360),
+      p: k === opts.mismatchIdx ? offsetPoint(t.targetLocation, 260 + r() * 300, r() * 360) : offsetPoint(t.targetLocation, r() * 25, r() * 360),
       stay: 35 + Math.floor(r() * 40),
       task: k,
     })),
@@ -834,7 +837,7 @@ function simulateDay(
   // Unplanned halts: a tea stall / market, and for some people a visit home during duty.
   if (r() < 0.55) wps.splice(2 + Math.floor(r() * Math.max(1, order.length)), 0, { p: offsetPoint(branch.location!, 1800 + r() * 4000, r() * 360), stay: 12 + Math.floor(r() * 18) });
   // Lunch at a roadside hotel on most days (undesignated).
-  if (order.length >= 2 && r() < 0.7) wps.splice(2 + Math.ceil(order.length / 2), 0, { p: offsetPoint(order[0].t.location, 900 + r() * 1500, r() * 360), stay: 30 + Math.floor(r() * 15) });
+  if (order.length >= 2 && r() < 0.7) wps.splice(2 + Math.ceil(order.length / 2), 0, { p: offsetPoint(order[0].t.targetLocation, 900 + r() * 1500, r() * 360), stay: 30 + Math.floor(r() * 15) });
   if (opts.nearHome && o.presentLocation) wps.splice(wps.length - 1, 0, { p: offsetPoint(o.presentLocation, 15 + r() * 20, r() * 360), stay: 25 + Math.floor(r() * 25) });
 
   const points: RoutePoint[] = [];
@@ -885,25 +888,25 @@ function simulateDay(
 function taskPointsFor(d: MockDb, employeeId: string, day: string): (RouteTaskPoint & { completedAtIso: string | null })[] {
   const out: (RouteTaskPoint & { completedAtIso: string | null })[] = [];
   d.jobs
-    .filter((j) => j.assigneeId === employeeId && j.status !== 'Cancelled' && (!j.startFrom || j.startFrom <= day))
+    .filter((j) => j.assigneeId === employeeId && j.status !== 'Cancelled' && (!j.startDate || j.startDate <= day))
     .forEach((j) => {
       j.tasks.forEach((t) => {
-        const doneDay = t.completedAt ? dayOf(t.completedAt) : null;
-        const activeThatDay = day <= j.completeBy || j.status === 'Delayed';
-        const relevant = doneDay === day || (t.status === 'Pending' && activeThatDay && dayOf(t.addedAt) <= day) || (doneDay !== null && doneDay > day && activeThatDay && dayOf(t.addedAt) <= day);
+        const doneDay = t.taskCompletedOn ? dayOf(t.taskCompletedOn) : null;
+        const activeThatDay = day <= j.endDate || j.status === 'Delayed';
+        const relevant = doneDay === day || (t.status === 'Pending' && activeThatDay && dayOf(t.taskAddedOn) <= day) || (doneDay !== null && doneDay > day && activeThatDay && dayOf(t.taskAddedOn) <= day);
         if (!relevant) return;
         out.push({
           taskId: t.id,
           taskNo: t.taskNo,
           jobId: j.id,
-          jobNo: j.jobNo,
-          title: t.title,
-          type: t.type,
-          location: t.target.location,
-          matchRadiusMeters: t.target.matchRadiusMeters,
+          jobNo: j.jobCode,
+          title: t.taskTitle,
+          type: t.taskType,
+          location: t.target.targetLocation,
+          matchRadiusMeters: t.target.radiusMeters,
           status: doneDay !== null && doneDay <= day ? 'Completed' : 'Pending',
-          completedAt: doneDay === day ? t.completedAt : null,
-          completedAtIso: t.completedAt,
+          completedAt: doneDay === day ? t.taskCompletedOn : null,
+          completedAtIso: t.taskCompletedOn,
           visited: false,
         });
       });
@@ -1104,14 +1107,14 @@ function seedAlerts(d: MockDb, now: Date): TrackingAlert[] {
   d.jobs.forEach((j) => {
     const o = j.assigneeId ? officerById.get(j.assigneeId) : undefined;
     if (!o) return;
-    j.tasks.filter((t) => t.verification?.locationMatched === false && t.completedAt).forEach((t) => {
-      push(o, 'LocationMismatch', 'High', `${t.taskNo} completion photo by ${o.name} was taken ${t.verification!.completionDistanceMeters} m from the geo-tagged location.`, addMinutes(new Date(t.completedAt!), 1), {
-        location: t.verification!.completionLocation, measuredValue: t.verification!.completionDistanceMeters, measuredUnit: 'm', jobId: j.id, jobNo: j.jobNo, taskId: t.id,
+    j.tasks.filter((t) => t.verification?.locationMatched === false && t.taskCompletedOn).forEach((t) => {
+      push(o, 'LocationMismatch', 'High', `${t.taskNo} completion photo by ${o.name} was taken ${t.verification!.completionDistanceMeters} m from the geo-tagged location.`, addMinutes(new Date(t.taskCompletedOn!), 1), {
+        location: t.verification!.completionLocation, measuredValue: t.verification!.completionDistanceMeters, measuredUnit: 'm', jobId: j.id, jobNo: j.jobCode, taskId: t.id,
       });
     });
     if (j.status === 'Delayed') {
-      push(o, 'DelayedJob', 'Medium', `${j.jobNo} “${j.title}” passed its complete-by date with ${j.openCount} task(s) pending.`, at(shiftKey(j.completeBy, 1), 0, 5), {
-        measuredValue: j.openCount, measuredUnit: 'tasks', jobId: j.id, jobNo: j.jobNo,
+      push(o, 'DelayedJob', 'Medium', `${j.jobCode} “${j.jobTitle}” passed its complete-by date with ${j.openCount} task(s) pending.`, at(shiftKey(j.endDate, 1), 0, 5), {
+        measuredValue: j.openCount, measuredUnit: 'tasks', jobId: j.id, jobNo: j.jobCode,
       });
     }
   });

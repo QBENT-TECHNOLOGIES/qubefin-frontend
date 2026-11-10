@@ -74,7 +74,7 @@
             @for (t of tasks(); track $index; let i = $index) {
             @let types = TYPES_FOR_KIND[t.target.kind];
             @let c = taskChecks()[i];
-            @let companions = companionsByBranch().get(t.target.branchId) ?? [];
+            @let companions = companionsByBranch().get(t.target.organisationUnitId) ?? [];
             <li class="trk-builder-item is-stacked" [class.is-blocked]="!!c?.block" [class.is-warned]="!!c?.warn">
                 <div class="flex items-center gap-3 w-full">
                     <span class="trk-type-icon" [style.--trk-color]="TASK_TYPE[t.type].color" [matTooltip]="TASK_TYPE[t.type].label">
@@ -82,7 +82,7 @@
                     </span>
                     <div class="min-w-0 flex-1">
                         <input class="trk-inline-input" [value]="t.title" (change)="rename(i, $any($event.target).value)" aria-label="Task title">
-                        <p class="text-[11px] text-slate-400 truncate">{{ t.target.name }} · {{ t.target.branchName }}</p>
+                        <p class="text-[11px] text-slate-400 truncate">{{ t.target.targetName }} · {{ t.target.branchName }}</p>
                     </div>
                     <select class="trk-inline-select trk-priority-select" [style.--trk-color]="TASK_PRIORITY[t.priority].color"
                         (change)="update(i, { priority: $any($event.target).value })" [attr.aria-label]="'Priority for ' + t.title" matTooltip="Priority">
@@ -92,7 +92,7 @@
                     </select>
                     @if (types.length > 1) {
                     <select class="trk-inline-select" [value]="t.type" (change)="changeType(i, $any($event.target).value)"
-                        [attr.aria-label]="'Task type for ' + t.target.name" matTooltip="Change the task type for this place">
+                        [attr.aria-label]="'Task type for ' + t.target.targetName" matTooltip="Change the task type for this place">
                         @for (ty of types; track ty) {
                         <option [value]="ty" [selected]="ty === t.type">{{ TASK_TYPE[ty].label }}</option>
                         }

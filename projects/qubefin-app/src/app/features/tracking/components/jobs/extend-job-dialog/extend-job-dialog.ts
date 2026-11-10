@@ -19,8 +19,8 @@ import { TrkDateField } from '../../shared/date-field/trk-date-field';
           <svg lucideIcon="calendar-plus" class="w-6 h-6"></svg>
         </div>
         <div>
-          <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">Extend {{ job.jobNo }}</h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Currently due {{ job.completeBy | date: 'EEE, dd MMM yyyy' }} · {{ job.openCount }} task(s) pending</p>
+          <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">Extend {{ job.jobCode }}</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Currently due {{ job.endDate | date: 'EEE, dd MMM yyyy' }} · {{ job.openCount }} task(s) pending</p>
         </div>
       </div>
       <button type="button" (click)="cancel()" class="trk-dialog-close" aria-label="Close"><svg lucideIcon="x" class="w-5 h-5"></svg></button>
@@ -28,7 +28,7 @@ import { TrkDateField } from '../../shared/date-field/trk-date-field';
     <div class="p-5 flex flex-col gap-4 w-[min(460px,90vw)] trk-form">
       <qfin-trk-date-field label="New complete-by date" icon="calendar-days" [(value)]="date" [minDate]="minDate" />
       @if (submitted() && !dateOk()) {
-        <p class="trk-field-error -mt-2">Choose a date after {{ job.completeBy | date: 'dd MMM' }} and not in the past.</p>
+        <p class="trk-field-error -mt-2">Choose a date after {{ job.endDate | date: 'dd MMM' }} and not in the past.</p>
       }
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
         <mat-label>Reason</mat-label>
@@ -49,11 +49,11 @@ export class ExtendJobDialog {
   private readonly dialogRef = inject(MatDialogRef<ExtendJobDialog, ExtendJobRequest>);
 
   private readonly today = toDateKey();
-  readonly minDate = this.job.completeBy >= this.today ? this.nextDay(this.job.completeBy) : this.today;
+  readonly minDate = this.job.endDate >= this.today ? this.nextDay(this.job.endDate) : this.today;
   readonly date = signal(this.minDate);
   readonly remarks = signal('');
   readonly submitted = signal(false);
-  readonly dateOk = computed(() => !!this.date() && this.date() > this.job.completeBy && this.date() >= this.today);
+  readonly dateOk = computed(() => !!this.date() && this.date() > this.job.endDate && this.date() >= this.today);
 
   private nextDay(key: string) {
     const d = new Date(`${key}T12:00:00`);

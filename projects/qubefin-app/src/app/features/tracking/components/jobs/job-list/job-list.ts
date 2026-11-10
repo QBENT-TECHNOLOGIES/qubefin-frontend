@@ -18,7 +18,7 @@ export class JobList {
   readonly data = input<JobSummary[]>([]);
   readonly selectedId = input<string | null>(null);
   readonly isCollapsed = input(false);
-  readonly sortOn = input('completeBy');
+  readonly sortOn = input('endDate');
   readonly sortDirection = input<'asc' | 'desc'>('asc');
 
   readonly viewDetail = output<string>();
@@ -30,7 +30,7 @@ export class JobList {
   readonly today = toDateKey();
 
   readonly columns = computed(() =>
-    this.isCollapsed() ? ['job', 'action'] : ['job', 'tasks', 'assigneeName', 'completeBy', 'progress', 'status', 'action'],
+    this.isCollapsed() ? ['job', 'action'] : ['job', 'tasks', 'assigneeName', 'endDate', 'progress', 'status', 'action'],
   );
 
   typeTip(j: JobSummary, t: string): string {
@@ -43,7 +43,7 @@ export class JobList {
   }
 
   daysLeft(j: JobSummary): number {
-    const ms = new Date(`${j.completeBy}T12:00:00`).getTime() - new Date(`${this.today}T12:00:00`).getTime();
+    const ms = new Date(`${j.endDate}T12:00:00`).getTime() - new Date(`${this.today}T12:00:00`).getTime();
     return Math.round(ms / 86_400_000);
   }
 

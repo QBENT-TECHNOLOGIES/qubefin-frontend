@@ -79,13 +79,13 @@ export class JobMonitoring {
         searchText: null,
         status: s === 'open' || s === 'all' ? null : (s as JobStatus),
         openOnly: s === 'open',
-        branchId: this.branchId(),
+        organisationUnitId: this.branchId(),
         assigneeId: this.assigneeId(),
         dueFrom: null,
         dueTo: null,
         pageIndex: 0,
         pageSize: 500,
-        sortOn: 'completeBy',
+        sortOn: 'endDate',
         sortDirection: 'asc',
       } satisfies JobSearchRequest,
     };
@@ -155,7 +155,7 @@ export class JobMonitoring {
     const tasks = this.pendingTasks();
     if (!tasks.length) return;
     const officer = j.assigneeId ? this.lookup.officerById().get(j.assigneeId) : undefined;
-    const branch = this.lookup.branchById().get(officer?.organisationUnitId ?? tasks[0].target.branchId);
+    const branch = this.lookup.branchById().get(officer?.organisationUnitId ?? tasks[0].target.organisationUnitId);
     const now = this.assigneeNow();
     const onDuty = !!now?.location && ['OnTask', 'AtBranch', 'Moving', 'Idle'].includes(now.status);
     const origin: GeoPoint | null = onDuty ? now!.location! : (branch?.location ?? null);
@@ -167,7 +167,7 @@ export class JobMonitoring {
     this.planLoading.set(true);
     this.planError.set(null);
     try {
-      const route = await this.routing.plan(origin, tasks.map((t) => t.target.location), { destination, optimize: true });
+      const route = await this.routing.plan(origin, tasks.map((t) => t.target.targetLocation), { destination, optimize: true });
       this.plan.set({
         jobId: j.id,
         taskIds: tasks.map((t) => t.id),
@@ -238,7 +238,7 @@ export class JobMonitoring {
     const seq = this.planSeq();
     return this.visibleTasks().map((t) => ({
       task: t,
-      content: this.markers.pin(`t-${t.id}`, seq.has(t.id) ? String(seq.get(t.id)) : TASK_TYPE_CODE[t.type], t.verification?.locationMatched === false ? '#E11D48' : JOB_TASK_STATUS[t.status].color, {
+      content: this.markers.pin(`t-${t.id}`, seq.has(t.id) ? String(seq.get(t.id)) : TASK_TYPE_CODE[t.taskType], t.verification?.locationMatched === false ? '#E11D48' : JOB_TASK_STATUS[t.status].color, {
         selected: t.id === this.selectedTaskId(),
       }),
     }));
@@ -257,7 +257,7 @@ export class JobMonitoring {
     const t = this.task();
     const v = t?.verification;
     if (!t || !v) return [];
-    return [v.arrivalLocation, v.completionLocation].filter((p): p is NonNullable<typeof p> => !!p).map((p) => [t.target.location, p]);
+    return [v.arrivalLocation, v.completionLocation].filter((p): p is NonNullable<typeof p> => !!p).map((p) => [t.target.targetLocation, p]);
   });
 
   readonly assigneeMarker = computed(() => {
@@ -302,10 +302,10 @@ export class JobMonitoring {
       if (!key || key === fitted) return;
       fitted = key;
       if (t) {
-        this.center.set({ ...t.target.location });
+        this.center.set({ ...t.target.targetLocation });
         this.zoom.set(16);
       } else if (j) {
-        const pts = this.visibleTasks().map((x) => x.target.location);
+        const pts = this.visibleTasks().map((x) => x.target.targetLocation);
         this.center.set(centroid(pts, DEFAULT_CENTER));
         this.zoom.set(pts.length > 1 ? 12 : 15);
       } else {

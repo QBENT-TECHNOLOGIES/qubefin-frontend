@@ -102,13 +102,13 @@ export class JobView {
     const order = { Pending: 0, Completed: 1, Transferred: 2, Rejected: 3, Cancelled: 4 } as const;
     return (this.job()?.tasks ?? [])
       .filter((t) => tab === 'all' || (tab === 'closed' ? t.status !== 'Pending' && t.status !== 'Completed' : t.status === tab))
-      .sort((a, b) => order[a.status] - order[b.status] || (b.completedAt ?? '').localeCompare(a.completedAt ?? ''));
+      .sort((a, b) => order[a.status] - order[b.status] || (b.taskCompletedOn ?? '').localeCompare(a.taskCompletedOn ?? ''));
   });
 
   readonly daysLeft = computed(() => {
     const j = this.job();
     if (!j) return 0;
-    return Math.round((new Date(`${j.completeBy}T12:00:00`).getTime() - new Date(`${this.today}T12:00:00`).getTime()) / 86_400_000);
+    return Math.round((new Date(`${j.endDate}T12:00:00`).getTime() - new Date(`${this.today}T12:00:00`).getTime()) / 86_400_000);
   });
 
   constructor() {
@@ -135,12 +135,12 @@ export class JobView {
         if (!req) return;
         this.service.transfer(j.id, req).subscribe(({ job, newJob, skipped }) => {
           if (skipped.length) {
-            const moved = newJob ? `${newJob.taskCount} task(s) moved to ${newJob.jobNo} for ${newJob.assigneeName}.` : `${job.jobNo} transferred to ${job.assigneeName}.`;
-            this.alerts.warning(`${skipped.length} task(s) not moved`, `${moved} Not moved (they stay in ${j.jobNo}): ${skipped.map((s) => `${s.title} – ${s.reason}`).join(' · ')}`);
+            const moved = newJob ? `${newJob.taskCount} task(s) moved to ${newJob.jobCode} for ${newJob.assigneeName}.` : `${job.jobCode} transferred to ${job.assigneeName}.`;
+            this.alerts.warning(`${skipped.length} task(s) not moved`, `${moved} Not moved (they stay in ${j.jobCode}): ${skipped.map((s) => `${s.title} – ${s.reason}`).join(' · ')}`);
           } else if (newJob) {
-            this.alerts.success('Tasks transferred', `${newJob.taskCount} task(s) moved to ${newJob.jobNo} for ${newJob.assigneeName}.`);
+            this.alerts.success('Tasks transferred', `${newJob.taskCount} task(s) moved to ${newJob.jobCode} for ${newJob.assigneeName}.`);
           } else {
-            this.alerts.toast('success', `${job.jobNo} transferred to ${job.assigneeName}`);
+            this.alerts.toast('success', `${job.jobCode} transferred to ${job.assigneeName}`);
           }
           this.afterChange();
         });
@@ -174,7 +174,7 @@ export class JobView {
       .subscribe((req) => {
         if (!req) return;
         this.service.extend(j.id, req).subscribe((job) => {
-          this.alerts.toast('success', `${job.jobNo} now due ${job.completeBy}`);
+          this.alerts.toast('success', `${job.jobCode} now due ${job.endDate}`);
           this.afterChange();
         });
       });
@@ -184,7 +184,7 @@ export class JobView {
     const j = this.job();
     if (!j) return;
     this.askRemarks({
-      title: `Cancel ${j.jobNo}?`,
+      title: `Cancel ${j.jobCode}?`,
       message: `${j.openCount} pending task(s) will be cancelled. Completed tasks stay on record.`,
       label: 'Reason for cancelling',
       confirmText: 'Cancel job',
@@ -193,7 +193,7 @@ export class JobView {
     }).subscribe((remarks) => {
       if (!remarks) return;
       this.service.cancel(j.id, { remarks }).subscribe(() => {
-        this.alerts.toast('success', `${j.jobNo} cancelled`);
+        this.alerts.toast('success', `${j.jobCode} cancelled`);
         this.afterChange();
       });
     });
@@ -203,7 +203,7 @@ export class JobView {
   cancelTask(t: JobTask) {
     const j = this.job();
     if (!j) return;
-    this.askRemarks({ title: `Cancel ${t.taskNo}?`, message: t.title, label: 'Reason', confirmText: 'Cancel task', icon: 'x', tone: 'danger' }).subscribe((remarks) => {
+    this.askRemarks({ title: `Cancel ${t.taskNo}?`, message: t.taskTitle, label: 'Reason', confirmText: 'Cancel task', icon: 'x', tone: 'danger' }).subscribe((remarks) => {
       if (!remarks) return;
       this.service.cancelTask(j.id, t.id, { remarks }).subscribe(() => {
         this.alerts.toast('success', `${t.taskNo} cancelled`);
@@ -217,7 +217,7 @@ export class JobView {
     if (!j) return;
     this.askRemarks({
       title: `Reject ${t.taskNo}?`,
-      message: `${t.addedByName} added “${t.title}” from the mobile app. Rejecting removes it from the job.`,
+      message: `${t.addedByName} added “${t.taskTitle}” from the mobile app. Rejecting removes it from the job.`,
       label: 'Reason',
       confirmText: 'Reject task',
       icon: 'circle-x',

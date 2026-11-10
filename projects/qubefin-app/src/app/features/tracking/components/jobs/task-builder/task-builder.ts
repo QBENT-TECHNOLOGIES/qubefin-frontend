@@ -159,7 +159,7 @@ export class TaskBuilder {
     this.tasks()
       .map((t, i) => ({ t, i }))
       .filter(({ t }) => t.target.kind === 'Custom' && (t.type === 'LeadSourcing' || t.type === 'Survey'))
-      .map(({ t, i }) => ({ key: `${i}`, type: t.type as FieldPointType, name: t.target.name, location: t.target.location, radiusMeters: t.target.matchRadiusMeters })),
+      .map(({ t, i }) => ({ key: `${i}`, type: t.type as FieldPointType, name: t.target.targetName, location: t.target.targetLocation, radiusMeters: t.target.radiusMeters })),
   );
 
   constructor() {
@@ -202,18 +202,18 @@ export class TaskBuilder {
   private targetOf(tag: GeoTagPoint): TaskTarget {
     return {
       kind: tag.kind as TaskTargetKind,
-      refId: tag.refId,
-      name: tag.name,
-      address: tag.address ?? tag.branchName,
-      location: tag.location,
-      branchId: tag.branchId,
+      originRefId: tag.refId,
+      targetName: tag.name,
+      
+      targetLocation: tag.location,
+      organisationUnitId: tag.branchId,
       branchName: tag.branchName,
-      matchRadiusMeters: Math.min(tag.radiusMeters, 500),
+      radiusMeters: Math.min(tag.radiusMeters, 500),
     };
   }
 
   private titleFor(type: TaskType, target: TaskTarget) {
-    return `${TASK_TYPE[type].label} – ${target.name.replace(/ \([A-Z]{3}-C\d+\)$/, '')}`;
+    return `${TASK_TYPE[type].label} – ${target.targetName.replace(/ \([A-Z]{3}-C\d+\)$/, '')}`;
   }
 
   /**
@@ -225,7 +225,7 @@ export class TaskBuilder {
     const key = targetKey(type, target);
     if (this.tasks().some((t, i) => i !== skipIndex && targetKey(t.type, t.target) === key)) return { block: 'already in this list', warn: null };
     if (this.keysInJob().has(key)) return { block: 'already pending in this job', warn: null };
-    if (!target.refId) return NO_ISSUE;
+    if (!target.originRefId) return NO_ISSUE;
     return duplicateCheck(this.assigneeId(), type, this.window(), this.pendingByKey().get(key) ?? []);
   }
 
@@ -270,13 +270,13 @@ export class TaskBuilder {
     if (!b) return;
     const target: TaskTarget = {
       kind: 'Custom',
-      refId: null,
-      name: d.name,
-      address: `${formatCoords(d.location)}, ${b.name}`,
-      location: d.location,
-      branchId: b.id,
+      originRefId: null,
+      targetName: d.name,
+      
+      targetLocation: d.location,
+      organisationUnitId: b.id,
       branchName: b.name,
-      matchRadiusMeters: d.radiusMeters,
+      radiusMeters: d.radiusMeters,
     };
     const why = this.check(d.type, target).block;
     if (why) {
@@ -293,7 +293,7 @@ export class TaskBuilder {
     if (!task || task.type === type) return;
     const why = this.check(type, task.target, index).block;
     if (why) {
-      this.error.set(`${task.target.name} cannot take a ${TASK_TYPE[type].label.toLowerCase()}: ${why}.`);
+      this.error.set(`${task.target.targetName} cannot take a ${TASK_TYPE[type].label.toLowerCase()}: ${why}.`);
       this.tasks.update((list) => [...list]); // re-render the select back to the old value
       return;
     }

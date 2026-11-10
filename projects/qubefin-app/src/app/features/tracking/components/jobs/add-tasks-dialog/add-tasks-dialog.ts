@@ -22,8 +22,8 @@ import { TaskBuilder } from '../task-builder/task-builder';
           <svg lucideIcon="list-plus" class="w-6 h-6"></svg>
         </div>
         <div>
-          <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">Add tasks to {{ job.jobNo }}</h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ job.title }} · {{ job.assigneeName }}</p>
+          <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">Add tasks to {{ job.jobCode }}</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ job.jobTitle }} · {{ job.assigneeName }}</p>
         </div>
       </div>
       <button type="button" (click)="cancel()" class="trk-dialog-close" aria-label="Close"><svg lucideIcon="x" class="w-5 h-5"></svg></button>
@@ -51,8 +51,8 @@ export class AddTasksDialog {
   readonly blockedTasks = computed(() => this.builder()?.blockedTaskCount() ?? 0);
 
   readonly tasks = signal<NewTaskInput[]>([]);
-  readonly existingKeys = this.job.tasks.filter((t) => t.status === 'Pending').map((t) => targetKey(t.type, t.target));
-  readonly window: [string, string] = [this.job.startFrom ?? this.job.createdAt.slice(0, 10), this.job.completeBy < toDateKey() ? toDateKey() : this.job.completeBy];
+  readonly existingKeys = this.job.tasks.filter((t) => t.status === 'Pending').map((t) => targetKey(t.taskType, t.target));
+  readonly window: [string, string] = [this.job.startDate ?? this.job.createdOn.slice(0, 10), this.job.endDate < toDateKey() ? toDateKey() : this.job.endDate];
   readonly allowedBranchIds = computed(() => this.lookup.officerById().get(this.job.assigneeId)?.organisationUnitIds ?? null);
 
   cancel() {

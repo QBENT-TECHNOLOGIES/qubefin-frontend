@@ -4,7 +4,7 @@
             <svg lucideIcon="arrow-right-left" class="w-6 h-6"></svg>
         </div>
         <div>
-            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">Transfer {{ job.jobNo }}</h2>
+            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">Transfer {{ job.jobCode }}</h2>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Held by {{ job.assigneeName }} · {{ pending.length }} pending of {{ job.taskCount }}. Every transfer is kept in the audit trail.
             </p>
@@ -26,10 +26,10 @@
         @if (mode() === 'whole' && !hasDone) {
         The job moves to the new person with its {{ pending.length }} pending task(s).
         } @else if (mode() === 'whole') {
-        All {{ pending.length }} pending task(s) move into a new job linked to {{ job.jobNo }}.
+        All {{ pending.length }} pending task(s) move into a new job linked to {{ job.jobCode }}.
         The {{ job.doneCount }} completed task(s) stay with {{ job.assigneeName }}.
         } @else {
-        The ticked pending tasks move into a new job linked to {{ job.jobNo }}. The rest stay here.
+        The ticked pending tasks move into a new job linked to {{ job.jobCode }}. The rest stay here.
         }
     </p>
 
@@ -45,9 +45,9 @@
             <li>
                 <label class="flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-slate-500/5">
                     <input type="checkbox" class="accent-primary-500 w-4 h-4" [checked]="picked().has(t.id)" (change)="toggle(t.id, $any($event.target).checked)">
-                    <span class="trk-type-dot" [style.--trk-color]="TASK_TYPE[t.type].color"><svg [lucideIcon]="TASK_TYPE[t.type].icon" class="w-3 h-3"></svg></span>
+                    <span class="trk-type-dot" [style.--trk-color]="TASK_TYPE[t.taskType].color"><svg [lucideIcon]="TASK_TYPE[t.taskType].icon" class="w-3 h-3"></svg></span>
                     <span class="min-w-0">
-                        <span class="block text-[13px] text-slate-700 dark:text-slate-200 truncate">{{ t.title }}</span>
+                        <span class="block text-[13px] text-slate-700 dark:text-slate-200 truncate">{{ t.taskTitle }}</span>
                         <span class="block text-[11px] text-slate-400">{{ t.taskNo }} · {{ t.target.branchName }}</span>
                     </span>
                 </label>
@@ -78,9 +78,9 @@
     @if (staying().length) {
     <div class="trk-warn-box -mt-2 flex-col gap-1!">
         <p class="flex items-center gap-1.5 font-semibold"><svg lucideIcon="triangle-alert" class="w-4 h-4"></svg> {{ staying().length }} task(s) will not move</p>
-        <p>The new person already has these pending, so they stay in {{ job.jobNo }}:</p>
+        <p>The new person already has these pending, so they stay in {{ job.jobCode }}:</p>
         <ul class="list-disc pl-5">
-            @for (s of staying(); track s.task.id) { <li>{{ s.task.title }} – {{ s.reason }}</li> }
+            @for (s of staying(); track s.task.id) { <li>{{ s.task.taskTitle }} – {{ s.reason }}</li> }
         </ul>
     </div>
     }

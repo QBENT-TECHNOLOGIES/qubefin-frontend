@@ -22,7 +22,7 @@ export class JobStore {
   readonly dpdRange = signal<DpdRange | null>(null);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
-  readonly sortOn = signal<JobSearchRequest['sortOn']>('completeBy');
+  readonly sortOn = signal<JobSearchRequest['sortOn']>('endDate');
   readonly sortDirection = signal<SortDirection>('asc');
 
   readonly searchResource = httpResource<JobSearchResponse>(() => ({
@@ -32,7 +32,7 @@ export class JobStore {
       searchText: this.searchText() || null,
       status: this.status(),
       openOnly: false,
-      branchId: this.branchId(),
+      organisationUnitId: this.branchId(),
       assigneeId: this.assigneeId(),
       dueFrom: this.dueFrom(),
       dueTo: this.dueTo(),

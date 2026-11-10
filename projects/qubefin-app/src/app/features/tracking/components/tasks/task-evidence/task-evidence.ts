@@ -28,8 +28,8 @@ export class TaskEvidence {
     const v = this.task().verification;
     if (!v || v.locationMatched === null) return null;
     return v.locationMatched
-      ? { ok: true, text: `Within ${this.task().target.matchRadiusMeters} m of the geo-tag` }
-      : { ok: false, text: `Outside the ${this.task().target.matchRadiusMeters} m match radius` };
+      ? { ok: true, text: `Within ${this.task().target.radiusMeters} m of the geo-tag` }
+      : { ok: false, text: `Outside the ${this.task().target.radiusMeters} m match radius` };
   });
 
   /** Raw GPS fixes kept out of the panel; available on hover for disputes. */
@@ -45,7 +45,7 @@ export class TaskEvidence {
 
   readonly arrivalOk = computed(() => {
     const v = this.task().verification;
-    return v?.arrivalDistanceMeters != null ? v.arrivalDistanceMeters <= this.task().target.matchRadiusMeters : null;
+    return v?.arrivalDistanceMeters != null ? v.arrivalDistanceMeters <= this.task().target.radiusMeters : null;
   });
 
   openPhoto() {
