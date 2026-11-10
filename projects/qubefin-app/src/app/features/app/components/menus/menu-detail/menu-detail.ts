@@ -151,6 +151,7 @@ export class MenuDetailComponent {
         .permissions.filter((p) => p.checked),
     };
 
+    dataToSave.parentId = dataToSave.parentId || null;
     if (this.menuId() === EMPTY_UUID) {
       this.menuService.create(dataToSave).subscribe({
         next: (resp) => {
