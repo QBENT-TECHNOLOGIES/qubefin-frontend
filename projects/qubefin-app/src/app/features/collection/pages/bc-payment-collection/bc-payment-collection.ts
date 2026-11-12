@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { form, FormField, min, required, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, min, required, schema, Schema, validate } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -23,17 +23,24 @@ import {
   switchMap,
 } from 'rxjs';
 import { AlertService } from 'qubefin-core';
-import { IGroupWiseLoan } from '../../models/group-wise-loan';
-import { ICreditOfficer, ICreditOfficerBranch } from '../../models/credit-officer';
-import { ILoanSearchByText } from '../../models/bc-group-collection';
+import { CreditOfficerPicker } from '../../components/credit-officer-picker/credit-officer-picker';
+import { PaymentMode } from '../../models/bc-group-collection';
+import {
+  COLLECTION_MESSAGES,
+  isInvalidUpiAmount,
+  isMissingRemarks,
+  isMissingUtr,
+  isShortPaid,
+} from '../../models/collection-validation';
 import { ISaveGroupCollectionRequest } from '../../models/group-collection';
-import { CreditOfficerStore } from '../../stores/credit-officer-store';
+import { IGroupWiseLoan } from '../../models/group-wise-loan';
+import { ILoanSearchByText } from '../../models/loan-search';
 import { CreditOfficerService } from '../../services/credit-officer-service';
+import { CreditOfficerStore } from '../../stores/credit-officer-store';
 
 // The loan search returns every running loan that matches, so wait for a few characters before calling it.
 const LOAN_SEARCH_MIN_LENGTH = 3;
 
-type PaymentMode = 'CASH' | 'UPI';
 interface IPaymentForm {
   collectionDate: Date | null;
   paidAmount: number | null;
@@ -54,6 +61,7 @@ interface IPaymentForm {
     MatDatepickerModule,
     MatAutocompleteModule,
     LucideDynamicIcon,
+    CreditOfficerPicker,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './bc-payment-collection.html',
@@ -66,39 +74,11 @@ export class BcPaymentCollection {
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
 
-  protected readonly creditOfficers = this.creditOfficerStore.creditOfficers;
-  protected readonly creditOfficersLoading = this.creditOfficerStore.creditOfficersLoading;
   protected readonly officerGroups = this.creditOfficerStore.groups;
   protected readonly groupsLoading = this.creditOfficerStore.groupsLoading;
 
   protected designationId = '';
   protected groupId = '';
-
-  protected readonly officerSearchText = signal<string>('');
-  protected readonly officerFilterText = signal<string>('');
-
-  protected readonly officerBranches = computed<ICreditOfficerBranch[]>(() => {
-    const searchText = this.officerFilterText().trim().toLowerCase();
-    const branches = new Map<string, ICreditOfficer[]>();
-
-    const matchedOfficers = this.creditOfficers().filter((officer) =>
-      [
-        officer.employeeName,
-        officer.employeeCode,
-        officer.organizationUnitName,
-        officer.designationName,
-      ].some((value) => value?.toLowerCase().includes(searchText)),
-    );
-
-    for (const officer of matchedOfficers) {
-      const branchName = officer.organizationUnitName;
-      branches.set(branchName, [...(branches.get(branchName) ?? []), officer]);
-    }
-
-    return [...branches.entries()]
-      .map(([name, officers]) => ({ name, officers }))
-      .sort((first, second) => first.name.localeCompare(second.name));
-  });
 
   protected readonly loanOptions = signal<ILoanSearchByText[]>([]);
   protected readonly loanSearchText = signal<string>('');
@@ -121,20 +101,35 @@ export class BcPaymentCollection {
 
   protected readonly isUpi = computed(() => this.payModel().paymentMode === 'UPI');
 
-  protected readonly isShortPaid = computed(() => {
-    const paid = this.payModel().paidAmount;
-    return paid !== null && paid < this.emiAmount();
-  });
+  protected readonly isShortPaid = computed(() =>
+    isShortPaid(this.payModel().paidAmount, this.emiAmount()),
+  );
 
+  // The schema is the only place the payment rules are enforced: the template shows what it
+  // reports and save() simply refuses an invalid form. The predicates come from
+  // collection-validation, so the group sheet applies exactly the same rules.
   private readonly paymentSchema: Schema<IPaymentForm> = schema((path) => {
-    required(path.utrNo, { message: 'UTR NO  is required', when: () => this.isUpi() });
-    required(path.collectionDate, { message: 'Collection date is required' });
-    required(path.paidAmount, { message: 'Paid amount is required' });
-    min(path.paidAmount, 0, { message: 'Paid amount cannot be negative' });
-    required(path.remarks, {
-      message: 'Remarks are required when paid amount is less than EMI',
-      when: () => this.isShortPaid(),
-    });
+    required(path.collectionDate, { message: COLLECTION_MESSAGES.collectionDateRequired });
+    required(path.paidAmount, { message: COLLECTION_MESSAGES.paidAmountRequired });
+    min(path.paidAmount, 0, { message: COLLECTION_MESSAGES.paidAmountNegative });
+
+    validate(path.paidAmount, ({ value }) =>
+      isInvalidUpiAmount(this.payModel().paymentMode, value())
+        ? { kind: 'upiAmount', message: COLLECTION_MESSAGES.upiAmountNotPositive }
+        : null,
+    );
+
+    validate(path.utrNo, ({ value }) =>
+      isMissingUtr(this.payModel().paymentMode, value())
+        ? { kind: 'utrRequired', message: COLLECTION_MESSAGES.utrRequired }
+        : null,
+    );
+
+    validate(path.remarks, ({ value }) =>
+      isMissingRemarks(this.payModel().paidAmount, this.emiAmount(), value())
+        ? { kind: 'remarksRequired', message: COLLECTION_MESSAGES.remarksRequired }
+        : null,
+    );
   });
 
   protected readonly payForm = form(this.payModel, this.paymentSchema);
@@ -142,6 +137,7 @@ export class BcPaymentCollection {
   constructor() {
     this.dateAdapter.setLocale('en-GB');
 
+    // The store is root scoped and shared with the group sheet, so each page starts with no officer.
     this.creditOfficerStore.setDesignationId(undefined);
 
     this.loanSearch$
@@ -161,44 +157,10 @@ export class BcPaymentCollection {
       });
   }
 
-  protected readonly officerLabel = (officer: ICreditOfficer | null): string => {
-    if (!officer) {
-      return '';
-    }
-    const code = officer.employeeCode ? ` (${officer.employeeCode})` : '';
-    return `${officer.employeeName}${code} - ${officer.organizationUnitName}`;
-  };
-
-  protected searchOfficers(text: string) {
-    this.officerSearchText.set(text);
-    this.officerFilterText.set(text);
-
-    if (this.designationId) {
-      this.designationId = '';
-      this.onCreditOfficerChange();
-    }
-  }
-
-  protected selectOfficer(event: MatAutocompleteSelectedEvent) {
-    const officer = event.option.value as ICreditOfficer;
-    this.designationId = officer.designationId;
-    this.officerSearchText.set(this.officerLabel(officer));
-    this.officerFilterText.set('');
-    this.onCreditOfficerChange();
-  }
-
-  protected getInitials(name: string): string {
-    return name
-      .split(' ')
-      .filter((part) => part)
-      .slice(0, 2)
-      .map((part) => part[0].toUpperCase())
-      .join('');
-  }
-
-  private onCreditOfficerChange() {
+  protected onCreditOfficerChange(designationId: string) {
+    this.designationId = designationId;
     this.groupId = '';
-    this.creditOfficerStore.setDesignationId(this.designationId || undefined);
+    this.creditOfficerStore.setDesignationId(designationId || undefined);
     this.clearDetail();
   }
 
@@ -237,6 +199,7 @@ export class BcPaymentCollection {
 
   protected search() {
     const loan = this.selectedLoan();
+
     if (!this.designationId) {
       this.alertService.error('Oops ....', 'Select Credit officer');
       return;
@@ -249,10 +212,6 @@ export class BcPaymentCollection {
       this.alertService.error('Oops ....', 'Select Loan No');
       return;
     }
-    // if (!this.designationId || !this.groupId || !loan) {
-    //   this.alertService.error('Oops ....', 'Select credit officer, group and loan.');
-    //   return;
-    // }
 
     this.searched = { designationId: this.designationId, bcGroupId: this.groupId };
 
@@ -260,8 +219,6 @@ export class BcPaymentCollection {
   }
 
   protected resetFilters() {
-    this.officerSearchText.set('');
-    this.officerFilterText.set('');
     this.designationId = '';
     this.groupId = '';
     this.loanSearchText.set('');
@@ -331,22 +288,6 @@ export class BcPaymentCollection {
       return;
     }
 
-    if (paidAmount < this.emiAmount() && !remarks.trim()) {
-      this.alertService.error('Oops ....', 'Add remarks for a short-paid loan.');
-      return;
-    }
-
-    if (paymentMode === 'UPI') {
-      if (paidAmount <= 0) {
-        this.alertService.error('Oops ....', 'A UPI collection must be more than 0.');
-        return;
-      }
-      if (!utrNo.trim()) {
-        this.alertService.error('Oops ....', 'Enter UTR No for the UPI collection.');
-        return;
-      }
-    }
-
     const request: ISaveGroupCollectionRequest = {
       designationId: searched.designationId,
       bcGroupId: searched.bcGroupId,
@@ -372,7 +313,8 @@ export class BcPaymentCollection {
           this.alertService.success('Saved', message || `Collection saved for ${loan.loanNo}.`);
           this.loadDetail(loan.id);
         },
-        error: () => {},
+        // The http error interceptor has already shown the message; nothing left to do here.
+        error: () => undefined,
       });
   }
 

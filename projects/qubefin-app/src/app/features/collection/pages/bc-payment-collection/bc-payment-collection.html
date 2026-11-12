@@ -6,50 +6,8 @@
 
 
       <div class="flex-1 min-w-[200px]">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <mat-label>Credit Officer</mat-label>
-          <div class="w-12 flex justify-center" matPrefix>
-            <svg lucideIcon="user-check" class="w-5 h-5"></svg>
-          </div>
-          <input matInput [value]="officerSearchText()" (input)="searchOfficers($any($event.target).value)"
-            [matAutocomplete]="officerAuto" autocomplete="off" required
-            [placeholder]="creditOfficersLoading() ? 'Loading ...' : 'Search name, code or branch'" />
-          <mat-autocomplete #officerAuto="matAutocomplete" [displayWith]="officerLabel"
-            (optionSelected)="selectOfficer($event)">
-            @for (branch of officerBranches(); track branch.name) {
-            <mat-optgroup [label]="branch.name">
-              <span class="ml-1.5 px-1.5 rounded-full text-[10px] font-semibold bg-secondary-500/10 text-secondary-500">
-                {{ branch.officers.length }}
-              </span>
-
-              @for (officer of branch.officers; track officer.employeeId + officer.designationId) {
-              <mat-option [value]="officer">
-                <div class="flex items-center gap-3 py-1">
-                  <span
-                    class="w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-[11px] font-semibold text-white bg-linear-to-br from-primary-500 to-secondary-500">
-                    {{ getInitials(officer.employeeName) }}
-                  </span>
-                  <div class="flex flex-col leading-tight min-w-0">
-                    <span class="text-sm font-medium truncate">{{ officer.employeeName }}</span>
-                    <span class="text-[11px] text-slate-400 truncate">{{ officer.designationName }}</span>
-                  </div>
-                  @if (officer.employeeCode) {
-                  <span
-                    class="ml-auto shrink-0 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-primary-500/10 text-primary-700 dark:text-primary-400">
-                    {{ officer.employeeCode }}
-                  </span>
-                  }
-                </div>
-              </mat-option>
-              }
-            </mat-optgroup>
-            } @empty {
-            @if (!creditOfficersLoading()) {
-            <mat-option disabled>No credit officers found</mat-option>
-            }
-            }
-          </mat-autocomplete>
-        </mat-form-field>
+        <qfin-credit-officer-picker [designationId]="designationId"
+          (designationIdChange)="onCreditOfficerChange($event)" />
       </div>
 
 
@@ -229,6 +187,9 @@
           <svg lucideIcon="smartphone" class="w-5 h-5"></svg>
         </div>
         <input matInput autocomplete="off" [formField]="payForm.utrNo" placeholder="Enter UTR No" />
+        <mat-error class="cus-error">
+          {{ payForm.utrNo().errors()[0]?.message }}
+        </mat-error>
       </mat-form-field>
       }
 

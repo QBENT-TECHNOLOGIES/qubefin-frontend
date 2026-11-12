@@ -9,8 +9,8 @@ import {
   IGroupWiseLoanSearchParam,
 } from '../models/group-wise-loan';
 import { ISaveGroupCollectionRequest } from '../models/group-collection';
+import { ILoanSearchByText } from '../models/loan-search';
 import { buildGroupWiseLoanQuery } from './group-wise-loan-query';
-import { ILoanSearchByText } from '../models/bc-group-collection';
 
 @Injectable({
   providedIn: 'root',
@@ -36,6 +36,7 @@ export class CreditOfficerService {
   saveGroupCollection(request: ISaveGroupCollectionRequest) {
     return this.httpClient.post<string>(`${this.basePath}/save-bc-collection`, request);
   }
+
   getGroupLoanPaymentDetail(designationId: string, bcGroupId: string, loanId: string) {
     return this.httpClient.get<IGroupWiseLoan>(
       `${this.basePath}/bc-group-loans-payment/${designationId}`,

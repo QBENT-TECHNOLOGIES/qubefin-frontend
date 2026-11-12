@@ -1,175 +1,175 @@
 <div class="glass rounded-xl shadow-glass dark:shadow overflow-hidden">
 
-    <div class="flex items-center gap-3 px-4 py-3 cursor-pointer select-none" (click)="toggle()">
-        <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-secondary-500/10 text-secondary-500">
-            <svg lucideIcon="users" class="w-5 h-5"></svg>
-        </div>
-        <div>
-            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ group().name }}</p>
-            <p class="text-xs text-slate-400">{{ group().loans.length }} loans</p>
-        </div>
-        <span class="ml-auto text-xs text-slate-400">
-            Collected
-            <span class="font-semibold text-slate-700 dark:text-slate-200">₹{{ groupCollected() | number }}</span>
-        </span>
-        @if (isExpanded()) {
-        <svg lucideIcon="chevron-up" class="w-4 h-4 text-slate-400"></svg>
-        } @else {
-        <svg lucideIcon="chevron-down" class="w-4 h-4 text-slate-400"></svg>
-        }
+  <div class="flex items-center gap-3 px-4 py-3 cursor-pointer select-none" (click)="toggle()">
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-secondary-500/10 text-secondary-500">
+      <svg lucideIcon="users" class="w-5 h-5"></svg>
     </div>
-
+    <div>
+      <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ group().name }}</p>
+      <p class="text-xs text-slate-400">{{ group().loans.length }} loans</p>
+    </div>
+    <span class="ml-auto text-xs text-slate-400">
+      Collected
+      <span class="font-semibold text-slate-700 dark:text-slate-200">₹{{ groupCollected() | number }}</span>
+    </span>
     @if (isExpanded()) {
-    <div class="overflow-auto scrollbar-thin">
-        <table class="table">
-            <thead>
-                <tr class="bg-secondary-600/10 dark:bg-slate-500/10">
-                    <th>Loan No</th>
-                    <th>Member Name</th>
-                    <th class="text-right">Loan Amount</th>
-                    <th class="text-right">Outstanding</th>
-                    <th class="text-right">Overdue</th>
-                    <th class="text-right">EMI</th>
-                    <th class="text-right w-36">Paid Amount</th>
-                    <th class="w-72">Mode</th>
-                    <th class="w-64">Remarks</th>
-                    <th class="w-28">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (loan of group().loans; track loan.loanId) {
-                <tr [ngClass]="{
-                        'bg-amber-50 dark:bg-amber-500/10': !loan.isLocked && isShortPaid(loan),
-                        'bg-slate-500/5 opacity-70': loan.isLocked
-                    }">
-                    <td class="py-2!">{{ loan.loanNo }}</td>
-                    <td>{{ loan.memberName }}</td>
-                    <td class="text-right">{{ loan.loanAmount | number }}</td>
-                    <td class="text-right">{{ loan.outstanding | number }}</td>
-                    <td class="text-right"
-                        [ngClass]="loan.overdue > 0 ? 'font-semibold text-red-600 dark:text-red-400' : 'text-slate-400'">
-                        {{ loan.overdue | number }}
-                    </td>
-                    <td class="text-right">{{ loan.emiAmount | number }}</td>
-
-                    <td class="text-right">
-                        @if (loan.isLocked) {
-                        <span class="font-semibold text-slate-800 dark:text-slate-100">{{ loan.paidAmount | number }}</span>
-                        } @else {
-                        <input type="number" min="0" [value]="loan.paidAmount" [disabled]="group().isSaving"
-                            (input)="onPaidInput(loan.loanId, $event)"
-                            (wheel)="onPaidWheel($event)"
-                            class="w-full h-8 px-2 text-right text-[12px] rounded-md outline-none bg-white dark:bg-white/5 dark:text-slate-100 border border-slate-300 dark:border-slate-400/30 focus:border-primary-500" />
-                        }
-                    </td>
-
-                    <td>
-                        @if (loan.isLocked) {
-                        @if (loan.paymentMode === 'UPI') {
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-secondary-500/10 text-secondary-500">UPI</span>
-                        <span class="ml-1 text-slate-400">{{ loan.utrNo }}</span>
-                        } @else if (loan.paymentMode === 'CASH') {
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-primary-500/10 text-primary-700 dark:text-primary-400">Cash</span>
-                        } @else {
-                        <span class="text-slate-400">—</span>
-                        }
-                        } @else {
-                        <div class="flex items-center gap-2">
-                            <div class="flex shrink-0 rounded-md p-0.5 bg-slate-500/10">
-                                <button type="button" [disabled]="group().isSaving"
-                                    (click)="onModeSelect(loan.loanId, 'CASH')"
-                                    class="px-2.5 py-1 rounded text-[11px] font-semibold transition cursor-pointer disabled:cursor-not-allowed"
-                                    [ngClass]="loan.paymentMode === 'CASH'
-                                        ? 'bg-white dark:bg-slate-700 text-primary-700 dark:text-primary-400 shadow'
-                                        : 'text-slate-500 dark:text-slate-400'">
-                                    Cash
-                                </button>
-                                <button type="button" [disabled]="group().isSaving"
-                                    (click)="onModeSelect(loan.loanId, 'UPI')"
-                                    class="px-2.5 py-1 rounded text-[11px] font-semibold transition cursor-pointer disabled:cursor-not-allowed"
-                                    [ngClass]="loan.paymentMode === 'UPI'
-                                        ? 'bg-white dark:bg-slate-700 text-secondary-500 shadow'
-                                        : 'text-slate-500 dark:text-slate-400'">
-                                    UPI
-                                </button>
-                            </div>
-                            @if (loan.paymentMode === 'UPI') {
-                            <input type="text" maxlength="50" [value]="loan.utrNo" [disabled]="group().isSaving"
-                                placeholder="UTR No required" (input)="onUtrInput(loan.loanId, $event)"
-                                class="w-full min-w-0 h-8 px-2 text-[12px] rounded-md outline-none bg-white dark:bg-white/5 dark:text-slate-100 border focus:border-primary-500"
-                                [ngClass]="!loan.utrNo.trim()
-                                    ? 'border-amber-500 placeholder:text-amber-600'
-                                    : 'border-slate-300 dark:border-slate-400/30'" />
-                            }
-                        </div>
-                        }
-                    </td>
-
-                    <td>
-                        @if (loan.isLocked) {
-                        <span class="text-slate-400">{{ loan.remarks || '—' }}</span>
-                        } @else {
-                        <input type="text" maxlength="500" [value]="loan.remarks"
-                            [disabled]="!isShortPaid(loan) || group().isSaving"
-                            [placeholder]="isShortPaid(loan) ? 'Remarks required' : '—'"
-                            (input)="onRemarksInput(loan.loanId, $event)"
-                            class="w-full h-8 px-2 text-[12px] rounded-md outline-none bg-white dark:bg-white/5 dark:text-slate-100 border focus:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                            [ngClass]="isShortPaid(loan) && !loan.remarks.trim()
-                                ? 'border-amber-500 placeholder:text-amber-600'
-                                : 'border-slate-300 dark:border-slate-400/30'" />
-                        }
-                    </td>
-
-                    <td>
-                        @switch (loan.status) {
-                        @case ('PAID') {
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-primary-500/10 text-primary-700 dark:text-primary-400">
-                            <svg lucideIcon="check" class="w-3 h-3"></svg>
-                            Paid
-                        </span>
-                        }
-                        @case ('PARTIAL') {
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400">
-                            Partial
-                        </span>
-                        }
-                        @case ('NOT_PAID') {
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-500/10 text-red-600 dark:text-red-400">
-                            Not paid
-                        </span>
-                        }
-                        @default {
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-500/10 text-slate-500 dark:text-slate-400">
-                            Pending
-                        </span>
-                        }
-                        }
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-
-    <div class="flex flex-wrap items-center gap-3 px-4 py-3 border-t border-slate-200 dark:border-slate-400/10">
-        @if (group().isSaved) {
-        <span class="text-xs font-medium text-primary-700 dark:text-primary-400">Group collection saved. Rows are locked.</span>
-        } @else if (!hasOpenLoans()) {
-        <span class="text-xs font-medium text-slate-400">All loans of this group are already collected.</span>
-        }
-        <button type="button" (click)="onSave()" [disabled]="group().isSaved || group().isSaving || !hasOpenLoans()"
-            class="ml-auto ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition lift cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
-            @if (group().isSaved) {
-            <svg lucideIcon="check" class="w-4 h-4"></svg>
-            Saved
-            } @else if (group().isSaving) {
-            <svg lucideIcon="loader" class="w-4 h-4 animate-spin"></svg>
-            Saving ...
-            } @else {
-            <svg lucideIcon="save" class="w-4 h-4"></svg>
-            Save Collection
-            }
-        </button>
-    </div>
+    <svg lucideIcon="chevron-up" class="w-4 h-4 text-slate-400"></svg>
+    } @else {
+    <svg lucideIcon="chevron-down" class="w-4 h-4 text-slate-400"></svg>
     }
+  </div>
+
+  @if (isExpanded()) {
+  <div class="overflow-auto scrollbar-thin">
+    <table class="table">
+      <thead>
+        <tr class="bg-secondary-600/10 dark:bg-slate-500/10">
+          <th>Loan No</th>
+          <th>Member Name</th>
+          <th class="text-right">Loan Amount</th>
+          <th class="text-right">Outstanding</th>
+          <th class="text-right">Overdue</th>
+          <th class="text-right">EMI</th>
+          <th class="text-right w-36">Paid Amount</th>
+          <th class="w-72">Mode</th>
+          <th class="w-64">Remarks</th>
+          <th class="w-28">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (loan of group().loans; track loan.loanId) {
+        <tr [ngClass]="{
+            'bg-amber-50 dark:bg-amber-500/10': !loan.isLocked && isShortPaid(loan),
+            'bg-slate-500/5 opacity-70': loan.isLocked
+          }">
+          <td class="py-2!">{{ loan.loanNo }}</td>
+          <td>{{ loan.memberName }}</td>
+          <td class="text-right">{{ loan.loanAmount | number }}</td>
+          <td class="text-right">{{ loan.outstanding | number }}</td>
+          <td class="text-right"
+            [ngClass]="loan.overdue > 0 ? 'font-semibold text-red-600 dark:text-red-400' : 'text-slate-400'">
+            {{ loan.overdue | number }}
+          </td>
+          <td class="text-right">{{ loan.emiAmount | number }}</td>
+
+          <td class="text-right">
+            @if (loan.isLocked) {
+            <span class="font-semibold text-slate-800 dark:text-slate-100">{{ loan.paidAmount | number }}</span>
+            } @else {
+            <input type="number" min="0" [value]="loan.paidAmount" [disabled]="group().isSaving"
+              (input)="onPaidInput(loan.loanId, $event)"
+              (wheel)="onPaidWheel($event)"
+              class="w-full h-8 px-2 text-right text-[12px] rounded-md outline-none bg-white dark:bg-white/5 dark:text-slate-100 border border-slate-300 dark:border-slate-400/30 focus:border-primary-500" />
+            }
+          </td>
+
+          <td>
+            @if (loan.isLocked) {
+            @if (loan.paymentMode === 'UPI') {
+            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-secondary-500/10 text-secondary-500">UPI</span>
+            <span class="ml-1 text-slate-400">{{ loan.utrNo }}</span>
+            } @else if (loan.paymentMode === 'CASH') {
+            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-primary-500/10 text-primary-700 dark:text-primary-400">Cash</span>
+            } @else {
+            <span class="text-slate-400">—</span>
+            }
+            } @else {
+            <div class="flex items-center gap-2">
+              <div class="flex shrink-0 rounded-md p-0.5 bg-slate-500/10">
+                <button type="button" [disabled]="group().isSaving"
+                  (click)="onModeSelect(loan.loanId, 'CASH')"
+                  class="px-2.5 py-1 rounded text-[11px] font-semibold transition cursor-pointer disabled:cursor-not-allowed"
+                  [ngClass]="loan.paymentMode === 'CASH'
+                    ? 'bg-white dark:bg-slate-700 text-primary-700 dark:text-primary-400 shadow'
+                    : 'text-slate-500 dark:text-slate-400'">
+                  Cash
+                </button>
+                <button type="button" [disabled]="group().isSaving"
+                  (click)="onModeSelect(loan.loanId, 'UPI')"
+                  class="px-2.5 py-1 rounded text-[11px] font-semibold transition cursor-pointer disabled:cursor-not-allowed"
+                  [ngClass]="loan.paymentMode === 'UPI'
+                    ? 'bg-white dark:bg-slate-700 text-secondary-500 shadow'
+                    : 'text-slate-500 dark:text-slate-400'">
+                  UPI
+                </button>
+              </div>
+              @if (loan.paymentMode === 'UPI') {
+              <input type="text" maxlength="50" [value]="loan.utrNo" [disabled]="group().isSaving"
+                placeholder="UTR No required" (input)="onUtrInput(loan.loanId, $event)"
+                class="w-full min-w-0 h-8 px-2 text-[12px] rounded-md outline-none bg-white dark:bg-white/5 dark:text-slate-100 border focus:border-primary-500"
+                [ngClass]="!loan.utrNo.trim()
+                  ? 'border-amber-500 placeholder:text-amber-600'
+                  : 'border-slate-300 dark:border-slate-400/30'" />
+              }
+            </div>
+            }
+          </td>
+
+          <td>
+            @if (loan.isLocked) {
+            <span class="text-slate-400">{{ loan.remarks || '—' }}</span>
+            } @else {
+            <input type="text" maxlength="500" [value]="loan.remarks"
+              [disabled]="!isShortPaid(loan) || group().isSaving"
+              [placeholder]="isShortPaid(loan) ? 'Remarks required' : '—'"
+              (input)="onRemarksInput(loan.loanId, $event)"
+              class="w-full h-8 px-2 text-[12px] rounded-md outline-none bg-white dark:bg-white/5 dark:text-slate-100 border focus:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              [ngClass]="isShortPaid(loan) && !loan.remarks.trim()
+                ? 'border-amber-500 placeholder:text-amber-600'
+                : 'border-slate-300 dark:border-slate-400/30'" />
+            }
+          </td>
+
+          <td>
+            @switch (loan.status) {
+            @case ('PAID') {
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-primary-500/10 text-primary-700 dark:text-primary-400">
+              <svg lucideIcon="check" class="w-3 h-3"></svg>
+              Paid
+            </span>
+            }
+            @case ('PARTIAL') {
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400">
+              Partial
+            </span>
+            }
+            @case ('NOT_PAID') {
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-500/10 text-red-600 dark:text-red-400">
+              Not paid
+            </span>
+            }
+            @default {
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-500/10 text-slate-500 dark:text-slate-400">
+              Pending
+            </span>
+            }
+            }
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-3 px-4 py-3 border-t border-slate-200 dark:border-slate-400/10">
+    @if (group().isSaved) {
+    <span class="text-xs font-medium text-primary-700 dark:text-primary-400">Group collection saved. Rows are locked.</span>
+    } @else if (!hasOpenLoans()) {
+    <span class="text-xs font-medium text-slate-400">All loans of this group are already collected.</span>
+    }
+    <button type="button" (click)="onSave()" [disabled]="group().isSaved || group().isSaving || !hasOpenLoans()"
+      class="ml-auto ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition lift cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+      @if (group().isSaved) {
+      <svg lucideIcon="check" class="w-4 h-4"></svg>
+      Saved
+      } @else if (group().isSaving) {
+      <svg lucideIcon="loader" class="w-4 h-4 animate-spin"></svg>
+      Saving ...
+      } @else {
+      <svg lucideIcon="save" class="w-4 h-4"></svg>
+      Save Collection
+      }
+    </button>
+  </div>
+  }
 </div>

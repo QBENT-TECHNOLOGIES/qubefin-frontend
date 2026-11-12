@@ -5,11 +5,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { AlertService } from 'qubefin-core';
 import { BcGroupLoanTable } from '../../components/bc-group-loan-table/bc-group-loan-table';
+import { CreditOfficerPicker } from '../../components/credit-officer-picker/credit-officer-picker';
 import {
   CollectionGroup,
   GroupLoan,
@@ -19,11 +19,11 @@ import {
   LoanRemarksChange,
   LoanUtrChange,
 } from '../../models/bc-group-collection';
-import { IGroupWiseLoan } from '../../models/group-wise-loan';
-import { ICreditOfficer, ICreditOfficerBranch } from '../../models/credit-officer';
-import { CreditOfficerStore } from '../../stores/credit-officer-store';
-import { CreditOfficerService } from '../../services/credit-officer-service';
+import { isShortPaid, validateLoanCollection } from '../../models/collection-validation';
 import { ISaveGroupCollectionRequest } from '../../models/group-collection';
+import { IGroupWiseLoan } from '../../models/group-wise-loan';
+import { CreditOfficerService } from '../../services/credit-officer-service';
+import { CreditOfficerStore } from '../../stores/credit-officer-store';
 
 // The sheet is not paged on screen, so one page covers a credit officer's groups. 200 is the server's cap.
 const LOAN_PAGE_SIZE = 200;
@@ -37,9 +37,9 @@ const LOAN_PAGE_SIZE = 200;
     MatInputModule,
     MatSelectModule,
     MatDatepickerModule,
-    MatAutocompleteModule,
     LucideDynamicIcon,
     BcGroupLoanTable,
+    CreditOfficerPicker,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './bc-group-collection.html',
@@ -52,52 +52,28 @@ export class BcGroupCollection {
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
 
-  // Injecting the store starts the credit officer call, so the list is loading from page load.
-  readonly creditOfficers = this.creditOfficerStore.creditOfficers;
-  readonly creditOfficersLoading = this.creditOfficerStore.creditOfficersLoading;
-  readonly officerGroups = this.creditOfficerStore.groups;
-  readonly groupsLoading = this.creditOfficerStore.groupsLoading;
-  readonly loansLoading = this.creditOfficerStore.loansLoading;
+  protected readonly officerGroups = this.creditOfficerStore.groups;
+  protected readonly groupsLoading = this.creditOfficerStore.groupsLoading;
+  protected readonly loansLoading = this.creditOfficerStore.loansLoading;
 
   // A credit officer is picked by designation id - BC groups and their loans are tagged to the designation.
-  designationId = '';
-  groupId = '';
-  collectionDate: Date | null = new Date();
-  searchedCollectionDate = '';
+  protected designationId = '';
+  protected groupId = '';
+  protected collectionDate: Date | null = new Date();
+  private searchedCollectionDate = '';
 
-  readonly groups = signal<CollectionGroup[]>([]);
-  readonly isSearched = signal<boolean>(false);
-  readonly officerSearchText = signal<string>('');
-  readonly officerFilterText = signal<string>('');
+  protected readonly groups = signal<CollectionGroup[]>([]);
+  protected readonly isSearched = signal<boolean>(false);
 
-  readonly officerBranches = computed<ICreditOfficerBranch[]>(() => {
-    const searchText = this.officerFilterText().trim().toLowerCase();
-    const branches = new Map<string, ICreditOfficer[]>();
-
-    const matchedOfficers = this.creditOfficers().filter((officer) =>
-      [officer.employeeName, officer.employeeCode, officer.organizationUnitName, officer.designationName]
-        .some((value) => value?.toLowerCase().includes(searchText)),
-    );
-
-    for (const officer of matchedOfficers) {
-      const branchName = officer.organizationUnitName;
-      branches.set(branchName, [...(branches.get(branchName) ?? []), officer]);
-    }
-
-    return [...branches.entries()]
-      .map(([name, officers]) => ({ name, officers }))
-      .sort((first, second) => first.name.localeCompare(second.name));
-  });
-
-  readonly totalLoans = computed(() =>
+  protected readonly totalLoans = computed(() =>
     this.groups().reduce((total, group) => total + group.loans.length, 0),
   );
 
-  readonly totalEmiDue = computed(() =>
+  protected readonly totalEmiDue = computed(() =>
     this.allLoans().reduce((total, loan) => total + loan.emiAmount, 0),
   );
 
-  readonly totalCollected = computed(() =>
+  protected readonly totalCollected = computed(() =>
     this.allLoans().reduce((total, loan) => total + loan.paidAmount, 0),
   );
 
@@ -122,50 +98,19 @@ export class BcGroupCollection {
 
   constructor() {
     this.dateAdapter.setLocale('en-GB');
+
+    // The store is root scoped and shared with the payment page, so each page starts with no officer.
+    this.creditOfficerStore.setDesignationId(undefined);
   }
 
-  readonly officerLabel = (officer: ICreditOfficer | null): string => {
-    if (!officer) {
-      return '';
-    }
-    const code = officer.employeeCode ? ` (${officer.employeeCode})` : '';
-    return `${officer.employeeName}${code} - ${officer.organizationUnitName}`;
-  };
-
-  searchOfficers(text: string) {
-    this.officerSearchText.set(text);
-    this.officerFilterText.set(text);
-
-    if (this.designationId) {
-      this.designationId = '';
-      this.onCreditOfficerChange();
-    }
-  }
-
-  selectOfficer(event: MatAutocompleteSelectedEvent) {
-    const officer = event.option.value as ICreditOfficer;
-    this.designationId = officer.designationId;
-    this.officerSearchText.set(this.officerLabel(officer));
-    this.officerFilterText.set('');
-    this.onCreditOfficerChange();
-  }
-
-  getInitials(name: string): string {
-    return name
-      .split(' ')
-      .filter((part) => part)
-      .slice(0, 2)
-      .map((part) => part[0].toUpperCase())
-      .join('');
-  }
-
-  onCreditOfficerChange() {
+  protected onCreditOfficerChange(designationId: string) {
+    this.designationId = designationId;
     this.groupId = '';
-    this.creditOfficerStore.setDesignationId(this.designationId || undefined);
+    this.creditOfficerStore.setDesignationId(designationId || undefined);
     this.clearSheet();
   }
 
-  search() {
+  protected search() {
     if (!this.designationId || !this.collectionDate) {
       this.alertService.error('Oops ....', 'Select credit officer and collection date.');
       return;
@@ -188,9 +133,7 @@ export class BcGroupCollection {
     this.creditOfficerStore.refreshLoans();
   }
 
-  resetFilters() {
-    this.officerSearchText.set('');
-    this.officerFilterText.set('');
+  protected resetFilters() {
     this.designationId = '';
     this.groupId = '';
     this.collectionDate = new Date();
@@ -198,38 +141,39 @@ export class BcGroupCollection {
     this.clearSheet();
   }
 
-  onPaidChange(change: LoanAmountChange) {
+  protected onPaidChange(change: LoanAmountChange) {
     this.updateLoans((loan) => {
       if (loan.loanId !== change.loanId || loan.isLocked) {
         return loan;
       }
-      const isShortPaid = change.value < loan.emiAmount;
-      return { ...loan, paidAmount: change.value, remarks: isShortPaid ? loan.remarks : '' };
+      const shortPaid = isShortPaid(change.value, loan.emiAmount);
+      return { ...loan, paidAmount: change.value, remarks: shortPaid ? loan.remarks : '' };
     });
   }
 
-  onRemarksChange(change: LoanRemarksChange) {
+  protected onRemarksChange(change: LoanRemarksChange) {
     this.updateLoans((loan) =>
       loan.loanId === change.loanId && !loan.isLocked ? { ...loan, remarks: change.value } : loan,
     );
   }
 
-  onPaymentModeChange(change: LoanPaymentModeChange) {
+  protected onPaymentModeChange(change: LoanPaymentModeChange) {
     this.updateLoans((loan) => {
       if (loan.loanId !== change.loanId || loan.isLocked) {
         return loan;
       }
-      return { ...loan, paymentMode: change.value, utrNo: change.value === 'UPI' ? loan.utrNo : '' };
+      const utrNo = change.value === 'UPI' ? loan.utrNo : '';
+      return { ...loan, paymentMode: change.value, utrNo };
     });
   }
 
-  onUtrChange(change: LoanUtrChange) {
+  protected onUtrChange(change: LoanUtrChange) {
     this.updateLoans((loan) =>
       loan.loanId === change.loanId && !loan.isLocked ? { ...loan, utrNo: change.value } : loan,
     );
   }
 
-  saveGroup(groupId: string) {
+  protected saveGroup(groupId: string) {
     const group = this.groups().find((item) => item.id === groupId);
     if (!group || group.isSaved || group.isSaving) {
       return;
@@ -242,32 +186,14 @@ export class BcGroupCollection {
       return;
     }
 
-    const hasNegativeAmount = openLoans.some((loan) => loan.paidAmount < 0);
-    if (hasNegativeAmount) {
-      this.alertService.error('Oops ....', `Paid amount cannot be negative in ${group.name}.`);
-      return;
-    }
+    // Same rules the payment page's form schema enforces, applied row by row.
+    for (const loan of openLoans) {
+      const error = validateLoanCollection(loan);
 
-    const missingRemarks = openLoans.filter(
-      (loan) => loan.paidAmount < loan.emiAmount && !loan.remarks.trim(),
-    ).length;
-
-    if (missingRemarks > 0) {
-      this.alertService.error('Oops ....', `Add remarks for ${missingRemarks} short-paid loan(s) in ${group.name}.`);
-      return;
-    }
-
-    const upiLoans = openLoans.filter((loan) => loan.paymentMode === 'UPI');
-
-    if (upiLoans.some((loan) => loan.paidAmount <= 0)) {
-      this.alertService.error('Oops ....', `A UPI collection must be more than 0 in ${group.name}.`);
-      return;
-    }
-
-    const missingUtr = upiLoans.filter((loan) => !loan.utrNo.trim()).length;
-    if (missingUtr > 0) {
-      this.alertService.error('Oops ....', `Enter UTR No for ${missingUtr} UPI collection(s) in ${group.name}.`);
-      return;
+      if (error) {
+        this.alertService.error('Oops ....', `${error} - ${loan.loanNo} in ${group.name}.`);
+        return;
+      }
     }
 
     const request: ISaveGroupCollectionRequest = {
