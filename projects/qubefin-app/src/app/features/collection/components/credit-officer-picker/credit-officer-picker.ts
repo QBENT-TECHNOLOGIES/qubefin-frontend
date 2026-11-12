@@ -10,9 +10,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { ICreditOfficer, ICreditOfficerBranch } from '../../models/credit-officer';
 import { CreditOfficerStore } from '../../stores/credit-officer-store';
 
-/// The credit officer search box, shared by the group sheet and the payment page. It owns the
-/// typeahead text only; the designation id it emits is what the pages act on, since BC groups and
-/// their loans are tagged to the designation rather than to the employee.
+// Officer search box shared by both collection pages. Emits the designation id.
 @Component({
   selector: 'qfin-credit-officer-picker',
   imports: [
@@ -28,7 +26,7 @@ import { CreditOfficerStore } from '../../stores/credit-officer-store';
 export class CreditOfficerPicker {
   private readonly creditOfficerStore = inject(CreditOfficerStore);
 
-  // Injecting the store starts the credit officer call, so the list is loading from page load.
+  // Injecting the store starts the call.
   protected readonly creditOfficers = this.creditOfficerStore.creditOfficers;
   protected readonly creditOfficersLoading = this.creditOfficerStore.creditOfficersLoading;
 
@@ -61,7 +59,7 @@ export class CreditOfficerPicker {
       .sort((first, second) => first.name.localeCompare(second.name));
   });
 
-  // The page clearing its filters sets the id back to empty, which has to empty the box too.
+  // A page reset empties the box.
   private readonly clearOnReset = effect(() => {
     if (!this.designationId()) {
       this.searchText.set('');
@@ -86,7 +84,7 @@ export class CreditOfficerPicker {
       .join('');
   }
 
-  // Typing over a chosen officer drops the selection, so the page cannot act on a stale one.
+  // Typing over a choice drops the selection.
   protected search(text: string) {
     this.searchText.set(text);
     this.filterText.set(text);

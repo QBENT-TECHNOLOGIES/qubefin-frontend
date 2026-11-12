@@ -9,7 +9,7 @@ export interface ILoanCollectionRequest {
 export interface ISaveGroupCollectionRequest {
   designationId: string;
   bcGroupId: string;
-  /// 'yyyy-MM-dd'.
+  // 'yyyy-MM-dd'
   collectionDate: string;
   loans: ILoanCollectionRequest[];
 }

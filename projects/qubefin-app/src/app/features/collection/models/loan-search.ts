@@ -1,5 +1,6 @@
-/// One hit of the loan-no search used by the payment collection page.
+// One hit of the loan search, scoped to one credit officer and BC group.
 export interface ILoanSearchByText {
   id: string;
   loanNo: string;
+  memberName: string;
 }

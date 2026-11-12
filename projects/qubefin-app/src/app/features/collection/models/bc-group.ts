@@ -9,13 +9,13 @@ export interface IBcGroup {
   organizationUnitId: string;
   organizationUnitName: string;
   organizationCode: number;
-  // DateOnly on the server -> 'yyyy-MM-dd'
+  // 'yyyy-MM-dd'
   formationDate: string | null;
   collectionDay: string | null;
-  // TimeOnly on the server -> 'HH:mm:ss'
+  // 'HH:mm:ss'
   collectionTime: string | null;
   isMonthlyGroup: boolean;
-  // DateOnly on the server -> 'yyyy-MM-dd'
+  // 'yyyy-MM-dd'
   biWeeklyStartDate: string | null;
   contactNo: string | null;
   addressLine1: string | null;

@@ -2,8 +2,7 @@ export type LoanCollectionStatus = 'PENDING' | 'PAID' | 'PARTIAL' | 'NOT_PAID';
 
 export type PaymentMode = 'CASH' | 'UPI';
 
-/// The editable collection sheet shown on screen. It is built from the group wise loan api
-/// (see IGroupWiseLoan), which carries the saved collection row for the collection date.
+// The editable sheet on screen, built from the group wise loan api.
 export interface GroupLoan {
   loanId: string;
   loanNo: string;
@@ -14,9 +13,11 @@ export interface GroupLoan {
   emiAmount: number;
   paidAmount: number;
   remarks: string;
-  /// Null for a loan collected earlier, as the loan search does not return how it was paid.
+  // Null when the row collected nothing, or when the date holds more than one posting.
   paymentMode: PaymentMode | null;
   utrNo: string;
+  // More than one means the amount is a total of several postings.
+  collectionCount: number;
   status: LoanCollectionStatus;
   isLocked: boolean;
 }

@@ -18,7 +18,7 @@
             <svg lucideIcon="users" class="w-5 h-5"></svg>
           </div>
           <mat-select [placeholder]="groupsLoading() ? 'Loading ...' : 'Select group'" [(ngModel)]="groupId"
-            (selectionChange)="clearDetail()" required>
+            (selectionChange)="onGroupChange()" required>
             @for (group of officerGroups(); track group.id) {
             <mat-option [value]="group.id">{{ group.code }} - {{ group.name }}</mat-option>
             }
@@ -34,12 +34,14 @@
             <svg lucideIcon="receipt-text" class="w-5 h-5"></svg>
           </div>
           <input matInput [value]="loanSearchText()" (input)="searchLoans($any($event.target).value)"
-            [matAutocomplete]="loanAuto" autocomplete="off" required placeholder="Type at least 3 characters" />
+            [matAutocomplete]="loanAuto" autocomplete="off" required placeholder="Select loan or type to search" />
           <mat-autocomplete #loanAuto="matAutocomplete" [displayWith]="loanLabel" (optionSelected)="selectLoan($event)">
             @for (item of loanOptions(); track item.id) {
-            <mat-option [value]="item">{{ item.loanNo }}</mat-option>
+            <mat-option [value]="item">{{ loanLabel(item) }}</mat-option>
             } @empty {
-            @if (loanSearchText().trim().length >= 3) {
+            @if (!canSearchLoans()) {
+            <mat-option disabled>Select credit officer and group first</mat-option>
+            } @else {
             <mat-option disabled>{{ loanSearching() ? 'Searching ...' : 'No loans found' }}</mat-option>
             }
             }
@@ -200,13 +202,10 @@
           <svg lucideIcon="file-text" class="w-5 h-5"></svg>
         </div>
         <input matInput autocomplete="off" [formField]="payForm.remarks"
-          [placeholder]="isShortPaid() ? 'Required for short payment' : 'Remarks'" />
+          placeholder="Remarks (optional)" />
         @if (isShortPaid()) {
-        <mat-hint class="text-amber-600">Short paid - remarks required</mat-hint>
+        <mat-hint class="text-amber-600">Paid less than the EMI</mat-hint>
         }
-        <mat-error class="cus-error">
-          {{ payForm.remarks().errors()[0]?.message }}
-        </mat-error>
       </mat-form-field>
     </div>
 

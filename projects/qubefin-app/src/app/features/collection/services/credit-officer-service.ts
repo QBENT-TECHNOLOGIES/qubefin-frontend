@@ -37,18 +37,14 @@ export class CreditOfficerService {
     return this.httpClient.post<string>(`${this.basePath}/save-bc-collection`, request);
   }
 
-  getGroupLoanPaymentDetail(designationId: string, bcGroupId: string, loanId: string) {
-    return this.httpClient.get<IGroupWiseLoan>(
-      `${this.basePath}/bc-group-loans-payment/${designationId}`,
-      { params: { bcGroupId, loanId } },
-    );
+  getGroupLoanPaymentDetail(loanId: string) {
+    return this.httpClient.get<IGroupWiseLoan>(`${this.basePath}/bc-group-loans-payment/${loanId}`);
   }
-
-  searchLoansByText(searchText: string) {
+  searchGroupLoans(designationId: string, bcGroupId: string, searchText: string) {
     return this.httpClient.post<ILoanSearchByText[]>(
       `${this.basePath}/employees/search-loan-by-text`,
       null,
-      { params: { searchText } },
+      { params: { designationId, bcGroupId, searchText } },
     );
   }
 }

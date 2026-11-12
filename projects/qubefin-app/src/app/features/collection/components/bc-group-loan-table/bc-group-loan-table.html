@@ -65,7 +65,10 @@
 
           <td>
             @if (loan.isLocked) {
-            @if (loan.paymentMode === 'UPI') {
+            @if (loan.collectionCount > 1) {
+            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400"
+              [title]="'Total of ' + loan.collectionCount + ' collections on this date'">{{ loan.collectionCount }} postings</span>
+            } @else if (loan.paymentMode === 'UPI') {
             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-secondary-500/10 text-secondary-500">UPI</span>
             <span class="ml-1 text-slate-400">{{ loan.utrNo }}</span>
             } @else if (loan.paymentMode === 'CASH') {
@@ -73,6 +76,8 @@
             } @else {
             <span class="text-slate-400">—</span>
             }
+            } @else if (!isCollecting(loan)) {
+            <span class="text-slate-400 text-[11px]">Nothing collected</span>
             } @else {
             <div class="flex items-center gap-2">
               <div class="flex shrink-0 rounded-md p-0.5 bg-slate-500/10">

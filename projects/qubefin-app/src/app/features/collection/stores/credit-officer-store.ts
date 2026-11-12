@@ -16,11 +16,11 @@ import { buildGroupWiseLoanQuery } from '../services/group-wise-loan-query';
 export class CreditOfficerStore {
   private readonly basePath = ApiPaths.COLLECTION;
 
-  // BC groups are tagged to the credit officer's designation, not to the employee.
+  // Groups are tagged to the designation, not the employee.
   private readonly designationId = signal<string | undefined>(undefined);
   private readonly loanSearchParam = signal<IGroupWiseLoanSearchParam | undefined>(undefined);
 
-  // Loads as soon as the store is injected, so the credit officer list is there on page load.
+  // Loads as soon as the store is injected.
   private readonly creditOfficersResource = httpResource<ICreditOfficer[]>(() => {
     return `${this.basePath}/credit-officers`;
   });
@@ -47,7 +47,7 @@ export class CreditOfficerStore {
 
   readonly selectedDesignationId = computed(() => this.designationId());
 
-  // Credit officer (designation), optional group and collection date all filter this one call.
+  // Officer, optional group and date all filter this one call.
   private readonly loansResource = httpResource<IGroupWiseLoans>(() => {
     const search = this.loanSearchParam();
     if (!search?.designationId || search.designationId === EMPTY_UUID) return undefined;

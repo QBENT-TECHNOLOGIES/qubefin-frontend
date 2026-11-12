@@ -18,14 +18,19 @@ import {
   LoanPaymentModeChange,
   LoanRemarksChange,
   LoanUtrChange,
+  PaymentMode,
 } from '../../models/bc-group-collection';
-import { isShortPaid, validateLoanCollection } from '../../models/collection-validation';
+import {
+  collectsByUpi,
+  isShortPaid,
+  validateLoanCollection,
+} from '../../models/collection-validation';
 import { ISaveGroupCollectionRequest } from '../../models/group-collection';
 import { IGroupWiseLoan } from '../../models/group-wise-loan';
 import { CreditOfficerService } from '../../services/credit-officer-service';
 import { CreditOfficerStore } from '../../stores/credit-officer-store';
 
-// The sheet is not paged on screen, so one page covers a credit officer's groups. 200 is the server's cap.
+// The sheet is not paged on screen; 200 is the server's cap.
 const LOAN_PAGE_SIZE = 200;
 
 @Component({
@@ -56,7 +61,7 @@ export class BcGroupCollection {
   protected readonly groupsLoading = this.creditOfficerStore.groupsLoading;
   protected readonly loansLoading = this.creditOfficerStore.loansLoading;
 
-  // A credit officer is picked by designation id - BC groups and their loans are tagged to the designation.
+  // The officer is picked by designation id - groups and loans are tagged to it.
   protected designationId = '';
   protected groupId = '';
   protected collectionDate: Date | null = new Date();
@@ -77,8 +82,7 @@ export class BcGroupCollection {
     this.allLoans().reduce((total, loan) => total + loan.paidAmount, 0),
   );
 
-  // The loans of a search land on the store's resource, so the editable sheet is rebuilt whenever one lands.
-  // Edits made on screen live in this.groups until each group is saved.
+  // Rebuilds the sheet when a search lands. Edits live here until the group is saved.
   private readonly loadSheet = effect(() => {
     const loans = this.creditOfficerStore.loans();
 
@@ -99,8 +103,10 @@ export class BcGroupCollection {
   constructor() {
     this.dateAdapter.setLocale('en-GB');
 
-    // The store is root scoped and shared with the payment page, so each page starts with no officer.
+    // The root-scoped store outlives this page, so a return visit would otherwise rebuild
+    // the sheet from the last search while the filters above it read empty.
     this.creditOfficerStore.setDesignationId(undefined);
+    this.creditOfficerStore.clearLoanSearchParam();
   }
 
   protected onCreditOfficerChange(designationId: string) {
@@ -147,7 +153,17 @@ export class BcGroupCollection {
         return loan;
       }
       const shortPaid = isShortPaid(change.value, loan.emiAmount);
-      return { ...loan, paidAmount: change.value, remarks: shortPaid ? loan.remarks : '' };
+
+      // A row that collects nothing has no payment mode.
+      const collecting = change.value > 0;
+
+      return {
+        ...loan,
+        paidAmount: change.value,
+        remarks: shortPaid ? loan.remarks : '',
+        paymentMode: collecting ? loan.paymentMode : 'CASH',
+        utrNo: collecting ? loan.utrNo : '',
+      };
     });
   }
 
@@ -186,7 +202,7 @@ export class BcGroupCollection {
       return;
     }
 
-    // Same rules the payment page's form schema enforces, applied row by row.
+    // Same rules as the payment page, per row.
     for (const loan of openLoans) {
       const error = validateLoanCollection(loan);
 
@@ -200,13 +216,18 @@ export class BcGroupCollection {
       designationId: group.creditOfficerId,
       bcGroupId: groupId,
       collectionDate: this.searchedCollectionDate,
-      loans: openLoans.map((loan) => ({
-        loanId: loan.loanId,
-        collectionAmount: loan.paidAmount,
-        isUpiCollection: loan.paymentMode === 'UPI',
-        utrNo: loan.paymentMode === 'UPI' ? loan.utrNo.trim() : null,
-        remarks: loan.remarks.trim() || null,
-      })),
+      loans: openLoans.map((loan) => {
+        // The api rejects a UPI collection of 0 and would block the whole group.
+        const isUpiCollection = collectsByUpi(loan.paymentMode, loan.paidAmount);
+
+        return {
+          loanId: loan.loanId,
+          collectionAmount: loan.paidAmount,
+          isUpiCollection,
+          utrNo: isUpiCollection ? loan.utrNo.trim() : null,
+          remarks: loan.remarks.trim() || null,
+        };
+      }),
     };
 
     this.setGroupSaving(groupId, true);
@@ -235,15 +256,16 @@ export class BcGroupCollection {
           return item;
         }
         const loans = item.loans.map((loan) =>
-          loan.isLocked ? loan : { ...loan, status: this.getStatus(loan), isLocked: true },
+          loan.isLocked
+            ? loan
+            : { ...loan, status: this.getStatus(loan.paidAmount, loan.emiAmount), isLocked: true },
         );
         return { ...item, loans, isSaved: true, isSaving: false };
       }),
     );
   }
 
-  // One row per loan comes back; only loans with an EMI due on the collection date are shown, under their
-  // BC group, in the order the api sent them.
+  // Only loans with an EMI due on the date, grouped in the order the api sent them.
   private toCollectionGroups(loans: IGroupWiseLoan[]): CollectionGroup[] {
     const groupsByBcGroupId = new Map<string, CollectionGroup>();
 
@@ -264,15 +286,23 @@ export class BcGroupCollection {
         groupsByBcGroupId.set(loan.bcGroupId, group);
       }
 
-      // The demand row of the collection date carries the EMI; the loan's own EMI is the fallback when the
-      // sheet for that date has not been raised yet.
+      // The demand row carries the EMI; the loan's own EMI is the fallback.
       const emiAmount = loan.collectionEmiAmount ?? loan.emiAmount ?? 0;
       const collectedAmount = loan.collectedAmount ?? 0;
-      const isAlreadyCollected = loan.isCollected && collectedAmount > 0;
+      // A posted row of 0 is still collected: the officer recorded that nothing came in.
+      const isAlreadyCollected = loan.isCollected;
 
-      let status: LoanCollectionStatus = 'PENDING';
+      const status: LoanCollectionStatus = isAlreadyCollected
+        ? this.getStatus(collectedAmount, emiAmount)
+        : 'PENDING';
+
+      // An open row starts on cash. A locked row shows how it was paid - but not when it
+      // collected nothing, and not when the total came from several postings of different modes.
+      const isSinglePosting = loan.collectionCount <= 1;
+      let paymentMode: PaymentMode | null = 'CASH';
       if (isAlreadyCollected) {
-        status = collectedAmount >= emiAmount ? 'PAID' : 'PARTIAL';
+        paymentMode =
+          collectedAmount > 0 && isSinglePosting ? (loan.isUpiCollection ? 'UPI' : 'CASH') : null;
       }
 
       group.loans.push({
@@ -285,8 +315,9 @@ export class BcGroupCollection {
         emiAmount,
         paidAmount: isAlreadyCollected ? collectedAmount : emiAmount,
         remarks: loan.collectionRemarks ?? '',
-        paymentMode: isAlreadyCollected ? null : 'CASH',
-        utrNo: '',
+        paymentMode,
+        utrNo: isAlreadyCollected && isSinglePosting ? (loan.collectionUtrNo ?? '') : '',
+        collectionCount: loan.collectionCount,
         status,
         isLocked: isAlreadyCollected,
       });
@@ -311,11 +342,12 @@ export class BcGroupCollection {
     );
   }
 
-  private getStatus(loan: GroupLoan): LoanCollectionStatus {
-    if (loan.paidAmount >= loan.emiAmount) {
+  // One reading of an amount, whether it was just saved or came back from the api.
+  private getStatus(paidAmount: number, emiAmount: number): LoanCollectionStatus {
+    if (paidAmount >= emiAmount) {
       return 'PAID';
     }
-    if (loan.paidAmount > 0) {
+    if (paidAmount > 0) {
       return 'PARTIAL';
     }
     return 'NOT_PAID';
