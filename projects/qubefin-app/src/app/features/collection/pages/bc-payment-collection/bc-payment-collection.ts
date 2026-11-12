@@ -13,27 +13,23 @@ import {
 } from '@angular/material/autocomplete';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { LucideDynamicIcon } from '@lucide/angular';
-import {
-  catchError,
-  debounceTime,
-  distinctUntilChanged,
-  finalize,
-  of,
-  Subject,
-  switchMap,
-} from 'rxjs';
+import { catchError, debounceTime, finalize, of, Subject, switchMap } from 'rxjs';
 import { AlertService } from 'qubefin-core';
-import { IGroupWiseLoan } from '../../models/group-wise-loan';
 import { ICreditOfficer, ICreditOfficerBranch } from '../../models/credit-officer';
 import { ILoanSearchByText } from '../../models/bc-group-collection';
 import { ISaveGroupCollectionRequest } from '../../models/group-collection';
 import { CreditOfficerStore } from '../../stores/credit-officer-store';
 import { CreditOfficerService } from '../../services/credit-officer-service';
-
-// The loan search returns every running loan that matches, so wait for a few characters before calling it.
-const LOAN_SEARCH_MIN_LENGTH = 3;
+import { IGroupWiseLoan } from '../../models/group-wise-loan';
 
 type PaymentMode = 'CASH' | 'UPI';
+
+interface ILoanSearchRequest {
+  designationId: string;
+  bcGroupId: string;
+  searchText: string;
+}
+
 interface IPaymentForm {
   collectionDate: Date | null;
   paidAmount: number | null;
@@ -104,7 +100,7 @@ export class BcPaymentCollection {
   protected readonly loanSearchText = signal<string>('');
   protected readonly loanSearching = signal<boolean>(false);
   protected readonly selectedLoan = signal<ILoanSearchByText | null>(null);
-  private readonly loanSearch$ = new Subject<string>();
+  private readonly loanSearch$ = new Subject<ILoanSearchRequest | null>();
 
   protected readonly loan = signal<IGroupWiseLoan | null>(null);
   protected readonly detailLoading = signal<boolean>(false);
@@ -114,10 +110,7 @@ export class BcPaymentCollection {
 
   protected readonly payModel = signal<IPaymentForm>(this.emptyPayment());
 
-  protected readonly emiAmount = computed(() => {
-    const loan = this.loan();
-    return loan ? (loan.collectionEmiAmount ?? loan.emiAmount ?? 0) : 0;
-  });
+  protected readonly emiAmount = computed(() => this.loan()?.emiAmount ?? 0);
 
   protected readonly isUpi = computed(() => this.payModel().paymentMode === 'UPI');
 
@@ -147,11 +140,12 @@ export class BcPaymentCollection {
     this.loanSearch$
       .pipe(
         debounceTime(250),
-        distinctUntilChanged(),
-        switchMap((text) =>
-          this.creditOfficerService
-            .searchLoansByText(text)
-            .pipe(catchError(() => of([] as ILoanSearchByText[]))),
+        switchMap((query) =>
+          query
+            ? this.creditOfficerService
+                .searchGroupLoans(query.designationId, query.bcGroupId, query.searchText)
+                .pipe(catchError(() => of([] as ILoanSearchByText[])))
+            : of([] as ILoanSearchByText[]),
         ),
         takeUntilDestroyed(),
       )
@@ -199,15 +193,27 @@ export class BcPaymentCollection {
   private onCreditOfficerChange() {
     this.groupId = '';
     this.creditOfficerStore.setDesignationId(this.designationId || undefined);
-    this.clearDetail();
+    this.resetLoanSelection();
   }
 
   protected readonly loanLabel = (loan: ILoanSearchByText | string | null): string => {
     if (!loan) {
       return '';
     }
-    return typeof loan === 'string' ? loan : loan.loanNo;
+    if (typeof loan === 'string') {
+      return loan;
+    }
+    return loan.memberName ? `${loan.loanNo} (${loan.memberName})` : loan.loanNo;
   };
+
+  protected canSearchLoans(): boolean {
+    return !!this.designationId && !!this.groupId;
+  }
+
+  protected onGroupChange() {
+    this.resetLoanSelection();
+    this.loadLoanOptions('');
+  }
 
   protected searchLoans(text: string) {
     this.loanSearchText.set(text);
@@ -217,21 +223,38 @@ export class BcPaymentCollection {
       this.clearDetail();
     }
 
-    const searchText = text.trim();
-    if (searchText.length < LOAN_SEARCH_MIN_LENGTH) {
+    this.loadLoanOptions(text.split('(')[0].trim());
+  }
+
+  private loadLoanOptions(searchText: string) {
+    if (!this.canSearchLoans()) {
       this.loanOptions.set([]);
       this.loanSearching.set(false);
+      this.loanSearch$.next(null);
       return;
     }
 
     this.loanSearching.set(true);
-    this.loanSearch$.next(searchText);
+    this.loanSearch$.next({
+      designationId: this.designationId,
+      bcGroupId: this.groupId,
+      searchText,
+    });
+  }
+
+  private resetLoanSelection() {
+    this.loanSearchText.set('');
+    this.loanOptions.set([]);
+    this.loanSearching.set(false);
+    this.selectedLoan.set(null);
+    this.loanSearch$.next(null);
+    this.clearDetail();
   }
 
   protected selectLoan(event: MatAutocompleteSelectedEvent) {
     const loan = event.option.value as ILoanSearchByText;
     this.selectedLoan.set(loan);
-    this.loanSearchText.set(loan.loanNo);
+    this.loanSearchText.set(this.loanLabel(loan));
     this.clearDetail();
   }
 
@@ -249,10 +272,6 @@ export class BcPaymentCollection {
       this.alertService.error('Oops ....', 'Select Loan No');
       return;
     }
-    // if (!this.designationId || !this.groupId || !loan) {
-    //   this.alertService.error('Oops ....', 'Select credit officer, group and loan.');
-    //   return;
-    // }
 
     this.searched = { designationId: this.designationId, bcGroupId: this.groupId };
 
@@ -264,14 +283,10 @@ export class BcPaymentCollection {
     this.officerFilterText.set('');
     this.designationId = '';
     this.groupId = '';
-    this.loanSearchText.set('');
-    this.loanOptions.set([]);
-    this.selectedLoan.set(null);
     this.creditOfficerStore.setDesignationId(undefined);
-    this.clearDetail();
+    this.resetLoanSelection();
   }
 
-  // Any filter edit makes the loan on screen stale, so it is cleared until the next search.
   protected clearDetail() {
     this.loan.set(null);
     this.searched = null;
@@ -287,17 +302,17 @@ export class BcPaymentCollection {
     this.detailLoading.set(true);
 
     this.creditOfficerService
-      .getGroupLoanPaymentDetail(searched.designationId, searched.bcGroupId, loanId)
+      .getGroupLoanPaymentDetail(loanId)
       .pipe(finalize(() => this.detailLoading.set(false)))
       .subscribe({
         next: (loan) => {
           this.loan.set(loan);
           this.payModel.set({
             collectionDate: this.payModel().collectionDate ?? new Date(),
-            paidAmount: loan.collectionEmiAmount ?? loan.emiAmount ?? 0,
+            paidAmount: loan.emiAmount ?? 0,
             paymentMode: 'CASH',
             utrNo: '',
-            remarks: loan.collectionRemarks ?? '',
+            remarks: '',
           });
         },
         error: () => this.loan.set(null),

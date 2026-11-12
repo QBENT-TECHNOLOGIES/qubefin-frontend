@@ -52,4 +52,5 @@ export interface LoanUtrChange {
 export interface ILoanSearchByText {
   id: string;
   loanNo: string;
+  memberName: string;
 }
