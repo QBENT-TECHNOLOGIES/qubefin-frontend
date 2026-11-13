@@ -241,48 +241,69 @@ export interface JobSearchResponse {
 }
 
 /** A task as entered on the web. */
+/**
+ * A new task in C1 (POST jobs) and C2 (POST jobs/{id}/tasks); names as the API takes them. The target is sent with the
+ * API's fields (kind, originRefId, targetName, targetLocation, organisationUnitId) plus branchName / radiusMeters, which
+ * the task picker keeps for display and the server ignores.
+ */
 export interface NewTaskInput {
-  type: TaskType;
-  title: string;
+  taskType: TaskType;
+  taskTitle: string;
   /** Instruction (optional). */
   notes: string | null;
   /** Defaults to Medium when missing. */
   priority: TaskPriority;
-  /** Optional companion; the server fills in the name. */
-  accompaniedById: string | null;
+  /** Optional companion, shown as "Accompanied by"; the server fills in the name. */
+  coOrdinatedBy: string | null;
   target: TaskTarget;
 }
 
+/** C1, POST tracking-api/jobs; names as the API takes them. */
 export interface CreateJobRequest {
-  title: string;
-  description: string | null;
+  jobTitle: string;
+  jobDescription: string | null;
   /** Required (400 when missing). */
   assigneeId: string;
-  startFrom: string | null;
-  completeBy: string;
+  /** yyyy-MM-dd or null ("start from"). */
+  startDate: string | null;
+  /** yyyy-MM-dd ("complete by"). */
+  endDate: string;
   tasks: NewTaskInput[];
 }
 
-/** taskIds = null moves the whole job; a list moves only those tasks into a new linked job. */
+/**
+ * C3, PUT tracking-api/jobs/{id}/transfer. taskIds = null moves the whole job; a list moves only those tasks into a new
+ * linked job.
+ */
 export interface TransferJobRequest {
   assigneeId: string;
   taskIds: string[] | null;
   remarks: string;
-  /** For a partial transfer: the new job's complete-by date (defaults to the original's). */
-  completeBy: string | null;
+  /** For a partial transfer: the new job's complete-by date (defaults to the original's); null for a whole transfer. */
+  endDate: string | null;
 }
 
-export interface TransferJobResponse {
-  job: Job;
-  /** The new job created by a partial transfer. */
-  newJob: Job | null;
-  /**
-   * Pending tasks that did not move because the new assignee already has the same task at the same place
-   * pending in another job. They stay in the original job.
-   */
-  skipped: SkippedTask[];
+/**
+ * C3–C7 response (transfer, extend, cancel job, cancel task, reject task): a plain message for the user, e.g.
+ * "JOB-260006 transferred to Subrata Barman.", "JOB-260006 complete-by date extended from 14 Nov 2026 to 20 Nov 2026.",
+ * "Task TSK-26039000004 cancelled.". A refused action answers 400 `{ message }` (e.g. "JOB-260006 is Cancelled and cannot
+ * be cancelled."). The web shows the message and reloads the job.
+ */
+export type JobActionMessage = string;
+
+/** C1 response (POST tracking-api/jobs): the new job's id and a message for the user, e.g. "Job JOB-260006 created for … with 1 task." */
+export interface CreateJobResponse {
+  jobId: string;
+  message: string;
 }
 
+/**
+ * C2 response (POST tracking-api/jobs/{id}/tasks): a plain message, e.g. "1 task added to JOB-260006. Note: Member Visit – … —
+ * Also pending with … (JOB-260005)." When nothing can be added the API answers 400 with the reasons in `message`.
+ */
+export type AddTasksMessage = string;
+
+/** C2, POST tracking-api/jobs/{id}/tasks. */
 export interface AddTasksRequest {
   tasks: NewTaskInput[];
 }
@@ -305,36 +326,43 @@ export interface AddTasksResponse {
   warnings: TaskWarning[];
 }
 
+/** C4, PUT tracking-api/jobs/{id}/extend: the new complete-by date. */
 export interface ExtendJobRequest {
-  completeBy: string;
+  endDate: string;
   remarks: string;
 }
 
+/** C5 cancel job, C6 cancel task, C7 reject a self-added task. */
 export interface RemarksRequest {
   remarks: string;
 }
 
-/** A task location for the monitoring overview map (GET jobs/task-points). */
+/**
+ * A task location (B4, GET tracking-api/jobs/task-points?organisationUnitId=&assigneeId=&pendingOnly=, all optional): the
+ * monitoring overview map and the duplicate hints in the task picker. Names as the API sends them.
+ */
 export interface JobTaskPoint {
   jobId: string;
-  jobNo: string;
+  jobCode: string;
   jobTitle: string;
   jobStatus: JobStatus;
-  /** Job window, for the overlap rule: startFrom (or the creation day) to completeBy. */
-  jobStartFrom: string;
-  jobCompleteBy: string;
+  /** Job window, for the overlap rule: start date (or the creation day) to end date (complete by). yyyy-MM-dd. */
+  jobStartDate: string;
+  jobEndDate: string;
   assigneeId: string;
   assigneeName: string;
   taskId: string;
   taskNo: string;
-  title: string;
-  type: TaskType;
+  taskTitle: string;
+  taskType: TaskType;
   priority: TaskPriority;
   status: JobTaskStatus;
   targetKind: TaskTargetKind;
   /** Geo-tagged entity id (null for a point on the map). */
-  refId: string | null;
-  location: GeoPoint;
+  originRefId: string | null;
+  /** Branch the task is in. */
+  organisationUnitId: string;
+  targetLocation: GeoPoint;
   /** Completion photo taken outside the match radius. */
   locationMismatch: boolean;
 }

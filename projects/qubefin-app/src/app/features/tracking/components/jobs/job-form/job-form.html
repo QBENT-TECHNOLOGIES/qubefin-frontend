@@ -16,7 +16,7 @@
                 <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="user" class="w-5 h-5"></svg></div>
                 <mat-select [formField]="jobForm.assigneeId" placeholder="Select who will do this job">
                     @for (g of lookup.assignableByRole(); track g.role) {
-                    <mat-optgroup [label]="ROLE_LABEL[g.role] + 's'">
+                    <mat-optgroup [label]="roleLabel(g.role) + 's'">
                         @for (o of g.officers; track o.id) {
                         <mat-option [value]="o.id">{{ o.name }} · {{ o.unitName }}</mat-option>
                         }
@@ -45,7 +45,7 @@
         <p class="mt-2 text-[11px] text-slate-500 flex items-center gap-1.5">
             <svg lucideIcon="info" class="w-3.5 h-3.5"></svg>
             @if (assignee(); as a) {
-            {{ ROLE_LABEL[a.role] }} jobs may only hold tasks in {{ a.unitName }}.
+            {{ roleLabel(a.role) }} jobs may only hold tasks in {{ a.unitName }}.
             } @else {
             Choose who will do this job first. Places they already have pending are locked; places other people have are allowed, with a warning.
             }

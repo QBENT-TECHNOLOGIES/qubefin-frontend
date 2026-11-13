@@ -67,6 +67,6 @@ export class ExtendJobDialog {
 
   confirm() {
     this.submitted.set(true);
-    if (this.dateOk() && this.remarks().trim().length >= 3) this.dialogRef.close({ completeBy: this.date(), remarks: this.remarks().trim() });
+    if (this.dateOk() && this.remarks().trim().length >= 3) this.dialogRef.close({ endDate: this.date(), remarks: this.remarks().trim() });
   }
 }

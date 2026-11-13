@@ -13,7 +13,7 @@ import { TrackingLookupStore } from '../../stores/tracking-lookup-store';
 import { centroid, DEFAULT_CENTER } from '../../utils/geo-utils';
 import { MarkerContentCache } from '../../utils/marker-content';
 import { pollWhileVisible } from '../../utils/poll';
-import { ACTIVITY_LABEL, APPROVAL_STATUS, ROLE_LABEL } from '../../utils/tracking-labels';
+import { ACTIVITY_LABEL, APPROVAL_STATUS, roleLabel } from '../../utils/tracking-labels';
 import { MapStatus } from '../../components/shared/map-status/map-status';
 import { RemarksDialog, RemarksDialogData } from '../../components/shared/remarks-dialog/remarks-dialog';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
@@ -33,7 +33,7 @@ export class OutOfRadiusApprovals {
 
   readonly APPROVAL_STATUS = APPROVAL_STATUS;
   readonly ACTIVITY_LABEL = ACTIVITY_LABEL;
-  readonly ROLE_LABEL = ROLE_LABEL;
+  readonly roleLabel = roleLabel;
   readonly tabs: { value: ApprovalStatus | null; label: string }[] = [
     { value: 'Pending', label: 'Pending' },
     { value: 'Approved', label: 'Approved' },

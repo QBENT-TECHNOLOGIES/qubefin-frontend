@@ -77,41 +77,41 @@
             @let companions = companionsByBranch().get(t.target.organisationUnitId) ?? [];
             <li class="trk-builder-item is-stacked" [class.is-blocked]="!!c?.block" [class.is-warned]="!!c?.warn">
                 <div class="flex items-center gap-3 w-full">
-                    <span class="trk-type-icon" [style.--trk-color]="TASK_TYPE[t.type].color" [matTooltip]="TASK_TYPE[t.type].label">
-                        <svg [lucideIcon]="TASK_TYPE[t.type].icon" class="w-4 h-4"></svg>
+                    <span class="trk-type-icon" [style.--trk-color]="TASK_TYPE[t.taskType].color" [matTooltip]="TASK_TYPE[t.taskType].label">
+                        <svg [lucideIcon]="TASK_TYPE[t.taskType].icon" class="w-4 h-4"></svg>
                     </span>
                     <div class="min-w-0 flex-1">
-                        <input class="trk-inline-input" [value]="t.title" (change)="rename(i, $any($event.target).value)" aria-label="Task title">
+                        <input class="trk-inline-input" [value]="t.taskTitle" (change)="rename(i, $any($event.target).value)" aria-label="Task title">
                         <p class="text-[11px] text-slate-400 truncate">{{ t.target.targetName }} · {{ t.target.branchName }}</p>
                     </div>
                     <select class="trk-inline-select trk-priority-select" [style.--trk-color]="TASK_PRIORITY[t.priority].color"
-                        (change)="update(i, { priority: $any($event.target).value })" [attr.aria-label]="'Priority for ' + t.title" matTooltip="Priority">
+                        (change)="update(i, { priority: $any($event.target).value })" [attr.aria-label]="'Priority for ' + t.taskTitle" matTooltip="Priority">
                         @for (p of TASK_PRIORITIES; track p) {
                         <option [value]="p" [selected]="p === t.priority">{{ TASK_PRIORITY[p].label }}</option>
                         }
                     </select>
                     @if (types.length > 1) {
-                    <select class="trk-inline-select" [value]="t.type" (change)="changeType(i, $any($event.target).value)"
+                    <select class="trk-inline-select" [value]="t.taskType" (change)="changeType(i, $any($event.target).value)"
                         [attr.aria-label]="'Task type for ' + t.target.targetName" matTooltip="Change the task type for this place">
                         @for (ty of types; track ty) {
-                        <option [value]="ty" [selected]="ty === t.type">{{ TASK_TYPE[ty].label }}</option>
+                        <option [value]="ty" [selected]="ty === t.taskType">{{ TASK_TYPE[ty].label }}</option>
                         }
                     </select>
                     } @else {
-                    <span class="text-[11px] font-medium text-slate-500 whitespace-nowrap">{{ TASK_TYPE[t.type].label }}</span>
+                    <span class="text-[11px] font-medium text-slate-500 whitespace-nowrap">{{ TASK_TYPE[t.taskType].label }}</span>
                     }
-                    <button type="button" class="trk-icon-btn" matTooltip="Remove" (click)="remove(i)" [attr.aria-label]="'Remove ' + t.title">
+                    <button type="button" class="trk-icon-btn" matTooltip="Remove" (click)="remove(i)" [attr.aria-label]="'Remove ' + t.taskTitle">
                         <svg lucideIcon="trash-2" class="w-4 h-4 text-rose-600"></svg>
                     </button>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 w-full pl-8">
                     <input class="trk-inline-input is-small flex-1 min-w-[200px]" [value]="t.notes ?? ''" placeholder="Instruction (optional)"
-                        (change)="update(i, { notes: $any($event.target).value.trim() || null })" [attr.aria-label]="'Instruction for ' + t.title">
-                    <select class="trk-inline-select" (change)="update(i, { accompaniedById: $any($event.target).value || null })"
-                        [attr.aria-label]="'Accompanied by, for ' + t.title" matTooltip="Accompanied by (optional)">
-                        <option value="" [selected]="!t.accompaniedById">Accompanied by: nobody</option>
+                        (change)="update(i, { notes: $any($event.target).value.trim() || null })" [attr.aria-label]="'Instruction for ' + t.taskTitle">
+                    <select class="trk-inline-select" (change)="update(i, { coOrdinatedBy: $any($event.target).value || null })"
+                        [attr.aria-label]="'Accompanied by, for ' + t.taskTitle" matTooltip="Accompanied by (optional)">
+                        <option value="" [selected]="!t.coOrdinatedBy">Accompanied by: nobody</option>
                         @for (p of companions; track p.id) {
-                        <option [value]="p.id" [selected]="p.id === t.accompaniedById">With {{ p.label }}</option>
+                        <option [value]="p.id" [selected]="p.id === t.coOrdinatedBy">With {{ p.label }}</option>
                         }
                     </select>
                 </div>

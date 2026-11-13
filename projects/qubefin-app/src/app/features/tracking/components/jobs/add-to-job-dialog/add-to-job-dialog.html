@@ -37,7 +37,7 @@
                         <mat-select [value]="filterAssigneeId()" (valueChange)="filterAssigneeId.set($event); selectedJobId.set(null)" placeholder="Anyone">
                             <mat-option [value]="null">Anyone</mat-option>
                             @for (g of lookup.officersByRole(); track g.role) {
-                            <mat-optgroup [label]="ROLE_LABEL[g.role] + 's'">
+                            <mat-optgroup [label]="roleLabel(g.role) + 's'">
                                 @for (o of g.officers; track o.id) { <mat-option [value]="o.id">{{ o.name }}</mat-option> }
                             </mat-optgroup>
                             }
@@ -120,7 +120,7 @@
             <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="user" class="w-5 h-5"></svg></div>
             <mat-select [ngModel]="assigneeId()" (ngModelChange)="assigneeId.set($event)" placeholder="Select who will do this job">
                 @for (g of officerGroups(); track g.role) {
-                <mat-optgroup [label]="ROLE_LABEL[g.role] + 's'">
+                <mat-optgroup [label]="roleLabel(g.role) + 's'">
                     @for (o of g.officers; track o.id) {
                     <mat-option [value]="o.id" [disabled]="o.fit === 0">
                         <span class="text-[13px]">{{ o.name }} · {{ o.unitName }}</span>

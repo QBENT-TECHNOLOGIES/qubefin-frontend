@@ -9,13 +9,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { ApiPaths } from 'qubefin-core';
-import { FieldOfficer } from '../../../models/field-officer';
+import { FieldOfficer, unitIdsOf } from '../../../models/field-officer';
 import { DEFAULT_TASK_PRIORITY, Job, JobSummary, TASK_PRIORITIES } from '../../../models/job';
 import { AddOdToJobRequest, OdMember, OdTaskInput } from '../../../models/od-member';
 import { TrackingLookupStore } from '../../../stores/tracking-lookup-store';
 import { toDateKey } from '../../../utils/geo-utils';
 import { jobBranchConflict } from '../../../utils/job-rules';
-import { JOB_STATUS, JOB_TASK_STATUS, ROLE_LABEL, TASK_PRIORITY, TASK_TYPE } from '../../../utils/tracking-labels';
+import { JOB_STATUS, JOB_TASK_STATUS, roleLabel, TASK_PRIORITY, TASK_TYPE } from '../../../utils/tracking-labels';
 import { TrackingChip } from '../../shared/tracking-chip/tracking-chip';
 import { TrkDateField } from '../../shared/date-field/trk-date-field';
 
@@ -48,7 +48,7 @@ export class AddToJobDialog {
   readonly JOB_STATUS = JOB_STATUS;
   readonly JOB_TASK_STATUS = JOB_TASK_STATUS;
   readonly TASK_TYPE = TASK_TYPE;
-  readonly ROLE_LABEL = ROLE_LABEL;
+  readonly roleLabel = roleLabel;
   readonly TASK_PRIORITY = TASK_PRIORITY;
   readonly TASK_PRIORITIES = TASK_PRIORITIES;
   readonly today = toDateKey();
@@ -133,8 +133,8 @@ export class AddToJobDialog {
       const list = me?.employeeId && me.employeeId !== holder ? [{ id: me.employeeId, label: `${me.name} (me)` }] : [];
       this.lookup
         .officers()
-        .filter((o) => o.id !== holder && o.organisationUnitIds.includes(b))
-        .forEach((o) => list.push({ id: o.id, label: `${o.name} · ${ROLE_LABEL[o.role]}` }));
+        .filter((o) => o.id !== holder && unitIdsOf(o).includes(b))
+        .forEach((o) => list.push({ id: o.id, label: `${o.name} · ${roleLabel(o.role)}` }));
       map.set(b, list);
     });
     return map;

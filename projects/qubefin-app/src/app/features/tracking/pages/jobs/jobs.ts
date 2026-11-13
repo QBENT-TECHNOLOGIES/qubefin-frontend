@@ -16,14 +16,14 @@ import { JobStore } from '../../stores/job-store';
 import { TrackingLookupStore } from '../../stores/tracking-lookup-store';
 import { pollWhileVisible } from '../../utils/poll';
 import { DPD_RANGES } from '../../utils/dpd';
-import { JOB_STATUS, ROLE_LABEL, optionsOf } from '../../utils/tracking-labels';
+import { JOB_STATUS, roleLabel, optionsOf } from '../../utils/tracking-labels';
 import { JobForm } from '../../components/jobs/job-form/job-form';
 import { JobList } from '../../components/jobs/job-list/job-list';
 import { JobView } from '../../components/jobs/job-view/job-view';
 import { MockActorSwitch } from '../../mocks/mock-actor-switch';
 import { DateKeyRange, TrkDateRangeField } from '../../components/shared/date-field/trk-date-range-field';
 
-/** Jobs: create (with tasks), assign now or later, transfer, extend, and audit. */
+/** Jobs: create (assignee required, with tasks), transfer, extend, and audit. */
 @Component({
   selector: 'qfin-jobs',
   imports: [NgClass, FormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatPaginatorModule, MatTooltipModule, LucideDynamicIcon, JobList, JobView, JobForm, MockActorSwitch, TrkDateRangeField],
@@ -37,7 +37,7 @@ export class Jobs {
 
   readonly EMPTY_UUID = EMPTY_UUID;
   readonly statusOptions = optionsOf(JOB_STATUS);
-  readonly ROLE_LABEL = ROLE_LABEL;
+  readonly roleLabel = roleLabel;
   readonly DPD_RANGES = DPD_RANGES;
 
   readonly isViewMode = signal(true);

@@ -39,7 +39,7 @@ export class GeoTagRegistry {
   private readonly markers = new MarkerContentCache();
 
   readonly selectedId = signal<string | null>(null);
-  readonly selected = computed(() => this.store.tags().find((t) => t.id === this.selectedId()) ?? null);
+  readonly selected = computed(() => this.store.tags().find((t) => t.refId === this.selectedId()) ?? null);
 
   readonly tagged = computed(() => this.store.tags().filter((t) => !!t.location));
   readonly mapCenter = computed(() => this.selected()?.location ?? centroid(this.tagged().map((t) => t.location!), DEFAULT_CENTER));
@@ -48,10 +48,10 @@ export class GeoTagRegistry {
   readonly pins = computed(() => {
     const color = GEO_TAG_KIND[this.store.kind()].color;
     return this.tagged().map((t) => ({
-      id: t.id,
+      id: t.refId,
       position: t.location!,
       title: `${t.name} · ${t.refCode}`,
-      content: this.markers.pin(`g-${t.id}`, '', color, { small: t.id !== this.selectedId(), selected: t.id === this.selectedId() }),
+      content: this.markers.pin(`g-${t.refId}`, '', color, { small: t.refId !== this.selectedId(), selected: t.refId === this.selectedId() }),
     }));
   });
 
@@ -76,7 +76,8 @@ export class GeoTagRegistry {
 
   /** Groups, members and OD members need a verified location (from the mobile app) before they can get tasks. */
   unverified(t: GeoTag) {
-    return !!t.location && !t.verified && needsVerifiedLocation(t.kind);
+    // `verified` is not sent by E1 yet: only a definite false shows the badge.
+    return !!t.location && t.verified === false && needsVerifiedLocation(t.kind);
   }
 
   openPhoto(t: GeoTag) {

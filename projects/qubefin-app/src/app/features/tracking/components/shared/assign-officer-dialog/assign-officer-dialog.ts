@@ -7,7 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { OfficerRole } from '../../../models/field-officer';
 import { TrackingLookupStore } from '../../../stores/tracking-lookup-store';
-import { ROLE_LABEL } from '../../../utils/tracking-labels';
+import { roleLabel } from '../../../utils/tracking-labels';
 import { jobBranchConflict } from '../../../utils/job-rules';
 import { FieldOfficer } from '../../../models/field-officer';
 import { toDateKey } from '../../../utils/geo-utils';
@@ -49,7 +49,7 @@ export class AssignOfficerDialog {
   private readonly dialogRef = inject(MatDialogRef<AssignOfficerDialog, AssignOfficerDialogResult>);
   private readonly lookup = inject(TrackingLookupStore);
 
-  readonly ROLE_LABEL = ROLE_LABEL;
+  readonly roleLabel = roleLabel;
   readonly today = toDateKey();
 
   readonly assigneeId = signal<string | null>(null);
@@ -65,7 +65,7 @@ export class AssignOfficerDialog {
       .map((g) => ({
         ...g,
         officers: g.officers
-          .filter((o) => !this.sameBranchOnly() || !this.data.branchId || o.organisationUnitId === this.data.branchId || o.role === 'Area Manager' || o.role === 'Division Manager')
+          .filter((o) => !this.sameBranchOnly() || !this.data.branchId || o.organisationUnitId === this.data.branchId || o.role === 'Area Manager' || o.role === 'Divisional Manager')
           .map((o) => ({ ...o, blockedReason: this.blockedReason(o) })),
       }))
       .filter((g) => g.officers.length),

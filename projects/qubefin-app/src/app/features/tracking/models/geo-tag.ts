@@ -10,10 +10,13 @@ export interface GeoTagChange {
   reason: string | null;
 }
 
+/**
+ * One row of the Geo Tags page (E1, `GET tracking-api/geo-tags?kind=&searchText=&organisationUnitId=&onlyUntagged=`; names as
+ * the API sends them). There is no separate geo-tag id: `refId` (the branch, group, member or employee) identifies it.
+ */
 export interface GeoTag {
-  id: string;
   kind: GeoTagKind;
-  /** Id of the underlying entity (branch, group, member, employee). */
+  /** Id of the underlying entity (branch, group, member, employee); also the row's key. */
   refId: string;
   name: string;
   /** Loan account no, group code, employee code, branch code… */
@@ -22,21 +25,16 @@ export interface GeoTag {
   branchName: string;
   address: string | null;
   location: GeoPoint | null;
+  /** Match radius in metres; for a `Branch` the operating radius in metres. */
   radiusMeters: number;
   /** Photo captured at tagging time (e.g. borrower + co-borrower in front of the residence). */
   photoUrl: string | null;
-  verified: boolean;
+  /** Contract rule 3.2.13; **not sent by E1 yet** (13 Nov 2026). While absent the page shows no verification state. */
+  verified?: boolean;
   taggedByName: string | null;
   taggedAt: string | null;
-  history: GeoTagChange[];
-}
-
-export interface GeoTagQuery {
-  kind: GeoTagKind;
-  searchText: string | null;
-  branchId: string | null;
-  /** true = only records still missing a geo-tag. */
-  onlyUntagged: boolean;
+  /** Location changes; **not sent by E1 yet** (13 Nov 2026). */
+  history?: GeoTagChange[];
 }
 
 export interface UpdateGeoTagRequest {
@@ -47,7 +45,7 @@ export interface UpdateGeoTagRequest {
 
 /**
  * Light view of one geo-tagged place, for the task picker that loads a whole branch at once
- * (`GET geo-tags/points?branchId=&kinds=GroupCentre,Member,OdMember`). Only places that have a location;
+ * (B5, `GET geo-tags/points?organisationUnitId=&kinds=GroupCentre,Member,OdMember`; organisationUnitId required; names as the API sends them). Only places that have a location;
  * no photo or history. A member who is currently overdue is returned once, as `OdMember`.
  */
 export interface GeoTagPoint {
@@ -56,11 +54,12 @@ export interface GeoTagPoint {
   refId: string;
   name: string;
   refCode: string;
-  branchId: string;
+  organisationUnitId: string;
   branchName: string;
   address: string | null;
   location: GeoPoint;
-  radiusMeters: number;
+  /** Match radius a task at this place gets (arrival / completion photo must be within it). */
+  taskLocationMatchInMeters: number;
   /**
    * The geo-tag has been verified (done from the mobile app). Groups, members and OD members whose location is not
    * verified are shown with a "Location Not Verified" badge in the task picker and cannot be put in a job until they are.
@@ -79,6 +78,9 @@ export interface GeoTagPoint {
   dpd: number | null;
   /** OD members only: overdue amount (₹). */
   overdueAmount: number | null;
+  /** Who captured the location (mobile app) and when. */
+  taggedByName: string | null;
+  taggedAt: string | null;
 }
 
 export interface GeoTagPointsResponse {

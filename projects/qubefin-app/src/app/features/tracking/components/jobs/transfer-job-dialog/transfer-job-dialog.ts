@@ -12,7 +12,7 @@ import { Job, JobTask, JobTaskPoint, TransferJobRequest } from '../../../models/
 import { TrackingLookupStore } from '../../../stores/tracking-lookup-store';
 import { toDateKey } from '../../../utils/geo-utils';
 import { PendingElsewhere, duplicateCheck, jobBranchConflict, targetKey } from '../../../utils/job-rules';
-import { ROLE_LABEL, TASK_TYPE } from '../../../utils/tracking-labels';
+import { roleLabel, TASK_TYPE } from '../../../utils/tracking-labels';
 import { TrkDateField } from '../../shared/date-field/trk-date-field';
 
 export interface TransferJobDialogData {
@@ -39,7 +39,7 @@ export class TransferJobDialog {
   private readonly dialogRef = inject(MatDialogRef<TransferJobDialog, TransferJobRequest>);
   private readonly lookup = inject(TrackingLookupStore);
 
-  readonly ROLE_LABEL = ROLE_LABEL;
+  readonly roleLabel = roleLabel;
   readonly TASK_TYPE = TASK_TYPE;
   readonly today = toDateKey();
   readonly job = this.data.job;
@@ -70,15 +70,15 @@ export class TransferJobDialog {
   });
   readonly staying = computed<{ task: JobTask; reason: string }[]>(() => {
     const id = this.assigneeId();
-    const theirs = (this.theirsResource.value() ?? []).filter((p) => p.jobId !== this.job.id && p.refId);
+    const theirs = (this.theirsResource.value() ?? []).filter((p) => p.jobId !== this.job.id && p.originRefId);
     if (!id || !theirs.length) return [];
     const window: [string, string] = [this.today, this.createsNewJob() ? this.completeBy() : this.job.endDate];
     const moving = this.mode() === 'whole' ? this.pending : this.pending.filter((t) => this.picked().has(t.id));
     return moving.flatMap((task) => {
       const key = targetKey(task.taskType, task.target);
       const same: PendingElsewhere[] = theirs
-        .filter((p) => `${p.type}|${p.targetKind}:${p.refId}` === key)
-        .map((p) => ({ jobNo: p.jobNo, assigneeId: p.assigneeId, assigneeName: p.assigneeName, window: [p.jobStartFrom, p.jobCompleteBy < this.today ? this.today : p.jobCompleteBy] }));
+        .filter((p) => `${p.taskType}|${p.targetKind}:${p.originRefId}` === key)
+        .map((p) => ({ jobNo: p.jobCode, assigneeId: p.assigneeId, assigneeName: p.assigneeName, window: [p.jobStartDate, p.jobEndDate < this.today ? this.today : p.jobEndDate] }));
       const { block } = duplicateCheck(id, task.taskType, window, same);
       return block ? [{ task, reason: block }] : [];
     });
@@ -135,7 +135,7 @@ export class TransferJobDialog {
       assigneeId: this.assigneeId()!,
       taskIds: partial ? [...this.picked()] : null,
       remarks: this.remarks().trim(),
-      completeBy: this.createsNewJob() ? this.completeBy() : null,
+      endDate: this.createsNewJob() ? this.completeBy() : null,
     });
   }
 }

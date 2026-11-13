@@ -5,7 +5,7 @@
                 <mat-label>Employee</mat-label>
                 <mat-select [value]="employeeId()" (valueChange)="setEmployee($event)" placeholder="Select employee">
                     @for (g of lookup.officersByRole(); track g.role) {
-                    <mat-optgroup [label]="ROLE_LABEL[g.role] + 's'">
+                    <mat-optgroup [label]="roleLabel(g.role) + 's'">
                         @for (o of g.officers; track o.id) { <mat-option [value]="o.id">{{ o.name }} · {{ o.unitName }}</mat-option> }
                     </mat-optgroup>
                     }
@@ -25,7 +25,7 @@
         </div>
         @if (officer(); as o) {
         <div class="text-xs text-slate-500 flex items-center gap-3">
-            <span>{{ ROLE_LABEL[o.role] }} · {{ o.unitName }}</span>
+            <span>{{ roleLabel(o.role) }} · {{ o.unitName }}</span>
             <a class="trk-link" [routerLink]="['/secure/tracking/monitoring']" [queryParams]="{ employee: o.id }">{{ o.name.split(' ')[0] }}'s jobs →</a>
         </div>
         }

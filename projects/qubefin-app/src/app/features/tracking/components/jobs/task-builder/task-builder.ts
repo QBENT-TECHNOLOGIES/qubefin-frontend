@@ -1,3 +1,4 @@
+import { unitIdsOf } from '../../../models/field-officer';
 import { httpResource } from '@angular/common/http';
 import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,7 +12,7 @@ import { DEFAULT_TASK_PRIORITY, JobTaskPoint, NewTaskInput, TASK_PRIORITIES, Tas
 import { TrackingLookupStore } from '../../../stores/tracking-lookup-store';
 import { formatCoords, toDateKey } from '../../../utils/geo-utils';
 import { LOCATION_NOT_VERIFIED, PICKER_KINDS, PendingElsewhere, TYPES_FOR_KIND, defaultTypeFor, duplicateCheck, needsVerifiedLocation, targetKey } from '../../../utils/job-rules';
-import { ROLE_LABEL, TASK_PRIORITY, TASK_TYPE } from '../../../utils/tracking-labels';
+import { roleLabel, TASK_PRIORITY, TASK_TYPE } from '../../../utils/tracking-labels';
 import { FieldPointDraft, FieldPointMarker, FieldPointType, PlaceMultiSelect } from '../place-multi-select/place-multi-select';
 
 /** Why a task (or a place) cannot be added, or a note that it is also pending with someone else. */
@@ -78,7 +79,7 @@ export class TaskBuilder {
   private readonly pointsResource = httpResource<GeoTagPointsResponse>(() => {
     const id = this.branchId();
     if (!id) return undefined;
-    return { url: `${ApiPaths.TRACKING}/geo-tags/points`, params: { branchId: id, kinds: PICKER_KINDS.join(',') } };
+    return { url: `${ApiPaths.TRACKING}/geo-tags/points`, params: { organisationUnitId: id, kinds: PICKER_KINDS.join(',') } };
   });
   readonly branchPlaces = computed(() => this.pointsResource.value()?.points ?? []);
   readonly untaggedByKind = computed(() => this.pointsResource.value()?.untaggedByKind ?? {});
@@ -98,9 +99,9 @@ export class TaskBuilder {
   private readonly pendingByKey = computed(() => {
     const map = new Map<string, PendingElsewhere[]>();
     (this.pendingResource.value() ?? []).forEach((p) => {
-      if (!p.refId) return;
-      const key = `${p.type}|${p.targetKind}:${p.refId}`;
-      const entry: PendingElsewhere = { jobNo: p.jobNo, assigneeId: p.assigneeId, assigneeName: p.assigneeName, window: [p.jobStartFrom, this.activeEnd(p.jobCompleteBy)] };
+      if (!p.originRefId) return;
+      const key = `${p.taskType}|${p.targetKind}:${p.originRefId}`;
+      const entry: PendingElsewhere = { jobNo: p.jobCode, assigneeId: p.assigneeId, assigneeName: p.assigneeName, window: [p.jobStartDate, this.activeEnd(p.jobEndDate)] };
       map.set(key, [...(map.get(key) ?? []), entry]);
     });
     return map;
@@ -115,8 +116,8 @@ export class TaskBuilder {
       const list: Companion[] = me?.employeeId && me.employeeId !== assignee ? [{ id: me.employeeId, label: `${me.name} (me)` }] : [];
       this.lookup
         .officers()
-        .filter((o) => o.id !== assignee && o.organisationUnitIds.includes(b.id))
-        .forEach((o) => list.push({ id: o.id, label: `${o.name} · ${ROLE_LABEL[o.role]}` }));
+        .filter((o) => o.id !== assignee && unitIdsOf(o).includes(b.id))
+        .forEach((o) => list.push({ id: o.id, label: `${o.name} · ${roleLabel(o.role)}` }));
       map.set(b.id, list);
     });
     return map;
@@ -127,7 +128,7 @@ export class TaskBuilder {
     return map;
   });
 
-  private readonly keysInList = computed(() => new Set(this.tasks().map((t) => targetKey(t.type, t.target))));
+  private readonly keysInList = computed(() => new Set(this.tasks().map((t) => targetKey(t.taskType, t.target))));
   private readonly keysInJob = computed(() => new Set(this.existingKeys()));
 
   /**
@@ -150,7 +151,7 @@ export class TaskBuilder {
   readonly warned = computed(() => this.placeChecks().warned);
 
   /** Per task in the list: blocked (e.g. the assignee was changed to someone who already has it) or warned. */
-  readonly taskChecks = computed(() => this.tasks().map((t, i) => this.check(t.type, t.target, i)));
+  readonly taskChecks = computed(() => this.tasks().map((t, i) => this.check(t.taskType, t.target, i)));
   readonly blockedTaskCount = computed(() => this.taskChecks().filter((c) => c.block).length);
   readonly warnedTaskCount = computed(() => this.taskChecks().filter((c) => c.warn).length);
 
@@ -158,8 +159,8 @@ export class TaskBuilder {
   readonly fieldPoints = computed<FieldPointMarker[]>(() =>
     this.tasks()
       .map((t, i) => ({ t, i }))
-      .filter(({ t }) => t.target.kind === 'Custom' && (t.type === 'LeadSourcing' || t.type === 'Survey'))
-      .map(({ t, i }) => ({ key: `${i}`, type: t.type as FieldPointType, name: t.target.targetName, location: t.target.targetLocation, radiusMeters: t.target.radiusMeters })),
+      .filter(({ t }) => t.target.kind === 'Custom' && (t.taskType === 'LeadSourcing' || t.taskType === 'Survey'))
+      .map(({ t, i }) => ({ key: `${i}`, type: t.taskType as FieldPointType, name: t.target.targetName, location: t.target.targetLocation, radiusMeters: t.target.radiusMeters })),
   );
 
   constructor() {
@@ -183,8 +184,8 @@ export class TaskBuilder {
     effect(() => {
       const assignee = this.assigneeId();
       if (!assignee) return;
-      if (this.tasks().some((t) => t.accompaniedById === assignee)) {
-        this.tasks.update((list) => list.map((t) => (t.accompaniedById === assignee ? { ...t, accompaniedById: null } : t)));
+      if (this.tasks().some((t) => t.coOrdinatedBy === assignee)) {
+        this.tasks.update((list) => list.map((t) => (t.coOrdinatedBy === assignee ? { ...t, accompaniedById: null } : t)));
       }
     });
   }
@@ -206,9 +207,9 @@ export class TaskBuilder {
       targetName: tag.name,
       
       targetLocation: tag.location,
-      organisationUnitId: tag.branchId,
+      organisationUnitId: tag.organisationUnitId,
       branchName: tag.branchName,
-      radiusMeters: Math.min(tag.radiusMeters, 500),
+      radiusMeters: Math.min(tag.taskLocationMatchInMeters, 500),
     };
   }
 
@@ -223,7 +224,7 @@ export class TaskBuilder {
    */
   check(type: TaskType, target: TaskTarget, skipIndex = -1): TaskCheck {
     const key = targetKey(type, target);
-    if (this.tasks().some((t, i) => i !== skipIndex && targetKey(t.type, t.target) === key)) return { block: 'already in this list', warn: null };
+    if (this.tasks().some((t, i) => i !== skipIndex && targetKey(t.taskType, t.target) === key)) return { block: 'already in this list', warn: null };
     if (this.keysInJob().has(key)) return { block: 'already pending in this job', warn: null };
     if (!target.originRefId) return NO_ISSUE;
     return duplicateCheck(this.assigneeId(), type, this.window(), this.pendingByKey().get(key) ?? []);
@@ -261,7 +262,7 @@ export class TaskBuilder {
 
   /** New tasks start at Medium priority with no companion; priority, instruction and companion are set per task in the list. */
   private newTask(type: TaskType, target: TaskTarget, notes: string | null): NewTaskInput {
-    return { type, title: this.titleFor(type, target), notes, priority: DEFAULT_TASK_PRIORITY, accompaniedById: null, target };
+    return { taskType: type, taskTitle: this.titleFor(type, target), notes, priority: DEFAULT_TASK_PRIORITY, coOrdinatedBy: null, target };
   }
 
   /** Lead sourcing / survey at a point picked on the map. */
@@ -290,7 +291,7 @@ export class TaskBuilder {
   /** Switch an added task to another type its place allows (e.g. OD member → Member Visit). */
   changeType(index: number, type: TaskType) {
     const task = this.tasks()[index];
-    if (!task || task.type === type) return;
+    if (!task || task.taskType === type) return;
     const why = this.check(type, task.target, index).block;
     if (why) {
       this.error.set(`${task.target.targetName} cannot take a ${TASK_TYPE[type].label.toLowerCase()}: ${why}.`);
@@ -298,8 +299,8 @@ export class TaskBuilder {
       return;
     }
     this.error.set(null);
-    const oldPrefix = `${TASK_TYPE[task.type].label} – `;
-    const title = task.title.startsWith(oldPrefix) ? `${TASK_TYPE[type].label} – ${task.title.slice(oldPrefix.length)}` : task.title;
+    const oldPrefix = `${TASK_TYPE[task.taskType].label} – `;
+    const title = task.taskTitle.startsWith(oldPrefix) ? `${TASK_TYPE[type].label} – ${task.taskTitle.slice(oldPrefix.length)}` : task.taskTitle;
     this.tasks.update((list) => list.map((t, i) => (i === index ? { ...t, type, title } : t)));
   }
 
@@ -313,11 +314,11 @@ export class TaskBuilder {
   }
 
   rename(index: number, title: string) {
-    this.update(index, { title });
+    this.update(index, { taskTitle: title });
   }
 
   /** Change one task's priority, instruction or companion. */
-  update(index: number, patch: Partial<Pick<NewTaskInput, 'title' | 'priority' | 'notes' | 'accompaniedById'>>) {
+  update(index: number, patch: Partial<Pick<NewTaskInput, 'taskTitle' | 'priority' | 'notes' | 'coOrdinatedBy'>>) {
     this.tasks.update((list) => list.map((t, i) => (i === index ? { ...t, ...patch } : t)));
   }
 }

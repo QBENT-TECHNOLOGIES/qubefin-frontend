@@ -1,3 +1,4 @@
+import { unitIdsOf } from '../../../models/field-officer';
 import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -53,7 +54,10 @@ export class AddTasksDialog {
   readonly tasks = signal<NewTaskInput[]>([]);
   readonly existingKeys = this.job.tasks.filter((t) => t.status === 'Pending').map((t) => targetKey(t.taskType, t.target));
   readonly window: [string, string] = [this.job.startDate ?? this.job.createdOn.slice(0, 10), this.job.endDate < toDateKey() ? toDateKey() : this.job.endDate];
-  readonly allowedBranchIds = computed(() => this.lookup.officerById().get(this.job.assigneeId)?.organisationUnitIds ?? null);
+  readonly allowedBranchIds = computed(() => {
+    const o = this.lookup.officerById().get(this.job.assigneeId);
+    return o ? unitIdsOf(o) : null;
+  });
 
   cancel() {
     this.dialogRef.close();

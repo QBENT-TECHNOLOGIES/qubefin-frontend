@@ -13,9 +13,9 @@
  * Unit names are real; coordinates are approximate and every person / member name is fictional.
  * Delete this folder once the real tracking-api is available.
  */
-import { FieldOfficer, OfficerRole } from '../models/field-officer';
+import { FieldOfficer, OfficerRole, unitIdsOf } from '../models/field-officer';
 import { GeoPoint, TrackingBranch } from '../models/geo';
-import { GeoTag, GeoTagKind } from '../models/geo-tag';
+import { GeoTag, GeoTagChange, GeoTagKind } from '../models/geo-tag';
 import {
   EmployeeRoute,
   LivePosition,
@@ -31,6 +31,13 @@ import { TrackingSettings } from '../models/tracking-settings';
 import { Job, JobHistoryEntry, JobTask, TaskOrigin, TaskPriority, TaskTarget, TaskType } from '../models/job';
 import { distanceMeters, offsetPoint, toDateKey } from '../utils/geo-utils';
 import { TASK_TYPE } from '../utils/tracking-labels';
+
+/** The mock keeps its own id and the contract fields E1 does not send yet; `geo-tags` strips the id, like the API. */
+export interface MockGeoTag extends GeoTag {
+  id: string;
+  verified: boolean;
+  history: GeoTagChange[];
+}
 
 // ---------------------------------------------------------------------------------------------
 // Deterministic random numbers so the demo data is the same on every reload.
@@ -131,7 +138,7 @@ export interface MockDb {
   history: JobHistoryEntry[];
   alerts: TrackingAlert[];
   approvals: OutOfRadiusRequest[];
-  geoTags: GeoTag[];
+  geoTags: MockGeoTag[];
   settings: TrackingSettings;
   /** employeeId|yyyy-MM-dd → simulated day. */
   days: Map<string, SimDay>;
@@ -175,7 +182,7 @@ const VILLAGES: Record<string, string[]> = {
 };
 
 const OFFICER_SEED: [name: string, role: OfficerRole, branchCode: string][] = [
-  ['Partha Mukherjee', 'Division Manager', 'DPG'],
+  ['Partha Mukherjee', 'Divisional Manager', 'DPG'],
   ['Sanjay Kundu', 'Area Manager', 'FLK'],
   ['Ranjit Barman', 'Area Manager', 'APD'],
   ['Subhajit Das', 'Branch Manager', 'DPG'],
@@ -184,9 +191,9 @@ const OFFICER_SEED: [name: string, role: OfficerRole, branchCode: string][] = [
   ['Bappaditya Roy', 'Branch Manager', 'DKM'],
   ['Amitava Dey', 'Branch Manager', 'APD'],
   ['Dipankar Saha', 'Branch Manager', 'KMG'],
-  ['Moumita Saha', 'Additional Branch Manager', 'DPG'],
-  ['Sudipa Paul', 'Additional Branch Manager', 'APD'],
-  ['Rahul Adhikary', 'Additional Branch Manager', 'KMR'],
+  ['Moumita Saha', 'Assistant Branch Manager', 'DPG'],
+  ['Sudipa Paul', 'Assistant Branch Manager', 'APD'],
+  ['Rahul Adhikary', 'Assistant Branch Manager', 'KMR'],
   ['Rupa Mondal', 'Credit Officer', 'DPG'],
   ['Ankit Ghosh', 'Credit Officer', 'DPG'],
   ['Nirmal Roy', 'Credit Officer', 'DPG'],
@@ -206,10 +213,10 @@ const OFFICER_SEED: [name: string, role: OfficerRole, branchCode: string][] = [
 
 const DESIGNATION: Record<OfficerRole, string> = {
   'Credit Officer': 'Credit Officer',
-  'Additional Branch Manager': 'Additional Branch Manager',
+  'Assistant Branch Manager': 'Assistant Branch Manager',
   'Branch Manager': 'Branch Manager',
   'Area Manager': 'Area Manager',
-  'Division Manager': 'Division Manager',
+  'Divisional Manager': 'Divisional Manager',
 };
 
 const FIRST = ['Mitali', 'Sabina', 'Rekha', 'Jharna', 'Anjali', 'Sumitra', 'Laxmi', 'Rina', 'Tumpa', 'Shefali', 'Nasrin', 'Papiya', 'Kakali', 'Mampi', 'Sathi', 'Purnima', 'Bulbul', 'Rehana', 'Champa', 'Basanti', 'Dipali', 'Malati'];
@@ -365,8 +372,8 @@ function buildDb(): MockDb {
   const areaBranches = (area: string) => BRANCHES.filter((b) => b.areaName === area).map((b) => b.id);
   const officers: FieldOfficer[] = OFFICER_SEED.map(([name, role, code], i) => {
     const branch = branchByCode(code);
-    const unitName = role === 'Division Manager' ? DIVISION : role === 'Area Manager' ? branch.areaName : branch.name;
-    const branchIds = role === 'Division Manager' ? BRANCHES.map((b) => b.id) : role === 'Area Manager' ? areaBranches(branch.areaName) : [branch.id];
+    const unitName = role === 'Divisional Manager' ? DIVISION : role === 'Area Manager' ? branch.areaName : branch.name;
+    const branchIds = role === 'Divisional Manager' ? BRANCHES.map((b) => b.id) : role === 'Area Manager' ? areaBranches(branch.areaName) : [branch.id];
     return {
       id: uuid('e', i + 1),
       employeeCode: `QF${(2040 + i * 7).toString()}`,
@@ -376,7 +383,7 @@ function buildDb(): MockDb {
       organisationUnitId: branch.id,
       organisationUnitName: branch.name,
       unitName,
-      organisationUnitIds: branchIds,
+      organisationUnits: branchIds.map((id) => ({ id, name: branchById.get(id)!.name })),
       phone: `98${intBetween(30000000, 99999999)}`,
       presentLocation: name === 'Jayanta Rava' ? null : offsetPoint(branch.location!, between(2500, 8000), between(0, 360)),
       reportingOfficerName: null,
@@ -386,14 +393,14 @@ function buildDb(): MockDb {
   // Reporting line: CO → BM (or ABM where there is no BM) → AM → DM. BM and ABM are the same level, both under the AM.
   officers.forEach((o) => {
     const inBranch = (r: OfficerRole) => officers.find((x) => x.role === r && x.organisationUnitId === o.organisationUnitId);
-    const am = officers.find((x) => x.role === 'Area Manager' && x.organisationUnitIds.includes(o.organisationUnitId));
-    if (o.role === 'Credit Officer') o.reportingOfficerName = (inBranch('Branch Manager') ?? inBranch('Additional Branch Manager') ?? am)?.name ?? null;
-    else if (o.role === 'Additional Branch Manager') o.reportingOfficerName = am?.name ?? null;
+    const am = officers.find((x) => x.role === 'Area Manager' && unitIdsOf(x).includes(o.organisationUnitId));
+    if (o.role === 'Credit Officer') o.reportingOfficerName = (inBranch('Branch Manager') ?? inBranch('Assistant Branch Manager') ?? am)?.name ?? null;
+    else if (o.role === 'Assistant Branch Manager') o.reportingOfficerName = am?.name ?? null;
     else if (o.role === 'Branch Manager') o.reportingOfficerName = am?.name ?? null;
     else if (o.role === 'Area Manager') o.reportingOfficerName = 'Partha Mukherjee';
   });
   const byName = (n: string) => officers.find((o) => o.name === n)!;
-  const fieldStaff = officers.filter((o) => o.role !== 'Division Manager');
+  const fieldStaff = officers.filter((o) => o.role !== 'Divisional Manager');
 
   // --- Centres / groups -----------------------------------------------------------------------
   const groups: MockDb['groups'] = [];
@@ -596,7 +603,7 @@ function buildDb(): MockDb {
   });
 
   // Branch managers / ABMs: supervision visits set by the area manager.
-  officers.filter((o) => o.role === 'Branch Manager' || o.role === 'Additional Branch Manager').forEach((m, i) => {
+  officers.filter((o) => o.role === 'Branch Manager' || o.role === 'Assistant Branch Manager').forEach((m, i) => {
     const branch = branchOf(m.organisationUnitId);
     const boss = supervisor(m);
     const job = newJob(d, { title: m.role === 'Branch Manager' ? 'Branch supervision visits' : 'Centre support visits', description: 'Surprise attendance at group meetings and high-DPD member visits.', creator: boss, assignee: m, startFrom: thisMonday, completeBy: thisSaturday, createdAt: at(shiftKey(thisMonday, -3), 16, 40) });
@@ -622,11 +629,11 @@ function buildDb(): MockDb {
   officers.filter((o) => o.role === 'Area Manager').forEach((am) => {
     const job = newJob(d, { title: 'Area review – centre audits', description: 'Audit one group meeting in each branch and check the registers.', creator: { id: dm.id, name: dm.name, unitName: DIVISION }, assignee: am, startFrom: thisMonday, completeBy: shiftKey(thisSaturday, 7), createdAt: at(shiftKey(thisMonday, -4), 11, 0) });
     const days = workDays(thisMonday, thisSaturday);
-    am.organisationUnitIds.forEach((bid, k) => {
+    unitIdsOf(am).forEach((bid, k) => {
       const g = pick(groups.filter((x) => x.branchId === bid));
       addPlanned(job, 'GroupVisit', groupTarget(g), days[(k * 2) % days.length], { id: dm.id, name: dm.name });
     });
-    addPlanned(job, 'Survey', pointTarget(branchOf(am.organisationUnitIds[am.organisationUnitIds.length - 1]), 'new branch feasibility survey', [12, 22]), shiftKey(thisSaturday, 3), { id: dm.id, name: dm.name });
+    addPlanned(job, 'Survey', pointTarget(branchOf(unitIdsOf(am)[unitIdsOf(am).length - 1]), 'new branch feasibility survey', [12, 22]), shiftKey(thisSaturday, 3), { id: dm.id, name: dm.name });
     d.jobs.push(job);
   });
 
@@ -1014,7 +1021,7 @@ export function simulateLivePositions(): LivePosition[] {
   const branchById = new Map(d.branches.map((b) => [b.id, b]));
 
   return d.officers
-    .filter((o) => o.role !== 'Division Manager')
+    .filter((o) => o.role !== 'Divisional Manager')
     .map((o, i) => {
       const branch = branchById.get(o.organisationUnitId)!;
       const route = buildRoute(o.id, today);
@@ -1135,7 +1142,7 @@ function seedAlerts(d: MockDb, now: Date): TrackingAlert[] {
     { type: 'GpsOff', severity: 'High', msg: (o, v) => `GPS / location was switched off on ${o.name}'s device for ${v} minutes.`, unit: 'min', value: () => intBetween(6, 55) },
     { type: 'OutsideBranchRadius', severity: 'High', msg: (o, v) => `${o.name} is ${v} km from the assigned branch (limit 30 km) without approval.`, unit: 'km', value: () => +between(31, 46).toFixed(1) },
   ];
-  const staff = d.officers.filter((o) => o.role !== 'Division Manager');
+  const staff = d.officers.filter((o) => o.role !== 'Divisional Manager');
   for (let i = 0; i < 14; i++) {
     const tpl = pick(templates);
     const o = pick(staff);
@@ -1190,8 +1197,8 @@ function seedApprovals(fieldStaff: FieldOfficer[], branchById: Map<string, Track
   return approvals.sort((a, b) => b.requestedAt.localeCompare(a.requestedAt));
 }
 
-function seedGeoTags(d: MockDb, branchById: Map<string, TrackingBranch>, now: Date): GeoTag[] {
-  const geoTags: GeoTag[] = [];
+function seedGeoTags(d: MockDb, branchById: Map<string, TrackingBranch>, now: Date): MockGeoTag[] {
+  const geoTags: MockGeoTag[] = [];
   let tagNo = 1;
   const addTag = (kind: GeoTagKind, refId: string, name: string, refCode: string, branchId: string, address: string | null, location: GeoPoint | null, radiusMeters: number, photo: boolean) => {
     const taggedAt = addMinutes(now, -intBetween(60 * 24 * 10, 60 * 24 * 200));

@@ -11,7 +11,7 @@ import { JobStore } from '../../../stores/job-store';
 import { TrackingLookupStore } from '../../../stores/tracking-lookup-store';
 import { googleMapsLink, toDateKey } from '../../../utils/geo-utils';
 import { isOpenJob } from '../../../utils/job-rules';
-import { JOB_STATUS, JOB_TASK_STATUS, ROLE_LABEL, TASK_PRIORITY, TASK_TYPE } from '../../../utils/tracking-labels';
+import { JOB_STATUS, JOB_TASK_STATUS, roleLabel, TASK_PRIORITY, TASK_TYPE } from '../../../utils/tracking-labels';
 import { RemarksDialog, RemarksDialogData } from '../../shared/remarks-dialog/remarks-dialog';
 import { TrackingChip } from '../../shared/tracking-chip/tracking-chip';
 import { TaskEvidence } from '../../tasks/task-evidence/task-evidence';
@@ -60,7 +60,7 @@ export class JobView {
   readonly JOB_TASK_STATUS = JOB_TASK_STATUS;
   readonly TASK_TYPE = TASK_TYPE;
   readonly TASK_PRIORITY = TASK_PRIORITY;
-  readonly ROLE_LABEL = ROLE_LABEL;
+  readonly roleLabel = roleLabel;
   readonly HISTORY = HISTORY;
   readonly googleMapsLink = googleMapsLink;
   readonly today = toDateKey();
@@ -133,15 +133,10 @@ export class JobView {
       .afterClosed()
       .subscribe((req) => {
         if (!req) return;
-        this.service.transfer(j.id, req).subscribe(({ job, newJob, skipped }) => {
-          if (skipped.length) {
-            const moved = newJob ? `${newJob.taskCount} task(s) moved to ${newJob.jobCode} for ${newJob.assigneeName}.` : `${job.jobCode} transferred to ${job.assigneeName}.`;
-            this.alerts.warning(`${skipped.length} task(s) not moved`, `${moved} Not moved (they stay in ${j.jobCode}): ${skipped.map((s) => `${s.title} – ${s.reason}`).join(' · ')}`);
-          } else if (newJob) {
-            this.alerts.success('Tasks transferred', `${newJob.taskCount} task(s) moved to ${newJob.jobCode} for ${newJob.assigneeName}.`);
-          } else {
-            this.alerts.toast('success', `${job.jobCode} transferred to ${job.assigneeName}`);
-          }
+        // C3 answers with a message; tasks that could not move (the new assignee already has them) are in it.
+        this.service.transfer(j.id, req).subscribe((message) => {
+          if (/note:|not moved|skipped/i.test(message)) this.alerts.warning('Transfer done', message);
+          else this.alerts.toast('success', message);
           this.afterChange();
         });
       });
@@ -155,11 +150,10 @@ export class JobView {
       .afterClosed()
       .subscribe((tasks) => {
         if (!tasks?.length) return;
-        this.service.addTasks(j.id, { tasks }).subscribe(({ skipped }) => {
-          const added = tasks.length - skipped.length;
-          if (skipped.length) this.alerts.warning(`${added} added, ${skipped.length} skipped`, skipped.map((s) => `${s.title} – ${s.reason}`).join(' · '));
-          else this.alerts.toast('success', `${added} task(s) added`);
-          // Warnings ("also pending with …") were confirmed in the dialog already.
+        // C2 answers with a message; notes ("also pending with …") or skipped tasks are in it. Nothing added → 400 popup.
+        this.service.addTasks(j.id, { tasks }).subscribe((message) => {
+          if (/note:|skipped/i.test(message)) this.alerts.warning('Tasks added', message);
+          else this.alerts.toast('success', message);
           this.afterChange();
         });
       });
@@ -173,10 +167,7 @@ export class JobView {
       .afterClosed()
       .subscribe((req) => {
         if (!req) return;
-        this.service.extend(j.id, req).subscribe((job) => {
-          this.alerts.toast('success', `${job.jobCode} now due ${job.endDate}`);
-          this.afterChange();
-        });
+        this.service.extend(j.id, req).subscribe((message) => this.done(message));
       });
   }
 
@@ -192,10 +183,7 @@ export class JobView {
       tone: 'danger',
     }).subscribe((remarks) => {
       if (!remarks) return;
-      this.service.cancel(j.id, { remarks }).subscribe(() => {
-        this.alerts.toast('success', `${j.jobCode} cancelled`);
-        this.afterChange();
-      });
+      this.service.cancel(j.id, { remarks }).subscribe((message) => this.done(message));
     });
   }
 
@@ -205,10 +193,7 @@ export class JobView {
     if (!j) return;
     this.askRemarks({ title: `Cancel ${t.taskNo}?`, message: t.taskTitle, label: 'Reason', confirmText: 'Cancel task', icon: 'x', tone: 'danger' }).subscribe((remarks) => {
       if (!remarks) return;
-      this.service.cancelTask(j.id, t.id, { remarks }).subscribe(() => {
-        this.alerts.toast('success', `${t.taskNo} cancelled`);
-        this.afterChange();
-      });
+      this.service.cancelTask(j.id, t.id, { remarks }).subscribe((message) => this.done(message));
     });
   }
 
@@ -224,15 +209,18 @@ export class JobView {
       tone: 'danger',
     }).subscribe((remarks) => {
       if (!remarks) return;
-      this.service.rejectTask(j.id, t.id, { remarks }).subscribe(() => {
-        this.alerts.toast('success', `${t.taskNo} rejected`);
-        this.afterChange();
-      });
+      this.service.rejectTask(j.id, t.id, { remarks }).subscribe((message) => this.done(message));
     });
   }
 
   private askRemarks(data: RemarksDialogData) {
     return this.dialog.open<RemarksDialog, RemarksDialogData, string>(RemarksDialog, { data, panelClass: 'glass-modal', maxWidth: '95vw' }).afterClosed();
+  }
+
+  /** C4–C7 answer with a message ("Task TSK-… cancelled."); show it and reload. A refused action is a 400 popup. */
+  private done(message: string) {
+    this.alerts.toast('success', message);
+    this.afterChange();
   }
 
   private afterChange() {

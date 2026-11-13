@@ -60,9 +60,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (t of store.tags(); track t.id) {
-                        <tr [class.trk-row-selected]="selectedId() === t.id"
-                            (click)="selectedId.set(t.id)"
+                        @for (t of store.tags(); track t.refId) {
+                        <tr [class.trk-row-selected]="selectedId() === t.refId"
+                            (click)="selectedId.set(t.refId)"
                             class="cursor-pointer">
                             <td>
                                 <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200">{{ t.name }}</p>
@@ -158,11 +158,11 @@
                              alt="Tagging photo"></button>
                     }
                 </div>
-                @if (s.history.length) {
+                @if (s.history?.length) {
                 <h4 class="box-content-heading mt-4">Location history</h4>
                 <div class="green-line mb-2!"></div>
                 <ul class="flex flex-col gap-2 text-xs">
-                    @for (h of s.history; track h.changedAt) {
+                    @for (h of s.history ?? []; track h.changedAt) {
                     <li class="flex justify-between gap-3">
                         <span class="text-slate-600 dark:text-slate-300">{{ h.reason ?? 'Updated' }} <span
                                   class="text-slate-400">— {{ h.changedByName }}</span></span>

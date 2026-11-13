@@ -23,7 +23,7 @@
         </div>
         <mat-select [ngModel]="assigneeId()" (ngModelChange)="assigneeId.set($event)" placeholder="Select employee">
             @for (group of groups(); track group.role) {
-            <mat-optgroup [label]="ROLE_LABEL[group.role] + 's'">
+            <mat-optgroup [label]="roleLabel(group.role) + 's'">
                 @for (o of group.officers; track o.id) {
                 <mat-option [value]="o.id" [disabled]="o.id === data.currentAssigneeId || !!o.blockedReason">
                     <span class="text-[13px]">{{ o.name }} · {{ o.unitName }}</span>

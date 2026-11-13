@@ -14,7 +14,7 @@ import { TrackingSettingsStore } from '../../stores/tracking-settings-store';
 import { DEFAULT_CENTER, centroid, distanceMeters, formatDistance, toDateKey } from '../../utils/geo-utils';
 import { MarkerContentCache, initials } from '../../utils/marker-content';
 import { TRACKING_POLL_MS, pollWhileVisible } from '../../utils/poll';
-import { LIVE_STATUS, ROLE_LABEL, STOP_KIND } from '../../utils/tracking-labels';
+import { LIVE_STATUS, roleLabel, STOP_KIND } from '../../utils/tracking-labels';
 import { MapStatus } from '../../components/shared/map-status/map-status';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
 import { TrkDateField } from '../../components/shared/date-field/trk-date-field';
@@ -49,7 +49,7 @@ export class LiveMap {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly LIVE_STATUS = LIVE_STATUS;
-  readonly ROLE_LABEL = ROLE_LABEL;
+  readonly roleLabel = roleLabel;
   readonly formatDistance = formatDistance;
   readonly initials = initials;
   readonly pollSeconds = TRACKING_POLL_MS / 1000;

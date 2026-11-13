@@ -4,7 +4,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ENV_CONFIG } from 'qubefin-core';
 import { FieldOfficer, OfficerRole } from '../models/field-officer';
-import { ROLE_LABEL } from '../utils/tracking-labels';
+import { roleLabel } from '../utils/tracking-labels';
 import { MOCK_ACTOR_KEY } from './mock-actor-key';
 
 function readActor(): string {
@@ -31,7 +31,7 @@ function readActor(): string {
           <mat-select [value]="actorId()" (valueChange)="select($event)">
             <mat-option value="">Head Office Admin · Administrator</mat-option>
             @for (g of groups(); track g.role) {
-              <mat-optgroup [label]="ROLE_LABEL[g.role] + 's'">
+              <mat-optgroup [label]="roleLabel(g.role) + 's'">
                 @for (o of g.officers; track o.id) {
                   <mat-option [value]="o.id">{{ o.name }} · {{ o.unitName }}</mat-option>
                 }
@@ -46,13 +46,13 @@ function readActor(): string {
 export class MockActorSwitch {
   readonly enabled = !!inject(ENV_CONFIG, { optional: true })?.useTrackingMocks;
   readonly changed = output<string>();
-  readonly ROLE_LABEL = ROLE_LABEL;
+  readonly roleLabel = roleLabel;
 
   readonly actorId = signal(readActor());
   private readonly officers = signal<FieldOfficer[]>([]);
 
   readonly groups = computed(() =>
-    (['Division Manager', 'Area Manager', 'Branch Manager', 'Additional Branch Manager', 'Credit Officer'] as OfficerRole[])
+    (['Divisional Manager', 'Area Manager', 'Branch Manager', 'Assistant Branch Manager', 'Credit Officer'] as OfficerRole[])
       .map((role) => ({ role, officers: this.officers().filter((o) => o.role === role) }))
       .filter((g) => g.officers.length),
   );

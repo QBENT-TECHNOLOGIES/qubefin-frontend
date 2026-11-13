@@ -19,7 +19,7 @@
                     <div class="min-w-0 text-left">
                         <p class="text-[11px] text-slate-400 tabular-nums">{{ r.requestNo }} · requested {{ r.requestedAt | date: 'dd MMM, hh:mm a' }}</p>
                         <p class="text-[15px] font-bold text-slate-800 dark:text-white">{{ r.employeeName }}
-                            <span class="text-xs font-medium text-slate-400">· {{ ROLE_LABEL[r.role] }}, {{ r.branchName }}</span></p>
+                            <span class="text-xs font-medium text-slate-400">· {{ roleLabel(r.role) }}, {{ r.branchName }}</span></p>
                         <p class="text-[13px] text-slate-600 dark:text-slate-300 mt-1">
                             <b>{{ ACTIVITY_LABEL[r.activity] }}</b> at {{ r.destinationName }} on {{ r.requestedForDate | date: 'EEE, dd MMM' }}
                         </p>

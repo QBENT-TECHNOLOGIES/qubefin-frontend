@@ -14,5 +14,15 @@ export const environment = {
       'POST jobs/search', // B1
       'GET jobs/{id}', // B2
       'GET jobs/{id}/history', // B3
+      'GET jobs/task-points', // B4
+      'GET geo-tags/points', // B5
+      'POST jobs', // C1
+      'POST jobs/{id}/tasks', // C2
+      'PUT jobs/{id}/transfer', // C3
+      'PUT jobs/{id}/extend', // C4
+      'PUT jobs/{id}/cancel', // C5
+      'PUT jobs/{id}/tasks/{taskId}/cancel', // C6
+      'PUT jobs/{id}/tasks/{taskId}/reject', // C7
+      'GET geo-tags', // E1 (Geo Tags page)
     ],
 };

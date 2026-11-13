@@ -18,7 +18,7 @@ import { TrackingLookupStore } from '../../stores/tracking-lookup-store';
 import { DEFAULT_CENTER, centroid, formatDistance, toDateKey } from '../../utils/geo-utils';
 import { MarkerContentCache, initials } from '../../utils/marker-content';
 import { pollWhileVisible } from '../../utils/poll';
-import { JOB_STATUS, JOB_TASK_STATUS, LIVE_STATUS, ROLE_LABEL, TASK_PRIORITY, TASK_TYPE, TASK_TYPE_CODE } from '../../utils/tracking-labels';
+import { JOB_STATUS, JOB_TASK_STATUS, LIVE_STATUS, roleLabel, TASK_PRIORITY, TASK_TYPE, TASK_TYPE_CODE } from '../../utils/tracking-labels';
 import { MapStatus } from '../../components/shared/map-status/map-status';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
 import { TaskEvidence } from '../../components/tasks/task-evidence/task-evidence';
@@ -28,6 +28,9 @@ type Scope = 'open' | 'Delayed' | 'Completed' | 'all';
 /** Job-wise monitoring: every task point of a job on the map, with the evidence sent from the mobile app. */
 /** Marker colour for a place with tasks in more than one job. */
 const SHARED_PLACE_COLOR = '#D97706';
+
+/** jobs/search accepts a page size of 1–100; Job Monitoring shows the first 100 (soonest due first). */
+const MONITOR_PAGE_SIZE = 100;
 
 @Component({
   selector: 'qfin-job-monitoring',
@@ -45,7 +48,7 @@ export class JobMonitoring {
   readonly JOB_TASK_STATUS = JOB_TASK_STATUS;
   readonly TASK_TYPE = TASK_TYPE;
   readonly LIVE_STATUS = LIVE_STATUS;
-  readonly ROLE_LABEL = ROLE_LABEL;
+  readonly roleLabel = roleLabel;
   readonly TASK_PRIORITY = TASK_PRIORITY;
   readonly formatDistance = formatDistance;
   readonly formatDuration = formatDuration;
@@ -84,7 +87,7 @@ export class JobMonitoring {
         dueFrom: null,
         dueTo: null,
         pageIndex: 0,
-        pageSize: 500,
+        pageSize: MONITOR_PAGE_SIZE,
         sortOn: 'endDate',
         sortDirection: 'asc',
       } satisfies JobSearchRequest,
@@ -96,6 +99,8 @@ export class JobMonitoring {
     return this.onlyIssues() ? all.filter((j) => this.issueOf(j)) : all;
   });
   readonly loading = computed(() => this.listResource.isLoading());
+  /** Jobs that match but are not in the list (the backend returns at most 100 per request). */
+  readonly notShown = computed(() => Math.max(0, (this.listResource.value()?.totalRecords ?? 0) - (this.listResource.value()?.jobs.length ?? 0)));
   readonly summary = computed(() => this.listResource.value()?.summary);
 
   private readonly jobResource = httpResource<Job>(() => {
@@ -110,7 +115,7 @@ export class JobMonitoring {
   private readonly pointsResource = httpResource<JobTaskPoint[]>(() => {
     if (this.selectedJobId()) return undefined;
     const params: Record<string, string> = {};
-    if (this.branchId()) params['branchId'] = this.branchId()!;
+    if (this.branchId()) params['organisationUnitId'] = this.branchId()!;
     if (this.assigneeId()) params['assigneeId'] = this.assigneeId()!;
     return { url: `${ApiPaths.TRACKING}/jobs/task-points`, params };
   });
@@ -201,7 +206,7 @@ export class JobMonitoring {
     if (this.selectedJobId()) return [];
     const byPlace = new Map<string, JobTaskPoint[]>();
     (this.pointsResource.value() ?? []).forEach((p) => {
-      const key = p.refId ? `${p.targetKind}:${p.refId}` : `${p.location.lat.toFixed(5)},${p.location.lng.toFixed(5)}`;
+      const key = p.originRefId ? `${p.targetKind}:${p.originRefId}` : `${p.targetLocation.lat.toFixed(5)},${p.targetLocation.lng.toFixed(5)}`;
       byPlace.set(key, [...(byPlace.get(key) ?? []), p]);
     });
     return [...byPlace].map(([key, points]) => {
@@ -210,16 +215,16 @@ export class JobMonitoring {
         return {
           key: p.taskId,
           points,
-          position: p.location,
-          title: `${p.jobNo} · ${p.title} · ${p.assigneeName}`,
-          content: this.markers.pin(`ov-${p.taskId}`, TASK_TYPE_CODE[p.type], JOB_STATUS[p.jobStatus].color, { small: true }),
+          position: p.targetLocation,
+          title: `${p.jobCode} · ${p.taskTitle} · ${p.assigneeName}`,
+          content: this.markers.pin(`ov-${p.taskId}`, TASK_TYPE_CODE[p.taskType], JOB_STATUS[p.jobStatus].color, { small: true }),
         };
       }
       return {
         key: `place-${key}`,
         points,
-        position: p.location,
-        title: `${points.length} tasks here: ${points.map((x) => `${x.jobNo} (${x.assigneeName})`).join(', ')} · click to see them`,
+        position: p.targetLocation,
+        title: `${points.length} tasks here: ${points.map((x) => `${x.jobCode} (${x.assigneeName})`).join(', ')} · click to see them`,
         content: this.markers.pin(`ovp-${key}`, String(points.length), SHARED_PLACE_COLOR, { small: true }),
       };
     });

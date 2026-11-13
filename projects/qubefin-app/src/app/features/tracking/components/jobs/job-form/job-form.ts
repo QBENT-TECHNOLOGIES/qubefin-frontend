@@ -1,3 +1,4 @@
+import { unitIdsOf } from '../../../models/field-officer';
 import { Component, computed, inject, output, signal, viewChild } from '@angular/core';
 import { FormField, Schema, form, required, schema } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,7 +12,7 @@ import { JobStore } from '../../../stores/job-store';
 import { TrackingLookupStore } from '../../../stores/tracking-lookup-store';
 import { toDateKey } from '../../../utils/geo-utils';
 import { jobBranchConflict } from '../../../utils/job-rules';
-import { ROLE_LABEL } from '../../../utils/tracking-labels';
+import { roleLabel } from '../../../utils/tracking-labels';
 import { TaskBuilder } from '../task-builder/task-builder';
 import { TrkDateField } from '../../shared/date-field/trk-date-field';
 
@@ -45,7 +46,7 @@ export class JobForm {
   readonly cancel = output<void>();
   readonly saved = output<string>();
 
-  readonly ROLE_LABEL = ROLE_LABEL;
+  readonly roleLabel = roleLabel;
   readonly today = toDateKey();
   readonly saving = signal(false);
   readonly submitted = signal(false);
@@ -70,7 +71,10 @@ export class JobForm {
   readonly assignee = computed(() => this.lookup.officerById().get(this.model().assigneeId) ?? null);
 
   /** Branches places can come from: the assignee's branch(es). */
-  readonly allowedBranchIds = computed(() => this.assignee()?.organisationUnitIds ?? []);
+  readonly allowedBranchIds = computed(() => {
+    const a = this.assignee();
+    return a ? unitIdsOf(a) : [];
+  });
 
   private readonly builder = viewChild(TaskBuilder);
   /** Tasks the assignee cannot take (e.g. the assignee was changed to someone who already has them pending). */
@@ -114,23 +118,20 @@ export class JobForm {
     this.saving.set(true);
     this.service
       .create({
-        title: m.title.trim(),
-        description: m.description.trim() || null,
+        jobTitle: m.title.trim(),
+        jobDescription: m.description.trim() || null,
         assigneeId: m.assigneeId,
-        startFrom: m.startFrom || null,
-        completeBy: m.completeBy,
+        startDate: m.startFrom || null,
+        endDate: m.completeBy,
         tasks: this.tasks(),
       })
       .subscribe({
-        next: ({ job, skipped }) => {
+        // C1 answers { jobId, message }; the message already says the job code, assignee and task count.
+        next: ({ jobId, message }) => {
           this.saving.set(false);
-          const who = `assigned to ${job.assigneeName}`;
-          const done = skipped.length
-            ? this.alerts.warning(`${job.jobCode} created with ${job.taskCount} task(s)`, `Skipped: ${skipped.map((s) => `${s.title} – ${s.reason}`).join(' · ')}`)
-            : this.alerts.success('Job created', `${job.jobCode} with ${job.taskCount} task(s), ${who}.`);
-          Promise.resolve(done).then(() => {
+          Promise.resolve(this.alerts.success('Job created', message)).then(() => {
             this.store.refreshList();
-            this.saved.emit(job.id);
+            this.saved.emit(jobId);
           });
         },
         error: () => this.saving.set(false),

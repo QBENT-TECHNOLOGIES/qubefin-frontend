@@ -63,7 +63,7 @@
         <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="user" class="w-5 h-5"></svg></div>
         <mat-select [ngModel]="assigneeId()" (ngModelChange)="assigneeId.set($event)" placeholder="Select employee">
             @for (g of groups(); track g.role) {
-            <mat-optgroup [label]="ROLE_LABEL[g.role] + 's'">
+            <mat-optgroup [label]="roleLabel(g.role) + 's'">
                 @for (o of g.officers; track o.id) {
                 <mat-option [value]="o.id" [disabled]="!!o.blockedReason">
                     <span class="text-[13px]">{{ o.name }} · {{ o.unitName }}</span>

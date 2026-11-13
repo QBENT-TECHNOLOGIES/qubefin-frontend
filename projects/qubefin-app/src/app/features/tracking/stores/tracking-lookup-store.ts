@@ -51,7 +51,9 @@ export class TrackingLookupStore {
   }
 }
 
+/** Groups for <mat-optgroup>: tracking roles lowest first, then any other role the API sends (alphabetical), so nobody is dropped. */
 function groupByRole(officers: FieldOfficer[]) {
-  const order: OfficerRole[] = ['Credit Officer', 'Additional Branch Manager', 'Branch Manager', 'Area Manager', 'Division Manager'];
-  return order.map((role) => ({ role, officers: officers.filter((o) => o.role === role) })).filter((g) => g.officers.length);
+  const known: OfficerRole[] = ['Credit Officer', 'Assistant Branch Manager', 'Branch Manager', 'Area Manager', 'Divisional Manager'];
+  const others = [...new Set(officers.map((o) => o.role))].filter((r) => !known.includes(r)).sort();
+  return [...known, ...others].map((role) => ({ role, officers: officers.filter((o) => o.role === role) })).filter((g) => g.officers.length);
 }

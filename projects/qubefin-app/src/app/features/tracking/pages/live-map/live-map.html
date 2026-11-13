@@ -112,7 +112,7 @@
                     <span class="trk-avatar is-lg" [style.--trk-color]="LIVE_STATUS[p.status].color">{{ initials(p.employeeName) }}</span>
                     <div class="min-w-0 flex-1">
                         <p class="font-bold text-slate-800 dark:text-white truncate">{{ p.employeeName }}</p>
-                        <p class="text-[11px] text-slate-500">{{ ROLE_LABEL[p.role] }} · {{ p.branchName }}</p>
+                        <p class="text-[11px] text-slate-500">{{ roleLabel(p.role) }} · {{ p.branchName }}</p>
                         <div class="mt-1"><qfin-trk-chip [tone]="LIVE_STATUS[p.status]" [small]="true" /></div>
                     </div>
                     <button type="button" class="trk-dialog-close" (click)="select(null)" aria-label="Close"><svg lucideIcon="x" class="w-4 h-4"></svg></button>

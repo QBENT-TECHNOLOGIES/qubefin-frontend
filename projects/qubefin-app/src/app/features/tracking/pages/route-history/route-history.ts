@@ -18,7 +18,7 @@ import { TrackingSettingsStore } from '../../stores/tracking-settings-store';
 import { DEFAULT_CENTER, centroid, distanceMeters, formatDistance, toDateKey } from '../../utils/geo-utils';
 import { MarkerContentCache } from '../../utils/marker-content';
 import { TRACKING_POLL_MS, pollWhileVisible } from '../../utils/poll';
-import { ROLE_LABEL, STOP_KIND, TASK_TYPE, TASK_TYPE_CODE } from '../../utils/tracking-labels';
+import { roleLabel, STOP_KIND, TASK_TYPE, TASK_TYPE_CODE } from '../../utils/tracking-labels';
 import { MapStatus } from '../../components/shared/map-status/map-status';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
 import { TrkDateField } from '../../components/shared/date-field/trk-date-field';
@@ -47,7 +47,7 @@ export class RouteHistory {
   readonly TRAVEL_MODE_LABEL = TRAVEL_MODE_LABEL;
   readonly MAX_ROUTE_STOPS = MAX_ROUTE_STOPS;
 
-  readonly ROLE_LABEL = ROLE_LABEL;
+  readonly roleLabel = roleLabel;
   readonly STOP_KIND = STOP_KIND;
   readonly TASK_TYPE = TASK_TYPE;
   readonly formatDistance = formatDistance;

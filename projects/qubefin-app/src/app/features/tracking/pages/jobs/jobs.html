@@ -73,7 +73,7 @@
                             <mat-select [value]="store.assigneeId()" (valueChange)="store.setFilter(store.assigneeId, $event)">
                                 <mat-option [value]="null">Everyone</mat-option>
                                 @for (g of lookup.officersByRole(); track g.role) {
-                                <mat-optgroup [label]="ROLE_LABEL[g.role] + 's'">
+                                <mat-optgroup [label]="roleLabel(g.role) + 's'">
                                     @for (o of g.officers; track o.id) { <mat-option [value]="o.id">{{ o.name }}</mat-option> }
                                 </mat-optgroup>
                                 }
@@ -131,7 +131,7 @@
                             </div>
                         </div>
                         <p class="viewArea-description">
-                            {{ isViewMode() ? 'Tasks, evidence from the mobile app and the full audit trail.' : 'Add the tasks, then assign now or later.' }}
+                            {{ isViewMode() ? 'Tasks, evidence from the mobile app and the full audit trail.' : 'Choose who will do it, then add the tasks.' }}
                         </p>
                     </div>
                 </div>

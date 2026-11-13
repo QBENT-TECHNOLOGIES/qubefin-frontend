@@ -124,15 +124,18 @@ export const GEO_TAG_KIND: Record<GeoTagKind, Tone> = {
 };
 
 /** Display label per role. The API already sends readable names; kept so a label can be shortened in one place. */
-export const ROLE_LABEL: Record<ViewerRole, string> = {
-  'Super Admin': 'Super Admin',
-  'Application Administrator': 'Application Administrator',
+export const ROLE_LABEL: Partial<Record<ViewerRole, string>> = {
   'Credit Officer': 'Credit Officer',
-  'Additional Branch Manager': 'Additional Branch Manager',
+  'Assistant Branch Manager': 'Assistant Branch Manager',
   'Branch Manager': 'Branch Manager',
   'Area Manager': 'Area Manager',
-  'Division Manager': 'Division Manager',
+  'Divisional Manager': 'Divisional Manager',
 };
+
+/** Label for any role name the API sends; roles tracking does not rank (e.g. Zonal Head) show as they are. */
+export function roleLabel(role: string | null | undefined): string {
+  return (role && ROLE_LABEL[role as ViewerRole]) || role || '';
+}
 
 export function optionsOf<K extends string>(map: Record<K, Tone>): { value: K; label: string }[] {
   return (Object.keys(map) as K[]).map((value) => ({ value, label: map[value].label }));

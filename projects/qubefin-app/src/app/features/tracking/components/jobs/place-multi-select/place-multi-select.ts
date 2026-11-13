@@ -460,9 +460,9 @@ export class PlaceMultiSelect implements OnDestroy {
     this.showAssignee()
       ? this.assigneeTasks().map((t) => ({
           id: t.taskId,
-          position: t.location,
-          title: `${this.assigneeName() ?? 'Assignee'}: ${t.taskNo} · ${t.title} · ${t.jobNo} (due ${t.jobCompleteBy})`,
-          content: this.pins.dot(`a:${t.taskId}`, TASK_TYPE[t.type].color, 12),
+          position: t.targetLocation,
+          title: `${this.assigneeName() ?? 'Assignee'}: ${t.taskNo} · ${t.taskTitle} · ${t.jobCode} (due ${t.jobEndDate})`,
+          content: this.pins.dot(`a:${t.taskId}`, TASK_TYPE[t.taskType].color, 12),
         }))
       : [],
   );

@@ -70,7 +70,7 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 | Coordinates | `{ "lat": number, "lng": number }`, WGS-84, 6 decimals (`GeoPoint`). |
 | Errors | Non-2xx with `{ "message": "human readable" }` (400 invalid, 403 not allowed for this user, 404 not found or outside the caller's scope) or `{ "errors": ["…"] }`. `HttpErrorInterceptor` shows them as a popup, so messages must be readable by a branch user. |
 | DPD ranges | `dpdRange` ∈ `Days1To30` (1–30 days) · `Days31To60` (31–60) · `Days61To90` (61–90) · `Over90` (91 and above, shown as "90+"), or null = any. Both bounds inclusive, no overlap. Same ranges everywhere (`utils/dpd.ts`). |
-| Writes | Return the updated entity (or the documented response). Every write is audited with user + server time. |
+| Writes | Return the documented response (the job writes C1–C7 return a message for the user; the web then reloads). Every write is audited with user + server time. |
 | Polling | Live screens poll every **30 s** (positions, routes for today, alerts, job lists, approvals). Keep these endpoints cheap. SignalR can replace polling later without changing response shapes. |
 
 ---
@@ -81,7 +81,7 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 |---|---|---|
 | GET | `organization-units` (was `branches`) | `TrackingBranch[]`: id, name, code, `areaName`, `divisionName`, `location` (nullable), `branchOperatingRadiusInKm` (**metres**, see below) |
 | GET | `groups?branchId=&creditOfficerId=` | `TrackingGroup[]`: id, code, name, `branchId`/`branchName`, `creditOfficerId`/`creditOfficerName` (mapped CO, nullable), sorted by name. Groups in the caller's scope; both filters optional. Feeds the Group filter on OD Members. |
-| GET | `field-officers?organizationUnitId=` | `FieldOfficer[]`: id, employeeCode, name, `role` (role name, e.g. `Credit Officer`), designation, `organisationUnitId`/`organisationUnitName` (posting branch), `unitName` (branch / area / division in charge of), `organisationUnitIds` (branches they may work in), phone, `presentLocation` (home, nullable), reportingOfficerName, `canAssign` |
+| GET | `field-officers?organizationUnitId=` | `FieldOfficer[]`: id, employeeCode, name, `role` (role name, e.g. `Credit Officer`), designation, `organisationUnitId`/`organisationUnitName` (posting branch), `unitName` (branch / area / division in charge of), `organisationUnits` (`[{ id, name }]`, branches they may work in), phone, `presentLocation` (home, nullable), reportingOfficerName, `canAssign` |
 
 * **Names follow the backend as built** (decided 6 Nov 2026). The frontend models (`models/*.ts`) use the backend's own paths,
   property names and values, with no mapping layer, and the mock answers in the same shape. When an endpoint is delivered
@@ -94,14 +94,16 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
   * `branches` (A2) is served at `organization-units`. `branchOperatingRadiusInKm` holds **metres** despite its name
     (`30000` = 30 km); screens divide by 1000 to show or compare km (was `operatingRadiusKm` in km).
   * `field-officers` (A3): query `organizationUnitId` (spelled with **z**; was `branchId`); `organisationUnitId` /
-    `organisationUnitName` (posting branch; were `branchId` / `branchName`), `organisationUnitIds` (were `branchIds`),
-    `presentLocation` (the geo-tagged present / home address used for the near-home rule; was `homeLocation`).
+    `organisationUnitName` (posting branch; were `branchId` / `branchName`), `presentLocation` (the geo-tagged present / home
+    address used for the near-home rule; was `homeLocation`). **Changed by 13 Nov 2026:** the branches an officer may work in come as
+    `organisationUnits: [{ id, name }]` (was `organisationUnitIds: string[]`, before that `branchIds`); the web reads the ids with
+    `unitIdsOf()` in `models/field-officer.ts`.
   * `jobs/search` (B1): request `organisationUnitId` (was `branchId`), `sortOn` ∈ `endDate`·`createdOn`·`assigneeName`·`status`
     (were `completeBy`·`createdAt`). `JobSummary` (and so `Job`): `jobCode` (was `jobNo`), `jobTitle` (`title`),
     `organisationUnitIds` (`branchIds`), `createdOn` (`createdAt`), `startDate` (`startFrom`), `endDate` (`completeBy`),
     `transferJobRefId` / `transferJobRefCode` (the job it was split from; were `transferredFromJobId` / `transferredFromJobNo`).
     *Complete by* and *start from* stay the labels on screen. `typeCounts` is not sent yet (optional; the list shows type icons
-    without numbers). Request bodies of the job writes (`CreateJobRequest`, transfer, extend) keep the contract names until delivered.
+    without numbers).
   * `jobs/{id}` (B2): `Job` adds `jobDescription` (was `description`) and `createdBy` (creator's id; was `createdById`).
     `JobTask`: `taskType` (`type`), `taskTitle` (`title`), `coOrdinatedBy` / `coOrdinatedByName` (the companion shown as
     *Accompanied by*; were `accompaniedById` / `accompaniedByName`), `taskAddedOn` (`addedAt`), `arrivedOn` (`arrivedAt`),
@@ -112,18 +114,60 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
     `verification` and `odOutcome` keep the contract shape (`TaskVerification`, `OdVisitOutcome`) until a sample with values arrives.
   * `jobs/{id}/history` (B3): `relatedJobCode` (was `relatedJobNo`); new `oldCompleteBy` / `newCompleteBy` on `DateExtended`
     entries (the timeline shows "old → new").
-* **Role values are the role names** (since 6 Nov 2026; were codes): `Super Admin`, `Application Administrator`,
-  `Division Manager`, `Area Manager`, `Branch Manager`, `Additional Branch Manager`, `Credit Officer` (`ViewerRole` /
-  `OfficerRole` in `models/field-officer.ts`). The same values are expected in every `role` / `assigneeRole` field
-  (`field-officers`, jobs, live positions, alerts, approvals). Elsewhere in this document *Admin*, *DM*, *AM*, *BM*, *ABM* and
-  *CO* are shorthand for these names. A role name the web does not know is treated as having no rank (no rights).
+  * `jobs/task-points` (B4): query `organisationUnitId` (was `branchId`; with **s**), `assigneeId`, `pendingOnly`, all optional.
+    `JobTaskPoint`: `jobCode` (`jobNo`), `jobStartDate` / `jobEndDate` (`jobStartFrom` / `jobCompleteBy`), `taskTitle` (`title`),
+    `taskType` (`type`), `originRefId` (`refId`), `targetLocation` (`location`), and new `organisationUnitId` (the task's branch).
+  * `geo-tags/points` (B5): query `organisationUnitId` (**required**; was `branchId`) and `kinds`. `GeoTagPoint`: `organisationUnitId`
+    (`branchId`), `taskLocationMatchInMeters` (the match radius a task there gets; was `radiusMeters`), and new `taggedByName` /
+    `taggedAt` (who captured the location on the mobile app, and when).
+  * `POST jobs` (C1): `CreateJobRequest` `{ jobTitle, jobDescription, assigneeId, startDate, endDate, tasks: NewTaskInput[] }`
+    (were `title`, `description`, `startFrom`, `completeBy`). `NewTaskInput` `{ taskType, taskTitle, notes, priority,
+    coOrdinatedBy, target: TaskTarget }` (were `type`, `title`, `accompaniedById`). **Response** `CreateJobResponse`
+    `{ jobId, message }`, e.g. `"Job JOB-260006 created for Ratan Barman with 1 task."`. Skipped tasks and "also pending with"
+    notes are **inside `message`** (no structured `job` / `skipped` / `warnings`). The web shows the message, reloads the list and
+    opens the new job by `jobId`.
+  * `POST jobs/{id}/tasks` (C2): body `AddTasksRequest` `{ tasks: NewTaskInput[] }`. **Response** a plain JSON string
+    (`AddTasksMessage`), e.g. `"1 task added to JOB-260006. Note: Member Visit – Anima Biswas — Also pending with Atanu Tarafdar
+    (JOB-260005)."`. When nothing can be added: 400 `{ message, metadata, reasons }`, e.g. `"No task could be added: Member Visit
+    – Anima Biswas — Already pending in this job"` (the web's error popup shows it). The web shows the message (as a warning when
+    it carries a *Note* or skipped tasks) and reloads the job.
+  * Job and task actions (C3–C7, checked 13 Nov 2026 on a test job). Bodies: `PUT jobs/{id}/transfer` (C3)
+    `TransferJobRequest` `{ assigneeId, taskIds, remarks, endDate }` (`endDate` was `completeBy`; the new job's date for a
+    partial transfer, null for a whole one); `PUT jobs/{id}/extend` (C4) `{ endDate, remarks }` (was `completeBy`);
+    `PUT jobs/{id}/cancel` (C5), `PUT jobs/{id}/tasks/{taskId}/cancel` (C6), `PUT jobs/{id}/tasks/{taskId}/reject` (C7)
+    `{ remarks }`. **Every response is a plain JSON string** (`JobActionMessage`), not the `Job` / `TransferJobResponse` of this
+    contract, e.g. `"JOB-260006 transferred to Subrata Barman."`, `"JOB-260006 complete-by date extended from 14 Nov 2026 to 20 Nov
+    2026."`, `"Task TSK-26039000004 cancelled."`, `"Task TSK-26039000003 rejected."`. Refused: 400 `{ message, metadata, reasons }`,
+    e.g. `"JOB-260006 is Cancelled and cannot be cancelled."`. The web shows the message (a warning when a transfer message carries
+    a *Note* about tasks not moved) and reloads the job and the list. History entries for all of them were correct.
+  * `geo-tags` (E1, Geo Tags page): query `kind`, `searchText`, `onlyUntagged` and **`organisationUnitId`** (the branch filter;
+    was `branchIds`; `branchId` / `branchIds` are ignored). `GeoTag` has **no `id`**: `refId` identifies the row. `verified` and
+    `history` are **not sent** (optional in the model; the page shows no verification badge or location history while absent).
+  * `PUT geo-tags/{refId}` (E2, `{ location, radiusMeters, reason }`) **exists on the backend but the web does not use it**:
+    Geo Tags stays view only (product owner, 4 Nov 2026; confirmed 13 Nov 2026). See §12.
+  * Open points found while integrating are listed in **§12**.
+  * **Page size** (seen 13 Nov 2026): `jobs/search` accepts `pageSize` 1–100 only (400 otherwise). Job Monitoring loads the first
+    100 open jobs (soonest due) and says how many more match, so the user can narrow by branch or employee.
+* **Role values are the backend's role names** (since 6 Nov 2026; were codes; aligned with the backend 13 Nov 2026). Tracking ranks
+  five of them: `Divisional Manager` > `Area Manager` > `Branch Manager` = `Assistant Branch Manager` > `Credit Officer`
+  (`OfficerRole` / `ROLE_RANK`; were *Division Manager* and *Additional Branch Manager*). **Admin** (13 Nov 2026; `AdminRole`,
+  `isAdminRole()`, all equal, above every field role): *Super Admin* comes as `Admin`; an *Application Administrator* comes as
+  `Executive Officer`, `Manager`, `Assistant Manager`, `Executive`, `Director`, `Vice President`, `Office Assistant`, `Auditor` or
+  `Managing Director`. The same values come in every `role` / `assigneeRole` field (login-info,
+  `field-officers`, jobs, live positions, alerts, approvals). Elsewhere in this document *Admin*, *DM*, *AM*, *BM*, *ABM* and *CO*
+  are shorthand for these names.
+  The backend's full role list: Assistant Branch Manager, Zonal Head, HR Manager, Auditor, Executive Officer, Office Assistant,
+  Director, Managing Director, Area Manager, Manager, Credit Officer, HOD, Chief Executive Officer, Chief Operating Officer,
+  Executive Assistant Manager, Branch Manager, Divisional Manager, Vice President, Assistant Vice President, Deputy Manager,
+  State Head (plus `Admin`). Any role that is neither ranked nor Admin (e.g. Zonal Head, State Head, HOD) has **no rights** in the
+  web's role rules and is shown under its own name.
 * `organization-units` (`branches`) returns the branches in the caller's scope (every branch for an Admin).
 * `field-officers` returns everyone the caller may **monitor**: people in a **lower role** whose `organisationUnitIds` all lie inside the
   caller's scope, plus, for a BM, the ABM(s) of their branch (§3.3 exception). `canAssign` = the caller may give this person work
   (true for the lower roles, **false for the ABM listed to a BM**). The web uses the whole list for monitoring filters (Jobs & Tasks,
   Job Monitoring, Tracking History) and only `canAssign` people for *Assign to* / *Transfer to*. `organizationUnitId` filters to
   people whose `organisationUnitIds` include it.
-* login-info `role` `Super Admin` and `Application Administrator` have the same access in tracking (`isAdminRole()`).
+* Every Admin role (above) has the same access in tracking (`isAdminRole()`).
   `canCreateJobs` is false when nobody is below the caller (a CO).
 * login-info `accessOrganizationUnits` and field-officers `organisationUnitIds`: one branch for CO / ABM / BM; every branch of the
   area (AM) or division (DM); every branch for an Admin.
@@ -155,16 +199,16 @@ self-added on the mobile app; the web only offers them as a point clicked on the
 |---|---|---|---|
 | POST | `jobs/search` | `JobSearchRequest` | `JobSearchResponse` `{ jobs: JobSummary[], totalRecords, summary }` |
 | GET | `jobs/open?assigneeId=&branchId=` | – | `JobSummary[]`: open jobs, soonest due first (for "add to existing job") |
-| GET | `jobs/task-points?branchId=&assigneeId=&pendingOnly=true` | – | `JobTaskPoint[]`: task locations of open jobs (overview map, duplicate hints) |
+| GET | `jobs/task-points?organisationUnitId=&assigneeId=&pendingOnly=true` | – | `JobTaskPoint[]`: task locations of open jobs (overview map, duplicate hints) |
 | GET | `jobs/{id}` | – | `Job` (with `tasks`) |
 | GET | `jobs/{id}/history` | – | `JobHistoryEntry[]` (newest first) |
-| POST | `jobs` | `CreateJobRequest` (`assigneeId` **required**) | `AddTasksResponse` `{ job, skipped, warnings }` |
-| PUT | `jobs/{id}/transfer` | `TransferJobRequest` | `TransferJobResponse` `{ job, newJob, skipped }` |
-| POST | `jobs/{id}/tasks` | `{ tasks: NewTaskInput[] }` | `AddTasksResponse` |
-| PUT | `jobs/{id}/tasks/{taskId}/cancel` | `{ remarks }` | `Job` |
-| PUT | `jobs/{id}/tasks/{taskId}/reject` | `{ remarks }` | `Job` (self-added tasks only) |
-| PUT | `jobs/{id}/extend` | `{ completeBy, remarks }` | `Job` |
-| PUT | `jobs/{id}/cancel` | `{ remarks }` | `Job` |
+| POST | `jobs` | `CreateJobRequest` (`assigneeId` **required**) | `CreateJobResponse` `{ jobId, message }` |
+| PUT | `jobs/{id}/transfer` | `TransferJobRequest` | message (string) |
+| POST | `jobs/{id}/tasks` | `{ tasks: NewTaskInput[] }` | message (string); 400 when nothing could be added |
+| PUT | `jobs/{id}/tasks/{taskId}/cancel` | `{ remarks }` | message (string) |
+| PUT | `jobs/{id}/tasks/{taskId}/reject` | `{ remarks }` | message (string); self-added tasks only |
+| PUT | `jobs/{id}/extend` | `{ endDate, remarks }` | message (string) |
+| PUT | `jobs/{id}/cancel` | `{ remarks }` | message (string) |
 
 **Search filters:** `searchText` (job code, title, assignee, creator, task no, place name), `status`, `openOnly`, `organisationUnitId`
 (job has a task in that branch), `assigneeId`, `dueFrom`/`dueTo` (inclusive, on `endDate`), `dpdRange` (job has at least one
@@ -183,7 +227,7 @@ web shows the type icons (`types`) without numbers.
 |---|---|---|
 | `priority` | yes (default `Medium`) | `VeryHigh` · `High` · `Medium` · `Low`. 400 for any other value. |
 | `notes` | no | Shown as **Instruction**. |
-| `accompaniedById` | no | Someone who goes along (e.g. the BM going with a CO). Must be an employee who works in the task's branch, or the caller; never the job's assignee (400). The server stores `accompaniedByName`. **Information only:** the task, its route and its allowance stay with the assignee; the companion gets no task. |
+| `coOrdinatedBy` | no | Someone who goes along (e.g. the BM going with a CO; *Accompanied by* on screen; was `accompaniedById`). Must be an employee who works in the task's branch, or the caller; never the job's assignee (400). The server stores `coOrdinatedByName`. **Information only:** the task, its route and its allowance stay with the assignee; the companion gets no task. |
 
 ### 3.1 Status
 
@@ -213,7 +257,8 @@ web shows the type icons (`types`) without numbers.
    * The **same person** (the job's assignee) already has it pending in another open job whose window overlaps → **skipped**
      ("Already pending with Rupa Mondal in JOB-26002"). For `OdFollowUp` the window does not matter: one person, one pending
      follow-up per OD member.
-   * **Someone else** has it pending → **added**, and listed in `warnings[]` ("Also pending with Rupa Mondal (JOB-26002)").
+   * **Someone else** has it pending → **added**, with a note ("Also pending with Rupa Mondal (JOB-26002)"). For `POST jobs` and
+     `POST jobs/{id}/tasks` the notes and skipped tasks come inside the response `message` (C1/C2); elsewhere in `warnings[]`.
      Each task is done and completed separately by its own assignee; completing one never closes the other.
    Skipped tasks are not failures; if nothing could be added on create, return 400.
 4. **OD members** follow rule 3 (they may be pending with several people, e.g. a CO and the BM). Auto-allocation (§8) still adds a
@@ -231,7 +276,7 @@ web shows the type icons (`types`) without numbers.
      `Transferred` with `transferredToJobId/No`. History `TasksTransferredOut` on the old job, `Created` + `TasksTransferredIn` on the new one.
    * A partial transfer of every pending task of a job with nothing done is treated as a whole transfer.
    * Tasks the **new assignee already has pending** (rule 3, same person) do **not** move: they stay in the original job and come
-     back in `TransferJobResponse.skipped[]`. If none can move, return 400 ("Nothing to transfer: … already has these tasks pending").
+     back in the response message (C3). If none can move, return 400 ("Nothing to transfer: … already has these tasks pending").
      If some cannot move, the rest are handled as a partial transfer.
 8. **Cancel task**: pending only. **Reject task**: pending `SelfAdded` only. **Cancel job**: open jobs; pending tasks become
    `Cancelled`, completed ones stay on record.
@@ -252,8 +297,8 @@ web shows the type icons (`types`) without numbers.
 
 ### 3.3 Roles: who may see and do what
 
-Hierarchy, top to bottom: **Admin** (Super Admin and Application Administrator, equal access) > **DM** (Division Manager) >
-**AM** (Area Manager) > **BM** (Branch Manager) = **ABM** (Additional Branch Manager) > **CO** (Credit Officer). DM, AM, BM, ABM and CO
+Hierarchy, top to bottom: **Admin** (Super Admin and Application Administrator, equal access) > **DM** (Divisional Manager) >
+**AM** (Area Manager) > **BM** (Branch Manager) = **ABM** (Assistant Branch Manager) > **CO** (Credit Officer). DM, AM, BM, ABM and CO
 are tracked in the field; their tracking data feeds petrol and travel allowances. Scope = own branch (BM / ABM / CO), area (AM),
 division (DM), everything (Admin).
 **BM and ABM have the same operational functionality** in tracking: same level, same scope (their branch), same rights. Both can give
@@ -393,7 +438,7 @@ Alert types and the rules the **backend** evaluates (thresholds from §8, subjec
 Requests are raised from the mobile app before lead sourcing or other field activity beyond the branch radius (requirement 1.7).
 **Who decides** (product owner, 4 Nov 2026): for the time being only an **Admin** (Super Admin / Application Administrator).
 Anyone else gets 403 "Only a Super Admin or Application Administrator can approve or reject out-of-radius requests." The web shows
-Approve / Reject only to an Admin (login-info `role` = `Super Admin` or `Application Administrator`); other users see "Waiting for a Super Admin or Application Administrator to decide."
+Approve / Reject only to an Admin (login-info `role` is an Admin role, §2); other users see "Waiting for a Super Admin or Application Administrator to decide."
 **Who sees** the requests: `GET approvals` lists only requests of people the caller may monitor (§2); a decision on any other request is 404.
 Remarks are required when rejecting. An approved request suppresses `OutsideBranchRadius` alerts for that employee, date and destination area.
 
@@ -403,8 +448,8 @@ Remarks are required when rejecting. An approved request suppresses `OutsideBran
 
 | Method | Path | Body | Response |
 |---|---|---|---|
-| GET | `geo-tags?kind=&searchText=&branchIds=&onlyUntagged=` | – | `GeoTag[]` |
-| GET | `geo-tags/points?branchId=&kinds=GroupCentre,Member,OdMember` | – | `GeoTagPointsResponse` `{ points: GeoTagPoint[], untaggedByKind }` |
+| GET | `geo-tags?kind=&searchText=&organisationUnitId=&onlyUntagged=` | – | `GeoTag[]` (E1) |
+| GET | `geo-tags/points?organisationUnitId=&kinds=GroupCentre,Member,OdMember` | – | `GeoTagPointsResponse` `{ points: GeoTagPoint[], untaggedByKind }` |
 | GET | `settings` | – | `TrackingSettings` |
 | PUT | `settings` | `TrackingSettings` | `TrackingSettings` |
 
@@ -420,8 +465,7 @@ Remarks are required when rejecting. An approved request suppresses `OutsideBran
   large even for this, add an optional `bbox=swLat,swLng,neLat,neLng` filter; the response shape stays the same.
 * `verified` on `GroupCentre`, `Member` and `OdMember` geo-tags is set from the mobile app (rule 3.2.13); the Geo Tags page shows
   "Location Not Verified" for those still waiting.
-* `GeoTagKind`: `Branch` · `GroupCentre` · `Member` · `OdMember` · `EmployeeHome`. `branchIds` is a comma-separated list
-  (the task builder searches the assignee's branches).
+* `GeoTagKind`: `Branch` · `GroupCentre` · `Member` · `OdMember` · `EmployeeHome`. `organisationUnitId` filters to one branch.
 * **View only on the web** (product owner, 4 Nov 2026; replaces requirement 2.5 "change of group meeting location"). There is no
   `PUT geo-tags`: the web never changes a location. Group, member, OD member and employee-home locations are captured on the mobile
   app (member homes with the borrower and co-borrower photo) and verified there. A branch geo-tag stays in sync with the
@@ -474,3 +518,58 @@ and can sort the task list by priority.
    Add each endpoint there as the backend delivers it. When all are live, set `useTrackingMocks: false` in `environment*.ts`.
 3. Remove `trackingMockInterceptor` from `app.config.ts`, remove `<qfin-trk-mock-actor>` (the mock-only "acting as" picker) from
    `pages/jobs/jobs.html` and its import in `jobs.ts`, and delete `features/tracking/mocks/`.
+
+---
+
+## 12. Open questions for the backend and the product owner (13 Nov 2026)
+
+Found while connecting the web to the dev backend (A1–A3, B1–B5, C1–C7, E1). Numbers refer to the integration steps.
+
+**Bugs (backend)**
+
+1. **Reject works on any task (C7).** `JobTask.canReject` is `true` for tasks assigned from the web (`origin: "Assigned"`), and
+   `PUT jobs/{id}/tasks/{taskId}/reject` rejected one. Rule 3.2.8: only pending `SelfAdded` tasks; otherwise 400 and
+   `canReject: false`. The web shows *Reject* from `canReject` alone.
+2. **Closed jobs still allow every action (B2).** `Job.permissions` is `{ canTransfer: true, canCancel: true, canUpdate: true }` on a
+   `Cancelled` job. For `Completed` / `Cancelled` all three should be false; the web shows the buttons from these flags.
+3. **Branch radius ×1000 in geo-tags (E1).** `kind=Branch` returns `radiusMeters: 30000000` (30,000 km) for a branch whose
+   `organization-units` value is `30000` (30 km).
+4. **Employee homes refused (E1).** `geo-tags?kind=EmployeeHome` answers **403** (empty body) for a Divisional Manager. §8: it should
+   list the homes of the people the caller may monitor.
+5. **Names with double spaces.** Employee names come as "Ratan  Barman" (59 of 68 in `field-officers`; also in messages and
+   `employee`). Please trim / join the name parts with one space.
+
+**Missing or inconsistent fields**
+
+6. **E1 `GeoTag` has no `id`, `verified` or `history`**, while B5 `GeoTagPoint` for the same places sends `id` and `verified`.
+   The page needs `verified` (rule 3.2.13, "Location Not Verified" badge) and `history` (location changes, read only). Is `refId`
+   the intended key?
+7. **`branchOperatingRadiusInKm` holds metres (A2).** Rename it (e.g. `branchOperatingRadiusInMeters`) or send km.
+8. **`organizationUnitId` vs `organisationUnitId`.** `field-officers` takes `organizationUnitId` (z); `jobs/search`,
+   `jobs/task-points`, `geo-tags/points` and `geo-tags` use `organisationUnitId` (s). One spelling, please.
+9. **`typeCounts` (B1)** is not sent yet; the list shows the task-type icons without numbers.
+10. **`verification` / `odOutcome` on `JobTask` (B2)**: no sample with values yet; the web keeps the contract shape. Please share a
+    completed task (with photo) and a completed OD follow-up.
+11. **Write responses are messages only (C1–C7).** Fine for the web (it shows the message and reloads). Two asks: (a) a partial
+    transfer (C3 with `taskIds`) should name the new job in the message, or return its id, so the user can open it; (b) the
+    error body is `{ message, metadata, reasons }`: are `metadata` / `reasons` ever filled? The web shows `message` only.
+12. **Page size (B1).** `jobs/search` allows `pageSize` ≤ 100. Job Monitoring shows the first 100 open jobs and says how many more
+    match. Is 100 the final limit, or can monitoring get a higher one?
+
+**Not delivered yet** (the web still uses the mock for these screens)
+
+13. `GET jobs/open` (add to an existing job), `GET groups`, `POST od-members/search`, `POST od-members/add-to-job`,
+    `GET live/positions`, `GET employees/{id}/route`, `POST alerts/search`, `GET alerts/open-count`, `PUT alerts/{id}/acknowledge`,
+    `PUT alerts/{id}/resolve`, `GET approvals`, `PUT approvals/{id}/decision`, `GET settings`, `PUT settings`.
+
+**Decisions (product owner)**
+
+14. **E2 `PUT geo-tags/{refId}` was built, but Geo Tags is view only on the web** (4 Nov, confirmed 13 Nov). Should the endpoint be
+    removed, or restricted to someone (who)? Not tested from the web, so who it accepts today is not known.
+15. **Alerts:** who may see, acknowledge and resolve an alert (§6) is still open.
+16. **Roles outside the tracking hierarchy** (Zonal Head, State Head, HOD, HR Manager, Chief Executive Officer, Chief Operating
+    Officer, Deputy Manager, Assistant Vice President, Executive Assistant Manager) have **no rights** in the web's role rules today.
+    Confirm, or say where each one sits.
+
+**Test data note:** some dev places are far from their branch (e.g. *Annapurna Mahila Group*, Sitai Branch, and member *Anima Biswas*,
+Alipurduar Branch, are tagged near Kolkata, ~450 km away). Expected for test data; real data would trip the branch-radius rules.
