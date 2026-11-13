@@ -176,8 +176,8 @@
     }
 
     <div class="flex items-center gap-2.5 shrink-0">
-      @if (isAttendanceTab()) {
-      <button type="button" (click)="exportAttendanceHistory()"
+      @if (isAttendanceTab()|| recordsStore.activeTab() === 'leave'|| recordsStore.activeTab() === 'regularization') {
+      <button type="button" (click)="onExport()"
         class="global-btn !h-[30px] !px-3 !py-0 !rounded-lg !text-[12px] flex items-center gap-1.5 ripple-btn shine-sweep lift">
         <svg lucideIcon="file-down" class="w-3.5 h-3.5"></svg>
         Export

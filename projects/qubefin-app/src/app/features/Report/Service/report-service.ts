@@ -82,4 +82,14 @@ export class ReportService {
       },
     );
   }
+  getLeaveRequestReport() {
+    return this.httpClient.get(`${ApiPaths.REPORT}/generate-leave-request-report`, {
+      responseType: 'blob',
+    });
+  }
+  getRegularizationReport() {
+    return this.httpClient.get(`${ApiPaths.REPORT}/generate-regularization-report`, {
+      responseType: 'blob',
+    });
+  }
 }
