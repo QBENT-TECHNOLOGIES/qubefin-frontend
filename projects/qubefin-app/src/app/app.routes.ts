@@ -4,55 +4,63 @@ import { Container } from './layouts/secure/container/container';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-    {
-        path: '',
-        redirectTo: 'public/auth/login',
-        pathMatch: 'full',
-    },
-    {
-        path: 'public',
-        component: Area,
-        children: [
-            {
-                path: 'auth',
-                loadChildren: () => import('./features/auth/auth-routes').then(m => m.AuthRoutes),
-            }
-        ]
-    },
-    {
-        path: 'secure',
-        component: Container,
-        canActivate: [AuthGuard],
-        children: [
-            {
-                path: 'home',
-                loadChildren: () => import('./features/home/home-routes').then(m => m.HomeRoutes),
-            },
-            {
-                path: 'global',
-                loadChildren: () => import('./features/global/global-routes').then(m => m.GlobalRoutes),
-            },
-            {
-                path: 'admin',
-                loadChildren: () => import('./features/app/app-routes').then(m => m.AppRoutes),
-            },
-            {
-                path: 'hrms',
-                loadChildren: () => import('./features/hrms/hrms-routes').then(m => m.HrmsRoutes),
-            },
-            {
-                path: 'payroll',
-                loadChildren: () => import('./features/payroll/payroll-routes').then(m => m.PayrollRoutes)
-            }
-        ]
-    },
-    {
-        path: 'unauthorized',
-        loadComponent: () =>
-            import('./features/error/page-unauthorized/page-unauthorized').then(m => m.PageUnauthorized),
-    },
-    {
-        path: '**',
-        loadComponent: () => import('./features/error/page-notfound/page-notfound').then(m => m.PageNotfound),
-    }
+  {
+    path: '',
+    redirectTo: 'public/auth/login',
+    pathMatch: 'full',
+  },
+  {
+    path: 'public',
+    component: Area,
+    children: [
+      {
+        path: 'auth',
+        loadChildren: () => import('./features/auth/auth-routes').then((m) => m.AuthRoutes),
+      },
+    ],
+  },
+  {
+    path: 'secure',
+    component: Container,
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: 'home',
+        loadChildren: () => import('./features/home/home-routes').then((m) => m.HomeRoutes),
+      },
+      {
+        path: 'global',
+        loadChildren: () => import('./features/global/global-routes').then((m) => m.GlobalRoutes),
+      },
+      {
+        path: 'admin',
+        loadChildren: () => import('./features/app/app-routes').then((m) => m.AppRoutes),
+      },
+      {
+        path: 'hrms',
+        loadChildren: () => import('./features/hrms/hrms-routes').then((m) => m.HrmsRoutes),
+      },
+      {
+        path: 'payroll',
+        loadChildren: () =>
+          import('./features/payroll/payroll-routes').then((m) => m.PayrollRoutes),
+      },
+      {
+        path: 'report',
+        loadChildren: () => import('./features/Report/report-routes').then((m) => m.ReportRoutes),
+      },
+    ],
+  },
+  {
+    path: 'unauthorized',
+    loadComponent: () =>
+      import('./features/error/page-unauthorized/page-unauthorized').then(
+        (m) => m.PageUnauthorized,
+      ),
+  },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./features/error/page-notfound/page-notfound').then((m) => m.PageNotfound),
+  },
 ];

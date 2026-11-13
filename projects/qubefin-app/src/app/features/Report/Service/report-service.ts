@@ -74,4 +74,12 @@ export class ReportService {
       responseType: 'blob',
     });
   }
+  generateEmployeeLeaveBalanceReport(year: number, month: number, companyId: string) {
+    return this.httpClient.get(
+      `${ApiPaths.REPORT}/generate-employee-leave-balance-report/${year}/${month}/${companyId}`,
+      {
+        responseType: 'blob',
+      },
+    );
+  }
 }

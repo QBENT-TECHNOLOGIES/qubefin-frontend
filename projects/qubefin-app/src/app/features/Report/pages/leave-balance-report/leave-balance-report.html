@@ -1,0 +1,62 @@
+<div class="page-container">
+    <div class="mainCard-area glass">
+        <div class="filter-area">
+            <div class="filter-container">
+                <div class="flex-1 min-w-[200px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Year</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                        </div>
+                        <mat-select [ngModel]="selectedYear()" (ngModelChange)="selectedYear.set($event)"
+                            placeholder="Select Year">
+                            @for (y of years; track y) {
+                            <mat-option [value]="y">{{ y }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <div class="flex-1 min-w-[200px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Month</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="calendar-1" class="w-5 h-5"></svg>
+                        </div>
+                        <mat-select [ngModel]="selectedMonth()" (ngModelChange)="selectedMonth.set($event)"
+                            placeholder="Select Month">
+                            @for (m of months; track m.value) {
+                            <mat-option [value]="m.value">{{ m.label }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <div class="flex-1 min-w-[200px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Company</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                        </div>
+                        <mat-select [ngModel]="selectedCompanyId()" (ngModelChange)="selectedCompanyId.set($event)"
+                            placeholder="Select Company">
+                            @for (company of companyStore.companies(); track company.id) {
+                            <mat-option [value]="company.id">
+                                {{ company.name }}
+                            </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <div class="flex items-center gap-2.5 shrink-0">
+                    <button type="button" (click)="onGenerate()" [disabled]="isDownloading()"
+                        class="global-btn shine-sweep lift disabled:opacity-60 disabled:cursor-not-allowed">
+                        <svg lucideIcon="file-down" class="w-4 h-4"></svg>
+                        {{ isDownloading() ? 'Generating...' : 'Generate' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
