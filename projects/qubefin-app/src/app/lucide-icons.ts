@@ -208,6 +208,7 @@ import {
   LucideSignature,
   LucideBuildingComplex,
   LucideArrowBigRightDash,
+  LucideBinary,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -420,6 +421,7 @@ export const APP_ICONS = [
   LucideSignature,
   LucideBuildingComplex,
   LucideArrowBigRightDash,
+  LucideBinary,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -629,4 +631,5 @@ export const APP_ICONS_MAP: Record<string, any> = {
   Siganture: LucideSignature,
   BuildingComplex: LucideBuildingComplex,
   ArrowBigRightDash: LucideArrowBigRightDash,
+  Binary: LucideBinary,
 };

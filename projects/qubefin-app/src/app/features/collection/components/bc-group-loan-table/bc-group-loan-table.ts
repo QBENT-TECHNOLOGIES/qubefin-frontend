@@ -41,6 +41,11 @@ export class BcGroupLoanTable {
     return loan.paidAmount < loan.emiAmount;
   }
 
+  // Nothing collected, so no payment mode and no UTR.
+  isCollecting(loan: GroupLoan): boolean {
+    return loan.paidAmount > 0;
+  }
+
   onPaidInput(loanId: string, event: Event) {
     const value = Number((event.target as HTMLInputElement).value) || 0;
     this.paidChange.emit({ loanId, value });

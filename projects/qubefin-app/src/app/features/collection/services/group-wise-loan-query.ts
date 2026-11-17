@@ -1,7 +1,6 @@
 import { IGroupWiseLoanSearchParam } from '../models/group-wise-loan';
 
-/// The query string of the group wise loan search, shared by the service and the store's httpResource so both
-/// build the same url. designationId is in the path, so it is not repeated here.
+// Shared by the service and the store so both build the same url. designationId is in the path.
 export function buildGroupWiseLoanQuery(search: IGroupWiseLoanSearchParam): string {
   const queryParams = new URLSearchParams({
     collectionDate: search.collectionDate,
