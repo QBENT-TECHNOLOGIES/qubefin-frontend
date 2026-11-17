@@ -78,7 +78,16 @@ export class LeaveApprovalStore {
   refreshList() {
     this.leaveApprovalsResource.reload();
   }
-
+  reset() {
+    this.searchedEmployeeIdQuery.set('');
+    this.fromDateQuery.set('');
+    this.toDateQuery.set('');
+    this.pageIndex.set(0);
+    this.pageSize.set(10);
+    this.sortOn.set('fromDate');
+    this.sortDirection.set('desc');
+    this.leaveApprovalsResource.reload();
+  }
   private normalizeListItem(item: ILeaveApprovalListItem): ILeaveApprovalListItem {
     return {
       ...item,

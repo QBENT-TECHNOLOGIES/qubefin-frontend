@@ -57,4 +57,9 @@ export class LeavePrayerStore {
   refreshDetail() {
     this.leavePrayerResource.reload();
   }
+  reset() {
+    this.leavePrayerId.set(undefined);
+    this.leavePrayersResource.reload();
+    this.leaveTypeBalancesResource.reload();
+  }
 }

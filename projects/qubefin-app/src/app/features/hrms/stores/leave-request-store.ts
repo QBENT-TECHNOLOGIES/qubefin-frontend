@@ -73,7 +73,12 @@ export class LeaveRequestStore {
   refreshDetail() {
     this.leaveRequestResource.reload();
   }
-
+  reset() {
+    this.leaveRequestId.set(undefined);
+    this.yearQuery.set(new Date().getFullYear());
+    this.leaveRequestsResource.reload();
+    this.leaveTypeBalancesResource.reload();
+  }
   private normalizeListItem(item: ILeaveRequestListItem): ILeaveRequestListItem {
     return {
       ...item,

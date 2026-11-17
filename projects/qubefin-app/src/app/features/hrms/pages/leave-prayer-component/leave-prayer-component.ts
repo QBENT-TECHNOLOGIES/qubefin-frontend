@@ -44,6 +44,9 @@ export class LeavePrayerComponent {
   readonly hasSelectedLeavePrayer = computed(
     () => this.selectedLeavePrayerId() !== EMPTY_UUID || !this.isViewMode(),
   );
+  constructor() {
+    this.leavePrayerStore.reset();
+  }
   protected onView(id: string) {
     this.selectedLeavePrayerId.set(id);
     this.isViewMode.set(true);

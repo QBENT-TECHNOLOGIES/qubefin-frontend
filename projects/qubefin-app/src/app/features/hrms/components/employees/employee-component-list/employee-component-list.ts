@@ -27,6 +27,7 @@ import { AttendanceCalendarModal } from '../../attendance-history-components/att
 import { EmployeeDocumentsModal } from '../employee-documents-modal/employee-documents-modal';
 import { EmployeeTeamModal } from '../employee-team-modal/employee-team-modal';
 import { MatMenuModule } from '@angular/material/menu';
+import { StatusBadgeComponentComponent } from 'qubefin-core';
 @Component({
   selector: 'qfin-employee-component-list',
   imports: [
@@ -39,6 +40,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatPaginatorModule,
     MatTableModule,
     MatSortModule,
+    StatusBadgeComponentComponent,
   ],
   templateUrl: './employee-component-list.html',
 })
@@ -64,10 +66,11 @@ export class EmployeeComponentList {
       'orgUnit',
       'name',
       'code',
-      'gender',
       'mobile',
       'joiningDate',
-
+      'designation',
+      'grade',
+      'status',
       'action',
     ];
   });

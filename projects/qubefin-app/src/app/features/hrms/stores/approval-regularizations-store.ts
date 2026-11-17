@@ -109,6 +109,18 @@ export class ApprovalRegularizationStore {
       this.regularizationId.set(id);
     }
   }
+  reset() {
+    this.regularizationId.set(undefined);
+    this.fromDate.set(null);
+    this.toDate.set(null);
+    this.searchQuery.set(null);
+    this.searchEmployeeId.set(null);
+    this.pageIndex.set(0);
+    this.pageSize.set(10);
+    this.sortOn.set('fromDate');
+    this.sortDirection.set('desc');
+    this.approvalReguralizationsResource.reload();
+  }
   private normalizeItem(item: IAttendanceRegularizationDetail): IAttendanceRegularizationDetail {
     return {
       ...item,
