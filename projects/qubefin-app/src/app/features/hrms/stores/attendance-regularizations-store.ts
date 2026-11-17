@@ -113,6 +113,11 @@ export class AttendanceRegularizationsStore {
       this.regularizationId.set(id);
     }
   }
+  reset() {
+    this.regularizationId.set(undefined);
+    this.attendanceReguralizationsResource.reload();
+    this.lastWorkingDayResource.reload();
+  }
   private normalizeItem(item: IAttendanceRegularizationDetail): IAttendanceRegularizationDetail {
     return {
       ...item,

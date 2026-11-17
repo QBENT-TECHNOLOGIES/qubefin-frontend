@@ -79,4 +79,15 @@ export class LeavePrayerApprovalStore {
   refreshList() {
     this.leavePrayersApprovalResource.reload();
   }
+  reset() {
+    this.searchedEmployeeIdQuery.set('');
+    this.fromDate.set(null);
+    this.toDate.set(null);
+    this.searchQuery.set(null);
+    this.pageIndex.set(0);
+    this.pageSize.set(10);
+    this.sortOn.set('appliedOn');
+    this.sortDirection.set('desc');
+    this.leavePrayersApprovalResource.reload();
+  }
 }

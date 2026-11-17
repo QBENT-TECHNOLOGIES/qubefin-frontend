@@ -280,6 +280,57 @@ export class EmployeeRecordsComponent {
       });
   }
 
+  protected exportLeaveRequest() {
+    this.alertService
+      .confirm('Confirmation', `Do you want to export?`, 'Yes', 'No')
+      .then((result) => {
+        if (!result.isConfirmed) return;
+
+        this.reportService.getLeaveRequestReport().subscribe({
+          next: (blob: Blob) => {
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `leave_request-report.xlsx`;
+            link.click();
+            window.URL.revokeObjectURL(downloadUrl);
+          },
+          error: () => {},
+        });
+      });
+  }
+  protected exportRegularizationReport() {
+    this.alertService
+      .confirm('Confirmation', `Do you want to export?`, 'Yes', 'No')
+      .then((result) => {
+        if (!result.isConfirmed) return;
+
+        this.reportService.getRegularizationReport().subscribe({
+          next: (blob: Blob) => {
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `regularization-report.xlsx`;
+            link.click();
+            window.URL.revokeObjectURL(downloadUrl);
+          },
+          error: () => {},
+        });
+      });
+  }
+  protected onExport() {
+    switch (this.recordsStore.activeTab()) {
+      case 'attendance':
+        this.exportAttendanceHistory();
+        break;
+      case 'leave':
+        this.exportLeaveRequest();
+        break;
+      case 'regularization':
+        this.exportRegularizationReport();
+        break;
+    }
+  }
   private formatDate(date: Date | null): string | null {
     return date ? this.datePipe.transform(date, 'yyyy-MM-dd') : null;
   }
