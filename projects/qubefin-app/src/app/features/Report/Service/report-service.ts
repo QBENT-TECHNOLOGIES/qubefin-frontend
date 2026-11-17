@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import { ApiPaths } from 'qubefin-core';
+import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
 
 @Service()
 export class ReportService {
@@ -71,6 +71,32 @@ export class ReportService {
   // Employee Appoinment Letter After Entry
   getAppoinmentLetter(employeeId: string, companyId: string) {
     return this.httpClient.get(`${ApiPaths.REPORT}/employee/${employeeId}/${companyId}`, {
+      responseType: 'blob',
+    });
+  }
+  generateEmployeeLeaveBalanceReport(year: number, month: number, companyId: string) {
+    return this.httpClient.get(
+      `${ApiPaths.REPORT}/leave-balance-report/${year}/${month}/${companyId}`,
+      {
+        responseType: 'blob',
+      },
+    );
+  }
+  generateEmployeeAttendanceReport(year: number, month: number, companyId: string | null) {
+    return this.httpClient.get(
+      `${ApiPaths.REPORT}/monthly-attendance-report/${year}/${month}/${!companyId ? EMPTY_UUID : companyId}`,
+      {
+        responseType: 'blob',
+      },
+    );
+  }
+  getLeaveRequestReport() {
+    return this.httpClient.get(`${ApiPaths.REPORT}/generate-leave-request-report`, {
+      responseType: 'blob',
+    });
+  }
+  getRegularizationReport() {
+    return this.httpClient.get(`${ApiPaths.REPORT}/generate-regularization-report`, {
       responseType: 'blob',
     });
   }
