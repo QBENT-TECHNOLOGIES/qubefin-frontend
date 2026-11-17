@@ -71,7 +71,7 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 | Errors | Non-2xx with `{ "message": "human readable" }` (400 invalid, 403 not allowed for this user, 404 not found or outside the caller's scope) or `{ "errors": ["…"] }`. `HttpErrorInterceptor` shows them as a popup, so messages must be readable by a branch user. |
 | DPD ranges | `dpdRange` ∈ `Days1To30` (1–30 days) · `Days31To60` (31–60) · `Days61To90` (61–90) · `Over90` (91 and above, shown as "90+"), or null = any. Both bounds inclusive, no overlap. Same ranges everywhere (`utils/dpd.ts`). |
 | Writes | Return the documented response (the job writes C1–C7 return a message for the user; the web then reloads). Every write is audited with user + server time. |
-| Polling | Live screens poll every **30 s** (positions, routes for today, alerts, job lists, approvals). Keep these endpoints cheap. SignalR can replace polling later without changing response shapes. |
+| Polling | Live screens poll every **30 s** (positions, routes for today, alerts, job lists, approvals). Keep these endpoints cheap. Live Tracking and Alerts also get GPS fixes and alarms **pushed** over a STOMP socket (§5.1); polling stays on as the backup. |
 
 ---
 
@@ -145,6 +145,13 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
     `history` are **not sent** (optional in the model; the page shows no verification badge or location history while absent).
   * `PUT geo-tags/{refId}` (E2, `{ location, radiusMeters, reason }`) **exists on the backend but the web does not use it**:
     Geo Tags stays view only (product owner, 4 Nov 2026; confirmed 13 Nov 2026). See §12.
+  * `od-members/search` (D1, OD Members page; 17 Nov 2026): request `organizationUnitId` (the branch filter, spelled with **z**;
+    was `branchId`; `organisationUnitId` / `branchId` are ignored), `creditOfficerId`, `groupId`, `dpdRange`, `onlyUnassigned`,
+    `searchText` (member name, loan account no…), `sortOn` ∈ `memberName`·`overdueAmount`·`dpd` (anything else 400),
+    `sortDirection`, `pageIndex`, `pageSize` (1–100). `OdMember`: `organizationUnitId` (z; was `branchId`), new `loanId`,
+    `memberCode`, `groupCode`; `centreName` is **not** sent. `followUp`: `jobCode` (was `jobNo`), new `assigneeId`. `pendingWith[]`:
+    `jobCode` (was `jobNo`), new `taskId`. A validation 400 here comes as `{ type, title, status, errors: ["…"] }`, e.g.
+    `"Sort on must be memberName, overdueAmount or dpd."`.
   * Open points found while integrating are listed in **§12**.
   * **Page size** (seen 13 Nov 2026): `jobs/search` accepts `pageSize` 1–100 only (400 otherwise). Job Monitoring loads the first
     100 open jobs (soonest due) and says how many more match, so the user can narrow by branch or employee.
@@ -342,11 +349,11 @@ gets no such right over a BM's jobs.
 * `followUp` = the member's latest OD follow-up task (pending first, then most recent), with job no / status, assignee,
   `completeBy`, task `status` and `outcome` (`OdVisitOutcome`: memberAvailable, paid,
   amountCollected, **ptpDate**). `onlyUnassigned=true` hides members with a pending follow-up.
-* `pendingWith` = every pending OD follow-up of the member, one per open job: `{ jobId, jobNo, taskNo, assigneeId, assigneeName }`.
+* `pendingWith` = every pending OD follow-up of the member, one per open job: `{ jobId, jobCode, taskId, taskNo, assigneeId, assigneeName }`.
   The web uses it to lock the member for the same person and to warn for others (rule 3.2.3).
 * `groupId` / `groupName` = the group the member is mapped to; `creditOfficerId` / `creditOfficerName` = the member's mapped Credit
   Officer (normally the group's CO). **Filter only**: the follow-up can be given to anyone the job rules allow.
-* Filters: `searchText` (member, loan account, group or CO name), `branchId`, `creditOfficerId` (mapped CO), `groupId` (mapped group),
+* Filters: `searchText` (member, loan account, group or CO name), `organizationUnitId` (branch), `creditOfficerId` (mapped CO), `groupId` (mapped group),
   `dpdRange` (§1 DPD ranges; replaces `minDpd`), `onlyUnassigned`, paging, `sortOn` ∈
   `dpd`·`memberName`·`overdueAmount`.
 * `locationVerified` = the member's home geo-tag is verified (rule 3.2.13). The web disables selection and shows a
@@ -397,6 +404,45 @@ Also return `currentTaskId/Title`, `currentJobId/No`, `openTaskCount` (pending t
   100 points per request, consecutive points within ~300 m, do not snap across GPS gaps). Snap once per finished day and store it;
   for today, snap only the new fixes. While these fields are absent, the web snaps in the browser on demand (cached per tab), which
   costs a Roads request per ~100 fixes for every viewer.
+
+### 5.1 Live push (STOMP socket, 17 Nov 2026)
+
+GPS fixes and alarms are pushed as they happen, over **STOMP on SockJS** (same as the backend's `test.html`):
+
+| Item | Value |
+|---|---|
+| Endpoint | `http://3.111.193.85:8080/ws/live?token=<accessToken>` (dev; `liveSocketUrl` in `environment*.ts`, empty = polling only, as in production for now) |
+| Auth | The same access token as the REST calls, in the `token` query parameter. The web reconnects with the new token after a new sign-in. |
+| Topics | `/topic/employee/{employeeId}/gps` and `/topic/employee/{employeeId}/alarms`, one pair per employee |
+| Who subscribes | Live Tracking and Alerts subscribe for **everyone in the caller's `field-officers` list** (§2) while the screen is open. Product owner (17 Nov 2026): a manager may subscribe to the people they may monitor, so the server must allow a subscription when the token's employee may monitor `{employeeId}` (or is that employee), and refuse it otherwise. |
+| Connection | One connection per browser tab (`services/live-socket.service.ts`), reconnect every 5 s, closed 15 s after the last screen leaves or on sign-out. |
+
+**Today's trail on click (17 Nov 2026).** When a person is clicked on Live Tracking, the web first loads their fixes of today
+from the GPS service, `GET http://3.111.193.85:8080/api/v1/gps?employeeId={id}` with header `X-Signature: <accessToken>`
+(`gpsServiceUrl` in `environment*.ts`, `services/gps-history.service.ts`). Response: `[{ id, gpsTime, locationId, userId,
+isMockLocation, batteryPercentage, receivedAt, courseDegree, speed, latitude, longitude, accuracy }]`. The web keeps the fixes of
+today (local day, by `gpsTime`), sorted by `gpsTime`, draws them as a line and then extends the line from the `/gps` topic only (no
+polling). After a reconnect it loads the trail again to fill the gap. Fixes with `isMockLocation: true` are counted and flagged in the
+person's panel. This server is not behind the gateway, so the call does not go through the app's interceptors.
+
+How the web uses the messages:
+
+* **`/gps`** → the person's marker and list row move at once on Live Tracking (only when the fix is newer than `lastSeenAt`), and
+  today's trail of the selected person grows. The server's status (`OnTask`, `AtBranch`…) still comes from the 30 s poll; between
+  polls the web only sets `GpsOff` (GPS reported off) or brings an `Offline` / `GpsOff` person back to `Moving` / `Idle`.
+  Someone with a fix who is not in `live/positions` yet is added from their `field-officers` entry.
+* **`/alarms`** → the alarm appears at the top of the Alerts list (marked *New*) and in the type counts, and the person's alert count
+  goes up on Live Tracking. 3 s later the list is reloaded so the server's copy replaces the pushed one (matched by `id`, or by
+  employee + type raised within 2 minutes). An alarm without an `id` shows *Saving…* instead of Acknowledge / Resolve until then.
+
+**Message shapes are not agreed yet.** Until they are, the web reads them tolerantly (`utils/live-message.ts`, field names
+case-insensitive) and logs the first message of each topic to the browser console (`[live] First gps message …`). Recommended
+shapes, so no guessing is needed:
+
+* GPS: `{ employeeId, lat, lng, recordedAt (ISO), speedKmph, accuracyMeters, batteryPct, gpsEnabled, status? (LiveStatus) }`.
+  Also read: `latitude`/`longitude` or a nested `location`, `timestamp` / epoch s or ms. A plain `speed` is taken as **m/s**.
+* Alarm: the `TrackingAlert` of §6 (at least `id`, `type` as an `AlertType`, `severity`, `message`, `raisedAt`, `location`).
+  Also read: `alarmType` / `alertType`, `GPS_OFF`-style names, `timestamp`. An unknown type is shown under its own name.
 
 ---
 
@@ -523,7 +569,7 @@ and can sort the task list by priority.
 
 ## 12. Open questions for the backend and the product owner (13 Nov 2026)
 
-Found while connecting the web to the dev backend (A1–A3, B1–B5, C1–C7, E1). Numbers refer to the integration steps.
+Found while connecting the web to the dev backend (A1–A3, B1–B5, C1–C7, D1, E1). Dev gateway moved to `15.206.8.100` (17 Nov 2026). Numbers refer to the integration steps.
 
 **Bugs (backend)**
 
@@ -545,20 +591,24 @@ Found while connecting the web to the dev backend (A1–A3, B1–B5, C1–C7, E1
    The page needs `verified` (rule 3.2.13, "Location Not Verified" badge) and `history` (location changes, read only). Is `refId`
    the intended key?
 7. **`branchOperatingRadiusInKm` holds metres (A2).** Rename it (e.g. `branchOperatingRadiusInMeters`) or send km.
-8. **`organizationUnitId` vs `organisationUnitId`.** `field-officers` takes `organizationUnitId` (z); `jobs/search`,
-   `jobs/task-points`, `geo-tags/points` and `geo-tags` use `organisationUnitId` (s). One spelling, please.
+8. **`organizationUnitId` vs `organisationUnitId`.** `field-officers` and `od-members/search` (request and `OdMember`) use
+   `organizationUnitId` (z); `jobs/search`, `jobs/task-points`, `geo-tags/points`, `geo-tags`, `JobSummary`, `TaskTarget` and
+   `GeoTagPoint` use `organisationUnitId` (s). One spelling, please.
 9. **`typeCounts` (B1)** is not sent yet; the list shows the task-type icons without numbers.
 10. **`verification` / `odOutcome` on `JobTask` (B2)**: no sample with values yet; the web keeps the contract shape. Please share a
     completed task (with photo) and a completed OD follow-up.
 11. **Write responses are messages only (C1–C7).** Fine for the web (it shows the message and reloads). Two asks: (a) a partial
-    transfer (C3 with `taskIds`) should name the new job in the message, or return its id, so the user can open it; (b) the
-    error body is `{ message, metadata, reasons }`: are `metadata` / `reasons` ever filled? The web shows `message` only.
+    transfer (C3 with `taskIds`) should name the new job in the message, or return its id, so the user can open it; (b) errors come
+    in two shapes: `{ message, metadata, reasons }` (job writes) and `{ type, title, status, errors[] }` (validation, e.g. D1). Are
+    `metadata` / `reasons` ever filled? One shape would be simpler; the web shows `message` or the `errors` list.
 12. **Page size (B1).** `jobs/search` allows `pageSize` ≤ 100. Job Monitoring shows the first 100 open jobs and says how many more
     match. Is 100 the final limit, or can monitoring get a higher one?
 
-**Not delivered yet** (the web still uses the mock for these screens)
+**Not delivered yet** (the web still uses the mock for these screens). Until `groups` and `od-members/add-to-job` arrive, the OD
+Members page lists real members but its *Group* filter offers mock groups (no match) and *Add to job* skips every real member
+("Member not found").
 
-13. `GET jobs/open` (add to an existing job), `GET groups`, `POST od-members/search`, `POST od-members/add-to-job`,
+13. `GET jobs/open` (add to an existing job), `GET groups`, `POST od-members/add-to-job`,
     `GET live/positions`, `GET employees/{id}/route`, `POST alerts/search`, `GET alerts/open-count`, `PUT alerts/{id}/acknowledge`,
     `PUT alerts/{id}/resolve`, `GET approvals`, `PUT approvals/{id}/decision`, `GET settings`, `PUT settings`.
 
@@ -570,6 +620,20 @@ Found while connecting the web to the dev backend (A1–A3, B1–B5, C1–C7, E1
 16. **Roles outside the tracking hierarchy** (Zonal Head, State Head, HOD, HR Manager, Chief Executive Officer, Chief Operating
     Officer, Deputy Manager, Assistant Vice President, Executive Assistant Manager) have **no rights** in the web's role rules today.
     Confirm, or say where each one sits.
+
+**Live socket (17 Nov 2026, §5.1)**
+
+17. **Message shapes** for `/gps` and `/alarms`: please share one real message of each (or adopt the shapes recommended in §5.1).
+    In particular: is `speed` m/s or km/h; is the time the phone's fix time; does every alarm carry the same `id` that
+    `alerts/search` will return?
+18. **Manager subscriptions:** the test page says the `EmployeeId` in the topic must match the token. The web subscribes for every
+    person the caller may monitor (product owner, 17 Nov 2026), so that check has to become "may monitor" (§2), else Live Tracking
+    and Alerts get no pushes for the team.
+19. **CORS and production:** the SockJS `info` request comes from the web's origin (e.g. `http://localhost:4200`), so the endpoint
+    must allow it. Which URL (and HTTPS / WSS) is used in production? Until then production stays on polling (`liveSocketUrl: ''`).
+20. **GPS history (`/api/v1/gps`).** (a) Is `X-Signature` the same access token as the socket's `?token=`? (b) Does it return only
+    **today's** fixes, and in what order (the web filters to today and sorts by `gpsTime` anyway)? (c) It must check that the caller
+    may monitor `employeeId` (§2), and allow CORS for the web's origin with the `X-Signature` header. (d) Is `speed` m/s?
 
 **Test data note:** some dev places are far from their branch (e.g. *Annapurna Mahila Group*, Sitai Branch, and member *Anima Biswas*,
 Alipurduar Branch, are tagged near Kolkata, ~450 km away). Expected for test data; real data would trip the branch-radius rules.

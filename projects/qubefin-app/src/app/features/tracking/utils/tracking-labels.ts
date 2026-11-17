@@ -90,6 +90,11 @@ export const ALERT_TYPE: Record<AlertType, Tone> = {
   DelayedJob: tone('Delayed Job', BLUE, 'hourglass', '#2563EB'),
 };
 
+/** Tone of an alert type; an alarm type the web does not know yet (live socket) is shown under its own name. */
+export function alertTypeTone(type: string): Tone {
+  return ALERT_TYPE[type as AlertType] ?? tone(type.replace(/[_-]+/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2'), SLATE, 'circle-dot', '#64748B');
+}
+
 export const ALERT_SEVERITY: Record<AlertSeverity, Tone> = {
   Low: tone('Low', SLATE, 'circle-dot', '#64748B'),
   Medium: tone('Medium', AMBER, 'triangle-alert', '#D97706'),

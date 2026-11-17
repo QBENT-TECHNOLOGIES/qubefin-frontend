@@ -169,7 +169,7 @@
                         @if (c.followUp; as f) {
                         <div class="flex items-center gap-2">
                             <qfin-trk-chip [tone]="JOB_TASK_STATUS[f.status]" [small]="true" />
-                            <a class="trk-link text-[11px] tabular-nums" [routerLink]="['/secure/tracking/jobs']" [queryParams]="{ job: f.jobId }">{{ f.jobNo }}</a>
+                            <a class="trk-link text-[11px] tabular-nums" [routerLink]="['/secure/tracking/jobs']" [queryParams]="{ job: f.jobId }">{{ f.jobCode }}</a>
                         </div>
                         <p class="text-[11px] text-slate-400 mt-0.5">{{ f.assigneeName + ' (' + f.assigneeRole + ')' }} · by {{ f.completeBy | date: 'dd MMM' }}</p>
                         @if (c.pendingWith.length > 1) {

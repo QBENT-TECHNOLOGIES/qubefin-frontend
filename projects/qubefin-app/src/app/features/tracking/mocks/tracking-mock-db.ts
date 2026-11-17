@@ -439,15 +439,17 @@ function buildDb(): MockDb {
         odMembers.push({
           pendingWith: [],
           id: uuid('c', custNo),
+          loanId: uuid('l', custNo),
           loanAccountNo: loanNo,
           memberName: name,
+          memberCode: `MEM-${b.code}-${custNo.toString().padStart(4, '0')}`,
           coBorrowerName: `${pick(CO_BORROWER)} ${name.split(' ')[1]}`,
           groupId: group.id,
           groupName: group.name,
-          centreName: `${group.village} Centre`,
+          groupCode: group.code,
           creditOfficerId: group.creditOfficerId,
           creditOfficerName: group.creditOfficerName,
-          branchId: b.id,
+          organizationUnitId: b.id,
           branchName: b.name,
           phone: `9${intBetween(100000000, 999999999)}`,
           address,
@@ -492,7 +494,7 @@ function buildDb(): MockDb {
     kind: 'Member', originRefId: c.id, targetName: c.name, targetLocation: c.location!, organisationUnitId: c.branchId, branchName: branchOf(c.branchId).name, radiusMeters: 100,
   });
   const odTarget = (c: OdMember): TaskTarget => ({
-    kind: 'OdMember', originRefId: c.id, targetName: c.memberName, targetLocation: c.homeLocation!, organisationUnitId: c.branchId, branchName: c.branchName, radiusMeters: 100,
+    kind: 'OdMember', originRefId: c.id, targetName: c.memberName, targetLocation: c.homeLocation!, organisationUnitId: c.organizationUnitId, branchName: c.branchName, radiusMeters: 100,
   });
   const pointTarget = (b: TrackingBranch, name: string, km: [number, number]): TaskTarget => {
     const village = pick(VILLAGES[b.code]);
@@ -522,7 +524,7 @@ function buildDb(): MockDb {
   };
   const usedOd = new Set<string>();
   const odFor = (branchId: string, n: number) => {
-    const list = odMembers.filter((c) => c.branchId === branchId && c.homeLocation && !usedOd.has(c.id)).sort((a, b) => b.dpd - a.dpd).slice(0, n);
+    const list = odMembers.filter((c) => c.organizationUnitId === branchId && c.homeLocation && !usedOd.has(c.id)).sort((a, b) => b.dpd - a.dpd).slice(0, n);
     list.forEach((c) => usedOd.add(c.id));
     return list;
   };
@@ -1223,7 +1225,7 @@ function seedGeoTags(d: MockDb, branchById: Map<string, TrackingBranch>, now: Da
   d.branches.forEach((b) => addTag('Branch', b.id, `${b.name} Branch`, b.code, b.id, `${b.name}, ${b.areaName}`, b.location, 30_000, false));
   d.groups.forEach((g) => addTag('GroupCentre', g.id, g.name, g.code, g.branchId, `${g.village}`, g.location, 150, false));
   d.members.forEach((c) => addTag('Member', c.id, c.name, c.loanAccountNo, c.branchId, c.address, c.location, 100, true));
-  d.odMembers.forEach((c) => addTag('OdMember', c.id, c.memberName, c.loanAccountNo, c.branchId, c.address, c.homeLocation, 100, true));
+  d.odMembers.forEach((c) => addTag('OdMember', c.id, c.memberName, c.loanAccountNo, c.organizationUnitId, c.address, c.homeLocation, 100, true));
   d.officers.forEach((o) => addTag('EmployeeHome', o.id, o.name, o.employeeCode, o.organisationUnitId, null, o.presentLocation, 50, false));
   return geoTags;
 }

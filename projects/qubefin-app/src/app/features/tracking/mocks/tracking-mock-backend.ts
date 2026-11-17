@@ -754,7 +754,7 @@ function followUpOf(d: MockDb, c: OdMember): OdFollowUpSummary | null {
         const rank = (t.status === 'Pending' ? '2' : '1') + (t.taskCompletedOn ?? t.taskAddedOn);
         if (rank > bestAt) {
           bestAt = rank;
-          best = { jobId: j.id, jobNo: j.jobCode, jobStatus: j.status, taskId: t.id, taskNo: t.taskNo, assigneeName: j.assigneeName, assigneeRole: j.assigneeRole, completeBy: j.endDate, status: t.status, outcome: t.odOutcome };
+          best = { jobId: j.id, jobCode: j.jobCode, jobStatus: j.status, taskId: t.id, taskNo: t.taskNo, assigneeId: j.assigneeId, assigneeName: j.assigneeName, assigneeRole: j.assigneeRole, completeBy: j.endDate, status: t.status, outcome: t.odOutcome };
         }
       }),
   );
@@ -768,7 +768,7 @@ function pendingFollowUps(d: MockDb, memberId: string): OdMember['pendingWith'] 
     .flatMap((j) =>
       j.tasks
         .filter((t) => t.taskType === 'OdFollowUp' && t.target.originRefId === memberId && t.status === 'Pending')
-        .map((t) => ({ jobId: j.id, jobNo: j.jobCode, taskNo: t.taskNo, assigneeId: j.assigneeId, assigneeName: j.assigneeName })),
+        .map((t) => ({ jobId: j.id, jobCode: j.jobCode, taskId: t.id, taskNo: t.taskNo, assigneeId: j.assigneeId, assigneeName: j.assigneeName })),
     );
 }
 
@@ -777,8 +777,8 @@ function searchOverdue(d: MockDb, r: OdMemberSearchRequest): OdMemberSearchRespo
   const rows = d.odMembers.map((c) => ({ ...c, locationVerified: locationVerified(d, 'OdMember', c.id), followUp: followUpOf(d, c), pendingWith: pendingFollowUps(d, c.id) }));
   const filtered = rows.filter(
     (c) =>
-      inScope(viewer, [c.branchId]) &&
-      (!r.branchId || c.branchId === r.branchId) &&
+      inScope(viewer, [c.organizationUnitId]) &&
+      (!r.organizationUnitId || c.organizationUnitId === r.organizationUnitId) &&
       inDpdRange(c.dpd, r.dpdRange) &&
       (!r.creditOfficerId || c.creditOfficerId === r.creditOfficerId) &&
       (!r.groupId || c.groupId === r.groupId) &&
@@ -819,7 +819,7 @@ function addOdToJob(d: MockDb, r: AddOdToJobRequest): AddOdToJobResponse {
         notes: [`Overdue ₹${c.overdueAmount.toLocaleString('en-IN')} · ${c.dpd} DPD.`, m.notes?.trim()].filter(Boolean).join(' '),
         priority: m.priority || 'Medium',
         coOrdinatedBy: m.accompaniedById ?? null,
-        target: { kind: 'OdMember', originRefId: c.id, targetName: c.memberName, targetLocation: c.homeLocation, organisationUnitId: c.branchId, branchName: c.branchName, radiusMeters: d.settings.locationMatchRadiusMeters },
+        target: { kind: 'OdMember', originRefId: c.id, targetName: c.memberName, targetLocation: c.homeLocation, organisationUnitId: c.organizationUnitId, branchName: c.branchName, radiusMeters: d.settings.locationMatchRadiusMeters },
       },
     });
     return undefined;

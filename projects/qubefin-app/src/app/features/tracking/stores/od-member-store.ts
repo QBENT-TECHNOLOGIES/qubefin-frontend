@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { Injectable, computed, signal } from '@angular/core';
 import { ApiPaths } from 'qubefin-core';
-import { OdMemberSearchResponse } from '../models/od-member';
+import { OdMemberSearchRequest, OdMemberSearchResponse, OdMemberSortOn } from '../models/od-member';
 import { SortDirection, TrackingGroup } from '../models/geo';
 import { DpdRange } from '../utils/dpd';
 
@@ -18,7 +18,7 @@ export class OdMemberStore {
   readonly onlyUnassigned = signal(false);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
-  readonly sortOn = signal('dpd');
+  readonly sortOn = signal<OdMemberSortOn>('dpd');
   readonly sortDirection = signal<SortDirection>('desc');
 
   readonly searchResource = httpResource<OdMemberSearchResponse>(() => ({
@@ -26,7 +26,7 @@ export class OdMemberStore {
     method: 'POST',
     body: {
       searchText: this.searchText() || null,
-      branchId: this.branchId(),
+      organizationUnitId: this.branchId(),
       dpdRange: this.dpdRange(),
       creditOfficerId: this.creditOfficerId(),
       groupId: this.groupId(),
@@ -35,7 +35,7 @@ export class OdMemberStore {
       pageSize: this.pageSize(),
       sortOn: this.sortOn(),
       sortDirection: this.sortDirection(),
-    },
+    } satisfies OdMemberSearchRequest,
   }));
 
   /**

@@ -1,12 +1,12 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { GoogleMap, MapAdvancedMarker, MapCircle, MapPolyline } from '@angular/google-maps';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { LivePosition, LiveStatus } from '../../models/live-position';
+import { EmployeeRoute, LivePosition, LiveStatus } from '../../models/live-position';
 import { MapsLoaderService } from '../../services/maps-loader.service';
 import { LiveTrackingStore } from '../../stores/live-tracking-store';
 import { TrackingLookupStore } from '../../stores/tracking-lookup-store';
@@ -18,6 +18,7 @@ import { LIVE_STATUS, roleLabel, STOP_KIND } from '../../utils/tracking-labels';
 import { MapStatus } from '../../components/shared/map-status/map-status';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
 import { TrkDateField } from '../../components/shared/date-field/trk-date-field';
+import { LiveBadge } from '../../components/shared/live-badge/live-badge';
 
 type StatusFilter = LiveStatus | 'All';
 
@@ -38,6 +39,7 @@ type StatusFilter = LiveStatus | 'All';
     MapStatus,
     TrackingChip,
     TrkDateField,
+    LiveBadge,
   ],
   templateUrl: './live-map.html',
 })
@@ -80,7 +82,13 @@ export class LiveMap {
     return this.store
       .positions()
       .filter((p) => (f === 'All' || p.status === f) && (!text || p.employeeName.toLowerCase().includes(text)))
-      .sort((a, b) => b.openAlertCount - a.openAlertCount || a.employeeName.localeCompare(b.employeeName));
+      // Open alerts first, then people with a position, then by name.
+      .sort(
+        (a, b) =>
+          b.openAlertCount - a.openAlertCount ||
+          Number(!!b.location) - Number(!!a.location) ||
+          a.employeeName.localeCompare(b.employeeName),
+      );
   });
 
   readonly selected = computed(() => this.store.positions().find((p) => p.employeeId === this.selectedId()) ?? null);
@@ -117,6 +125,17 @@ export class LiveMap {
     return o?.presentLocation ? { position: o.presentLocation, content: this.markers.pin('home', '⌂', '#D97706', { small: true }) } : null;
   });
 
+  // --- Today's trail of the selected person (GPS service history + live fixes) ----------------------------------
+  /** Hidden while "Show route" is on (the day route has its own line). */
+  readonly trailPath = computed(() => (this.showRoute() ? [] : this.store.trail().map((f) => f.location)));
+  readonly trailStart = computed(() => {
+    const first = this.trailPath()[0];
+    return first ? { position: first, content: this.markers.dot('trail-start', '#16A34A', 10) } : null;
+  });
+  readonly trailLine: google.maps.PolylineOptions = { strokeColor: '#0EA5E9', strokeOpacity: 0.9, strokeWeight: 4, clickable: false };
+  /** Move the map to the trail's last point once it loads (the person had no position when clicked). */
+  private centerOnTrail = false;
+
   // --- Route playback ------------------------------------------------------------------------
   readonly route = this.store.route;
   readonly playIndex = signal(0);
@@ -151,6 +170,9 @@ export class LiveMap {
   constructor() {
     this.maps.load().catch(() => undefined);
 
+    // GPS fixes and alarms pushed as they happen; the 30 s poll below stays on.
+    this.store.followLive();
+
     pollWhileVisible(() => {
       this.store.refreshPositions();
       if (this.showRoute() && this.store.routeDate() === toDateKey()) this.store.refreshRoute();
@@ -161,6 +183,15 @@ export class LiveMap {
     this.destroyRef.onDestroy(() => {
       window.clearInterval(tick);
       this.stop();
+      this.store.trailEmployeeId.set(null);
+    });
+
+    effect(() => {
+      const last = this.store.trail().at(-1);
+      if (!last || !this.centerOnTrail) return;
+      this.centerOnTrail = false;
+      this.center.set({ ...last.location });
+      this.zoom.set(14);
     });
 
     effect(() => {
@@ -177,11 +208,23 @@ export class LiveMap {
       }
     });
 
-    // New route → rewind to the end so the full day is visible.
+    // New route → rewind to the end so the full day is visible. The same route growing (live fix, today's poll) only
+    // follows the end when the user is not playing or scrubbing back.
+    let shown: EmployeeRoute | undefined;
     effect(() => {
       const r = this.route();
-      this.stop();
-      this.playIndex.set(Math.max(0, (r?.points.length ?? 1) - 1));
+      const n = r?.points.length ?? 0;
+      const before = shown?.points.length ?? 0;
+      const grew = !!r && !!shown && r.employeeId === shown.employeeId && r.date === shown.date && n >= before;
+      untracked(() => {
+        if (!grew) {
+          this.stop();
+          this.playIndex.set(Math.max(0, n - 1));
+        } else if (!this.playing() && this.playIndex() >= before - 1) {
+          this.playIndex.set(Math.max(0, n - 1));
+        }
+      });
+      shown = r;
     });
   }
 
@@ -198,9 +241,27 @@ export class LiveMap {
     this.selectedId.set(p?.employeeId ?? null);
     this.showRoute.set(false);
     this.store.routeEmployeeId.set(null);
+    // Today's trail up to now from the GPS service; from then on it grows from the live socket.
+    this.store.trailEmployeeId.set(p?.employeeId ?? null);
+    this.centerOnTrail = !!p && !p.location;
     if (p?.location) {
       this.center.set({ ...p.location });
       this.zoom.set(14);
+    }
+  }
+
+  /** Branch filter: narrows the list and the markers, and moves the map to that branch. */
+  setBranch(branchId: string | null) {
+    this.store.branchId.set(branchId);
+    if (this.selectedId() && !this.store.positions().some((p) => p.employeeId === this.selectedId())) this.select(null);
+    const branch = branchId ? this.lookup.branchById().get(branchId) : null;
+    if (branch?.location) {
+      this.center.set({ ...branch.location });
+      this.zoom.set(11);
+    } else if (!branchId) {
+      const pts = this.store.positions().filter((p) => p.location).map((p) => p.location!);
+      if (pts.length) this.center.set(centroid(pts, DEFAULT_CENTER));
+      this.zoom.set(9);
     }
   }
 

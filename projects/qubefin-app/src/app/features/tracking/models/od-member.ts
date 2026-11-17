@@ -3,20 +3,27 @@ import { DpdRange } from '../utils/dpd';
 import { GeoPoint } from './geo';
 import { Job, JobStatus, JobTaskStatus, OdVisitOutcome, TaskPriority } from './job';
 
-/** A row from the Loan Status Report that is past due (source: LOS/LMS). */
+/**
+ * A row from the Loan Status Report that is past due (source: LOS/LMS). D1, `POST tracking-api/od-members/search`; names as
+ * the API sends them.
+ */
 export interface OdMember {
+  /** The member's id (used as `memberId` when adding to a job). */
   id: string;
+  loanId: string;
   loanAccountNo: string;
   memberName: string;
+  memberCode: string;
   coBorrowerName: string | null;
   /** The group the member is mapped to. */
   groupId: string | null;
   groupName: string | null;
-  centreName: string | null;
+  groupCode: string | null;
   /** Mapped Credit Officer of the member (filter only; does not limit who can be given the follow-up). */
   creditOfficerId: string | null;
   creditOfficerName: string | null;
-  branchId: string;
+  /** The member's branch (spelled with **z** here). */
+  organizationUnitId: string;
   branchName: string;
   phone: string | null;
   address: string;
@@ -41,7 +48,8 @@ export interface OdMember {
 
 export interface OdPendingFollowUp {
   jobId: string;
-  jobNo: string;
+  jobCode: string;
+  taskId: string;
   taskNo: string;
   assigneeId: string;
   assigneeName: string;
@@ -49,10 +57,11 @@ export interface OdPendingFollowUp {
 
 export interface OdFollowUpSummary {
   jobId: string;
-  jobNo: string;
+  jobCode: string;
   jobStatus: JobStatus;
   taskId: string;
   taskNo: string;
+  assigneeId: string;
   assigneeName: string;
   assigneeRole: OfficerRole;
   completeBy: string;
@@ -60,9 +69,12 @@ export interface OdFollowUpSummary {
   outcome: OdVisitOutcome | null;
 }
 
+/** D1 request. `pageSize` 1–100; `sortOn` must be one of the three below (400 otherwise). */
 export interface OdMemberSearchRequest {
+  /** Member name, loan account no… */
   searchText: string | null;
-  branchId: string | null;
+  /** Branch filter (spelled with **z**; `organisationUnitId` / `branchId` are ignored). */
+  organizationUnitId: string | null;
   /** Days-past-due range (`utils/dpd.ts`); null = any. */
   dpdRange: DpdRange | null;
   /** Members mapped to this Credit Officer; null = any. */
@@ -73,9 +85,11 @@ export interface OdMemberSearchRequest {
   onlyUnassigned: boolean;
   pageIndex: number;
   pageSize: number;
-  sortOn: string;
+  sortOn: OdMemberSortOn;
   sortDirection: 'asc' | 'desc';
 }
+
+export type OdMemberSortOn = 'memberName' | 'overdueAmount' | 'dpd';
 
 export interface OdMemberSearchResponse {
   members: OdMember[];

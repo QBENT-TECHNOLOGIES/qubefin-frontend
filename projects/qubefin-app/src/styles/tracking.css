@@ -981,3 +981,36 @@
 .trk-filters .trk-date-clear { width: 24px; height: 24px; }
 .trk-filters .mat-date-range-input { font-size: 13px; }
 .trk-filters .trk-link-btn { font-size: 13px; }
+
+/* Live GPS / alarm connection (qfin-trk-live-badge) and pushed alarms on the Alerts page */
+.trk-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #64748b;
+  background: rgb(100 116 139 / 0.1);
+}
+.trk-live-dot { width: 7px; height: 7px; border-radius: 9999px; background: currentColor; }
+.trk-live-badge[data-state='Live'] { color: #16a34a; background: rgb(22 163 74 / 0.1); }
+.trk-live-badge[data-state='Live'] .trk-live-dot { animation: trk-live-pulse 1.6s ease-out infinite; }
+.trk-live-badge[data-state='Connecting'],
+.trk-live-badge[data-state='Reconnecting'] { color: #d97706; background: rgb(217 119 6 / 0.1); }
+@keyframes trk-live-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(22 163 74 / 0.6); }
+  100% { box-shadow: 0 0 0 6px rgb(22 163 74 / 0); }
+}
+.trk-row-live td { background: rgb(225 29 72 / 0.05); }
+.trk-new-badge {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: #e11d48;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+}

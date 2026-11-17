@@ -1,11 +1,18 @@
 export const environment = {
     production: false,
-    gatewayPath: 'http://65.2.146.91:9900/services/',
+    gatewayPath: 'http://15.206.8.100:9900/services/',
     MAP_API_KEY: 'AIzaSyBMH6O__K5BpmQ-Dd3hbhhHrJ1UPfFJs3c',
+    // MAP_API_KEY: 'AIzaSyCYKJdymo-OpaC4tk4-4AGz1JfLrI5avms',
     // Map ID for Advanced Markers. 'DEMO_MAP_ID' is Google's test ID; create a real one in Cloud Console > Map Management.
     MAP_ID: 'ec5efe657183906df4e86ee0',
+    // MAP_ID: 'b7f47d9a21f5573963cd6bf3',
     // Answer tracking-api calls from the in-browser mock until the backend is ready.
     useTrackingMocks: true,
+    // Live GPS fixes and alarms (STOMP over SockJS; the access token goes in ?token=). Topics per employee:
+    // /topic/employee/{employeeId}/gps and /topic/employee/{employeeId}/alarms. Empty = polling only.
+    liveSocketUrl: 'http://3.111.193.85:8080/ws/live',
+    // GPS service (same server as the socket): GET {gpsServiceUrl}/api/v1/gps?employeeId= = today's fixes, sent with Authorization: Bearer <access token>.
+    gpsServiceUrl: 'http://3.111.193.85:8080',
     // Step-by-step integration: these tracking-api endpoints go to the real backend while the mock answers the rest.
     // Format 'METHOD path'; {x} matches one GUID segment. Add each endpoint here once the backend has it.
     trackingLiveEndpoints: [
@@ -24,5 +31,6 @@ export const environment = {
       'PUT jobs/{id}/tasks/{taskId}/cancel', // C6
       'PUT jobs/{id}/tasks/{taskId}/reject', // C7
       'GET geo-tags', // E1 (Geo Tags page)
+      'POST od-members/search', // D1 (OD Members page)
     ],
 };

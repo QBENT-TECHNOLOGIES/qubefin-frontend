@@ -55,7 +55,7 @@ export class AddToJobDialog {
 
   readonly members = this.data.members;
   readonly amount = this.members.reduce((s, c) => s + c.overdueAmount, 0);
-  readonly branchIds = [...new Set(this.members.map((c) => c.branchId))];
+  readonly branchIds = [...new Set(this.members.map((c) => c.organizationUnitId))];
   readonly branchNames = [...new Set(this.members.map((c) => c.branchName))];
 
   readonly mode = signal<'existing' | 'new'>('existing');
@@ -110,7 +110,7 @@ export class AddToJobDialog {
     this.lookup.assignableByRole().map((g) => ({
       ...g,
       officers: g.officers.map((o) => {
-        const fit = this.members.filter((c) => !jobBranchConflict(o, [c.branchId])).length;
+        const fit = this.members.filter((c) => !jobBranchConflict(o, [c.organizationUnitId])).length;
         const note = fit === 0 ? `None of these members are in ${o.unitName}` : fit < this.members.length ? `Only ${fit} of ${this.members.length} are in ${o.unitName}` : null;
         return { ...o, fit, note };
       }),
@@ -146,7 +146,7 @@ export class AddToJobDialog {
     const holder = this.holder()?.id;
     this.members.forEach((c) => {
       const others = c.pendingWith.filter((p) => p.assigneeId !== holder);
-      if (others.length && !this.skipReasons().has(c.id)) map.set(c.id, `also pending with ${others.map((p) => `${p.assigneeName} (${p.jobNo})`).join(', ')}`);
+      if (others.length && !this.skipReasons().has(c.id)) map.set(c.id, `also pending with ${others.map((p) => `${p.assigneeName} (${p.jobCode})`).join(', ')}`);
     });
     return map;
   });
@@ -160,8 +160,8 @@ export class AddToJobDialog {
       if (!c.homeLocation) return map.set(c.id, 'home not geo-tagged');
       if (j?.tasks.some((t) => t.taskType === 'OdFollowUp' && t.target.originRefId === c.id && t.status === 'Pending')) return map.set(c.id, 'already in this job');
       const mine = holder ? c.pendingWith.find((p) => p.assigneeId === holder.id) : undefined;
-      if (mine) return map.set(c.id, `already pending with ${mine.assigneeName} in ${mine.jobNo}`);
-      const conflict = holder ? jobBranchConflict(holder, [...new Set([...(j?.organisationUnitIds ?? []), c.branchId])]) : null;
+      if (mine) return map.set(c.id, `already pending with ${mine.assigneeName} in ${mine.jobCode}`);
+      const conflict = holder ? jobBranchConflict(holder, [...new Set([...(j?.organisationUnitIds ?? []), c.organizationUnitId])]) : null;
       if (conflict) return map.set(c.id, `${c.branchName} is outside ${holder!.name}'s ${holder!.unitName}`);
       return undefined;
     });
@@ -197,7 +197,7 @@ export class AddToJobDialog {
       .filter((c) => !this.skipReasons().has(c.id))
       .map((c) => {
         const d = details.get(c.id)!;
-        const companionOk = !!d.accompaniedById && (allowed.get(c.branchId) ?? []).some((x) => x.id === d.accompaniedById);
+        const companionOk = !!d.accompaniedById && (allowed.get(c.organizationUnitId) ?? []).some((x) => x.id === d.accompaniedById);
         return { ...d, notes: d.notes?.trim() || null, accompaniedById: companionOk ? d.accompaniedById : null };
       });
     this.dialogRef.close({

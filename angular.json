@@ -44,7 +44,8 @@
           "builder": "@angular/build:application",
           "options": {
             "allowedCommonJsDependencies": [
-              "sweetalert2"
+              "sweetalert2",
+              "sockjs-client"
             ],
             "browser": "projects/qubefin-app/src/main.ts",
             "tsConfig": "projects/qubefin-app/tsconfig.app.json",

@@ -176,7 +176,7 @@
                     <select class="trk-inline-select" (change)="setDetail(c.id, { accompaniedById: $any($event.target).value || null })"
                         [attr.aria-label]="'Accompanied by, for ' + c.memberName" matTooltip="Accompanied by (optional)">
                         <option value="" [selected]="!d.accompaniedById">Accompanied by: nobody</option>
-                        @for (p of companionsByBranch().get(c.branchId) ?? []; track p.id) {
+                        @for (p of companionsByBranch().get(c.organizationUnitId) ?? []; track p.id) {
                         <option [value]="p.id" [selected]="p.id === d.accompaniedById">With {{ p.label }}</option>
                         }
                     </select>

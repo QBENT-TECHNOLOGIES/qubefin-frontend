@@ -11,11 +11,12 @@
         <div class="flex items-center gap-2">
             <div class="w-40"><mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                 <mat-label>Branch</mat-label>
-                <mat-select [value]="store.branchId()" (valueChange)="store.branchId.set($event)">
+                <mat-select [value]="store.branchId()" (valueChange)="setBranch($event)">
                     <mat-option [value]="null">All branches</mat-option>
                     @for (b of lookup.branches(); track b.id) { <mat-option [value]="b.id">{{ b.name }}</mat-option> }
                 </mat-select>
             </mat-form-field></div>
+            <qfin-trk-live-badge />
             <span class="text-[11px] text-slate-400 hidden lg:inline">Updated {{ lastUpdated() | date: 'hh:mm:ss a' }} · every {{ pollSeconds }}s</span>
             <button type="button" class="trk-icon-btn" matTooltip="Refresh now" (click)="refreshNow()">
                 <svg lucideIcon="refresh-cw" class="w-4 h-4" [class.animate-spin]="store.loading()"></svg>
@@ -43,7 +44,7 @@
                             <span class="trk-alert-count" matTooltip="Open alerts">{{ p.openAlertCount }}</span>
                             }
                         </span>
-                        <span class="block text-[11px] text-slate-400 truncate">{{ p.role }} · {{ p.branchName }} · {{ ago(p.lastSeenAt) }}</span>
+                        <span class="block text-[11px] text-slate-400 truncate">{{ p.role }} · {{ p.branchName }} · {{ p.lastSeenAt ? ago(p.lastSeenAt) : 'no location yet' }}</span>
                         @if (p.currentTaskTitle) {
                         <span class="block text-[11px] text-emerald-600 truncate">▸ {{ p.currentTaskTitle }}</span>
                         }
@@ -51,7 +52,7 @@
                     <qfin-trk-chip [tone]="LIVE_STATUS[p.status]" [small]="true" [showIcon]="false" />
                 </button>
                 } @empty {
-                <p class="p-6 text-center text-sm text-slate-400">{{ store.loading() ? 'Loading…' : 'Nobody matches.' }}</p>
+                <p class="p-6 text-center text-sm text-slate-400">{{ store.loading() ? 'Loading…' : store.branchId() ? 'Nobody to monitor in this branch.' : 'Nobody matches.' }}</p>
                 }
             </div>
         </div>
@@ -70,6 +71,13 @@
                 @if (homeMarker(); as h) {
                 <map-circle [center]="h.position" [radius]="homeRadius()" [options]="homeCircle" />
                 <map-advanced-marker [position]="h.position" [content]="h.content" title="Registered home" />
+                }
+
+                @if (trailPath().length) {
+                <map-polyline [path]="trailPath()" [options]="trailLine" />
+                @if (trailStart(); as s) {
+                <map-advanced-marker [position]="s.position" [content]="s.content" title="First GPS fix today" [zIndex]="200" />
+                }
                 }
 
                 @if (routePath().length) {
@@ -113,6 +121,7 @@
                     <div class="min-w-0 flex-1">
                         <p class="font-bold text-slate-800 dark:text-white truncate">{{ p.employeeName }}</p>
                         <p class="text-[11px] text-slate-500">{{ roleLabel(p.role) }} · {{ p.branchName }}</p>
+                        @if (!p.location) { <p class="text-[11px] text-amber-600">No location received yet</p> }
                         <div class="mt-1"><qfin-trk-chip [tone]="LIVE_STATUS[p.status]" [small]="true" /></div>
                     </div>
                     <button type="button" class="trk-dialog-close" (click)="select(null)" aria-label="Close"><svg lucideIcon="x" class="w-4 h-4"></svg></button>
@@ -128,9 +137,29 @@
                     <div><p class="text-slate-400">Battery · accuracy</p><p class="font-semibold text-slate-700 dark:text-slate-200">{{ p.batteryPct ?? '–' }}% · {{ p.accuracyMeters ?? '–' }} m</p></div>
                 </div>
                 <div class="px-3 pb-2 grid grid-cols-2 gap-2 text-[11px]">
-                    <div><p class="text-slate-400">Travelled today</p><p class="font-semibold text-slate-700 dark:text-slate-200">{{ p.distanceTodayKm !== null ? (p.distanceTodayKm | number: '1.1-1') + ' km' : '–' }}</p></div>
+                    <div><p class="text-slate-400">Travelled today</p><p class="font-semibold text-slate-700 dark:text-slate-200">{{ p.distanceTodayKm !== null ? (p.distanceTodayKm | number: '1.1-1') + ' km' : store.trail().length > 1 ? (store.trailKm() | number: '1.1-1') + ' km' : '–' }}</p></div>
                     <div><p class="text-slate-400">Pending tasks</p><p class="font-semibold text-slate-700 dark:text-slate-200">{{ p.openTaskCount }} in open jobs</p></div>
                 </div>
+                @if (store.trailEnabled && !showRoute()) {
+                <div class="mx-3 mb-2 text-[11px]">
+                    @if (store.trailLoading() && !store.trail().length) {
+                    <p class="text-slate-500">Loading today's trail…</p>
+                    } @else if (store.trailError()) {
+                    <p class="text-rose-600">Could not load today's trail.
+                        <button type="button" class="trk-link" (click)="store.reloadTrail()">Try again</button></p>
+                    } @else if (store.trail().length) {
+                    <p class="text-slate-500 tabular-nums flex items-center gap-1.5">
+                        <span class="trk-legend-dot" style="--trk-color:#0EA5E9"></span>
+                        Today: {{ store.trail().length }} fixes since {{ store.trail()[0].at | date: 'hh:mm a' }} · {{ store.trailKm() | number: '1.1-1' }} km
+                    </p>
+                    @if (store.trailMockCount()) {
+                    <p class="text-rose-600 font-semibold">{{ store.trailMockCount() }} fix(es) from a mock (fake) location app</p>
+                    }
+                    } @else {
+                    <p class="text-slate-500">No GPS fixes today yet.</p>
+                    }
+                </div>
+                }
                 @if (p.currentTaskTitle) {
                 <a class="mx-3 mb-2 block trk-info-box text-[11px] trk-link" [routerLink]="['/secure/tracking/monitoring']" [queryParams]="{ job: p.currentJobId }">
                     At task point: {{ p.currentTaskTitle }} ({{ p.currentJobNo }})

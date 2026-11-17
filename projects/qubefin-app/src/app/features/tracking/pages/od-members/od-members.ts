@@ -13,7 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { AlertService } from 'qubefin-core';
-import { OdMember } from '../../models/od-member';
+import { OdMember, OdMemberSortOn } from '../../models/od-member';
 import { OdMemberService } from '../../services/od-member-service';
 import { OdMemberStore } from '../../stores/od-member-store';
 import { TrackingLookupStore } from '../../stores/tracking-lookup-store';
@@ -110,7 +110,7 @@ export class OdMembers {
   blockedReason(c: OdMember): string {
     if (!c.homeLocation) return 'Home not geo-tagged yet';
     if (!c.locationVerified) return 'Location not verified: the member can be added to a job once the home location is verified from the mobile app';
-    if (c.pendingWith.length) return 'Already pending with ' + c.pendingWith.map((p) => `${p.assigneeName} (${p.jobNo})`).join(', ') + '. Can still be added for someone else.';
+    if (c.pendingWith.length) return 'Already pending with ' + c.pendingWith.map((p) => `${p.assigneeName} (${p.jobCode})`).join(', ') + '. Can still be added for someone else.';
     return '';
   }
 
@@ -155,7 +155,8 @@ export class OdMembers {
   }
 
   onSort(e: Sort) {
-    this.store.sortOn.set(e.active);
+    // Sortable columns are memberName, overdueAmount and dpd: the API's three sortOn values.
+    this.store.sortOn.set(e.active as OdMemberSortOn);
     this.store.setFilter(this.store.sortDirection, (e.direction || 'desc') as 'asc' | 'desc');
   }
 

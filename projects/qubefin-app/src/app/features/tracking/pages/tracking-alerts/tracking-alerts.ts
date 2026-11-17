@@ -17,10 +17,11 @@ import { TrackingAlertStore } from '../../stores/tracking-alert-store';
 import { TrackingLookupStore } from '../../stores/tracking-lookup-store';
 import { googleMapsLink, toDateKey } from '../../utils/geo-utils';
 import { pollWhileVisible } from '../../utils/poll';
-import { ALERT_SEVERITY, ALERT_STATUS, ALERT_TYPE, optionsOf, Tone } from '../../utils/tracking-labels';
+import { ALERT_SEVERITY, ALERT_STATUS, ALERT_TYPE, alertTypeTone, optionsOf, Tone } from '../../utils/tracking-labels';
 import { RemarksDialog, RemarksDialogData } from '../../components/shared/remarks-dialog/remarks-dialog';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
 import { DateKeyRange, TrkDateRangeField } from '../../components/shared/date-field/trk-date-range-field';
+import { LiveBadge } from '../../components/shared/live-badge/live-badge';
 
 @Component({
   selector: 'qfin-tracking-alerts',
@@ -38,6 +39,7 @@ import { DateKeyRange, TrkDateRangeField } from '../../components/shared/date-fi
     RouterLink,
     TrackingChip,
     TrkDateRangeField,
+    LiveBadge,
   ],
   templateUrl: './tracking-alerts.html',
 })
@@ -57,6 +59,8 @@ export class TrackingAlerts {
   readonly severityOptions = optionsOf(ALERT_SEVERITY);
   readonly statusOptions = optionsOf(ALERT_STATUS);
   readonly googleMapsLink = googleMapsLink;
+  /** Also covers alarm types pushed live that the web does not know yet. */
+  readonly typeTone = alertTypeTone;
   readonly columns = ['severity', 'type', 'employee', 'message', 'raisedAt', 'status', 'actions'];
 
   readonly typeCards = computed(() => {
@@ -66,6 +70,8 @@ export class TrackingAlerts {
   readonly totalOpen = computed(() => this.typeCards().reduce((s, c) => s + c.count, 0));
 
   constructor() {
+    // New alarms are pushed as they happen; the 30 s poll stays on and brings the server's copy.
+    this.store.followLive();
     pollWhileVisible(() => this.store.refresh());
   }
 
