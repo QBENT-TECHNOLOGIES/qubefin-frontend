@@ -29,7 +29,8 @@ export class LeaveBalanceReport {
   readonly selectedMonth = signal<number>(this.today.getMonth() + 1);
   readonly selectedCompanyId = signal<string | null>(null);
 
-  readonly isDownloading = signal<boolean>(false);
+  readonly isLeaveBalanceDownloading = signal<boolean>(false);
+  readonly isAttendanceReportDownloading = signal<boolean>(false);
 
   onGenerate() {
     const companyId = this.selectedCompanyId();
@@ -44,7 +45,7 @@ export class LeaveBalanceReport {
     const companyName =
       this.companyStore.companies().find((c: any) => c.id === companyId)?.name ?? 'Company';
 
-    this.isDownloading.set(true);
+    this.isLeaveBalanceDownloading.set(true);
 
     this.reportService.generateEmployeeLeaveBalanceReport(year, month, companyId).subscribe({
       next: (blob: Blob) => {
@@ -54,10 +55,37 @@ export class LeaveBalanceReport {
         link.download = `Employee_Leave_Balance_Report_${month}_${year}_${companyName}.xlsx`;
         link.click();
         window.URL.revokeObjectURL(downloadUrl);
-        this.isDownloading.set(false);
+        this.isLeaveBalanceDownloading.set(false);
       },
       error: () => {
-        this.isDownloading.set(false);
+        this.isLeaveBalanceDownloading.set(false);
+      },
+    });
+  }
+
+  onAttendanceReportGenerate() {
+    const companyId = this.selectedCompanyId();
+
+    const year = this.selectedYear();
+    const month = this.selectedMonth();
+    const companyName = !companyId
+      ? ''
+      : '_' + this.companyStore.companies().find((c: any) => c.id === companyId)?.name;
+
+    this.isAttendanceReportDownloading.set(true);
+
+    this.reportService.generateEmployeeAttendanceReport(year, month, companyId).subscribe({
+      next: (blob: Blob) => {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `Employee_Attendance_Report_${month}_${year}${companyName}.xlsx`;
+        link.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        this.isAttendanceReportDownloading.set(false);
+      },
+      error: () => {
+        this.isAttendanceReportDownloading.set(false);
       },
     });
   }

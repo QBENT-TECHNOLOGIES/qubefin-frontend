@@ -50,10 +50,17 @@
                 </div>
 
                 <div class="flex items-center gap-2.5 shrink-0">
-                    <button type="button" (click)="onGenerate()" [disabled]="isDownloading()"
+                    <button type="button" (click)="onGenerate()"
+                        [disabled]="isLeaveBalanceDownloading() || isAttendanceReportDownloading()"
                         class="global-btn shine-sweep lift disabled:opacity-60 disabled:cursor-not-allowed">
                         <svg lucideIcon="file-down" class="w-4 h-4"></svg>
-                        {{ isDownloading() ? 'Generating...' : 'Generate' }}
+                        {{ isLeaveBalanceDownloading() ? 'Generating...' : 'Leave Balance Report' }}
+                    </button>
+                    <button type="button" (click)="onAttendanceReportGenerate()"
+                        [disabled]="isAttendanceReportDownloading() || isLeaveBalanceDownloading()"
+                        class="global-btn shine-sweep lift disabled:opacity-60 disabled:cursor-not-allowed">
+                        <svg lucideIcon="file-down" class="w-4 h-4"></svg>
+                        {{ isAttendanceReportDownloading() ? 'Generating...' : 'Attendance Report' }}
                     </button>
                 </div>
             </div>
