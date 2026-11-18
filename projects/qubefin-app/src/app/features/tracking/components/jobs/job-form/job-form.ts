@@ -82,7 +82,7 @@ export class JobForm {
 
   readonly window = computed<[string, string]>(() => [this.model().startFrom || this.today, this.model().completeBy || this.today]);
 
-  readonly taskBranchIds = computed(() => [...new Set(this.tasks().map((t) => t.target.organisationUnitId))]);
+  readonly taskBranchIds = computed(() => [...new Set(this.tasks().map((t) => t.target.organizationUnitId))]);
 
   readonly branchConflict = computed(() => {
     const o = this.assignee();

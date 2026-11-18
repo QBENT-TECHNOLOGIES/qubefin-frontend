@@ -32,7 +32,7 @@ export class JobStore {
       searchText: this.searchText() || null,
       status: this.status(),
       openOnly: false,
-      organisationUnitId: this.branchId(),
+      organizationUnitId: this.branchId(),
       assigneeId: this.assigneeId(),
       dueFrom: this.dueFrom(),
       dueTo: this.dueTo(),

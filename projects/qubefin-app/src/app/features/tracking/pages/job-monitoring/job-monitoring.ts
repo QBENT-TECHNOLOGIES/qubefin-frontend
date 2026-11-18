@@ -82,7 +82,7 @@ export class JobMonitoring {
         searchText: null,
         status: s === 'open' || s === 'all' ? null : (s as JobStatus),
         openOnly: s === 'open',
-        organisationUnitId: this.branchId(),
+        organizationUnitId: this.branchId(),
         assigneeId: this.assigneeId(),
         dueFrom: null,
         dueTo: null,
@@ -115,7 +115,7 @@ export class JobMonitoring {
   private readonly pointsResource = httpResource<JobTaskPoint[]>(() => {
     if (this.selectedJobId()) return undefined;
     const params: Record<string, string> = {};
-    if (this.branchId()) params['organisationUnitId'] = this.branchId()!;
+    if (this.branchId()) params['organizationUnitId'] = this.branchId()!;
     if (this.assigneeId()) params['assigneeId'] = this.assigneeId()!;
     return { url: `${ApiPaths.TRACKING}/jobs/task-points`, params };
   });
@@ -160,7 +160,7 @@ export class JobMonitoring {
     const tasks = this.pendingTasks();
     if (!tasks.length) return;
     const officer = j.assigneeId ? this.lookup.officerById().get(j.assigneeId) : undefined;
-    const branch = this.lookup.branchById().get(officer?.organisationUnitId ?? tasks[0].target.organisationUnitId);
+    const branch = this.lookup.branchById().get(officer?.organizationUnitId ?? tasks[0].target.organizationUnitId);
     const now = this.assigneeNow();
     const onDuty = !!now?.location && ['OnTask', 'AtBranch', 'Moving', 'Idle'].includes(now.status);
     const origin: GeoPoint | null = onDuty ? now!.location! : (branch?.location ?? null);

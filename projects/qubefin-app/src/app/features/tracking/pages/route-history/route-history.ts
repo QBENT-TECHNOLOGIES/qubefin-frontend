@@ -184,7 +184,7 @@ export class RouteHistory {
   );
 
   readonly branchMarker = computed(() => {
-    const b = this.officer() ? this.lookup.branchById().get(this.officer()!.organisationUnitId) : undefined;
+    const b = this.officer() ? this.lookup.branchById().get(this.officer()!.organizationUnitId) : undefined;
     return b?.location ? { position: b.location, title: `${b.name} Branch`, content: this.markers.pin('branch', b.code, '#0F172A', { small: true }) } : null;
   });
   readonly homeMarker = computed(() => {
@@ -334,7 +334,7 @@ export class RouteHistory {
     }
     const r = this.data();
     if (!r?.taskPoints.length) return;
-    const branch = this.officer() ? this.lookup.branchById().get(this.officer()!.organisationUnitId) : undefined;
+    const branch = this.officer() ? this.lookup.branchById().get(this.officer()!.organizationUnitId) : undefined;
     const first = r.points[0];
     const last = r.points[r.points.length - 1];
     const origin: GeoPoint | null = first ? { lat: first.lat, lng: first.lng } : (branch?.location ?? null);

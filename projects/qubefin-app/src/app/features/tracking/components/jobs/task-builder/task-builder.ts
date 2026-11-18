@@ -79,7 +79,7 @@ export class TaskBuilder {
   private readonly pointsResource = httpResource<GeoTagPointsResponse>(() => {
     const id = this.branchId();
     if (!id) return undefined;
-    return { url: `${ApiPaths.TRACKING}/geo-tags/points`, params: { organisationUnitId: id, kinds: PICKER_KINDS.join(',') } };
+    return { url: `${ApiPaths.TRACKING}/geo-tags/points`, params: { organizationUnitId: id, kinds: PICKER_KINDS.join(',') } };
   });
   readonly branchPlaces = computed(() => this.pointsResource.value()?.points ?? []);
   readonly untaggedByKind = computed(() => this.pointsResource.value()?.untaggedByKind ?? {});
@@ -207,7 +207,7 @@ export class TaskBuilder {
       targetName: tag.name,
       
       targetLocation: tag.location,
-      organisationUnitId: tag.organisationUnitId,
+      organizationUnitId: tag.organizationUnitId,
       branchName: tag.branchName,
       radiusMeters: Math.min(tag.taskLocationMatchInMeters, 500),
     };
@@ -275,7 +275,7 @@ export class TaskBuilder {
       targetName: d.name,
       
       targetLocation: d.location,
-      organisationUnitId: b.id,
+      organizationUnitId: b.id,
       branchName: b.name,
       radiusMeters: d.radiusMeters,
     };

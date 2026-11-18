@@ -39,7 +39,7 @@ export interface TaskTarget {
   targetName: string;
   targetLocation: GeoPoint;
   /** Branch the place belongs to: CO / ABM / BM jobs may only hold tasks of their own branch. */
-  organisationUnitId: string;
+  organizationUnitId: string;
   branchName: string;
   /** Arrival and the completion photo must be within this distance of `targetLocation` (match radius). */
   radiusMeters: number;
@@ -117,7 +117,7 @@ export interface JobSummary {
   /** Branch / area / division the job belongs to (the assignee's unit). */
   unitName: string;
   /** Branch ids its tasks are in. */
-  organisationUnitIds: string[];
+  organizationUnitIds: string[];
   branchNames: string[];
   createdByName: string;
   /** When the job was created (server time). */
@@ -211,7 +211,7 @@ export interface JobSearchRequest {
   openOnly?: boolean;
   assigneeId: string | null;
   /** Jobs with a task in this branch. */
-  organisationUnitId: string | null;
+  organizationUnitId: string | null;
   /** Includes jobs whose end date (complete by) falls in the range (yyyy-MM-dd, inclusive). */
   dueFrom: string | null;
   dueTo: string | null;
@@ -243,7 +243,7 @@ export interface JobSearchResponse {
 /** A task as entered on the web. */
 /**
  * A new task in C1 (POST jobs) and C2 (POST jobs/{id}/tasks); names as the API takes them. The target is sent with the
- * API's fields (kind, originRefId, targetName, targetLocation, organisationUnitId) plus branchName / radiusMeters, which
+ * API's fields (kind, originRefId, targetName, targetLocation, organizationUnitId) plus branchName / radiusMeters, which
  * the task picker keeps for display and the server ignores.
  */
 export interface NewTaskInput {
@@ -338,7 +338,7 @@ export interface RemarksRequest {
 }
 
 /**
- * A task location (B4, GET tracking-api/jobs/task-points?organisationUnitId=&assigneeId=&pendingOnly=, all optional): the
+ * A task location (B4, GET tracking-api/jobs/task-points?organizationUnitId=&assigneeId=&pendingOnly=, all optional): the
  * monitoring overview map and the duplicate hints in the task picker. Names as the API sends them.
  */
 export interface JobTaskPoint {
@@ -361,7 +361,7 @@ export interface JobTaskPoint {
   /** Geo-tagged entity id (null for a point on the map). */
   originRefId: string | null;
   /** Branch the task is in. */
-  organisationUnitId: string;
+  organizationUnitId: string;
   targetLocation: GeoPoint;
   /** Completion photo taken outside the match radius. */
   locationMismatch: boolean;

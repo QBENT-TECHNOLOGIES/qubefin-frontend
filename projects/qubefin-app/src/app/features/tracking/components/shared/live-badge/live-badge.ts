@@ -8,6 +8,7 @@ const LABEL: Record<LiveSocketState, string> = {
   Connecting: 'Connecting…',
   Reconnecting: 'Reconnecting…',
   Off: 'Live off',
+  Denied: 'Live blocked',
 };
 
 /** State of the live GPS / alarm connection: <qfin-trk-live-badge />. Shows nothing when no live socket is configured. */
@@ -39,6 +40,8 @@ export class LiveBadge {
         return 'Live connection lost; retrying every 5 s. The 30 s refresh continues.';
       case 'Connecting':
         return 'Connecting to live GPS and alarms…';
+      case 'Denied':
+        return 'The live server refused the team’s GPS / alarm topics (it allows only your own). Retrying every 5 min; the 30 s refresh continues.';
       default:
         return 'Live updates are off; the screen refreshes every 30 s.';
     }

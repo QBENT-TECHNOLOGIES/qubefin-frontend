@@ -11,7 +11,7 @@ export interface GeoTagChange {
 }
 
 /**
- * One row of the Geo Tags page (E1, `GET tracking-api/geo-tags?kind=&searchText=&organisationUnitId=&onlyUntagged=`; names as
+ * One row of the Geo Tags page (E1, `GET tracking-api/geo-tags?kind=&searchText=&organizationUnitId=&onlyUntagged=`; names as
  * the API sends them). There is no separate geo-tag id: `refId` (the branch, group, member or employee) identifies it.
  */
 export interface GeoTag {
@@ -45,7 +45,7 @@ export interface UpdateGeoTagRequest {
 
 /**
  * Light view of one geo-tagged place, for the task picker that loads a whole branch at once
- * (B5, `GET geo-tags/points?organisationUnitId=&kinds=GroupCentre,Member,OdMember`; organisationUnitId required; names as the API sends them). Only places that have a location;
+ * (B5, `GET geo-tags/points?organizationUnitId=&kinds=GroupCentre,Member,OdMember`; organizationUnitId required; names as the API sends them). Only places that have a location;
  * no photo or history. A member who is currently overdue is returned once, as `OdMember`.
  */
 export interface GeoTagPoint {
@@ -54,7 +54,7 @@ export interface GeoTagPoint {
   refId: string;
   name: string;
   refCode: string;
-  organisationUnitId: string;
+  organizationUnitId: string;
   branchName: string;
   address: string | null;
   location: GeoPoint;

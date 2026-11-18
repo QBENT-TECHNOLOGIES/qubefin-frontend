@@ -59,8 +59,8 @@ export class TransferJobDialog {
 
   readonly workBranchIds = computed(() =>
     this.mode() === 'whole'
-      ? this.job.organisationUnitIds
-      : [...new Set(this.pending.filter((t) => this.picked().has(t.id)).map((t) => t.target.organisationUnitId))],
+      ? this.job.organizationUnitIds
+      : [...new Set(this.pending.filter((t) => this.picked().has(t.id)).map((t) => t.target.organizationUnitId))],
   );
 
   /** Pending tasks the chosen person already holds elsewhere, to say which tasks will not move. */

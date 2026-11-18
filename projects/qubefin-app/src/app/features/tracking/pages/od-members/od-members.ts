@@ -172,19 +172,14 @@ export class OdMembers {
       .afterClosed()
       .subscribe((req) => {
         if (!req) return;
-        this.service.addToJob(req).subscribe((r) => {
+        // Saved through C1 (new job) or C2 (existing job): the API answers with a message; notes ("also pending with …")
+        // and skipped members are in it. Nothing added → 400 popup.
+        this.service.addToJob(req, picked).subscribe(({ message }) => {
           this.clearSelection();
           this.store.refresh();
           this.jobStore.refreshList();
-          const n = r.addedTaskIds.length;
-          const where = `${r.job.jobCode} (${r.job.assigneeName})`;
-          if (r.skipped.length) {
-            this.alerts.warning(`${n} added to ${where}, ${r.skipped.length} skipped`, r.skipped.map((s) => s.reason).join(' · '));
-          } else if (r.warnings.length) {
-            this.alerts.success('Added to job', `${n} OD follow-up task${n > 1 ? 's' : ''} in ${where}. ${r.warnings.length} also pending with someone else.`);
-          } else {
-            this.alerts.success('Added to job', `${n} OD follow-up task${n > 1 ? 's' : ''} in ${where}.`);
-          }
+          if (/note:|skipped/i.test(message)) this.alerts.warning('Added to job', message);
+          else this.alerts.success('Added to job', message);
         });
       });
   }

@@ -80,7 +80,7 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 | Method | Path | Response |
 |---|---|---|
 | GET | `organization-units` (was `branches`) | `TrackingBranch[]`: id, name, code, `areaName`, `divisionName`, `location` (nullable), `branchOperatingRadiusInKm` (**metres**, see below) |
-| GET | `groups?branchId=&creditOfficerId=` | `TrackingGroup[]`: id, code, name, `branchId`/`branchName`, `creditOfficerId`/`creditOfficerName` (mapped CO, nullable), sorted by name. Groups in the caller's scope; both filters optional. Feeds the Group filter on OD Members. |
+| POST | `groups/search` (was `GET groups`) | `{ items: TrackingGroup[], totalRecords }`: id, code, name, `organizationUnitId`/`branchName`, `coEmployeeId`/`coName` (mapped CO, nullable), plus address, location, photo, collection day/time… (not used). Groups in the caller's scope. Feeds the Group filter on OD Members (D2, see below). |
 | GET | `field-officers?organizationUnitId=` | `FieldOfficer[]`: id, employeeCode, name, `role` (role name, e.g. `Credit Officer`), designation, `organisationUnitId`/`organisationUnitName` (posting branch), `unitName` (branch / area / division in charge of), `organisationUnits` (`[{ id, name }]`, branches they may work in), phone, `presentLocation` (home, nullable), reportingOfficerName, `canAssign` |
 
 * **Names follow the backend as built** (decided 6 Nov 2026). The frontend models (`models/*.ts`) use the backend's own paths,
@@ -152,6 +152,27 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
     `memberCode`, `groupCode`; `centreName` is **not** sent. `followUp`: `jobCode` (was `jobNo`), new `assigneeId`. `pendingWith[]`:
     `jobCode` (was `jobNo`), new `taskId`. A validation 400 here comes as `{ type, title, status, errors: ["…"] }`, e.g.
     `"Sort on must be memberName, overdueAmount or dpd."`.
+  * `groups/search` (D2, OD Members Group filter; 18 Nov 2026; was `GET groups?branchId=&creditOfficerId=`): body
+    `{ searchText, organizationUnitId, coEmployeeId, sortOn, sortDirection, pageIndex, pageSize }`. Paging is **required**;
+    `pageSize` up to 500 (1000 is refused). `sortOn` `name` or `code` (anything else is ignored). `searchText` matches the group
+    name. `TrackingGroup`: `organizationUnitId` (was `branchId`), `coEmployeeId` / `coName` (were `creditOfficerId` /
+    `creditOfficerName`). The filter loads one page of 500 for the chosen branch and/or Credit Officer, sorted by name.
+  * `jobs/open` (D3, Add to job dialog: *Add to existing job*; 18 Nov 2026): query `organizationUnitId` (the branch; was
+    `branchId`) and `assigneeId`, both optional. Answers `JobSummary[]` in the same shape as `jobs/search`. The dialog sends
+    `organizationUnitId` when all the selected members are in one branch.
+  * **OD members are saved with C1 / C2** (decided 18 Nov 2026; replaces `POST od-members/add-to-job`, which is **not needed**).
+    The *Add to job* dialog on OD Members sends each member as a normal task, `{ taskType: "OdFollowUp", taskTitle: "OD Follow-up – <name>",
+    notes, priority, coOrdinatedBy, target: { kind: "OdMember", originRefId: <member id>, targetName, targetLocation: <home>,
+    organizationUnitId, branchName, radiusMeters: 100 } }`: to an existing job with `POST jobs/{id}/tasks` (C2), or to a new job with
+    `POST jobs` (C1, the dialog's title, description, assignee, start and complete-by). The server applies the usual task rules
+    (duplicate rule 3.2.3, branch rule 3.2.2, verified location 3.2.13) and answers with its message. Checked 18 Nov 2026: a new job
+    JOB-260006 (test, left open) with one OD follow-up for Nupur Bala Bose, stored as sent.
+  * **`organizationUnit…` with a z everywhere** (seen 18 Nov 2026; settles §12 point 8). The backend now spells it with **z** in
+    every response and query: `field-officers` (`organizationUnitId`, `organizationUnitName`, `organizationUnits`), `JobSummary` /
+    `Job` (`organizationUnitIds`), `TaskTarget` (`organizationUnitId`), `JobTaskPoint`, `GeoTagPoint`, and the queries of
+    `jobs/search`, `jobs/task-points`, `geo-tags/points` (the **s** spelling there is now **400**) and `geo-tags`. The web renamed
+    every model, query and screen to match. Where this document still writes `organisationUnit…` (s), read it with a z.
+    Exceptions: `geo-tags` (E1) rows still send `branchId`, and login-info sends `accessOrganizationUnits`.
   * Open points found while integrating are listed in **§12**.
   * **Page size** (seen 13 Nov 2026): `jobs/search` accepts `pageSize` 1–100 only (400 otherwise). Job Monitoring loads the first
     100 open jobs (soonest due) and says how many more match, so the user can narrow by branch or employee.
@@ -205,7 +226,7 @@ self-added on the mobile app; the web only offers them as a point clicked on the
 | Method | Path | Body | Response |
 |---|---|---|---|
 | POST | `jobs/search` | `JobSearchRequest` | `JobSearchResponse` `{ jobs: JobSummary[], totalRecords, summary }` |
-| GET | `jobs/open?assigneeId=&branchId=` | – | `JobSummary[]`: open jobs, soonest due first (for "add to existing job") |
+| GET | `jobs/open?organizationUnitId=&assigneeId=` | – | `JobSummary[]`: open jobs, soonest due first (for "add to existing job"; D3) |
 | GET | `jobs/task-points?organisationUnitId=&assigneeId=&pendingOnly=true` | – | `JobTaskPoint[]`: task locations of open jobs (overview map, duplicate hints) |
 | GET | `jobs/{id}` | – | `Job` (with `tasks`) |
 | GET | `jobs/{id}/history` | – | `JobHistoryEntry[]` (newest first) |
@@ -343,7 +364,7 @@ gets no such right over a BM's jobs.
 | Method | Path | Body | Response |
 |---|---|---|---|
 | POST | `od-members/search` | `OdMemberSearchRequest` | `{ members: OdMember[], totalRecords, totalOverdueAmount }` |
-| POST | `od-members/add-to-job` | `AddOdToJobRequest` | `AddOdToJobResponse` `{ job, addedTaskIds[], skipped: [{ memberId, reason }], warnings: [{ memberId, reason }] }` |
+| ~~POST~~ | ~~`od-members/add-to-job`~~ | – | **Not needed** (18 Nov 2026): the web adds OD follow-ups with `POST jobs` (C1) or `POST jobs/{id}/tasks` (C2), see §2. |
 
 * Data comes from the **Loan Status Report** (LOS/LMS). `dpd` = days past due.
 * `followUp` = the member's latest OD follow-up task (pending first, then most recent), with job no / status, assignee,
@@ -358,14 +379,11 @@ gets no such right over a BM's jobs.
   `dpd`·`memberName`·`overdueAmount`.
 * `locationVerified` = the member's home geo-tag is verified (rule 3.2.13). The web disables selection and shows a
   "Location Not Verified" badge when it is false.
-* OD members are **never assigned directly**. `add-to-job` takes exactly one of `jobId` (an open job) or `newJob`
-  (`NewJobHeader`: title, description, **assigneeId (required)**, startFrom, completeBy). Members are sent as
-  `members: OdTaskInput[]` (`{ memberId, priority, notes, accompaniedById }`, replacing `memberIds`): each member becomes one
-  `OdFollowUp` task at the geo-tagged home with **its own** priority (default `Medium`), Instruction (`notes`) and optional
-  companion. There are no job-level defaults for these fields.
-* Skip (do not fail) members with **no home geo-tag**, a home location that is **not verified** (rule 3.2.13), already **pending
-  with the same person** (rule 3.2.3), or outside the holder's branch (rule 3.2.2). Members pending with **someone else** are added
-  and listed in `warnings[]`.
+* OD members are **never assigned directly**: each becomes an `OdFollowUp` task in a job, saved with C1 / C2 (§2). Per member the
+  dialog collects its own priority (default `Medium`), Instruction (`notes`) and optional companion (no job-level defaults), plus an
+  open job or a new job's header. It leaves out members with no home geo-tag, already pending with the chosen assignee, or outside
+  the assignee's branch; the server checks the same (rules 3.2.2, 3.2.3, 3.2.13) and notes in its message any member also pending
+  with someone else.
 * Outcome rules (mobile side, validated by the server): if paid, the photo is optional. If not paid, `ptpDate` is required.
 
 ---
@@ -418,7 +436,7 @@ GPS fixes and alarms are pushed as they happen, over **STOMP on SockJS** (same a
 | Connection | One connection per browser tab (`services/live-socket.service.ts`), reconnect every 5 s, closed 15 s after the last screen leaves or on sign-out. |
 
 **Today's trail on click (17 Nov 2026).** When a person is clicked on Live Tracking, the web first loads their fixes of today
-from the GPS service, `GET http://3.111.193.85:8080/api/v1/gps?employeeId={id}` with header `X-Signature: <accessToken>`
+from the GPS service, `GET http://3.111.193.85:8080/api/v1/gps?employeeId={id}` with header `Authorization: Bearer <accessToken>`
 (`gpsServiceUrl` in `environment*.ts`, `services/gps-history.service.ts`). Response: `[{ id, gpsTime, locationId, userId,
 isMockLocation, batteryPercentage, receivedAt, courseDegree, speed, latitude, longitude, accuracy }]`. The web keeps the fixes of
 today (local day, by `gpsTime`), sorted by `gpsTime`, draws them as a line and then extends the line from the `/gps` topic only (no
@@ -569,7 +587,7 @@ and can sort the task list by priority.
 
 ## 12. Open questions for the backend and the product owner (13 Nov 2026)
 
-Found while connecting the web to the dev backend (A1–A3, B1–B5, C1–C7, D1, E1). Dev gateway moved to `15.206.8.100` (17 Nov 2026). Numbers refer to the integration steps.
+Found while connecting the web to the dev backend (A1–A3, B1–B5, C1–C7, D1–D3, E1). Dev gateway moved to `15.206.8.100` (17 Nov 2026). Numbers refer to the integration steps.
 
 **Bugs (backend)**
 
@@ -582,6 +600,9 @@ Found while connecting the web to the dev backend (A1–A3, B1–B5, C1–C7, D1
    `organization-units` value is `30000` (30 km).
 4. **Employee homes refused (E1).** `geo-tags?kind=EmployeeHome` answers **403** (empty body) for a Divisional Manager. §8: it should
    list the homes of the people the caller may monitor.
+5a. **`jobs/open` lists the caller's own job (D3).** Signed in as Atanu Tarafdar (Area Manager), `jobs/open` returns JOB-260003,
+   which he **holds** (created by Purnendu Ghosh). §3.3 rules 3 and 6: the assignee cannot add tasks from the web, and `jobs/open`
+   lists only jobs the caller may **update**. If it stays, adding tasks or OD members to it should be refused by C2 (`POST jobs/{id}/tasks`).
 5. **Names with double spaces.** Employee names come as "Ratan  Barman" (59 of 68 in `field-officers`; also in messages and
    `employee`). Please trim / join the name parts with one space.
 
@@ -591,9 +612,8 @@ Found while connecting the web to the dev backend (A1–A3, B1–B5, C1–C7, D1
    The page needs `verified` (rule 3.2.13, "Location Not Verified" badge) and `history` (location changes, read only). Is `refId`
    the intended key?
 7. **`branchOperatingRadiusInKm` holds metres (A2).** Rename it (e.g. `branchOperatingRadiusInMeters`) or send km.
-8. **`organizationUnitId` vs `organisationUnitId`.** `field-officers` and `od-members/search` (request and `OdMember`) use
-   `organizationUnitId` (z); `jobs/search`, `jobs/task-points`, `geo-tags/points`, `geo-tags`, `JobSummary`, `TaskTarget` and
-   `GeoTagPoint` use `organisationUnitId` (s). One spelling, please.
+8. ~~**`organizationUnitId` vs `organisationUnitId`.**~~ **Settled (18 Nov 2026):** the backend uses the z spelling everywhere;
+   the web follows. Remaining: `geo-tags` (E1) rows send `branchId` (could be `organizationUnitId` too).
 9. **`typeCounts` (B1)** is not sent yet; the list shows the task-type icons without numbers.
 10. **`verification` / `odOutcome` on `JobTask` (B2)**: no sample with values yet; the web keeps the contract shape. Please share a
     completed task (with photo) and a completed OD follow-up.
@@ -604,12 +624,10 @@ Found while connecting the web to the dev backend (A1–A3, B1–B5, C1–C7, D1
 12. **Page size (B1).** `jobs/search` allows `pageSize` ≤ 100. Job Monitoring shows the first 100 open jobs and says how many more
     match. Is 100 the final limit, or can monitoring get a higher one?
 
-**Not delivered yet** (the web still uses the mock for these screens). Until `groups` and `od-members/add-to-job` arrive, the OD
-Members page lists real members but its *Group* filter offers mock groups (no match) and *Add to job* skips every real member
-("Member not found").
+**Not delivered yet** (the web still uses the mock for these screens). The OD Members page is fully on the real backend (D1–D3,
+plus C1 / C2 to save; `od-members/add-to-job` is not needed).
 
-13. `GET jobs/open` (add to an existing job), `GET groups`, `POST od-members/add-to-job`,
-    `GET live/positions`, `GET employees/{id}/route`, `POST alerts/search`, `GET alerts/open-count`, `PUT alerts/{id}/acknowledge`,
+13. `GET live/positions`, `GET employees/{id}/route`, `POST alerts/search`, `GET alerts/open-count`, `PUT alerts/{id}/acknowledge`,
     `PUT alerts/{id}/resolve`, `GET approvals`, `PUT approvals/{id}/decision`, `GET settings`, `PUT settings`.
 
 **Decisions (product owner)**
@@ -626,14 +644,18 @@ Members page lists real members but its *Group* filter offers mock groups (no ma
 17. **Message shapes** for `/gps` and `/alarms`: please share one real message of each (or adopt the shapes recommended in §5.1).
     In particular: is `speed` m/s or km/h; is the time the phone's fix time; does every alarm carry the same `id` that
     `alerts/search` will return?
-18. **Manager subscriptions:** the test page says the `EmployeeId` in the topic must match the token. The web subscribes for every
-    person the caller may monitor (product owner, 17 Nov 2026), so that check has to become "may monitor" (§2), else Live Tracking
-    and Alerts get no pushes for the team.
+18. **Manager subscriptions — blocking (seen 18 Nov 2026).** The server answers the first SUBSCRIBE to another employee's topic
+    with `ERROR: SUBSCRIBE rejected: topic belongs to another employee` and closes the connection (code 1002), so a manager gets no
+    pushes at all. The check has to become "the caller may monitor `{employeeId}`" (§2), as the product owner decided on 17 Nov 2026.
+    Until then the web shows **Live blocked**, stops the connection and tries again every 5 minutes (it used to reconnect every
+    5 s, re-sending ~80 SUBSCRIBEs and reloading the trail each time); polling carries on.
 19. **CORS and production:** the SockJS `info` request comes from the web's origin (e.g. `http://localhost:4200`), so the endpoint
     must allow it. Which URL (and HTTPS / WSS) is used in production? Until then production stays on polling (`liveSocketUrl: ''`).
-20. **GPS history (`/api/v1/gps`).** (a) Is `X-Signature` the same access token as the socket's `?token=`? (b) Does it return only
-    **today's** fixes, and in what order (the web filters to today and sorts by `gpsTime` anyway)? (c) It must check that the caller
-    may monitor `employeeId` (§2), and allow CORS for the web's origin with the `X-Signature` header. (d) Is `speed` m/s?
+20. **GPS history (`/api/v1/gps`).** Authenticated with `Authorization: Bearer <accessToken>` (confirmed 17 Nov 2026; not
+    `X-Signature`); CORS for `http://localhost:4200` works (18 Nov 2026). Seen on 18 Nov 2026: newest first, and **times without a
+    zone** (`"gpsTime": "2026-11-18T05:28:56.262"` for 10:58 IST). The web reads a zone-less time as **UTC**; please confirm, or better
+    send `Z` / an offset (same for the socket messages). Still open: (a) only **today's** fixes, or more? (b) it must check that the
+    caller may monitor `employeeId` (§2). (c) Is `speed` m/s?
 
 **Test data note:** some dev places are far from their branch (e.g. *Annapurna Mahila Group*, Sitai Branch, and member *Anima Biswas*,
 Alipurduar Branch, are tagged near Kolkata, ~450 km away). Expected for test data; real data would trip the branch-radius rules.

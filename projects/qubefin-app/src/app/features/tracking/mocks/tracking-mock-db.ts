@@ -238,8 +238,8 @@ export function refreshJob(job: Job, today = toDateKey()): Job {
   job.types = [...new Set(source.map((t) => t.taskType))];
   job.typeCounts = {};
   for (const t of counted) job.typeCounts[t.taskType] = (job.typeCounts[t.taskType] ?? 0) + 1;
-  const branches = new Map(source.map((t) => [t.target.organisationUnitId, t.target.branchName]));
-  job.organisationUnitIds = [...branches.keys()];
+  const branches = new Map(source.map((t) => [t.target.organizationUnitId, t.target.branchName]));
+  job.organizationUnitIds = [...branches.keys()];
   job.branchNames = [...branches.values()];
   counted.forEach((t) => (t.isLate = t.status === 'Completed' ? !!t.taskCompletedOn && dayOf(t.taskCompletedOn) > job.endDate : today > job.endDate));
 
@@ -291,7 +291,7 @@ export function newJob(d: MockDb, init: { title: string; description: string | n
     assigneeName: init.assignee.name,
     assigneeRole: init.assignee.role,
     unitName: init.assignee.unitName,
-    organisationUnitIds: [],
+    organizationUnitIds: [],
     branchNames: [],
     createdBy: init.creator.id,
     createdByName: init.creator.name,
@@ -380,10 +380,10 @@ function buildDb(): MockDb {
       name,
       role,
       designation: DESIGNATION[role],
-      organisationUnitId: branch.id,
-      organisationUnitName: branch.name,
+      organizationUnitId: branch.id,
+      organizationUnitName: branch.name,
       unitName,
-      organisationUnits: branchIds.map((id) => ({ id, name: branchById.get(id)!.name })),
+      organizationUnits: branchIds.map((id) => ({ id, name: branchById.get(id)!.name })),
       phone: `98${intBetween(30000000, 99999999)}`,
       presentLocation: name === 'Jayanta Rava' ? null : offsetPoint(branch.location!, between(2500, 8000), between(0, 360)),
       reportingOfficerName: null,
@@ -392,8 +392,8 @@ function buildDb(): MockDb {
   });
   // Reporting line: CO → BM (or ABM where there is no BM) → AM → DM. BM and ABM are the same level, both under the AM.
   officers.forEach((o) => {
-    const inBranch = (r: OfficerRole) => officers.find((x) => x.role === r && x.organisationUnitId === o.organisationUnitId);
-    const am = officers.find((x) => x.role === 'Area Manager' && unitIdsOf(x).includes(o.organisationUnitId));
+    const inBranch = (r: OfficerRole) => officers.find((x) => x.role === r && x.organizationUnitId === o.organizationUnitId);
+    const am = officers.find((x) => x.role === 'Area Manager' && unitIdsOf(x).includes(o.organizationUnitId));
     if (o.role === 'Credit Officer') o.reportingOfficerName = (inBranch('Branch Manager') ?? inBranch('Assistant Branch Manager') ?? am)?.name ?? null;
     else if (o.role === 'Assistant Branch Manager') o.reportingOfficerName = am?.name ?? null;
     else if (o.role === 'Branch Manager') o.reportingOfficerName = am?.name ?? null;
@@ -406,7 +406,7 @@ function buildDb(): MockDb {
   const groups: MockDb['groups'] = [];
   BRANCHES.forEach((b) => {
     // Mapped Credit Officer: spread the branch's COs over its groups in turn (deterministic, no random draws).
-    const branchCos = officers.filter((o) => o.role === 'Credit Officer' && o.organisationUnitId === b.id);
+    const branchCos = officers.filter((o) => o.role === 'Credit Officer' && o.organizationUnitId === b.id);
     VILLAGES[b.code].slice(0, 6).forEach((village, j) => {
       const co = branchCos.length ? branchCos[j % branchCos.length] : null;
       groups.push({
@@ -488,19 +488,19 @@ function buildDb(): MockDb {
   const branchOf = (id: string) => branchById.get(id)!;
   const groupTarget = (g: MockDb['groups'][number]): TaskTarget => ({
     kind: 'GroupCentre', originRefId: g.id, targetName: `${g.name} (${g.code})`, 
-    targetLocation: g.location, organisationUnitId: g.branchId, branchName: branchOf(g.branchId).name, radiusMeters: 150,
+    targetLocation: g.location, organizationUnitId: g.branchId, branchName: branchOf(g.branchId).name, radiusMeters: 150,
   });
   const memberTarget = (c: MockDb['members'][number]): TaskTarget => ({
-    kind: 'Member', originRefId: c.id, targetName: c.name, targetLocation: c.location!, organisationUnitId: c.branchId, branchName: branchOf(c.branchId).name, radiusMeters: 100,
+    kind: 'Member', originRefId: c.id, targetName: c.name, targetLocation: c.location!, organizationUnitId: c.branchId, branchName: branchOf(c.branchId).name, radiusMeters: 100,
   });
   const odTarget = (c: OdMember): TaskTarget => ({
-    kind: 'OdMember', originRefId: c.id, targetName: c.memberName, targetLocation: c.homeLocation!, organisationUnitId: c.organizationUnitId, branchName: c.branchName, radiusMeters: 100,
+    kind: 'OdMember', originRefId: c.id, targetName: c.memberName, targetLocation: c.homeLocation!, organizationUnitId: c.organizationUnitId, branchName: c.branchName, radiusMeters: 100,
   });
   const pointTarget = (b: TrackingBranch, name: string, km: [number, number]): TaskTarget => {
     const village = pick(VILLAGES[b.code]);
     return {
       kind: 'Custom', originRefId: null, targetName: `${village} – ${name}`, 
-      targetLocation: offsetPoint(b.location!, between(km[0] * 1000, km[1] * 1000), between(0, 360)), organisationUnitId: b.id, branchName: b.name, radiusMeters: 300,
+      targetLocation: offsetPoint(b.location!, between(km[0] * 1000, km[1] * 1000), between(0, 360)), organizationUnitId: b.id, branchName: b.name, radiusMeters: 300,
     };
   };
   const titleFor = (type: TaskType, t: TaskTarget) =>
@@ -550,7 +550,7 @@ function buildDb(): MockDb {
 
   const coJobs: { job: Job; officer: FieldOfficer }[] = [];
   officers.filter((o) => o.role === 'Credit Officer').forEach((co, i) => {
-    const branch = branchOf(co.organisationUnitId);
+    const branch = branchOf(co.organizationUnitId);
     const myGroups = shuffle(groups.filter((g) => g.branchId === branch.id));
     const myMembers = shuffle(members.filter((c) => c.branchId === branch.id && c.location));
     const boss = supervisor(co);
@@ -606,7 +606,7 @@ function buildDb(): MockDb {
 
   // Branch managers / ABMs: supervision visits set by the area manager.
   officers.filter((o) => o.role === 'Branch Manager' || o.role === 'Assistant Branch Manager').forEach((m, i) => {
-    const branch = branchOf(m.organisationUnitId);
+    const branch = branchOf(m.organizationUnitId);
     const boss = supervisor(m);
     const job = newJob(d, { title: m.role === 'Branch Manager' ? 'Branch supervision visits' : 'Centre support visits', description: 'Surprise attendance at group meetings and high-DPD member visits.', creator: boss, assignee: m, startFrom: thisMonday, completeBy: thisSaturday, createdAt: at(shiftKey(thisMonday, -3), 16, 40) });
     const days = workDays(thisMonday, thisSaturday);
@@ -614,7 +614,7 @@ function buildDb(): MockDb {
     // The AM first spreads the branch's groups across the COs, then sends the BM to some of the same groups
     // (allowed since Nov 2026: the same place may be pending with different people). The CO goes along.
     const coTask = coJobs
-      .filter((x) => x.officer.organisationUnitId === branch.id && x.job.startDate === thisMonday && x.job.jobTitle === 'Weekly field plan')
+      .filter((x) => x.officer.organizationUnitId === branch.id && x.job.startDate === thisMonday && x.job.jobTitle === 'Weekly field plan')
       .flatMap((x) => x.job.tasks.filter((t) => t.taskType === 'GroupVisit').map((t) => ({ refId: t.target.originRefId, co: x.officer })))[i % 2];
     const shared = coTask ? g.find((x) => x.id === coTask.refId) : undefined;
     const first = shared ?? g[0];
@@ -747,7 +747,7 @@ function buildDb(): MockDb {
       const r = mulberry32(hashString(o.id + day));
       // Days in the past: about 1 in 9 tasks is skipped (left pending → delayed job).
       const visiting = day < today ? tasks.filter(() => r() > 0.11) : tasks;
-      const sim = simulateDay(o, branchOf(o.organisationUnitId), day, visiting.map((t) => t.target), r, { nearHome: i % 9 === 4 && r() < 0.3, mismatchIdx: r() < 0.12 ? Math.floor(r() * visiting.length) : -1 });
+      const sim = simulateDay(o, branchOf(o.organizationUnitId), day, visiting.map((t) => t.target), r, { nearHome: i % 9 === 4 && r() < 0.3, mismatchIdx: r() < 0.12 ? Math.floor(r() * visiting.length) : -1 });
       d.days.set(`${o.id}|${day}`, sim.day);
 
       visiting.forEach((t, k) => {
@@ -936,7 +936,7 @@ function routeFrom(d: MockDb, employeeId: string, dateKey: string): EmployeeRout
     summary: { totalDistanceKm: 0, movingMinutes: 0, designatedStops: 0, designatedMinutes: 0, undesignatedStops: 0, undesignatedMinutes: 0, tasksCompleted: 0, taskPointsVisited: 0, taskPointsPlanned: 0, firstFixAt: null, lastFixAt: null },
   };
   if (!officer) return empty;
-  const branch = d.branches.find((b) => b.id === officer.organisationUnitId)!;
+  const branch = d.branches.find((b) => b.id === officer.organizationUnitId)!;
   const taskPoints = taskPointsFor(d, employeeId, dateKey);
   empty.taskPoints = taskPoints.map(({ completedAtIso: _x, ...p }) => p);
   empty.summary.taskPointsPlanned = taskPoints.length;
@@ -1025,7 +1025,7 @@ export function simulateLivePositions(): LivePosition[] {
   return d.officers
     .filter((o) => o.role !== 'Divisional Manager')
     .map((o, i) => {
-      const branch = branchById.get(o.organisationUnitId)!;
+      const branch = branchById.get(o.organizationUnitId)!;
       const route = buildRoute(o.id, today);
       const openAlerts = d.alerts.filter((a) => a.employeeId === o.id && a.status === 'Open').length;
       const openTaskCount = d.jobs.filter((j) => j.assigneeId === o.id && (j.status === 'Assigned' || j.status === 'InProgress' || j.status === 'Delayed')).reduce((s, j) => s + j.openCount, 0);
@@ -1050,8 +1050,8 @@ export function simulateLivePositions(): LivePosition[] {
         employeeId: o.id,
         employeeName: o.name,
         role: o.role,
-        branchId: o.organisationUnitId,
-        branchName: o.organisationUnitName,
+        branchId: o.organizationUnitId,
+        branchName: o.organizationUnitName,
         location,
         accuracyMeters: status === 'GpsOff' || !location ? null : 6 + (i % 5) * 3,
         speedKmph: status === 'Moving' ? (lastPoint?.speedKmph ?? 20) : 0,
@@ -1091,8 +1091,8 @@ function seedAlerts(d: MockDb, now: Date): TrackingAlert[] {
       employeeId: o.id,
       employeeName: o.name,
       role: o.role,
-      branchId: o.organisationUnitId,
-      branchName: o.organisationUnitName,
+      branchId: o.organizationUnitId,
+      branchName: o.organizationUnitName,
       message,
       location: null,
       measuredValue: null,
@@ -1148,7 +1148,7 @@ function seedAlerts(d: MockDb, now: Date): TrackingAlert[] {
   for (let i = 0; i < 14; i++) {
     const tpl = pick(templates);
     const o = pick(staff);
-    const b = branchById.get(o.organisationUnitId)!;
+    const b = branchById.get(o.organizationUnitId)!;
     const v = tpl.value();
     push(o, tpl.type, tpl.severity, tpl.msg(o, v), addMinutes(now, -intBetween(5, 60 * 24 * 5)), {
       location: tpl.type === 'OutsideBranchRadius' ? offsetPoint(b.location!, v * 1000, between(0, 360)) : offsetPoint(b.location!, between(1500, 12000), between(0, 360)),
@@ -1170,7 +1170,7 @@ function seedApprovals(fieldStaff: FieldOfficer[], branchById: Map<string, Track
   ];
   for (let i = 0; i < 8; i++) {
     const officer = pick(fieldStaff.filter((o) => o.role !== 'Area Manager'));
-    const branch = branchById.get(officer.organisationUnitId)!;
+    const branch = branchById.get(officer.organizationUnitId)!;
     const dist = +between(31, 52).toFixed(1);
     const requestedAt = addMinutes(now, -intBetween(20, 60 * 24 * 3));
     const status = i < 4 ? 'Pending' : pick(['Approved', 'Approved', 'Rejected'] as const);
@@ -1226,7 +1226,7 @@ function seedGeoTags(d: MockDb, branchById: Map<string, TrackingBranch>, now: Da
   d.groups.forEach((g) => addTag('GroupCentre', g.id, g.name, g.code, g.branchId, `${g.village}`, g.location, 150, false));
   d.members.forEach((c) => addTag('Member', c.id, c.name, c.loanAccountNo, c.branchId, c.address, c.location, 100, true));
   d.odMembers.forEach((c) => addTag('OdMember', c.id, c.memberName, c.loanAccountNo, c.organizationUnitId, c.address, c.homeLocation, 100, true));
-  d.officers.forEach((o) => addTag('EmployeeHome', o.id, o.name, o.employeeCode, o.organisationUnitId, null, o.presentLocation, 50, false));
+  d.officers.forEach((o) => addTag('EmployeeHome', o.id, o.name, o.employeeCode, o.organizationUnitId, null, o.presentLocation, 50, false));
   return geoTags;
 }
 

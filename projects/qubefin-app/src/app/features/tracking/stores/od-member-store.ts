@@ -2,8 +2,11 @@ import { httpResource } from '@angular/common/http';
 import { Injectable, computed, signal } from '@angular/core';
 import { ApiPaths } from 'qubefin-core';
 import { OdMemberSearchRequest, OdMemberSearchResponse, OdMemberSortOn } from '../models/od-member';
-import { SortDirection, TrackingGroup } from '../models/geo';
+import { GroupSearchRequest, PagedResult, SortDirection, TrackingGroup } from '../models/geo';
 import { DpdRange } from '../utils/dpd';
+
+/** Most groups the Group filter loads at once (the most `groups/search` returns in one page). */
+const GROUP_OPTIONS_LIMIT = 500;
 
 /** OD members from the Loan Status Report, with their latest follow-up. */
 @Injectable({ providedIn: 'root' })
@@ -43,16 +46,26 @@ export class OdMemberStore {
    * chosen (or the user's scope is a single branch), so a whole division's groups are never listed at once.
    */
   readonly groupsEnabled = signal(false);
-  private readonly groupsResource = httpResource<TrackingGroup[]>(() => {
+  private readonly groupsResource = httpResource<PagedResult<TrackingGroup>>(() => {
     const branchId = this.branchId();
     const coId = this.creditOfficerId();
     if (!branchId && !coId && !this.groupsEnabled()) return undefined;
-    const params: Record<string, string> = {};
-    if (branchId) params['branchId'] = branchId;
-    if (coId) params['creditOfficerId'] = coId;
-    return { url: `${ApiPaths.TRACKING}/groups`, params };
+    return {
+      url: `${ApiPaths.TRACKING}/groups/search`,
+      method: 'POST',
+      // One page of up to 500 (the API's limit), sorted by name: a branch's or a Credit Officer's groups fit in it.
+      body: {
+        searchText: null,
+        organizationUnitId: branchId,
+        coEmployeeId: coId,
+        sortOn: 'name',
+        sortDirection: 'asc',
+        pageIndex: 0,
+        pageSize: GROUP_OPTIONS_LIMIT,
+      } satisfies GroupSearchRequest,
+    };
   });
-  readonly groups = computed(() => (this.groupsResource.hasValue() ? this.groupsResource.value() : []));
+  readonly groups = computed(() => (this.groupsResource.hasValue() ? this.groupsResource.value().items : []));
   readonly groupsLoading = computed(() => this.groupsResource.isLoading());
 
   readonly members = computed(() => this.searchResource.value()?.members ?? []);

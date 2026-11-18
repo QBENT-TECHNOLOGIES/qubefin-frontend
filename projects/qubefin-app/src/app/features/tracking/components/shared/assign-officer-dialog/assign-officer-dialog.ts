@@ -65,7 +65,7 @@ export class AssignOfficerDialog {
       .map((g) => ({
         ...g,
         officers: g.officers
-          .filter((o) => !this.sameBranchOnly() || !this.data.branchId || o.organisationUnitId === this.data.branchId || o.role === 'Area Manager' || o.role === 'Divisional Manager')
+          .filter((o) => !this.sameBranchOnly() || !this.data.branchId || o.organizationUnitId === this.data.branchId || o.role === 'Area Manager' || o.role === 'Divisional Manager')
           .map((o) => ({ ...o, blockedReason: this.blockedReason(o) })),
       }))
       .filter((g) => g.officers.length),

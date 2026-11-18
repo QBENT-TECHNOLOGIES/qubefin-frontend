@@ -56,7 +56,7 @@
                         <mat-select [value]="store.creditOfficerId()" (valueChange)="store.setCreditOfficer($event)">
                             <mat-option [value]="null">All Credit Officers</mat-option>
                             @for (o of creditOfficers(); track o.id) {
-                            <mat-option [value]="o.id">{{ o.name }}@if (!store.branchId()) { <span class="text-[11px] text-slate-400"> · {{ o.organisationUnitName }}</span> }</mat-option>
+                            <mat-option [value]="o.id">{{ o.name }}@if (!store.branchId()) { <span class="text-[11px] text-slate-400"> · {{ o.organizationUnitName }}</span> }</mat-option>
                             }
                         </mat-select>
                     </mat-form-field>
@@ -69,7 +69,7 @@
                             <mat-option [value]="null">{{ store.groupsLoading() ? 'Loading groups…' : 'All groups' }}</mat-option>
                             @for (g of store.groups(); track g.id) {
                             <mat-option [value]="g.id">
-                                {{ g.name }} <span class="text-[11px] text-slate-400">· {{ g.code }}{{ !store.creditOfficerId() && g.creditOfficerName ? ' · ' + g.creditOfficerName : '' }}</span>
+                                {{ g.name }} <span class="text-[11px] text-slate-400">· {{ g.code }}{{ !store.creditOfficerId() && g.coName ? ' · ' + g.coName : '' }}</span>
                             </mat-option>
                             }
                         </mat-select>

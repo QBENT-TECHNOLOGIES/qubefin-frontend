@@ -22,7 +22,7 @@ export interface OdMember {
   /** Mapped Credit Officer of the member (filter only; does not limit who can be given the follow-up). */
   creditOfficerId: string | null;
   creditOfficerName: string | null;
-  /** The member's branch (spelled with **z** here). */
+  /** The member's branch. */
   organizationUnitId: string;
   branchName: string;
   phone: string | null;
@@ -73,7 +73,7 @@ export interface OdFollowUpSummary {
 export interface OdMemberSearchRequest {
   /** Member name, loan account no… */
   searchText: string | null;
-  /** Branch filter (spelled with **z**; `organisationUnitId` / `branchId` are ignored). */
+  /** Branch filter (`branchId` is ignored). */
   organizationUnitId: string | null;
   /** Days-past-due range (`utils/dpd.ts`); null = any. */
   dpdRange: DpdRange | null;
@@ -108,8 +108,9 @@ export interface NewJobHeader {
 }
 
 /**
- * OD members are never assigned on their own: each becomes an OD follow-up task inside a job.
- * Send exactly one of `jobId` (add to an existing open job) or `newJob`.
+ * What the Add to job dialog returns. OD members are never assigned on their own: each becomes an OD follow-up task inside a
+ * job. Exactly one of `jobId` (an existing open job) or `newJob`. `OdMemberService` saves it through C2 (`POST jobs/{id}/tasks`)
+ * or C1 (`POST jobs`); there is no `od-members/add-to-job` call (18 Nov 2026).
  */
 export interface AddOdToJobRequest {
   /** One entry per member; each becomes one OD follow-up task with its own priority, instruction and companion. */

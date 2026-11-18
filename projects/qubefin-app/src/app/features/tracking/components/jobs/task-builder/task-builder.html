@@ -74,7 +74,7 @@
             @for (t of tasks(); track $index; let i = $index) {
             @let types = TYPES_FOR_KIND[t.target.kind];
             @let c = taskChecks()[i];
-            @let companions = companionsByBranch().get(t.target.organisationUnitId) ?? [];
+            @let companions = companionsByBranch().get(t.target.organizationUnitId) ?? [];
             <li class="trk-builder-item is-stacked" [class.is-blocked]="!!c?.block" [class.is-warned]="!!c?.warn">
                 <div class="flex items-center gap-3 w-full">
                     <span class="trk-type-icon" [style.--trk-color]="TASK_TYPE[t.taskType].color" [matTooltip]="TASK_TYPE[t.taskType].label">

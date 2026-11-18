@@ -48,7 +48,7 @@ import { AlertSearchRequest, AlertSearchResponse, AlertType, ResolveAlertRequest
 import { ApprovalDecisionRequest } from '../models/approval-request';
 import { GeoTag, GeoTagKind, GeoTagPoint, GeoTagPointsResponse } from '../models/geo-tag';
 import { TrackingSettings } from '../models/tracking-settings';
-import { TrackingGroup } from '../models/geo';
+import { GroupSearchRequest, PagedResult, TrackingGroup } from '../models/geo';
 import { MOCK_ACTOR_KEY } from './mock-actor-key';
 import { toDateKey } from '../utils/geo-utils';
 import { LOCATION_NOT_VERIFIED, PendingElsewhere, ROLE_RANK, canAssignWorkTo, canMonitor, duplicateCheck, inScope, isOpenJob, oversees, jobBranchConflict, needsVerifiedLocation, targetKey } from '../utils/job-rules';
@@ -115,11 +115,11 @@ function currentViewer(d: MockDb): Viewer {
   const o = d.officers.find((x) => x.id === readActorId());
   if (!o) {
     d.currentUser = ADMIN_USER;
-    return { id: ADMIN_USER.id, employeeId: null, name: ADMIN_USER.name, role: 'Admin', unitName: 'All branches', organisationUnitIds: d.branches.map((b) => b.id), canCreateJobs: true };
+    return { id: ADMIN_USER.id, employeeId: null, name: ADMIN_USER.name, role: 'Admin', unitName: 'All branches', organizationUnitIds: d.branches.map((b) => b.id), canCreateJobs: true };
   }
   d.currentUser = { id: o.id, name: o.name };
-  const v = { role: o.role, organisationUnitIds: unitIdsOf(o) };
-  return { id: o.id, employeeId: o.id, name: o.name, role: o.role, unitName: o.unitName, organisationUnitIds: unitIdsOf(o), canCreateJobs: d.officers.some((x) => canAssignWorkTo(v, x)) };
+  const v = { role: o.role, organizationUnitIds: unitIdsOf(o) };
+  return { id: o.id, employeeId: o.id, name: o.name, role: o.role, unitName: o.unitName, organizationUnitIds: unitIdsOf(o), canCreateJobs: d.officers.some((x) => canAssignWorkTo(v, x)) };
 }
 
 /** Rank of whoever created a job (an officer, or an administrator). */
@@ -134,7 +134,7 @@ function rankOfPerson(d: MockDb, id: string): number {
  */
 function canSee(_d: MockDb, j: Job): boolean {
   if (isAdminRole(viewer.role) || j.assigneeId === viewer.id || j.createdBy === viewer.id) return true;
-  if (!j.organisationUnitIds.length || !inScope(viewer, j.organisationUnitIds)) return false;
+  if (!j.organizationUnitIds.length || !inScope(viewer, j.organizationUnitIds)) return false;
   return oversees(viewer.role, j.assigneeRole);
 }
 
@@ -146,9 +146,9 @@ function canSee(_d: MockDb, j: Job): boolean {
 function permissionsOf(d: MockDb, j: Job): JobPermissions {
   const can = isOpenJob(j.status) && j.assigneeId !== viewer.id;
   const senior =
-    isAdminRole(viewer.role) || j.createdBy === viewer.id || (ROLE_RANK[viewer.role] < rankOfPerson(d, j.createdBy) && inScope(viewer, j.organisationUnitIds));
+    isAdminRole(viewer.role) || j.createdBy === viewer.id || (ROLE_RANK[viewer.role] < rankOfPerson(d, j.createdBy) && inScope(viewer, j.organizationUnitIds));
   // Managers above the assignee, and a BM over the ABM of their branch (contract §3.3).
-  const managesAssignee = oversees(viewer.role, j.assigneeRole) && inScope(viewer, j.organisationUnitIds);
+  const managesAssignee = oversees(viewer.role, j.assigneeRole) && inScope(viewer, j.organizationUnitIds);
   return {
     canTransfer: can && j.openCount > 0 && senior,
     canCancel: can && senior,
@@ -211,15 +211,22 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
 
   // ---- Lookups ---------------------------------------------------------------------------
   if (m === 'GET' && path === 'organization-units') return d.branches.filter((b) => inScope(viewer, [b.id]));
-  if (m === 'GET' && path === 'groups') {
-    // Light lookup for filters: groups in scope with their mapped branch and Credit Officer.
-    const branchId = q.get('branchId');
-    const coId = q.get('creditOfficerId');
+  if (m === 'POST' && path === 'groups/search') {
+    // Same shape as the API (D2): a page of groups in scope with their branch and mapped Credit Officer.
+    const r = body as GroupSearchRequest;
+    const text = (r.searchText ?? '').toLowerCase().trim();
     const branchName = new Map(d.branches.map((b) => [b.id, b.name]));
-    return d.groups
-      .filter((g) => inScope(viewer, [g.branchId]) && (!branchId || g.branchId === branchId) && (!coId || g.creditOfficerId === coId))
-      .map((g) => ({ id: g.id, code: g.code, name: g.name, branchId: g.branchId, branchName: branchName.get(g.branchId) ?? '', creditOfficerId: g.creditOfficerId, creditOfficerName: g.creditOfficerName }))
-      .sort((a, b) => a.name.localeCompare(b.name)) satisfies TrackingGroup[];
+    const all = d.groups
+      .filter(
+        (g) =>
+          inScope(viewer, [g.branchId]) &&
+          (!r.organizationUnitId || g.branchId === r.organizationUnitId) &&
+          (!r.coEmployeeId || g.creditOfficerId === r.coEmployeeId) &&
+          (!text || g.name.toLowerCase().includes(text)),
+      )
+      .map((g) => ({ id: g.id, code: g.code, name: g.name, organizationUnitId: g.branchId, branchName: branchName.get(g.branchId) ?? '', coEmployeeId: g.creditOfficerId, coName: g.creditOfficerName }) satisfies TrackingGroup)
+      .sort((a, b) => (r.sortOn === 'code' ? a.code.localeCompare(b.code) : a.name.localeCompare(b.name)) * (r.sortDirection === 'desc' ? -1 : 1));
+    return { items: all.slice(r.pageIndex * r.pageSize, (r.pageIndex + 1) * r.pageSize), totalRecords: all.length } satisfies PagedResult<TrackingGroup>;
   }
   if (m === 'GET' && path === 'field-officers') {
     const branchId = q.get('organizationUnitId'); // the API spells the query parameter with a z
@@ -230,7 +237,7 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
 
   // ---- Jobs ------------------------------------------------------------------------------
   if (m === 'POST' && path === 'jobs/search') return searchJobs(d, body as JobSearchRequest);
-  if (m === 'GET' && path === 'jobs/open') return openJobs(d, q.get('assigneeId'), q.get('branchId'));
+  if (m === 'GET' && path === 'jobs/open') return openJobs(d, q.get('assigneeId'), q.get('organizationUnitId'));
   if (m === 'GET' && path === 'jobs/task-points') return taskPoints(d, q);
   if (m === 'POST' && path === 'jobs') {
     // Same shape as the API (C1): { jobId, message }.
@@ -334,7 +341,7 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
   // ---- Geo-tags --------------------------------------------------------------------------
   if (m === 'GET' && path === 'geo-tags/points') {
     const kinds = (q.get('kinds') ?? q.get('kind') ?? 'GroupCentre').split(',').filter(Boolean) as GeoTagKind[];
-    const branchId = q.get('organisationUnitId');
+    const branchId = q.get('organizationUnitId');
     const all = d.geoTags.filter((g) => kinds.includes(g.kind) && (!branchId || g.branchId === branchId) && geoTagVisible(d, g));
     const od = new Map(d.odMembers.map((c) => [c.id, c]));
     const members = new Map(d.members.map((c) => [c.id, c]));
@@ -353,7 +360,7 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
           creditOfficerName: map?.creditOfficerName ?? null,
           groupId: c?.groupId ?? mem?.groupId ?? null,
           groupName: c?.groupName ?? mem?.groupName ?? null,
-          id: g.id, kind: g.kind, refId: g.refId, name: g.name, refCode: g.refCode, organisationUnitId: g.branchId, branchName: g.branchName,
+          id: g.id, kind: g.kind, refId: g.refId, name: g.name, refCode: g.refCode, organizationUnitId: g.branchId, branchName: g.branchName,
           address: g.address, location: g.location!, taskLocationMatchInMeters: g.radiusMeters, verified: g.verified, dpd: c?.dpd ?? null, overdueAmount: c?.overdueAmount ?? null,
           taggedByName: g.taggedByName, taggedAt: g.taggedAt,
         } satisfies GeoTagPoint;
@@ -363,7 +370,7 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
   if (m === 'GET' && path === 'geo-tags') {
     const kind = (q.get('kind') ?? 'Branch') as GeoTagKind;
     const text = (q.get('searchText') ?? '').toLowerCase().trim();
-    const branchIds = (q.get('organisationUnitId') ?? '').split(',').filter(Boolean);
+    const branchIds = (q.get('organizationUnitId') ?? '').split(',').filter(Boolean);
     const onlyUntagged = q.get('onlyUntagged') === 'true';
     return d.geoTags.filter(
       (g) =>
@@ -446,7 +453,7 @@ function companionOf(d: MockDb, job: Job, t: NewTaskInput): { id: string; name: 
   if (t.coOrdinatedBy === viewer.employeeId) return { id: viewer.id, name: viewer.name };
   const o = d.officers.find((x) => x.id === t.coOrdinatedBy);
   if (!o) throw bad(`${t.taskTitle}: the person going along was not found.`);
-  if (!unitIdsOf(o).includes(t.target.organisationUnitId)) throw bad(`${t.taskTitle}: ${o.name} does not work in ${t.target.branchName}.`);
+  if (!unitIdsOf(o).includes(t.target.organizationUnitId)) throw bad(`${t.taskTitle}: ${o.name} does not work in ${t.target.branchName}.`);
   return { id: o.id, name: o.name };
 }
 
@@ -461,7 +468,7 @@ function validateTaskInput(t: NewTaskInput): string | null {
   if (!TASK_TYPE[t.taskType]) return 'Unknown task type.';
   if (t.priority && !PRIORITIES.includes(t.priority)) return 'Unknown priority.';
   if (!t.target?.targetLocation || typeof t.target.targetLocation.lat !== 'number') return 'Every task needs a location.';
-  if (!t.target.organisationUnitId) return 'The task location must belong to a branch.';
+  if (!t.target.organizationUnitId) return 'The task location must belong to a branch.';
   return null;
 }
 
@@ -477,9 +484,9 @@ function addTasks(d: MockDb, job: Job, tasks: NewTaskInput[], action: 'TasksAdde
     const err = validateTaskInput(t);
     if (err) throw bad(`${t.taskTitle || 'Task'}: ${err}`);
   });
-  const outside = tasks.find((t) => !inScope(viewer, [t.target.organisationUnitId]));
+  const outside = tasks.find((t) => !inScope(viewer, [t.target.organizationUnitId]));
   if (outside) throw forbidden(`${outside.target.branchName} is outside your ${viewer.unitName}.`);
-  checkBranches(d, officerOr400(d, job.assigneeId), [...new Set([...job.organisationUnitIds, ...tasks.map((t) => t.target.organisationUnitId)])]);
+  checkBranches(d, officerOr400(d, job.assigneeId), [...new Set([...job.organizationUnitIds, ...tasks.map((t) => t.target.organizationUnitId)])]);
   const companions = tasks.map((t) => companionOf(d, job, t));
 
   const skipped: SkippedTask[] = [];
@@ -533,7 +540,7 @@ function createJob(d: MockDb, r: CreateJobRequest): AddTasksResponse {
   if (!r.assigneeId) throw bad('Select who will do this job.');
   const assignee = officerOr400(d, r.assigneeId);
   checkAssignable(assignee);
-  checkBranches(d, assignee, [...new Set(r.tasks.map((t) => t.target.organisationUnitId))]);
+  checkBranches(d, assignee, [...new Set(r.tasks.map((t) => t.target.organizationUnitId))]);
 
   const now = new Date();
   const job = newJob(d, { title: r.jobTitle.trim(), description: r.jobDescription?.trim() || null, creator: { ...d.currentUser, unitName: viewer.unitName }, assignee, startFrom: r.startDate, completeBy: r.endDate, createdAt: now });
@@ -600,14 +607,14 @@ function transferJob(d: MockDb, job: Job, r: TransferJobRequest): TransferOutcom
   // only changes hands while nothing is done and every pending task moves; otherwise they go to a new linked job.
   const whole = job.doneCount === 0 && moving.length === pending.length;
   if (whole) {
-    checkBranches(d, o, job.organisationUnitIds);
+    checkBranches(d, o, job.organizationUnitIds);
     setAssignee(job, o);
     refreshJob(job);
     pushHistory(d, job, 'Transferred', d.currentUser, now, { fromAssigneeName: from, toAssigneeName: o.name, taskNos: pending.map((t) => t.taskNo), remarks: r.remarks.trim() });
     return { job: out(d, job), newJob: null, skipped };
   }
 
-  checkBranches(d, o, [...new Set(moving.map((t) => t.target.organisationUnitId))]);
+  checkBranches(d, o, [...new Set(moving.map((t) => t.target.organizationUnitId))]);
   if (r.endDate && r.endDate < toDateKey()) throw bad('The new complete-by date cannot be in the past.');
 
   const target = newJob(d, { title: `${job.jobTitle} (from ${job.jobCode})`, description: job.jobDescription, creator: { ...d.currentUser, unitName: o.unitName }, assignee: o, startFrom: toDateKey(now), completeBy: r.endDate || job.endDate, createdAt: now });
@@ -685,7 +692,7 @@ function searchJobs(d: MockDb, r: JobSearchRequest): JobSearchResponse {
   const base = d.jobs.filter(
     (j) =>
       canSee(d, j) &&
-      (!r.organisationUnitId || j.organisationUnitIds.includes(r.organisationUnitId)) &&
+      (!r.organizationUnitId || j.organizationUnitIds.includes(r.organizationUnitId)) &&
       (!r.assigneeId || j.assigneeId === r.assigneeId) &&
       (!r.dueFrom || j.endDate >= r.dueFrom) &&
       (!r.dueTo || j.endDate <= r.dueTo) &&
@@ -707,18 +714,18 @@ function searchJobs(d: MockDb, r: JobSearchRequest): JobSearchResponse {
 
 /** Task locations for the monitoring overview. pendingOnly defaults to true. */
 function taskPoints(d: MockDb, q: URLSearchParams): JobTaskPoint[] {
-  const branchId = q.get('organisationUnitId');
+  const branchId = q.get('organizationUnitId');
   const assigneeId = q.get('assigneeId');
   const pendingOnly = q.get('pendingOnly') !== 'false';
   return d.jobs
     .filter((j) => isOpenJob(j.status) && canSee(d, j) && (!assigneeId || j.assigneeId === assigneeId))
     .flatMap((j) =>
       j.tasks
-        .filter((t) => (pendingOnly ? t.status === 'Pending' : t.status === 'Pending' || t.status === 'Completed') && (!branchId || t.target.organisationUnitId === branchId))
+        .filter((t) => (pendingOnly ? t.status === 'Pending' : t.status === 'Pending' || t.status === 'Completed') && (!branchId || t.target.organizationUnitId === branchId))
         .map((t) => ({
           jobId: j.id, jobCode: j.jobCode, jobTitle: j.jobTitle, jobStatus: j.status, jobStartDate: j.startDate ?? dayOf(j.createdOn), jobEndDate: j.endDate, assigneeId: j.assigneeId, assigneeName: j.assigneeName,
           taskId: t.id, taskNo: t.taskNo, taskTitle: t.taskTitle, taskType: t.taskType, priority: t.priority, status: t.status, targetKind: t.target.kind, originRefId: t.target.originRefId,
-          organisationUnitId: t.target.organisationUnitId, targetLocation: t.target.targetLocation,
+          organizationUnitId: t.target.organizationUnitId, targetLocation: t.target.targetLocation,
           locationMismatch: t.verification?.locationMatched === false,
         }) satisfies JobTaskPoint),
     );
@@ -734,7 +741,7 @@ function openJobs(d: MockDb, assigneeId: string | null, branchId: string | null)
     .filter((j) => {
       if (!branchId) return true;
       const o = d.officers.find((x) => x.id === j.assigneeId);
-      return !!o && !jobBranchConflict(o, [...new Set([...j.organisationUnitIds, branchId])]);
+      return !!o && !jobBranchConflict(o, [...new Set([...j.organizationUnitIds, branchId])]);
     })
     .sort((a, b) => a.endDate.localeCompare(b.endDate))
     .map(summary);
@@ -819,7 +826,7 @@ function addOdToJob(d: MockDb, r: AddOdToJobRequest): AddOdToJobResponse {
         notes: [`Overdue ₹${c.overdueAmount.toLocaleString('en-IN')} · ${c.dpd} DPD.`, m.notes?.trim()].filter(Boolean).join(' '),
         priority: m.priority || 'Medium',
         coOrdinatedBy: m.accompaniedById ?? null,
-        target: { kind: 'OdMember', originRefId: c.id, targetName: c.memberName, targetLocation: c.homeLocation, organisationUnitId: c.organizationUnitId, branchName: c.branchName, radiusMeters: d.settings.locationMatchRadiusMeters },
+        target: { kind: 'OdMember', originRefId: c.id, targetName: c.memberName, targetLocation: c.homeLocation, organizationUnitId: c.organizationUnitId, branchName: c.branchName, radiusMeters: d.settings.locationMatchRadiusMeters },
       },
     });
     return undefined;
@@ -844,7 +851,7 @@ function addOdToJob(d: MockDb, r: AddOdToJobRequest): AddOdToJobResponse {
     checkAssignable(assignee);
   }
   const allowed = inputs.filter(({ input, memberId }) => {
-    const conflict = jobBranchConflict(assignee, [...new Set([...(job?.organisationUnitIds ?? []), input.target.organisationUnitId])], branchName(d));
+    const conflict = jobBranchConflict(assignee, [...new Set([...(job?.organizationUnitIds ?? []), input.target.organizationUnitId])], branchName(d));
     if (conflict) skipped.push({ memberId, reason: `${input.target.targetName}: ${conflict}` });
     return !conflict;
   });

@@ -60,20 +60,20 @@ export interface TrackingViewer {
   /** Branch, area or division they are in charge of ("All branches" for admins). */
   unitName: string;
   /** Branch ids in their scope: own branch (BM / ABM / CO), area (AM), division (DM), every branch (Admin). */
-  organisationUnitIds: string[];
+  organizationUnitIds: string[];
   /** True when there is anyone below them to give work to (false for a CO). */
   canCreateJobs: boolean;
 }
 
 /** A branch as a reference (id + name). */
-export interface OrganisationUnitRef {
+export interface OrganizationUnitRef {
   id: string;
   name: string;
 }
 
-/** Branch ids of an officer (`organisationUnits[].id`). */
-export function unitIdsOf(o: Pick<FieldOfficer, 'organisationUnits'>): string[] {
-  return o.organisationUnits.map((u) => u.id);
+/** Branch ids of an officer (`organizationUnits[].id`). */
+export function unitIdsOf(o: Pick<FieldOfficer, 'organizationUnits'>): string[] {
+  return o.organizationUnits.map((u) => u.id);
 }
 
 /**
@@ -87,13 +87,13 @@ export interface FieldOfficer {
   role: OfficerRole;
   designation: string;
   /** Posting branch id (for AM / DM: the branch their office is in). */
-  organisationUnitId: string;
+  organizationUnitId: string;
   /** Posting branch name. */
-  organisationUnitName: string;
+  organizationUnitName: string;
   /** Branch, area or division name the person is in charge of / posted to. */
   unitName: string;
   /** Branches the person may work in: one for CO / ABM / BM, every branch of the area / division for AM / DM. */
-  organisationUnits: OrganisationUnitRef[];
+  organizationUnits: OrganizationUnitRef[];
   phone: string;
   /** Geo-tagged present (home) address, used for the 50 m "near home" rule and the home pin. Null until captured. */
   presentLocation: GeoPoint | null;

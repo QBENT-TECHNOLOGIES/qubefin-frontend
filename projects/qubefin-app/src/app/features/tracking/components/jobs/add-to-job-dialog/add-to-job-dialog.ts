@@ -79,8 +79,9 @@ export class AddToJobDialog {
 
   private readonly openResource = httpResource<JobSummary[]>(() => {
     const params: Record<string, string> = {};
-    // With one branch, list only jobs that may take that branch's members.
-    if (this.branchIds.length === 1) params['branchId'] = this.branchIds[0];
+    // D3, GET jobs/open?organizationUnitId=&assigneeId= (JobSummary[], soonest due first). With one branch, list only jobs
+    // that may take that branch's members.
+    if (this.branchIds.length === 1) params['organizationUnitId'] = this.branchIds[0];
     if (this.filterAssigneeId()) params['assigneeId'] = this.filterAssigneeId()!;
     return { url: `${ApiPaths.TRACKING}/jobs/open`, params };
   });
@@ -161,7 +162,7 @@ export class AddToJobDialog {
       if (j?.tasks.some((t) => t.taskType === 'OdFollowUp' && t.target.originRefId === c.id && t.status === 'Pending')) return map.set(c.id, 'already in this job');
       const mine = holder ? c.pendingWith.find((p) => p.assigneeId === holder.id) : undefined;
       if (mine) return map.set(c.id, `already pending with ${mine.assigneeName} in ${mine.jobCode}`);
-      const conflict = holder ? jobBranchConflict(holder, [...new Set([...(j?.organisationUnitIds ?? []), c.organizationUnitId])]) : null;
+      const conflict = holder ? jobBranchConflict(holder, [...new Set([...(j?.organizationUnitIds ?? []), c.organizationUnitId])]) : null;
       if (conflict) return map.set(c.id, `${c.branchName} is outside ${holder!.name}'s ${holder!.unitName}`);
       return undefined;
     });

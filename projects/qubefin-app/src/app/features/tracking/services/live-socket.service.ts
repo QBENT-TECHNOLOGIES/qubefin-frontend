@@ -4,8 +4,11 @@ import type { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { AuthStore, ENV_CONFIG } from 'qubefin-core';
 import { Subject } from 'rxjs';
 
-/** Off = not used right now (no screen watching, signed out, or no `liveSocketUrl`). */
-export type LiveSocketState = 'Off' | 'Connecting' | 'Live' | 'Reconnecting';
+/**
+ * Off = not used right now (no screen watching, signed out, or no `liveSocketUrl`).
+ * Denied = the server refused the team's topics (`SUBSCRIBE rejected`); retried every few minutes, polling continues.
+ */
+export type LiveSocketState = 'Off' | 'Connecting' | 'Live' | 'Reconnecting' | 'Denied';
 
 export type LiveTopic = 'gps' | 'alarms';
 
@@ -20,6 +23,14 @@ export interface LiveSocketMessage {
 }
 
 const RECONNECT_MS = 5_000;
+/** Reconnect delay doubles after each failed attempt up to this (server down / unreachable). */
+const MAX_RECONNECT_MS = 60_000;
+/**
+ * After the server refuses a subscription it closes the whole connection, so reconnecting at once would only repeat it
+ * (seen 18 Nov 2026: connect → 78 SUBSCRIBEs → ERROR "SUBSCRIBE rejected: topic belongs to another employee" → close, every 5 s).
+ * Wait this long before trying again, so a fixed backend is picked up without a page reload.
+ */
+const DENIED_RETRY_MS = 5 * 60_000;
 /** Keep the connection this long after the last screen stops watching, so moving between tracking screens does not reconnect. */
 const IDLE_CLOSE_MS = 15_000;
 
@@ -51,6 +62,7 @@ export class LiveSocketService {
   private client: Client | null = null;
   private starting: Promise<void> | null = null;
   private idleTimer: ReturnType<typeof setTimeout> | null = null;
+  private deniedTimer: ReturnType<typeof setTimeout> | null = null;
   private connectedToken: string | null = null;
   /** One entry per watching screen. */
   private readonly leases = new Map<symbol, ReadonlySet<string>>();
@@ -65,7 +77,10 @@ export class LiveSocketService {
       const token = this.auth.accessToken();
       untracked(() => {
         if (!token) this.stop();
-        else if (!this.client) this.sync();
+        else if (!this.client) {
+          this.clearDenied(); // a new sign-in may be allowed what the last one was not
+          this.sync();
+        }
         else if (this.connectedToken && token !== this.connectedToken) this.client.forceDisconnect();
       });
     });
@@ -109,6 +124,7 @@ export class LiveSocketService {
       clearTimeout(this.idleTimer);
       this.idleTimer = null;
     }
+    if (this.deniedTimer) return; // refused by the server: wait for the retry
     if (!this.client) {
       void this.start();
       return;
@@ -138,7 +154,10 @@ export class LiveSocketService {
   private async open(): Promise<void> {
     this.state.set('Connecting');
     // Loaded on first use, so the libraries are not in the main bundle.
-    const [{ Client }, sockjs] = await Promise.all([import('@stomp/stompjs'), import('sockjs-client/dist/sockjs.min.js')]);
+    const [{ Client, ReconnectionTimeMode }, sockjs] = await Promise.all([
+      import('@stomp/stompjs'),
+      import('sockjs-client/dist/sockjs.min.js'),
+    ]);
     const SockJS = sockjs.default;
     if (this.client || !this.wanted().size || !this.auth.accessToken()) {
       if (!this.client) this.state.set('Off');
@@ -151,6 +170,8 @@ export class LiveSocketService {
         return new SockJS(`${this.url}?token=${encodeURIComponent(this.connectedToken ?? '')}`);
       },
       reconnectDelay: RECONNECT_MS,
+      reconnectTimeMode: ReconnectionTimeMode.EXPONENTIAL,
+      maxReconnectDelay: MAX_RECONNECT_MS,
       heartbeatIncoming: 10_000,
       heartbeatOutgoing: 10_000,
       beforeConnect: async () => {
@@ -173,7 +194,11 @@ export class LiveSocketService {
         if (!this.errorLogged) console.warn(`[live] Cannot reach ${this.url}; retrying every ${RECONNECT_MS / 1000} s.`);
         this.errorLogged = true;
       },
-      onStompError: (frame) => console.warn('[live] STOMP error:', frame.headers['message'] ?? '', frame.body),
+      onStompError: (frame) => {
+        const message = frame.headers['message'] ?? '';
+        if (/subscribe rejected/i.test(message)) return this.deny(client, message);
+        console.warn('[live] STOMP error:', message, frame.body);
+      },
       debug: () => undefined,
     });
     this.client = client;
@@ -199,6 +224,29 @@ export class LiveSocketService {
     const receivedAt = new Date().toISOString();
     this.lastMessageAt.set(receivedAt);
     (topic === 'gps' ? this.gps$ : this.alarms$).next({ employeeId, topic, body, receivedAt });
+  }
+
+  /** The server refused our topics and dropped the connection: stop, and try again in a few minutes. */
+  private deny(client: Client, message: string): void {
+    if (this.client !== client) return;
+    console.warn(
+      `[live] The live server refused the team's topics ("${message}"). Live updates are off; retrying in ${DENIED_RETRY_MS / 60_000} min. ` +
+        'The server must let a manager subscribe to /topic/employee/{id}/… for the people they may monitor.',
+    );
+    this.stop();
+    this.state.set('Denied');
+    this.deniedTimer = setTimeout(() => {
+      this.deniedTimer = null;
+      this.state.set('Off');
+      this.sync();
+    }, DENIED_RETRY_MS);
+  }
+
+  private clearDenied(): void {
+    if (!this.deniedTimer) return;
+    clearTimeout(this.deniedTimer);
+    this.deniedTimer = null;
+    this.state.set('Off');
   }
 
   private stop(): void {

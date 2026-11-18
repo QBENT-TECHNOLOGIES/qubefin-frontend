@@ -10,6 +10,11 @@ import { distanceMeters, toDateKey } from '../utils/geo-utils';
 import { LiveGpsFix, readGpsFix } from '../utils/live-message';
 import { TrackingLookupStore } from './tracking-lookup-store';
 
+/** A fix older than this does not change the status shown (the server calls someone Offline after about 3 missed fixes). */
+const FRESH_FIX_MS = 10 * 60_000;
+/** Minimum time between trail reloads triggered by a reconnect. */
+const TRAIL_RELOAD_MIN_MS = 60_000;
+
 @Injectable({ providedIn: 'root' })
 export class LiveTrackingStore {
   private readonly socket = inject(LiveSocketService);
@@ -128,11 +133,16 @@ export class LiveTrackingStore {
       .pipe(takeUntilDestroyed())
       .subscribe((m) => this.liveAlarms.update((c) => new Map(c).set(m.employeeId, (c.get(m.employeeId) ?? 0) + 1)));
 
-    // Fixes pushed while the socket was down are missed: reload the trail when it is back.
+    // Fixes pushed while the socket was down are missed: reload the trail when it is back, at most once a minute
+    // (a connection that keeps dropping must not turn into a GPS-history call every few seconds).
     let previous = this.socket.state();
+    let lastReload = 0;
     effect(() => {
       const state = this.socket.state();
-      if (previous === 'Reconnecting' && state === 'Live') untracked(() => this.reloadTrail());
+      if (previous === 'Reconnecting' && state === 'Live' && Date.now() - lastReload > TRAIL_RELOAD_MIN_MS) {
+        lastReload = Date.now();
+        untracked(() => this.reloadTrail());
+      }
       previous = state;
     });
   }
@@ -203,7 +213,7 @@ function teamPositions(
  * ABM posted there, and the AM / DM covering it).
  */
 function inBranch(o: FieldOfficer, branchId: string | null): boolean {
-  return !branchId || o.organisationUnitId === branchId || unitIdsOf(o).includes(branchId);
+  return !branchId || o.organizationUnitId === branchId || unitIdsOf(o).includes(branchId);
 }
 
 function applyLive(p: LivePosition, fix: LiveGpsFix | undefined, newAlarms: number): LivePosition {
@@ -228,6 +238,8 @@ function applyLive(p: LivePosition, fix: LiveGpsFix | undefined, newAlarms: numb
  */
 function liveStatus(prev: LiveStatus, fix: LiveGpsFix): LiveStatus {
   if (fix.status) return fix.status;
+  // An old fix (e.g. the last point of today's trail, an hour ago) says nothing about now.
+  if (Date.now() - Date.parse(fix.at) > FRESH_FIX_MS) return prev;
   if (fix.gpsEnabled === false) return 'GpsOff';
   if (prev === 'Offline' || prev === 'GpsOff') return fix.speedKmph !== null && fix.speedKmph < 2 ? 'Idle' : 'Moving';
   return prev;
@@ -239,9 +251,9 @@ function fromOfficer(o: FieldOfficer): LivePosition {
     employeeId: o.id,
     employeeName: o.name.replace(/\s+/g, ' ').trim(),
     role: o.role,
-    branchId: o.organisationUnitId,
+    branchId: o.organizationUnitId,
     // Branch for a CO / BM / ABM, area or division for an AM / DM.
-    branchName: o.unitName || o.organisationUnitName,
+    branchName: o.unitName || o.organizationUnitName,
     location: null,
     accuracyMeters: null,
     speedKmph: null,

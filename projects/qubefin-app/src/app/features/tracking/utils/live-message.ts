@@ -90,11 +90,19 @@ function instant(v: unknown): string | null {
     return new Date(n < 1e12 ? n * 1000 : n).toISOString();
   }
   if (typeof v === 'string') {
-    const t = Date.parse(v);
+    const s = v.trim();
+    // A date-time with no zone is UTC: the GPS service sends e.g. "2026-11-18T05:28:56.262" for 10:58 IST (seen 18 Nov 2026).
+    // The browser would read it as local time, 5½ hours off.
+    const t = Date.parse(NO_ZONE.test(s) ? `${s.replace(' ', 'T')}Z` : s);
     return Number.isNaN(t) ? null : new Date(t).toISOString();
   }
   return null;
 }
+
+/** `yyyy-MM-ddTHH:mm[:ss[.fff…]]` without `Z` or an offset. */
+const NO_ZONE = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/;
+
+const roundOrNull = (n: number | null) => (n === null ? null : Math.round(n));
 
 /** Letters only, lower case: `GPS_OFF`, `gps-off` and `GpsOff` all become `gpsoff`. */
 const norm = (s: string) => s.replace(/[^a-z]/gi, '').toLowerCase();
@@ -140,7 +148,7 @@ export function readGpsFix(employeeId: string, body: unknown, receivedAt: string
     location,
     at,
     speedKmph,
-    accuracyMeters: num(field(o, 'accuracyMeters', 'accuracy', 'horizontalAccuracy')),
+    accuracyMeters: roundOrNull(num(field(o, 'accuracyMeters', 'accuracy', 'horizontalAccuracy'))),
     batteryPct,
     gpsEnabled: bool(gpsRaw),
     status: (statusRaw && LIVE_STATUSES.find((s) => norm(s) === norm(statusRaw))) || null,
@@ -209,8 +217,8 @@ export function readAlarm(employeeId: string, body: unknown, receivedAt: string,
       employeeId: str(field(o, 'employeeId')) ?? employeeId,
       employeeName: str(field(o, 'employeeName', 'name')) ?? officer?.name ?? 'Employee',
       role: (str(field(o, 'role', 'employeeRole')) ?? officer?.role ?? '') as TrackingAlert['role'],
-      branchId: str(field(o, 'branchId', 'organisationUnitId', 'organizationUnitId')) ?? officer?.organisationUnitId ?? '',
-      branchName: str(field(o, 'branchName', 'organisationUnitName', 'organizationUnitName')) ?? officer?.organisationUnitName ?? '',
+      branchId: str(field(o, 'branchId', 'organizationUnitId', 'organisationUnitId')) ?? officer?.organizationUnitId ?? '',
+      branchName: str(field(o, 'branchName', 'organizationUnitName', 'organisationUnitName')) ?? officer?.organizationUnitName ?? '',
       message: str(field(o, 'message', 'description', 'details', 'text', 'alarmMessage', 'title', 'remarks')) ?? rawType,
       location: readPoint(o),
       measuredValue: num(field(o, 'measuredValue', 'value')),

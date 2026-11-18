@@ -1000,6 +1000,7 @@
 .trk-live-badge[data-state='Live'] .trk-live-dot { animation: trk-live-pulse 1.6s ease-out infinite; }
 .trk-live-badge[data-state='Connecting'],
 .trk-live-badge[data-state='Reconnecting'] { color: #d97706; background: rgb(217 119 6 / 0.1); }
+.trk-live-badge[data-state='Denied'] { color: #e11d48; background: rgb(225 29 72 / 0.1); }
 @keyframes trk-live-pulse {
   0% { box-shadow: 0 0 0 0 rgb(22 163 74 / 0.6); }
   100% { box-shadow: 0 0 0 6px rgb(22 163 74 / 0); }

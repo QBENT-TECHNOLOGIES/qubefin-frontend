@@ -27,15 +27,15 @@ export function isBelow(role: ViewerRole, than: ViewerRole): boolean {
 }
 
 /** Every branch in `branchIds` is inside the viewer's own branch / area / division (always true for Admin). */
-export function inScope(viewer: Pick<TrackingViewer, 'role' | 'organisationUnitIds'>, branchIds: readonly string[]): boolean {
-  return isAdminRole(viewer.role) || branchIds.every((b) => viewer.organisationUnitIds.includes(b));
+export function inScope(viewer: Pick<TrackingViewer, 'role' | 'organizationUnitIds'>, branchIds: readonly string[]): boolean {
+  return isAdminRole(viewer.role) || branchIds.every((b) => viewer.organizationUnitIds.includes(b));
 }
 
 /**
  * Who may get work from the viewer: anyone in a lower role whose branches all lie inside the viewer's scope.
  * An AM can give jobs to the BMs and COs of their own area, a DM to anyone in their division, an Admin to everyone.
  */
-export function canAssignWorkTo(viewer: Pick<TrackingViewer, 'role' | 'organisationUnitIds'>, officer: FieldOfficer): boolean {
+export function canAssignWorkTo(viewer: Pick<TrackingViewer, 'role' | 'organizationUnitIds'>, officer: FieldOfficer): boolean {
   return isBelow(officer.role, viewer.role) && inScope(viewer, unitIdsOf(officer));
 }
 
@@ -53,7 +53,7 @@ export function oversees(viewerRole: ViewerRole, assigneeRole: ViewerRole): bool
  * Who the viewer may monitor (jobs, Job Monitoring, Tracking History filters): everyone they may give work to, plus the
  * people whose jobs they oversee (a BM → the ABM of their branch).
  */
-export function canMonitor(viewer: Pick<TrackingViewer, 'role' | 'organisationUnitIds'>, officer: FieldOfficer): boolean {
+export function canMonitor(viewer: Pick<TrackingViewer, 'role' | 'organizationUnitIds'>, officer: FieldOfficer): boolean {
   return oversees(viewer.role, officer.role) && inScope(viewer, unitIdsOf(officer));
 }
 
@@ -73,8 +73,8 @@ export function isOpenJob(status: JobStatus): boolean {
 export function jobBranchConflict(officer: FieldOfficer, branchIds: readonly string[], branchNames?: (id: string) => string): string | null {
   const name = (id: string) => branchNames?.(id) ?? 'another branch';
   if (SINGLE_BRANCH_ROLES.includes(officer.role)) {
-    const other = branchIds.find((b) => b !== officer.organisationUnitId);
-    return other ? `${officer.role} jobs must stay in ${officer.organisationUnitName}; this job has tasks in ${name(other)}.` : null;
+    const other = branchIds.find((b) => b !== officer.organizationUnitId);
+    return other ? `${officer.role} jobs must stay in ${officer.organizationUnitName}; this job has tasks in ${name(other)}.` : null;
   }
   const outside = branchIds.find((b) => !unitIdsOf(officer).includes(b));
   return outside ? `${name(outside)} is outside ${officer.name}'s ${officer.unitName}.` : null;

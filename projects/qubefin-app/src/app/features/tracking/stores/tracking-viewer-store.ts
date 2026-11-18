@@ -6,7 +6,7 @@ import { TrackingViewer, ViewerRole } from '../models/field-officer';
  * The signed-in user as tracking sees them: role, unit and branch scope.
  *
  * Comes from GET app-api/users/login-info (`LoggedInUserInfoStore`, loaded right after login), which replaced
- * GET tracking-api/me on 10 Nov 2026, so there is no extra request. `organisationUnitIds` are the ids of
+ * GET tracking-api/me on 10 Nov 2026, so there is no extra request. `organizationUnitIds` are the ids of
  * `accessOrganizationUnits`. Null until login-info has loaded and after logout.
  */
 @Injectable({ providedIn: 'root' })
@@ -21,7 +21,7 @@ export class TrackingViewerStore {
       name: u.employee,
       role: u.role as ViewerRole, // a role name tracking does not know gets no rank (no rights), see ROLE_RANK
       unitName: u.unitName,
-      organisationUnitIds: (u.accessOrganizationUnits ?? []).map((ou) => ou.id),
+      organizationUnitIds: (u.accessOrganizationUnits ?? []).map((ou) => ou.id),
       canCreateJobs: !!u.canCreateJobs,
     };
   });

@@ -7,7 +7,7 @@ import { GeoTag, GeoTagKind } from '../models/geo-tag';
 export class GeoTagStore {
   readonly kind = signal<GeoTagKind>('Branch');
   readonly searchText = signal('');
-  /** Branch filter; sent as `organisationUnitId` (E1). */
+  /** Branch filter; sent as `organizationUnitId` (E1). */
   readonly branchId = signal<string | null>(null);
   readonly onlyUntagged = signal(false);
 
@@ -16,7 +16,7 @@ export class GeoTagStore {
     const text = this.searchText().trim();
     const branchId = this.branchId();
     if (text) params['searchText'] = text;
-    if (branchId) params['organisationUnitId'] = branchId;
+    if (branchId) params['organizationUnitId'] = branchId;
     return { url: `${ApiPaths.TRACKING}/geo-tags`, params };
   });
 

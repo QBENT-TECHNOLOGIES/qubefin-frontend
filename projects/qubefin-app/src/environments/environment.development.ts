@@ -32,5 +32,7 @@ export const environment = {
       'PUT jobs/{id}/tasks/{taskId}/reject', // C7
       'GET geo-tags', // E1 (Geo Tags page)
       'POST od-members/search', // D1 (OD Members page)
+      'POST groups/search', // D2 (OD Members Group filter)
+      'GET jobs/open', // D3 (Add to job: existing open jobs)
     ],
 };

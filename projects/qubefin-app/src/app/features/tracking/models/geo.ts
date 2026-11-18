@@ -26,15 +26,33 @@ export interface TrackingBranch {
  * mapped to a branch and a Credit Officer; each member is mapped to a group. The mapping is for filtering only: it does
  * not limit who can be given a task there.
  */
+/**
+ * A group (D2, `POST tracking-api/groups/search`; names as the API sends them). The API also sends the address, pin code,
+ * location, photo, formation date, collection day and time, who created and tagged it…; the web uses only these.
+ */
 export interface TrackingGroup {
   id: string;
   code: string;
   name: string;
-  branchId: string;
+  /** The group's branch. */
+  organizationUnitId: string;
   branchName: string;
   /** Mapped Credit Officer (null if none is mapped yet). */
-  creditOfficerId: string | null;
-  creditOfficerName: string | null;
+  coEmployeeId: string | null;
+  coName: string | null;
+}
+
+/** D2 request. Paging is required: `pageSize` 1–500. `sortOn` `name` or `code`. Answers `PagedResult<TrackingGroup>`. */
+export interface GroupSearchRequest {
+  /** Group name. */
+  searchText: string | null;
+  organizationUnitId: string | null;
+  /** Mapped Credit Officer. */
+  coEmployeeId: string | null;
+  sortOn: 'name' | 'code';
+  sortDirection: SortDirection;
+  pageIndex: number;
+  pageSize: number;
 }
 
 export interface PagedResult<T> {
