@@ -47,6 +47,15 @@ export const GlobalRoutes: Routes = [
           icon: 'apartment',
         },
       },
+      {
+        path: 'import',
+        loadComponent: () => import('./pages/import/import').then((m) => m.ImportPage),
+        data: {
+          title: 'Excel Import',
+          subTitle: 'Upload an Excel file to import data using a configured import type.',
+          icon: 'upload',
+        },
+      },
     ],
   },
 ];
