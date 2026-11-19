@@ -46,7 +46,7 @@ import {
 import { FieldOfficer, TrackingViewer, isAdminRole, unitIdsOf } from '../models/field-officer';
 import { AlertSearchRequest, AlertSearchResponse, AlertType, ResolveAlertRequest } from '../models/tracking-alert';
 import { ApprovalDecisionRequest } from '../models/approval-request';
-import { GeoTag, GeoTagKind, GeoTagPoint, GeoTagPointsResponse } from '../models/geo-tag';
+import { GeoTag, GeoTagKind, GeoTagPoint, GeoTagPointsResponse, GeoTagSearchRequest } from '../models/geo-tag';
 import { TrackingSettings } from '../models/tracking-settings';
 import { GroupSearchRequest, PagedResult, TrackingGroup } from '../models/geo';
 import { MOCK_ACTOR_KEY } from './mock-actor-key';
@@ -367,19 +367,22 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
       });
     return { points, untaggedByKind } satisfies GeoTagPointsResponse;
   }
-  if (m === 'GET' && path === 'geo-tags') {
-    const kind = (q.get('kind') ?? 'Branch') as GeoTagKind;
-    const text = (q.get('searchText') ?? '').toLowerCase().trim();
-    const branchIds = (q.get('organizationUnitId') ?? '').split(',').filter(Boolean);
-    const onlyUntagged = q.get('onlyUntagged') === 'true';
-    return d.geoTags.filter(
-      (g) =>
-        g.kind === kind &&
-        geoTagVisible(d, g) &&
-        (!branchIds.length || branchIds.includes(g.branchId)) &&
-        (!onlyUntagged || !g.location) &&
-        (!text || g.name.toLowerCase().includes(text) || g.refCode.toLowerCase().includes(text)),
-    ).map(({ id: _id, ...tag }) => tag satisfies GeoTag);
+  if (m === 'POST' && path === 'geo-tags/search') {
+    // E1, paged since 19 Nov 2026 (was GET geo-tags?…). Answers a page in the shape of groups/search.
+    const r = body as GeoTagSearchRequest;
+    const text = (r.searchText ?? '').toLowerCase().trim();
+    const all = d.geoTags
+      .filter(
+        (g) =>
+          g.kind === (r.kind ?? 'Branch') &&
+          geoTagVisible(d, g) &&
+          (!r.organizationUnitId || g.branchId === r.organizationUnitId) &&
+          (!r.onlyUntagged || !g.location) &&
+          (!text || g.name.toLowerCase().includes(text) || g.refCode.toLowerCase().includes(text)),
+      )
+      .sort((a, b) => a.name.localeCompare(b.name) * (r.sortDirection === 'desc' ? -1 : 1))
+      .map(({ id: _id, ...tag }) => tag satisfies GeoTag);
+    return { items: all.slice(r.pageIndex * r.pageSize, (r.pageIndex + 1) * r.pageSize), totalRecords: all.length } satisfies PagedResult<GeoTag>;
   }
   // No PUT geo-tags: Geo Tags/POIs is view only on the web (product owner, 4 Nov 2026). Locations come from the mobile app.
 

@@ -30,7 +30,7 @@ export const environment = {
       'PUT jobs/{id}/cancel', // C5
       'PUT jobs/{id}/tasks/{taskId}/cancel', // C6
       'PUT jobs/{id}/tasks/{taskId}/reject', // C7
-      'GET geo-tags', // E1 (Geo Tags page)
+      'POST geo-tags/search', // E1 (Geo Tags page; paged POST since 19 Nov 2026, was GET geo-tags)
       'POST od-members/search', // D1 (OD Members page)
       'POST groups/search', // D2 (OD Members Group filter)
       'GET jobs/open', // D3 (Add to job: existing open jobs)

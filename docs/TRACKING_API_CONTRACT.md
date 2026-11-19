@@ -71,7 +71,7 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 | Errors | Non-2xx with `{ "message": "human readable" }` (400 invalid, 403 not allowed for this user, 404 not found or outside the caller's scope) or `{ "errors": ["…"] }`. `HttpErrorInterceptor` shows them as a popup, so messages must be readable by a branch user. |
 | DPD ranges | `dpdRange` ∈ `Days1To30` (1–30 days) · `Days31To60` (31–60) · `Days61To90` (61–90) · `Over90` (91 and above, shown as "90+"), or null = any. Both bounds inclusive, no overlap. Same ranges everywhere (`utils/dpd.ts`). |
 | Writes | Return the documented response (the job writes C1–C7 return a message for the user; the web then reloads). Every write is audited with user + server time. |
-| Polling | Live screens poll every **30 s** (positions, routes for today, alerts, job lists, approvals). Keep these endpoints cheap. Live Tracking and Alerts also get GPS fixes and alarms **pushed** over a STOMP socket (§5.1); polling stays on as the backup. |
+| Polling | Live screens poll every **30 s** (positions, routes for today, alerts, job lists, approvals). Keep these endpoints cheap. Live Tracking also gets the team's active roster and the selected person's GPS fixes and motion states **pushed** over a STOMP socket (§5.1); polling stays on as the backup. |
 
 ---
 
@@ -140,8 +140,12 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
     2026."`, `"Task TSK-26039000004 cancelled."`, `"Task TSK-26039000003 rejected."`. Refused: 400 `{ message, metadata, reasons }`,
     e.g. `"JOB-260006 is Cancelled and cannot be cancelled."`. The web shows the message (a warning when a transfer message carries
     a *Note* about tasks not moved) and reloads the job and the list. History entries for all of them were correct.
-  * `geo-tags` (E1, Geo Tags page): query `kind`, `searchText`, `onlyUntagged` and **`organisationUnitId`** (the branch filter;
-    was `branchIds`; `branchId` / `branchIds` are ignored). `GeoTag` has **no `id`**: `refId` identifies the row. `verified` and
+  * `geo-tags/search` (E1, Geo Tags page; **changed 19 Nov 2026** from `GET geo-tags?kind=&searchText=&organizationUnitId=&onlyUntagged=`
+    to a paged POST): body `GeoTagSearchRequest` `{ kind, searchText, organizationUnitId, onlyUntagged, sortOn, sortDirection,
+    pageIndex, pageSize }` (`sortOn` `name`; `organizationUnitId` = the branch filter, null = every branch in scope). The web reads
+    the answer as `PagedResult<GeoTag>` `{ items, totalRecords }`, the shape of `groups/search` (to confirm, §12 item 26). The page
+    shows 25 rows a page (10 / 25 / 50 / 100), sorted by name; changing the kind, search, branch or *Missing only* goes back to page 1,
+    and the map shows the pins of the current page. `GeoTag` has **no `id`**: `refId` identifies the row. `verified` and
     `history` are **not sent** (optional in the model; the page shows no verification badge or location history while absent).
   * `PUT geo-tags/{refId}` (E2, `{ location, radiusMeters, reason }`) **exists on the backend but the web does not use it**:
     Geo Tags stays view only (product owner, 4 Nov 2026; confirmed 13 Nov 2026). See §12.
@@ -393,7 +397,7 @@ gets no such right over a BM's jobs.
 | Method | Path | Response |
 |---|---|---|
 | GET | `live/positions?branchId=` | `LivePosition[]`: latest fix per employee in scope |
-| GET | `employees/{id}/route?date=yyyy-MM-dd` | `EmployeeRoute` |
+| GET | `employees/{id}/route?date=yyyy-MM-dd` | `EmployeeRoute`. **Not needed while the GPS service is configured** (19 Nov 2026): the web builds the day from the GPS service, §5.2. |
 
 **Who may see whom** (4 Nov 2026): both endpoints cover only the people the caller may **monitor**, i.e. the `field-officers` list
 (§2: lower roles in the caller's scope, plus the ABM for a BM; everyone for an Admin). `live/positions` leaves everyone else out;
@@ -423,44 +427,90 @@ Also return `currentTaskId/Title`, `currentJobId/No`, `openTaskCount` (pending t
   for today, snap only the new fixes. While these fields are absent, the web snaps in the browser on demand (cached per tab), which
   costs a Roads request per ~100 fixes for every viewer.
 
-### 5.1 Live push (STOMP socket, 17 Nov 2026)
+### 5.1 Live push (STOMP socket, 17 Nov 2026; topics changed 19 Nov 2026)
 
-GPS fixes and alarms are pushed as they happen, over **STOMP on SockJS** (same as the backend's `test.html`):
+Live updates are pushed as they happen, over **STOMP on SockJS** (same as the backend's `test.html`):
 
 | Item | Value |
 |---|---|
 | Endpoint | `http://3.111.193.85:8080/ws/live?token=<accessToken>` (dev; `liveSocketUrl` in `environment*.ts`, empty = polling only, as in production for now) |
 | Auth | The same access token as the REST calls, in the `token` query parameter. The web reconnects with the new token after a new sign-in. |
-| Topics | `/topic/employee/{employeeId}/gps` and `/topic/employee/{employeeId}/alarms`, one pair per employee |
-| Who subscribes | Live Tracking and Alerts subscribe for **everyone in the caller's `field-officers` list** (§2) while the screen is open. Product owner (17 Nov 2026): a manager may subscribe to the people they may monitor, so the server must allow a subscription when the token's employee may monitor `{employeeId}` (or is that employee), and refuse it otherwise. |
-| Connection | One connection per browser tab (`services/live-socket.service.ts`), reconnect every 5 s, closed 15 s after the last screen leaves or on sign-out. |
+| Topics (19 Nov 2026) | Four per user, under `/topic/employee/{employeeId}/`: **`gps`** (latest position per batch), **`motion`** (state changes `MOVING` / `STOPPED` / `ON_TASK` / `OFFLINE`; replaced `/alarms`), **`geofence`** (enter / exit / change of a task geofence) and **`active-users`** (per-batch roster of the people whose status is not `OFFLINE`). |
+| Who subscribes (19 Nov 2026) | While Live Tracking is open: **team** connection = `/topic/employee/{me}/active-users` (the roster of the active people under the signed-in user; `me` = `employeeId` from `app-api/users/login-info`, the same as the token's `EmployeeId`); **person** connection = `/topic/employee/{selected}/gps` and `/topic/employee/{selected}/motion` for the person clicked, switched when another is clicked. |
+| Connections | Two per browser tab (`services/live-socket.service.ts`), because the server answers a refused SUBSCRIBE by closing the whole connection: a refused person must not stop the team roster. Each reconnects every 5 s (up to 60 s) and closes 15 s after the last screen leaves or on sign-out. A refused set of topics is tried again after 5 minutes, or at once for another person. |
+| Server check | **Accepted since 19 Nov 2026, 16:52 IST**: the own `active-users` and the selected person's `/gps` and `/motion` (before that the person's topics were refused with `SUBSCRIBE rejected: topic belongs to another employee`). If a refusal comes back, the card says so and the trail and motion points are reloaded every 30 s from the REST calls (§5.2). No message has been seen yet: nobody in the test team was sending at the time (§12 item 18). |
 
 **Today's trail on click (17 Nov 2026).** When a person is clicked on Live Tracking, the web first loads their fixes of today
 from the GPS service, `GET http://3.111.193.85:8080/api/v1/gps?employeeId={id}` with header `Authorization: Bearer <accessToken>`
 (`gpsServiceUrl` in `environment*.ts`, `services/gps-history.service.ts`). Response: `[{ id, gpsTime, locationId, userId,
 isMockLocation, batteryPercentage, receivedAt, courseDegree, speed, latitude, longitude, accuracy }]`. The web keeps the fixes of
-today (local day, by `gpsTime`), sorted by `gpsTime`, draws them as a line and then extends the line from the `/gps` topic only (no
-polling). After a reconnect it loads the trail again to fill the gap. Fixes with `isMockLocation: true` are counted and flagged in the
+today (local day, by `gpsTime`), sorted by `gpsTime`, draws them as a line and then extends the line from the `/gps` topic (reloaded
+every 30 s instead while that topic is refused or down). After a reconnect it loads the trail again to fill the gap. Fixes with `isMockLocation: true` are counted and flagged in the
 person's panel. This server is not behind the gateway, so the call does not go through the app's interceptors.
 
-How the web uses the messages:
+How the web uses the messages (Live Tracking, `stores/live-tracking-store.ts`):
 
-* **`/gps`** → the person's marker and list row move at once on Live Tracking (only when the fix is newer than `lastSeenAt`), and
-  today's trail of the selected person grows. The server's status (`OnTask`, `AtBranch`…) still comes from the 30 s poll; between
-  polls the web only sets `GpsOff` (GPS reported off) or brings an `Offline` / `GpsOff` person back to `Moving` / `Idle`.
-  Someone with a fix who is not in `live/positions` yet is added from their `field-officers` entry.
-* **`/alarms`** → the alarm appears at the top of the Alerts list (marked *New*) and in the type counts, and the person's alert count
-  goes up on Live Tracking. 3 s later the list is reloaded so the server's copy replaces the pushed one (matched by `id`, or by
-  employee + type raised within 2 minutes). An alarm without an `id` shows *Saving…* instead of Acknowledge / Resolve until then.
+* **`/active-users`** (team) → the **status badge** of each person in the list and the **KPI counts** at the top. Each message
+  replaces the previous roster: listed = active, with the entry's state (MOVING → Moving, STOPPED → Stationary, ON_TASK → On task;
+  without a state: the polled status if it is an active one, else Stationary); **not listed = Offline**. Until the first roster
+  arrives the polled statuses are shown. A position in an entry (with its time) moves the person's marker.
+* **`/gps`** (selected person) → today's trail grows (after `GET /api/v1/gps` loaded it up to now, §5.2) and the marker and list
+  row move. A message may hold one fix, a list, or a batch `{ userId, locations: [...] }`. A fresh fix with GPS off shows GPS off;
+  one from someone shown Offline / GPS off shows them Moving / Stationary until the next roster.
+* **`/motion`** (selected person) → their status (newer than the roster wins), and today's motion periods are reloaded from
+  `GET /api/v1/motion`: the **STOPPED, ON_TASK and OFFLINE** periods are drawn on the map as pins where they began (title: state,
+  from – to, length; the current one highlighted). The position of a period is checked against the GPS fix taken closest in
+  time and swapped back when latitude and longitude came swapped (§12 item 21); without one, that fix is used. The card no longer
+  lists the periods.
+* `/geofence` and the own `/gps` / `/motion` are not subscribed now. **Alerts:** nothing is pushed for alarms since `/alarms` was
+  removed, so the Alerts page relies on its 30 s poll (§12 item 17).
 
-**Message shapes are not agreed yet.** Until they are, the web reads them tolerantly (`utils/live-message.ts`, field names
-case-insensitive) and logs the first message of each topic to the browser console (`[live] First gps message …`). Recommended
-shapes, so no guessing is needed:
+**Message shapes are not agreed yet.** No message arrived during a 2-minute test on 19 Nov 2026 (nobody was moving), so the web
+reads them tolerantly (`utils/live-message.ts`, field names case-insensitive) and logs the first message of each topic to the
+browser console (`[live] First motion message: …`). What it reads:
 
-* GPS: `{ employeeId, lat, lng, recordedAt (ISO), speedKmph, accuracyMeters, batteryPct, gpsEnabled, status? (LiveStatus) }`.
-  Also read: `latitude`/`longitude` or a nested `location`, `timestamp` / epoch s or ms. A plain `speed` is taken as **m/s**.
-* Alarm: the `TrackingAlert` of §6 (at least `id`, `type` as an `AlertType`, `severity`, `message`, `raisedAt`, `location`).
-  Also read: `alarmType` / `alertType`, `GPS_OFF`-style names, `timestamp`. An unknown type is shown under its own name.
+* GPS: `{ employeeId | userId, latitude, longitude, gpsTime, speed, accuracy, batteryPercentage, isMockLocation }` (the
+  `/api/v1/gps` record), or `lat`/`lng`, a nested `location`, `recordedAt` / `timestamp` / epoch s or ms. A plain `speed` is taken
+  as **m/s**.
+* Motion: `{ employeeId, motion, startedAt, latitude?, longitude? }`, the shape of the GPS service's
+  `GET /api/v1/motion?employeeId=` record `{ employeeId, motion, startedAt, endedAt, latitude, longitude, source }` (Swagger,
+  19 Nov 2026). Also read: `state` / `status` for `motion`, `timestamp` for `startedAt`.
+* Geofence (assumed): `{ employeeId, event: ENTER | EXIT | CHANGE, taskId, taskTitle?, jobId?, jobNo?, occurredAt, latitude?,
+  longitude? }`. Also read: `eventType` / `transition` / `type`, `ENTERED` / `EXITED`, `timestamp`.
+* Active users (assumed): a list, or `{ activeUsers | users: [...] }`, of ids or of `{ employeeId | userId, status?, latitude?,
+  longitude?, lastSeenAt? }`.
+
+### 5.2 GPS service: today and day history (19 Nov 2026)
+
+The GPS service (`gpsServiceUrl`, dev `http://3.111.193.85:8080`, not behind the gateway; header `Authorization: Bearer
+<accessToken>`; `services/gps-history.service.ts`) has four read endpoints. All answer only for people the caller may monitor;
+anyone else, **the caller included**, gets 400 `{ message: "You do not have permission to view this employee's location." }`
+(or "… motion history."), shown on the screen.
+
+| Method | Path | Body | Used by |
+|---|---|---|---|
+| GET | `/api/v1/gps?employeeId=` | – | Live Tracking: today's trail of the clicked person (§5.1) |
+| GET | `/api/v1/motion?employeeId=` | – | Live Tracking: the clicked person's STOPPED / ON_TASK / OFFLINE points today |
+| POST | `/api/v1/gps/history` | `{ employeeId, date: "yyyy-MM-dd" }` | Tracking History, Live Tracking *Show route*: the day's trail |
+| POST | `/api/v1/motion/history` | `{ employeeId, date }` | Tracking History, *Show route*: the day's stops and moving time |
+
+* GPS records: `[{ id, gpsTime, locationId, userId, isMockLocation, batteryPercentage, receivedAt, courseDegree, speed, latitude,
+  longitude, accuracy }]`, **newest first**, times in UTC **without a zone**. The web sorts them, keeps the local day asked for and
+  reads `speed` as m/s.
+* Motion records (`MotionHistoryResponse`): `[{ employeeId, motion, startedAt, endedAt, latitude, longitude, source }]`, newest
+  first; `motion` seen: `MOVING`, `STOPPED`; `endedAt` null while it lasts; `source` `GPS`. `motion` (today) returns the periods that
+  overlap today, `motion/history` those that overlap the date (they may start days earlier).
+* **The web builds the day** (`utils/day-route.ts`, `services/day-route.service.ts`) into the same `EmployeeRoute` the page already
+  uses: trail = the GPS fixes; motion periods are cut to the hours the phone sent fixes (first fix to last fix, or to now while the
+  day is live); **stops** = `STOPPED` periods of at least `stopMinMinutes`, placed at the average of the fixes during the stop;
+  **moving time** = the `MOVING` periods (overlaps counted once). A stop is *Designated* at a task point of the employee's jobs
+  (`jobs/task-points?assigneeId=&pendingOnly=false`, jobs active that day; match radius 100 m + `stopRadiusMeters`) or within
+  200 m of the branch; otherwise *Undesignated* (*Near home* within `homeRadiusMeters` + `stopRadiusMeters` of `presentLocation`).
+  Punch in / out and task completion times are not in these sources, so the page shows the first / last fix and "0 tasks
+  completed" (open points in §12).
+* Live Tracking, on click: `GET /api/v1/gps` (today's trail up to now) and `GET /api/v1/motion` (today's periods since the first fix;
+  STOPPED / ON_TASK / OFFLINE plotted, the open period sets the status), then the person's `/gps` and `/motion` topics (§5.1).
+  Both REST calls are repeated every 30 s while that person's live connection is not up.
 
 ---
 
@@ -512,7 +562,7 @@ Remarks are required when rejecting. An approved request suppresses `OutsideBran
 
 | Method | Path | Body | Response |
 |---|---|---|---|
-| GET | `geo-tags?kind=&searchText=&organisationUnitId=&onlyUntagged=` | – | `GeoTag[]` (E1) |
+| POST | `geo-tags/search` (was `GET geo-tags?…`, 19 Nov 2026) | `GeoTagSearchRequest` `{ kind, searchText, organizationUnitId, onlyUntagged, sortOn, sortDirection, pageIndex, pageSize }` | `{ items: GeoTag[], totalRecords }` (E1) |
 | GET | `geo-tags/points?organisationUnitId=&kinds=GroupCentre,Member,OdMember` | – | `GeoTagPointsResponse` `{ points: GeoTagPoint[], untaggedByKind }` |
 | GET | `settings` | – | `TrackingSettings` |
 | PUT | `settings` | `TrackingSettings` | `TrackingSettings` |
@@ -627,7 +677,7 @@ Found while connecting the web to the dev backend (A1–A3, B1–B5, C1–C7, D1
 **Not delivered yet** (the web still uses the mock for these screens). The OD Members page is fully on the real backend (D1–D3,
 plus C1 / C2 to save; `od-members/add-to-job` is not needed).
 
-13. `GET live/positions`, `GET employees/{id}/route`, `POST alerts/search`, `GET alerts/open-count`, `PUT alerts/{id}/acknowledge`,
+13. `GET live/positions`, `POST alerts/search`, `GET alerts/open-count`, `PUT alerts/{id}/acknowledge`,
     `PUT alerts/{id}/resolve`, `GET approvals`, `PUT approvals/{id}/decision`, `GET settings`, `PUT settings`.
 
 **Decisions (product owner)**
@@ -639,16 +689,19 @@ plus C1 / C2 to save; `od-members/add-to-job` is not needed).
     Officer, Deputy Manager, Assistant Vice President, Executive Assistant Manager) have **no rights** in the web's role rules today.
     Confirm, or say where each one sits.
 
-**Live socket (17 Nov 2026, §5.1)**
+**Live socket (17 Nov 2026, §5.1; topics changed 19 Nov 2026)**
 
-17. **Message shapes** for `/gps` and `/alarms`: please share one real message of each (or adopt the shapes recommended in §5.1).
-    In particular: is `speed` m/s or km/h; is the time the phone's fix time; does every alarm carry the same `id` that
-    `alerts/search` will return?
-18. **Manager subscriptions — blocking (seen 18 Nov 2026).** The server answers the first SUBSCRIBE to another employee's topic
-    with `ERROR: SUBSCRIBE rejected: topic belongs to another employee` and closes the connection (code 1002), so a manager gets no
-    pushes at all. The check has to become "the caller may monitor `{employeeId}`" (§2), as the product owner decided on 17 Nov 2026.
-    Until then the web shows **Live blocked**, stops the connection and tries again every 5 minutes (it used to reconnect every
-    5 s, re-sending ~80 SUBSCRIBEs and reloading the trail each time); polling carries on.
+17. **Message shapes** for `/gps`, `/motion`, `/geofence` and `/active-users`: please share one real message of each (none arrived
+    in a test on 19 Nov 2026). In particular: is `/gps` one fix or the whole batch; is `speed` m/s; are times UTC; does `/motion`
+    carry `employeeId` and `startedAt` like `GET /api/v1/motion`; what are the `/geofence` event names and does it carry `taskId` /
+    `jobId`; is `/active-users` the full list of active people the viewer may monitor (so someone missing is offline) or only the
+    people in that batch? And **alarms**: `/alarms` is gone, so where do alarms come from now (still raised by the server and listed
+    by `alerts/search`, or derived from `/motion`, e.g. a long `STOPPED`, and `/geofence`)? Until then the Alerts page only polls.
+18. **Live broadcast — subscriptions fixed, messages not seen yet.** Since 19 Nov 2026, 16:52 IST the server accepts
+    `/topic/employee/{me}/active-users` and the selected person's `/gps` and `/motion` (before: `SUBSCRIBE rejected`). No message
+    arrived in a 70 s test because nobody in the test team was sending (last fix 14:39 IST). Still to confirm with a moving phone:
+    the shape of each message, and that `/active-users` is the **full** list of active people under the caller (the web shows
+    everyone not listed as Offline).
 19. **CORS and production:** the SockJS `info` request comes from the web's origin (e.g. `http://localhost:4200`), so the endpoint
     must allow it. Which URL (and HTTPS / WSS) is used in production? Until then production stays on polling (`liveSocketUrl: ''`).
 20. **GPS history (`/api/v1/gps`).** Authenticated with `Authorization: Bearer <accessToken>` (confirmed 17 Nov 2026; not
@@ -656,6 +709,29 @@ plus C1 / C2 to save; `od-members/add-to-job` is not needed).
     zone** (`"gpsTime": "2026-11-18T05:28:56.262"` for 10:58 IST). The web reads a zone-less time as **UTC**; please confirm, or better
     send `Z` / an offset (same for the socket messages). Still open: (a) only **today's** fixes, or more? (b) it must check that the
     caller may monitor `employeeId` (§2). (c) Is `speed` m/s?
+
+**GPS service history (19 Nov 2026, §5.2)**
+
+21. **Latitude and longitude swapped in `MOVING` records** (`/api/v1/motion`, `motion/history`): e.g. `latitude: 88.3958241,
+    longitude: 22.459661` (Kolkata is 22.46 N, 88.40 E). `STOPPED` records are right. The web checks a period's position against the
+    trail and swaps it back when needed before plotting it (§5.1).
+22. **Motion periods spanning days, sent twice.** For Sushanta Roy: `MOVING` from 10 Nov 05:20 to 18 Nov 06:41, sent again with
+    the same `startedAt` and `endedAt` 18 Nov 12:34; `MOVING` from 18 Nov 05:29 to 19 Nov 07:20 (26 h, no fixes overnight). A phone
+    that sends nothing should go `OFFLINE` after the usual interval (§5). The web keeps the latest copy and counts only the hours
+    with fixes.
+23. **Which day is `date`?** Times are UTC; is `date` the UTC day or the India day? 00:00–05:30 IST belongs to the previous UTC
+    day. The web asks for the date and keeps the fixes of that local (IST) day. Sending the zone (`Z`) would also settle item 20.
+24. **Own data refused.** The caller cannot read their own GPS / motion (400 "You do not have permission…"). Fine for monitoring;
+    confirm it is intended (an employee's own *Tracking History* would need it).
+25. **For a full Tracking History**, the GPS service lacks **punch in / out** and the web lacks **task completion times**
+    (`jobs/task-points` has no `completedAt` or match radius). Should `employees/{id}/route` (§5) still be built server-side,
+    with stops classified there, or should `jobs/task-points` gain `taskCompletedOn` and `radiusMeters`?
+
+**Geo Tags paging (19 Nov 2026, E1)**
+
+26. **`geo-tags/search` response and limits.** The web expects `{ items: GeoTag[], totalRecords }` (like `groups/search`). Please
+    confirm the property names, the allowed `sortOn` values (only `name` known; `code`?) and the largest `pageSize` (the web offers
+    up to 100).
 
 **Test data note:** some dev places are far from their branch (e.g. *Annapurna Mahila Group*, Sitai Branch, and member *Anima Biswas*,
 Alipurduar Branch, are tagged near Kolkata, ~450 km away). Expected for test data; real data would trip the branch-radius rules.

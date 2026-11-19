@@ -1,4 +1,4 @@
-import { GeoPoint } from './geo';
+import { GeoPoint, SortDirection } from './geo';
 
 export type GeoTagKind = 'Branch' | 'GroupCentre' | 'Member' | 'OdMember' | 'EmployeeHome';
 
@@ -11,8 +11,8 @@ export interface GeoTagChange {
 }
 
 /**
- * One row of the Geo Tags page (E1, `GET tracking-api/geo-tags?kind=&searchText=&organizationUnitId=&onlyUntagged=`; names as
- * the API sends them). There is no separate geo-tag id: `refId` (the branch, group, member or employee) identifies it.
+ * One row of the Geo Tags page (E1, `POST tracking-api/geo-tags/search`, paged; names as the API sends them).
+ * There is no separate geo-tag id: `refId` (the branch, group, member or employee) identifies it.
  */
 export interface GeoTag {
   kind: GeoTagKind;
@@ -35,6 +35,27 @@ export interface GeoTag {
   taggedAt: string | null;
   /** Location changes; **not sent by E1 yet** (13 Nov 2026). */
   history?: GeoTagChange[];
+}
+
+/** E1 sort column. Only `name` is confirmed so far (19 Nov 2026). */
+export type GeoTagSortOn = 'name';
+
+/**
+ * E1 request (`POST geo-tags/search`; was `GET geo-tags?…`, changed 19 Nov 2026 for paging).
+ * Answers `PagedResult<GeoTag>` (`{ items, totalRecords }`, the same shape as `groups/search`).
+ */
+export interface GeoTagSearchRequest {
+  kind: GeoTagKind;
+  /** Name or code. */
+  searchText: string | null;
+  /** Branch filter; null = every branch in the caller's scope. */
+  organizationUnitId: string | null;
+  /** true = only places with no location yet. */
+  onlyUntagged: boolean;
+  sortOn: GeoTagSortOn;
+  sortDirection: SortDirection;
+  pageIndex: number;
+  pageSize: number;
 }
 
 export interface UpdateGeoTagRequest {

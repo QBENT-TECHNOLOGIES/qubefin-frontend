@@ -52,7 +52,7 @@
                     <qfin-trk-date-range-field label="Raised between" [from]="store.fromDate()" [to]="store.toDate()" [maxDate]="today"
                         (rangeChange)="setDates($event)" />
                 </div>
-                <span class="text-xs text-slate-500 ml-auto flex items-center gap-2"><qfin-trk-live-badge />{{ totalOpen() }} open · refreshes every 30 s</span>
+                <span class="text-xs text-slate-500 ml-auto flex items-center gap-2">{{ totalOpen() }} open · refreshes every 30 s</span>
             </div>
         </div>
 

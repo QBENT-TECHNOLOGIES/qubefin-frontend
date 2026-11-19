@@ -1,18 +1,19 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { httpResource } from '@angular/common/http';
 import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { GoogleMap, MapAdvancedMarker, MapCircle, MapPolyline } from '@angular/google-maps';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { ApiPaths } from 'qubefin-core';
 import { EmployeeRoute, RoadPathPoint, RouteStop, RouteTaskPoint } from '../../models/live-position';
 import { GeoPoint } from '../../models/geo';
 import { RoadsService, pathKm } from '../../services/roads.service';
 import { MAX_ROUTE_STOPS, PlannedRoute, RoutingService, TRAVEL_MODE_LABEL, formatDuration } from '../../services/routing.service';
 import { MapsLoaderService } from '../../services/maps-loader.service';
+import { DayRouteService } from '../../services/day-route.service';
+import { gpsServiceError } from '../../services/gps-history.service';
 import { TrackingLookupStore } from '../../stores/tracking-lookup-store';
 import { TrackingSettingsStore } from '../../stores/tracking-settings-store';
 import { DEFAULT_CENTER, centroid, distanceMeters, formatDistance, toDateKey } from '../../utils/geo-utils';
@@ -43,6 +44,7 @@ export class RouteHistory {
   private readonly settingsStore = inject(TrackingSettingsStore);
   private readonly roads = inject(RoadsService);
   private readonly routing = inject(RoutingService);
+  private readonly dayRoute = inject(DayRouteService);
   readonly formatDuration = formatDuration;
   readonly TRAVEL_MODE_LABEL = TRAVEL_MODE_LABEL;
   readonly MAX_ROUTE_STOPS = MAX_ROUTE_STOPS;
@@ -64,12 +66,20 @@ export class RouteHistory {
   readonly officer = computed(() => (this.employeeId() ? this.lookup.officerById().get(this.employeeId()!) : undefined));
   readonly homeRadius = computed(() => this.settingsStore.settings()?.homeRadiusMeters ?? 50);
 
-  private readonly routeResource = httpResource<EmployeeRoute>(() => {
-    const id = this.employeeId();
-    return id ? { url: `${ApiPaths.TRACKING}/employees/${id}/route`, params: { date: this.date() } } : undefined;
+  /**
+   * The day from the GPS service (`POST /api/v1/gps/history` + `POST /api/v1/motion/history`, see `DayRouteService`).
+   * Waits for `field-officers`, so the branch and home are known when the stops are classified.
+   */
+  private readonly routeResource = rxResource<EmployeeRoute, { id: string; date: string } | undefined>({
+    params: () => {
+      const id = this.employeeId();
+      return id && this.lookup.officerById().has(id) ? { id, date: this.date() } : undefined;
+    },
+    stream: ({ params }) => this.dayRoute.load(params.id, params.date),
   });
-  readonly data = computed(() => (this.employeeId() ? this.routeResource.value() : undefined));
-  readonly loading = computed(() => this.routeResource.isLoading());
+  readonly data = computed(() => (this.employeeId() && this.routeResource.hasValue() ? this.routeResource.value() : undefined));
+  readonly loading = computed(() => this.routeResource.isLoading() || (!!this.employeeId() && this.lookup.loading()));
+  readonly errorText = computed(() => (this.employeeId() && this.routeResource.error() ? gpsServiceError(this.routeResource.error()) : null));
   readonly isToday = computed(() => this.date() === toDateKey());
 
   readonly stops = computed(() => {

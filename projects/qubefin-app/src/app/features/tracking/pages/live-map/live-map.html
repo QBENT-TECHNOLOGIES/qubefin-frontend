@@ -1,21 +1,22 @@
 <div class="page-container trk-form">
-    <div class="header-group flex-wrap gap-3">
-        <div class="flex items-center gap-2 flex-wrap">
-            @for (c of statusChips(); track c.key) {
-            <button type="button" class="trk-filter-chip" [class.is-active]="statusFilter() === c.key" [style.--trk-color]="c.color"
-                (click)="statusFilter.set(c.key)">
-                <span class="trk-filter-dot"></span>{{ c.label }} <b>{{ c.count }}</b>
-            </button>
-            }
-        </div>
-        <div class="flex items-center gap-2">
-            <div class="w-40"><mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                <mat-label>Branch</mat-label>
-                <mat-select [value]="store.branchId()" (valueChange)="setBranch($event)">
-                    <mat-option [value]="null">All branches</mat-option>
-                    @for (b of lookup.branches(); track b.id) { <mat-option [value]="b.id">{{ b.name }}</mat-option> }
-                </mat-select>
-            </mat-form-field></div>
+    <!-- One row: status counts, then branch filter, live indicator and refresh -->
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+        @for (c of statusChips(); track c.key) {
+        <button type="button" class="trk-filter-chip" [class.is-active]="statusFilter() === c.key" [style.--trk-color]="c.color"
+            (click)="statusFilter.set(c.key)">
+            <span class="trk-filter-dot"></span>{{ c.label }} <b>{{ c.count }}</b>
+        </button>
+        }
+        <div class="flex items-center gap-2 ml-auto">
+            <label class="trk-select" [class.is-active]="!!store.branchId()" matTooltip="Branch">
+                <svg lucideIcon="building-2" class="w-3.5 h-3.5"></svg>
+                <select (change)="setBranch($any($event.target).value || null)" aria-label="Branch">
+                    <option value="" [selected]="!store.branchId()">All branches</option>
+                    @for (b of lookup.branches(); track b.id) {
+                    <option [value]="b.id" [selected]="b.id === store.branchId()">{{ b.name }}</option>
+                    }
+                </select>
+            </label>
             <qfin-trk-live-badge />
             <span class="text-[11px] text-slate-400 hidden lg:inline">Updated {{ lastUpdated() | date: 'hh:mm:ss a' }} · every {{ pollSeconds }}s</span>
             <button type="button" class="trk-icon-btn" matTooltip="Refresh now" (click)="refreshNow()">
@@ -60,7 +61,8 @@
         <!-- Map -->
         <div class="relative trk-map-frame glass xl:h-[calc(100vh-200px)] h-[560px]">
             @if (maps.status() === 'ready') {
-            <google-map width="100%" height="100%" [mapId]="maps.mapId" [center]="center()" [zoom]="zoom()" [options]="mapOptions">
+            <google-map width="100%" height="100%" [mapId]="maps.mapId" [center]="center()" [zoom]="zoom()" [options]="mapOptions"
+                (mapDragstart)="onMapDrag()">
                 @for (b of branchMarkers(); track b.id) {
                 <map-advanced-marker [position]="b.location" [content]="b.content" [title]="b.name + ' Branch'" [zIndex]="50" />
                 @if (showBranchRadius()) {
@@ -71,6 +73,10 @@
                 @if (homeMarker(); as h) {
                 <map-circle [center]="h.position" [radius]="homeRadius()" [options]="homeCircle" />
                 <map-advanced-marker [position]="h.position" [content]="h.content" title="Registered home" />
+                }
+
+                @for (m of motionMarkers(); track m.key) {
+                <map-advanced-marker [position]="m.position" [content]="m.content" [title]="m.title" [zIndex]="400" />
                 }
 
                 @if (trailPath().length) {
@@ -110,6 +116,13 @@
                 <span class="flex items-center gap-1.5"><span class="trk-legend-dot is-pulse" style="--trk-color:#E11D48"></span> Has open alert</span>
                 @if (showRoute()) {
                 <span class="flex items-center gap-1.5"><span class="trk-legend-dot" style="--trk-color:#16A34A"></span> Designated · <span class="trk-legend-dot" style="--trk-color:#D97706"></span> Undesignated stop</span>
+                }
+                @if (motionMarkers().length) {
+                <span class="flex items-center gap-1.5">
+                    <span class="trk-legend-dot" [style.--trk-color]="LIVE_STATUS.Idle.color"></span> {{ LIVE_STATUS.Idle.label }} ·
+                    <span class="trk-legend-dot" [style.--trk-color]="LIVE_STATUS.OnTask.color"></span> {{ LIVE_STATUS.OnTask.label }} ·
+                    <span class="trk-legend-dot" [style.--trk-color]="LIVE_STATUS.Offline.color"></span> {{ LIVE_STATUS.Offline.label }}
+                </span>
                 }
             </div>
 
@@ -160,12 +173,26 @@
                     }
                 </div>
                 }
+                @if (store.trailEnabled && store.personState() === 'Denied') {
+                <p class="mx-3 mb-2 text-[11px] text-amber-700">The live server refused this person's GPS / motion topics; the trail and points refresh every {{ pollSeconds }} s instead.</p>
+                }
+                @if (store.motionsError()) {
+                <p class="mx-3 mb-2 text-[11px] text-rose-600">Could not load today's motion points.
+                    <button type="button" class="trk-link" (click)="store.reloadTrail()">Try again</button></p>
+                }
                 @if (p.currentTaskTitle) {
                 <a class="mx-3 mb-2 block trk-info-box text-[11px] trk-link" [routerLink]="['/secure/tracking/monitoring']" [queryParams]="{ job: p.currentJobId }">
                     At task point: {{ p.currentTaskTitle }} ({{ p.currentJobNo }})
                 </a>
                 }
                 <div class="px-3 pb-3 flex flex-wrap items-center gap-2">
+                    @if (p.location && !showRoute()) {
+                    <button type="button" class="trk-btn-secondary py-1.5!" [class.text-sky-700!]="follow()" [attr.aria-pressed]="follow()"
+                        [matTooltip]="follow() ? 'The map moves with this person. Drag the map or click to stop.' : 'Move the map with this person again'"
+                        (click)="follow() ? follow.set(false) : resumeFollow()">
+                        <svg [lucideIcon]="follow() ? 'locate-fixed' : 'crosshair'" class="w-4 h-4"></svg> {{ follow() ? 'Following' : 'Follow' }}
+                    </button>
+                    }
                     <button type="button" class="trk-btn-secondary py-1.5!" (click)="toggleRoute()">
                         <svg lucideIcon="route" class="w-4 h-4"></svg> {{ showRoute() ? 'Hide route' : 'Show route' }}
                     </button>

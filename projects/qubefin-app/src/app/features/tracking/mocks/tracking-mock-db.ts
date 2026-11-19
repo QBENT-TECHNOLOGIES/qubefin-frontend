@@ -1033,16 +1033,13 @@ export function simulateLivePositions(): LivePosition[] {
       const currentStop = route.stops.find((s) => new Date(s.to).getTime() >= now.getTime() - 90_000 && route.isLive);
 
       let status: LiveStatus;
-      if (!route.points.length) status = 'NotPunchedIn';
-      else if (!route.isLive) status = 'PunchedOut';
-      else if (i === 7) status = 'GpsOff';
-      else if (i === 13) status = 'Offline';
+      if (!route.points.length || !route.isLive || i === 7 || i === 13) status = 'Offline';
       else if (currentStop?.place === 'Task') status = 'OnTask';
       else if (currentStop?.place === 'Branch') status = 'AtBranch';
       else if (currentStop) status = 'Idle';
       else status = 'Moving';
 
-      const lastSeen = status === 'GpsOff' ? addMinutes(now, -23) : status === 'Offline' && route.isLive ? addMinutes(now, -95) : lastPoint ? new Date(lastPoint.at) : null;
+      const lastSeen = status === 'Offline' && route.isLive ? addMinutes(now, -95) : lastPoint ? new Date(lastPoint.at) : null;
       const location: GeoPoint | null = lastPoint ? { lat: lastPoint.lat, lng: lastPoint.lng } : null;
       const task = currentStop?.place === 'Task' ? currentStop : null;
 
@@ -1053,10 +1050,10 @@ export function simulateLivePositions(): LivePosition[] {
         branchId: o.organizationUnitId,
         branchName: o.organizationUnitName,
         location,
-        accuracyMeters: status === 'GpsOff' || !location ? null : 6 + (i % 5) * 3,
+        accuracyMeters: i === 7 || !location ? null : 6 + (i % 5) * 3,
         speedKmph: status === 'Moving' ? (lastPoint?.speedKmph ?? 20) : 0,
         lastSeenAt: lastSeen ? iso(lastSeen) : null,
-        gpsEnabled: status !== 'GpsOff',
+        gpsEnabled: i !== 7,
         status,
         punchedInAt: route.punchInAt,
         currentTaskId: task?.taskId ?? null,

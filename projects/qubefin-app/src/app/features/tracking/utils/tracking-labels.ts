@@ -75,10 +75,7 @@ export const LIVE_STATUS: Record<LiveStatus, Tone> = {
   AtBranch: tone('At Branch', SLATE, 'building-2', '#0F766E'),
   Moving: tone('Moving', BLUE, 'navigation', '#2563EB'),
   Idle: tone('Stationary', AMBER, 'timer', '#D97706'),
-  GpsOff: tone('GPS Off', RED, 'locate-off', '#E11D48'),
   Offline: tone('Offline', SLATE, 'satellite', '#64748B'),
-  NotPunchedIn: tone('Not Punched In', SLATE, 'clock', '#94A3B8'),
-  PunchedOut: tone('Punched Out', SLATE, 'log-out', '#475569'),
 };
 
 export const ALERT_TYPE: Record<AlertType, Tone> = {

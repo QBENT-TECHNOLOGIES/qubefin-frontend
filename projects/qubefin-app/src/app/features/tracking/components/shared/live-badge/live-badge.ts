@@ -11,7 +11,7 @@ const LABEL: Record<LiveSocketState, string> = {
   Denied: 'Live blocked',
 };
 
-/** State of the live GPS / alarm connection: <qfin-trk-live-badge />. Shows nothing when no live socket is configured. */
+/** State of the live team connection (active users; the selected person's GPS / motion use a second one): <qfin-trk-live-badge />. Shows nothing when no live socket is configured. */
 @Component({
   selector: 'qfin-trk-live-badge',
   imports: [MatTooltipModule],
@@ -34,14 +34,14 @@ export class LiveBadge {
     switch (this.socket.state()) {
       case 'Live': {
         const last = this.socket.lastMessageAt();
-        return `GPS and alarms arrive as they happen${last ? ` · last message ${this.date.transform(last, 'hh:mm:ss a')}` : ''}. The 30 s refresh continues.`;
+        return `Team statuses (active users) arrive as they happen${last ? ` · last message ${this.date.transform(last, 'hh:mm:ss a')}` : ''}. The 30 s refresh continues.`;
       }
       case 'Reconnecting':
         return 'Live connection lost; retrying every 5 s. The 30 s refresh continues.';
       case 'Connecting':
-        return 'Connecting to live GPS and alarms…';
+        return 'Connecting to live positions and statuses…';
       case 'Denied':
-        return 'The live server refused the team’s GPS / alarm topics (it allows only your own). Retrying every 5 min; the 30 s refresh continues.';
+        return 'The live server refused the subscription. Retrying every 5 min; the 30 s refresh continues.';
       default:
         return 'Live updates are off; the screen refreshes every 30 s.';
     }

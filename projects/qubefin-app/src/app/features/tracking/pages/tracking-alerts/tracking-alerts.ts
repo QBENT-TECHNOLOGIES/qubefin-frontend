@@ -21,7 +21,6 @@ import { ALERT_SEVERITY, ALERT_STATUS, ALERT_TYPE, alertTypeTone, optionsOf, Ton
 import { RemarksDialog, RemarksDialogData } from '../../components/shared/remarks-dialog/remarks-dialog';
 import { TrackingChip } from '../../components/shared/tracking-chip/tracking-chip';
 import { DateKeyRange, TrkDateRangeField } from '../../components/shared/date-field/trk-date-range-field';
-import { LiveBadge } from '../../components/shared/live-badge/live-badge';
 
 @Component({
   selector: 'qfin-tracking-alerts',
@@ -39,7 +38,6 @@ import { LiveBadge } from '../../components/shared/live-badge/live-badge';
     RouterLink,
     TrackingChip,
     TrkDateRangeField,
-    LiveBadge,
   ],
   templateUrl: './tracking-alerts.html',
 })
@@ -70,8 +68,7 @@ export class TrackingAlerts {
   readonly totalOpen = computed(() => this.typeCards().reduce((s, c) => s + c.count, 0));
 
   constructor() {
-    // New alarms are pushed as they happen; the 30 s poll stays on and brings the server's copy.
-    this.store.followLive();
+    // No live push for alarms since /alarms was replaced by /motion (19 Nov 2026): the 30 s poll brings new ones.
     pollWhileVisible(() => this.store.refresh());
   }
 

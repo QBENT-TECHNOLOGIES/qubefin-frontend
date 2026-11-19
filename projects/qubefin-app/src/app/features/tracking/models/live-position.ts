@@ -2,7 +2,8 @@ import { OfficerRole } from './field-officer';
 import { GeoPoint } from './geo';
 import { JobTaskStatus, TaskType } from './job';
 
-export type LiveStatus = 'OnTask' | 'AtBranch' | 'Moving' | 'Idle' | 'GpsOff' | 'Offline' | 'NotPunchedIn' | 'PunchedOut';
+/** GPS off, not punched in and punched out are not shown on Live Tracking (product owner, 19 Nov 2026): they count as Offline. */
+export type LiveStatus = 'OnTask' | 'AtBranch' | 'Moving' | 'Idle' | 'Offline';
 
 /** Latest known position of one field employee. */
 export interface LivePosition {

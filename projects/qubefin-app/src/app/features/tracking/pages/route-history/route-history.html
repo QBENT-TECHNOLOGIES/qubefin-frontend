@@ -233,7 +233,11 @@
                     }
                 </div>
                 } @else {
-                <p class="text-xs text-slate-500">{{ loading() ? 'Loading…' : 'No GPS points for this day' + (isToday() ? ' yet — the employee has not punched in.' : '.') }}</p>
+                @if (errorText(); as e) {
+                <p class="text-xs text-rose-600">{{ e }}</p>
+                } @else {
+                <p class="text-xs text-slate-500">{{ loading() ? 'Loading…' : 'No GPS points for this day' + (isToday() ? ' yet.' : '.') }}</p>
+                }
                 }
             </div>
         </div>

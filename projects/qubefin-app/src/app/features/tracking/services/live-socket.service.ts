@@ -1,19 +1,22 @@
 import { isPlatformBrowser } from '@angular/common';
-import { DestroyRef, Injectable, PLATFORM_ID, effect, inject, signal, untracked } from '@angular/core';
+import { DestroyRef, Injectable, PLATFORM_ID, Signal, WritableSignal, effect, inject, signal, untracked } from '@angular/core';
 import type { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { AuthStore, ENV_CONFIG } from 'qubefin-core';
 import { Subject } from 'rxjs';
+import { TrackingViewerStore } from '../stores/tracking-viewer-store';
 
 /**
- * Off = not used right now (no screen watching, signed out, or no `liveSocketUrl`).
- * Denied = the server refused the team's topics (`SUBSCRIBE rejected`); retried every few minutes, polling continues.
+ * Off = not used right now (no screen watching, signed out, no `liveSocketUrl`, or no `EmployeeId` in the token).
+ * Denied = the server refused a subscription (`SUBSCRIBE rejected`); retried every few minutes, polling continues.
  */
 export type LiveSocketState = 'Off' | 'Connecting' | 'Live' | 'Reconnecting' | 'Denied';
 
-export type LiveTopic = 'gps' | 'alarms';
+/** Destinations under `/topic/employee/{employeeId}/`. */
+export type LiveTopic = 'gps' | 'motion' | 'active-users';
 
 /** One message pushed on `/topic/employee/{employeeId}/{topic}`. */
 export interface LiveSocketMessage {
+  /** Owner of the topic it arrived on. A message may name someone else in its body; the readers take the body's id first. */
   employeeId: string;
   topic: LiveTopic;
   /** Parsed JSON body (the raw text when it is not JSON). Read it with `utils/live-message.ts`. */
@@ -25,126 +28,215 @@ export interface LiveSocketMessage {
 const RECONNECT_MS = 5_000;
 /** Reconnect delay doubles after each failed attempt up to this (server down / unreachable). */
 const MAX_RECONNECT_MS = 60_000;
-/**
- * After the server refuses a subscription it closes the whole connection, so reconnecting at once would only repeat it
- * (seen 18 Nov 2026: connect → 78 SUBSCRIBEs → ERROR "SUBSCRIBE rejected: topic belongs to another employee" → close, every 5 s).
- * Wait this long before trying again, so a fixed backend is picked up without a page reload.
- */
+/** After the server refuses a subscription (it then closes the connection), wait this long before trying the same again. */
 const DENIED_RETRY_MS = 5 * 60_000;
-/** Keep the connection this long after the last screen stops watching, so moving between tracking screens does not reconnect. */
+/** Keep a connection this long after the last screen stops watching, so moving between tracking screens does not reconnect. */
 const IDLE_CLOSE_MS = 15_000;
 
+interface Destination {
+  employeeId: string;
+  topic: LiveTopic;
+}
+
 /**
- * Live GPS fixes and alarms from the tracking backend: STOMP over SockJS at `environment.liveSocketUrl`
- * (dev: `http://3.111.193.85:8080/ws/live`), the access token in `?token=`.
+ * Live updates from the tracking backend: STOMP over SockJS at `environment.liveSocketUrl`
+ * (dev: `http://3.111.193.85:8080/ws/live`), the access token in `?token=`. Two connections:
  *
- * Topics, one pair per employee: `/topic/employee/{employeeId}/gps` and `/topic/employee/{employeeId}/alarms`.
- * Screens call `watchEmployees()` with the people they show (the caller's `field-officers` list); the service keeps one
- * connection for all of them, subscribes / unsubscribes as the list changes, re-subscribes after a reconnect and closes when
- * no screen is watching. Browser only (nothing runs during server-side rendering). Polling stays on as the backup.
+ * - **Team** (`watchTeam()`): `/topic/employee/{me}/active-users`, the roster of the active people under the signed-in user, where
+ *   `me` is the `employeeId` from `app-api/users/login-info` (the token's `EmployeeId` until that has loaded; they are the same). Live Tracking takes the list's status badges and the KPI counts from it.
+ * - **Person** (`follow()`): `/topic/employee/{selected}/gps` and `/motion` of the person clicked on Live Tracking.
+ *
+ * They are separate because the server answers a subscription it refuses by closing the whole connection (seen 18–19 Nov 2026:
+ * `SUBSCRIBE rejected: topic belongs to another employee` for another employee's topics): a refused person must not stop the
+ * team roster. Each connection re-subscribes after a reconnect and closes when no screen needs it. Browser only. Polling and
+ * the REST calls stay on as the backup.
  */
 @Injectable({ providedIn: 'root' })
 export class LiveSocketService {
   private readonly auth = inject(AuthStore);
+  private readonly viewer = inject(TrackingViewerStore).viewer;
   private readonly url: string = isPlatformBrowser(inject(PLATFORM_ID))
     ? (inject(ENV_CONFIG, { optional: true })?.liveSocketUrl ?? '')
     : '';
 
   /** False when no `liveSocketUrl` is configured (or on the server): screens fall back to polling only. */
   readonly enabled = !!this.url;
-  readonly state = signal<LiveSocketState>('Off');
-  /** When the last message arrived (ISO), for the "Live" badge. */
+  /** When the last message arrived on either connection (ISO), for the "Live" badge. */
   readonly lastMessageAt = signal<string | null>(null);
 
   readonly gps$ = new Subject<LiveSocketMessage>();
-  readonly alarms$ = new Subject<LiveSocketMessage>();
+  readonly motion$ = new Subject<LiveSocketMessage>();
+  readonly activeUsers$ = new Subject<LiveSocketMessage>();
 
-  private client: Client | null = null;
-  private starting: Promise<void> | null = null;
-  private idleTimer: ReturnType<typeof setTimeout> | null = null;
-  private deniedTimer: ReturnType<typeof setTimeout> | null = null;
-  private connectedToken: string | null = null;
-  /** One entry per watching screen. */
-  private readonly leases = new Map<symbol, ReadonlySet<string>>();
-  /** employeeId → its gps + alarms subscriptions on the current connection. */
-  private readonly subscribed = new Map<string, StompSubscription[]>();
-  private readonly loggedFirst = new Set<LiveTopic>();
-  private errorLogged = false;
+  private readonly teamLeases = new Set<symbol>();
+  private readonly personLeases = new Map<symbol, () => string | null>();
+
+  private readonly team = new StompChannel('team', this.url, this.auth, () => this.teamDestinations(), (d, m) => this.receive(d, m));
+  private readonly person = new StompChannel('person', this.url, this.auth, () => this.personDestinations(), (d, m) => this.receive(d, m));
+
+  /** State of the team connection (`active-users`). */
+  readonly state: Signal<LiveSocketState> = this.team.state;
+  /** State of the selected person's connection (`gps`, `motion`). */
+  readonly personState: Signal<LiveSocketState> = this.person.state;
+  /** The person whose topics are followed now. */
+  readonly followedId = signal<string | null>(null);
 
   constructor() {
     // Signed out: close. Signed in again (new token): reconnect so the server checks the new token.
     effect(() => {
       const token = this.auth.accessToken();
       untracked(() => {
-        if (!token) this.stop();
-        else if (!this.client) {
-          this.clearDenied(); // a new sign-in may be allowed what the last one was not
-          this.sync();
-        }
-        else if (this.connectedToken && token !== this.connectedToken) this.client.forceDisconnect();
+        this.team.tokenChanged(token);
+        this.person.tokenChanged(token);
       });
+    });
+    // login-info loaded (or another user): subscribe to that employee's roster.
+    effect(() => {
+      this.viewer()?.employeeId;
+      untracked(() => this.team.sync());
     });
   }
 
-  /**
-   * Receive live messages for these employees while the calling screen is open. Call in an injection context
-   * (component constructor); the watch ends when that component is destroyed.
-   */
-  watchEmployees(ids: () => readonly string[]): void {
+  /** The active-users roster while the calling screen is open. Call in an injection context (component constructor). */
+  watchTeam(): void {
     if (!this.enabled) return;
-    const key = Symbol('live-watch');
+    const key = Symbol('team');
+    this.teamLeases.add(key);
+    this.team.sync();
+    inject(DestroyRef).onDestroy(() => {
+      this.teamLeases.delete(key);
+      this.team.sync();
+    });
+  }
+
+  /** Live GPS and motion of the person `id()` returns (null = nobody) while the calling screen is open. */
+  follow(id: () => string | null): void {
+    if (!this.enabled) return;
+    const key = Symbol('person');
     const ref = effect(() => {
-      const wanted = new Set(ids().filter(Boolean));
+      const wanted = id();
       untracked(() => {
-        this.leases.set(key, wanted);
-        this.sync();
+        this.personLeases.set(key, () => wanted);
+        this.syncPerson();
       });
     });
     inject(DestroyRef).onDestroy(() => {
       ref.destroy();
-      this.leases.delete(key);
-      this.sync();
+      this.personLeases.delete(key);
+      this.syncPerson();
     });
   }
 
-  private wanted(): Set<string> {
-    const all = new Set<string>();
-    this.leases.forEach((ids) => ids.forEach((id) => all.add(id)));
-    return all;
+  private syncPerson(): void {
+    const ids = [...this.personLeases.values()].map((f) => f()).filter((x): x is string => !!x);
+    this.followedId.set(ids[0] ?? null);
+    this.person.sync();
   }
 
-  /** Brings the connection and the subscriptions in line with what the screens want. */
-  private sync(): void {
-    const wanted = this.wanted();
-    if (!wanted.size || !this.auth.accessToken()) {
+  private teamDestinations(): Destination[] {
+    const me = this.viewer()?.employeeId ?? employeeIdOf(this.auth.accessToken());
+    return this.teamLeases.size && me ? [{ employeeId: me, topic: 'active-users' }] : [];
+  }
+
+  private personDestinations(): Destination[] {
+    const id = this.followedId();
+    return id ? [{ employeeId: id, topic: 'gps' }, { employeeId: id, topic: 'motion' }] : [];
+  }
+
+  private receive(d: Destination, msg: IMessage): void {
+    let body: unknown = msg.body;
+    try {
+      body = JSON.parse(msg.body);
+    } catch {
+      // not JSON: pass the text on
+    }
+    const receivedAt = new Date().toISOString();
+    this.lastMessageAt.set(receivedAt);
+    const message: LiveSocketMessage = { employeeId: d.employeeId, topic: d.topic, body, receivedAt };
+    if (d.topic === 'gps') this.gps$.next(message);
+    else if (d.topic === 'motion') this.motion$.next(message);
+    else this.activeUsers$.next(message);
+  }
+}
+
+/** One STOMP connection that keeps its subscriptions equal to `destinations()`. */
+class StompChannel {
+  readonly state: WritableSignal<LiveSocketState> = signal('Off');
+
+  private client: Client | null = null;
+  private starting: Promise<void> | null = null;
+  private idleTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Refused set of destinations and when to try it again; another set is tried at once. */
+  private denied: { key: string; until: number } | null = null;
+  private retryTimer: ReturnType<typeof setTimeout> | null = null;
+  private connectedToken: string | null = null;
+  private readonly subscribed = new Map<string, StompSubscription>();
+  private readonly loggedFirst = new Set<LiveTopic>();
+  private errorLogged = false;
+
+  constructor(
+    private readonly name: string,
+    private readonly url: string,
+    private readonly auth: AuthStore,
+    private readonly destinations: () => Destination[],
+    private readonly onMessage: (d: Destination, msg: IMessage) => void,
+  ) {}
+
+  tokenChanged(token: string | null): void {
+    if (!token) return this.stop();
+    if (!this.client) {
+      this.denied = null; // a new sign-in may be allowed what the last one was not
+      this.sync();
+    } else if (this.connectedToken && token !== this.connectedToken) this.client.forceDisconnect();
+  }
+
+  /** Brings the connection and the subscriptions in line with `destinations()`. */
+  sync(): void {
+    const wanted = this.destinations();
+    if (!wanted.length || !this.auth.accessToken()) {
       if (this.client && !this.idleTimer) this.idleTimer = setTimeout(() => this.stop(), IDLE_CLOSE_MS);
+      if (!this.client) this.state.set('Off');
       return;
     }
     if (this.idleTimer) {
       clearTimeout(this.idleTimer);
       this.idleTimer = null;
     }
-    if (this.deniedTimer) return; // refused by the server: wait for the retry
+    const key = keyOf(wanted);
+    if (this.denied) {
+      if (this.denied.key === key && Date.now() < this.denied.until) return this.state.set('Denied');
+      this.denied = null;
+    }
     if (!this.client) {
       void this.start();
       return;
     }
     if (!this.client.connected) return; // onConnect calls sync() again.
 
-    for (const [id, subs] of this.subscribed) {
-      if (wanted.has(id)) continue;
-      subs.forEach((s) => s.unsubscribe());
-      this.subscribed.delete(id);
+    const wantedPaths = new Map(wanted.map((d) => [pathOf(d), d]));
+    for (const [path, sub] of this.subscribed) {
+      if (wantedPaths.has(path)) continue;
+      sub.unsubscribe();
+      this.subscribed.delete(path);
     }
-    for (const id of wanted) {
-      if (!this.subscribed.has(id)) this.subscribed.set(id, [this.subscribe(id, 'gps'), this.subscribe(id, 'alarms')]);
+    for (const [path, d] of wantedPaths) {
+      if (!this.subscribed.has(path)) this.subscribed.set(path, this.client.subscribe(path, (msg) => this.receive(d, msg)));
     }
+  }
+
+  private receive(d: Destination, msg: IMessage): void {
+    // The message shapes are not agreed yet: show the first of each kind so it can be checked against the mapping.
+    if (!this.loggedFirst.has(d.topic)) {
+      this.loggedFirst.add(d.topic);
+      console.info(`[live] First ${d.topic} message (${d.employeeId}):`, msg.body);
+    }
+    this.onMessage(d, msg);
   }
 
   private start(): Promise<void> {
     this.starting ??= this.open()
       .catch((e) => {
-        console.warn('[live] Could not start the live connection; polling continues.', e);
+        console.warn(`[live] Could not start the ${this.name} connection; polling continues.`, e);
         this.state.set('Off');
       })
       .finally(() => (this.starting = null));
@@ -159,7 +251,7 @@ export class LiveSocketService {
       import('sockjs-client/dist/sockjs.min.js'),
     ]);
     const SockJS = sockjs.default;
-    if (this.client || !this.wanted().size || !this.auth.accessToken()) {
+    if (this.client || !this.destinations().length || !this.auth.accessToken()) {
       if (!this.client) this.state.set('Off');
       return;
     }
@@ -205,48 +297,18 @@ export class LiveSocketService {
     client.activate();
   }
 
-  private subscribe(employeeId: string, topic: LiveTopic): StompSubscription {
-    return this.client!.subscribe(`/topic/employee/${employeeId}/${topic}`, (msg) => this.receive(employeeId, topic, msg));
-  }
-
-  private receive(employeeId: string, topic: LiveTopic, msg: IMessage): void {
-    let body: unknown = msg.body;
-    try {
-      body = JSON.parse(msg.body);
-    } catch {
-      // not JSON: pass the text on
-    }
-    // The message shapes are not agreed yet: show the first of each kind so it can be checked against the mapping.
-    if (!this.loggedFirst.has(topic)) {
-      this.loggedFirst.add(topic);
-      console.info(`[live] First ${topic} message (employee ${employeeId}):`, body);
-    }
-    const receivedAt = new Date().toISOString();
-    this.lastMessageAt.set(receivedAt);
-    (topic === 'gps' ? this.gps$ : this.alarms$).next({ employeeId, topic, body, receivedAt });
-  }
-
-  /** The server refused our topics and dropped the connection: stop, and try again in a few minutes. */
+  /** The server refused a subscription and dropped the connection: stop; try the same again in a few minutes. */
   private deny(client: Client, message: string): void {
     if (this.client !== client) return;
+    const wanted = this.destinations();
     console.warn(
-      `[live] The live server refused the team's topics ("${message}"). Live updates are off; retrying in ${DENIED_RETRY_MS / 60_000} min. ` +
-        'The server must let a manager subscribe to /topic/employee/{id}/… for the people they may monitor.',
+      `[live] The live server refused ${wanted.map(pathOf).join(', ')} ("${message}"). Retrying in ${DENIED_RETRY_MS / 60_000} min.`,
     );
     this.stop();
+    this.denied = { key: keyOf(wanted), until: Date.now() + DENIED_RETRY_MS };
     this.state.set('Denied');
-    this.deniedTimer = setTimeout(() => {
-      this.deniedTimer = null;
-      this.state.set('Off');
-      this.sync();
-    }, DENIED_RETRY_MS);
-  }
-
-  private clearDenied(): void {
-    if (!this.deniedTimer) return;
-    clearTimeout(this.deniedTimer);
-    this.deniedTimer = null;
-    this.state.set('Off');
+    if (this.retryTimer) clearTimeout(this.retryTimer);
+    this.retryTimer = setTimeout(() => this.sync(), DENIED_RETRY_MS + 100);
   }
 
   private stop(): void {
@@ -258,5 +320,23 @@ export class LiveSocketService {
     this.connectedToken = null;
     this.state.set('Off');
     void client?.deactivate();
+  }
+}
+
+const pathOf = (d: Destination) => `/topic/employee/${d.employeeId}/${d.topic}`;
+const keyOf = (ds: Destination[]) => ds.map(pathOf).sort().join('|');
+
+/** `EmployeeId` claim of a JWT (base64url payload), or null. */
+function employeeIdOf(token: string | null): string | null {
+  const payload = token?.split('.')[1];
+  if (!payload) return null;
+  try {
+    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(payload.length / 4) * 4, '='));
+    const claims = JSON.parse(json) as Record<string, unknown>;
+    const key = Object.keys(claims).find((k) => k.toLowerCase() === 'employeeid');
+    const id = key ? claims[key] : null;
+    return typeof id === 'string' && id.trim() ? id.trim() : null;
+  } catch {
+    return null;
   }
 }

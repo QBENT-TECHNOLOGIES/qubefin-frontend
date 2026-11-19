@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { GoogleMap, MapAdvancedMarker, MapCircle } from '@angular/google-maps';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -22,7 +23,7 @@ import { MapStatus } from '../../components/shared/map-status/map-status';
  */
 @Component({
   selector: 'qfin-geo-tag-registry',
-  imports: [DatePipe, MatFormFieldModule, MatSelectModule, MatTooltipModule, LucideDynamicIcon, GoogleMap, MapAdvancedMarker, MapCircle, MapStatus],
+  imports: [DatePipe, MatFormFieldModule, MatPaginatorModule, MatSelectModule, MatTooltipModule, LucideDynamicIcon, GoogleMap, MapAdvancedMarker, MapCircle, MapStatus],
   templateUrl: './geo-tag-registry.html',
 })
 export class GeoTagRegistry {
@@ -66,7 +67,18 @@ export class GeoTagRegistry {
   }
 
   setKind(kind: GeoTagKind) {
-    this.store.kind.set(kind);
+    this.store.setFilter(this.store.kind, kind);
+    this.selectedId.set(null);
+  }
+
+  /** Search, branch and "Missing only" go back to page 1 (E1 is paged). */
+  setFilter<T>(sig: { set(v: T): void }, value: T) {
+    this.store.setFilter(sig, value);
+    this.selectedId.set(null);
+  }
+
+  onPage(e: PageEvent) {
+    this.store.setPage(e.pageIndex, e.pageSize);
     this.selectedId.set(null);
   }
 

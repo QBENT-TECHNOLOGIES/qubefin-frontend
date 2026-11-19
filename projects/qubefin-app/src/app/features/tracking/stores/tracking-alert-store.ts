@@ -1,21 +1,12 @@
 import { httpResource } from '@angular/common/http';
-import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { ApiPaths, AuthStore } from 'qubefin-core';
 import { AlertSearchResponse, AlertSeverity, AlertStatus, AlertType, TrackingAlert } from '../models/tracking-alert';
-import { LiveSocketService } from '../services/live-socket.service';
 import { toDateKey } from '../utils/geo-utils';
-import { readAlarm, sameAlert } from '../utils/live-message';
-import { TrackingLookupStore } from './tracking-lookup-store';
-
-/** After a pushed alarm, reload the list this much later so the server's copy (and counts) replace the pushed one. */
-const REFRESH_AFTER_PUSH_MS = 3_000;
+import { sameAlert } from '../utils/live-message';
 
 @Injectable({ providedIn: 'root' })
 export class TrackingAlertStore {
-  private readonly socket = inject(LiveSocketService);
-  private readonly lookup = inject(TrackingLookupStore);
-
   readonly status = signal<AlertStatus | null>('Open');
   readonly type = signal<AlertType | null>(null);
   readonly severity = signal<AlertSeverity | null>(null);
@@ -42,7 +33,10 @@ export class TrackingAlertStore {
     },
   }));
 
-  /** Alarms pushed on the live socket this session, newest first. */
+  /**
+   * Alarms pushed on the live socket this session, newest first. Nothing fills it since `/alarms` was replaced by `/motion`
+   * (19 Nov 2026); kept, with the "New" highlight, until the backend says where alarms are pushed now (contract §12).
+   */
   private readonly pushed = signal<TrackingAlert[]>([]);
   /** Ids of pushed alarms that came without one (made up on the web). */
   private readonly localIds = signal<ReadonlySet<string>>(new Set());
@@ -89,24 +83,6 @@ export class TrackingAlertStore {
   /** Pushed without a server id: acknowledge / resolve wait for the next refresh. */
   isUnsaved(a: TrackingAlert): boolean {
     return this.localIds().has(a.id);
-  }
-
-  /**
-   * New alarms appear at once while the calling screen is open (Alerts). Call from the component constructor.
-   * Polling stays on as the backup and replaces each pushed alarm with the server's copy.
-   */
-  followLive(): void {
-    const destroyRef = inject(DestroyRef);
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    this.socket.watchEmployees(() => this.lookup.officers().map((o) => o.id));
-    this.socket.alarms$.pipe(takeUntilDestroyed(destroyRef)).subscribe((m) => {
-      const { alert, hasServerId } = readAlarm(m.employeeId, m.body, m.receivedAt, this.lookup.officerById().get(m.employeeId));
-      if (!hasServerId) this.localIds.update((ids) => new Set(ids).add(alert.id));
-      this.pushed.update((list) => [alert, ...list.filter((a) => a.id !== alert.id)].slice(0, 100));
-      clearTimeout(timer);
-      timer = setTimeout(() => this.refresh(), REFRESH_AFTER_PUSH_MS);
-    });
-    destroyRef.onDestroy(() => clearTimeout(timer));
   }
 
   setFilter<T>(sig: { set(v: T): void }, value: T) {

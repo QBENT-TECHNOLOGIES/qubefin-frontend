@@ -15,8 +15,8 @@
                 <svg lucideIcon="search"
                      class="w-4 h-4 text-slate-400"></svg>
                 <input [value]="store.searchText()"
-                       (change)="store.searchText.set($any($event.target).value)"
-                       (keydown.enter)="store.searchText.set($any($event.target).value)"
+                       (change)="setFilter(store.searchText, $any($event.target).value)"
+                       (keydown.enter)="setFilter(store.searchText, $any($event.target).value)"
                        placeholder="Name or code">
             </div>
             <div class="w-40"><mat-form-field appearance="outline"
@@ -24,7 +24,7 @@
                                 class="w-full">
                     <mat-label>Branch</mat-label>
                     <mat-select [value]="store.branchId()"
-                                (valueChange)="store.branchId.set($event)">
+                                (valueChange)="setFilter(store.branchId, $event)">
                         <mat-option [value]="null">All branches</mat-option>
                         @for (b of lookup.branches(); track b.id) { <mat-option [value]="b.id">{{ b.name }}</mat-option>
                         }
@@ -33,7 +33,7 @@
             <button type="button"
                     class="trk-toggle"
                     [class.is-on]="store.onlyUntagged()"
-                    (click)="store.onlyUntagged.set(!store.onlyUntagged())">
+                    (click)="setFilter(store.onlyUntagged, !store.onlyUntagged())">
                 <svg lucideIcon="map-pin-off"
                      class="w-4 h-4"></svg> Missing only
             </button>
@@ -44,8 +44,8 @@
         <div class="glass rounded-2xl overflow-hidden">
             <div
                  class="px-4 py-3 flex items-center justify-between border-b border-slate-200/70 dark:border-slate-700/50 text-xs text-slate-500">
-                <span>{{ store.tags().length }} records · {{ tagged().length }} tagged
-                    @if (store.untaggedCount()) { · <b class="text-amber-600">{{ store.untaggedCount() }} missing</b>
+                <span>{{ store.totalRecords() }} records
+                    @if (store.untaggedCount()) { · <b class="text-amber-600">{{ store.untaggedCount() }} missing on this page</b>
                     }</span>
                 <span class="flex items-center gap-1"><svg lucideIcon="smartphone"
                          class="w-3.5 h-3.5"></svg> View only · captured from the mobile app</span>
@@ -104,6 +104,12 @@
                     </tbody>
                 </table>
             </div>
+            <mat-paginator [length]="store.totalRecords()"
+                           [pageSize]="store.pageSize()"
+                           [pageIndex]="store.pageIndex()"
+                           [pageSizeOptions]="[10, 25, 50, 100]"
+                           (page)="onPage($event)"
+                           showFirstLastButtons />
         </div>
 
         <div class="flex flex-col gap-4 xl:sticky xl:top-0">
