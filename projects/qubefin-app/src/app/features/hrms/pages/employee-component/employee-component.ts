@@ -1,57 +1,80 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { EMPTY_UUID } from 'qubefin-core';
-import { MatIconModule } from "@angular/material/icon";
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
+import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { EmployeeComponentList } from '../../components/employee-components/employee-component-list/employee-component-list';
-import { EmployeeComponentView } from '../../components/employee-components/employee-component-view/employee-component-view';
-import { EmployeeComponentDetail } from '../../components/employee-components/employee-component-detail/employee-component-detail';
+import { EmployeeComponentList } from '../../components/employees/employee-component-list/employee-component-list';
+import { EmployeeComponentView } from '../../components/employees/employee-component-view/employee-component-view';
+import { EmployeeComponentDetail } from '../../components/employees/employee-component-detail/employee-component-detail';
 import { EmployeeStore } from '../../stores/employee-store';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-
+import { CommonModule, DatePipe } from '@angular/common';
+import { PageEvent } from '@angular/material/paginator';
+import { Sort } from '@angular/material/sort';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
+import { CompanyStore } from '../../../global/stores/company-store';
+import { ReportService } from '../../../Report/Service/report-service';
 
 @Component({
   selector: 'qfin-employee-component',
   imports: [
-    EmployeeComponentList,CommonModule, MatFormFieldModule, MatInputModule, FormsModule, EmployeeComponentView, EmployeeComponentDetail, MatIconModule, MatButtonModule, LucideDynamicIcon,
+    EmployeeComponentList,
+    CommonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    EmployeeComponentView,
+    EmployeeComponentDetail,
+    MatIconModule,
+    MatButtonModule,
+    LucideDynamicIcon,
     MatTooltipModule,
+    MatDatepickerModule,
+    MatSelectModule,
   ],
+  providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './employee-component.html',
 })
 export class EmployeeComponent {
   public readonly EMPTY_UUID = EMPTY_UUID;
+  private readonly datePipe = inject(DatePipe);
+  private readonly dateAdapter = inject(DateAdapter<Date>);
+  readonly srchJoiningDate = signal<Date | null>(null);
+  readonly srchCompanyId = signal<string | null>(null);
   readonly iconMap = APP_ICONS_MAP;
   // Filter properties
   showFilterArea = signal<boolean>(false);
   // Injecting the store that manages pagination and filtering states
   readonly employeeStore = inject(EmployeeStore);
-  
+  readonly companyStore = inject(CompanyStore);
+  readonly reportService = inject(ReportService);
+  readonly alertService = inject(AlertService);
+  constructor() {
+    this.dateAdapter.setLocale('en-GB');
+  }
   tempSearch = '';
   isViewMode = signal<boolean>(true);
   selectedEmployeeComponentId = signal<string>(EMPTY_UUID);
   employeeComponents = this.employeeStore.employeeListComponents;
-  
+
   protected onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.employeeStore.setSearchQuery(input.value);
   }
 
-  protected changePage(delta: number): void {
-    const current = this.employeeStore.pageIndex();
-    const next = current + delta;
-    if (next >= 0) {
-      this.employeeStore.setPage(next);
-    }
+  pageChanged(event: PageEvent) {
+    this.employeeStore.setPage(event.pageIndex);
+    this.employeeStore.setPageSize(event.pageSize);
   }
 
   protected onView(id: string) {
     this.selectedEmployeeComponentId.set(id);
-    console.log(this.selectedEmployeeComponentId());
     this.isViewMode.set(true);
   }
 
@@ -68,31 +91,86 @@ export class EmployeeComponent {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
   }
-   // Closes panels and forces state reset safely
+
   protected handleCancel() {
     this.selectedEmployeeComponentId.set(EMPTY_UUID);
     this.isViewMode.set(true);
   }
 
-  // Executed on successful API responses from employee-component-detail
-  protected handleSave() {
-    this.selectedEmployeeComponentId.set(EMPTY_UUID);
-    this.isViewMode.set(true);
+  protected handleSave(newId?: string) {
+    // Validate that newId is an actual ID (e.g., UUIDs are typically 36 characters)
+    // This prevents breaking the view if the API just returned a success message string.
+    if (newId && typeof newId === 'string' && newId !== EMPTY_UUID && newId.length > 20) {
+      // Switch the context to the newly created employee and STAY in the form (Edit mode)
+      this.selectedEmployeeComponentId.set(newId);
+      this.isViewMode.set(false);
+    } else {
+      // Fallback if an ID couldn't be safely extracted (redirects to list)
+      this.selectedEmployeeComponentId.set(EMPTY_UUID);
+      this.isViewMode.set(true);
+    }
   }
-  protected handleUpdate(event: any) {
-    console.log(event);
-  }
+  protected handleUpdate(event: any) {}
 
   protected toggleFilterArea() {
-    this.showFilterArea.update(v => !v);
+    this.showFilterArea.update((v) => !v);
   }
 
   protected applyFilters() {
+    this.employeeStore.setPage(0);
+    this.employeeStore.setPageSize(10);
     this.employeeStore.setSearchQuery(this.tempSearch);
-
+    const date = this.srchJoiningDate();
+    const formattedDate = date ? this.datePipe.transform(date, 'yyyy-MM-dd') : null;
+    this.employeeStore.setSearchJoiningDate(formattedDate);
+    this.employeeStore.setCompanyId(this.srchCompanyId());
   }
 
   protected resetFilters() {
+    this.tempSearch = '';
+    this.srchJoiningDate.set(null);
+    this.srchCompanyId.set(null);
+    this.employeeStore.setSearchQuery('');
+    this.employeeStore.setSearchJoiningDate(null);
+    this.employeeStore.setCompanyId(null);
     this.applyFilters();
+  }
+  protected exportEmployeeDetail() {
+    const companyId = this.srchCompanyId();
+
+    if (companyId == null) {
+      this.alertService.warning(
+        'Validation Error',
+        'Please select a company from the filter before exporting.',
+      );
+      this.showFilterArea.set(true);
+      return;
+    }
+    const year = new Date().getFullYear();
+    this.alertService
+      .confirm('Confirmation', `Do you want to export?`, 'Yes', 'No')
+      .then((result) => {
+        if (!result.isConfirmed) return;
+
+        this.reportService.exportEmployeeDetail(year, companyId).subscribe({
+          next: (blob: Blob) => {
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `export_employee_detail.xlsx`;
+            link.click();
+            window.URL.revokeObjectURL(downloadUrl);
+          },
+          error: () => {},
+        });
+      });
+  }
+
+  onSortChanged(sort: Sort) {
+    if (!sort.direction) {
+      return;
+    }
+
+    this.employeeStore.setSort(sort.active, sort.direction as 'asc' | 'desc');
   }
 }

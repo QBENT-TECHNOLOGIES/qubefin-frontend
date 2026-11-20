@@ -1,0 +1,97 @@
+<div class="overflow-auto scroll-thin" [ngClass]="{
+  'h-[calc(100vh-150px)] overflow-y-auto': isCollapsed()
+}">
+    <!-- {{ pageIndex() * pageSize() + i + 1 }} -->
+    <table mat-table [dataSource]="data()" class="w-full table" matSort matSortActive="category" matSortDirection="desc"
+        matSortDisableClear (matSortChange)="onSortChange($event)">
+        <ng-container matColumnDef="sl">
+            <th mat-header-cell *matHeaderCellDef>#</th>
+            <td mat-cell *matCellDef="let row; let i = index"
+                class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                {{ pageIndex() * pageSize() + i + 1 }}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="category">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="category">Category</th>
+            <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                <span class="font-medium">{{ row.category }}</span>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="organizationUnitType">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="organizationUnitType">Unit Type</th>
+            <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                <span class="font-medium">{{ row.organizationUnitTypeName || '-' }}</span>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="leaveType">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="leaveType"> Leave Type</th>
+            <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                <span class="font-medium">{{ row.leaveTypeName || '-' }}</span>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="postName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="postName"> Post</th>
+            <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300">
+                <span class="font-medium">{{ row.postName || '-' }}</span>
+            </td>
+        </ng-container>
+
+        <!-- salaryGradesName is already a comma-joined string, e.g. "V, VI, VII" -->
+        <ng-container matColumnDef="salaryGrade">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="salaryGrade">Salary Grade</th>
+            <td mat-cell *matCellDef="let row" class="px-3 py-1.5 text-[13px] dark:text-slate-300 whitespace-normal">
+                <span class="font-medium">{{ row.salaryGradesName || '-' }}</span>
+            </td>
+        </ng-container>
+
+        <!-- rangeDaysDisplay is server-computed, no client-side ternary needed -->
+        <ng-container matColumnDef="rangeDays">
+            <th mat-header-cell *matHeaderCellDef>Range days</th>
+            <td mat-cell *matCellDef="let row">{{ row.rangeDaysDisplay }}</td>
+        </ng-container>
+
+        <!-- approvalPath replaces stepPost; already formatted server-side (e.g. "Branch Manager → Area Manager") -->
+        <ng-container matColumnDef="workflowEventPath">
+            <th mat-header-cell *matHeaderCellDef>Approval path</th>
+            <td mat-cell *matCellDef="let row" class="whitespace-normal">{{ row.approvalPath || '-' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef class="text-right!"> Action </th>
+            <td mat-cell *matCellDef="let item">
+                <div class="w-full flex justify-end">
+                    <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
+                        matTooltip="View" (click)="onView(item.id)">
+                        <svg lucideIcon="chevron-right"
+                            class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
+                    </div>
+                </div>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+
+        <tr mat-row *matRowDef="let row; columns: displayedColumns();"
+            class="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+            (click)="onView(row.id)">
+        </tr>
+
+        <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell text-center! p-8 italic text-gray-500 border-b-0"
+                [attr.colspan]="displayedColumns().length">
+                <div class="flex justify-center items-center gap-2">
+                    <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>
+                    No approval workflow events found.
+                </div>
+            </td>
+        </tr>
+    </table>
+    @if (!isCollapsed()) {
+    <mat-paginator [length]="totalRecords()" [pageSize]="pageSize()" [pageIndex]="pageIndex()"
+        [pageSizeOptions]="[10,20,50]" (page)="onPage($event)">
+    </mat-paginator>
+    }
+</div>

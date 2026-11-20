@@ -18,6 +18,7 @@ export class VerifyMfa {
 	authStore = inject(AuthStore);
 	loginStateStore = inject(LoginStateStore);
 	authService = inject(AuthService);
+	protected isLoading = signal(false);
 
 	protected readonly mfaModel = signal<VerifyMfaModel>({
 		mfaCode: '',
@@ -29,6 +30,7 @@ export class VerifyMfa {
 
 	protected onSubmit(event: Event) {
 		if (this.mfaForm().valid()) {
+			this.isLoading.set(true);
 			const request = { mfaCode: this.mfaForm().value().mfaCode, sessionToken: this.authStore.sessionToken() || '' };
 			this.authService.verifyMfa(request).subscribe({
 				next: (response) => {
@@ -37,12 +39,14 @@ export class VerifyMfa {
 						this.authStore.setAccessToken(response.accessToken);
 						this.loginStateStore.setLoginStep('complete');
 					}
+					this.isLoading.set(false);
 				},
 				error: (err: any) => {
 					if (err.error) {
 						// this.message.set(err.error.message);
 						// this.messageType.set('error');
 					}
+					this.isLoading.set(false);
 				}
 			});
 		}

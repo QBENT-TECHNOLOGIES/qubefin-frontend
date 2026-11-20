@@ -1,0 +1,71 @@
+<!-- <div class="h-full min-h-0 flex flex-col"> -->
+  <!-- <div class="flex-1 min-h-0"> -->
+    @if (store.detailLoading()) {
+    <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+      Loading details...
+    </div>
+    } @else if (store.detailError()) {
+    <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
+      Unable to load details.
+    </div>
+    } @else {
+    <div class="table-box glass">
+      <table mat-table [dataSource]="editingData()" class="w-full table border border-slate-200 dark:border-slate-700">
+
+        <!-- Date -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800"> Date </th>
+          <td mat-cell *matCellDef="let element" class="px-3 py-2 text-[13px] font-medium dark:text-slate-300">
+            {{ element.absentDate | date:'mediumDate' }}
+          </td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 w-1/2"> Status
+          </th>
+          <td mat-cell *matCellDef="let element" class="px-3 py-2">
+
+            <mat-form-field appearance="outline" class="w-full dense-form-field">
+
+              <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+              </div>
+              <mat-select [ngModel]="element.leaveTypeId" (ngModelChange)="onStatusChange(element, $event)"
+                placeholder="Select Status">
+                @for (leaveType of store.leaveTypeBalances(); track leaveType.leaveTypeId) {
+                <mat-option [value]="leaveType.leaveTypeId" [disabled]="isLeaveTypeLimitReached(element, leaveType.leaveTypeId)">
+                  {{ leaveType.title }}
+                  {{ leaveType.alias !== 'LOP' ? '(Balance: ' + leaveType.leaveBalance + ')' : '' }}
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+          class="border-b border-slate-100 dark:border-slate-800"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell px-8 py-6 text-center text-slate-400 border-b-0" [attr.colspan]="displayedColumns.length">
+            No records found.
+          </td>
+        </tr>
+      </table>
+    </div>
+    }
+  <!-- </div> -->
+  <div class="border-t border-slate-200 dark:border-slate-400/10 py-2 flex justify-end gap-3 mt-6">
+    <button type="button" (click)="onCancel()" class="reset-btn lift">
+      <svg lucideIcon="x" class="w-4 h-4"></svg>
+      Cancel
+    </button>
+    <button type="button" (click)="onSave()" [disabled]="store.detailLoading() || editingData().length === 0"
+      class="global-btn ripple-btn shine-sweep lift">
+      <svg lucideIcon="save" class="w-4 h-4"></svg>
+      Update
+    </button>
+  </div>
+<!-- </div> -->

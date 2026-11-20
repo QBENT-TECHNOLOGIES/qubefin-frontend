@@ -1,0 +1,238 @@
+<div class="view-container">
+    @if (loading()) {
+    <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="loader" class="w-5 h-5 animate-spin"></svg>
+        Loading workflow details...
+    </div>
+    } @else if (!approvalWorkflow()) {
+    <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>
+        Approval workflow details are not available.
+    </div>
+    } @else {
+    <div class="section-container">
+        <div class="unit-box">
+            <!-- View Header -->
+            <div class="unit-box-header">
+                <div class="box-group">
+                    <div>
+                        <div class="box-title-group">
+                            <h1 class="box-title">
+                                {{ approvalWorkflow()?.category }}
+                            </h1>
+                            <div class="box-edit-btn" matTooltip="Edit" (click)="onShowEdit()">
+                                <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
+                            </div>
+                        </div>
+                        <p class="box-subTitle text-xs!">Approval Workflow</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-0 p-4">
+                <h3 class="box-content-heading mb-2!">
+                    General Information
+                </h3>
+                <div class="green-line"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="gen-info">
+                        <div class="gen-icon">
+                            <svg lucideIcon="tag" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="gen-label">Category</label>
+                            <p class="gen-title">{{ approvalWorkflow()?.category }}</p>
+                        </div>
+                    </div>
+                    <div class="gen-info">
+                        <div class="gen-icon">
+                            <svg lucideIcon="tag" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="gen-label">Organization Type</label>
+                            <p class="gen-title">{{ approvalWorkflow()?.organizationUnitTypeName || '-' }}</p>
+                        </div>
+                    </div>
+                    <div class="gen-info">
+                        <div class="gen-icon">
+                            <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="gen-label">Leave Type</label>
+                            <p class="gen-title">{{ approvalWorkflow()?.leaveTypeName || '-' }}</p>
+                        </div>
+                    </div>
+
+                    <!-- salaryGradesName is a comma-joined string covering ALL grades
+                         in this group (e.g. "V, VI, VII"), not a single grade. -->
+                    <div class="gen-info">
+                        <div class="gen-icon">
+                            <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="gen-label">Salary Grade(s)</label>
+                            <p class="gen-title">{{ approvalWorkflow()?.salaryGradesName || '-' }}</p>
+                        </div>
+                    </div>
+
+                    @if(!approvalWorkflow()?.leaveTypeName){
+                    <div class="gen-info">
+                        <div class="gen-icon">
+                            <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="gen-label">Post</label>
+                            <p class="gen-title">{{ approvalWorkflow()?.postName || '-' }}</p>
+                        </div>
+                    </div>
+                    }
+
+                    <div class="gen-info">
+                        <div class="gen-icon">
+                            <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="gen-label">Days Range</label>
+                            <p class="gen-title">
+                                {{ (approvalWorkflow()?.minimumDays ?? 0) === 0 ? '-' :
+                                approvalWorkflow()?.minimumDays + ' - ' + approvalWorkflow()?.maximumDays }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="gen-info md:col-span-2">
+                        <div class="gen-icon">
+                            <svg lucideIcon="workflow" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="gen-label">Approval Path</label>
+                            <p class="gen-title">{{ approvalWorkflow()?.approvalPath || '-' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="unit-box">
+            <!-- Hierarchy Path timeline -->
+            <div class="p-4 flex flex-col">
+                <h3 class="box-content-heading mb-2!">
+                    Hierarchy Path
+                </h3>
+                <div class="blue-line"></div>
+                <div class="flex-1 overflow-y-auto pr-2">
+                    <div class="space-y-0 pl-1">
+                        @if (!approvalWorkflow()?.approvalSteps?.length) {
+                        <p class="text-[13px] italic text-slate-500 dark:text-slate-400 py-2">
+                            No approval step configured.
+                        </p>
+                        }
+                        @for (step of approvalWorkflow()?.approvalSteps; track $index; let last = $last) {
+                        <div class="relative flex gap-4" [class.pb-3]="!last">
+                            <div class="relative flex flex-col items-center">
+                                @if (!last) {
+                                <div class="dashed-line"></div>
+                                }
+                                @if ($index > 0) {
+                                <div class="blue-radio-outline">
+                                    <div class="blue-radio-solid"></div>
+                                </div>
+                                } @else {
+                                <div class="green-radio-outline">
+                                    <div class="green-radio-solid"></div>
+                                </div>
+                                }
+                            </div>
+
+                            <div class="flex flex-col pb-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h4 class="path-title">
+                                        {{ step.receiverPostName || step.eventStatus || ('Step ' + ($index + 1)) }}
+                                    </h4>
+                                    @if (step.isApprovalEvent) {
+                                    <span
+                                        class="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                        Approve
+                                    </span>
+                                    } @else if (step.isRecommendEvent) {
+                                    <span
+                                        class="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                                        Recommend
+                                    </span>
+                                    }
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                    Step {{ step.sequenceNo }}
+                                    @if (step.organizationUnitTypeName) {
+                                    <span> &middot; {{ step.organizationUnitTypeName }}</span>
+                                    }
+                                    @if (step.eventStatus) {
+                                    <span> &middot; Status: {{ step.eventStatus }}</span>
+                                    }
+                                    @if (step.eventButtonText) {
+                                    <span> &middot; Button: {{ step.eventButtonText }}</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Information -->
+    <div class="unit-box p-4 pb-6">
+        <div class="flex flex-col gap-3">
+            <div>
+                <h4 class="box-content-heading mb-2!">
+                    Audit Information
+                </h4>
+                <div class="green-line"></div>
+            </div>
+            <div class="audit-grid">
+                <div class="audit-small-box">
+                    <div class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
+                        <svg lucideIcon="user-check" class="w-4 h-4 text-primary-700"></svg>
+                    </div>
+                    <div>
+                        <p class="audit-label">Created By</p>
+                        <p class="audit-title">{{ approvalWorkflow()?.createdByName || '-' }}</p>
+                    </div>
+                </div>
+                <div class="audit-small-box">
+                    <div class="audit-icon-box bg-secondary-500/15 dark:bg-primary-300">
+                        <svg lucideIcon="calendar-plus" class="w-4 h-4 text-secondary-600"></svg>
+                    </div>
+                    <div>
+                        <p class="audit-label">Created On</p>
+                        <p class="audit-title">{{ approvalWorkflow()?.createdOn | date:'dd-MM-yyyy hh:mm a' }}</p>
+                    </div>
+                </div>
+                <div class="audit-small-box">
+                    <div class="audit-icon-box bg-accent-500/15 dark:bg-primary-300">
+                        <svg lucideIcon="user-cog" class="w-4 h-4 text-secondary-600"></svg>
+                    </div>
+                    <div>
+                        <p class="audit-label">Last Modified By</p>
+                        <p class="audit-title">{{ approvalWorkflow()?.lastModifiedByName ?? '-' }}</p>
+                    </div>
+                </div>
+                <div class="audit-small-box">
+                    <div class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
+                        <svg lucideIcon="calendar-clock" class="w-4 h-4 text-primary-700"></svg>
+                    </div>
+                    <div>
+                        <p class="audit-label">Last Modified On</p>
+                        <p class="audit-title">
+                            {{ approvalWorkflow()?.lastModifiedOn ? (approvalWorkflow()?.lastModifiedOn |
+                            date:'dd-MM-yyyy hh:mm a') : '-' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>

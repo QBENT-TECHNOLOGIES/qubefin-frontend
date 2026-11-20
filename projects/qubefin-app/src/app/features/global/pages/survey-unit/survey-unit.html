@@ -8,9 +8,8 @@
         <svg lucideIcon="funnel" class="w-4 h-4"></svg>
         Filter
       </button>
-      <button
-        class="ripple-btn shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
-        (click)="onAdd()">
+      } @else{}
+      <button class="global-btn shine-sweep lift" (click)="onAdd()">
         <svg lucideIcon="plus" class="w-4 h-4"></svg>
         Add Survey
       </button>
@@ -39,15 +38,15 @@
           </div>
 
           <div class="flex items-center gap-2.5 shrink-0">
-            <button type="button" (click)="resetFilters()"
-              class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
-              <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
-              Reset
-            </button>
             <button type="button" (click)="applyFilters()"
               class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
               <svg lucideIcon="search" class="w-4 h-4"></svg>
               Search
+            </button>
+            <button type="button" (click)="resetFilters()"
+              class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
+              <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+              Reset
             </button>
           </div>
         </div>
@@ -68,9 +67,15 @@
       </div>
       }
       @if (surveyStore.loading()) {
-      <div class="px-4 py-10 text-sm text-slate-500">Loading survey...</div>
+      <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="loader" class="w-5 h-5"></svg>
+        Loading survey...
+      </div>
       } @else if (surveyStore.error()) {
-      <div class="px-4 py-10 text-sm text-red-500">Unable to load survey.</div>
+      <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
+        <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
+        Unable to load survey.
+      </div>
       } @else {
       <qfin-survey-unit-list [data]="surveys()" [totalRecords]="surveyStore.totalRecords()"
         [pageIndex]="surveyStore.pageIndex()" [pageSize]="surveyStore.pageSize()" [selectedId]="selectedsurveyStoreId()"
@@ -86,7 +91,7 @@
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-400/10 pb-3 mb-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">
-            <div
+            <!-- <div
               class="w-14 h-14 rounded-xl shadow-md bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center dark:shadow-none">
               @if (selectedsurveyStoreId() === EMPTY_UUID) {
               <svg lucideIcon="plus" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
@@ -95,7 +100,7 @@
               } @else {
               <svg lucideIcon="square-pen" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
               }
-            </div>
+            </div> -->
             <div>
               <div class="flex justify-start gap-2">
                 <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">

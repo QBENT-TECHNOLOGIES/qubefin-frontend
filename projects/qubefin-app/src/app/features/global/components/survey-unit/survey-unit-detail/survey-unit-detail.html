@@ -1,6 +1,5 @@
-<div class="space-y-6">
+<div class="space-y-4">
     <div class="grid grid-cols-1 lg:grid-cols-1 gap-4">
-
         <!-- General Information -->
         <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
             <div class="p-5">
@@ -31,62 +30,79 @@
                         </mat-select>
                     </mat-form-field>
 
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Assignment Date</mat-label>
-                        <div class="w-12 flex justify-center" matPrefix>
-                            <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
-                        </div>
-                        <input matInput [matDatepicker]="assignmentPicker" [value]="formModel().assignmentDate"
-                            (dateChange)="updateField('assignmentDate',$event.value)" />
-                        <mat-datepicker-toggle matIconSuffix [for]="assignmentPicker">
-                        </mat-datepicker-toggle>
-                        <mat-datepicker #assignmentPicker>
-                        </mat-datepicker>
-                    </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Assignment Date</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [matDatepicker]="assignmentPicker" [value]="formModel().assignmentDate" readonly
+                        (dateChange)="updateField('assignmentDate',$event.value)" />
+                    <mat-datepicker-toggle matIconSuffix [for]="assignmentPicker">
+                    </mat-datepicker-toggle>
+                    <mat-datepicker #assignmentPicker>
+                    </mat-datepicker>
+                </mat-form-field>
 
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                        <mat-label>Tentative Submission Date</mat-label>
-                        <div class="w-12 flex justify-center" matPrefix>
-                            <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
-                        </div>
-                        <input matInput [matDatepicker]="tentativePicker" [value]="formModel().tentativeSubmissionDate"
-                            (dateChange)="updateField('tentativeSubmissionDate',$event.value)" [min]="formModel().assignmentDate"/>
-                        <mat-datepicker-toggle matIconSuffix [for]="tentativePicker">
-                        </mat-datepicker-toggle>
-                        <mat-datepicker #tentativePicker>
-                        </mat-datepicker>
-                        @if(!isTentativeDateValid()){
-                        <mat-error>
-                            Tentative Submission Date must be greater than Assignment Date.
-                        </mat-error>
-                        }
-                    </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Tentative Submission Date</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [matDatepicker]="tentativePicker" [value]="formModel().tentativeSubmissionDate"
+                        readonly (dateChange)="updateField('tentativeSubmissionDate',$event.value)"
+                        [min]="formModel().assignmentDate" />
+                    <mat-datepicker-toggle matIconSuffix [for]="tentativePicker">
+                    </mat-datepicker-toggle>
+                    <mat-datepicker #tentativePicker>
+                    </mat-datepicker>
+                    @if(!isTentativeDateValid()){
+                    <mat-error>
+                        Tentative Submission Date must be greater than Assignment Date.
+                    </mat-error>
+                    }
+                </mat-form-field>
 
-                    <qfin-administrative-unit-cascade [administrativeUnitId]="formModel().administrativeUnitId"
-                        (selectedIdChanged)="updateField('administrativeUnitId', $event)">
-                    </qfin-administrative-unit-cascade>
-                    
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class=" w-full">
-                        <mat-label>Proposed Area</mat-label>
-                        <div class="w-12 flex justify-center" matPrefix>
-                            <svg lucideIcon="map-pinned" class="w-5 h-5"></svg>
-                        </div>
-                        <input matInput [value]="formModel().proposedArea"
-                            (input)="updateField('proposedArea', $any($event.target).value)"
-                            placeholder="Enter proposed survey area" />
-                    </mat-form-field>
+                <qfin-administrative-unit-cascade [columns]="4"
+                    [administrativeUnitId]="formModel().administrativeUnitId"
+                    (selectedIdChanged)="updateField('administrativeUnitId', $event)">
+                </qfin-administrative-unit-cascade>
 
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class=" w-full">
+                    <mat-label>Proposed Area</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="map-pinned" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [value]="formModel().proposedArea"
+                        (input)="updateField('proposedArea', $any($event.target).value)"
+                        placeholder="Enter proposed survey area" />
+                </mat-form-field>
 
+                <!-- <button
+                    class="ripple-btn shine-sweep rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
+                    (click)="addMember()" style="width: 152px;" [disabled]="!isMemberSelected()">
+                    <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                    Add Surveyor
+                </button> -->
+            </div>
+        </div>
+
+        <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                Surveyors
+            </h3>
+            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+            <div class="">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                         <mat-label>Employee</mat-label>
                         <div class="w-12 flex justify-center" matPrefix>
-                            <svg lucideIcon="user" class="w-5 h-5"></svg>
+                            <svg lucideIcon="user-search" class="w-5 h-5"></svg>
                         </div>
                         <input matInput [value]="employeeSearchText()"
                             (input)="searchEmployees($any($event.target).value)" [matAutocomplete]="employeeAuto"
                             autocomplete="off" [placeholder]="isEditMode() ? 'Employee' : 'Search employee'" />
-                        <mat-autocomplete #employeeAuto="matAutocomplete" [displayWith]="displayEmployeeName"
-                            (optionSelected)="selectEmployee($event)">
+                        <mat-autocomplete class="autoList" #employeeAuto="matAutocomplete"
+                            [displayWith]="displayEmployeeName" (optionSelected)="selectEmployee($event)">
                             @for (employee of employeeOptions(); track employee.id) {
                             <mat-option [value]="employee">
                                 {{ employee.employeeName }}
@@ -97,28 +113,25 @@
                             }
                             }
                         </mat-autocomplete>
+                        <!-- <div matTooltip="Add Surveyor" (click)="addMember()" 
+                            [class.pointer-events-none]="!isMemberSelected()"
+                            [class.opacity-50]="!isMemberSelected()"
+                            [class.cursor-not-allowed]="!isMemberSelected()"
+                            class="w-10 h-11.5 mr-0.5 flex justify-center items-center bg-primary-500 cursor-pointer rounded-r-sm" 
+                            matSuffix>
+                            <svg lucideIcon="plus" class="w-5 h-5 text-white"></svg>
+                        </div> -->
                     </mat-form-field>
-
-                    <button
-                        class="ripple-btn shine-sweep rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
-                        (click)="addMember()" style="width: 152px;" [disabled]="!isMemberSelected()">
-                        <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                    <button type="button" (click)="addMember()" [class.pointer-events-none]="!isMemberSelected()"
+                        [class.opacity-50]="!isMemberSelected()" [class.cursor-not-allowed]="!isMemberSelected()"
+                        class="w-[170px] ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                        <svg lucideIcon="plus" class="w-5 h-5"></svg>
                         Add Surveyor
                     </button>
                 </div>
-            </div>
-        </div><!-- Survey Members -->
-        <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
-            <div class="p-5">
-                <h3 class="text-base font-bold text-slate-800 dark:text-white">
-                    Surveyors
-                </h3>
-                <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
-
-                <div class="flex flex-col divide-y divide-slate-200/20 dark:divide-white/10">
+                <div class="flex flex-col gap-2">
                     @for(member of formModel().surveyAssigneds; track member.employeeId) {
-                    <div class="flex items-center justify-between py-3">
-
+                    <div class="px-3 flex items-center justify-between py-3 border border-slate-200 rounded-lg">
                         <!-- Left -->
                         <div class="flex items-center gap-3">
                             <div

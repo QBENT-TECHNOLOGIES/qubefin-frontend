@@ -16,13 +16,13 @@ import { LucideDynamicIcon } from '@lucide/angular';
 export class AdministrativeUnitTreeComponent implements AfterViewInit {
 
 	ngAfterViewInit(): void {
-		this.tree.expand(this.administrativeUnitTreeNodes()[0]);
+		this.expandAll();
 	}
-	
+
 	@ViewChild(MatTree) tree!: MatTree<any>;
 	onViewDetail = output<string>();
 
-	selectedId = signal<string>('');
+	selectedId = input<string>('');
 	readonly iconMap = APP_ICONS_MAP;
 
 	administrativeUnitTreeNodes = input<AdministrativeUnitTreeNode[]>([]);
@@ -35,14 +35,36 @@ export class AdministrativeUnitTreeComponent implements AfterViewInit {
 
 	constructor() {
 		effect(() => {
-			if (this.administrativeUnitTreeNodes().length > 0) {
-				this.selectedId.set(this.administrativeUnitTreeNodes()[0].id);
+			const nodes = this.administrativeUnitTreeNodes();
+
+			if (!this.tree || nodes.length === 0) {
+				return;
 			}
+
+			queueMicrotask(() => this.expandAll());
 		});
 	}
 
 	onDetailView(id: string) {
-		this.selectedId.set(id);
+		//this.selectedId.set(id);
 		this.onViewDetail.emit(id);
+	}
+
+	private expandAll(): void {
+		const nodes = this.administrativeUnitTreeNodes();
+
+		for (const node of nodes) {
+			this.expandNode(node);
+		}
+	}
+
+	private expandNode(node: AdministrativeUnitTreeNode): void {
+		this.tree.expand(node);
+
+		if (node.children?.length) {
+			for (const child of node.children) {
+				this.expandNode(child);
+			}
+		}
 	}
 }

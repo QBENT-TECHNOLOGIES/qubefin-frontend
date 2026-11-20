@@ -1,0 +1,139 @@
+@if (loading()) {
+<div
+  class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400 flex flex-col items-center justify-center gap-3 min-h-[300px]">
+  <div class="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+  <p class="text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400">Loading leave approval details...</p>
+</div>
+} @else {
+<!-- <div
+  class="glass dark:bg-glass-dark rounded-xl shadow-glass dark:shadow border border-slate-200 dark:border-white/10 p-5 mt-4"> -->
+  <form class="flex flex-col gap-5">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <!-- Employee Name -->
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Employee Name</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="user" class="w-5 h-5"></svg>
+        </div>
+        <input matInput [value]="leaveApprovalModel().employeeName" readonly placeholder="Enter Employee Name" />
+      </mat-form-field>
+
+      <!-- Leave Type -->
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Leave Type</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="tag" class="w-5 h-5"></svg>
+        </div>
+        <input matInput [value]="leaveApprovalModel().leaveType" readonly placeholder="Enter Leave Type" />
+      </mat-form-field>
+
+      <div class="hidden md:block"></div>
+
+      <!-- From Date -->
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>From Date</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="calendar-arrow-up" class="w-5 h-5"></svg>
+        </div>
+        <input matInput [value]="leaveApprovalModel().fromDate | date:'dd/MM/yyyy'" placeholder="DD/MM/YYYY" readonly />
+        <mat-datepicker-toggle matIconSuffix [for]="fromPicker" [disabled]="true"></mat-datepicker-toggle>
+        <mat-datepicker #fromPicker></mat-datepicker>
+      </mat-form-field>
+
+      <!-- To Date -->
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>To Date</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="calendar-arrow-down" class="w-5 h-5"></svg>
+        </div>
+        <input matInput [value]="leaveApprovalModel().toDate | date:'dd/MM/yyyy'" placeholder="DD/MM/YYYY" readonly />
+        <mat-datepicker-toggle matIconSuffix [for]="toPicker" [disabled]="true"></mat-datepicker-toggle>
+        <mat-datepicker #toPicker></mat-datepicker>
+      </mat-form-field>
+
+      <!-- Reason -->
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-4">
+        <mat-label>Reason</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+        </div>
+        <input matInput [value]="leaveApprovalModel().reason" rows="3" readonly placeholder="Enter reason">
+      </mat-form-field>
+
+      <!-- Address -->
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-4">
+        <mat-label>Address</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+        </div>
+        <input matInput [value]="leaveApprovalModel().address" rows="2" readonly placeholder="Enter address while on leave">
+      </mat-form-field>
+
+      <!-- Document View -->
+      <div class="md:col-span-4">
+        <label class="block text-[13px] font-medium text-slate-700 dark:text-slate-300 mb-1">Document View</label>
+        @if (documentUrl()) {
+        <div
+          class="flex items-center justify-between p-3 border border-slate-200 dark:border-white/10 rounded-xl bg-slate-50 dark:bg-white/5">
+          <div class="flex items-center gap-3 overflow-hidden">
+            <div
+              class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">
+                {{ documentName() }}
+              </p>
+              <p class="text-xs text-slate-500 mt-0.5">Uploaded Document</p>
+            </div>
+          </div>
+          <button type="button" (click)="openDocument()"
+            class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+            <svg lucideIcon="eye" class="w-4 h-4"></svg>
+          </button>
+        </div>
+        } @else {
+        <p class="text-sm text-slate-500 dark:text-slate-400">No document attached.</p>
+        }
+      </div>
+
+      <!-- Remarks (Editable) -->
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-4">
+        <mat-label>Remarks (Required for Rejection)</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="message-square-plus" class="w-5 h-5"></svg>
+        </div>
+        <input matInput [formField]="leaveApprovalForm.remarks" rows="2" placeholder="Enter your remarks..." />
+      </mat-form-field>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-4 pb-3 border-t border-slate-200 dark:border-white/10">
+      <button type="button" (click)="onCancelClicked()"
+        class="cursor-pointer bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift dark:text-slate-200 border border-slate-200 dark:border-transparent">
+        Cancel
+      </button>
+@if (leaveApproval()?.isApprovalEvent || leaveApproval()?.isRecommendEvent) {
+      <button type="button" (click)="onAction('reject')"
+        class="cursor-pointer bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-rose-100 dark:hover:bg-rose-500/20 transition lift">
+        <svg lucideIcon="x-circle" class="w-4 h-4"></svg>
+        Reject
+      </button>
+    }
+      @if (leaveApproval()?.isRecommendEvent) {
+      <button type="button" (click)="onAction('recommend')"
+        class="cursor-pointer bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-500/20 transition lift">
+        <svg lucideIcon="arrow-up-right" class="w-4 h-4"></svg>
+        Recommend
+      </button>
+    }
+      @if (leaveApproval()?.isApprovalEvent) {
+      <button type="button" (click)="onAction('approve')"
+        class="cursor-pointer bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition lift">
+        <svg lucideIcon="check-circle" class="w-4 h-4"></svg>
+        Approve
+      </button>
+      }
+    </div>
+  </form>
+<!-- </div> -->
+}

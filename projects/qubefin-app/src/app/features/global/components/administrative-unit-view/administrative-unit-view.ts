@@ -25,12 +25,17 @@ export class AdministrativeUnitViewComponent {
 
 	constructor() {
 		effect(() => {
-			if (this.administrativeUnitId()) {
-				this.administrativeUnitStore.setAdministrativeUnitId(this.administrativeUnitId());
+			const id = this.administrativeUnitId();
+
+			if (id && id !== EMPTY_UUID) {
+				this.administrativeUnitStore.setAdministrativeUnitId(id);
 			}
+			// if (this.administrativeUnitId()) {
+			// 	this.administrativeUnitStore.setAdministrativeUnitId(this.administrativeUnitId());
+			// }
 		});
 	}
-	
+
 	onShowEdit() {
 		this.showEdit.emit(true);
 	}

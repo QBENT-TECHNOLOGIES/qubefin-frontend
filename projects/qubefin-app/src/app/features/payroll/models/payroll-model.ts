@@ -43,6 +43,7 @@ export interface IMonthlyPayrollHeader {
   organizationUnitName: string;
   totalEarnings: number;
   totalDeductions: number;
+  employerContribution: number;
   details: IMonthlyPayrollLineItem[];
 }
 
@@ -70,6 +71,7 @@ export interface PayrollComponent {
   categoryName?: string;
   percentage: number;
   amount: number;
+  isEditable: boolean;
 }
 export interface UpdatePayrollCommand {
   payrollId: string;
@@ -87,8 +89,9 @@ export class PayslipRptParam implements IPayslipReportParam {
   public payslipYear: number;
 
   constructor(payslipRptParam?: IPayslipReportParam) {
-    this.employeeId = payslipRptParam && payslipRptParam.employeeId || '00000000-0000-0000-0000-000000000000';
-    this.payslipMonth = payslipRptParam && payslipRptParam?.payslipMonth || 0;
-    this.payslipYear = payslipRptParam && payslipRptParam?.payslipYear || 0;
+    this.employeeId =
+      (payslipRptParam && payslipRptParam.employeeId) || '00000000-0000-0000-0000-000000000000';
+    this.payslipMonth = (payslipRptParam && payslipRptParam?.payslipMonth) || 0;
+    this.payslipYear = (payslipRptParam && payslipRptParam?.payslipYear) || 0;
   }
 }

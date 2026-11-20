@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
+import { form, FormField, readonly, required, schema, Schema } from '@angular/forms/signals';
 import {
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
@@ -11,17 +11,14 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { ISurveyCommitteeItem } from '../../../models/survey-committee-item';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID } from 'qubefin-core';
 import { SurveyCommitteeStore } from '../../../stores/survey-committee-store';
 import { SurveyCommitteeService } from '../../../services/survey-committee-service';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { APP_ICONS_MAP } from '../../../../../lucide-icons';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
-import {
-  EmployeeSearchByText,
-  EmployeeSearchResponse,
-} from '../../../../hrms/models/employee-search-by-text';
+import { EmployeeSearchByText } from '../../../../hrms/models/employee-search-by-text';
 import { EmployeeService } from '../../../../hrms/services/employee-service';
 
 @Component({
@@ -48,6 +45,7 @@ export class SurveyCommitteeUnitDetail {
   private readonly surveyCommitteeStore = inject(SurveyCommitteeStore);
   private readonly surveyCommitteeService = inject(SurveyCommitteeService);
   private readonly employeeService = inject(EmployeeService);
+  private readonly alertService = inject(AlertService);
 
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
@@ -84,7 +82,7 @@ export class SurveyCommitteeUnitDetail {
     required(path.employeeId, {
       message: 'Employee ID is required',
     });
-
+    readonly(path.assignedTo, { when: () => true });
     if (!this.formModel().isActive) {
       required(path.assignedTo, {
         message: 'Assigned To is required',
@@ -107,13 +105,8 @@ export class SurveyCommitteeUnitDetail {
         distinctUntilChanged(),
         switchMap((searchText) => this.employeeService.getEmployeesBySearchText(searchText)),
       )
-      .subscribe((response: EmployeeSearchResponse) => {
-        this.employeeOptions.set(
-          response.value?.employees ??
-            response.valueOrDefault?.employees ??
-            response.employees ??
-            [],
-        );
+      .subscribe((resp: any) => {
+        this.employeeOptions.set(resp ?? []);
       });
     // ===========================
     // Load Member / Reset Form
@@ -248,24 +241,36 @@ export class SurveyCommitteeUnitDetail {
     if (!dataToSave.employeeId?.trim()) {
       return;
     }
+    this.alertService
+      .confirm(
+        'Confirmation',
+        `Do you want to ${this.isEditMode() ? 'update' : 'create'} this survey committee?`,
+      )
+      .then((result) => {
+        if (result.isConfirmed) {
+          if (!this.isEditMode()) {
+            this.surveyCommitteeService.create(dataToSave).subscribe({
+              next: (resp: any) => {
+                this.alertService.success('Success', resp).then(() => {
+                  this.surveyCommitteeStore.refreshList();
+                  this.save.emit();
+                });
+              },
+            });
+            return;
+          }
 
-    if (!this.isEditMode()) {
-      this.surveyCommitteeService.create(dataToSave).subscribe({
-        next: () => {
-          this.surveyCommitteeStore.refreshList();
-          this.save.emit();
-        },
+          this.surveyCommitteeService.update(payLoad).subscribe({
+            next: (resp: any) => {
+              this.alertService.success('Success', resp).then(() => {
+                this.surveyCommitteeStore.refreshList();
+                this.surveyCommitteeStore.refreshDetail();
+                this.save.emit();
+              });
+            },
+          });
+        }
       });
-      return;
-    }
-
-    this.surveyCommitteeService.update(payLoad).subscribe({
-      next: () => {
-        this.surveyCommitteeStore.refreshList();
-        this.surveyCommitteeStore.refreshDetail();
-        this.save.emit();
-      },
-    });
   }
   // ===========================
   // Helpers

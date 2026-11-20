@@ -1,0 +1,87 @@
+@if (attendanceData(); as data) {
+
+<div class="view-container">
+    <div class="flex-1">
+        <div class="unit-box">
+            <div class="flex justify-self-start w-full gap-5 p-4">
+                <div class="flex-1">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                        <div class="gen-info">
+                            <div
+                                class="gen-icon">
+                                <svg lucideIcon="user" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label class="gen-label">Attendance
+                                    Date</label>
+                                <p class="gen-title">
+                                    {{ data.attendanceDate| date: 'mediumDate' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="gen-info">
+                            <div
+                                class="gen-icon">
+                                <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label class="gen-label">Actual In
+                                    Time</label>
+                                <p class="gen-title">
+                                    {{ data.actualInTime || 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="gen-info">
+                            <div
+                                class="gen-icon">
+                                <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label class="gen-label">Actual Out
+                                    Time</label>
+                                <p class="gen-title">
+                                    {{ data.actualOutTime || 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="gen-info">
+                            <div
+                                class="gen-icon">
+                                <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label class="gen-label">Working
+                                    Hours</label>
+                                <p class="gen-title">
+                                    {{ data.workingHours || 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="gen-info">
+                            <div
+                                class="gen-icon">
+                                <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
+                            </div>
+                            <div>
+                                <label
+                                    class="gen-label">Status</label>
+                                <p class="gen-title">
+                                    {{ data.status || 'N/A' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+} @else {
+<div class="p-8 text-center text-slate-400">
+    <p class="text-sm font-medium">Select an attendance record to view details.</p>
+</div>
+}

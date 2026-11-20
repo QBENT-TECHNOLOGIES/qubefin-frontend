@@ -14,6 +14,10 @@
                 {{ item.payrollMonthYear }} 
             </td>
         </ng-container>
+        <ng-container matColumnDef="companyName">
+            <th mat-header-cell *matHeaderCellDef> Companys </th>
+            <td mat-cell *matCellDef="let item"> {{ item.companyName }} </td>
+        </ng-container>
         <ng-container matColumnDef="employees">
             <th mat-header-cell *matHeaderCellDef> No. of Employees </th>
             <td mat-cell *matCellDef="let item"> {{ item.employeeCount }} </td>
@@ -29,6 +33,10 @@
         <ng-container matColumnDef="netPay">
             <th mat-header-cell *matHeaderCellDef class="text-right"> Net Pay </th>
             <td mat-cell *matCellDef="let item" class="text-right font-semibold"> {{ item.netPay | currency:'INR' }} </td>
+        </ng-container>
+        <ng-container matColumnDef="ctc">
+            <th mat-header-cell *matHeaderCellDef class="text-right"> CTC </th>
+            <td mat-cell *matCellDef="let item" class="text-right font-semibold"> {{ (item.earnings + item.employerContribution) | currency:'INR' }} </td>
         </ng-container>
         <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef class="text-center"> Status </th>
@@ -50,21 +58,29 @@
                 <div class="w-full flex justify-center">
                     <div matTooltip="Download" [matMenuTriggerFor]="repotsList"
                         class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-gray-500/8">
-                        <svg lucideIcon="download" class="w-5 h-5 text-secondary-600/80"></svg>
+                        <svg lucideIcon="download" class="w-5 h-5 text-secondary-600/80 dark:text-primary-600"></svg>
                     </div>
                 </div>
                 <mat-menu #repotsList="matMenu" class="menus-area">
-                    <button mat-menu-item (click)="onDownloadPfReport(item.payrollMonth, item.payrollYear)">
+                    <!-- <button mat-menu-item (click)="onDownloadPfReport(item.payrollMonth, item.payrollYear, item.companyId, item.companyName)">
                         <svg lucideIcon="file-down" class="w-5 h-5 text-sky-600 dark:text-sky-500 hover:text-sky-700"></svg>
-                        <span>Download PF Report</span>
+                        <span>PF Report</span>
                     </button>
-                    <button mat-menu-item (click)="onDownloadEsiReport(item.payrollMonth, item.payrollYear)">
+                    <button mat-menu-item (click)="onDownloadEsiReport(item.payrollMonth, item.payrollYear, item.companyId, item.companyName)">
                         <svg lucideIcon="file-down" class="w-5 h-5 text-indigo-600 dark:text-indigo-500 hover:text-indigo-700"></svg>
-                        <span>Download ESI Report</span>
+                        <span>ESI Report</span>
                     </button>
-                    <button mat-menu-item (click)="onDownloadPTaxReport(item.payrollMonth, item.payrollYear)">
+                    <button mat-menu-item (click)="onDownloadPTaxReport(item.payrollMonth, item.payrollYear, item.companyId, item.companyName)">
                         <svg lucideIcon="file-down" class="w-5 h-5 text-teal-600 dark:text-teal-500 hover:text-teal-700"></svg>
-                        <span>Download PTax Report</span>
+                        <span>PTax Report</span>
+                    </button> -->
+                    <button mat-menu-item (click)="onDownloadSalaryDisbursementReport(item.payrollMonth, item.payrollYear, item.companyId, item.companyName)">
+                        <svg lucideIcon="file-down" class="w-5 h-5 text-teal-600 dark:text-teal-500 hover:text-teal-700"></svg>
+                        <span>Bank Salary Disbursement</span>
+                    </button>
+                    <button mat-menu-item (click)="onDownloadEmployeeSalaryRegisterReport(item.payrollMonth, item.payrollYear, item.companyId, item.companyName)">
+                        <svg lucideIcon="file-down" class="w-5 h-5 text-teal-600 dark:text-teal-500 hover:text-teal-700"></svg>
+                        <span>Salary Register Report</span>
                     </button>
                 </mat-menu>
             </td>
@@ -102,7 +118,10 @@
         <tr class="mat-row" *matNoDataRow colspan="8">
             <td class="mat-cell px-8 !text-center text-slate-400 border-b-0" [attr.colspan]="displayedColumns().length">
                 @if (loading()) {
-                    Loading...
+                    <div class="flex justify-center items-center gap-2">
+                        <svg lucideIcon="loader" class="w-5 h-5 text-slate-400"></svg>
+                        Loading...
+                    </div>
                 } @else {
                     <div class="flex justify-center items-center gap-2">
                         <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>

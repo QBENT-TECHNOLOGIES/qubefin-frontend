@@ -24,3 +24,11 @@ export * from './lib/stores/login-state-store';
 export * from './lib/stores/permission-store';
 
 // Services
+export * from './lib/services/alert-service';
+export * from './lib/services/document-modal.service';
+
+// Components
+export * from './lib/components/status-badge';
+export * from './lib/components/time-picker-dialog/time-picker-dialog.component';
+export * from './lib/components/document-modal/document-modal';
+export * from './lib/components/file-upload-dialog/file-upload-dialog';

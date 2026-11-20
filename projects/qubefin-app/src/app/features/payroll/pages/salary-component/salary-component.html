@@ -1,0 +1,237 @@
+<div class="page-container">
+    <!-- Breadcrumb Section -->
+    <div class="header-group">
+        <div class="flex gap-3 items-center flex-wrap">
+            <p class="text-sm text-secondary-600 dark:text-slate-300 font-medium">Filter By Category:</p>
+            @for (category of categories(); track category.id) {
+            <div (click)="selectCategory(category)" class="filter-cat-btn lift" [ngClass]="{
+                            'unselect-cat-btn':
+                                selectedCategory() !== category.id,
+                            'select-cat-btn dark:shadow-primary-900/30':
+                                selectedCategory() === category.id
+                        }">
+
+                <svg [lucideIcon]="getCategoryIcon(category.name)" class="w-5 h-5">
+                </svg>
+
+                <p class="font-medium">
+                    {{ category.name }}
+                </p>
+            </div>
+            }
+            @if (selectedCategory()) {
+            <!-- <div (click)="resetCategoryFilter()" class="reset-cat-btn lift" matTooltip="Reset">
+                <svg lucideIcon="x" class="w-5 h-5">
+                </svg>
+                <p class="font-medium">
+                    Reset
+                </p>
+            </div> -->
+            <button type="button" (click)="resetCategoryFilter()"
+                class="filter-btn glass-input lift shine-sweep">
+                <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                Reset
+            </button>
+            }
+        </div>
+        <div class="headerBtn-area">
+            @if (selectedSalaryComponentId() === EMPTY_UUID && isViewMode()) {
+            <button type="button" (click)="toggleFilterArea()"
+                class="filter-btn glass-input lift shine-sweep">
+                <svg lucideIcon="funnel" class="w-4 h-4"></svg>
+                Filter
+            </button>
+            } @else {}
+            <button
+                class="global-btn ripple-btn shine-sweep lift"
+                (click)="onAdd()">
+                <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                Add New
+            </button>
+        </div>
+    </div>
+    <!-- Content Section -->
+    <div class="flex items-start" [ngClass]="isViewMode() ? 'gap-4' : 'gap-0'">
+        <div class="mainCard-area glass" [ngClass]="{
+                'w-full max-w-full opacity-100 translate-x-0':
+                    selectedSalaryComponentId() === EMPTY_UUID && isViewMode(),
+
+                'w-1/4 max-w-[25%] opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]':
+                    isViewMode() && selectedSalaryComponentId() !== EMPTY_UUID,
+
+                'w-0 max-w-0 h-0 opacity-0 -translate-x-4 pointer-events-none':
+                    !isViewMode()
+            }">
+            <!-- COLLAPSED SEARCH -->
+            @if (selectedSalaryComponentId() === EMPTY_UUID && isViewMode()) {
+            @if (showFilterArea()) {
+            <div class="filter-area">
+                <div class="filter-container">
+                    <!-- Search By Name/Code -->
+                    <div class="flex-1 min-w-50">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Search By Name/Code</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="search" class="w-5 h-5"></svg>
+                            </div>
+                            <input matInput autocomplete="off" placeholder="Enter name or code"
+                                [(ngModel)]="tempSearch">
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="flex-1 min-w-50">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Category</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                            </div>
+                            <mat-select placeholder="Select category" [(ngModel)]="tempCategory">
+                                <mat-option value="">All Categories</mat-option>
+                                @for (category of categories(); track category.id) {
+                                <mat-option [value]="category.id">{{ category.name }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Taxable Toggle -->
+                    <!-- <div class="flex flex-col select-none">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Taxable</span>
+                            <div
+                                class="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl w-30 border border-slate-200/50 dark:border-white/5 items-center h-10 shrink-0">
+                                <button type="button"
+                                    class="flex-1 text-center py-1.5 px-1 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer h-full flex items-center justify-center"
+                                    [ngClass]="tempTaxable === false ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200/10' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200'"
+                                    (click)="toggleTempTaxable(false)">
+                                    <svg lucideIcon="x" class="w-5 h-5"></svg>
+                                </button>
+                                <button type="button"
+                                    class="flex-1 text-center py-1.5 px-1 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer h-full flex items-center justify-center"
+                                    [ngClass]="tempTaxable === true ? 'bg-primary-500 text-white shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200'"
+                                    (click)="toggleTempTaxable(true)">
+                                    <svg lucideIcon="check" class="w-5 h-5"></svg>
+                                </button>
+                            </div>
+                        </div> -->
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <button type="button" (click)="applyFilters()"
+                            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                            <svg lucideIcon="search" class="w-4 h-4"></svg>
+                            Search
+                        </button>
+                        <button type="button" (click)="resetFilters()"
+                            class="reset-btn lift">
+                            <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+            }
+            } @else {
+            <div class="search-area">
+                <div
+                    class="search-input-area">
+                    <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
+                    <input type="text" [(ngModel)]="tempSearch" placeholder="Search by Name" class="search-input-style" />
+                </div>
+                <button (click)="applyFilters()"
+                    class="search-input-btn lift">
+                    <svg lucideIcon="search" class="w-4 h-4"></svg>
+                </button>
+            </div>
+            }
+
+            <!-- LIST -->
+            <qfin-salary-component-list [data]="filteredSalaryComponents()"
+                [isCollapsed]="selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()"
+                (onViewDetail)="onView($event)">
+            </qfin-salary-component-list>
+        </div>
+
+        @if (selectedSalaryComponentId() !== EMPTY_UUID || !isViewMode()) {
+        <div class="viewArea-container glass"
+            [ngClass]="{
+                'w-3/4':
+                    isViewMode() &&
+                    selectedSalaryComponentId() !== EMPTY_UUID,
+
+                'w-full':
+                    !isViewMode()
+            }">
+            <!-- HEADER -->
+            <div class="viewArea-header">
+                <div class="viewArea-headerInner">
+                    <div class="box-group">
+                        <!-- <div
+                            class="w-14 h-14 rounded-xl shadow-md bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center dark:shadow-none">
+                            @if (selectedSalaryComponentId() === EMPTY_UUID) {
+                            <svg lucideIcon="plus" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+                            } @else if (isViewMode()) {
+                            <svg lucideIcon="eye" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+                            } @else {
+                            <svg lucideIcon="square-pen" class="w-5 h-5 text-primary-700 dark:text-primary-400"></svg>
+                            }
+                        </div> -->
+                        <div>
+                            <div class="flex justify-start gap-2">
+                                <h2 class="viewArea-title">
+                                    @if (selectedSalaryComponentId() === EMPTY_UUID) {
+                                    Add Salary
+                                    } @else if (isViewMode()) {
+                                    Details
+                                    } @else {
+                                    Edit Salary
+                                    }
+                                </h2>
+                                <div
+                                    class="viewArea-badge">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+                                    <span
+                                        class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                                        @if (selectedSalaryComponentId() === EMPTY_UUID) {
+                                        New Mode
+                                        } @else if (isViewMode()) {
+                                        View Mode
+                                        } @else {
+                                        Edit Mode
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="viewArea-description">
+                                @if (selectedSalaryComponentId() === EMPTY_UUID) {
+                                Create a new salary component and configure its applicability.
+                                } @else if (isViewMode()) {
+                                View the salary component details and configuration.
+                                } @else {
+                                Update the salary component and its applicability rules.
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <button aria-label="Close" matTooltip="Close"
+                    class="pannel-close"
+                    (click)="closePanel()">
+                    <svg lucideIcon="x" class="w-4 h-4"></svg>
+                </button>
+            </div>
+
+            <!-- <div> -->
+            @if (isViewMode() && selectedSalaryComponentId() !== EMPTY_UUID) {
+            <qfin-salary-component-view [salaryId]="selectedSalaryComponentId()" (showEdit)="onEdit()">
+            </qfin-salary-component-view>
+            } @else {
+            <qfin-salary-component-detail [salaryId]="selectedSalaryComponentId()" (onCancel)="closePanel()"
+                (onSave)="closePanel()">
+            </qfin-salary-component-detail>
+            }
+            <!-- </div> -->
+        </div>
+        }
+    </div>
+</div>

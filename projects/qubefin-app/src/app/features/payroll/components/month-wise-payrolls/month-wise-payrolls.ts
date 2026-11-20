@@ -3,7 +3,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, inject, output, signal, input, computed } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { PayrollStore } from '../../stores/payroll-store';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTooltip, MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -11,9 +11,13 @@ import { FormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
 import { PayrollService } from '../../services/payroll-service';
 import { MatTableModule } from '@angular/material/table';
+import { ReportService } from '../../../Report/Service/report-service';
+import { AlertService } from 'qubefin-core';
+
 @Component({
   selector: 'qfin-month-wise-payrolls',
-  imports: [CommonModule,
+  imports: [
+    CommonModule,
     MatMenuModule,
     CurrencyPipe,
     LucideDynamicIcon,
@@ -22,12 +26,15 @@ import { MatTableModule } from '@angular/material/table';
     MatInputModule,
     MatSelectModule,
     FormsModule,
-    MatTableModule],
+    MatTableModule,
+  ],
   templateUrl: './month-wise-payrolls.html',
 })
 export class MonthWisePayrolls {
+  readonly alertService = inject(AlertService);
   private readonly payrollStore = inject(PayrollStore);
   private readonly payrollService = inject(PayrollService);
+  private readonly reportService = inject(ReportService);
   readonly iconMap = APP_ICONS_MAP;
   summaries = this.payrollStore.monthlyPayrollSummaries;
   loading = this.payrollStore.monthlyPayrollSummariesLoading;
@@ -41,70 +48,129 @@ export class MonthWisePayrolls {
     if (this.isCollapsed()) {
       return ['monthYear', 'netPay', 'actions'];
     }
-    return ['index', 'monthYear', 'employees', 'earnings', 'deductions', 'netPay', 'status', 'reports', 'actions'];
+    return [
+      'index',
+      'monthYear',
+      'companyName',
+      'employees',
+      'earnings',
+      'deductions',
+      'netPay',
+      'ctc',
+      'status',
+      'reports',
+      'actions',
+    ];
   });
+
   onView(month: number, year: number) {
     this.onViewMonth.emit({ month, year });
   }
 
-  onLockMonth(month: number, year: number) {
-    const isConfirmed = confirm(`Are you sure you want to lock the payroll for ${month}/${year}?`);
-    if (isConfirmed) {
-      this.payrollStore.lockMonthlyPayroll(month, year);
-    }
+  onLockMonth(month: number, year: number, tooltip?: MatTooltip) {
+    tooltip?.hide();
+    this.alertService
+      .confirm('Confirmation', `Are you sure you want to lock the payroll for ${month}/${year}?`)
+      .then((result: any) => {
+        if (result.isConfirmed) {
+          this.payrollStore.lockMonthlyPayroll(month, year);
+        }
+      });
   }
   readonly isDownloading = signal<boolean>(false);
-  onDownloadPfReport(month: number, year: number) {
+  onDownloadPfReport(month: number, year: number, companyId: string, companyName: string) {
     this.isDownloading.set(true);
-    this.payrollService.getPfReport(month, year).subscribe({
+    this.reportService.getPfReport(month, year, companyId).subscribe({
       next: (blob: Blob) => {
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = downloadUrl;
-        link.download = `PF_Report_${month}_${year}.xlsx`;
+        link.download = `PF_Report_${month}_${year}_${companyName}.xlsx`;
         link.click();
         window.URL.revokeObjectURL(downloadUrl);
         this.isDownloading.set(false);
       },
       error: (err) => {
         this.isDownloading.set(false);
-      }
+      },
     });
   }
-  onDownloadPTaxReport(month: number, year: number) {
+  onDownloadPTaxReport(month: number, year: number, companyId: string, companyName: string) {
     this.isDownloading.set(true);
-    this.payrollService.getPTaxReport(month, year).subscribe({
+    this.reportService.getPTaxReport(month, year, companyId).subscribe({
       next: (blob: Blob) => {
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = downloadUrl;
-        link.download = `PTax_Report_${month}_${year}.xlsx`;
+        link.download = `PTax_Report_${month}_${year}_${companyName}.xlsx`;
         link.click();
         window.URL.revokeObjectURL(downloadUrl);
         this.isDownloading.set(false);
       },
       error: (err) => {
         this.isDownloading.set(false);
-      }
+      },
     });
   }
-  onDownloadEsiReport(month: number, year: number) {
+  onDownloadEsiReport(month: number, year: number, companyId: string, companyName: string) {
     this.isDownloading.set(true);
-    this.payrollService.getEsiReport(month, year).subscribe({
+    this.reportService.getEsiReport(month, year, companyId).subscribe({
       next: (blob: Blob) => {
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = downloadUrl;
-        link.download = `ESI_Report_${month}_${year}.xlsx`;
-        window.URL.revokeObjectURL(downloadUrl);
+        link.download = `ESI_Report_${month}_${year}_${companyName}.xlsx`;
         link.click();
+        window.URL.revokeObjectURL(downloadUrl);
         this.isDownloading.set(false);
       },
       error: (err) => {
         this.isDownloading.set(false);
-      }
-    })
+      },
+    });
+  }
+  onDownloadSalaryDisbursementReport(
+    month: number,
+    year: number,
+    companyId: string,
+    companyName: string,
+  ) {
+    this.isDownloading.set(true);
+    this.reportService.getSalaryDisbursementReport(month, year, companyId).subscribe({
+      next: (blob: Blob) => {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `salary_Report_${month}_${year}_${companyName}.xlsx`;
+        link.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        this.isDownloading.set(false);
+      },
+      error: (err) => {
+        this.isDownloading.set(false);
+      },
+    });
+  }
+  onDownloadEmployeeSalaryRegisterReport(
+    month: number,
+    year: number,
+    companyId: string,
+    companyName: string,
+  ) {
+    this.isDownloading.set(true);
+    this.reportService.getEmployeeSalaryRegisterReport(month, year, companyId).subscribe({
+      next: (blob: Blob) => {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `employee_salary_register_Report_${month}_${year}_${companyName}.xlsx`;
+        link.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        this.isDownloading.set(false);
+      },
+      error: (err) => {
+        this.isDownloading.set(false);
+      },
+    });
   }
 }
-
-

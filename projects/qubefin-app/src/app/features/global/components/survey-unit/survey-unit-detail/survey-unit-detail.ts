@@ -16,7 +16,7 @@ import {
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
-import { form, required, Schema, schema } from '@angular/forms/signals';
+import { form, readonly, required, Schema, schema } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
@@ -52,7 +52,7 @@ export class SurveyUnitDetail {
   private readonly surveyStore = inject(SurveyStore);
   private readonly surveyService = inject(SurveyService);
   private readonly employeeService = inject(EmployeeService);
-  private readonly administrativeUnitService = inject(AdministrativeUnitService);
+  private readonly alertService = inject(AlertService);
   private readonly dateAdapter = inject(DateAdapter<Date>);
   private readonly datePipe = inject(DatePipe);
 
@@ -103,6 +103,8 @@ export class SurveyUnitDetail {
     required(path.proposedArea, {
       message: 'Proposed Area is required',
     });
+    readonly(path.assignmentDate, { when: () => true });
+    readonly(path.tentativeSubmissionDate, { when: () => true });
   });
   protected readonly surveyForm = form(this.formModel, this.surveySchema);
 
@@ -131,13 +133,8 @@ export class SurveyUnitDetail {
         distinctUntilChanged(),
         switchMap((x) => this.employeeService.getEmployeesBySearchText(x)),
       )
-      .subscribe((response: EmployeeSearchResponse) => {
-        this.employeeOptions.set(
-          response.value?.employees ??
-            response.valueOrDefault?.employees ??
-            response.employees ??
-            [],
-        );
+      .subscribe((resp: any) => {
+        this.employeeOptions.set(resp ?? []);
       });
 
     effect(() => {
@@ -207,7 +204,6 @@ export class SurveyUnitDetail {
 
   protected addMember() {
     const employee = this.selectedEmployee();
-    console.log(employee);
 
     if (!employee) {
       Swal.fire({
@@ -336,8 +332,10 @@ export class SurveyUnitDetail {
         if (!this.isEditMode()) {
           this.surveyService.create(payload).subscribe({
             next: (resp: any) => {
-              this.surveyStore.refreshList();
-              this.save.emit();
+              this.alertService.success('Success', resp).then(() => {
+                this.surveyStore.refreshList();
+                this.save.emit();
+              });
             },
           });
           return;
@@ -345,11 +343,7 @@ export class SurveyUnitDetail {
 
         this.surveyService.update(payload).subscribe({
           next: (resp: any) => {
-            Swal.fire({
-              title: 'Success!',
-              text: resp.value.message,
-              icon: 'success',
-            }).then(() => {
+            this.alertService.success('Success', resp).then(() => {
               this.surveyStore.refreshList();
               this.surveyStore.refreshDetail();
               this.save.emit();

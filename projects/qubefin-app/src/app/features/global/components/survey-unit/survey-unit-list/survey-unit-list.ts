@@ -6,7 +6,7 @@ import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
-
+import { APP_ICONS_MAP } from '../../../../../lucide-icons';
 @Component({
   selector: 'qfin-survey-unit-list',
   imports: [
@@ -29,6 +29,7 @@ export class SurveyUnitList {
   readonly pageSize = input(10);
   readonly selectedId = input('');
   readonly isCollapsed = input(false);
+  readonly iconMap = APP_ICONS_MAP;
 
   // Emit From Child
   pageChanged = output<PageEvent>();

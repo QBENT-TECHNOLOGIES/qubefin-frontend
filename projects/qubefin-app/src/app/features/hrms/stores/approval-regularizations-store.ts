@@ -1,0 +1,154 @@
+import { DatePipe } from '@angular/common';
+import { httpResource } from '@angular/common/http';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
+import {
+  IApprovalRegularization,
+  IAttendanceRegularizationDetail,
+  IAttendanceRegularizationEvent,
+} from '../models/attendance-regularization';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ApprovalRegularizationStore {
+  private readonly basePath = `${ApiPaths.HRMS}/attendances/regularizations`;
+  private readonly regularizationId = signal<string | undefined>(undefined);
+  readonly fromDate = signal<string | null>(null);
+  readonly toDate = signal<string | null>(null);
+  readonly searchQuery = signal<string | null>(null);
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+  readonly sortOn = signal('fromDate');
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
+  readonly searchEmployeeId = signal<string | null>(null);
+  readonly approvalReguralizationsResource = httpResource<{
+    results: IApprovalRegularization[];
+    totalRecords: number;
+  }>(() => ({
+    url: `${this.basePath}` + '/search-approval',
+    method: 'POST',
+    body: {
+      fromDate: this.fromDate(),
+      toDate: this.toDate(),
+      searchText: this.searchQuery(),
+      searchEmployeeId: this.searchEmployeeId(),
+      sortOn: this.sortOn(),
+      sortDirection: this.sortDirection(),
+      pageIndex: this.pageIndex(),
+      pageSize: this.pageSize(),
+    },
+  }));
+  readonly approvalRegularization = computed<IApprovalRegularization[]>(
+    () => this.approvalReguralizationsResource.value()?.results ?? [],
+  );
+  readonly totalRecords = computed(
+    () => this.approvalReguralizationsResource.value()?.totalRecords ?? 0,
+  );
+
+  readonly loading = computed(() => this.approvalReguralizationsResource.isLoading());
+  readonly error = computed(() => this.approvalReguralizationsResource.error());
+  // readonly regularizationResource = httpResource<IAttendanceRegularizationDetail>(() => {
+  //   const id = this.regularizationId();
+
+  //   return id && id !== EMPTY_UUID ? `${this.basePath}/${id}` : undefined;
+  // });
+  readonly regularizationResource = httpResource<IAttendanceRegularizationDetail>(() => {
+    const id = this.regularizationId();
+
+    return id && id !== EMPTY_UUID ? `${this.basePath}/${id}` : undefined;
+  });
+  readonly regularization = computed(() => {
+    const item = this.regularizationResource.value();
+
+    return item ? this.normalizeItem(item) : undefined;
+  });
+
+  readonly regularizationUnitLoading = computed(() => this.regularizationResource.isLoading());
+  readonly regularizationUnitError = computed(() => this.regularizationResource.error());
+  setFromDate(date: string | null) {
+    this.fromDate.set(date);
+  }
+  setToDate(date: string | null) {
+    this.toDate.set(date);
+  }
+  //  setStatus(status: string | null) {
+  //    this.status.set(status);
+  //  }
+
+  setSearchQuery(query: string | null) {
+    this.searchQuery.set(query);
+    this.pageIndex.set(0);
+  }
+  setEmployeeId(id: string | null) {
+    this.searchEmployeeId.set(id);
+    this.pageIndex.set(0);
+  }
+  setPage(index: number) {
+    this.pageIndex.set(index);
+  }
+
+  setPageSize(items: number) {
+    this.pageSize.set(items);
+  }
+
+  setSort(sort: string, direction: 'asc' | 'desc') {
+    this.sortOn.set(sort);
+    this.sortDirection.set(direction);
+    this.pageIndex.set(0);
+  }
+
+  refreshList() {
+    this.approvalReguralizationsResource.reload();
+  }
+  refreshDetail() {
+    this.regularizationResource.reload();
+  }
+  setRegularizationId(id: string | undefined) {
+    if (this.regularizationId() !== id) {
+      this.regularizationId.set(id);
+    }
+  }
+  reset() {
+    this.regularizationId.set(undefined);
+    this.fromDate.set(null);
+    this.toDate.set(null);
+    this.searchQuery.set(null);
+    this.searchEmployeeId.set(null);
+    this.pageIndex.set(0);
+    this.pageSize.set(10);
+    this.sortOn.set('fromDate');
+    this.sortDirection.set('desc');
+    this.approvalReguralizationsResource.reload();
+  }
+  private normalizeItem(item: IAttendanceRegularizationDetail): IAttendanceRegularizationDetail {
+    return {
+      ...item,
+
+      createdOn: item.createdOn ? new Date(item.createdOn).toISOString() : item.createdOn,
+
+      regularizationDates: this.normalizeRegularizationDates(item.regularizationDates),
+
+      events: item.events
+        ? item.events.map((h) => ({
+            ...h,
+            eventDate: h.eventDate ? new Date(h.eventDate) : '',
+          }))
+        : [],
+    };
+  }
+
+  private normalizeRegularizationDates(dates: string | null): string | null {
+    if (!dates) {
+      return null;
+    }
+
+    try {
+      const parsedDates: string[] = JSON.parse(dates);
+
+      return parsedDates.join(', ');
+    } catch {
+      return dates;
+    }
+  }
+}

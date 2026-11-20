@@ -37,7 +37,7 @@ export class LoginStateStore {
     }
 
     resetLoginState() {
-        const initialState: LoginState = { step: 'login', sessionId: crypto.randomUUID() };
+        const initialState: LoginState = { step: 'login', sessionId: this.generateUUID() };
         this.loginStateSignal.set(initialState);
         sessionStorage.setItem(StorageTokens.LOGIN_STATE_TOKEN, JSON.stringify(initialState));
     }

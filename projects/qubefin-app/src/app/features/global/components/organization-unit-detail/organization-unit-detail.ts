@@ -1,11 +1,29 @@
-import { Component, effect, inject, model, output, signal, WritableSignal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  model,
+  output,
+  signal,
+  untracked,
+  WritableSignal,
+} from '@angular/core';
 import { OrganizationUnitStore } from '../../stores/organization-unit-store';
 import { OrganizationUnitTypeStore } from '../../stores/organization-unit-type-store';
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { OrganizationUnit } from '../../models/organization-unit';
-import { form, FormField, required, schema, Schema } from '@angular/forms/signals';
+import {
+  form,
+  FormField,
+  maxLength,
+  readonly,
+  required,
+  schema,
+  Schema,
+} from '@angular/forms/signals';
 import { OrganizationUnitBasic } from '../../models/organization-unit-tree-node';
-import { EMPTY_UUID } from 'qubefin-core';
+import { AlertService, EMPTY_UUID, TimePickerDialogComponent } from 'qubefin-core';
 import { OrganizationUnitType } from '../../models/organization-unit-type';
 import { OrganizationUnitService } from '../../services/organization-unit-service';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,249 +31,482 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { IComapnyList } from '../../models/company';
+import { CompanyService } from '../../services/company-service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
 
 export interface OrganizationUnitTypeParentField {
-	id: string;
-	name: string;
-	typeIcon: string;
-	value: WritableSignal<string | null>;
-	parentId: WritableSignal<string | null>;
-	options: WritableSignal<OrganizationUnitBasic[]>;
+  id: string;
+  name: string;
+  typeIcon: string;
+  value: WritableSignal<string | null>;
+  parentId: WritableSignal<string | null>;
+  options: WritableSignal<OrganizationUnitBasic[]>;
 }
 
 @Component({
-	selector: 'qfin-organization-unit-detail-component',
-	imports: [FormField, MatIconModule, MatFormFieldModule, MatInputModule, MatSelectModule, LucideDynamicIcon],
-	templateUrl: './organization-unit-detail.html'
+  selector: 'qfin-organization-unit-detail-component',
+  imports: [
+    FormField,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    LucideDynamicIcon,
+    MatDialogModule,
+  ],
+  templateUrl: './organization-unit-detail.html',
 })
 export class OrganizationUnitDetailComponent {
-	organizationUnitStore = inject(OrganizationUnitStore);
-	organizationUnitTypeStore = inject(OrganizationUnitTypeStore);
-	organizationUnitService = inject(OrganizationUnitService);
+  private readonly dialog = inject(MatDialog);
+  companyService = inject(CompanyService);
+  organizationUnitStore = inject(OrganizationUnitStore);
+  organizationUnitTypeStore = inject(OrganizationUnitTypeStore);
+  organizationUnitService = inject(OrganizationUnitService);
+  alertService = inject(AlertService);
+  private readonly administrativeUnitStore = inject(AdministrativeUnitStore);
 
-	organizationUnitId = model<string>('');
-	cancel = output<void>();
-	private readonly hierarchyInitialized = signal(false);
-	readonly iconMap = APP_ICONS_MAP;
+  // Location: Country is fixed to India, the user picks State and then District (only District is saved).
+  readonly country = computed(
+    () =>
+      this.administrativeUnitStore
+        .administrativeUnitTree()
+        .find((x) => x.name.trim().toLowerCase() === 'india') ?? null,
+  );
+  readonly states = computed(() => this.country()?.children ?? []);
+  readonly selectedStateId = signal<string | null>(null);
+  readonly districts = computed(
+    () =>
+      this.states()
+        .find((x) => x.id === this.selectedStateId())
+        ?.children?.filter((x) => x.administrativeUnitTypeName === 'District') ?? [],
+  );
 
-	organizationUnit = this.organizationUnitStore.organizationUnit;
-	organizationUnitTypes = this.organizationUnitTypeStore.organizationUnitTypes;
+  companies = signal<IComapnyList[]>([]);
 
-	constructor() {
-		effect(() => {
-			const id = this.organizationUnitId();
-			this.organizationUnitStore.setOrganizationUnitId(id);
-		});
+  organizationUnitId = model<string>(EMPTY_UUID);
+  cancel = output<void>();
+  saved = output<void>();
+  private readonly hierarchyInitialized = signal(false);
+  readonly iconMap = APP_ICONS_MAP;
 
-		effect(() => {
-			const unit = this.organizationUnit();
+  organizationUnit = this.organizationUnitStore.organizationUnit;
+  organizationUnitTypes = this.organizationUnitTypeStore.organizationUnitTypes;
+  isBranchSelected = computed(() => {
+    const typeId = this.organizationUnitForm.organizationUnitTypeId().value();
+    if (!typeId) return false;
+    const selectedType = this.organizationUnitTypes().find((x) => x.id === typeId);
+    return selectedType?.name === 'Branch';
+  });
+  buttonText = computed(() => (this.organizationUnitId() === EMPTY_UUID ? 'Create' : 'Update'));
+  
+  constructor() {
+    this.companyService.getAll().subscribe((companies: any) => {
+      this.companies.set(
+        companies.map((company: any) => ({ ...company, name: company.name.trim() })),
+      );
+    });
+    effect(() => {
+      const id = this.organizationUnitId();
+      this.organizationUnitStore.setOrganizationUnitId(id);
+    });
+    effect(() => {
+      if (this.organizationUnitId() === EMPTY_UUID) {
+        this.organizationUnitModel.set({
+          id: '',
+          name: '',
+          organizationUnitTypeId: '',
+          organizationUnitTypeIcon: '',
+          organizationUnitTypeName: '',
+          parentId: '',
+          parentName: '',
+          isActive: true,
+          companyId: '',
+          districtId: '',
+          latitude: null,
+          longitude: null,
+          attendanceInTime: '',
+          attendanceOutTime: '',
+          checkRadiusInMeter: null,
+          createdBy: '',
+          createdOn: new Date(),
+          hierarchy: [],
+          designations: [],
+        });
+        this.parentTypes.set([]);
+        this.selectedStateId.set(null);
+        return;
+      }
 
-			if (!unit)
-				return;
+      const unit = this.organizationUnit();
 
-			this.organizationUnitModel.set(unit!);
-		});
+      if (!unit) return;
 
-		effect(() => {
-			const typeId = this.organizationUnitForm.organizationUnitTypeId().value();
-			if (!typeId)
-				return;
+      this.organizationUnitModel.set({
+        ...unit,
+        companyId: unit.companyId ?? '',
+        districtId: unit.districtId ?? '',
+        latitude: unit.latitude ?? null,
+        longitude: unit.longitude ?? null,
+        checkRadiusInMeter: unit.checkRadiusInMeter ?? null,
+        attendanceInTime: this.formatTo12Hour(unit.attendanceInTime),
+        attendanceOutTime: this.formatTo12Hour(unit.attendanceOutTime),
+      });
+    });
+    // Select the State that owns the saved District once both the unit and the location tree are loaded.
+    effect(() => {
+      const districtId = this.organizationUnitForm.districtId().value();
+      if (!districtId) return;
 
-			this.hierarchyInitialized.set(false);
-			const selectedType = this.organizationUnitTypes().find(x => x.id === typeId);
+      const state = this.states().find((x) => x.children?.some((d) => d.id === districtId));
+      if (state && state.id !== untracked(this.selectedStateId)) {
+        this.selectedStateId.set(state.id);
+      }
+    });
+    effect(() => {
+      const typeId = this.organizationUnitForm.organizationUnitTypeId().value();
+      if (!typeId) return;
 
-			if (!selectedType) {
-				this.parentTypes.set([]);
-				return;
-			}
+      this.hierarchyInitialized.set(false);
+      const selectedType = this.organizationUnitTypes().find((x) => x.id === typeId);
 
-			this.parentTypes.set(
-				this.getParents(selectedType)
-					.map((parent, index) =>
-						this.createParentField(parent.id, parent.name, parent.typeIcon, null)
-					)
-			);
-		});
+      if (!selectedType) {
+        this.parentTypes.set([]);
+        return;
+      }
 
-		effect(() => {
+      this.parentTypes.set(
+        this.getParents(selectedType).map((parent, index) =>
+          this.createParentField(parent.id, parent.name, parent.typeIcon, null),
+        ),
+      );
+    });
 
-			if (this.hierarchyInitialized()) {
-				return;
-			}
+    effect(() => {
+      if (this.hierarchyInitialized()) {
+        return;
+      }
 
-			if (!this.parentTypes().length) {
-				return;
-			}
+      if (!this.parentTypes().length) {
+        return;
+      }
 
-			const hierarchy = this.organizationUnitModel().hierarchy;
+      const hierarchy = this.organizationUnitModel().hierarchy;
 
-			if (hierarchy.length === 0) {
-				this.loadOptionsForParentField(0);
-			} else {
-				this.populateHierarchy();
-			}
+      if (hierarchy.length === 0) {
+        this.loadOptionsForParentField(0);
+      } else {
+        this.populateHierarchy();
+      }
 
-			this.hierarchyInitialized.set(true);
+      this.hierarchyInitialized.set(true);
+    });
+  }
 
-		});
+  protected readonly organizationUnitModel = signal<OrganizationUnit>({
+    id: '',
+    name: '',
+    organizationUnitTypeId: '',
+    organizationUnitTypeIcon: '',
+    organizationUnitTypeName: '',
+    parentId: '',
+    parentName: '',
+    isActive: true,
+    companyId: '',
+    districtId: '',
+    latitude: null,
+    longitude: null,
+    attendanceInTime: '',
+    attendanceOutTime: '',
+    checkRadiusInMeter: null,
+    createdBy: '',
+    createdOn: new Date(),
+    hierarchy: [],
+    designations: [],
+  });
+  protected readonly organizationUnitSchema: Schema<OrganizationUnit> = schema((path) => {
+    required(path.name, { message: 'Organization Unit Name is required' });
+    // The column is nvarchar(50); without this the save fails server side.
+    maxLength(path.name, 50, {
+      message: 'Organization Unit Name cannot exceed 50 characters',
+    });
+    required(path.organizationUnitTypeId, { message: 'Organization Unit Type is required' });
+    required(path.districtId, { message: 'District is required' });
+    required(path.companyId, {
+      message: 'Company is required',
+      when: () => this.isBranchSelected(),
+    });
+    required(path.attendanceInTime, {
+      message: 'In Time is required',
+      when: () => this.isBranchSelected(),
+    });
+    required(path.attendanceOutTime, {
+      message: 'Out Time is required',
+      when: () => this.isBranchSelected(),
+    });
+    required(path.checkRadiusInMeter, {
+      message: 'Check Radius is required',
+      when: () => this.isBranchSelected(),
+    });
+    required(path.latitude, {
+      message: 'Latitude is required',
+      when: () => this.isBranchSelected(),
+    });
+    required(path.longitude, {
+      message: 'Longitude is required',
+      when: () => this.isBranchSelected(),
+    });
+    readonly(path.attendanceInTime, { when: () => true });
+    readonly(path.attendanceOutTime, { when: () => true });
+  });
+  protected readonly organizationUnitForm = form(
+    this.organizationUnitModel,
+    this.organizationUnitSchema,
+  );
 
-	}
+  parentTypes = signal<OrganizationUnitTypeParentField[]>([]);
 
-	protected readonly organizationUnitModel = signal<OrganizationUnit>({
-		id: '',
-		name: '',
-		organizationUnitTypeId: '',
-		organizationUnitTypeIcon: '',
-		organizationUnitTypeName: '',
-		parentId: '',
-		parentName: '',
-		isActive: true,
-		createdBy: '',
-		createdOn: new Date(),
-		hierarchy: []
-	});
-	protected readonly organizationUnitSchema: Schema<OrganizationUnit> = schema((path) => {
-		required(path.name, { message: 'Organization Unit Name is required' });
-	});
-	protected readonly organizationUnitForm = form(this.organizationUnitModel, this.organizationUnitSchema);
+  onStateChange(stateId: string) {
+    this.selectedStateId.set(stateId);
+    this.organizationUnitModel.update((m) => ({ ...m, districtId: '' }));
+  }
 
-	parentTypes = signal<OrganizationUnitTypeParentField[]>([]);
+  onParentChanged(index: number, value: string) {
+    const fields = this.parentTypes();
+    fields[index].value.set(value);
+    for (let i = index + 1; i < fields.length; i++) {
+      fields[i].value.set(null);
+      fields[i].options.set([]);
+      fields[i].parentId.set(null);
+    }
+    if (index + 1 < fields.length) {
+      fields[index + 1].parentId.set(value);
+      this.loadOptionsForParentField(index + 1);
+    }
+  }
+  openInTimePicker() {
+    const currentTime = this.organizationUnitModel().attendanceInTime;
+    this.openTimePicker('In Time', currentTime, (time: string) => {
+      this.organizationUnitModel.update((m) => ({ ...m, attendanceInTime: time }));
+    });
+  }
 
-	onParentChanged(index: number, value: string) {
-		const fields = this.parentTypes();
-		fields[index].value.set(value);
-		for (let i = index + 1; i < fields.length; i++) {
-			fields[i].value.set(null);
-			fields[i].options.set([]);
-			fields[i].parentId.set(null);
-		}
-		if (index + 1 < fields.length) {
-			fields[index + 1].parentId.set(value);
-			this.loadOptionsForParentField(index + 1);
-		}
-	}
+  openOutTimePicker() {
+    const currentTime = this.organizationUnitModel().attendanceOutTime;
+    this.openTimePicker('Out Time', currentTime, (time: string) => {
+      this.organizationUnitModel.update((m) => ({ ...m, attendanceOutTime: time }));
+    });
+  }
 
-	onSubmit() {
-		if (!this.organizationUnitForm().valid()) {
-			return;
-		}
+  private openTimePicker(title: string, currentTime: string, callback: (time: string) => void) {
+    let currentHour = 12;
+    let currentMinute = 0;
+    let currentPeriod: 'AM' | 'PM' = 'AM';
 
-		const dataToSave = this.organizationUnitForm().value();
-		dataToSave.parentId = this.parentTypes().at(-1)?.value()!;
-		if (this.organizationUnitId() === EMPTY_UUID) {
-			this.organizationUnitService.create(dataToSave).subscribe({
-				next: (resp: any) => {
-					this.organizationUnitStore.refreshTree();
-				},
-				error: (err: any) => {
-					if (err.error.isError) {
-					}
-				}
-			});
-		} else {
-			this.organizationUnitService.update(this.organizationUnitId(), dataToSave).subscribe({
-				next: (resp: any) => {
-					this.organizationUnitStore.refreshTree();
-				},
-				error: (err: any) => {
-					if (err.error.isError) {
-					}
-				}
-			});
-		}
-	}
+    if (currentTime) {
+      const parts = currentTime.split(' ');
+      const timeParts = parts[0].split(':');
+      currentHour = parseInt(timeParts[0], 10) || 12;
+      currentMinute = parseInt(timeParts[1], 10) || 0;
+      if (parts[1]) {
+        currentPeriod = parts[1] as 'AM' | 'PM';
+      } else {
+        currentPeriod = currentHour >= 12 ? 'PM' : 'AM';
+        currentHour = currentHour % 12 || 12;
+      }
+    }
 
-	onCancel() {
-		this.cancel.emit();
-	}
+    const dialogRef = this.dialog.open(TimePickerDialogComponent, {
+      width: '340px',
+      maxWidth: '95vw',
+      panelClass: 'custom-time-picker-dialog',
+      data: { title, currentHour, currentMinute, currentPeriod },
+    });
 
-	private loadOptionsForParentField(index: number) {
-		const field = this.parentTypes()[index];
-		this.organizationUnitService
-			.loadChildren(field.parentId())
-			.subscribe({
-				next: result => {
-					field.options.set(result);
-				},
-				error: () => {
-					field.options.set([]);
-				}
-			});
-	}
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.formatted) {
+        callback(result.formatted);
+      }
+    });
+  }
 
-	private getParents(selected: OrganizationUnitType): OrganizationUnitType[] {
-		return this.organizationUnitTypes()
-			.filter(x => {
-				return x.levelNo < selected.levelNo;
-			})
-			.sort((a, b) => a.levelNo - b.levelNo);
-	}
+  private formatTo12Hour(time: string | null | undefined): string {
+    if (!time) return '';
 
-	private createParentField(
-		id: string,
-		name: string,
-		typeIcon: string,
-		value: string | null
-	): OrganizationUnitTypeParentField {
-		return {
-			id,
-			name,
-			typeIcon,
-			value: signal(value),
-			parentId: signal<string | null>(null),
-			options: signal<OrganizationUnitBasic[]>([])
-		};
-	}
+    const parts = time.trim().split(' ');
+    const timePart = parts[0];
 
-	private populateHierarchy() {
+    const [hoursStr, minutesStr] = timePart.split(':');
+    let hours = parseInt(hoursStr, 10);
+    const minutes = parseInt(minutesStr, 10);
 
-		if (!this.parentTypes().length) {
-			return;
-		}
+    if (isNaN(hours) || isNaN(minutes)) {
+      return '';
+    }
 
-		// First level has no parent
-		this.parentTypes()[0].parentId.set(null);
+    // Already 12-hour format
+    if (parts[1]) {
+      const period = parts[1].toUpperCase();
+      hours = hours % 12 || 12;
 
-		this.populateLevel(0);
+      return `${hours.toString().padStart(2, '0')}:${minutes
+        .toString()
+        .padStart(2, '0')} ${period}`;
+    }
 
-	}
+    // Convert 24-hour -> 12-hour
+    const period = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
 
-	private populateLevel(index: number) {
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
+  }
+  private formatTimeForApi(timeStr: string | null | undefined): string {
+    if (!timeStr) return '';
 
-		const hierarchy = this.organizationUnitModel().hierarchy;
-		const fields = this.parentTypes();
+    if (timeStr.includes('AM') || timeStr.includes('PM')) {
+      const parts = timeStr.trim().split(/\s+/);
+      const timeParts = parts[0].split(':');
 
-		if (index >= fields.length)
-			return;
+      let hour = parseInt(timeParts[0], 10);
+      const minute = parseInt(timeParts[1] || '0', 10);
+      const period = parts[1]?.toUpperCase();
 
-		const field = fields[index];
+      if (period === 'PM' && hour !== 12) hour += 12;
+      if (period === 'AM' && hour === 12) hour = 0;
 
-		this.organizationUnitService
-			.loadChildren(field.parentId())
-			.subscribe({
+      return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
+    }
 
-				next: result => {
-					field.options.set(result);
+    const timeParts = timeStr.split(':');
+    const h = String(timeParts[0] || '0').padStart(2, '0');
+    const m = String(timeParts[1] || '0').padStart(2, '0');
+    const s = String(timeParts[2] || '0').padStart(2, '0');
 
-					if (hierarchy.length > 0) {
-						// Set selected value from model
-						field.value.set(hierarchy[index].id ?? null);
+    return `${h}:${m}:${s}`;
+  }
+  onSubmit() {
+    this.organizationUnitForm().markAsTouched();
+    if (!this.organizationUnitForm().valid()) {
+      return;
+    }
+    const parents = this.parentTypes();
+    for (let i = 0; i < parents.length; i++) {
+      if (!parents[i].value()) {
+        this.alertService.warning('Validation Error', `Please select ${parents[i].name}.`);
+        return;
+      }
+    }
+    const dataToSave = this.organizationUnitForm().value() as any;
+    dataToSave.parentId = this.parentTypes().at(-1)?.value() ?? null;
+    dataToSave.companyId = dataToSave.companyId ? dataToSave.companyId : null;
+    dataToSave.districtId = dataToSave.districtId ? dataToSave.districtId : null;
+    dataToSave.attendanceInTime = dataToSave.attendanceInTime
+      ? this.formatTimeForApi(dataToSave.attendanceInTime)
+      : null;
+    dataToSave.attendanceOutTime = dataToSave.attendanceOutTime
+      ? this.formatTimeForApi(dataToSave.attendanceOutTime)
+      : null;
+    if (this.organizationUnitId() === EMPTY_UUID) {
+      this.organizationUnitService.create(dataToSave).subscribe({
+        next: (resp: any) => {
+          this.alertService.success('Success', resp).then(() => {
+            this.organizationUnitStore.refreshTree();
+            this.saved.emit();
+          });
+        },
+        error: (err: any) => { },
+      });
+    } else {
+      this.organizationUnitService.update(this.organizationUnitId(), dataToSave).subscribe({
+        next: (resp: any) => {
+          this.alertService.success('Success', resp).then(() => {
+            this.organizationUnitStore.refreshTree();
+            this.organizationUnitStore.refresh();
+            this.saved.emit();
+          });
+        },
+        error: (err: any) => { },
+      });
+    }
+  }
 
-						// Set parent for next dropdown
-						if (index + 1 < fields.length) {
+  onCancel() {
+    this.cancel.emit();
+  }
 
-							fields[index + 1]
-								.parentId
-								.set(hierarchy[index].id);
+  private loadOptionsForParentField(index: number) {
+    const field = this.parentTypes()[index];
+    this.organizationUnitService.loadChildren(field.parentId()).subscribe({
+      next: (result) => {
+        field.options.set(result);
+      },
+      error: () => {
+        field.options.set([]);
+      },
+    });
+  }
 
-							this.populateLevel(index + 1);
+  private getParents(selected: OrganizationUnitType): OrganizationUnitType[] {
+    return this.organizationUnitTypes()
+      .filter((x) => {
+        return x.levelNo < selected.levelNo;
+      })
+      .sort((a, b) => a.levelNo - b.levelNo);
+  }
 
-						}
-					}
+  private createParentField(
+    id: string,
+    name: string,
+    typeIcon: string,
+    value: string | null,
+  ): OrganizationUnitTypeParentField {
+    return {
+      id,
+      name,
+      typeIcon,
+      value: signal(value),
+      parentId: signal<string | null>(null),
+      options: signal<OrganizationUnitBasic[]>([]),
+    };
+  }
 
-				}
+  private populateHierarchy() {
+    if (!this.parentTypes().length) {
+      return;
+    }
 
-			});
+    // First level has no parent
+    this.parentTypes()[0].parentId.set(null);
 
-	}
+    this.populateLevel(0);
+  }
+
+  private populateLevel(index: number) {
+    const parentHierarchy = this.organizationUnitModel().hierarchy.slice(0, -1);
+    const fields = this.parentTypes();
+
+    if (index >= fields.length) return;
+
+    const field = fields[index];
+
+    this.organizationUnitService.loadChildren(field.parentId()).subscribe({
+      next: (result) => {
+        field.options.set(result);
+        const hierarchyItem = parentHierarchy[index];
+
+        if (!hierarchyItem) return;
+
+        // Set selected value from model
+        field.value.set(hierarchyItem.id ?? null);
+
+        // Set parent for next dropdown
+        if (index + 1 < fields.length) {
+          fields[index + 1].parentId.set(hierarchyItem.id);
+
+          this.populateLevel(index + 1);
+        }
+      },
+    });
+  }
 }

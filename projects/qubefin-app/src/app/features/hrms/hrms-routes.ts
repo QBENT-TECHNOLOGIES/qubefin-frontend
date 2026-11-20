@@ -1,22 +1,215 @@
 import { Routes } from '@angular/router';
 
 export const HrmsRoutes: Routes = [
-    {
-        path: '',
-        children: [
-            {
-                path: 'salary-components',
-                loadComponent: () => import('./pages/salary-component/salary-component').then(m => m.SalaryComponent),
-                data: {
-                    title: 'Salary Components',
-                    subTitle: 'Manage and organize administrative units within your organization.',
-                    icon: 'apartment'
-                }
-            },
-            {
-                path: 'employee-components',
-                loadComponent: () => import('./pages/employee-component/employee-component').then(m => m.EmployeeComponent)
-            }
-        ]
-    }
+  {
+    path: '',
+    children: [
+      {
+        path: 'employees',
+        loadComponent: () =>
+          import('./pages/employee-component/employee-component').then((m) => m.EmployeeComponent),
+      },
+      {
+        path: 'my-team',
+        loadComponent: () =>
+          import('./pages/my-team-component/my-team-component').then((m) => m.MyTeamComponent),
+      },
+      {
+        path: 'approval-workflows',
+        loadComponent: () =>
+          import('./pages/approval-workflow/approval-workflow').then((m) => m.ApprovalWorkflow),
+        data: {
+          title: 'Approval Workflows',
+          subTitle: 'Configure the approval steps required for HRMS events.',
+          icon: 'clipboard-check',
+        },
+      },
+      {
+        path: 'employee-records',
+        loadComponent: () =>
+          import('./pages/employee-records-component/employee-records-component').then(
+            (m) => m.EmployeeRecordsComponent,
+          ),
+        data: {
+          title: 'Employee Records',
+          subTitle: 'Leave, attendance and approval history in one place',
+          icon: 'users',
+        },
+      },
+      {
+        path: 'employee-approvals',
+        loadComponent: () =>
+          import('./pages/employee-approvals-component/employee-approvals-component').then(
+            (m) => m.EmployeeApprovalsComponent,
+          ),
+        data: {
+          title: 'Employee Approvals',
+          subTitle: 'Every pending employee approval in one place',
+          icon: 'clipboard-check',
+        },
+      },
+      {
+        path: 'attendance-history',
+        loadComponent: () =>
+          import('./pages/attendance-history-component/attendance-history-component').then(
+            (m) => m.AttendanceHistoryComponent,
+          ),
+      },
+      {
+        path: 'attendance-regularization',
+        loadComponent: () =>
+          import('./pages/attendance-regularizations/attendance-regularizations').then(
+            (m) => m.AttendanceRegularizations,
+          ),
+      },
+      // {
+      //   path: 'approval-regularization',
+      //   loadComponent: () =>
+      //     import('./pages/approval-regularizations/approval-regularizations').then(
+      //       (m) => m.ApprovalRegularizations,
+      //     ),
+      // },
+      {
+        path: 'leave-requests',
+        loadComponent: () =>
+          import('./pages/leave-request-component/leave-request-component').then(
+            (m) => m.LeaveRequestComponent,
+          ),
+        data: {
+          title: 'Leave Requests',
+          subTitle: 'Manage Leave Requests',
+          icon: 'apartment',
+        },
+      },
+      // {
+      //   path: 'leave-approvals',
+      //   loadComponent: () =>
+      //     import('./pages/leave-approval-component/leave-approval-component').then(
+      //       (m) => m.LeaveApprovalComponent,
+      //     ),
+      //   data: {
+      //     title: 'Leave Approval',
+      //     subTitle: 'Manage Leave Approvals',
+      //     icon: 'apartment',
+      //   },
+      // },
+      {
+        path: 'leave-prayers',
+        loadComponent: () =>
+          import('./pages/leave-prayer-component/leave-prayer-component').then(
+            (m) => m.LeavePrayerComponent,
+          ),
+        data: {
+          title: 'Leave Prayers',
+          subTitle: 'Manage Leave Prayers',
+          icon: 'zodiac-leo',
+        },
+      },
+      // {
+      //   path: 'leave-prayer-approvals',
+      //   loadComponent: () =>
+      //     import('./pages/leave-prayer-approval-component/leave-prayer-approval-component').then(
+      //       (m) => m.LeavePrayerApprovalComponent,
+      //     ),
+      //   data: {
+      //     title: 'Leave Prayer Approvals',
+      //     subTitle: 'Manage Leave Prayer Approvals',
+      //     icon: 'zodiac-leo',
+      //   },
+      // },
+      {
+        path: 'employee-attendance-history',
+        loadComponent: () =>
+          import('./pages/employee-attendance-history-component/employee-attendance-history-component').then(
+            (m) => m.EmployeeAttendanceHistoryComponent,
+          ),
+      },
+      {
+        path: 'employee-lop-finalization',
+        loadComponent: () =>
+          import('./pages/employee-lop-finalization-component/employee-lop-finalization-component').then(
+            (c) => c.EmployeeLopFinalizationComponent,
+          ),
+        data: { breadcrumb: 'Employee LOP Finalization' },
+      },
+      // {
+      //   path: 'leave-fitness',
+      //   loadComponent: () =>
+      //     import('./pages/leave-fitness-component/leave-fitness-component').then(
+      //       (c) => c.LeaveFitnessComponent,
+      //     ),
+      //   data: { breadcrumb: 'Leave Fitness' },
+      // },
+      {
+        path: 'holiday',
+        loadComponent: () =>
+          import('./pages/holiday-component/holiday-component').then((m) => m.HolidayComponent),
+      },
+      {
+        path: 'department',
+        loadComponent: () =>
+          import('./pages/department-component/department-component').then(
+            (m) => m.DepartmentComponent,
+          ),
+      },
+      {
+        path: 'candidate',
+        loadComponent: () =>
+          import('./pages/candidate-component/candidate-component').then(
+            (m) => m.CandidateComponent,
+          ),
+      },
+      {
+        // Interviewers only - access is given through the menu/role assignment.
+        path: 'interview',
+        loadComponent: () =>
+          import('./pages/interview-component/interview-component').then(
+            (m) => m.InterviewComponent,
+          ),
+      },
+      {
+        path: 'company-transfer',
+        loadComponent: () =>
+          import('./pages/transfer-company-component/transfer-company-component').then(
+            (m) => m.TransferCompanyComponent,
+          ),
+      },
+      // {
+      //   path: 'interview-panel',
+      //   loadComponent: () =>
+      //     import('./pages/interview-panel-component/interview-panel-component').then(
+      //       (m) => m.InterviewPanelComponent,
+      //     ),
+      // },
+      // {
+      //   path: 'my-interviews',
+      //   loadComponent: () =>
+      //     import('./pages/my-interviews/my-interviews.page').then((m) => m.MyInterviewsPage),
+      // },
+      // {
+      //   path: 'candidate-verification/:id',
+      //   loadComponent: () =>
+      //     import('./pages/candidate-verification/candidate-verification.page').then(
+      //       (m) => m.CandidateVerificationPage,
+      //     ),
+      // },
+      // {
+      //   path: 'offer-letter/:id',
+      //   loadComponent: () =>
+      //     import('./pages/offer-letter/offer-letter.page').then((m) => m.OfferLetterPage),
+      // },
+      // {
+      //   path: 'appointment-joining/:id',
+      //   loadComponent: () =>
+      //     import('./pages/appointment-joining/appointment-joining.page').then(
+      //       (m) => m.AppointmentJoiningPage,
+      //     ),
+      // },
+      // {
+      //   path: 'induction/:id',
+      //   loadComponent: () =>
+      //     import('./pages/induction/induction.page').then((m) => m.InductionPage),
+      // },
+    ],
+  },
 ];

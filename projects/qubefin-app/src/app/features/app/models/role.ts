@@ -23,3 +23,9 @@ export interface RoleSearchResult   {
     totalCount: number;
     roles: RoleSearch[];
 };
+
+export interface RoleModel {
+    id: string;
+    name: string;
+    isActive: boolean;
+}

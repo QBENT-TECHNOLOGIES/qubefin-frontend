@@ -1,63 +1,127 @@
-import { httpResource } from "@angular/common/http";
-import { computed, Injectable, signal } from "@angular/core";
-import { ApiPaths, EMPTY_UUID } from "qubefin-core";
-import { IEmployeePersonalInfo, IEmployeesBySearchResult, KycDocument, Utility } from "../models/employee-detail";
+import { httpResource } from '@angular/common/http';
+import { computed, Injectable, signal } from '@angular/core';
+import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
+import {
+  IEmployeePersonalInfo,
+  IEmployeesBySearchResult,
+  IEmpTransfer,
+  IEmpTransferHistory,
+  IEmployeeByOrgUnit,
+  KycDocument,
+  Utility,
+  IEmployeeDocuments,
+  IJoiningInfo,
+} from '../models/employee-detail';
+import { IAuditInfo } from '../models/leave-request';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EmployeeStore {
   // --- Detail State ---
   private readonly employeeComponentId = signal<string | undefined>(undefined);
+  private readonly documentEmployeeId = signal<string | undefined>(undefined);
+  private readonly joiningEmployeeID = signal<string | undefined>(undefined);
   // 1. Keep track of the active step index
+
+  // --- Org Unit State ---
+  readonly searchOrganizationUnitId = signal<string | null>(null);
+
+  readonly employeesByOrgUnitResource = httpResource<IEmployeeByOrgUnit[]>(() => {
+    const id = this.searchOrganizationUnitId();
+    if (!id || id === EMPTY_UUID) return undefined;
+    return `${ApiPaths.HRMS}/employees/by-organization-unit/${id}`;
+  });
+
+  readonly employeesByOrgUnit = computed(() => this.employeesByOrgUnitResource.value() ?? []);
 
   // --- Pagination & Filtering State ---
   readonly searchQuery = signal<string>('');
+  readonly srchJoiningDate = signal<string | null>(null);
   readonly pageIndex = signal<number>(0);
   readonly pageSize = signal<number>(10);
   readonly sortOn = signal<string>('name');
   readonly sortDirection = signal<'asc' | 'desc'>('asc');
+  readonly companyId = signal<string | null>(null);
 
-  // --- List Resource (Updated to match your response model) ---
-  employeeListComponentsResource = httpResource<{ employees: IEmployeesBySearchResult[]; totalRecords: number }>(() => {
-    const search = encodeURIComponent(this.searchQuery());
-    const page = this.pageIndex();
-    const size = this.pageSize();
-    const sort = this.sortOn();
-    const dir = this.sortDirection();
-
-    return `${ApiPaths.HRMS}/employees/search?searchType=all&searchText=${search}&sortOn=${sort}&sortDirection=${dir}&pageIndex=${page}&pageSize=${size}`;
-  });
+  employeeListComponentsResource = httpResource<{
+    employees: IEmployeesBySearchResult[];
+    totalRecords: number;
+  }>(() => ({
+    url: `${ApiPaths.HRMS}/employees/search`,
+    method: 'POST',
+    body: {
+      searchText: this.searchQuery() || null,
+      sortOn: this.sortOn(),
+      sortDirection: this.sortDirection(),
+      pageIndex: this.pageIndex(),
+      pageSize: this.pageSize(),
+      srchJoiningDate: this.srchJoiningDate(),
+      companyId: this.companyId(),
+    },
+  }));
 
   // Safely extracts the employees array from the root response model
-  readonly employeeListComponents = computed(() => 
-    this.employeeListComponentsResource.value()?.employees ?? []
+  readonly employeeListComponents = computed(
+    () => this.employeeListComponentsResource.value()?.employees ?? [],
   );
 
   // Pulls the total records directly from the API response payload
-  readonly totalRecords = computed(() => 
-    this.employeeListComponentsResource.value()?.totalRecords ?? 0
+  readonly totalRecords = computed(
+    () => this.employeeListComponentsResource.value()?.totalRecords ?? 0,
   );
 
   // Computes the mathematical maximum total pages based on page sizes
-  readonly totalPages = computed(() => 
-    Math.ceil(this.totalRecords() / this.pageSize())
-  );
+  readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
 
   readonly loading = computed(() => this.employeeListComponentsResource.isLoading());
   readonly error = computed(() => this.employeeListComponentsResource.error());
-// --- View Resource ---
-  private readonly employeeInfoComponentResource = httpResource<{ personalInfo: IEmployeePersonalInfo }>(() => {
+  // --- View Resource ---
+  private readonly employeeInfoComponentResource = httpResource<{
+    hasJoiningApproved: boolean;
+    hasJoiningInfo: boolean;
+    personalInfo: IEmployeePersonalInfo;
+    auditInfo: IAuditInfo;
+  }>(() => {
     const id = this.employeeComponentId();
-    console.log(id);
+    // console.log(id);
     if (!id || id === EMPTY_UUID) return undefined;
     return `${ApiPaths.HRMS}/employees/${id}`;
   });
 
-  readonly employeeInfoComponent = computed(() => this.employeeInfoComponentResource.value()?.personalInfo ?? undefined);
-  readonly employeeInfoComponentLoading = computed(() => this.employeeInfoComponentResource.isLoading());
+  readonly employeeInfoComponent = computed(
+    () => this.employeeInfoComponentResource.value()?.personalInfo ?? undefined,
+  );
+
+  readonly hasJoiningInfo = computed(
+    () => this.employeeInfoComponentResource.value()?.hasJoiningInfo ?? false,
+  );
+
+  readonly hasJoiningApproved = computed(
+    () => this.employeeInfoComponentResource.value()?.hasJoiningApproved ?? false,
+  );
+  readonly employeeAuditInfo = computed(
+    () => this.employeeInfoComponentResource.value()?.auditInfo ?? undefined,
+  );
+  readonly employeeInfoComponentLoading = computed(() =>
+    this.employeeInfoComponentResource.isLoading(),
+  );
   readonly employeeInfoComponentError = computed(() => this.employeeInfoComponentResource.error());
 
+  readonly documentsByEmpIdResource = httpResource<IEmployeeDocuments[]>(() => {
+    const id = this.documentEmployeeId();
+    if (!id || id === EMPTY_UUID) return undefined;
+    return `${ApiPaths.HRMS}/employees/documents/${id}`;
+  });
+
+  readonly documentsByEmpId = computed(() => this.documentsByEmpIdResource.value() ?? []);
+
+  readonly joiningInfoResource = httpResource<IJoiningInfo>(() => {
+    const id = this.joiningEmployeeID();
+    if (!id || id === EMPTY_UUID) return undefined;
+    return `${ApiPaths.HRMS}/employees/joining-info/${id}`;
+  });
+  readonly joiningInfo = computed(() => this.joiningInfoResource.value() ?? undefined);
   // // --- Personal Resource ---
   // private readonly personalInfoComponentResource = httpResource<{ personalInfo: IEmployeePersonalInfo }>(() => {
   //   const id = this.employeeComponentId();
@@ -83,18 +147,25 @@ export class EmployeeStore {
   // readonly addressInfoComponentError = computed(() => this.addressInfoComponentResource.error());
 
   // --- State Setters ---
-  setSearchQuery(query: string) {
-    this.searchQuery.set(query);
-    this.pageIndex.set(0); 
+  setSearchOrganizationUnitId(id: string | null) {
+    this.searchOrganizationUnitId.set(id);
   }
 
+  setSearchQuery(query: string) {
+    this.searchQuery.set(query);
+    this.pageIndex.set(0);
+  }
+  setCompanyId(id: string | null) {
+    this.companyId.set(id);
+    this.pageIndex.set(0);
+  }
   setPage(index: number) {
     this.pageIndex.set(index);
   }
 
   setPageSize(size: number) {
     this.pageSize.set(size);
-    this.pageIndex.set(0); 
+    // this.pageIndex.set(0);
   }
 
   setSort(field: string, direction: 'asc' | 'desc') {
@@ -106,7 +177,18 @@ export class EmployeeStore {
     if (this.employeeComponentId() === id) return;
     this.employeeComponentId.set(id);
   }
-
+  setDocumentEmployeeId(id: string | undefined) {
+    if (this.documentEmployeeId() === id) return;
+    this.documentEmployeeId.set(id);
+  }
+  setJoiningEmployeeId(id: string | undefined) {
+    if (this.joiningEmployeeID() === id) return;
+    this.joiningEmployeeID.set(id);
+  }
+  setSearchJoiningDate(date: string | null) {
+    this.srchJoiningDate.set(date);
+    this.pageIndex.set(0);
+  }
   refreshList() {
     this.employeeListComponentsResource.reload();
   }
@@ -120,29 +202,23 @@ export class EmployeeStore {
   //   this.personalInfoComponentResource.reload();
   // }
 
-
   // --- UTILITY SERVICE ---
-  private readonly utilityResource = httpResource< Utility[]>(() => {
-  return `${ApiPaths.GLOBAL}/utilities`;
-});
+  private readonly utilityResource = httpResource<Utility[]>(() => {
+    return `${ApiPaths.GLOBAL}/utilities`;
+  });
 
-readonly utilityComponent = computed<Utility[]>(() =>
-  this.utilityResource.value() ?? []
-);
+  readonly utilityComponent = computed<Utility[]>(() => this.utilityResource.value() ?? []);
 
   readonly utilityComponentLoading = computed(() => this.utilityResource.isLoading());
   readonly utilityComponentError = computed(() => this.utilityResource.error());
 
   // --- KYC DOCUMENT TYPE SERVICE ---
-  private readonly KycResource = httpResource< KycDocument[]>(() => {
-  return `${ApiPaths.GLOBAL}/kyc-documents`;
-});
+  private readonly KycResource = httpResource<KycDocument[]>(() => {
+    return `${ApiPaths.GLOBAL}/kyc-documents`;
+  });
 
-readonly kycComponent = computed<KycDocument[]>(() =>
-  this.KycResource.value() ?? []
-);
+  readonly kycComponent = computed<KycDocument[]>(() => this.KycResource.value() ?? []);
 
   readonly kycComponentLoading = computed(() => this.KycResource.isLoading());
   readonly kycComponentError = computed(() => this.KycResource.error());
-  
 }

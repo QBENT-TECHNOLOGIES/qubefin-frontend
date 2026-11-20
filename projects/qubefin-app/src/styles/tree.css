@@ -1,6 +1,9 @@
-.mat-tree {background-color: transparent !important;}
-.example-tree-invisible {
-  display: none;
+.mat-tree {
+  @apply bg-transparent!;
+}
+
+/* .example-tree-invisible {
+  @apply hidden;
 }
 
 .example-tree ul,
@@ -63,4 +66,16 @@
 
 .admin-tree div[role=group]>.mat-nested-tree-node {
   padding-left: 40px;
+} */
+
+.children-tree {
+  @apply relative flex items-center py-2 px-2 ml-2 my-0.5 w-full rounded-xl cursor-pointer transition-all duration-300 select-none border border-transparent;
+}
+
+.parent-tree {
+  @apply relative flex justify-between items-center py-2 px-2 ml-2 my-0.5 w-full rounded-xl cursor-pointer transition-all duration-300 select-none border border-transparent;
+}
+
+.selected-node {
+  @apply absolute -left-1 top-2.5 bottom-2.5 w-1 bg-primary-600 dark:bg-primary rounded-full shadow-sm;
 }

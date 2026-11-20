@@ -1,8 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+@source "../../qubefin-core/src";
 @custom-variant dark (&:where(.dark, .dark *));
 @import "./styles/theme.css";
+@import "./styles/header.css";
+@import "./styles/footer.css";
 @import "./styles/gradients.css";
 @import "./styles/animations.css";
 @import "./styles/typography.css";
@@ -16,7 +19,66 @@
     display: none !important;
 }
 
-.mat-mdc-form-field.mat-form-field-invalid
-.mat-mdc-form-field-subscript-wrapper {
+.mat-mdc-form-field.mat-form-field-invalid .mat-mdc-form-field-subscript-wrapper {
     display: block !important;
+}
+
+::ng-deep .pill-select {
+    margin: 0 !important;
+}
+
+::ng-deep .pill-select .mdc-notched-outline {
+    display: none !important;
+}
+
+::ng-deep .pill-select .mat-mdc-text-field-wrapper {
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+::ng-deep .pill-select .mat-mdc-form-field-infix {
+    min-height: 32px !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+}
+
+::ng-deep .pill-select .mat-mdc-select-trigger {
+    height: 32px;
+    display: flex;
+    align-items: center;
+}
+
+::ng-deep .pill-select .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}
+:host ::ng-deep {
+  .mat-mdc-header-row {
+    z-index: 1 !important;
+  }
+}
+.year-select {
+    width: 90px !important;
+}
+.cus-error {
+    position: absolute;
+    bottom: -8px;
+    background: #fff;
+    left: 12%;
+}
+
+/* Ensure SweetAlert modal container always displays above Angular Material Dialog overlays */
+.cdk-overlay-container {
+    z-index: 1000 !important;
+}
+
+body > .swal2-container,
+div.swal2-container,
+.swal2-container,
+.swal2-container.swal2-backdrop-show,
+.swal2-container.swal2-shown,
+body.swal2-shown .swal2-container,
+.cdk-overlay-pane .swal2-container {
+    z-index: 9999999 !important;
 }

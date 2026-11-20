@@ -1,113 +1,101 @@
-<div class="flex flex-col gap-4">
-    <div class="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 items-stretch">
-        <div class="glass rounded-xl shadow-glass dark:shadow">
+<div class="view-container">
+    <div class="section-container">
+        <div class="box glass">
             <!-- View Header -->
-            <div class="flex px-6 py-5 items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div
-                        class="w-14 h-14 rounded-4xl bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] dark:shadow-none">
+            <div class="box-header">
+                <div class="box-group">
+                    <div class="box-header-icon">
                         <svg class="text-3xl text-primary-700 dark:text-primary-400"
                             [lucideIcon]="iconMap[organizationUnit()?.organizationUnitTypeIcon!]">
                         </svg>
                     </div>
                     <div>
-                        <div class="flex items-center gap-2">
-                            <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">
+                        <div class="box-title-group">
+                            <h1 class="box-title">
                                 {{organizationUnit()?.name}}
                             </h1>
-                            <div class="p-2 rounded-4xl cursor-pointer hover:bg-secondary-500/10" matTooltip="Edit"
-                                (click)="onShowEdit()">
+                            <div class="box-edit-btn" matTooltip="Edit" (click)="onShowEdit()">
                                 <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
                             </div>
                         </div>
-                        <p class="text-sm text-primary-700 dark:text-primary-400 font-medium">
+                        <p class="box-subTitle">
                             {{organizationUnit()?.organizationUnitTypeName}}</p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-4">
+                <div class="badge-container">
                     <!-- Status Badge -->
-                    <div
-                        class="flex items-center gap-2 px-3.5 py-1 rounded-4xl bg-white/45 dark:bg-white/5 border border-slate-200/20 dark:border-white/5 shadow-md">
-                        <!-- <span class="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Status</span> -->
-                        <span class="flex items-center gap-1.5 text-[12px] font-semibold"
-                            [class.text-emerald-600]="organizationUnit()?.isActive"
-                            [class.dark:text-emerald-400]="organizationUnit()?.isActive"
-                            [class.text-rose-600]="!organizationUnit()?.isActive"
-                            [class.dark:text-rose-400]="!organizationUnit()?.isActive">
+                    <div class="badge-group">
+                        <span class="badge text-emerald-600 dark:text-emerald-400">
                             <span class="w-2 h-2 rounded-full relative flex">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                                    [class.bg-emerald-400]="organizationUnit()?.isActive"
-                                    [class.bg-rose-400]="!organizationUnit()?.isActive"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2"
-                                    [class.bg-emerald-500]="organizationUnit()?.isActive"
-                                    [class.bg-rose-500]="!organizationUnit()?.isActive"></span>
+                                <span class="animate-circle bg-emerald-400"></span>
+                                <span class="badge-status bg-emerald-500"></span>
                             </span>
-                            {{organizationUnit()?.isActive ? 'Active' : 'Inactive'}}
+                            Active
                         </span>
                     </div>
 
-                    <!-- Edit Action -->
-                    <!-- <button type="button" (click)="onShowEdit()"
-                        class="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/30 dark:border-blue-400/20 bg-blue-600/10 dark:bg-blue-500/20 px-4 py-2 text-sm font-semibold text-blue-600 dark:text-blue-400 shadow-sm transition-all duration-300 hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white hover:shadow-glow-blue cursor-pointer" matTooltip="Edit">
-                        <span class="material-symbols-outlined text-[18px]">edit</span>
-                        Edit
-                    </button> -->
+
+                    @if (hasLocation()) {
+                    <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9 hover:bg-primary-400/10"
+                        matTooltip="Locate On Map" (click)="onMapClick()">
+                        <svg lucideIcon="map-pinned"
+                            class="w-5 h-5 text-primary-500 dark:text-primary-500 hover:text-primary-600"></svg>
+                    </div>
+                    }
                 </div>
             </div>
             <!-- General Information Card -->
-            <div class="p-4">
-                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2 ">
+            <div class="p-4 pt-0">
+                <h3 class="box-content-heading">
                     General Information
                 </h3>
-                <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="green-line"></div>
+                <div class="content-grid-2">
                     <div class="gen-info">
-                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                        <div class="gen-icon">
                             <svg lucideIcon="user" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
-                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Name</label>
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
+                            <label class="gen-label">Name</label>
+                            <p class="gen-title">
                                 {{organizationUnit()?.name}}
                             </p>
                         </div>
                     </div>
                     <div class="gen-info">
-                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                        <div class="gen-icon">
                             <svg lucideIcon="layers" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
-                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Organization
+                            <label class="gen-label">Organization
                                 Unit
                                 Type</label>
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
+                            <p class="gen-title">
                                 {{organizationUnit()?.organizationUnitTypeName}}</p>
                         </div>
                     </div>
                     @for (item of organizationUnit()?.hierarchy; track $index) {
                     @if (item.level > 0) {
                     <div class="gen-info">
-                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                        <div class="gen-icon">
                             <svg [lucideIcon]="iconMap[item.typeIcon]" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
-                            <label
-                                class="text-[11px] text-slate-500 dark:text-slate-300 tracking-wider">{{item.typeName}}</label>
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{item.name}}</p>
+                            <label class="gen-label">{{item.typeName}}</label>
+                            <p class="gen-title">{{item.name}}</p>
                         </div>
                     </div>
                     }
                     }
                     @if (organizationUnit()?.parentName) {
                     <div class="gen-info">
-                        <div
-                            class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow-glass dark:shadow justify-center shrink-0">
+                        <div class="gen-icon">
                             <svg lucideIcon="layers" class="w-5 h-5 text-primary-700"></svg>
                         </div>
                         <div>
-                            <label class="text-xs text-slate-500 dark:text-slate-300 tracking-wider">Parent Unit</label>
-                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">
+                            <label class="gen-label">Parent Unit</label>
+                            <p class="gen-title">
                                 {{organizationUnit()?.parentName}}</p>
                         </div>
                     </div>
@@ -115,13 +103,13 @@
                 </div>
             </div>
         </div>
-        <div class="glass rounded-xl shadow-glass dark:shadow">
+        <div class="box glass">
             <!-- Hierarchy Path timeline -->
             <div class="p-4 flex flex-col">
-                <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 pb-3">
+                <h3 class="box-content-heading">
                     Hierarchy Path
                 </h3>
-                <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
+                <div class="green-line"></div>
                 <div class="flex-1 overflow-y-auto pr-2">
                     <div class="space-y-0 pl-1">
                         @for (item of organizationUnit()?.hierarchy; track $index; let last = $last) {
@@ -129,30 +117,27 @@
                             <div class="relative flex flex-col items-center">
                                 <!-- Connection line -->
                                 @if (!last) {
-                                <div
-                                    class="absolute top-6 bottom-0 w-0.5 border-l-2 border-dashed border-blue-500/30 dark:border-blue-400/20">
+                                <div class="dashed-line">
                                 </div>
                                 }
 
                                 <!-- Timeline Dot -->
                                 @if (item.level > 0) {
-                                <div
-                                    class="w-5 h-5 rounded-full border-2 border-blue-600 dark:border-blue-400 bg-slate-50 dark:bg-slate-900 flex items-center justify-center z-10 shadow-sm">
-                                    <div class="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-blue-400"></div>
+                                <div class="blue-radio-outline">
+                                    <div class="blue-radio-solid"></div>
                                 </div>
                                 } @else {
-                                <div
-                                    class="w-5 h-5 rounded-full border-2 border-primary-700 dark:border-primary-400 bg-slate-50 dark:bg-slate-900 flex items-center justify-center z-10 shadow-sm">
-                                    <div class="w-2.5 h-2.5 rounded-full bg-primary-700 dark:bg-primary-400"></div>
+                                <div class="green-radio-outline">
+                                    <div class="green-radio-solid"></div>
                                 </div>
                                 }
                             </div>
 
                             <div class="flex flex-col">
-                                <h4 class="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-snug">
+                                <h4 class="path-title">
                                     {{item.name}}
                                 </h4>
-                                <span class="text-xs text-slate-500 dark:text-slate-400 tracking-wider mt-0.5">
+                                <span class="path-label">
                                     {{item.typeName}}
                                 </span>
                             </div>
@@ -163,58 +148,157 @@
             </div>
         </div>
     </div>
-    <div class="glass rounded-xl shadow-glass dark:shadow p-4 pb-6">
+    <div class="box glass p-4 pb-6">
+        <div class="flex flex-col gap-3">
+            <div class="flex justify-between">
+                <div>
+                    <h4 class="box-content-heading">
+                        Designations
+                    </h4>
+                    <div class="blue-line mb-2!"></div>
+                </div>
+                <div>
+                    <button class="global-btn ripple-btn shine-sweep lift" (click)="onDesignation('id')">
+                        <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                        Add New Designation
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-box">
+                <table mat-table [dataSource]="organizationUnit()?.designations||[]" matSortDisableClear
+                    class="w-full table">
+
+                    <ng-container matColumnDef="sl">
+                        <th mat-header-cell *matHeaderCellDef>Sl.</th>
+                        <td mat-cell *matCellDef="let row; let i = index"
+                            class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                            {{ i + 1 }}
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="name">
+                        <th mat-header-cell *matHeaderCellDef>Name</th>
+                        <td mat-cell *matCellDef="let item"
+                            class="px-3 py-1.5 text-[13px] font-medium dark:text-slate-300">
+                            <div class="flex items-center gap-2"> {{ item.name }}</div>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="post">
+                        <th mat-header-cell *matHeaderCellDef> Post </th>
+                        <td mat-cell *matCellDef="let item"> {{ item.postName }} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="grade">
+                        <th mat-header-cell *matHeaderCellDef> Grade </th>
+                        <td mat-cell *matCellDef="let item"> {{ item.gradeName}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="employee">
+                        <th mat-header-cell *matHeaderCellDef>Employee</th>
+
+                        <td mat-cell *matCellDef="let item">
+                            {{ item.employeeName }}
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="isActive">
+                        <th mat-header-cell *matHeaderCellDef>Active</th>
+
+                        <td mat-cell *matCellDef="let item">
+                            <span class="px-2 py-1 text-xs font-medium rounded" [class.bg-green-100]="item.isActive"
+                                [class.text-green-800]="item.isActive" [class.bg-red-100]="!item.isActive"
+                                [class.text-red-800]="!item.isActive">
+                                {{ item.isActive? 'Yes': 'No' }}
+                            </span>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="incharge">
+                        <th mat-header-cell *matHeaderCellDef>Incharge</th>
+                        <td mat-cell *matCellDef="let item">
+                            <div class="flex items-center gap-2"
+                                [matTooltip]="!item.isActive ? 'Enable this designation first' : inchargeLocked() ? 'Please wait...' : ''">
+                                <mat-checkbox [checked]="currentInchargeId() === item.id" [disabled]="inchargeLocked() || !item.isActive || currentInchargeId() === item.id
+                                    || !item.employeeName" (change)="onInchargeChange(item.id, $event)">
+                                </mat-checkbox>
+                            </div>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef>Actions</th>
+                        <td mat-cell *matCellDef="let item">
+                            @if (!item.employeeName) {
+                            <div class="flex items-center justify-center rounded-full cursor-pointer w-9 h-9"
+                                [class]="item.isActive ? 'hover:bg-red-100' : 'hover:bg-primary-400/10'"
+                                [matTooltip]="item.isActive ? 'Disable' : 'Enable'"
+                                (click)="onUpdateDesigantionStatus(item.id, item.isActive)">
+                                <svg [lucideIcon]="item.isActive ? 'x' : 'check'" class="w-5 h-5"
+                                    [class]="item.isActive ? 'text-red-800 dark:text-red-400' : 'text-primary-500 dark:text-primary-500 hover:text-primary-600'"></svg>
+                            </div>
+                            }
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+
+                    <tr class="mat-row" *matNoDataRow>
+                        <td class="mat-cell text-center! p-8 italic text-gray-500 border-b-0"
+                            [attr.colspan]="displayedColumns().length">
+                            <div class="flex justify-center items-center gap-2">
+                                <svg lucideIcon="triangle-alert" class="w-5 h-5 text-slate-400"></svg>
+                                No Designations data found.
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="box glass p-4 pb-6">
         <div class="flex flex-col gap-3">
             <div>
-                <h4 class="text-base font-bold text-slate-800 mb-3 dark:text-slate-200">
+                <h4 class="box-content-heading">
                     Audit Information
                 </h4>
-                <div class="w-10 h-1 rounded-full bg-primary-500 mb-4"></div>
+                <div class="green-line"></div>
             </div>
-            <div
-                class="grid grid-cols-2 md:grid-cols-4 gap-3 divide-y md:divide-y-0 md:divide-x divide-slate-200/20 dark:divide-white/10">
-                <div class="flex items-center gap-2">
-                    <div
-                        class="w-9 h-9 rounded-xl bg-primary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+            <div class="audit-grid">
+                <div class="audit-small-box">
+                    <div class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
                         <svg lucideIcon="user-check" class="w-4 h-4 text-primary-700"></svg>
                     </div>
                     <div>
-                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+                        <p class="audit-label">
                             Created By</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{organizationUnit()?.createdBy}}</p>
+                        <p class="audit-title">{{organizationUnit()?.createdBy}}</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div
-                        class="w-9 h-9 rounded-xl bg-secondary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+                <div class="audit-small-box">
+                    <div class="audit-icon-box bg-secondary-500/15 dark:bg-primary-300">
                         <svg lucideIcon="calendar-plus" class="w-4 h-4 text-secondary-600"></svg>
                     </div>
                     <div>
-                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+                        <p class="audit-label">
                             Created On</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{organizationUnit()?.createdOn | date: 'dd-MM-yyyy hh:mm a'}}</p>
+                        <p class="audit-title">{{organizationUnit()?.createdOn | date: 'dd-MM-yyyy hh:mm a'}}</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div
-                        class="w-9 h-9 rounded-xl bg-accent-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+                <div class="audit-small-box">
+                    <div class="audit-icon-box bg-accent-500/15 dark:bg-primary-300">
                         <svg lucideIcon="user-cog" class="w-4 h-4 text-secondary-600"></svg>
                     </div>
                     <div>
-                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+                        <p class="audit-label">
                             Last Modified By</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{organizationUnit()?.lastModifiedBy}}</p>
+                        <p class="audit-title">{{organizationUnit()?.lastModifiedBy}}</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div
-                        class="w-9 h-9 rounded-xl bg-primary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+                <div class="audit-small-box">
+                    <div class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
                         <svg lucideIcon="calendar-clock" class="w-4 h-4 text-primary-700"></svg>
                     </div>
                     <div>
-                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+                        <p class="audit-label">
                             Last Modified On</p>
-                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{organizationUnit()?.lastModifiedOn | date: 'dd-MM-yyyy hh:mm a'}}</p>
+                        <p class="audit-title">{{organizationUnit()?.lastModifiedOn | date: 'dd-MM-yyyy hh:mm a'}}</p>
                     </div>
                 </div>
             </div>

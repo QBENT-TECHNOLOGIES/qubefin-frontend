@@ -1,0 +1,44 @@
+<div class="flex flex-col">
+
+  <!-- Filter / Action Area -->
+  <div class="flex flex-wrap items-center justify-end gap-4 mb-2">
+    <!-- Add filters/buttons here if required -->
+  </div>
+
+  <!-- Main List -->
+  <div class="flex items-start gap-0">
+    <div class="glass rounded-xl shadow-glass overflow-hidden min-w-0 w-full">
+
+      <!-- Loading -->
+      @if (payslipStore.loading()) {
+
+        <div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+          <svg lucideIcon="loader" class="w-5 h-5"></svg>
+          Loading payslips...
+        </div>
+
+      }
+
+      <!-- Error -->
+      @else if (payslipStore.error()) {
+
+        <div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
+          <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
+          Unable to load payslips.
+        </div>
+
+      }
+
+      <!-- List -->
+      @else {
+
+        <qfin-payslip-list
+          [data]="payslips()">
+        </qfin-payslip-list>
+
+      }
+
+    </div>
+  </div>
+
+</div>

@@ -1,15 +1,7 @@
 export interface EmployeeSearchByText {
   id: string;
+  userId: string;
   employeeName: string;
+  employeeCode?: string;
   hasSignaturePhoto: boolean;
-}
-
-export interface EmployeeSearchResponse {
-  value?: {
-    employees?: EmployeeSearchByText[];
-  };
-  valueOrDefault?: {
-    employees?: EmployeeSearchByText[];
-  };
-  employees?: EmployeeSearchByText[];
 }

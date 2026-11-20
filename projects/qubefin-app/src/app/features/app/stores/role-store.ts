@@ -11,7 +11,7 @@ export class RoleStore {
     private roleState = signal({
         searchText: '',
         pageIndex: 0,
-        pageSize: 1,
+        pageSize: 10,
         sortOn: 'name',
         sortDirection: 'asc',
         roleId: EMPTY_UUID
@@ -39,7 +39,7 @@ export class RoleStore {
     readonly loading = computed(() => this.rolesResource.isLoading());
     readonly error = computed(() => this.rolesResource.error());
 
-    // Search Employees
+    // Search Roles
     rolesSearchResource = httpResource<RoleSearchResult>(() => {
         const params = new URLSearchParams(this.searchParams() as any);
         return `${ApiPaths.APP}/roles/search?${params.toString()}`;

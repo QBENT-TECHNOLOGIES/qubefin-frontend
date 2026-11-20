@@ -1,0 +1,698 @@
+@if (candidate(); as data) {
+
+<div class="view-container">
+
+    <!-- =====================================================
+         HERO / IDENTITY CARD
+    ====================================================== -->
+
+    <div class="unit-box">
+        <div class="unit-box-header flex-wrap gap-4">
+
+            <div class="box-group">
+                <div
+                    class="w-14 h-14 rounded-2xl bg-green-50 dark:bg-green-900/20 flex items-center justify-center shrink-0 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] dark:shadow-none">
+                    <span class="text-lg font-bold text-green-700 dark:text-green-400">{{
+                        getInitials(data.candidateFullName) }}</span>
+                </div>
+                <div>
+                    <div class="box-title-group">
+                        <h1 class="box-title">{{ data.candidateFullName || '-' }}</h1>
+                        <!-- EDIT DETAILS - HR (Admin until HR starts the assessment) until the offer letter is
+                             received; never on a stopped workflow -->
+                        @if (data.canEditDetails) {
+                        <div class="box-edit-btn" matTooltip="Edit Details" (click)="onEditCandidateDetails()">
+                            <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
+                        </div>
+                        }
+                    </div>
+                    <p class="box-subTitle text-xs! flex items-center gap-1.5 flex-wrap">
+                        <span class="inline-flex items-center gap-1">
+                            <svg lucideIcon="hash" class="w-3.5 h-3.5"></svg> {{ data.referenceNo || '-' }}
+                        </span>
+                        <span class="text-slate-300 dark:text-slate-600">•</span>
+                        <span class="inline-flex items-center gap-1">
+                            <svg lucideIcon="briefcase" class="w-3.5 h-3.5"></svg> {{ data.interviewPostName || '-' }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="box-group flex-wrap gap-2.5">
+                <!-- Current workflow stage - or where it stopped -->
+                @if (isWorkflowStopped()) {
+                <div class="badge-group">
+                    <span class="badge text-rose-600 dark:text-rose-400">
+                        <svg lucideIcon="x-circle" class="w-3.5 h-3.5"></svg>
+                        {{ stoppedStatusLabel() }}
+                    </span>
+                </div>
+                } @else {
+                <div class="badge-group">
+                    <span class="badge" [class.text-emerald-600]="isWorkflowComplete()"
+                        [class.dark:text-emerald-400]="isWorkflowComplete()"
+                        [class.text-blue-600]="!isWorkflowComplete()"
+                        [class.dark:text-blue-400]="!isWorkflowComplete()">
+                        <span class="badge-status">
+                            <span class="animate-circle" [class.bg-emerald-400]="isWorkflowComplete()"
+                                [class.bg-blue-400]="!isWorkflowComplete()"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2"
+                                [class.bg-emerald-500]="isWorkflowComplete()"
+                                [class.bg-blue-500]="!isWorkflowComplete()"></span>
+                        </span>
+                        {{ isWorkflowComplete() ? 'Process Completed' : currentStageLabel() }}
+                    </span>
+                </div>
+                }
+
+                <!-- Interview letter status -->
+                <!-- <div class="badge-group">
+                    <span class="badge" [class.text-emerald-600]="data.isInterviewLetterReceived"
+                        [class.dark:text-emerald-400]="data.isInterviewLetterReceived"
+                        [class.text-rose-600]="!data.isInterviewLetterReceived"
+                        [class.dark:text-rose-400]="!data.isInterviewLetterReceived">
+                        <svg [lucideIcon]="data.isInterviewLetterReceived ? 'mail-check' : 'mail-warning'"
+                            class="w-3.5 h-3.5"></svg>
+                        {{ data.isInterviewLetterReceived ? 'Letter Received' : 'Letter Pending' }}
+                    </span>
+                </div> -->
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+
+        <!-- =====================================================
+             MAIN COLUMN
+        ====================================================== -->
+
+        <div class="lg:col-span-2 flex flex-col gap-4">
+
+            <!-- =============================================
+                 CANDIDATE INFORMATION
+            ============================================== -->
+
+            <div class="unit-box p-5">
+                <h3 class="box-content-heading">
+                    <svg lucideIcon="id-card" class="w-4 h-4 text-green-600"></svg> Candidate Information
+                </h3>
+                <div class="green-line"></div>
+
+                <div class="flex flex-col gap-5">
+
+                    <!-- Personal Details -->
+                    <div>
+                        <p
+                            class="text-[11px] font-bold text-green-700 dark:text-green-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                            <svg lucideIcon="user" class="w-3.5 h-3.5"></svg> Personal Details
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="user-plus" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Father's Name</label>
+                                    <p class="gen-title">{{ data.fatherName || '-' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="venus-and-mars" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Gender</label>
+                                    <p class="gen-title">{{ data.gender || '-' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="mail" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Email</label>
+                                    <p class="gen-title">{{ data.email || '-' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="phone" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Mobile No</label>
+                                    <p class="gen-title">{{ data.mobileNo || '-' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10 sm:col-span-2">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="map-pin" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Address</label>
+                                    <p class="gen-title line-clamp-2">{{ data.location || '-' }}</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Interview Details -->
+                    <div>
+                        <p
+                            class="text-[11px] font-bold text-green-700 dark:text-green-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                            <svg lucideIcon="calendar-check" class="w-3.5 h-3.5"></svg> Interview Details
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="hash" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Reference No</label>
+                                    <p class="gen-title">{{ data.referenceNo || '-' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="calendar-check" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Interview Date &amp; Time</label>
+                                    <p class="gen-title">
+                                        @if (data.interviewDate) {
+                                        {{ data.interviewDate | date:'dd MMM yyyy' }}
+                                        @if (data.interviewTime) {
+                                        , {{ displayTime(data.interviewTime) }}
+                                        }
+                                        } @else {
+                                        Not scheduled
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="calendar-plus" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Application Date</label>
+                                    <p class="gen-title">{{ (data.applicationDate | date:'dd MMM yyyy') || '-' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="building" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Company</label>
+                                    <p class="gen-title">{{ data.companyName || '-' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="briefcase" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Interview Post</label>
+                                    <p class="gen-title">{{ data.interviewPostName || '-' }}</p>
+                                </div>
+                            </div>
+
+                            @if (data.departmentName) {
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="building-2" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Department</label>
+                                    <p class="gen-title">{{ data.departmentName }}</p>
+                                </div>
+                            </div>
+                            }
+
+                            @if (data.venue) {
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="map-pinned" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Venue</label>
+                                    <p class="gen-title">{{ data.venue }}</p>
+                                </div>
+                            </div>
+                            }
+
+                            @if (data.interviewMode) {
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="video" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Interview Mode</label>
+                                    <p class="gen-title">{{ data.interviewMode }}</p>
+                                </div>
+                            </div>
+                            }
+
+                            @if (data.referedBy) {
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="user-round" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Referred By</label>
+                                    <p class="gen-title">{{ data.referedBy }}</p>
+                                </div>
+                            </div>
+                            }
+
+                        </div>
+                    </div>
+
+                    <!-- Recruitment Details -->
+                    @if (data.recruitmentSource || data.vacancyReference) {
+                    <div>
+                        <p
+                            class="text-[11px] font-bold text-green-700 dark:text-green-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                            <svg lucideIcon="user-search" class="w-3.5 h-3.5"></svg> Recruitment Details
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+
+                            @if (data.recruitmentSource) {
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="signpost" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Recruitment Source</label>
+                                    <p class="gen-title">{{ data.recruitmentSource }}</p>
+                                </div>
+                            </div>
+                            }
+
+                            @if (data.vacancyReference) {
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="file-text" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Vacancy Reference</label>
+                                    <p class="gen-title">{{ data.vacancyReference }}</p>
+                                </div>
+                            </div>
+                            }
+
+                        </div>
+                    </div>
+                    }
+
+                    <!-- Assessment Outcome -->
+                    <div>
+                        <p
+                            class="text-[11px] font-bold text-green-700 dark:text-green-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                            <svg lucideIcon="award" class="w-3.5 h-3.5"></svg> Assessment Outcome
+                        </p>
+                        <div  class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+
+                            <!-- Row 1: recommendation status, on its own line -->
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10 sm:col-span-2">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="badge-check" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Recommendation Status</label>
+                                    <p class="gen-title">{{ data.recommendationStatus || 'Pending' }}</p>
+                                </div>
+                            </div>
+
+                            @if (data.isHrAssessmentCompleted) {
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10 sm:col-span-2">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="user-check" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Selected for Offer</label>
+                                    <p class="gen-title">
+                                        {{ data.isSelectedForOffer ? 'Selected' : (data.isNotSelected ? 'Not Selected' : 'Pending') }}
+                                    </p>
+                                </div>
+                            </div>
+                            }
+
+                            <!-- Row 2: suitable role and recommended grade share a line. Each falls
+                                 back to a dash so the pair stays a two-column row when one is unset. -->
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="layers" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Suitable Role/Department</label>
+                                    <p class="gen-title">{{ data.suitableRoleDepartment || '-' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="star" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Recommended Grade</label>
+                                    <p class="gen-title">{{ data.recommendedGradeName || '-' }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Row 3: remarks, full width -->
+                            @if (data.overallPerformance) {
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10 sm:col-span-2">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="file-text" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div>
+                                    <label class="gen-label">Overall Performance Remarks</label>
+                                    <p class="gen-title whitespace-pre-line">{{ data.overallPerformance }}</p>
+                                </div>
+                            </div>
+                            }
+
+                        </div>
+                    </div>
+
+                    <!-- Documents. Each row appears only once its file is on record - an
+                         uploaded document is never reported as a dash. -->
+                    @if (documents().length) {
+                    <div>
+                        <p
+                            class="text-[11px] font-bold text-green-700 dark:text-green-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                            <svg lucideIcon="paperclip" class="w-3.5 h-3.5"></svg> Documents
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+
+                            @for (doc of documents(); track doc.label) {
+                            <div class="gen-info bg-green-50 dark:bg-green-900/10">
+                                <div class="gen-icon">
+                                    <svg lucideIcon="paperclip" class="w-4 h-4 text-green-700 dark:text-green-400"></svg>
+                                </div>
+                                <div class="flex-1 flex items-center justify-between gap-3 min-w-0">
+                                    <div class="min-w-0">
+                                        <label class="gen-label">{{ doc.label }}</label>
+                                        <p class="gen-title truncate">{{ getFileName(doc.url) }}</p>
+                                    </div>
+                                    <button type="button" matTooltip="View Document"
+                                        (click)="openDocument(doc.url, getFileName(doc.url))"
+                                        class="text-primary-600 dark:text-primary-400 px-2 py-1.5 rounded-lg cursor-pointer shrink-0">
+                                        <svg lucideIcon="eye" class="w-5 h-5"></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            }
+
+                        </div>
+                    </div>
+                    }
+
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             WORKFLOW PATH PANEL
+        ====================================================== -->
+
+        <div class="unit-box p-5 h-fit lg:sticky lg:top-4">
+
+            <h3 class="box-content-heading">
+                <svg lucideIcon="route" class="w-4 h-4 text-green-600"></svg> Workflow Path
+            </h3>
+            <div class="green-line"></div>
+
+            <div class="flex flex-col">
+
+                @for (stage of workflowStages(); track stage.label; let last = $last) {
+
+                <div class="flex gap-3" [class.pb-0]="last" [class.pb-5]="!last">
+
+                    <div class="flex flex-col items-center w-8 shrink-0">
+
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center border-2 shrink-0 transition-colors duration-300"
+                            [class.bg-green-600]="stage.done" [class.border-green-600]="stage.done"
+                            [class.bg-green-50]="stage.current && !stage.done"
+                            [class.dark:bg-green-900/20]="stage.current && !stage.done"
+                            [class.border-green-500]="stage.current && !stage.done"
+                            [class.bg-white]="!stage.done && !stage.current"
+                            [class.dark:bg-slate-800]="!stage.done && !stage.current"
+                            [class.border-slate-200]="!stage.done && !stage.current"
+                            [class.dark:border-slate-600]="!stage.done && !stage.current">
+                            @if (stage.done) {
+                            <svg lucideIcon="check" class="w-4 h-4 text-white"></svg>
+                            } @else {
+                            <svg [lucideIcon]="stage.icon" class="w-3.5 h-3.5"
+                                [class.text-green-600]="stage.current" [class.dark:text-green-400]="stage.current"
+                                [class.text-slate-400]="!stage.current"
+                                [class.dark:text-slate-500]="!stage.current"></svg>
+                            }
+                        </div>
+
+                        @if (!last) {
+                        <div class="w-0.5 flex-1 mt-1 rounded-full" [class.bg-green-600]="stage.done"
+                            [class.bg-slate-200]="!stage.done" [class.dark:bg-slate-700]="!stage.done">
+                        </div>
+                        }
+
+                    </div>
+
+                    <div class="pt-1.5">
+                        <p class="text-sm leading-tight" [class.font-bold]="stage.current"
+                            [class.font-semibold]="stage.done && !stage.current"
+                            [class.text-slate-800]="stage.current" [class.dark:text-white]="stage.current"
+                            [class.text-slate-600]="stage.done && !stage.current"
+                            [class.dark:text-slate-300]="stage.done && !stage.current"
+                            [class.text-slate-400]="!stage.done && !stage.current"
+                            [class.dark:text-slate-500]="!stage.done && !stage.current">
+
+                            {{ stage.label }}
+                        </p>
+                        @if (stage.current && isWorkflowStopped()) {
+                        <span class="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wide">
+                            Stopped - {{ stoppedStatusLabel() }}</span>
+                        } @else if (stage.current) {
+                        <span
+                            class="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase tracking-wide">In
+                            Progress</span>
+                        } @else if (stage.done) {
+                        <span class="text-[10px] font-medium text-slate-400 dark:text-slate-500">Completed</span>
+                        }
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <!-- =====================================================
+         ACTIONS - at the bottom of the view.
+
+         Actions only: no "... Completed" / "... Received" badges - the Workflow Path panel is the single
+         place a finished step is reported. Visibility is sequenced by USP_GetInterviewCandidateById (the
+         show* / can* flags), never re-derived in the template. Interviewer actions (acknowledge, attendance,
+         assessment) live on the Interview page, not here.
+    ====================================================== -->
+
+    <div class="unit-box p-5">
+        <h3 class="box-content-heading">
+            <svg lucideIcon="zap" class="w-4 h-4 text-green-600"></svg> Actions
+        </h3>
+        <div class="green-line"></div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+
+            <!-- STOPPED - rejected, or not selected. Nothing further can be done, and the API refuses it anyway. -->
+            @if (isWorkflowStopped()) {
+            <span class="inline-flex items-center gap-2 text-sm font-medium text-rose-600 dark:text-rose-400">
+                <svg lucideIcon="x-circle" class="w-4 h-4"></svg>
+                {{ data.isRejected ? 'This candidate has been rejected.' : 'This candidate was not selected.' }}
+                No further action can be taken.
+            </span>
+            @if (data.showViewPanelButton) {
+            <button type="button" class="reset-btn shine-sweep lift" (click)="onViewPanel()">
+                <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
+                View Panel
+            </button>
+            }
+            } @else {
+
+            <!-- INTERVIEW LETTER - once the interview is scheduled -->
+            @if (data.showInterviewLetterActions) {
+            <qfin-letter-actions letterName="Interview" [sending]="sendingMail()"
+                [receiving]="recievingMail()" (view)="onViewInterviewLetterMail()"
+                (send)="onSendLetterMail('interview')" (receive)="onRecieveLetter('interview')" />
+            }
+
+            <!-- PANEL -->
+            @if (data.showCreatePanelButton) {
+            <button type="button" class="global-btn ripple-btn shine-sweep lift" (click)="onCreatePanel()">
+                <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
+                Create Panel
+            </button>
+            }
+
+            @if (data.showViewPanelButton) {
+            <button type="button" class="reset-btn shine-sweep lift" (click)="onViewPanel()">
+                <svg lucideIcon="users-round" class="w-4 h-4 mr-2"></svg>
+                View Panel
+            </button>
+            }
+
+            <!-- WRITTEN INTERVIEW FORMAT (optional): download the blank form / upload the filled one, until the
+                 HR Assessment is completed. -->
+            @if (data.showInterviewFormatActions) {
+            <qfin-file-actions actionName="Interview Format" uploadLabel="Interview Upload"
+                [uploading]="uploadingInterviewFormat()" (download)="onDownloadInterviewFormat()"
+                (upload)="onInterviewUpload($event)" />
+            }
+
+            <!-- HR ASSESSMENT -->
+            @if (data.isShowHrAssessmentButton) {
+            <button type="button" class="reset-btn shine-sweep lift" (click)="onHrAssessment()">
+                <svg lucideIcon="user-check" class="w-4 h-4 mr-2"></svg>
+                {{ hrAssessmentButtonLabel() }}
+            </button>
+            }
+
+            <!-- IS CANDIDATE SELECTED - HR, after the HR Assessment, for a recommended candidate -->
+            @if (data.showSelectForOfferButton) {
+            <button type="button" [disabled]="selecting()" (click)="onSelectForOffer(true)"
+                class="global-btn ripple-btn shine-sweep lift disabled:opacity-60 disabled:cursor-not-allowed">
+                <svg lucideIcon="badge-check" class="w-4 h-4 mr-2"></svg>
+                {{ selecting() ? 'Saving...' : 'Select Candidate' }}
+            </button>
+            <button type="button" [disabled]="selecting()" (click)="onSelectForOffer(false)"
+                class="rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-rose-600 dark:text-rose-400 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-500/30 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition cursor-pointer shine-sweep lift disabled:opacity-60 disabled:cursor-not-allowed">
+                <svg lucideIcon="thumbs-down" class="w-4 h-4"></svg>
+                Not Selected
+            </button>
+            }
+
+            <!-- CANDIDATE VERIFICATION - once the candidate is selected -->
+            @if (data.isShowCandidateVerificationButton && !data.isCandidateVerificationCompleted) {
+            <button type="button" class="reset-btn shine-sweep lift" (click)="onCandidateVerification()">
+                <svg lucideIcon="shield-check" class="w-4 h-4 mr-2"></svg>
+                Candidate Verification
+            </button>
+            }
+
+            <!-- OFFER LETTER - opens once verification is complete, and only with the joining details it prints -->
+            @if (data.showOfferLetterActions) {
+            @if (data.isJoiningDetailsComplete) {
+            <qfin-letter-actions letterName="Offer" [sending]="sendingMail()"
+                [receiving]="recievingMail()" (view)="onViewOfferLetterMail()"
+                (send)="onSendLetterMail('offer')" (receive)="onRecieveLetter('offer')" />
+            } @else {
+            <div
+                class="w-full flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                <div class="flex items-start gap-2.5 text-sm text-amber-800 dark:text-amber-300">
+                    <svg lucideIcon="triangle-alert" class="w-4 h-4 mt-0.5 shrink-0"></svg>
+                    <span>
+                        Update the joining details before the offer letter:
+                        <span class="font-semibold">{{ missingJoiningDetails().join(', ') }}</span>
+                    </span>
+                </div>
+                @if (data.canEditDetails) {
+                <button type="button" class="global-btn ripple-btn shine-sweep lift" (click)="onUpdateJoiningDetails()">
+                    <svg lucideIcon="square-pen" class="w-4 h-4 mr-2"></svg>
+                    Update Joining Details
+                </button>
+                }
+            </div>
+            }
+            }
+
+            <!-- ADD ADDITIONAL INFO - HR, from the received appointment letter until the joining letter is uploaded -->
+            @if (data.isAppointmentLetterReceived && data.isHR && !data.isJoiningLetterUploaded) {
+            <button type="button" class="reset-btn shine-sweep lift" (click)="onAddAdditionalInfo()">
+                <svg lucideIcon="file-plus" class="w-4 h-4 mr-2"></svg>
+                {{data.isEmployeeCreated ? "Update " : "Add "}} Employee Onboarding Info
+            </button>
+            }
+
+            <!-- APPOINTMENT LETTER -->
+            @if (data.showAppointmentLetterActions) {
+            <qfin-letter-actions letterName="Appointment" [sending]="sendingMail()"
+                [receiving]="recievingMail()" (view)="onViewAppointmentLetterMail()"
+                (send)="onSendLetterMail('appointment')" (receive)="onRecieveLetter('appointment')" />
+            }
+
+            <!-- JOINING LETTER - unlocked by the received appointment letter. One split button,
+                 like the letters: download the blank letter, upload the signed one back. -->
+            @if (data.showJoiningLetterActions && !data.isJoiningLetterUploaded && data.isEmployeeCreated) {
+            <qfin-file-actions actionName="Joining Letter" downloadLabel="Download Joining Letter"
+                uploadLabel="Joining Letter Upload"
+                uploadDialogDescription="Drag the signed joining letter here, or browse to pick it."
+                [uploading]="uploadingJoiningLetter()" (download)="onDownloadJoiningLetter()"
+                (upload)="onJoiningLetterUpload($event)" />
+            }
+
+            <!-- WELCOME LETTER - unlocked once the employee is created from the joining information -->
+            @if (data.isJoiningLetterUploaded && data.isEmployeeCreated) {
+            <qfin-letter-actions letterName="Welcome" [sending]="sendingMail()"
+                [receiving]="recievingMail()" (view)="onViewWelcomeLetterMail()"
+                (send)="onSendLetterMail('welcome')" (receive)="onRecieveLetter('welcome')" />
+            }
+
+            <!-- REJECT - HR until the employee is created; Admin only until HR starts the HR Assessment. Stops the
+                 workflow. -->
+            @if (data.showRejectButton) {
+            <button type="button" [disabled]="rejecting()" (click)="onReject()"
+                class="rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition cursor-pointer shine-sweep lift disabled:opacity-60 disabled:cursor-not-allowed">
+                <svg lucideIcon="x-circle" class="w-4 h-4"></svg>
+                {{ rejecting() ? 'Rejecting...' : 'Reject' }}
+            </button>
+            }
+
+            <!-- Nothing to do right now - the Workflow Path says where the candidate stands. -->
+            @if (!hasAnyAction()) {
+            <span class="text-sm text-slate-400 dark:text-slate-500">
+                {{ data.isAdmin && !data.canAct ? 'HR has started the assessment - you can view this candidate only.' :
+                'No action is pending for you on this candidate.' }}
+            </span>
+            }
+            }
+        </div>
+    </div>
+
+</div>
+
+
+} @else {
+
+<div class="glass rounded-xl shadow-glass dark:shadow
+           p-8 text-center text-slate-400
+           flex flex-col items-center justify-center
+           gap-3 min-h-[300px]">
+
+    <div class="w-10 h-10 border-4
+               border-primary-500 border-t-transparent
+               rounded-full animate-spin">
+    </div>
+
+    <p class="text-sm font-medium tracking-wide
+               text-slate-500 dark:text-slate-400">
+
+        Loading candidate Details...
+
+    </p>
+
+</div>
+
+}

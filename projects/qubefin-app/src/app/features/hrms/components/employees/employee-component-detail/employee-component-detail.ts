@@ -1,0 +1,161 @@
+import { CommonModule } from '@angular/common';
+import {
+  Component,
+  inject,
+  input,
+  output,
+  signal,
+  ViewChild,
+  ElementRef,
+  effect,
+  untracked,
+  afterRenderEffect,
+} from '@angular/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSelectModule } from '@angular/material/select';
+import { EMPTY_UUID } from 'qubefin-core';
+import { LucideDynamicIcon } from '@lucide/angular';
+import { EmployeeStore } from '../../../stores/employee-store';
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
+import { PersonalComponentDetail } from './personal-component/personal-component';
+import { AddressComponentDetail } from './address-component/address-component';
+import { ContactComponentDetail } from './contact-component/contact-component';
+import { OfficialComponentDetail } from './official-component/official-component';
+import { KycDocumentComponentDetail } from './kyc-document-component/kyc-document-component';
+import { ReferenceComponentDetail } from './reference-component/reference-component';
+import { EmploymentComponentDetail } from './employment-component/employment-component';
+import { QualificationComponentDetail } from './qualification-component/qualification-component';
+import { BankingComponentDetail } from './banking-component/banking-component';
+import { NomineeComponentDetail } from './nominee-component/nominee-component';
+import { ReferralComponentDetail } from './referral-component/referral-component';
+
+@Component({
+  selector: 'qfin-employee-component-detail',
+  imports: [
+    CommonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatStepperModule,
+    LucideDynamicIcon,
+    PersonalComponentDetail,
+    AddressComponentDetail,
+    ContactComponentDetail,
+    OfficialComponentDetail,
+    KycDocumentComponentDetail,
+    ReferenceComponentDetail,
+    EmploymentComponentDetail,
+    QualificationComponentDetail,
+    BankingComponentDetail,
+    NomineeComponentDetail,
+    ReferralComponentDetail,
+  ],
+  templateUrl: './employee-component-detail.html',
+})
+export class EmployeeComponentDetail {
+  emptyGuid = EMPTY_UUID;
+  employeeId = input<string>(EMPTY_UUID);
+  onChildSave = output<string>();
+
+  private pendingAdvance = false;
+  readonly activeStepIndex = signal(0);
+  private readonly employeeStore = inject(EmployeeStore);
+  utilityComponents = this.employeeStore.utilityComponent;
+  kycComponents = this.employeeStore.kycComponent;
+
+  @ViewChild('stepper', { read: ElementRef })
+  stepper!: ElementRef;
+  @ViewChild('stepper')
+  matStepper!: MatStepper;
+  constructor() {
+    effect(() => {
+      const id = this.employeeId();
+
+      if (id === EMPTY_UUID) {
+        untracked(() => {
+          this.activeStepIndex.set(0);
+
+          if (this.matStepper) {
+            this.matStepper.reset();
+          }
+        });
+      }
+    });
+    afterRenderEffect(() => {
+      const id = this.employeeId();
+      if (id !== EMPTY_UUID && this.pendingAdvance) {
+        this.pendingAdvance = false;
+        this.activeStepIndex.set(1);
+      }
+    });
+  }
+  onStepChange(index: number) {
+    this.activeStepIndex.set(index);
+  }
+  handlePersonal() {
+    this.onStepChange(1);
+  }
+  handleContact() {
+    this.onStepChange(2);
+  }
+  handleAddress() {
+    this.onStepChange(3);
+  }
+  handleKyc() {
+    this.onStepChange(4);
+  }
+  handleOfficial() {
+    this.onStepChange(5);
+  }
+  handleQualification() {
+    this.onStepChange(6);
+  }
+  handleEmployment() {
+    this.onStepChange(7);
+  }
+  handlePayroll() {
+    this.onStepChange(8);
+  }
+  handleNominee() {
+    this.onStepChange(9);
+  }
+  handleReference() {
+    this.onStepChange(10);
+  }
+  handleReferral() {
+    this.onStepChange(0);
+  }
+  handleSave(newId?: string) {
+    this.onChildSave.emit(newId as string);
+
+    if (newId && newId.length > 20) {
+      this.pendingAdvance = true;
+    }
+  }
+
+  ngAfterViewInit() {
+    const header = this.stepper.nativeElement.querySelector(
+      '.mat-horizontal-stepper-header-container',
+    );
+
+    if (!header) return;
+
+    header.addEventListener(
+      'wheel',
+      (event: WheelEvent) => {
+        event.preventDefault();
+
+        header.scrollBy({
+          left: event.deltaY,
+          behavior: 'smooth',
+        });
+      },
+      { passive: false },
+    );
+  }
+}

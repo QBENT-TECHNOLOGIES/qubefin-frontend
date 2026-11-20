@@ -1,0 +1,152 @@
+<!-- @if (role(); as detail) { -->
+<div class="flex flex-col gap-4">
+    <div class="flex-1 grid grid-cols items-stretch">
+        <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
+            <!-- View Header -->
+            <div class="flex px-4 py-4 items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div>
+                        <svg lucideIcon="wallet" class="w-6 h-6 text-primary-700 dark:text-primary-400"></svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-lg font-bold text-slate-800 dark:text-slate-100">
+                                {{ user()?.userName }}
+                            </h1>
+                            <div class="p-2 rounded-4xl cursor-pointer hover:bg-secondary-500/10" matTooltip="Edit"
+                                (click)="onShowEdit()">
+                                <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
+                            </div>
+                        </div>
+                        <p class="text-sm text-primary-700 dark:text-primary-400 font-medium">User</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <!-- Status Badge -->
+                    <div
+                        class="flex items-center gap-2 px-3.5 py-1 rounded-4xl bg-white/45 dark:bg-white/5 border border-slate-200/20 dark:border-white/5 shadow-md">
+                        <span class="flex items-center gap-1.5 text-[12px] font-semibold"
+                            [class.text-emerald-600]="user()?.isActive" [class.dark:text-emerald-400]="user()?.isActive"
+                            [class.text-rose-600]="!user()?.isActive" [class.dark:text-rose-400]="!user()?.isActive">
+                            <span class="w-2 h-2 rounded-full relative flex">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                                    [class.bg-emerald-400]="user()?.isActive"
+                                    [class.bg-rose-400]="!user()?.isActive"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2"
+                                    [class.bg-emerald-500]="user()?.isActive"
+                                    [class.bg-rose-500]="!user()?.isActive"></span>
+                            </span>
+                            {{ user()?.isActive ? 'Active' : 'Inactive' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-0 p-4">
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+                    General Information
+                </h3>
+                <div class="w-10 h-1 rounded-full bg-primary-500 mb-5"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="gen-info">
+                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <svg lucideIcon="tag" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Employee</label>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ user()?.employee }}</p>
+                        </div>
+                    </div>
+                    <div class="gen-info">
+                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <svg lucideIcon="layout-grid" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label
+                                class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">MFA Key</label>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ user()?.mfaSecret }}</p>
+                        </div>
+                    </div>
+                    <div class="gen-info">
+                        <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+                            <svg lucideIcon="list-ordered" class="w-5 h-5 text-primary-700"></svg>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">MFA Enabled</label>
+                            <p class="font-semibold text-slate-800 dark:text-slate-100 mt-1">{{ user()?.hasMfaEnabled ? 'YES' : 'NO' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Information -->
+    <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow p-4 pb-6">
+        <div class="flex flex-col gap-3">
+            <div>
+                <h4 class="text-base font-bold text-slate-800 mb-3 dark:text-slate-200">
+                    Audit Information
+                </h4>
+                <div class="w-10 h-1 rounded-full bg-primary-500 mb-4"></div>
+            </div>
+            <div
+                class="grid grid-cols-2 md:grid-cols-4 gap-3 divide-y md:divide-y-0 md:divide-x divide-slate-200/20 dark:divide-white/10">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-primary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+                        <svg lucideIcon="user-check" class="w-4 h-4 text-primary-700"></svg>
+                    </div>
+                    <div>
+                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+                            Created By</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ user()?.createdBy }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-secondary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+                        <svg lucideIcon="calendar-plus" class="w-4 h-4 text-secondary-600"></svg>
+                    </div>
+                    <div>
+                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+                            Created On</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ user()?.createdOn |
+                            date:'dd-MM-yyyy hh:mm a' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-accent-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+                        <svg lucideIcon="user-cog" class="w-4 h-4 text-secondary-600"></svg>
+                    </div>
+                    <div>
+                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+                            Last Modified By</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ user()?.lastModifiedBy ??
+                            '-' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-primary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+                        <svg lucideIcon="calendar-clock" class="w-4 h-4 text-primary-700"></svg>
+                    </div>
+                    <div>
+                        <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+                            Last Modified On</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ user()?.lastModifiedOn ?
+                            (user()?.lastModifiedOn | date:'dd-MM-yyyy hh:mm a') : '-' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- } @else {
+<div class="glass rounded-xl shadow-glass dark:shadow p-8 text-center text-slate-400">
+    Loading details...
+</div>
+} -->

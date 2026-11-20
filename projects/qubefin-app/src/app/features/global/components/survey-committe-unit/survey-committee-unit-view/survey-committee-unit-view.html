@@ -1,45 +1,45 @@
 @if (committeeMember(); as member) {
-<div class="flex flex-col gap-4">
+<div class="view-container">
   <div class="flex-1">
     <div
-      class="bg-white/20 dark:bg-glass-dark rounded-xl border border-slate-200/60 dark:border-glass-dark/10 dark:shadow">
+      class="unit-box">
       <!-- View Header -->
-      <div class="flex px-4 py-4 items-center justify-between">
-        <div class="flex items-center gap-4">
+      <div class="unit-box-header">
+        <div class="box-group">
           <div>
             <svg lucideIcon="wallet" class="w-6 h-6 text-primary-700 dark:text-primary-400"></svg>
           </div>
           <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-lg font-bold text-slate-800 dark:text-slate-100">
+            <div class="box-title-group">
+              <h1 class="box-title">
                 {{ member.employeeName || 'Unknown Employee' }}
               </h1>
               @if(member.isLead){
               <span
-                class="px-2 py-0.5 rounded-md bg-slate-500/10 dark:bg-white/10 text-[11px] font-mono font-semibold text-slate-600 dark:text-slate-300">
+                class="title-badge">
                 Committee Lead
               </span>
               }
-              <div class="p-2 rounded-4xl cursor-pointer hover:bg-secondary-500/10" matTooltip="Edit"
+              <div class="box-edit-btn" matTooltip="Edit"
                 (click)="onEdit()">
                 <svg lucideIcon="pencil" class="w-4 h-4 text-secondary dark:text-white"></svg>
               </div>
             </div>
-            <p class="text-xs text-primary-700 dark:text-primary-400 font-medium">Survey Committee Member</p>
+            <p class="box-subTitle text-xs!">Survey Committee Member</p>
           </div>
         </div>
 
-        <div class="flex items-center gap-4">
+        <div class="box-group">
           <!-- Status Badge -->
           <div
-            class="flex items-center gap-2 px-3.5 py-1 rounded-4xl bg-white/45 dark:bg-white/5 border border-slate-200/20 dark:border-white/5 shadow-md">
-            <span class="flex items-center gap-1.5 text-[12px] font-semibold" [class.text-emerald-600]="member.isActive"
+            class="badge-group">
+            <span class="badge" [class.text-emerald-600]="member.isActive"
               [class.dark:text-emerald-400]="member.isActive" [class.text-rose-600]="!member.isActive"
               [class.dark:text-rose-400]="!member.isActive">
               <span class="w-2 h-2 rounded-full relative flex">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                <span class="animate-circle"
                   [class.bg-emerald-400]="member.isActive" [class.bg-rose-400]="!member.isActive"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2" [class.bg-emerald-500]="member.isActive"
+                <span class="badge-status" [class.bg-emerald-500]="member.isActive"
                   [class.bg-rose-500]="!member.isActive"></span>
               </span>
               {{ member.isActive ? 'Active' : 'Inactive' }}
@@ -52,13 +52,13 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Committee Role -->
             <div class="gen-info">
-              <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+              <div class="gen-icon">
                 <svg lucideIcon="user" class="w-5 h-5 text-primary-700"></svg>
               </div>
               <div>
-                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Committee
+                <label class="gen-label">Committee
                   Role</label>
-                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                <p class="gen-title">
                   {{ member.isLead ? 'Lead Member' : 'Member' }}
                 </p>
               </div>
@@ -66,13 +66,13 @@
 
             <!-- Assigned From -->
             <div class="gen-info">
-              <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+              <div class="gen-icon">
                 <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
               </div>
               <div>
-                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Assigned
+                <label class="gen-label">Assigned
                   From</label>
-                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                <p class="gen-title">
                   {{ member.assignedFrom | date: 'mediumDate' }}
                 </p>
               </div>
@@ -80,13 +80,13 @@
 
             <!--Assigned To -->
             <div class="gen-info">
-              <div class="w-9 h-9 rounded-lg bg-primary-300 flex items-center shadow justify-center shrink-0">
+              <div class="gen-icon">
                 <svg lucideIcon="calendar-check" class="w-5 h-5 text-primary-700"></svg>
               </div>
               <div>
-                <label class="text-[11px] text-slate-800 dark:text-slate-300 tracking-wider">Assigned
+                <label class="gen-label">Assigned
                   To</label>
-                <p class="font-semibold text-slate-800 dark:text-slate-100 mt-0.5">
+                <p class="gen-title">
                   {{ member.isActive ? "Present" : (member.assignedTo | date: 'mediumDate') }}
                 </p>
               </div>
@@ -97,60 +97,60 @@
     </div>
   </div>
   <!-- Audit Information -->
-  <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow p-4 pb-6">
+  <div class="unit-box p-4 pb-6">
     <div class="flex flex-col gap-3">
       <div>
-        <h4 class="text-base font-bold text-slate-800 mb-3 dark:text-slate-200">
+        <h4 class="box-content-heading">
           Audit Information
         </h4>
-        <div class="w-10 h-1 rounded-full bg-primary-500 mb-4"></div>
+        <div class="green-line"></div>
       </div>
       <div
-        class="grid grid-cols-2 md:grid-cols-4 gap-3 divide-y md:divide-y-0 md:divide-x divide-slate-200/20 dark:divide-white/10">
-        <div class="flex items-center gap-2">
+        class="audit-grid">
+        <div class="audit-small-box">
           <div
-            class="w-9 h-9 rounded-xl bg-primary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+            class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
             <svg lucideIcon="user-check" class="w-4 h-4 text-primary-700"></svg>
           </div>
           <div>
-            <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+            <p class="audit-label">
               Created By</p>
-            <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ member.auditInfo?.createdBy }}</p>
+            <p class="audit-title">{{ member.auditInfo?.createdBy }}</p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="audit-small-box">
           <div
-            class="w-9 h-9 rounded-xl bg-secondary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+            class="audit-icon-box bg-secondary-500/15 dark:bg-primary-300">
             <svg lucideIcon="calendar-plus" class="w-4 h-4 text-secondary-600"></svg>
           </div>
           <div>
-            <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+            <p class="audit-label">
               Created On</p>
-            <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ member.auditInfo?.createdOn |
+            <p class="audit-title">{{ member.auditInfo?.createdOn |
               date:'dd-MM-yyyy hh:mm a' }}</p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="audit-small-box">
           <div
-            class="w-9 h-9 rounded-xl bg-accent-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+            class="audit-icon-box bg-accent-500/15 dark:bg-primary-300">
             <svg lucideIcon="user-cog" class="w-4 h-4 text-secondary-600"></svg>
           </div>
           <div>
-            <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+            <p class="audit-label">
               Last Modified By</p>
-            <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ member.auditInfo?.lastModifiedBy ??
+            <p class="audit-title">{{ member.auditInfo?.lastModifiedBy ??
               '-' }}</p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="audit-small-box">
           <div
-            class="w-9 h-9 rounded-xl bg-primary-500/15 dark:bg-primary-300 flex items-center justify-center shrink-0 shadow">
+            class="audit-icon-box bg-primary-500/15 dark:bg-primary-300">
             <svg lucideIcon="calendar-clock" class="w-4 h-4 text-primary-700"></svg>
           </div>
           <div>
-            <p class="text-[9px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-semibold">
+            <p class="audit-label">
               Last Modified On</p>
-            <p class="text-xs font-semibold text-slate-700 dark:text-slate-100">{{ member.auditInfo?.lastModifiedOn ?
+            <p class="audit-title">{{ member.auditInfo?.lastModifiedOn ?
               (member.auditInfo?.lastModifiedOn | date:'dd-MM-yyyy hh:mm a') : '-' }}</p>
           </div>
         </div>

@@ -97,3 +97,15 @@
 .dropdown-icon {
 	@apply text-[18px] shrink-0 transition-colors duration-200;
 }
+
+.parent-menu::before {
+	@apply hidden!;
+}
+
+.drawer-scroll-area {
+	@apply flex flex-col overflow-y-auto duration-300 ease-linear px-2 flex-1 space-y-1.5;
+}
+
+.child-menu-area {
+	@apply flex flex-col gap-1 overflow-hidden pl-2 mt-1 border-l border-slate-100 dark:border-white/10 ml-1;
+}

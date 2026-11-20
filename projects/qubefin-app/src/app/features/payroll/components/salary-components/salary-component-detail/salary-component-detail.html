@@ -1,0 +1,82 @@
+<div class="flex flex-col overflow-hidden">
+    <div class="flex-1 overflow-y-auto scroll-thin space-y-6 min-h-0 mb-2">
+        <div class="space-y-4">
+            <div>
+                <h3 class="box-content-heading mb-2!">
+                    Configuration Details
+                </h3>
+                <div class="green-line"></div>
+            </div>
+
+            <div class="from-grid grid-cols-1 md:grid-cols-4">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Name</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="user" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [formField]="salaryForm.name" autocomplete="off" placeholder="Enter name">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Code</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="code" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [formField]="salaryForm.code" autocomplete="off" placeholder="Enter code">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Category</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="salaryForm.categoryId" placeholder="Select category">
+                        @for (category of categories(); track category.id) {
+                        <mat-option [value]="category.id">
+                            {{ category.name }}
+                        </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Display Order</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="list-ordered" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput type="number" [formField]="salaryForm.displayOrder"
+                        placeholder="Enter display order">
+                </mat-form-field>
+            </div>
+
+            <div>
+                <h3 class="box-content-heading mb-2!">
+                    Applicability Rules
+                </h3>
+                <div class="blue-line"></div>
+                <div
+                    class="checkbox-area">
+                    <mat-checkbox [formField]="salaryForm.isActive" color="primary">Is Active?</mat-checkbox>
+                    <mat-checkbox [formField]="salaryForm.isTaxable" color="primary">Is Taxable?</mat-checkbox>
+                    <mat-checkbox [formField]="salaryForm.isPfapplicable" color="primary">PF Applicable?</mat-checkbox>
+                    <mat-checkbox [formField]="salaryForm.isEsiapplicable" color="primary">ESI
+                        Applicable?</mat-checkbox>
+                    <mat-checkbox [formField]="salaryForm.isCtccomponent" color="primary">Part of CTC?</mat-checkbox>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-area">
+        <button type="button" (click)="onCancelClicked()"
+            class="cancel-btn lift shine-sweep">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+            Cancel
+        </button>
+        <button type="button" (click)="onSubmit()"
+            class="global-btn shine-sweep lift">
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
+            {{ isEditMode() ? 'Update' : 'Submit' }}
+        </button>
+    </div>
+</div>

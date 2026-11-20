@@ -1,0 +1,150 @@
+<div class="space-y-4">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                General Information
+            </h3>
+            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+            <div class="flex flex-col gap-4">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Description</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="tag" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [formField]="holidayForm.description" autocomplete="off"
+                        placeholder="Enter holiday description" />
+                    <mat-error class="cus-error">
+                        {{ holidayForm.description().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Holiday Date</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [matDatepicker]="holidayPicker" [formField]="holidayForm.holidayDate" readonly
+                        placeholder="Select Date" />
+                    <mat-datepicker-toggle matIconSuffix [for]="holidayPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #holidayPicker></mat-datepicker>
+                    <mat-error class="cus-error">
+                        {{ holidayForm.holidayDate().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                Applicable Organization Units
+            </h3>
+            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full mb-3">
+                <mat-label>Search</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="search" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" placeholder="Search by State / District / Unit name"
+                    [value]="orgUnitSearch()" (input)="orgUnitSearch.set($any($event.target).value)" />
+                @if (orgUnitSearch()) {
+                <button type="button" matSuffix class="mr-3 cursor-pointer text-slate-400"
+                    (click)="orgUnitSearch.set('')" aria-label="Clear search">
+                    <svg lucideIcon="x" class="w-4 h-4"></svg>
+                </button>
+                }
+            </mat-form-field>
+
+            <div
+                class="overflow-y-auto scrollbar-thin border border-slate-200 dark:border-slate-700 rounded-xl h-[400px]">
+                <!-- Select all visible units -->
+                <label
+                    class="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200 cursor-pointer">
+                    <input type="checkbox" [checked]="isAllOrgUnitsSelected()"
+                        [indeterminate]="isSomeOrgUnitsSelected()"
+                        (change)="toggleUnits(visibleUnitIds(), $any($event.target).checked)"
+                        class="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500 cursor-pointer" />
+                    {{ orgUnitSearch().trim() ? 'Select All Matching' : 'Select All' }}
+                    <span class="ml-auto text-xs font-medium text-slate-400">
+                        {{ selectedOrgUnitIds().size }} selected
+                    </span>
+                </label>
+
+                @for (state of orgUnitTree(); track state.key) {
+                <ng-container [ngTemplateOutlet]="nodeRow" [ngTemplateOutletContext]="{ $implicit: state, depth: 0 }" />
+                @if (isExpanded(state.key)) {
+                @for (child of state.children; track child.key) {
+                <ng-container [ngTemplateOutlet]="nodeRow" [ngTemplateOutletContext]="{ $implicit: child, depth: 1 }" />
+                @if (child.level === 'district' && isExpanded(child.key)) {
+                @for (unit of child.children; track unit.key) {
+                <ng-container [ngTemplateOutlet]="nodeRow" [ngTemplateOutletContext]="{ $implicit: unit, depth: 2 }" />
+                }
+                }
+                }
+                }
+                } @empty {
+                <div class="p-8 text-center italic text-gray-500 text-sm">
+                    @if (!orgUnitsLoaded()) {
+                    Loading organization units...
+                    } @else if (orgUnitSearch().trim()) {
+                    No State, District or Unit matches "{{ orgUnitSearch().trim() }}".
+                    } @else {
+                    No organization units found.
+                    }
+                </div>
+                }
+            </div>
+
+            <ng-template #nodeRow let-node let-depth="depth">
+                <div class="flex items-center gap-2 py-2 pr-4 border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                    [style.padding-left.rem]="1 + depth * 1.5">
+                    @if (node.level !== 'unit') {
+                    <button type="button" class="w-5 h-5 flex items-center justify-center cursor-pointer text-slate-400"
+                        (click)="toggleExpanded(node.key)" [attr.aria-label]="isExpanded(node.key) ? 'Collapse' : 'Expand'">
+                        <svg lucideIcon="chevron-right" class="w-4 h-4 transition-transform"
+                            [class.rotate-90]="isExpanded(node.key)"></svg>
+                    </button>
+                    } @else {
+                    <span class="w-5"></span>
+                    }
+                    <input type="checkbox" [checked]="isNodeChecked(node.unitIds)"
+                        [indeterminate]="isNodePartial(node.unitIds)"
+                        (change)="toggleUnits(node.unitIds, $any($event.target).checked)"
+                        class="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500 cursor-pointer" />
+                    <svg [lucideIcon]="node.level === 'state' ? 'map' : node.level === 'district' ? 'map-pin' : 'building-2'"
+                        class="w-4 h-4 text-slate-400"></svg>
+                    <span class="text-sm text-slate-700 dark:text-slate-200"
+                        [class.font-semibold]="node.level !== 'unit'"
+                        [class.cursor-pointer]="node.level !== 'unit'"
+                        (click)="node.level !== 'unit' && toggleExpanded(node.key)">
+                        {{ node.name }}
+                    </span>
+                    @if (node.level === 'unit') {
+                    <span class="text-[11px] text-slate-400">{{ node.typeName }}</span>
+                    } @else {
+                    <span class="ml-auto text-xs text-slate-400">
+                        {{ selectedCount(node.unitIds) }}/{{ node.unitIds.length }}
+                    </span>
+                    }
+                </div>
+            </ng-template>
+        </div>
+
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3 mt-6">
+        <button type="button" (click)="onCancelClicked()"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+            Cancel
+        </button>
+        <button type="button" (click)="onSubmit()"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
+            {{ isEditMode() ? 'Update' : 'Save' }}
+        </button>
+    </div>
+</div>

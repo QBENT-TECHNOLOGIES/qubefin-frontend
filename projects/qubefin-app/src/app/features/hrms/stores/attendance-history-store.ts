@@ -1,0 +1,103 @@
+import { DatePipe } from '@angular/common';
+import { httpResource } from '@angular/common/http';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
+import { IAttendanceHistory } from '../models/attendance-history';
+import { CalendarDay } from '../models/attendance-calendar';
+@Injectable({
+  providedIn: 'root',
+})
+export class AttendanceHistoryStore {
+  private readonly basePath = `${ApiPaths.HRMS}/attendances`;
+  readonly fromDate = signal<string | null>(null);
+  readonly toDate = signal<string | null>(null);
+  readonly status = signal<string | null>(null);
+  readonly searchQuery = signal<string | null>(null);
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+  readonly sortOn = signal('attendanceDate');
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
+  readonly calendarYear = signal<number>(new Date().getFullYear());
+  readonly calendarMonth = signal<number>(new Date().getMonth() + 1);
+  readonly calendarEmployeeId = signal<string | null>(null);
+  readonly calendarDaysResource = httpResource<CalendarDay[]>(() => {
+    const year = this.calendarYear();
+    const month = this.calendarMonth();
+    const employeeId = this.calendarEmployeeId();
+    if (!year || !month) return undefined;
+
+    const path = employeeId
+      ? `${ApiPaths.HRMS}/holidays/calendar/${employeeId}`
+      : `${ApiPaths.HRMS}/holidays/calendar`;
+
+    return `${path}?year=${year}&month=${month}`;
+  });
+  readonly calendarDays = computed(() => this.calendarDaysResource.value() ?? []);
+  readonly isCalendarLoading = computed(() => this.calendarDaysResource.isLoading());
+  readonly attendanceHistoryResource = httpResource<{
+    results: IAttendanceHistory[];
+    totalRecords: number;
+  }>(() => ({
+    url: `${this.basePath}` + '/history',
+    method: 'POST',
+    body: {
+      fromDate: this.fromDate(),
+      toDate: this.toDate(),
+      status: this.status(),
+      searchText: this.searchQuery(),
+      sortOn: this.sortOn(),
+      sortDirection: this.sortDirection(),
+      pageIndex: this.pageIndex(),
+      pageSize: this.pageSize(),
+    },
+  }));
+
+  readonly attendanceHistory = computed(
+    () => this.attendanceHistoryResource.value()?.results ?? [],
+  );
+  readonly totalRecords = computed(() => this.attendanceHistoryResource.value()?.totalRecords ?? 0);
+
+  readonly loading = computed(() => this.attendanceHistoryResource.isLoading());
+  readonly error = computed(() => this.attendanceHistoryResource.error());
+
+  setFromDate(date: string | null) {
+    this.fromDate.set(date);
+  }
+  setToDate(date: string | null) {
+    this.toDate.set(date);
+  }
+  setStatus(status: string | null) {
+    this.status.set(status);
+  }
+
+  setSearchQuery(query: string | null) {
+    this.searchQuery.set(query);
+    this.pageIndex.set(0);
+  }
+
+  setPage(index: number) {
+    this.pageIndex.set(index);
+  }
+
+  setPageSize(items: number) {
+    this.pageSize.set(items);
+  }
+
+  setSort(sort: string, direction: 'asc' | 'desc') {
+    this.sortOn.set(sort);
+    this.sortDirection.set(direction);
+    this.pageIndex.set(0);
+  }
+  setCalendarDate(year: number, month: number) {
+    this.calendarYear.set(year);
+    this.calendarMonth.set(month);
+  }
+
+  setCalendarEmployee(employeeId: string | null) {
+    this.calendarEmployeeId.set(employeeId);
+  }
+
+  refreshList() {
+    this.attendanceHistoryResource.reload();
+  }
+}
