@@ -1,33 +1,34 @@
 <div class="space-y-4">
     <div class="grid grid-cols-1 lg:grid-cols-1 gap-4">
         <!-- General Information -->
-        <div>
-            <h3 class="text-base font-bold text-slate-800 dark:text-white">
-                General Information
-            </h3>
-            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                @if (isEditMode()) {
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Assignment No</mat-label>
-                    <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
-                    </div>
-                    <input matInput [value]="formModel().assignmentNo" readonly />
-                </mat-form-field>
-                }
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                    <mat-label>Survey Type</mat-label>
-                    <div class="w-12 flex justify-center" matPrefix>
-                        <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
-                    </div>
-                    <mat-select [value]="formModel().surveyType" (valueChange)="updateField('surveyType',$event)">
-                        @for(type of surveyTypes(); track type){
-                        <mat-option [value]="type"> {{type}}
-                        </mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
+        <div class="bg-white/20 dark:bg-glass-dark rounded-xl shadow dark:shadow">
+            <div class="p-5">
+                <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                    General Information
+                </h3>
+                <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    @if (isEditMode()) {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Assignment No</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                        </div>
+                        <input matInput [value]="formModel().assignmentNo" readonly />
+                    </mat-form-field>
+                    }
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Survey Type</mat-label>
+                        <div class="w-12 flex justify-center" matPrefix>
+                            <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+                        </div>
+                        <mat-select [value]="formModel().surveyType" (valueChange)="updateField('surveyType',$event)">
+                            @for(type of surveyTypes(); track type){
+                            <mat-option [value]="type.sysVal"> {{type.sysVal}}
+                            </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
 
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Assignment Date</mat-label>

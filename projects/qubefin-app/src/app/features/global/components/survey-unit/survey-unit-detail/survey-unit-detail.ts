@@ -5,9 +5,12 @@ import { EmployeeService } from '../../../../hrms/services/employee-service';
 import { AdministrativeUnitService } from '../../../services/administrative-unit-service';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { ISurveyDetail } from '../../../models/survey';
-import { EmployeeSearchByText } from '../../../../hrms/models/employee-search-by-text';
+import { EMPTY_UUID } from 'qubefin-core';
+import { ISurveyDetail, SurveyCreateDetail } from '../../../models/survey';
+import {
+  EmployeeSearchByText,
+  EmployeeSearchResponse,
+} from '../../../../hrms/models/employee-search-by-text';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import {
   MatAutocompleteModule,
@@ -45,7 +48,7 @@ import { AdministrativeUnitCascade } from '../../administrative-unit-cascade/adm
   styles: ``,
 })
 export class SurveyUnitDetail {
-  readonly surveyTypes = signal<string[]>(['Branch Survey', 'Group Survey', 'Regional Survey']);
+  // readonly surveyTypes = signal<any[]>([]);
   private readonly surveyStore = inject(SurveyStore);
   private readonly surveyService = inject(SurveyService);
   private readonly employeeService = inject(EmployeeService);
@@ -60,9 +63,9 @@ export class SurveyUnitDetail {
 
   readonly isEditMode = computed(() => this.surveyId() !== EMPTY_UUID);
 
-  protected readonly formModel = signal<ISurveyDetail>(this.createEmptyModel());
+  protected readonly formModel = signal<SurveyCreateDetail>(this.createEmptyModel());
   readonly isMemberSelected = signal<boolean>(false);
-  private createEmptyModel(): ISurveyDetail {
+  private createEmptyModel(): SurveyCreateDetail {
     return {
       id: EMPTY_UUID,
       sequence: 0,
@@ -84,7 +87,7 @@ export class SurveyUnitDetail {
       [field]: value,
     }));
   }
-  protected readonly surveySchema: Schema<ISurveyDetail> = schema((path) => {
+  protected readonly surveySchema: Schema<SurveyCreateDetail> = schema((path) => {
     required(path.surveyType, {
       message: 'Survey Type is required',
     });
@@ -105,6 +108,16 @@ export class SurveyUnitDetail {
   });
   protected readonly surveyForm = form(this.formModel, this.surveySchema);
 
+  utilityComponents = this.surveyStore.utilityComponent;
+
+  protected readonly surveyTypes = computed(() => this.filterUtility('SURVEYTYPE')); // Kept matching typo from original code
+
+  private filterUtility(sysKey: string) {
+    const list = this.utilityComponents();
+    const s = list.length > 0 ? list.filter((m: any) => m.sysKey === sysKey) : [];
+    console.log(s);
+    return s;
+  }
   readonly employeeOptions = signal<EmployeeSearchByText[]>([]);
 
   readonly employeeSearchText = signal('');
@@ -306,9 +319,8 @@ export class SurveyUnitDetail {
       confirmButtonText: 'Yes',
     }).then((result) => {
       if (result.isConfirmed) {
-        const payload: ISurveyDetail = {
+        const payload: SurveyCreateDetail = {
           ...this.formModel(),
-          assignmentNo: this.generateAssignmentNo(),
           assignmentDate:
             this.datePipe.transform(this.formModel().assignmentDate, 'yyyy-MM-dd') || '',
 
@@ -340,10 +352,6 @@ export class SurveyUnitDetail {
         });
       }
     });
-  }
-  generateAssignmentNo(): string {
-    const number = Math.floor(100000 + Math.random() * 900000);
-    return `ASG${number}`;
   }
   protected onCancelClicked() {
     this.cancel.emit();

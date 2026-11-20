@@ -26,6 +26,8 @@ export class SurveyUnitView {
   readonly loading = this.surveyStore.surveyUnitLoading;
   readonly error = this.surveyStore.surveyUnitError;
 
+  readonly onShowSurveyComplete = output<{ hasAccess: boolean, type: string }>();
+
   constructor() {
     effect(() => {
       this.surveyStore.setSurveyId(this.surveyId());
@@ -38,11 +40,8 @@ export class SurveyUnitView {
 
     effect(() => {
       const survey = this.surveyStore.surveyUnit();
-
       if (!survey) return;
-
-      // Assign to your local array or FormArray here
-      // this.members = survey.surveyAssigneds;
+      this.onShowSurveyComplete.emit({ hasAccess: survey.isSurveyAccessed, type: survey.surveyType });
     });
   }
 

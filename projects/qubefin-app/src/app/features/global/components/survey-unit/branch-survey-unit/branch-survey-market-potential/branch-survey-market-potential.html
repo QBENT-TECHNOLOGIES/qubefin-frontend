@@ -1,0 +1,67 @@
+<div class="animate-fade-in">
+  <div class="flex items-center gap-2">
+    <svg lucideIcon="target" class="w-5 h-5 text-primary-600"></svg>
+    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+      Market Potential Assessment
+    </h3>
+  </div>
+  <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Eligible Households</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="home" class="w-5 h-5"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyMarketPotentialForm.eligibleHouseholds" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Potential Women Borrowers</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="users" class="w-5 h-5"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyMarketPotentialForm.potentialWomenBorrowers" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>JLG Potential</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="users-round" class="w-5 h-5"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyMarketPotentialForm.jlgpotential" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Individual Business Loans Expected</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="wallet" class="w-5 h-5"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyMarketPotentialForm.individualBusinessLoansExpected" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Expected Portfolio — Year 1</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="indian-rupee" class="w-4 h-4"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyMarketPotentialForm.portfolioYear1" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Expected Portfolio — Year 2</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="indian-rupee" class="w-4 h-4"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyMarketPotentialForm.portfolioYear2" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Expected Portfolio — Year 3</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="indian-rupee" class="w-4 h-4"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyMarketPotentialForm.portfolioYear3" />
+    </mat-form-field>
+  </div>
+</div>

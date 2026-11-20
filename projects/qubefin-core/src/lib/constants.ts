@@ -15,3 +15,11 @@ export const months = [
 ];
 export const nationalities = ['Indian'];
 export const accountType = ['Savings', 'Current'];
+
+
+export const BranchSurveyConstants_RATING_OPTIONS = ['Excellent', 'Good', 'Average', 'Poor'];
+export const BranchSurveyConstants_CONDITION_OPTIONS = ['Good', 'Average', 'Poor'];
+export const BranchSurveyConstants_YES_NO_OPTIONS = ['Yes', 'No'];
+export const BranchSurveyConstants_RECOMMENDATION_OPTIONS = ['Highly Recommended', 'Recommended', 'Not Recommended'];
+export const BranchSurveyConstants_RISK_LEVEL_OPTIONS = ['High', 'Medium', 'Low'];
+export const BranchSurveyConstants_ADMIN_STATUS_OPTIONS = ['Rural', 'Semi Urban', 'Urban'];

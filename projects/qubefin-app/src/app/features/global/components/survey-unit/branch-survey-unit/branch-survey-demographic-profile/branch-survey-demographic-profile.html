@@ -1,0 +1,91 @@
+<div class="animate-fade-in">
+  <div class="flex items-center gap-2">
+    <svg lucideIcon="users" class="w-5 h-5 text-primary-600"></svg>
+    <h3 class="text-base font-bold text-slate-800 dark:text-white">
+      Demographic Profile
+    </h3>
+  </div>
+  <div class="w-10 h-1 rounded-full bg-primary-500 my-4"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Estimated Population</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="users" class="w-5 h-5"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.estimatedPopulation" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Number of Households</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="home" class="w-5 h-5"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.numberOfHouseholds" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Average Family Size</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="user-round" class="w-5 h-5"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.averageFamilySize" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Female Population (%)</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="percent" class="w-4 h-4"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.femalePopulationPercent" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Literacy Rate (%)</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="book-open" class="w-4 h-4"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.literacyRate" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Working Population</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="briefcase" class="w-5 h-5"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.workingPopulation" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Minority Population (%)</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="percent" class="w-4 h-4"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.minorityPopulationPercent" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Scheduled Caste (%)</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="percent" class="w-4 h-4"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.scheduledCastePercent" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Scheduled Tribe (%)</mat-label>
+      <div class="w-12 flex items-center justify-center gap-1" matPrefix>
+        <svg lucideIcon="percent" class="w-4 h-4"></svg>
+      </div>
+      <input matInput type="number" [formField]="branchSurveyDemographicProfileForm.scheduledTribePercent" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-label>Migration Trend</mat-label>
+      <div class="w-12 flex justify-center" matPrefix>
+        <svg lucideIcon="trending-up" class="w-5 h-5"></svg>
+      </div>
+      <input matInput [formField]="branchSurveyDemographicProfileForm.migrationTrend" />
+    </mat-form-field>
+  </div>
+</div>
