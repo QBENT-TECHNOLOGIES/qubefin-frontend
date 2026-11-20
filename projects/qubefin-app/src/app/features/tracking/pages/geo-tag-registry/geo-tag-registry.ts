@@ -1,9 +1,12 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { GoogleMap, MapAdvancedMarker, MapCircle } from '@angular/google-maps';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { DocumentModalService } from 'qubefin-core';
@@ -23,7 +26,7 @@ import { MapStatus } from '../../components/shared/map-status/map-status';
  */
 @Component({
   selector: 'qfin-geo-tag-registry',
-  imports: [DatePipe, MatFormFieldModule, MatPaginatorModule, MatSelectModule, MatTooltipModule, LucideDynamicIcon, GoogleMap, MapAdvancedMarker, MapCircle, MapStatus],
+  imports: [DatePipe, NgClass, FormsModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatSelectModule, MatTableModule, MatTooltipModule, LucideDynamicIcon, GoogleMap, MapAdvancedMarker, MapCircle, MapStatus],
   templateUrl: './geo-tag-registry.html',
 })
 export class GeoTagRegistry {
@@ -38,6 +41,11 @@ export class GeoTagRegistry {
   readonly formatDistance = formatDistance;
   readonly googleMapsLink = googleMapsLink;
   private readonly markers = new MarkerContentCache();
+
+  readonly columns = ['name', 'branch', 'location'];
+  /** Filter row inside the list card (same pattern as Jobs & Tasks); the Filter button shows/hides it. */
+  readonly showFilters = signal(true);
+  readonly searchDraft = signal(this.store.searchText());
 
   readonly selectedId = signal<string | null>(null);
   readonly selected = computed(() => this.store.tags().find((t) => t.refId === this.selectedId()) ?? null);
@@ -75,6 +83,18 @@ export class GeoTagRegistry {
   setFilter<T>(sig: { set(v: T): void }, value: T) {
     this.store.setFilter(sig, value);
     this.selectedId.set(null);
+  }
+
+  applySearch() {
+    const text = this.searchDraft().trim();
+    if (text !== this.store.searchText()) this.setFilter(this.store.searchText, text);
+  }
+
+  resetFilters() {
+    this.searchDraft.set('');
+    this.store.searchText.set('');
+    this.store.branchId.set(null);
+    this.setFilter(this.store.onlyUntagged, false);
   }
 
   onPage(e: PageEvent) {

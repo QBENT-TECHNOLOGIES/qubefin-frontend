@@ -76,7 +76,8 @@ export interface GeoTagPoint {
   name: string;
   refCode: string;
   organizationUnitId: string;
-  branchName: string;
+  /** Optional (B5 is slimmed for large branches): the web takes the name from `organization-units` when absent. */
+  branchName?: string | null;
   address: string | null;
   location: GeoPoint;
   /** Match radius a task at this place gets (arrival / completion photo must be within it). */
@@ -99,9 +100,9 @@ export interface GeoTagPoint {
   dpd: number | null;
   /** OD members only: overdue amount (₹). */
   overdueAmount: number | null;
-  /** Who captured the location (mobile app) and when. */
-  taggedByName: string | null;
-  taggedAt: string | null;
+  /** Who captured the location (mobile app) and when. Not used by the picker; may be left out of B5 to keep it light. */
+  taggedByName?: string | null;
+  taggedAt?: string | null;
 }
 
 export interface GeoTagPointsResponse {

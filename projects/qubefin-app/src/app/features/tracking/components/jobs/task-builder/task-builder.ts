@@ -94,8 +94,15 @@ export class TaskBuilder {
   });
   readonly assigneeTasks = computed(() => this.assigneeTasksResource.value() ?? []);
 
-  /** Pending tasks of all open jobs the user can see: same person → locked, someone else → warning. */
-  private readonly pendingResource = httpResource<JobTaskPoint[]>(() => `${ApiPaths.TRACKING}/jobs/task-points`);
+  /**
+   * Pending tasks in open jobs at the chosen branch's places (same person → locked, someone else → warning).
+   * Only that branch: the picker shows nothing else, and an unfiltered call would load the whole scope (every branch for an Admin).
+   */
+  private readonly pendingResource = httpResource<JobTaskPoint[]>(() => {
+    const id = this.branchId();
+    if (!id) return undefined;
+    return { url: `${ApiPaths.TRACKING}/jobs/task-points`, params: { organizationUnitId: id, pendingOnly: 'true' } };
+  });
   private readonly pendingByKey = computed(() => {
     const map = new Map<string, PendingElsewhere[]>();
     (this.pendingResource.value() ?? []).forEach((p) => {
@@ -208,7 +215,7 @@ export class TaskBuilder {
       
       targetLocation: tag.location,
       organizationUnitId: tag.organizationUnitId,
-      branchName: tag.branchName,
+      branchName: tag.branchName ?? this.lookup.branchById().get(tag.organizationUnitId)?.name ?? '',
       radiusMeters: Math.min(tag.taskLocationMatchInMeters, 500),
     };
   }

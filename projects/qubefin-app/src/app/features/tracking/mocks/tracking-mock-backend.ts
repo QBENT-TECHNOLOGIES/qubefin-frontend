@@ -360,9 +360,8 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
           creditOfficerName: map?.creditOfficerName ?? null,
           groupId: c?.groupId ?? mem?.groupId ?? null,
           groupName: c?.groupName ?? mem?.groupName ?? null,
-          id: g.id, kind: g.kind, refId: g.refId, name: g.name, refCode: g.refCode, organizationUnitId: g.branchId, branchName: g.branchName,
+          id: g.id, kind: g.kind, refId: g.refId, name: g.name, refCode: g.refCode, organizationUnitId: g.branchId,
           address: g.address, location: g.location!, taskLocationMatchInMeters: g.radiusMeters, verified: g.verified, dpd: c?.dpd ?? null, overdueAmount: c?.overdueAmount ?? null,
-          taggedByName: g.taggedByName, taggedAt: g.taggedAt,
         } satisfies GeoTagPoint;
       });
     return { points, untaggedByKind } satisfies GeoTagPointsResponse;
