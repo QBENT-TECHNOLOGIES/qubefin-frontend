@@ -1,0 +1,381 @@
+<div class="page-container trk-form">
+    @if (!enabled) {
+    <div class="glass rounded-2xl p-10 text-center text-sm text-slate-500 flex flex-col items-center gap-2">
+        <svg lucideIcon="file-chart-column" class="w-8 h-8 text-slate-400"></svg>
+        The GPS service is not configured for this environment (<code>gpsServiceUrl</code>), so the report cannot be loaded.
+    </div>
+    } @else {
+    <!-- Report filters: period → branch → employees → Generate -->
+    <div class="mainCard-area glass w-full mb-4">
+        <div class="filter-area trk-filters">
+            <div class="flex flex-wrap items-center gap-1.5 pb-5">
+                <span class="text-xs font-semibold text-slate-500 mr-1">Period</span>
+                @for (q of quickRanges; track q.key) {
+                <button type="button" class="trk-filter-chip" [class.is-active]="activeQuick() === q.key" [matTooltip]="q.hint" (click)="pickQuick(q.key)">{{ q.label }}</button>
+                }
+            </div>
+            <div class="filter-container flex-wrap! items-start!">
+                <div class="w-[240px]">
+                    <qfin-trk-date-range-field label="Report period" [from]="fromDate()" [to]="toDate()" [maxDate]="today"
+                        (rangeChange)="setRange($event)" />
+                    <p class="text-[11px] text-slate-400 mt-1 px-1">Up to 3 months</p>
+                </div>
+                <div class="w-[280px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Branch</mat-label>
+                        <mat-select multiple [value]="units()" (valueChange)="setUnits($event)" [disabled]="unitLocked()" placeholder="Choose a branch">
+                            <mat-select-trigger>{{ unitLabel() }}</mat-select-trigger>
+                            @if (!unitLocked()) { <mat-option value="all">All branches</mat-option> }
+                            @for (g of unitGroups(); track g.label) {
+                            <mat-optgroup [label]="g.label">
+                                @for (u of g.options; track u.key) {
+                                <mat-option [value]="u.key">{{ u.label }} <span class="text-[11px] text-slate-400">· {{ u.hint }}</span></mat-option>
+                                }
+                            </mat-optgroup>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                    <p class="text-[11px] text-slate-400 mt-1 px-1">
+                        @if (unitLocked()) { Your branch }
+                        @else if (units().length) { {{ unitOfficers().length }} employees }
+                        @else { Branch, area or division }
+                    </p>
+                </div>
+                <div class="w-[300px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Employees</mat-label>
+                        <mat-select multiple [value]="employeeIds()" (valueChange)="employeeIds.set($event)" [disabled]="!units().length"
+                            [placeholder]="units().length ? 'All employees' : 'Choose a branch first'" (openedChange)="!$event && employeeSearch.set('')">
+                            <mat-select-trigger>
+                                {{ pickedNames()[0] }}
+                                @if (pickedNames().length > 1) { <span class="text-slate-400">(+{{ pickedNames().length - 1 }} more)</span> }
+                            </mat-select-trigger>
+                            <div class="px-3 py-2 sticky top-0 z-10 bg-white dark:bg-slate-800 border-b border-slate-200/70 dark:border-slate-700/50">
+                                <input class="w-full text-sm px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-transparent outline-none"
+                                    placeholder="Search name, code or branch…" [ngModel]="employeeSearch()" (ngModelChange)="employeeSearch.set($event)"
+                                    (keydown)="$event.stopPropagation()" />
+                            </div>
+                            @for (g of employeeGroups(); track g.role) {
+                            <mat-optgroup [label]="roleLabel(g.role) + 's'">
+                                @for (o of g.officers; track o.id) { <mat-option [value]="o.id">{{ o.name }} · {{ o.unitName }}</mat-option> }
+                            </mat-optgroup>
+                            } @empty {
+                            <p class="px-4 py-3 text-sm text-slate-400">{{ lookup.loading() ? 'Loading employees…' : 'No employee matches.' }}</p>
+                            }
+                        </mat-select>
+                        @if (employeeIds().length) {
+                        <button matSuffix type="button" class="trk-date-clear mr-2" (click)="clearEmployees(); $event.stopPropagation()" aria-label="Clear employees">
+                            <svg lucideIcon="x" class="w-4 h-4"></svg>
+                        </button>
+                        }
+                    </mat-form-field>
+                    <p class="text-[11px] text-slate-400 mt-1 px-1">
+                        {{ employeeIds().length ? employeeIds().length + ' selected' : 'Optional: leave empty for everyone in the branch' }}
+                    </p>
+                </div>
+                <button type="button" class="trk-link-btn mt-3 flex items-center gap-1" (click)="showAdvanced.set(!showAdvanced())">
+                    <svg [lucideIcon]="showAdvanced() ? 'chevron-up' : 'chevron-down'" class="w-4 h-4"></svg>
+                    GPS filters
+                    @if (advancedChanged()) { <span class="w-1.5 h-1.5 rounded-full bg-amber-500" matTooltip="Changed from the defaults"></span> }
+                </button>
+                <div class="ml-auto flex items-center gap-2">
+                    <span [matTooltip]="generateBlocker() ?? ''">
+                        <button type="button" class="global-btn shine-sweep lift flex items-center gap-1.5" [disabled]="!!generateBlocker() || loading()" (click)="generate()">
+                            <svg lucideIcon="file-chart-column" class="w-4 h-4"></svg> {{ loading() ? 'Generating…' : 'Generate' }}
+                        </button>
+                    </span>
+                    <button type="button" class="trk-icon-btn" [matMenuTriggerFor]="exportMenu" [disabled]="!report() || loading()" matTooltip="Export">
+                        <svg lucideIcon="download" class="w-4 h-4"></svg>
+                    </button>
+                    <mat-menu #exportMenu="matMenu" xPosition="before">
+                        <button mat-menu-item type="button" (click)="exportSummary()">
+                            <svg lucideIcon="file-spreadsheet" class="w-4 h-4 mr-2 inline"></svg> Employee summary (CSV)
+                        </button>
+                        <button mat-menu-item type="button" (click)="exportDaywise()">
+                            <svg lucideIcon="file-spreadsheet" class="w-4 h-4 mr-2 inline"></svg> Day-wise detail (CSV)
+                        </button>
+                    </mat-menu>
+                </div>
+            </div>
+
+            @if (showAdvanced()) {
+            <div class="filter-container flex-wrap! pt-0!">
+                <div class="w-[170px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Max GPS accuracy (m)</mat-label>
+                        <input matInput type="number" min="1" [ngModel]="maxAccuracyMeters()" (ngModelChange)="maxAccuracyMeters.set($event)" />
+                    </mat-form-field>
+                </div>
+                <div class="w-[170px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Max jump (m)</mat-label>
+                        <input matInput type="number" min="1" [ngModel]="maxSegmentMeters()" (ngModelChange)="maxSegmentMeters.set($event)" />
+                    </mat-form-field>
+                </div>
+                <div class="w-[170px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Min move (m)</mat-label>
+                        <input matInput type="number" min="0" [ngModel]="minSegmentMeters()" (ngModelChange)="minSegmentMeters.set($event)" />
+                    </mat-form-field>
+                </div>
+                <mat-checkbox [checked]="includeMockLocations()" (change)="includeMockLocations.set($event.checked)">Include mock locations</mat-checkbox>
+                <button type="button" class="trk-link-btn" (click)="resetAdvanced()" [disabled]="!advancedChanged()">Reset to defaults</button>
+                <p class="text-[11px] text-slate-400 basis-full px-1">
+                    Fixes less accurate than the max accuracy, jumps longer than the max jump and moves shorter than the min move are left out of the distance.
+                </p>
+            </div>
+            }
+            @if (rangeError(); as e) { <p class="text-xs text-red-600 px-4 pb-2">{{ e }}</p> }
+            @if (stale() && report()) {
+            <p class="text-xs text-amber-700 dark:text-amber-400 px-4 pb-3 flex items-center gap-1.5">
+                <svg lucideIcon="info" class="w-4 h-4"></svg> Filters changed. Click Generate to update the report below.
+            </p>
+            }
+        </div>
+    </div>
+
+    @if (errorText(); as e) {
+    <div class="glass rounded-2xl p-6 text-center text-sm text-red-600 flex flex-col items-center gap-2 mb-4">
+        {{ e }}
+        <button type="button" class="trk-link-btn" (click)="reload()">Try again</button>
+    </div>
+    }
+
+    @if (report(); as rep) {
+    <!-- Summary -->
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 mb-4" [class.opacity-60]="loading()">
+        <div class="trk-stat-card glass">
+            <p class="trk-stat-label">Employees</p>
+            <p class="trk-stat-value">{{ totals().employees }}</p>
+            <p class="text-[11px] text-slate-400">{{ totals().withData }} with GPS data</p>
+        </div>
+        <div class="trk-stat-card glass">
+            <p class="trk-stat-label">Tracking distance</p>
+            <p class="trk-stat-value">{{ totals().km | number: '1.1-1' }} <span class="text-sm font-semibold">km</span></p>
+            <p class="text-[11px] text-slate-400">{{ totals().days }} employee-days · {{ totals().avgKmPerDay | number: '1.1-1' }} km per day</p>
+        </div>
+        <div class="trk-stat-card glass">
+            <p class="trk-stat-label">Mileage distance</p>
+            @if (totals().mileage; as m) {
+            <p class="trk-stat-value">{{ m.mileageKm | number: '1.1-1' }} <span class="text-sm font-semibold">km</span></p>
+            <p class="text-[11px] text-slate-400">Tracking {{ m.trackingKm | number: '1.1-1' }} km on the same {{ totals().mileageDays }} days</p>
+            } @else {
+            <p class="trk-stat-value">–</p>
+            <p class="text-[11px] text-slate-400">No day with start and end mileage</p>
+            }
+        </div>
+        <div class="trk-stat-card glass">
+            <p class="trk-stat-label">Mileage − tracking</p>
+            @if (totals().mileage; as m) {
+            <p class="trk-stat-value" [class]="diffClass(m)">{{ signed(m.differenceKm) }} <span class="text-sm font-semibold">km</span></p>
+            <p class="text-[11px] text-slate-400">{{ signedPct(m.differencePct) || 'No tracked km' }} · {{ totals().mileageEmployees }} employees with readings</p>
+            } @else {
+            <p class="trk-stat-value">–</p>
+            <p class="text-[11px] text-slate-400">Needs start and end mileage</p>
+            }
+        </div>
+        <div class="trk-stat-card glass">
+            <p class="trk-stat-label">Most travelled</p>
+            @if (totals().top; as t) {
+            <p class="trk-stat-value text-base! truncate" [matTooltip]="t.employeeName">{{ t.employeeName }}</p>
+            <p class="text-[11px] text-slate-400">{{ t.totalKm | number: '1.1-1' }} km · {{ t.unitName }}</p>
+            } @else {
+            <p class="trk-stat-value text-base!">–</p>
+            }
+        </div>
+    </div>
+
+    <div class="mainCard-area glass w-full">
+        <!-- Result filters -->
+        <div class="filter-area trk-filters">
+            <div class="filter-container flex-wrap!">
+                <div class="w-[240px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <div class="w-10 flex justify-center" matPrefix><svg lucideIcon="search" class="w-4 h-4"></svg></div>
+                        <input matInput placeholder="Search name, code or designation" [ngModel]="search()" (ngModelChange)="search.set($event)" />
+                    </mat-form-field>
+                </div>
+                <div class="min-w-[170px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Post</mat-label>
+                        <mat-select [value]="post()" (valueChange)="post.set($event)">
+                            <mat-option [value]="null">All posts</mat-option>
+                            @for (p of postOptions(); track p) { <mat-option [value]="p">{{ p }}</mat-option> }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="min-w-[190px]">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                        <mat-label>Unit</mat-label>
+                        <mat-select [value]="unit()" (valueChange)="unit.set($event)">
+                            <mat-option [value]="null">All units</mat-option>
+                            @for (u of unitOptions(); track u) { <mat-option [value]="u">{{ u }}</mat-option> }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <mat-slide-toggle [checked]="withDataOnly()" (change)="withDataOnly.set($event.checked)">Only with GPS data</mat-slide-toggle>
+                <span class="text-xs text-slate-500 ml-auto">
+                    {{ rep.fromDate | date: 'dd MMM yyyy' }} – {{ rep.toDate | date: 'dd MMM yyyy' }} · for {{ rep.employeeName }} ({{ rep.unitName }})
+                </span>
+            </div>
+        </div>
+
+        <div class="overflow-auto scroll-thin">
+            <table mat-table [dataSource]="dataSource" multiTemplateDataRows matSort matSortActive="totalKm" matSortDirection="desc" class="w-full table">
+                <ng-container matColumnDef="expand">
+                    <th mat-header-cell *matHeaderCellDef class="w-12"></th>
+                    <td mat-cell *matCellDef="let r">
+                        @if (r.daysWithData) {
+                        <button type="button" class="trk-icon-btn" (click)="toggle(r); $event.stopPropagation()" [attr.aria-label]="'Days of ' + r.employeeName">
+                            <svg [lucideIcon]="expandedId() === r.employeeId ? 'chevron-down' : 'chevron-right'" class="w-4 h-4"></svg>
+                        </button>
+                        }
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="employee">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left!">Employee</th>
+                    <td mat-cell *matCellDef="let r" class="text-left! py-2 whitespace-nowrap">
+                        <p class="text-[13px] font-semibold text-slate-700 dark:text-slate-200">
+                            {{ r.employeeName }}
+                            @if (r.isViewer) { <span class="trk-badge ml-1">You</span> }
+                        </p>
+                        <p class="text-[11px] text-slate-400">{{ r.employeeCode }} · {{ r.designation }}</p>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="post">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left!">Post</th>
+                    <td mat-cell *matCellDef="let r" class="text-left! text-[12px] whitespace-nowrap">{{ r.post }}</td>
+                </ng-container>
+                <ng-container matColumnDef="unit">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left!">Unit</th>
+                    <td mat-cell *matCellDef="let r" class="text-left! text-[12px] whitespace-nowrap">{{ r.unitName }}</td>
+                </ng-container>
+                <ng-container matColumnDef="daysWithData">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before" class="text-right! whitespace-nowrap [&_.mat-sort-header-container]:justify-end">Days</th>
+                    <td mat-cell *matCellDef="let r" class="text-right! tabular-nums whitespace-nowrap text-[12px]">{{ r.daysWithData || '–' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="totalKm">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before" class="text-right! whitespace-nowrap [&_.mat-sort-header-container]:justify-end">Tracking (km)</th>
+                    <td mat-cell *matCellDef="let r" class="text-right! tabular-nums whitespace-nowrap text-[13px] font-semibold">{{ r.daysWithData ? (r.totalKm | number: '1.2-2') : '–' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="avgKmPerDay">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before" class="text-right! whitespace-nowrap [&_.mat-sort-header-container]:justify-end">Avg km / day</th>
+                    <td mat-cell *matCellDef="let r" class="text-right! tabular-nums whitespace-nowrap text-[12px]">{{ r.daysWithData ? (r.avgKmPerDay | number: '1.2-2') : '–' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="mileageKm">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before" class="text-right! whitespace-nowrap [&_.mat-sort-header-container]:justify-end">Mileage (km)</th>
+                    <td mat-cell *matCellDef="let r" class="text-right! tabular-nums whitespace-nowrap text-[13px]">
+                        @if (r.mileage; as m) {
+                        <span class="font-semibold">{{ m.mileageKm | number: '1.2-2' }}</span>
+                        @if (r.mileageDays < r.daysWithData) {
+                        <p class="text-[10px] text-slate-400" matTooltip="Days with both start and end mileage; the difference compares the same days">{{ r.mileageDays }} of {{ r.daysWithData }} days</p>
+                        }
+                        } @else { – }
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="differenceKm">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before" class="text-right! whitespace-nowrap [&_.mat-sort-header-container]:justify-end">Difference</th>
+                    <td mat-cell *matCellDef="let r" class="text-right! tabular-nums whitespace-nowrap text-[13px]">
+                        @if (r.mileage; as m) {
+                        <span class="font-semibold" [class]="diffClass(m)">{{ signed(m.differenceKm) }} km</span>
+                        <p class="text-[10px]" [class]="diffClass(m)">{{ signedPct(m.differencePct) }}</p>
+                        } @else { – }
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="activeMinutes">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before" class="text-right! whitespace-nowrap [&_.mat-sort-header-container]:justify-end">Active time</th>
+                    <td mat-cell *matCellDef="let r" class="text-right! tabular-nums whitespace-nowrap text-[12px]">{{ r.daysWithData ? hours(r.activeMinutes) : '–' }}</td>
+                </ng-container>
+
+                <!-- Day-wise detail of the expanded employee -->
+                <ng-container matColumnDef="detail">
+                    <td mat-cell *matCellDef="let r" [attr.colspan]="columns.length" class="p-0! bg-slate-50/70 dark:bg-slate-900/30">
+                        @if (expandedId() === r.employeeId) {
+                        <div class="pl-14 pr-4 py-3">
+                            <table mat-table [dataSource]="r.days" class="w-full table">
+                                <ng-container matColumnDef="date">
+                                    <th mat-header-cell *matHeaderCellDef class="text-left!">Date</th>
+                                    <td mat-cell *matCellDef="let d" class="text-left! text-[12px] whitespace-nowrap">{{ d.date | date: 'EEE, dd MMM yyyy' }}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="km">
+                                    <th mat-header-cell *matHeaderCellDef class="text-right!">Tracking (km)</th>
+                                    <td mat-cell *matCellDef="let d" class="text-right! tabular-nums whitespace-nowrap text-[12px] font-semibold">{{ d.totalDistanceKm | number: '1.2-2' }}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="startMileage">
+                                    <th mat-header-cell *matHeaderCellDef class="text-right!">Start mileage</th>
+                                    <td mat-cell *matCellDef="let d" class="text-right! tabular-nums whitespace-nowrap text-[12px]">{{ d.startMileage ?? '–' }}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="endMileage">
+                                    <th mat-header-cell *matHeaderCellDef class="text-right!">End mileage</th>
+                                    <td mat-cell *matCellDef="let d" class="text-right! tabular-nums whitespace-nowrap text-[12px]">{{ d.endMileage ?? '–' }}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="mileageKm">
+                                    <th mat-header-cell *matHeaderCellDef class="text-right!">Mileage (km)</th>
+                                    <td mat-cell *matCellDef="let d" class="text-right! tabular-nums whitespace-nowrap text-[12px] font-semibold">{{ d.mileage ? (d.mileage.mileageKm | number: '1.2-2') : '–' }}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="difference">
+                                    <th mat-header-cell *matHeaderCellDef class="text-right!">Difference</th>
+                                    <td mat-cell *matCellDef="let d" class="text-right! tabular-nums whitespace-nowrap text-[12px]">
+                                        @if (d.mileage; as m) {
+                                        <span class="font-semibold" [class]="diffClass(m)">{{ signed(m.differenceKm) }} km</span>
+                                        @if (m.differencePct !== null) { <span class="text-[11px] ml-1" [class]="diffClass(m)">({{ signedPct(m.differencePct) }})</span> }
+                                        } @else { – }
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="firstPoint">
+                                    <th mat-header-cell *matHeaderCellDef class="text-right!">First GPS point</th>
+                                    <td mat-cell *matCellDef="let d" class="text-right! tabular-nums whitespace-nowrap text-[12px]">{{ d.firstPointTime ? (d.firstPointTime | date: 'hh:mm a') : '–' }}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="lastPoint">
+                                    <th mat-header-cell *matHeaderCellDef class="text-right!">Last GPS point</th>
+                                    <td mat-cell *matCellDef="let d" class="text-right! tabular-nums whitespace-nowrap text-[12px]">{{ d.lastPointTime ? (d.lastPointTime | date: 'hh:mm a') : '–' }}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="active">
+                                    <th mat-header-cell *matHeaderCellDef class="text-right!">Active time</th>
+                                    <td mat-cell *matCellDef="let d" class="text-right! tabular-nums whitespace-nowrap text-[12px]">{{ hours(d.activeMinutes) }}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="points">
+                                    <th mat-header-cell *matHeaderCellDef class="text-right!">GPS points</th>
+                                    <td mat-cell *matCellDef="let d" class="text-right! tabular-nums whitespace-nowrap text-[12px]">{{ d.pointCount }}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="route">
+                                    <th mat-header-cell *matHeaderCellDef></th>
+                                    <td mat-cell *matCellDef="let d" class="text-right! whitespace-nowrap">
+                                        <a class="trk-link text-[12px]" [routerLink]="['/secure/tracking/route-history']" [queryParams]="{ employee: r.employeeId, date: d.date }">Route →</a>
+                                    </td>
+                                </ng-container>
+                                <tr mat-header-row *matHeaderRowDef="dayColumns"></tr>
+                                <tr mat-row *matRowDef="let row; columns: dayColumns"></tr>
+                            </table>
+                        </div>
+                        }
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: columns; when: always" [class.cursor-pointer]="row.daysWithData" (click)="toggle(row)"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['detail']; when: always" [class.hidden]="expandedId() !== row.employeeId"></tr>
+                <tr class="mat-row" *matNoDataRow>
+                    <td class="mat-cell px-8 py-6 text-center! text-slate-400 border-b-0" [attr.colspan]="columns.length">
+                        {{ loading() ? 'Loading report…' : 'No employee matches these filters.' }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <mat-paginator [pageSizeOptions]="[25, 50, 100]" [pageSize]="25" showFirstLastButtons />
+        <p class="text-[11px] text-slate-400 px-4 pb-3">
+            Mileage = end mileage − start mileage, only on days with both readings. Difference = mileage − tracking on those same days;
+            <span class="text-emerald-600">within ±10%</span> is fine, <span class="text-red-600">more mileage</span> or
+            <span class="text-amber-600">less mileage</span> than tracked beyond that is flagged.
+        </p>
+    </div>
+    } @else if (loading()) {
+    <div class="glass rounded-2xl p-10 text-center text-sm text-slate-500">Generating report…</div>
+    } @else if (!errorText()) {
+    <div class="glass rounded-2xl p-10 text-center text-sm text-slate-500 flex flex-col items-center gap-2">
+        <svg lucideIcon="file-chart-column" class="w-8 h-8 text-slate-400"></svg>
+        Choose the period and a branch, then click Generate.
+    </div>
+    }
+    }
+</div>

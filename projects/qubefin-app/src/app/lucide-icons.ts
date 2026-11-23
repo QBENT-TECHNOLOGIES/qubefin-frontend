@@ -206,6 +206,8 @@ import {
   LucideLassoSelect,
   LucideEraser,
   LucideMapPinPlus,
+  LucideFileChartColumn,
+  LucideFileSpreadsheet,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -415,6 +417,8 @@ export const APP_ICONS = [
   LucideLassoSelect,
   LucideEraser,
   LucideMapPinPlus,
+  LucideFileChartColumn,
+  LucideFileSpreadsheet,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -623,4 +627,6 @@ export const APP_ICONS_MAP: Record<string, any> = {
   LassoSelect: LucideLassoSelect,
   Eraser: LucideEraser,
   MapPinPlus: LucideMapPinPlus,
+  FileChartColumn: LucideFileChartColumn,
+  FileSpreadsheet: LucideFileSpreadsheet,
 };

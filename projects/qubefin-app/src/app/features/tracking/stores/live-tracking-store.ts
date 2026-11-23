@@ -32,12 +32,25 @@ interface LiveState {
   seenAt: string;
 }
 
-/** The latest `/active-users` roster: everyone active under the signed-in user (status other than OFFLINE). */
+/**
+ * What `/active-users` has said about the people under the signed-in user. The server sends one person per message, about
+ * every 5 minutes each (23 Nov 2026), so each message updates that person only; a full list (if one ever comes) replaces all.
+ */
 interface Roster {
-  /** When it arrived (ISO). */
+  /** When the last message arrived (ISO). */
   at: string;
-  entries: ReadonlyMap<string, LiveRosterEntry>;
+  /** A full list has arrived: someone not in it is Offline. Otherwise someone not heard from keeps the polled status. */
+  full: boolean;
+  entries: ReadonlyMap<string, RosterEntry>;
 }
+
+interface RosterEntry extends LiveRosterEntry {
+  /** When the web received it (ISO). */
+  seenAt: string;
+}
+
+/** An `/active-users` entry counts this long (two missed 5-minute updates, plus slack); after that the polled status is shown. */
+const ROSTER_TTL_MS = 12 * 60_000;
 
 /** Statuses a person listed as active cannot still have. */
 const INACTIVE: ReadonlySet<LiveStatus> = new Set(['Offline']);
@@ -70,9 +83,9 @@ export class LiveTrackingStore {
   private readonly liveFixes = signal<ReadonlyMap<string, LiveGpsFix>>(new Map());
   /** Motion state per employee (only the selected person's topics are followed). */
   private readonly liveStates = signal<ReadonlyMap<string, LiveState>>(new Map());
-  /** The latest `/active-users` roster; null until the first one arrives (the polled statuses are shown until then). */
+  /** What `/active-users` has said so far; null until the first message (the polled statuses are shown until then). */
   private readonly roster = signal<Roster | null>(null);
-  /** An `/active-users` roster has arrived: the list badges and the KPI counts come from it. */
+  /** An `/active-users` message has arrived: the badges and KPI counts of the people in it come from it. */
   readonly hasRoster = computed(() => !!this.roster());
   /** Now, refreshed every 30 s while Live Tracking is open (see `followLive`). */
   private readonly clock = signal(Date.now());
@@ -266,15 +279,24 @@ export class LiveTrackingStore {
   }
 
   /**
-   * `/active-users`: the roster of the active people under the signed-in user. Each message replaces the last one: listed =
-   * active (with their state when the entry has one), not listed = Offline.
+   * `/active-users`: one person's state and position (the server's usual message), merged with what is known; or a full list
+   * of the active people, which replaces it (not listed = Offline).
    */
   private applyActiveUsers(m: LiveSocketMessage) {
-    const list = readActiveUsers(m.body);
-    if (!list) return;
-    this.roster.set({ at: m.receivedAt, entries: new Map(list.map((e) => [e.employeeId, e])) });
-    for (const e of list) if (e.location && e.at) this.placeAt(e.employeeId, e.location, e.at);
+    const update = readActiveUsers(m.body);
+    if (!update) {
+      if (!this.unreadableRosterLogged) console.warn('[live] active-users message not understood; ignored:', m.body);
+      this.unreadableRosterLogged = true;
+      return;
+    }
+    this.roster.update((r) => {
+      const entries = new Map<string, RosterEntry>(update.full || !r ? [] : r.entries);
+      for (const e of update.entries) entries.set(e.employeeId, { ...e, seenAt: m.receivedAt });
+      return { at: m.receivedAt, full: update.full || !!r?.full, entries };
+    });
+    for (const e of update.entries) if (e.location && e.at) this.placeAt(e.employeeId, e.location, e.at);
   }
+  private unreadableRosterLogged = false;
 
   private setState(employeeId: string, state: LiveState) {
     const current = this.liveStates().get(employeeId);
@@ -398,9 +420,9 @@ function applyLive(p: LivePosition, live: LiveUpdates, now: number): LivePositio
 
 /**
  * Status shown:
- * 1. the `/active-users` roster once one has arrived: listed = the entry's state (or, without one, the polled status if it
- *    is an active one, else Stationary); not listed = Offline. Before the first roster: the polled status.
- * 2. the selected person's motion state, when the web learned it after the roster;
+ * 1. the person's last `/active-users` update, if it is under 12 minutes old: its state (or, without one, the polled status if
+ *    it is an active one, else Stationary). Without one: Offline if a full list has arrived, else the polled status.
+ * 2. the selected person's motion state, when the web learned it after that update;
  * 3. what a newer, fresh GPS fix proves (GPS switched off = Offline, or someone shown Offline is reporting again).
  */
 function liveStatus(
@@ -412,11 +434,19 @@ function liveStatus(
   now: number,
 ): LiveStatus {
   let status = polled;
+  // When `/active-users` last said something that still counts about this person.
+  let heardAt: string | null = null;
   if (roster) {
     const entry = roster.entries.get(id);
-    status = !entry ? 'Offline' : (entry.status ?? (INACTIVE.has(polled) ? 'Idle' : polled));
+    if (entry && now - Date.parse(entry.seenAt) <= ROSTER_TTL_MS) {
+      status = entry.status ?? (INACTIVE.has(polled) ? 'Idle' : polled);
+      heardAt = entry.seenAt;
+    } else if (roster.full) {
+      status = 'Offline';
+      heardAt = roster.at;
+    }
   }
-  if (state && (!roster || !isNewer(roster.at, state.seenAt))) status = state.status;
+  if (state && (!heardAt || !isNewer(heardAt, state.seenAt))) status = state.status;
   if (!fix || (state && !isNewer(fix.at, state.at))) return status;
   if (fix.status) return fix.status;
   // An old fix (e.g. the last point of today's trail, an hour ago) says nothing about now.

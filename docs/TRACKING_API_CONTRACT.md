@@ -450,10 +450,13 @@ person's panel. This server is not behind the gateway, so the call does not go t
 
 How the web uses the messages (Live Tracking, `stores/live-tracking-store.ts`):
 
-* **`/active-users`** (team) → the **status badge** of each person in the list and the **KPI counts** at the top. Each message
-  replaces the previous roster: listed = active, with the entry's state (MOVING → Moving, STOPPED → Stationary, ON_TASK → On task;
-  without a state: the polled status if it is an active one, else Stationary); **not listed = Offline**. Until the first roster
-  arrives the polled statuses are shown. A position in an entry (with its time) moves the person's marker.
+* **`/active-users`** (team) → the **status badge** of each person in the list and the **KPI counts** at the top. Seen
+  23 Nov 2026: **one person per message**, about every 5 minutes each:
+  `{ employeeId, motion, taskId, taskName, latitude, longitude, lastGpsTime, updatedAt }` (`motion` MOVING → Moving,
+  STOPPED → Stationary, ON_TASK → On task, OFFLINE → Offline). Each message updates that person only and moves their marker
+  (`latitude` / `longitude` at `lastGpsTime`); an update counts for 12 minutes, after which the polled status is shown again.
+  People not heard from keep the polled status. (A list of everyone active, if one is ever sent, replaces all: not listed =
+  Offline.) A message the web cannot read is logged once as `[live] active-users message not understood`.
 * **`/gps`** (selected person) → today's trail grows (after `GET /api/v1/gps` loaded it up to now, §5.2) and the marker and list
   row move. A message may hold one fix, a list, or a batch `{ userId, locations: [...] }`. A fresh fix with GPS off shows GPS off;
   one from someone shown Offline / GPS off shows them Moving / Stationary until the next roster.

@@ -317,36 +317,47 @@ export function readGeofence(employeeId: string, body: unknown, receivedAt: stri
   };
 }
 
-/** One person in an `/active-users` roster. */
+/** One person in an `/active-users` message. */
 export interface LiveRosterEntry {
   employeeId: string;
-  /** Null when the roster only lists who is active. */
+  /** Null when the message only says who is active. */
   status: LiveStatus | null;
   location: GeoPoint | null;
+  /** Time of the position (`lastGpsTime`), else of the update. */
   at: string | null;
 }
 
 /**
- * The roster in an `/active-users` message: everyone active now (status other than OFFLINE), or null when the message holds
- * no list. Entries may be ids or objects (`employeeId` / `userId` / `id`, with an optional status and position).
+ * What an `/active-users` message holds. Seen 23 Nov 2026: **one person per message**, about every 5 minutes each,
+ * `{ employeeId, motion, taskId, taskName, latitude, longitude, lastGpsTime, updatedAt }`. A list of everyone active is
+ * still read, in case the server sends one.
  */
-export function readActiveUsers(body: unknown): LiveRosterEntry[] | null {
+export interface LiveRosterUpdate {
+  /** true = a list of everyone active (someone missing is offline); false = one person's news, merged with what is known. */
+  full: boolean;
+  entries: LiveRosterEntry[];
+}
+
+/** The people in an `/active-users` message, or null when it names nobody the web can read. */
+export function readActiveUsers(body: unknown): LiveRosterUpdate | null {
   const list = listOf(body, 'activeUsers', 'users', 'employees', 'roster', 'items', 'active');
-  if (!list) return null;
-  return list
-    .map((item): LiveRosterEntry | null => {
-      if (typeof item === 'string') return item.trim() ? { employeeId: item.trim(), status: null, location: null, at: null } : null;
-      if (!isObj(item)) return null;
-      const id = str(field(item, 'employeeId', 'userId', 'id'));
-      if (!id) return null;
-      return {
-        employeeId: id,
-        status: readStatus(field(item, 'status', 'motion', 'state', 'motionState')),
-        location: readPoint(item),
-        at: instant(field(item, 'lastSeenAt', 'gpsTime', 'updatedAt', 'since', 'startedAt', 'timestamp', 'at')),
-      };
-    })
-    .filter((e): e is LiveRosterEntry => !!e);
+  if (list) return { full: true, entries: list.map(readRosterEntry).filter((e): e is LiveRosterEntry => !!e) };
+  const one = readRosterEntry(unwrap(body));
+  return one ? { full: false, entries: [one] } : null;
+}
+
+/** One entry: an id, or an object with `employeeId` / `userId` / `id`, an optional state and position. */
+function readRosterEntry(item: unknown): LiveRosterEntry | null {
+  if (typeof item === 'string') return item.trim() ? { employeeId: item.trim(), status: null, location: null, at: null } : null;
+  if (!isObj(item)) return null;
+  const id = str(field(item, 'employeeId', 'userId', 'id'));
+  if (!id) return null;
+  return {
+    employeeId: id,
+    status: readStatus(field(item, 'motion', 'status', 'state', 'motionState')),
+    location: readPoint(item),
+    at: instant(field(item, 'lastGpsTime', 'lastSeenAt', 'gpsTime', 'updatedAt', 'since', 'startedAt', 'timestamp', 'at')),
+  };
 }
 
 /** Backend alarm names → `AlertType` (letters only, lower case). Anything else is kept as sent and shown under its own name. */

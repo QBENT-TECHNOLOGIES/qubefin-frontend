@@ -52,6 +52,11 @@ export const TrackingRoutes: Routes = [
         data: { title: 'Geo Tags/POIs', subTitle: 'Branches, centres, member and employee homes', icon: 'map-pinned' },
       },
       {
+        path: 'reports',
+        loadComponent: () => import('./pages/distance-report/distance-report').then((m) => m.DistanceReport),
+        data: { title: 'Tracking Report', subTitle: 'Distance travelled per employee and per day', icon: 'file-chart-column' },
+      },
+      {
         path: 'settings',
         loadComponent: () => import('./pages/tracking-settings/tracking-settings').then((m) => m.TrackingSettingsPage),
         data: { title: 'Settings', subTitle: 'Thresholds, exceptions and auto-allocation', icon: 'settings' },
