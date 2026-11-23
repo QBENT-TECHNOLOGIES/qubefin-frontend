@@ -1,13 +1,25 @@
-import { Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
 import { SurveyStore } from '../../../stores/survey-store';
 import { SurveyService } from '../../../services/survey-service';
 import { EmployeeService } from '../../../../hrms/services/employee-service';
 import { AdministrativeUnitService } from '../../../services/administrative-unit-service';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { AlertService, EMPTY_UUID } from 'qubefin-core';
-import { ISurveyDetail } from '../../../models/survey';
-import { EmployeeSearchByText } from '../../../../hrms/models/employee-search-by-text';
+import { EMPTY_UUID } from 'qubefin-core';
+import { ISurveyDetail, SurveyCreateDetail } from '../../../models/survey';
+import {
+  EmployeeSearchByText,
+  EmployeeSearchResponse,
+} from '../../../../hrms/models/employee-search-by-text';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import {
   MatAutocompleteModule,
@@ -73,12 +85,14 @@ export class SurveyUnitDetail {
   // The people assigned to the survey are called Credit Officers in a Group Survey, Surveyors in a Branch Survey.
   readonly assigneeLabel = computed(() => (this.isGroupSurvey() ? 'Credit Officer' : 'Surveyor'));
   readonly branchName = computed(() =>
-    this.isEditMode() ? (this.formModel().branchName ?? '') : (this.surveyStore.inchargeBranchName() ?? ''),
+    this.isEditMode()
+      ? (this.formModel().branchName ?? '')
+      : (this.surveyStore.inchargeBranchName() ?? ''),
   );
 
   protected readonly formModel = signal<ISurveyDetail>(this.createEmptyModel());
   readonly isMemberSelected = signal<boolean>(false);
-  private createEmptyModel(): ISurveyDetail {
+  private createEmptyModel(): SurveyCreateDetail {
     return {
       id: EMPTY_UUID,
       sequence: 0,
@@ -107,7 +121,7 @@ export class SurveyUnitDetail {
       [field]: value,
     }));
   }
-  protected readonly surveySchema: Schema<ISurveyDetail> = schema((path) => {
+  protected readonly surveySchema: Schema<SurveyCreateDetail> = schema((path) => {
     required(path.surveyType, {
       message: 'Survey Type is required',
     });
@@ -128,6 +142,16 @@ export class SurveyUnitDetail {
   });
   protected readonly surveyForm = form(this.formModel, this.surveySchema);
 
+  utilityComponents = this.surveyStore.utilityComponent;
+
+  protected readonly surveyTypes = computed(() => this.filterUtility('SURVEYTYPE')); // Kept matching typo from original code
+
+  private filterUtility(sysKey: string) {
+    const list = this.utilityComponents();
+    const s = list.length > 0 ? list.filter((m: any) => m.sysKey === sysKey) : [];
+    console.log(s);
+    return s;
+  }
   readonly employeeOptions = signal<EmployeeSearchByText[]>([]);
 
   readonly employeeSearchText = signal('');
@@ -194,7 +218,8 @@ export class SurveyUnitDetail {
     this.formModel.update((current) => ({
       ...current,
       surveyType: type,
-      branchOrganizationUnitId: type === 'Group Survey' ? this.surveyStore.inchargeBranchId() : null,
+      branchOrganizationUnitId:
+        type === 'Group Survey' ? this.surveyStore.inchargeBranchId() : null,
       surveyAssigneds: [],
     }));
     this.employeeOptions.set([]);
@@ -263,7 +288,10 @@ export class SurveyUnitDetail {
     const employee = this.selectedEmployee();
 
     if (!employee) {
-      this.alertService.error('Oops ....', `Please select a ${this.assigneeLabel().toLowerCase()} before adding.`);
+      this.alertService.error(
+        'Oops ....',
+        `Please select a ${this.assigneeLabel().toLowerCase()} before adding.`,
+      );
       return;
     }
 
@@ -271,7 +299,10 @@ export class SurveyUnitDetail {
     const exists = members.some((x) => x.employeeId === employee.id);
 
     if (exists) {
-      this.alertService.error('Oops ....', `This ${this.assigneeLabel().toLowerCase()} is already added.`);
+      this.alertService.error(
+        'Oops ....',
+        `This ${this.assigneeLabel().toLowerCase()} is already added.`,
+      );
       this.employeeSearchText.set('');
       this.selectedEmployee.set(null);
       return;
@@ -295,22 +326,24 @@ export class SurveyUnitDetail {
   }
 
   protected removeMember(employeeId: string) {
-    this.alertService.confirm('Confirmation', `Do you want to remove this ${this.assigneeLabel().toLowerCase()}?`).then((result) => {
-      if (result.isConfirmed) {
-        let members = this.formModel().surveyAssigneds.filter((x) => x.employeeId !== employeeId);
+    this.alertService
+      .confirm('Confirmation', `Do you want to remove this ${this.assigneeLabel().toLowerCase()}?`)
+      .then((result) => {
+        if (result.isConfirmed) {
+          let members = this.formModel().surveyAssigneds.filter((x) => x.employeeId !== employeeId);
 
-        // A survey always needs one lead: if the lead was removed, the first surveyor becomes the lead.
-        if (members.length > 0 && !members.some((x) => x.isLead)) {
-          members = members.map((member, index) => ({ ...member, isLead: index === 0 }));
+          // A survey always needs one lead: if the lead was removed, the first surveyor becomes the lead.
+          if (members.length > 0 && !members.some((x) => x.isLead)) {
+            members = members.map((member, index) => ({ ...member, isLead: index === 0 }));
+          }
+
+          this.formModel.update((current) => ({
+            ...current,
+
+            surveyAssigneds: members,
+          }));
         }
-
-        this.formModel.update((current) => ({
-          ...current,
-
-          surveyAssigneds: members,
-        }));
-      }
-    });
+      });
   }
 
   protected setLead(employeeId: string, checked: boolean): void {
@@ -345,12 +378,18 @@ export class SurveyUnitDetail {
     }
 
     if (this.formModel().surveyAssigneds.length === 0) {
-      this.alertService.error('Oops ....', `Please add at least one ${this.assigneeLabel().toLowerCase()}.`);
+      this.alertService.error(
+        'Oops ....',
+        `Please add at least one ${this.assigneeLabel().toLowerCase()}.`,
+      );
       return;
     }
 
     if (!this.formModel().surveyAssigneds.some((m) => m.isLead)) {
-      this.alertService.error('Oops ....', `Please select one ${this.assigneeLabel().toLowerCase()} as lead.`);
+      this.alertService.error(
+        'Oops ....',
+        `Please select one ${this.assigneeLabel().toLowerCase()} as lead.`,
+      );
       return;
     }
 
@@ -360,40 +399,40 @@ export class SurveyUnitDetail {
         `Do you want to ${this.isEditMode() ? 'update' : 'create'} this survey?`,
       )
       .then((result) => {
-      if (result.isConfirmed) {
-        const payload: ISurveyDetail = {
-          ...this.formModel(),
-          assignmentDate:
-            this.datePipe.transform(this.formModel().assignmentDate, 'yyyy-MM-dd') || '',
+        if (result.isConfirmed) {
+          const payload: SurveyCreateDetail = {
+            ...this.formModel(),
+            assignmentDate:
+              this.datePipe.transform(this.formModel().assignmentDate, 'yyyy-MM-dd') || '',
 
-          tentativeSubmissionDate: this.formModel().tentativeSubmissionDate
-            ? this.datePipe.transform(this.formModel().tentativeSubmissionDate, 'yyyy-MM-dd')
-            : null,
-        };
+            tentativeSubmissionDate: this.formModel().tentativeSubmissionDate
+              ? this.datePipe.transform(this.formModel().tentativeSubmissionDate, 'yyyy-MM-dd')
+              : null,
+          };
 
-        if (!this.isEditMode()) {
-          this.surveyService.create(payload).subscribe({
+          if (!this.isEditMode()) {
+            this.surveyService.create(payload).subscribe({
+              next: (resp: any) => {
+                this.alertService.success('Success', resp).then(() => {
+                  this.surveyStore.refreshList();
+                  this.save.emit();
+                });
+              },
+            });
+            return;
+          }
+
+          this.surveyService.update(payload).subscribe({
             next: (resp: any) => {
               this.alertService.success('Success', resp).then(() => {
                 this.surveyStore.refreshList();
+                this.surveyStore.refreshDetail();
                 this.save.emit();
               });
             },
           });
-          return;
         }
-
-        this.surveyService.update(payload).subscribe({
-          next: (resp: any) => {
-            this.alertService.success('Success', resp).then(() => {
-              this.surveyStore.refreshList();
-              this.surveyStore.refreshDetail();
-              this.save.emit();
-            });
-          },
-        });
-      }
-    });
+      });
   }
   protected onCancelClicked() {
     this.cancel.emit();

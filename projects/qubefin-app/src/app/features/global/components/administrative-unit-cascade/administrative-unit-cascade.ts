@@ -41,6 +41,7 @@ export class AdministrativeUnitCascade {
    */
   emitAtEveryLevel = input<boolean>(false);
 
+  disabled = input<boolean>(false);
   selectedIdChanged = output<string>();
 
   /** Fires whenever the District selection changes, including during restore. */
