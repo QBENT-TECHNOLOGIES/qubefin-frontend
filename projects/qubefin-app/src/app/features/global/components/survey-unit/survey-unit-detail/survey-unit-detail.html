@@ -1,4 +1,23 @@
 <div class="space-y-4">
+    @if (!isEditMode()) {
+    <!-- Rules the server checks. Shown here so the user knows them before saving. -->
+    <div
+        class="flex items-start gap-3 rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-3 text-sm text-slate-700 dark:text-slate-300">
+        <svg lucideIcon="file-text" class="w-5 h-5 text-blue-500 shrink-0 mt-0.5"></svg>
+        <ul class="list-disc pl-4 space-y-0.5">
+            @if (isGroupSurvey()) {
+            <li>Only the person in charge of a branch can create a Group Survey, for that branch.</li>
+            <li>Only Credit Officers of the branch can be assigned. You cannot assign yourself.</li>
+            <li>A Credit Officer who is already on an open survey cannot be assigned.</li>
+            <li>Select exactly one Credit Officer as the lead. Only the lead fills in and submits the survey.</li>
+            } @else {
+            <li>Only the Committee Lead can create a Branch Survey.</li>
+            <li>Survey Committee members cannot be assigned as surveyors.</li>
+            <li>Select exactly one surveyor as the lead. Only the lead fills in and submits the survey.</li>
+            }
+        </ul>
+    </div>
+    }
     <div class="grid grid-cols-1 lg:grid-cols-1 gap-4">
         <!-- General Information -->
         <div>
@@ -21,13 +40,25 @@
                     <div class="w-12 flex justify-center" matPrefix>
                         <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
                     </div>
-                    <mat-select [value]="formModel().surveyType" (valueChange)="updateField('surveyType',$event)">
+                    <!-- The survey type cannot be changed after the survey is created -->
+                    <mat-select [value]="formModel().surveyType" (valueChange)="onSurveyTypeChange($event)"
+                        [disabled]="isEditMode()">
                         @for(type of surveyTypes(); track type){
                         <mat-option [value]="type"> {{type}}
                         </mat-option>
                         }
                     </mat-select>
                 </mat-form-field>
+
+                @if (isGroupSurvey()) {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Branch</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput [value]="branchName()" readonly />
+                </mat-form-field>
+                }
 
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Assignment Date</mat-label>
@@ -76,6 +107,13 @@
                         placeholder="Enter proposed survey area" />
                 </mat-form-field>
 
+                <div class="flex items-center">
+                    <mat-checkbox [checked]="formModel().surveyFormAttached"
+                        (change)="updateField('surveyFormAttached', $event.checked)">
+                        Survey form attached
+                    </mat-checkbox>
+                </div>
+
                 <!-- <button
                     class="ripple-btn shine-sweep rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
                     (click)="addMember()" style="width: 152px;" [disabled]="!isMemberSelected()">
@@ -87,7 +125,7 @@
 
         <div>
             <h3 class="text-base font-bold text-slate-800 dark:text-white">
-                Surveyors
+                {{ isGroupSurvey() ? 'Credit Officers' : 'Surveyors' }}
             </h3>
             <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
             <div class="">
@@ -98,7 +136,8 @@
                             <svg lucideIcon="user-search" class="w-5 h-5"></svg>
                         </div>
                         <input matInput [value]="employeeSearchText()"
-                            (input)="searchEmployees($any($event.target).value)" [matAutocomplete]="employeeAuto"
+                            (input)="searchEmployees($any($event.target).value)" (focus)="showCreditOfficers()"
+                            [matAutocomplete]="employeeAuto"
                             autocomplete="off" [placeholder]="isEditMode() ? 'Employee' : 'Search employee'" />
                         <mat-autocomplete class="autoList" #employeeAuto="matAutocomplete"
                             [displayWith]="displayEmployeeName" (optionSelected)="selectEmployee($event)">
@@ -108,7 +147,7 @@
                             </mat-option>
                             } @empty {
                             @if (employeeSearchText().trim()) {
-                            <mat-option disabled>No employees found</mat-option>
+                            <mat-option disabled>{{ isGroupSurvey() ? 'No Credit Officer available' : 'No employees found' }}</mat-option>
                             }
                             }
                         </mat-autocomplete>
@@ -125,7 +164,7 @@
                         [class.opacity-50]="!isMemberSelected()" [class.cursor-not-allowed]="!isMemberSelected()"
                         class="w-[170px] ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                         <svg lucideIcon="plus" class="w-5 h-5"></svg>
-                        Add Surveyor
+                        Add {{ assigneeLabel() }}
                     </button>
                 </div>
                 <div class="flex flex-col gap-2">
@@ -157,7 +196,7 @@
                                 <button type="button" (click)="setLead(member.employeeId, !member.isLead)"
                                     class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200"
                                     [class.bg-primary-600]="member.isLead" [class.bg-slate-300]="!member.isLead"
-                                    matTooltip='Set as {{member.isLead ? "member" : "lead"}}'>
+                                    [matTooltip]="member.isLead ? 'Current lead. Choose another one to change the lead.' : 'Set as lead'">
 
                                     <span class="inline-block h-4 w-4 transform rounded-full bg-white transition"
                                         [class.translate-x-6]="member.isLead" [class.translate-x-1]="!member.isLead">

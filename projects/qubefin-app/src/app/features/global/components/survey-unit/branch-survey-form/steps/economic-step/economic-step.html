@@ -1,0 +1,48 @@
+<div class="space-y-6 pt-4">
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">D. Economic Profile</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-1"></div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Estimate the share of each income activity in percent.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            @for (field of percentFields; track field.key) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>{{ field.label }}</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" step="any" [formField]="section()[field.key]" />
+                <span matTextSuffix class="pl-2 pr-4">%</span>
+                <mat-error class="cus-error">{{ section()[field.key]().errors()[0]?.message }}</mat-error>
+            </mat-form-field>
+            }
+        </div>
+    </div>
+
+    <div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            @for (field of textFields; track field.key) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>{{ field.label }}</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" [formField]="section()[field.key]" />
+            </mat-form-field>
+            }
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Overall Economic Condition</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg lucideIcon="star" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="section().overallEconomicCondition" placeholder="Select">
+                    <mat-option [value]="null">-- Not selected --</mat-option>
+                    @for (option of conditionOptions; track option) {
+                    <mat-option [value]="option">{{ option }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+</div>

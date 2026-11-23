@@ -1,0 +1,120 @@
+@if (visible()) {
+@let d = data()!;
+<div class="rounded-2xl border border-slate-200/40 dark:border-white/10 bg-white/30 dark:bg-glass-dark shadow p-5 flex flex-col gap-5">
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">Committee Evaluation</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2"></div>
+    </div>
+
+    <!-- Recheck note for the surveyors -->
+    @if (d.recheckComment) {
+    <div class="flex items-start gap-3 rounded-xl border border-amber-300/50 bg-amber-500/5 px-4 py-3">
+        <svg lucideIcon="rotate-ccw" class="w-5 h-5 shrink-0 text-amber-600 mt-0.5"></svg>
+        <div class="min-w-0">
+            <p class="text-sm font-semibold text-amber-700 dark:text-amber-400">A recheck was asked by the {{ d.recheckBy ?? 'committee' }}</p>
+            <p class="text-sm text-slate-700 dark:text-slate-200 mt-1 break-words">{{ d.recheckComment }}</p>
+        </div>
+    </div>
+    }
+
+    <!-- Final decision -->
+    @if (d.finalEvaluation; as final) {
+    <div class="rounded-xl border border-slate-200/50 dark:border-white/10 bg-slate-500/5 dark:bg-white/5 px-4 py-3">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+            <p class="text-sm font-semibold text-slate-800 dark:text-white">Final decision by {{ final.employeeName }}</p>
+            <span class="rounded-full px-3 py-1 text-xs font-semibold" [class]="badgeClass(final.decision)">{{ final.decision }}</span>
+        </div>
+        @if (final.comments) {
+        <p class="text-sm text-slate-600 dark:text-slate-300 mt-2 break-words">{{ final.comments }}</p>
+        }
+        <p class="text-xs text-slate-400 mt-2">{{ final.evaluationDate | date: 'medium' }}</p>
+    </div>
+    }
+
+    <!-- Progress, for the Committee Lead -->
+    @if (d.isCommitteeLead && !d.finalEvaluation && d.requiredCount > 0) {
+    <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between text-sm">
+            <span class="font-semibold text-slate-700 dark:text-slate-200">{{ d.doneCount }} of {{ d.requiredCount }} members evaluated</span>
+            <span class="text-xs text-slate-500">{{ progressPercent() }}%</span>
+        </div>
+        <div class="h-2 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
+            <div class="h-full rounded-full bg-primary-500 transition-all" [style.width.%]="progressPercent()"></div>
+        </div>
+        @if (d.pendingMembers.length > 0) {
+        <p class="text-xs text-slate-500 dark:text-slate-400">Waiting for: {{ d.pendingMembers.join(', ') }}</p>
+        }
+    </div>
+    }
+
+    <!-- Evaluations: the Lead sees every member, a member sees only his own -->
+    @if (d.isCommitteeLead && d.evaluations.length > 0) {
+    <div class="flex flex-col gap-2">
+        @for (item of d.evaluations; track item.employeeName) {
+        <div class="rounded-xl bg-slate-500/5 dark:bg-white/5 border border-slate-200/30 dark:border-white/5 px-4 py-3">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+                <p class="text-sm font-semibold text-slate-800 dark:text-white">{{ item.employeeName }}</p>
+                <span class="rounded-full px-3 py-1 text-xs font-semibold" [class]="badgeClass(item.decision)">{{ item.decision }}</span>
+            </div>
+            @if (item.comments) {
+            <p class="text-sm text-slate-600 dark:text-slate-300 mt-2 break-words">{{ item.comments }}</p>
+            }
+            <p class="text-xs text-slate-400 mt-2">{{ item.evaluationDate | date: 'medium' }}</p>
+        </div>
+        }
+    </div>
+    } @else if (!d.isCommitteeLead && d.myEvaluation && !d.canEvaluate) {
+    <div class="rounded-xl bg-slate-500/5 dark:bg-white/5 border border-slate-200/30 dark:border-white/5 px-4 py-3">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+            <p class="text-sm font-semibold text-slate-800 dark:text-white">Your evaluation</p>
+            <span class="rounded-full px-3 py-1 text-xs font-semibold" [class]="badgeClass(d.myEvaluation.decision)">{{ d.myEvaluation.decision }}</span>
+        </div>
+        @if (d.myEvaluation.comments) {
+        <p class="text-sm text-slate-600 dark:text-slate-300 mt-2 break-words">{{ d.myEvaluation.comments }}</p>
+        }
+    </div>
+    }
+
+    <!-- The Lead has to wait for the members -->
+    @if (d.isCommitteeLead && !d.finalEvaluation && !d.canGiveFinal && d.doneCount < d.requiredCount && d.status !== 'Rejected') {
+    <div class="flex items-center gap-3 rounded-xl border border-slate-200/50 dark:border-white/10 px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
+        <svg lucideIcon="hourglass" class="w-5 h-5 shrink-0"></svg>
+        You can give the final decision after all members have evaluated.
+    </div>
+    }
+
+    <!-- Decision form -->
+    @if (showForm()) {
+    <div class="flex flex-col gap-4 rounded-xl border border-slate-200/50 dark:border-white/10 p-4">
+        <p class="text-sm font-semibold text-slate-800 dark:text-white">
+            {{ isFinalMode() ? 'Your final decision' : (d.myEvaluation ? 'Change your evaluation' : 'Your evaluation') }}
+        </p>
+
+        <div class="flex flex-wrap gap-3">
+            @for (option of decisions; track option.value) {
+            <button type="button" (click)="decision.set(option.value)"
+                class="h-11 px-5 rounded-xl border-2 inline-flex items-center gap-2 text-sm font-semibold transition cursor-pointer"
+                [class]="decisionClass(option.value, decision() === option.value)">
+                <svg [lucideIcon]="option.icon" class="w-4 h-4"></svg>
+                {{ option.label }}
+            </button>
+            }
+        </div>
+
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Comments</mat-label>
+            <textarea matInput rows="3" [formField]="evaluationForm.comments"
+                placeholder="Required for Recheck and Reject"></textarea>
+        </mat-form-field>
+
+        <div class="flex justify-end">
+            <button type="button" (click)="save()" [disabled]="saving()"
+                class="ripple-btn shadow h-11 px-5 rounded-xl inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer disabled:opacity-60">
+                <svg lucideIcon="send" class="w-4 h-4"></svg>
+                {{ isFinalMode() ? 'Submit Final Decision' : 'Save Evaluation' }}
+            </button>
+        </div>
+    </div>
+    }
+</div>
+}

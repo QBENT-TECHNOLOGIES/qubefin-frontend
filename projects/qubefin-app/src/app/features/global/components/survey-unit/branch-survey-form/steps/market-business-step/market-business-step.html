@@ -1,0 +1,39 @@
+<div class="space-y-6 pt-4">
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">E. Market Potential Assessment</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            @for (field of marketFields; track field.key) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>{{ field.label }}</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" step="any" [formField]="marketPotential()[field.key]" />
+            </mat-form-field>
+            }
+        </div>
+    </div>
+
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">I. Business Potential Assessment</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            @for (field of businessFields; track field.key) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>{{ field.label }}</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" step="any" [formField]="businessPotential()[field.key]" />
+                @if (field.unit) {
+                <span matTextSuffix class="pl-2 pr-4">{{ field.unit }}</span>
+                }
+                <mat-error class="cus-error">{{ businessPotential()[field.key]().errors()[0]?.message }}</mat-error>
+            </mat-form-field>
+            }
+        </div>
+    </div>
+</div>

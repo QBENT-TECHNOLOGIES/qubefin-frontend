@@ -1,0 +1,26 @@
+<div class="space-y-6 pt-4">
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">J. Risk Assessment</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+        @for (group of riskGroups; track group.title) {
+        <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2 mt-4">{{ group.title }}</h4>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            @for (field of group.fields; track field.key) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>{{ field.label }}</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="section()[field.key]" placeholder="Select">
+                    <mat-option [value]="null">-- Not selected --</mat-option>
+                    @for (option of group.options; track option) {
+                    <mat-option [value]="option">{{ option }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            }
+        </div>
+        }
+    </div>
+</div>

@@ -17,6 +17,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { SurveyUnitView } from '../../components/survey-unit/survey-unit-view/survey-unit-view';
 import { SurveyUnitDetail } from '../../components/survey-unit/survey-unit-detail/survey-unit-detail';
+import { BranchSurveyFormComponent } from '../../components/survey-unit/branch-survey-form/branch-survey-form';
 
 @Component({
   selector: 'qfin-survey-unit',
@@ -31,6 +32,7 @@ import { SurveyUnitDetail } from '../../components/survey-unit/survey-unit-detai
     SurveyUnitList,
     SurveyUnitView,
     SurveyUnitDetail,
+    BranchSurveyFormComponent,
   ],
   templateUrl: './survey-unit.html',
   styles: ``,
@@ -51,6 +53,9 @@ export class SurveyUnit {
   readonly isViewMode = signal<boolean>(true);
   readonly showFilterArea = signal<boolean>(false);
   readonly selectedsurveyStoreId = signal<string>(EMPTY_UUID);
+  // The survey form opens on its own, without the list and the survey details.
+  readonly isFormMode = signal<boolean>(false);
+  readonly isFormViewOnly = signal<boolean>(true);
   // ===========================
   // Store Data
   // ===========================
@@ -79,6 +84,24 @@ export class SurveyUnit {
   }
   protected closePanel() {
     this.selectedsurveyStoreId.set(EMPTY_UUID);
+    this.isViewMode.set(true);
+    this.isFormMode.set(false);
+  }
+  // "View Form": everyone can read the form.
+  protected onViewForm() {
+    this.isFormViewOnly.set(true);
+    this.isFormMode.set(true);
+    this.isViewMode.set(false);
+  }
+  // "Complete": the Lead Surveyor fills in the form.
+  protected onCompleteForm() {
+    this.isFormViewOnly.set(false);
+    this.isFormMode.set(true);
+    this.isViewMode.set(false);
+  }
+  // Back from the form to the survey details.
+  protected onBackFromForm() {
+    this.isFormMode.set(false);
     this.isViewMode.set(true);
   }
 

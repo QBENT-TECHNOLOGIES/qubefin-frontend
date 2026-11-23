@@ -1,0 +1,45 @@
+<div class="space-y-6 pt-4">
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">B. Accessibility Assessment</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            @for (field of accessibilityFields; track field.key) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>{{ field.label }}</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="accessibility()[field.key]" placeholder="Select">
+                    <mat-option [value]="null">-- Not selected --</mat-option>
+                    @for (option of ratingOptions; track option) {
+                    <mat-option [value]="option">{{ option }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            }
+        </div>
+    </div>
+
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">F. Transportation Facilities</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            @for (field of transportationFields; track field.key) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>{{ field.label }}</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="transportation()[field.key]" placeholder="Select">
+                    <mat-option [value]="null">-- Not selected --</mat-option>
+                    @for (option of yesNoOptions; track option) {
+                    <mat-option [value]="option">{{ option }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            }
+        </div>
+    </div>
+</div>

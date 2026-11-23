@@ -1,0 +1,121 @@
+<div class="space-y-6 pt-4">
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">A. Geographic Information</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <qfin-administrative-unit-cascade [columns]="4" [administrativeUnitId]="section().administrativeUnitId().value()"
+                (selectedIdChanged)="onAreaChanged($event)" (districtChanged)="onDistrictChanged($event)"
+                (districtChangedByUser)="onDistrictChangedByUser()">
+            </qfin-administrative-unit-cascade>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Proposed Operational Area</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg lucideIcon="map-pinned" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [formField]="section().proposedOperationalArea" autocomplete="off" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Police Station</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg lucideIcon="shield-alert" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="section().policeStation" placeholder="Select police station">
+                    <mat-option [value]="null">-- Not selected --</mat-option>
+                    @for (name of policeStationOptions(); track name) {
+                    <mat-option [value]="name">{{ name }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>PIN Code</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg lucideIcon="hash" class="w-5 h-5"></svg>
+                </div>
+                <input matInput inputmode="numeric" [formField]="section().pinCode" autocomplete="off" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Nearest Landmark</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg lucideIcon="landmark" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [formField]="section().nearestLandmark" autocomplete="off" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Administrative Status</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg lucideIcon="layout-grid" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="section().administrativeStatus" placeholder="Select">
+                    <mat-option [value]="null">-- Not selected --</mat-option>
+                    @for (option of administrativeStatusOptions; track option) {
+                    <mat-option [value]="option">{{ option }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Distance from Existing WeGrow Branch</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg lucideIcon="route" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" step="any" [formField]="section().distanceFromExistingWeGrowBranch" />
+                <span matTextSuffix class="pl-2 pr-4">km</span>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Distance from District Headquarters</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg lucideIcon="route" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" step="any" [formField]="section().distanceFromDistrictHeadquarters" />
+                <span matTextSuffix class="pl-2 pr-4">km</span>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div>
+        <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-200">Location</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">
+            Enter the latitude and longitude, or use your current location. The Geo Tag is filled in automatically.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Latitude</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" step="any" [formField]="section().latitude" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Longitude</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg lucideIcon="compass" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" step="any" [formField]="section().longitude" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Geo Tag</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [formField]="section().geoTag" />
+            </mat-form-field>
+
+            @if (!section().latitude().readonly()) {
+            <button type="button" (click)="useCurrentLocation()"
+                class="bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-white/10 shadow rounded-lg px-4 py-2.5 h-14 flex items-center justify-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer">
+                <svg lucideIcon="map-pinned" class="w-4 h-4"></svg>
+                Use my current location
+            </button>
+            }
+        </div>
+    </div>
+</div>

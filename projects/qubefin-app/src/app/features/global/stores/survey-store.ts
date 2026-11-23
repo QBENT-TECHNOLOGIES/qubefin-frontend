@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
-import { ISurveyDetail, ISurveySearchResult } from '../models/survey';
+import { ICanCreateSurvey, ICreditOfficer, ISurveyDetail, ISurveySearchResult } from '../models/survey';
 
 @Injectable({
   providedIn: 'root',
@@ -60,6 +60,23 @@ export class SurveyStore {
 
   readonly loading = computed(() => this.surveyUnitsResource.isLoading());
   readonly error = computed(() => this.surveyUnitsResource.error());
+
+  // ===========================
+  // Can The User Add A Survey (only the Committee Lead can)
+  // ===========================
+  readonly canCreateResource = httpResource<ICanCreateSurvey>(() => `${this.basePath}/can-create`);
+  readonly canCreateBranchSurvey = computed(() => this.canCreateResource.value()?.canCreateBranchSurvey ?? false);
+  readonly canCreateGroupSurvey = computed(() => this.canCreateResource.value()?.canCreateGroupSurvey ?? false);
+  readonly canCreateSurvey = computed(() => this.canCreateBranchSurvey() || this.canCreateGroupSurvey());
+  // The branch the user is in charge of (Group Survey).
+  readonly inchargeBranchId = computed(() => this.canCreateResource.value()?.inchargeBranchId ?? null);
+  readonly inchargeBranchName = computed(() => this.canCreateResource.value()?.inchargeBranchName ?? null);
+
+  // Credit Officers of that branch who can be assigned to a new Group Survey.
+  readonly creditOfficersResource = httpResource<ICreditOfficer[]>(() =>
+    this.canCreateGroupSurvey() ? `${this.basePath}/credit-officers` : undefined,
+  );
+  readonly creditOfficers = computed(() => this.creditOfficersResource.value() ?? []);
 
   // ===========================
   // Detail Api Call And Response

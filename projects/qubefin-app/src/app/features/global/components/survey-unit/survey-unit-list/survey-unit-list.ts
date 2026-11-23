@@ -7,6 +7,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { APP_ICONS_MAP } from '../../../../../lucide-icons';
+import { StatusBadgeComponentComponent } from 'qubefin-core';
+import { getSurveyStatusLabel } from '../../../models/survey';
 @Component({
   selector: 'qfin-survey-unit-list',
   imports: [
@@ -17,6 +19,7 @@ import { APP_ICONS_MAP } from '../../../../../lucide-icons';
     MatTooltipModule,
     MatButtonModule,
     LucideDynamicIcon,
+    StatusBadgeComponentComponent,
   ],
   templateUrl: './survey-unit-list.html',
   styles: ``,
@@ -30,6 +33,7 @@ export class SurveyUnitList {
   readonly selectedId = input('');
   readonly isCollapsed = input(false);
   readonly iconMap = APP_ICONS_MAP;
+  readonly getStatusLabel = getSurveyStatusLabel;
 
   // Emit From Child
   pageChanged = output<PageEvent>();

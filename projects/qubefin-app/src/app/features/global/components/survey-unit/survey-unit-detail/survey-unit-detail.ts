@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { SurveyStore } from '../../../stores/survey-store';
 import { SurveyService } from '../../../services/survey-service';
 import { EmployeeService } from '../../../../hrms/services/employee-service';
@@ -22,7 +22,6 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import Swal from 'sweetalert2';
 import { AdministrativeUnitCascade } from '../../administrative-unit-cascade/administrative-unit-cascade';
 
 @Component({
@@ -45,7 +44,6 @@ import { AdministrativeUnitCascade } from '../../administrative-unit-cascade/adm
   styles: ``,
 })
 export class SurveyUnitDetail {
-  readonly surveyTypes = signal<string[]>(['Branch Survey', 'Group Survey', 'Regional Survey']);
   private readonly surveyStore = inject(SurveyStore);
   private readonly surveyService = inject(SurveyService);
   private readonly employeeService = inject(EmployeeService);
@@ -60,19 +58,44 @@ export class SurveyUnitDetail {
 
   readonly isEditMode = computed(() => this.surveyId() !== EMPTY_UUID);
 
+  // The survey types the user can create: Committee Lead = Branch Survey, person in charge of a branch = Group Survey.
+  // When an existing survey is edited the type cannot change.
+  readonly surveyTypes = computed(() => {
+    if (this.isEditMode()) {
+      return [this.formModel().surveyType];
+    }
+    const types: string[] = [];
+    if (this.surveyStore.canCreateBranchSurvey()) types.push('Branch Survey');
+    if (this.surveyStore.canCreateGroupSurvey()) types.push('Group Survey');
+    return types;
+  });
+  readonly isGroupSurvey = computed(() => this.formModel().surveyType === 'Group Survey');
+  // The people assigned to the survey are called Credit Officers in a Group Survey, Surveyors in a Branch Survey.
+  readonly assigneeLabel = computed(() => (this.isGroupSurvey() ? 'Credit Officer' : 'Surveyor'));
+  readonly branchName = computed(() =>
+    this.isEditMode() ? (this.formModel().branchName ?? '') : (this.surveyStore.inchargeBranchName() ?? ''),
+  );
+
   protected readonly formModel = signal<ISurveyDetail>(this.createEmptyModel());
   readonly isMemberSelected = signal<boolean>(false);
   private createEmptyModel(): ISurveyDetail {
     return {
       id: EMPTY_UUID,
       sequence: 0,
-      surveyType: '',
+      surveyType: 'Branch Survey',
       assignmentNo: '',
       assignmentDate: new Date(),
       tentativeSubmissionDate: null,
       proposedArea: '',
       administrativeUnitId: '',
       administrativeUnitName: null,
+      status: 'Assigned',
+      surveyFormAttached: false,
+      branchOrganizationUnitId: null,
+      previousSurveyId: null,
+      canEditGeneral: true,
+      canEditForm: false,
+      auditInfo: null,
       surveyAssigneds: [],
     };
   }
@@ -128,6 +151,15 @@ export class SurveyUnitDetail {
       this.surveyStore.setSurveyId(this.surveyId());
     });
 
+    // A new survey starts with the first type the user is allowed to create.
+    effect(() => {
+      if (this.isEditMode()) return;
+      const types = this.surveyTypes();
+      if (types.length > 0 && !types.includes(untracked(() => this.formModel().surveyType))) {
+        untracked(() => this.onSurveyTypeChange(types[0]));
+      }
+    });
+
     effect(() => {
       const survey = this.surveyStore.surveyUnit();
 
@@ -157,9 +189,47 @@ export class SurveyUnitDetail {
 
     return tentative > assignment;
   });
+  // A Group Survey belongs to the branch the user is in charge of. Changing the type starts the people list again.
+  protected onSurveyTypeChange(type: string) {
+    this.formModel.update((current) => ({
+      ...current,
+      surveyType: type,
+      branchOrganizationUnitId: type === 'Group Survey' ? this.surveyStore.inchargeBranchId() : null,
+      surveyAssigneds: [],
+    }));
+    this.employeeOptions.set([]);
+    this.employeeSearchText.set('');
+    this.selectedEmployee.set(null);
+    this.isMemberSelected.set(false);
+  }
+
+  // Group Survey: the Credit Officers of the branch are already known, so they are listed and filtered here.
+  private creditOfficerOptions(searchText: string): EmployeeSearchByText[] {
+    const text = searchText.trim().toLowerCase();
+    return this.surveyStore
+      .creditOfficers()
+      .filter((x) => !text || x.employeeName.toLowerCase().includes(text))
+      .map((x) => ({ id: x.id, employeeName: x.employeeName }) as EmployeeSearchByText);
+  }
+
+  protected showCreditOfficers() {
+    if (this.isGroupSurvey()) {
+      this.employeeOptions.set(this.creditOfficerOptions(this.employeeSearchText()));
+    }
+  }
+
   // Member Search, Select, Remove And Set As lead
   protected searchEmployees(searchText: string) {
     this.employeeSearchText.set(searchText);
+
+    if (this.isGroupSurvey()) {
+      this.employeeOptions.set(this.creditOfficerOptions(searchText));
+      if (!searchText.trim()) {
+        this.selectedEmployee.set(null);
+        this.isMemberSelected.set(false);
+      }
+      return;
+    }
 
     if (!searchText.trim()) {
       this.employeeOptions.set([]);
@@ -193,11 +263,7 @@ export class SurveyUnitDetail {
     const employee = this.selectedEmployee();
 
     if (!employee) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Please select a member before add!',
-      });
+      this.alertService.error('Oops ....', `Please select a ${this.assigneeLabel().toLowerCase()} before adding.`);
       return;
     }
 
@@ -205,11 +271,7 @@ export class SurveyUnitDetail {
     const exists = members.some((x) => x.employeeId === employee.id);
 
     if (exists) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Member is already added!',
-      });
+      this.alertService.error('Oops ....', `This ${this.assigneeLabel().toLowerCase()} is already added.`);
       this.employeeSearchText.set('');
       this.selectedEmployee.set(null);
       return;
@@ -233,21 +295,14 @@ export class SurveyUnitDetail {
   }
 
   protected removeMember(employeeId: string) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You want to remove this member!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes',
-    }).then((result) => {
+    this.alertService.confirm('Confirmation', `Do you want to remove this ${this.assigneeLabel().toLowerCase()}?`).then((result) => {
       if (result.isConfirmed) {
         let members = this.formModel().surveyAssigneds.filter((x) => x.employeeId !== employeeId);
 
-        // if (members.length > 0 && !members.some((x) => x.isLead)) {
-        //   members[0].isLead = true;
-        // }
+        // A survey always needs one lead: if the lead was removed, the first surveyor becomes the lead.
+        if (members.length > 0 && !members.some((x) => x.isLead)) {
+          members = members.map((member, index) => ({ ...member, isLead: index === 0 }));
+        }
 
         this.formModel.update((current) => ({
           ...current,
@@ -259,11 +314,17 @@ export class SurveyUnitDetail {
   }
 
   protected setLead(employeeId: string, checked: boolean): void {
+    // A survey always needs exactly one lead. To change the lead, choose another surveyor as lead.
+    if (!checked) {
+      return;
+    }
+
     this.formModel.update((current) => ({
       ...current,
-      surveyAssigneds: current.surveyAssigneds.map((member) =>
-        member.employeeId === employeeId ? { ...member, isLead: checked } : member,
-      ),
+      surveyAssigneds: current.surveyAssigneds.map((member) => ({
+        ...member,
+        isLead: member.employeeId === employeeId,
+      })),
     }));
   }
 
@@ -274,41 +335,34 @@ export class SurveyUnitDetail {
       return;
     }
 
+    if (!this.formModel().tentativeSubmissionDate) {
+      this.alertService.error('Oops ....', 'Please select the Tentative Submission Date.');
+      return;
+    }
+
     if (!this.isTentativeDateValid()) {
       return;
     }
 
     if (this.formModel().surveyAssigneds.length === 0) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Please select at least one members.',
-      });
+      this.alertService.error('Oops ....', `Please add at least one ${this.assigneeLabel().toLowerCase()}.`);
       return;
     }
 
     if (!this.formModel().surveyAssigneds.some((m) => m.isLead)) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Please select atleast one member as lead.',
-      });
+      this.alertService.error('Oops ....', `Please select one ${this.assigneeLabel().toLowerCase()} as lead.`);
       return;
     }
 
-    Swal.fire({
-      title: 'Are you sure?',
-      text: `You want to ${this.isEditMode() ? 'update' : 'create'} this survey!`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes',
-    }).then((result) => {
+    this.alertService
+      .confirm(
+        'Confirmation',
+        `Do you want to ${this.isEditMode() ? 'update' : 'create'} this survey?`,
+      )
+      .then((result) => {
       if (result.isConfirmed) {
         const payload: ISurveyDetail = {
           ...this.formModel(),
-          assignmentNo: this.generateAssignmentNo(),
           assignmentDate:
             this.datePipe.transform(this.formModel().assignmentDate, 'yyyy-MM-dd') || '',
 
@@ -340,10 +394,6 @@ export class SurveyUnitDetail {
         });
       }
     });
-  }
-  generateAssignmentNo(): string {
-    const number = Math.floor(100000 + Math.random() * 900000);
-    return `ASG${number}`;
   }
   protected onCancelClicked() {
     this.cancel.emit();

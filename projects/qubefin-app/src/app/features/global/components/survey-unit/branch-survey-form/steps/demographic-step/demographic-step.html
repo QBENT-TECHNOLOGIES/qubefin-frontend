@@ -1,0 +1,35 @@
+<div class="space-y-6 pt-4">
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">C. Demographic Profile</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            @for (field of numberFields; track field.key) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>{{ field.label }}</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" step="any" [formField]="section()[field.key]" />
+                @if (field.unit) {
+                <span matTextSuffix class="pl-2 pr-4">{{ field.unit }}</span>
+                }
+                <mat-error class="cus-error">{{ section()[field.key]().errors()[0]?.message }}</mat-error>
+            </mat-form-field>
+            }
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Migration Trend</mat-label>
+                <div class="field-icon" matPrefix>
+                    <svg lucideIcon="compass" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="section().migrationTrend" placeholder="Select">
+                    <mat-option [value]="null">-- Not selected --</mat-option>
+                    @for (option of ratingOptions; track option) {
+                    <mat-option [value]="option">{{ option }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+</div>

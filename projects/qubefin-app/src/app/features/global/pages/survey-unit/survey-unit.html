@@ -8,10 +8,12 @@
         Filter
       </button>
       } @else{}
+      @if (surveyStore.canCreateSurvey()) {
       <button class="global-btn shine-sweep lift" (click)="onAdd()">
         <svg lucideIcon="plus" class="w-4 h-4"></svg>
         Add Survey
       </button>
+      }
     </div>
   </div>
 
@@ -115,7 +117,9 @@
             <div>
               <div class="flex justify-start gap-2">
                 <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">
-                  @if (selectedsurveyStoreId() === EMPTY_UUID) {
+                  @if (isFormMode()) {
+                  {{ isFormViewOnly() ? 'Survey Form' : 'Complete Survey Form' }}
+                  } @else if (selectedsurveyStoreId() === EMPTY_UUID) {
                   Add Survey
                   } @else if (isViewMode()) {
                   Survey Details
@@ -127,7 +131,9 @@
                   class="flex items-center gap-1.5 px-3 pt-1 pb-0 rounded-xl bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10 shadow-inner">
                   <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
                   <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                    @if (selectedsurveyStoreId() === EMPTY_UUID) {
+                    @if (isFormMode()) {
+                    {{ isFormViewOnly() ? 'View Mode' : 'Edit Mode' }}
+                    } @else if (selectedsurveyStoreId() === EMPTY_UUID) {
                     New Mode
                     } @else if (isViewMode()) {
                     View Mode
@@ -138,7 +144,9 @@
                 </div>
               </div>
               <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                @if (selectedsurveyStoreId() === EMPTY_UUID) {
+                @if (isFormMode()) {
+                {{ isFormViewOnly() ? 'Review the branch survey form. It is read only.' : 'Fill in the branch survey form and save it as a draft.' }}
+                } @else if (selectedsurveyStoreId() === EMPTY_UUID) {
                 Add a survey for branch or group.
                 } @else if (isViewMode()) {
                 Review survey details, and status.
@@ -157,8 +165,13 @@
       </div>
 
       <div>
-        @if (isViewMode() && selectedsurveyStoreId() !== EMPTY_UUID) {
-        <qfin-survey-unit-view [surveyId]="selectedsurveyStoreId()" (showEdit)="onEdit()">
+        @if (isFormMode()) {
+        <qfin-branch-survey-form [surveyId]="selectedsurveyStoreId()" [viewOnly]="isFormViewOnly()"
+          (back)="onBackFromForm()">
+        </qfin-branch-survey-form>
+        } @else if (isViewMode() && selectedsurveyStoreId() !== EMPTY_UUID) {
+        <qfin-survey-unit-view [surveyId]="selectedsurveyStoreId()" (showEdit)="onEdit()" (viewForm)="onViewForm()"
+          (completeForm)="onCompleteForm()">
         </qfin-survey-unit-view>
         } @else {
         <qfin-survey-unit-detail [surveyId]="selectedsurveyStoreId()" (cancel)="closePanel()" (save)="onSurvey()">

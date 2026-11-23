@@ -208,6 +208,15 @@ import {
   LucideSignature,
   LucideBuildingComplex,
   LucideArrowBigRightDash,
+  LucideWifi,
+  LucideBus,
+  LucideTrainFront,
+  LucideWheat,
+  LucideShieldAlert,
+  LucideCloudRain,
+  LucideStore,
+  LucideRuler,
+  LucideScale,
 } from '@lucide/angular';
 
 export const APP_ICONS = [
@@ -420,6 +429,15 @@ export const APP_ICONS = [
   LucideSignature,
   LucideBuildingComplex,
   LucideArrowBigRightDash,
+  LucideWifi,
+  LucideBus,
+  LucideTrainFront,
+  LucideWheat,
+  LucideShieldAlert,
+  LucideCloudRain,
+  LucideStore,
+  LucideRuler,
+  LucideScale,
 ];
 
 export const APP_ICONS_MAP: Record<string, any> = {
@@ -629,4 +647,13 @@ export const APP_ICONS_MAP: Record<string, any> = {
   Siganture: LucideSignature,
   BuildingComplex: LucideBuildingComplex,
   ArrowBigRightDash: LucideArrowBigRightDash,
+  Wifi: LucideWifi,
+  Bus: LucideBus,
+  TrainFront: LucideTrainFront,
+  Wheat: LucideWheat,
+  ShieldAlert: LucideShieldAlert,
+  CloudRain: LucideCloudRain,
+  Store: LucideStore,
+  Ruler: LucideRuler,
+  Scale: LucideScale,
 };
