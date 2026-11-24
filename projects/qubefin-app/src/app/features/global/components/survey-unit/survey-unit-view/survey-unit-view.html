@@ -13,7 +13,7 @@
                     Assignment No
                 </p>
                 <div class="flex items-center gap-3 flex-wrap">
-                    <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">{{ detail.assignmentNo }}</h1>
+                    <h1 class="text-lg font-bold text-slate-800 dark:text-slate-100">{{ detail.assignmentNo }}</h1>
                     <span
                         class="px-2.5 py-1 rounded-md bg-slate-500/10 dark:bg-white/10 text-xs font-semibold text-slate-600 dark:text-slate-300">
                         {{ detail.surveyType }}
@@ -31,7 +31,7 @@
             </p>
             @if (isRejected()) {
             <div
-                class="flex items-center gap-3 rounded-xl border border-red-300/50 bg-red-500/5 px-4 py-3 text-sm font-medium text-red-700 dark:text-red-400">
+                class="flex items-center gap-3 rounded-xl border border-red-300/50 bg-red-500/5 px-4 py-3 text-[13px] font-medium text-red-700 dark:text-red-400">
                 <svg lucideIcon="triangle-alert" class="w-5 h-5 shrink-0"></svg>
                 This survey was rejected. The process has stopped.
             </div>
@@ -77,25 +77,25 @@
         <header class="flex flex-wrap items-center justify-between gap-4">
             <div class="flex flex-col gap-1">
                 <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Survey assignment</span>
-                <h3 class="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">General Information</h3>
+                <h3 class="text-lg font-bold tracking-tight text-slate-800 dark:text-slate-100">General Information</h3>
             </div>
             <div class="flex items-center gap-3 flex-wrap">
                 @if (detail.surveyFormAttached) {
                 <span
-                    class="inline-flex items-center gap-2 h-9 px-3.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-[13px] font-semibold text-emerald-700 dark:text-emerald-300">
+                    class="inline-flex items-center gap-2 h-9 px-3.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                     <svg lucideIcon="file-check" class="w-4 h-4"></svg>
                     Survey form attached
                 </span>
                 } @else {
                 <span
-                    class="inline-flex items-center gap-2 h-9 px-3.5 rounded-full border border-slate-300/60 dark:border-white/10 bg-slate-500/5 text-[13px] font-semibold text-slate-600 dark:text-slate-300">
+                    class="inline-flex items-center gap-2 h-9 px-3.5 rounded-full border border-slate-300/60 dark:border-white/10 bg-slate-500/5 text-xs font-semibold text-slate-600 dark:text-slate-300">
                     <svg lucideIcon="file-text" class="w-4 h-4"></svg>
                     Survey form not attached
                 </span>
                 }
                 @if (isEditable()) {
                 <button type="button" (click)="onEdit()"
-                    class="h-11 px-4 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-sm font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition lift cursor-pointer">
+                    class="h-11 px-4 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition lift cursor-pointer">
                     <svg lucideIcon="pencil" class="w-4 h-4"></svg>
                     Edit Assignment
                 </button>
@@ -103,14 +103,14 @@
                 @if (detail.canEditForm) {
                 <!-- The Lead Surveyor fills in the form -->
                 <button type="button" (click)="onCompleteForm()"
-                    class="ripple-btn shadow shine-sweep h-11 px-5 rounded-xl inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                    class="ripple-btn shadow shine-sweep h-11 px-5 rounded-xl inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                     <svg lucideIcon="clipboard-check" class="w-4 h-4"></svg>
                     Complete Form
                 </button>
                 } @else if (detail.surveyType === 'Branch Survey') {
                 <!-- Everyone else who can see the survey can only read the form -->
                 <button type="button" (click)="onViewForm()"
-                    class="h-11 px-5 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-sm font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition lift cursor-pointer">
+                    class="h-11 px-5 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition lift cursor-pointer">
                     <svg lucideIcon="eye" class="w-4 h-4"></svg>
                     View Form
                 </button>
@@ -128,8 +128,8 @@
                         <svg lucideIcon="map-pin" class="w-6 h-6"></svg>
                     </div>
                     <div class="flex flex-col gap-0.5 min-w-0">
-                        <span class="text-[13px] text-slate-500 dark:text-slate-400">Proposed area</span>
-                        <span class="text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100 break-words">{{ detail.proposedArea }}</span>
+                        <span class="text-xs text-slate-500 dark:text-slate-400">Proposed area</span>
+                        <span class="text-xl font-bold tracking-tight text-slate-800 dark:text-slate-100 break-words">{{ detail.proposedArea }}</span>
                     </div>
                 </div>
             </div>
@@ -137,34 +137,34 @@
             <dl class="flex shrink-0">
                 <div class="flex flex-col gap-1 pr-7">
                     <dt class="text-xs text-slate-500 dark:text-slate-400">Assignment date</dt>
-                    <dd class="text-base font-semibold text-slate-800 dark:text-slate-100">{{ detail.assignmentDate | date: 'mediumDate' }}</dd>
+                    <dd class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ detail.assignmentDate | date: 'mediumDate' }}</dd>
                 </div>
                 <div class="flex flex-col gap-1 pl-7 border-l border-slate-200/70 dark:border-white/10">
                     <dt class="text-xs text-slate-500 dark:text-slate-400">Tentative submission</dt>
-                    <dd class="text-base font-semibold text-slate-800 dark:text-slate-100">{{ detail.tentativeSubmissionDate | date: 'mediumDate' }}</dd>
+                    <dd class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ detail.tentativeSubmissionDate | date: 'mediumDate' }}</dd>
                 </div>
             </dl>
         </div>
 
         <!-- Area details: one row for every level -->
         <div class="rounded-2xl border border-slate-200/50 dark:border-white/10 p-6 flex flex-col gap-4">
-            <h4 class="text-[13px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Area details</h4>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Area details</h4>
             <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
                 @for (level of areaPath(); track level.id) {
                 <div class="flex items-center justify-between gap-3 py-3 border-b border-slate-200/60 dark:border-white/10">
-                    <dt class="text-sm text-slate-500 dark:text-slate-400">{{ level.administrativeUnitTypeName }}</dt>
-                    <dd class="text-sm font-semibold text-slate-800 dark:text-slate-100 text-right">{{ level.name }}</dd>
+                    <dt class="text-[13px] text-slate-500 dark:text-slate-400">{{ level.administrativeUnitTypeName }}</dt>
+                    <dd class="text-[13px] font-semibold text-slate-800 dark:text-slate-100 text-right">{{ level.name }}</dd>
                 </div>
                 }
                 @if (detail.surveyType === 'Group Survey' && detail.branchName) {
                 <div class="flex items-center justify-between gap-3 py-3 border-b border-slate-200/60 dark:border-white/10">
-                    <dt class="text-sm text-slate-500 dark:text-slate-400">Branch</dt>
-                    <dd class="text-sm font-semibold text-slate-800 dark:text-slate-100 text-right">{{ detail.branchName }}</dd>
+                    <dt class="text-[13px] text-slate-500 dark:text-slate-400">Branch</dt>
+                    <dd class="text-[13px] font-semibold text-slate-800 dark:text-slate-100 text-right">{{ detail.branchName }}</dd>
                 </div>
                 }
                 <div class="flex items-center justify-between gap-3 py-3">
-                    <dt class="text-sm text-slate-500 dark:text-slate-400">Proposed area</dt>
-                    <dd class="text-sm font-semibold text-slate-800 dark:text-slate-100 text-right">{{ detail.proposedArea }}</dd>
+                    <dt class="text-[13px] text-slate-500 dark:text-slate-400">Proposed area</dt>
+                    <dd class="text-[13px] font-semibold text-slate-800 dark:text-slate-100 text-right">{{ detail.proposedArea }}</dd>
                 </div>
             </dl>
         </div>
@@ -173,7 +173,7 @@
     <!-- Surveyors: one full-width row for each surveyor, so the whole name is visible -->
     <div class="rounded-2xl border border-slate-200/40 dark:border-white/10 bg-white/30 dark:bg-glass-dark shadow p-5">
         <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-slate-800 dark:text-white">{{ detail.surveyType === 'Group Survey' ? 'Credit Officers' : 'Surveyors' }}</h3>
+            <h3 class="text-sm font-bold text-slate-800 dark:text-white">{{ detail.surveyType === 'Group Survey' ? 'Credit Officers' : 'Surveyors' }}</h3>
             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ detail.surveyAssigneds.length }}</span>
         </div>
         <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
@@ -185,7 +185,7 @@
                     <div class="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center shrink-0">
                         <svg lucideIcon="user" class="w-5 h-5 text-primary-600"></svg>
                     </div>
-                    <p class="text-sm font-semibold text-slate-800 dark:text-white break-words">{{ member.employeeName }}</p>
+                    <p class="text-[13px] font-semibold text-slate-800 dark:text-white break-words">{{ member.employeeName }}</p>
                 </div>
                 @if (member.isLead) {
                 <span
@@ -208,6 +208,7 @@
     @if (detail.surveyType === 'Branch Survey') {
     <qfin-survey-evaluation [surveyId]="detail.id"></qfin-survey-evaluation>
     <qfin-survey-approval [surveyId]="detail.id"></qfin-survey-approval>
+    <qfin-branch-create [surveyId]="detail.id"></qfin-branch-create>
     }
 </div>
 } @else {

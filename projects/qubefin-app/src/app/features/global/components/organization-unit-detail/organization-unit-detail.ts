@@ -3,6 +3,7 @@ import {
   computed,
   effect,
   inject,
+  input,
   model,
   output,
   signal,
@@ -14,6 +15,7 @@ import { OrganizationUnitTypeStore } from '../../stores/organization-unit-type-s
 import { APP_ICONS_MAP } from '../../../../lucide-icons';
 import { OrganizationUnit } from '../../models/organization-unit';
 import {
+  disabled,
   form,
   FormField,
   maxLength,
@@ -35,6 +37,8 @@ import { IComapnyList } from '../../models/company';
 import { CompanyService } from '../../services/company-service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AdministrativeUnitStore } from '../../stores/administrative-unit-store';
+import { IBranchCreateInfo } from '../../models/branch-create';
+import { BranchCreateService } from '../../services/branch-create-service';
 
 export interface OrganizationUnitTypeParentField {
   id: string;
@@ -66,6 +70,13 @@ export class OrganizationUnitDetailComponent {
   organizationUnitService = inject(OrganizationUnitService);
   alertService = inject(AlertService);
   private readonly administrativeUnitStore = inject(AdministrativeUnitStore);
+  private readonly branchCreateService = inject(BranchCreateService);
+
+  // Create Branch window of an approved Branch Survey: the form is pre-filled from the survey,
+  // the Unit Type is fixed to Branch, and saving also links the new branch to the survey.
+  surveyId = input<string | null>(null);
+  branchInfo = input<IBranchCreateInfo | null>(null);
+  readonly isFromSurvey = computed(() => !!this.surveyId());
 
   // Location: Country is fixed to India, the user picks State and then District (only District is saved).
   readonly country = computed(
@@ -152,6 +163,30 @@ export class OrganizationUnitDetailComponent {
         checkRadiusInMeter: unit.checkRadiusInMeter ?? null,
         attendanceInTime: this.formatTo12Hour(unit.attendanceInTime),
         attendanceOutTime: this.formatTo12Hour(unit.attendanceOutTime),
+      });
+    });
+    // Pre-fill from the survey once the unit types are loaded (Unit Type = Branch).
+    effect(() => {
+      const info = this.branchInfo();
+      const branchType = this.organizationUnitTypes().find((x) => x.name === 'Branch');
+      if (!this.isFromSurvey() || !info || !branchType) return;
+
+      untracked(() => {
+        if (this.organizationUnitModel().organizationUnitTypeId) return;
+        // The State of the survey area, so the District list below it shows the saved District.
+        if (info.stateId) this.selectedStateId.set(info.stateId);
+        this.organizationUnitModel.update((m) => ({
+          ...m,
+          name: info.suggestedName,
+          organizationUnitTypeId: branchType.id,
+          districtId: info.districtId ?? '',
+          latitude: info.latitude,
+          longitude: info.longitude,
+          // Defaults for a new branch: 50 meter check radius, working hours 8:00 AM to 4:00 PM.
+          checkRadiusInMeter: 50,
+          attendanceInTime: '08:00 AM',
+          attendanceOutTime: '04:00 PM',
+        }));
       });
     });
     // Select the State that owns the saved District once both the unit and the location tree are loaded.
@@ -257,6 +292,8 @@ export class OrganizationUnitDetailComponent {
       message: 'Longitude is required',
       when: () => this.isBranchSelected(),
     });
+    // The Unit Type cannot be changed when the branch is created from a survey.
+    disabled(path.organizationUnitTypeId, { when: () => this.isFromSurvey() });
     readonly(path.attendanceInTime, { when: () => true });
     readonly(path.attendanceOutTime, { when: () => true });
   });
@@ -407,6 +444,30 @@ export class OrganizationUnitDetailComponent {
     dataToSave.attendanceOutTime = dataToSave.attendanceOutTime
       ? this.formatTimeForApi(dataToSave.attendanceOutTime)
       : null;
+    if (this.isFromSurvey()) {
+      this.branchCreateService
+        .create(this.surveyId()!, {
+          name: dataToSave.name,
+          parentId: dataToSave.parentId,
+          companyId: dataToSave.companyId,
+          districtId: dataToSave.districtId,
+          latitude: dataToSave.latitude,
+          longitude: dataToSave.longitude,
+          attendanceInTime: dataToSave.attendanceInTime,
+          attendanceOutTime: dataToSave.attendanceOutTime,
+          checkRadiusInMeter: dataToSave.checkRadiusInMeter,
+        })
+        .subscribe({
+          next: (resp: any) => {
+            this.alertService.success('Success', resp).then(() => {
+              this.organizationUnitStore.refreshTree();
+              this.saved.emit();
+            });
+          },
+          error: () => {},
+        });
+      return;
+    }
     if (this.organizationUnitId() === EMPTY_UUID) {
       this.organizationUnitService.create(dataToSave).subscribe({
         next: (resp: any) => {

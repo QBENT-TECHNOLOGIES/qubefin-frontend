@@ -9,10 +9,11 @@ import { AdministrativeUnitStore } from '../../../stores/administrative-unit-sto
 import { AdministrativeUnitTreeNode } from '../../../models/administrative-unit-tree-node';
 import { SurveyEvaluation } from '../survey-evaluation/survey-evaluation';
 import { SurveyApproval } from '../survey-approval/survey-approval';
+import { BranchCreate } from '../branch-create/branch-create';
 
 @Component({
   selector: 'qfin-survey-unit-view',
-  imports: [DatePipe, LucideDynamicIcon, StatusBadgeComponentComponent, SurveyEvaluation, SurveyApproval],
+  imports: [DatePipe, LucideDynamicIcon, StatusBadgeComponentComponent, SurveyEvaluation, SurveyApproval, BranchCreate],
   templateUrl: './survey-unit-view.html',
   styles: ``,
 })
@@ -68,8 +69,6 @@ export class SurveyUnitView {
 
   readonly isRejected = computed(() => this.surveyUnit()?.status === 'Rejected');
 
-  readonly onShowSurveyComplete = output<{ hasAccess: boolean, type: string }>();
-
   constructor() {
     effect(() => {
       this.surveyStore.setSurveyId(this.surveyId());
@@ -77,8 +76,11 @@ export class SurveyUnitView {
 
     effect(() => {
       const survey = this.surveyStore.surveyUnit();
+
       if (!survey) return;
-      this.onShowSurveyComplete.emit({ hasAccess: survey.isSurveyAccessed, type: survey.surveyType });
+
+      // Assign to your local array or FormArray here
+      // this.members = survey.surveyAssigneds;
     });
   }
 

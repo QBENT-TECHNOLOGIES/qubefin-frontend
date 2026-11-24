@@ -1,12 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
 import { ApiPaths, EMPTY_UUID } from 'qubefin-core';
-import {
-  ICanCreateSurvey,
-  ICreditOfficer,
-  ISurveyDetail,
-  ISurveySearchResult,
-} from '../models/survey';
+import { ICanCreateSurvey, ICreditOfficer, ISurveyDetail, ISurveySearchResult } from '../models/survey';
 
 @Injectable({
   providedIn: 'root',
@@ -70,22 +65,12 @@ export class SurveyStore {
   // Can The User Add A Survey (only the Committee Lead can)
   // ===========================
   readonly canCreateResource = httpResource<ICanCreateSurvey>(() => `${this.basePath}/can-create`);
-  readonly canCreateBranchSurvey = computed(
-    () => this.canCreateResource.value()?.canCreateBranchSurvey ?? false,
-  );
-  readonly canCreateGroupSurvey = computed(
-    () => this.canCreateResource.value()?.canCreateGroupSurvey ?? false,
-  );
-  readonly canCreateSurvey = computed(
-    () => this.canCreateBranchSurvey() || this.canCreateGroupSurvey(),
-  );
+  readonly canCreateBranchSurvey = computed(() => this.canCreateResource.value()?.canCreateBranchSurvey ?? false);
+  readonly canCreateGroupSurvey = computed(() => this.canCreateResource.value()?.canCreateGroupSurvey ?? false);
+  readonly canCreateSurvey = computed(() => this.canCreateBranchSurvey() || this.canCreateGroupSurvey());
   // The branch the user is in charge of (Group Survey).
-  readonly inchargeBranchId = computed(
-    () => this.canCreateResource.value()?.inchargeBranchId ?? null,
-  );
-  readonly inchargeBranchName = computed(
-    () => this.canCreateResource.value()?.inchargeBranchName ?? null,
-  );
+  readonly inchargeBranchId = computed(() => this.canCreateResource.value()?.inchargeBranchId ?? null);
+  readonly inchargeBranchName = computed(() => this.canCreateResource.value()?.inchargeBranchName ?? null);
 
   // Credit Officers of that branch who can be assigned to a new Group Survey.
   readonly creditOfficersResource = httpResource<ICreditOfficer[]>(() =>
@@ -179,14 +164,4 @@ export class SurveyStore {
       })),
     };
   }
-
-  // --- UTILITY SERVICE ---
-  private readonly utilityResource = httpResource<Utility[]>(() => {
-    return `${ApiPaths.GLOBAL}/utilities`;
-  });
-
-  readonly utilityComponent = computed<Utility[]>(() => this.utilityResource.value() ?? []);
-
-  readonly utilityComponentLoading = computed(() => this.utilityResource.isLoading());
-  readonly utilityComponentError = computed(() => this.utilityResource.error());
 }

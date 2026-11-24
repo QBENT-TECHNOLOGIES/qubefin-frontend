@@ -2,7 +2,7 @@
 @let d = data()!;
 <div class="rounded-2xl border border-slate-200/40 dark:border-white/10 bg-white/30 dark:bg-glass-dark shadow p-5 flex flex-col gap-5">
     <div>
-        <h3 class="text-base font-bold text-slate-800 dark:text-white">Final Approval</h3>
+        <h3 class="text-sm font-bold text-slate-800 dark:text-white">Final Approval</h3>
         <div class="w-10 h-1 rounded-full bg-primary-500 mt-2"></div>
     </div>
 
@@ -10,11 +10,11 @@
     @if (d.decision; as result) {
     <div class="rounded-xl border border-slate-200/50 dark:border-white/10 bg-slate-500/5 dark:bg-white/5 px-4 py-3">
         <div class="flex items-center justify-between gap-3 flex-wrap">
-            <p class="text-sm font-semibold text-slate-800 dark:text-white">Decision by {{ result.employeeName }}</p>
+            <p class="text-[13px] font-semibold text-slate-800 dark:text-white">Decision by {{ result.employeeName }}</p>
             <span class="rounded-full px-3 py-1 text-xs font-semibold" [class]="badgeClass(result.decision)">{{ result.decision }}</span>
         </div>
         @if (result.comments) {
-        <p class="text-sm text-slate-600 dark:text-slate-300 mt-2 break-words">{{ result.comments }}</p>
+        <p class="text-[13px] text-slate-600 dark:text-slate-300 mt-2 break-words">{{ result.comments }}</p>
         }
         <p class="text-xs text-slate-400 mt-2">{{ result.actionOn | date: 'medium' }}</p>
     </div>
@@ -23,12 +23,12 @@
     <!-- Decision form, only for the Managing Director -->
     @if (d.canDecide) {
     <div class="flex flex-col gap-4 rounded-xl border border-slate-200/50 dark:border-white/10 p-4">
-        <p class="text-sm font-semibold text-slate-800 dark:text-white">Your decision</p>
+        <p class="text-[13px] font-semibold text-slate-800 dark:text-white">Your decision</p>
 
         <div class="flex flex-wrap gap-3">
             @for (option of decisions; track option.value) {
             <button type="button" (click)="decision.set(option.value)"
-                class="h-11 px-5 rounded-xl border-2 inline-flex items-center gap-2 text-sm font-semibold transition cursor-pointer"
+                class="h-11 px-5 rounded-xl border-2 inline-flex items-center gap-2 text-[13px] font-semibold transition cursor-pointer"
                 [class]="decisionClass(option.value, decision() === option.value)">
                 <svg [lucideIcon]="option.icon" class="w-4 h-4"></svg>
                 {{ option.label }}
@@ -44,7 +44,7 @@
 
         <div class="flex justify-end">
             <button type="button" (click)="save()" [disabled]="saving()"
-                class="ripple-btn shadow h-11 px-5 rounded-xl inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer disabled:opacity-60">
+                class="ripple-btn shadow h-11 px-5 rounded-xl inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer disabled:opacity-60">
                 <svg lucideIcon="send" class="w-4 h-4"></svg>
                 Submit Decision
             </button>

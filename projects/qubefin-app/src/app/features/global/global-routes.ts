@@ -47,18 +47,6 @@ export const GlobalRoutes: Routes = [
           icon: 'apartment',
         },
       },
-      {
-        path: 'branch-survey/:id',
-        loadComponent: () =>
-          import('./components/survey-unit/branch-survey-unit/branch-survey-unit').then(
-            (m) => m.BranchSurveyUnit,
-          ),
-        data: {
-          title: 'Branch Survey',
-          subTitle: 'Complete branch survey details.',
-          icon: 'clipboard-check',
-        },
-      },
     ],
   },
 ];
