@@ -1,0 +1,227 @@
+<div class="space-y-4">
+    @if (!isEditMode()) {
+    <div
+        class="flex items-start gap-3 rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-3 text-sm text-slate-700 dark:text-slate-300">
+        <svg lucideIcon="file-text" class="w-5 h-5 text-blue-500 shrink-0 mt-0.5"></svg>
+        <ul class="list-disc pl-4 space-y-0.5">
+            @if (addInfo()?.isHead) {
+            <li>The Head of the branch adds groups manually, for a Credit Officer of the branch.</li>
+            } @else {
+            <li>A group is normally added from an Approved Group Survey. Choose the survey to fill the area, location and landmark.</li>
+            <li>You can also add a group manually: leave the survey empty.</li>
+            }
+            <li>A group made from a survey needs no approval. A group added manually waits for approval by the Head of the branch or the Area Manager.</li>
+        </ul>
+    </div>
+    }
+
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">Group Information</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            @if (!isEditMode() && !addInfo()?.isHead) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
+                <mat-label>Approved Group Survey</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [value]="model().surveyId" (valueChange)="onSurveyChange($event)">
+                    <mat-option [value]="null">None (add manually)</mat-option>
+                    @for (survey of surveys(); track survey.id) {
+                    <mat-option [value]="survey.id">{{ survey.assignmentNo }} - {{ survey.proposedArea }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            } @else if (group()?.surveyAssignmentNo) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
+                <mat-label>Survey</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [value]="group()?.surveyAssignmentNo" readonly />
+            </mat-form-field>
+            }
+
+            @if (isEditMode()) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Group Code</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="hash" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [value]="group()?.code" readonly />
+            </mat-form-field>
+            }
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Branch</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [value]="branchName()" readonly />
+            </mat-form-field>
+
+            @if (isEditMode()) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Credit Officer</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="users" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [value]="creditOfficerName()" readonly />
+            </mat-form-field>
+            } @else {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Credit Officer</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="users" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [value]="model().designationId" (valueChange)="update('designationId', $event)"
+                    [disabled]="!canChooseCreditOfficer()">
+                    @for (officer of creditOfficers(); track officer.designationId) {
+                    <mat-option [value]="officer.designationId">{{ officer.name }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            }
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
+                <mat-label>Group Name</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="users" class="w-5 h-5"></svg>
+                </div>
+                <input matInput maxlength="50" autocomplete="off" [value]="model().name"
+                    (input)="update('name', $any($event.target).value)" placeholder="Enter group name" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Formation Date</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [matDatepicker]="formationPicker" [value]="model().formationDate" readonly
+                    [disabled]="isEditMode()" [max]="today" (dateChange)="update('formationDate', $event.value)" />
+                <mat-datepicker-toggle matIconSuffix [for]="formationPicker" [disabled]="isEditMode()">
+                </mat-datepicker-toggle>
+                <mat-datepicker #formationPicker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Mobile No</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="phone" class="w-5 h-5"></svg>
+                </div>
+                <input matInput maxlength="10" inputmode="numeric" autocomplete="off" [value]="model().mobileNo"
+                    (input)="update('mobileNo', $any($event.target).value)" placeholder="10 digit mobile no" />
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">Collection</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Collection Day</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [value]="model().collectionDay" (valueChange)="update('collectionDay', $event)">
+                    @for (day of days; track day.value) {
+                    <mat-option [value]="day.value">{{ day.label }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Collection Time</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="clock" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="text" readonly class="cursor-pointer" [value]="model().collectionTime"
+                    placeholder="Select collection time" (click)="openCollectionTimePicker()" />
+                <button type="button" mat-icon-button matSuffix (click)="openCollectionTimePicker()"
+                    class="text-primary-600 mr-2">
+                    <svg lucideIcon="clock-3" class="w-5 h-5"></svg>
+                </button>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Biweekly Start Date (optional)</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+                </div>
+                <input matInput [matDatepicker]="biweeklyPicker" [value]="model().biweeklyStartDate" readonly
+                    (dateChange)="update('biweeklyStartDate', $event.value)" />
+                <mat-datepicker-toggle matIconSuffix [for]="biweeklyPicker"></mat-datepicker-toggle>
+                <mat-datepicker #biweeklyPicker></mat-datepicker>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">Address</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <qfin-administrative-unit-cascade [columns]="4" [administrativeUnitId]="model().administrativeUnitId"
+                (selectedIdChanged)="update('administrativeUnitId', $event)">
+            </qfin-administrative-unit-cascade>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>PIN Code</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="hash" class="w-5 h-5"></svg>
+                </div>
+                <input matInput maxlength="6" inputmode="numeric" autocomplete="off" [value]="model().pinCode"
+                    (input)="update('pinCode', $any($event.target).value)" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
+                <mat-label>Address</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+                </div>
+                <input matInput maxlength="500" autocomplete="off" [value]="model().address"
+                    (input)="update('address', $any($event.target).value)" placeholder="Road, house, locality" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Landmark</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="land-plot" class="w-5 h-5"></svg>
+                </div>
+                <input matInput maxlength="100" autocomplete="off" [value]="model().landMark"
+                    (input)="update('landMark', $any($event.target).value)" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Latitude</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" step="any" [value]="model().latitude ?? ''"
+                    (input)="updateNumber('latitude', $any($event.target).value)" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Longitude</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" step="any" [value]="model().longitude ?? ''"
+                    (input)="updateNumber('longitude', $any($event.target).value)" />
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3">
+        <button type="button" (click)="onCancel()"
+            class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift shine-sweep cursor-pointer">
+            <svg lucideIcon="x" class="w-4 h-4"></svg>
+            Cancel
+        </button>
+        <button type="button" (click)="onSubmit()" [disabled]="saving()"
+            class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer disabled:opacity-60">
+            <svg lucideIcon="save" class="w-4 h-4"></svg>
+            {{ isEditMode() ? 'Update' : 'Save' }}
+        </button>
+    </div>
+</div>

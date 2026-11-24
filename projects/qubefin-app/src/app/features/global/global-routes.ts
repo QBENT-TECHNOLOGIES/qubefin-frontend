@@ -47,6 +47,15 @@ export const GlobalRoutes: Routes = [
           icon: 'apartment',
         },
       },
+      {
+        path: 'groups',
+        loadComponent: () => import('./pages/group/group').then((m) => m.GroupPage),
+        data: {
+          title: 'Group Master',
+          subTitle: 'View, add and update groups.',
+          icon: 'groups',
+        },
+      },
     ],
   },
 ];

@@ -35,6 +35,11 @@ export interface ISurveyDetail {
   canEditGeneral: boolean;
   // The server says whether the logged-in user can fill in the survey form (Lead Surveyor, before submit).
   canEditForm: boolean;
+  // Group Survey only: the group made from the survey, and whether the user can create it now.
+  groupId?: string | null;
+  groupName?: string | null;
+  groupCode?: string | null;
+  canCreateGroup?: boolean;
   auditInfo: ISurveyAuditInfo | null;
   surveyAssigneds: ISurveyMembers[];
 }

@@ -1,0 +1,112 @@
+@if (loading()) {
+<div class="px-4 py-10 text-sm text-slate-500 text-center flex justify-center gap-2">
+    <svg lucideIcon="loader" class="w-5 h-5"></svg>
+    Loading group...
+</div>
+} @else if (error()) {
+<div class="px-4 py-10 text-sm text-red-500 text-center flex justify-center gap-2">
+    <svg lucideIcon="octagon-alert" class="w-5 h-5"></svg>
+    Unable to load the group.
+</div>
+} @else if (group(); as g) {
+<div class="space-y-5">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-3">
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">{{ g.name }}</h3>
+            <qfin-status-badge-component [text]="g.status"></qfin-status-badge-component>
+        </div>
+        @if (g.canEdit) {
+        <button type="button" (click)="onEdit()"
+            class="bg-white dark:bg-slate-800 shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer dark:text-slate-200">
+            <svg lucideIcon="square-pen" class="w-4 h-4"></svg>
+            Edit
+        </button>
+        }
+    </div>
+
+    <!-- Details -->
+    <div class="rounded-2xl border border-slate-200/40 dark:border-white/10 bg-white/30 dark:bg-glass-dark shadow p-5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 text-[13px]">
+            <div><p class="text-xs text-slate-400">Group Code</p><p class="font-semibold dark:text-slate-200">{{ g.code }}</p></div>
+            <div><p class="text-xs text-slate-400">Branch</p><p class="font-semibold dark:text-slate-200">{{ g.branchName || '-' }}</p></div>
+            <div><p class="text-xs text-slate-400">Credit Officer</p><p class="font-semibold dark:text-slate-200">{{ g.creditOfficerName || '-' }}</p></div>
+            <div><p class="text-xs text-slate-400">Formation Date</p><p class="font-semibold dark:text-slate-200">{{ g.formationDate | date }}</p></div>
+            <div><p class="text-xs text-slate-400">Collection Day</p><p class="font-semibold dark:text-slate-200">{{ dayName(g.collectionDay) }}</p></div>
+            <div><p class="text-xs text-slate-400">Collection Time</p><p class="font-semibold dark:text-slate-200">{{ g.collectionTime.slice(0, 5) }}</p></div>
+            <div><p class="text-xs text-slate-400">Biweekly Start Date</p><p class="font-semibold dark:text-slate-200">{{ g.biweeklyStartDate ? (g.biweeklyStartDate | date) : '-' }}</p></div>
+            <div><p class="text-xs text-slate-400">Mobile No</p><p class="font-semibold dark:text-slate-200">{{ g.mobileNo }}</p></div>
+            <div><p class="text-xs text-slate-400">Survey</p><p class="font-semibold dark:text-slate-200">{{ g.surveyAssignmentNo || 'Added manually' }}</p></div>
+            <div><p class="text-xs text-slate-400">Area</p><p class="font-semibold dark:text-slate-200">{{ g.areaName || '-' }}</p></div>
+            <div><p class="text-xs text-slate-400">PIN Code</p><p class="font-semibold dark:text-slate-200">{{ g.pinCode || '-' }}</p></div>
+            <div><p class="text-xs text-slate-400">Landmark</p><p class="font-semibold dark:text-slate-200">{{ g.landMark || '-' }}</p></div>
+            <div class="md:col-span-2"><p class="text-xs text-slate-400">Address</p><p class="font-semibold dark:text-slate-200">{{ g.address || '-' }}</p></div>
+            <div><p class="text-xs text-slate-400">Location</p><p class="font-semibold dark:text-slate-200">{{ g.latitude !== null && g.longitude !== null ? g.latitude + ', ' + g.longitude : '-' }}</p></div>
+            <div><p class="text-xs text-slate-400">Added By</p><p class="font-semibold dark:text-slate-200">{{ g.createdByName || '-' }}</p></div>
+            <div><p class="text-xs text-slate-400">Added On</p><p class="font-semibold dark:text-slate-200">{{ g.createdOn | date: 'medium' }}</p></div>
+        </div>
+    </div>
+
+    <!-- Location on the map -->
+    @if (mapUrl(); as url) {
+    <div class="rounded-2xl border border-slate-200/40 dark:border-white/10 bg-white/30 dark:bg-glass-dark shadow p-5">
+        <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
+            <h4 class="text-sm font-bold text-slate-800 dark:text-white">Location</h4>
+            <button type="button" (click)="openInMaps()"
+                class="h-9 px-4 rounded-lg border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition lift cursor-pointer">
+                <svg lucideIcon="map-pin" class="w-4 h-4"></svg>
+                Open in Google Maps
+            </button>
+        </div>
+        <iframe title="Group location" class="w-full h-72 rounded-xl border-0" [src]="url" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    }
+
+    <!-- Result of the approval -->
+    @if (g.verifiedOn) {
+    <div class="rounded-xl border border-slate-200/50 dark:border-white/10 bg-slate-500/5 dark:bg-white/5 px-4 py-3">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+            <p class="text-[13px] font-semibold text-slate-800 dark:text-white">
+                {{ g.status === 'Approved' ? 'Approved' : 'Rejected' }} by {{ g.verifiedByName || '-' }}
+            </p>
+            <p class="text-xs text-slate-400">{{ g.verifiedOn | date: 'medium' }}</p>
+        </div>
+        @if (g.verifiedRemarks) {
+        <p class="text-[13px] text-slate-600 dark:text-slate-300 mt-2 break-words">{{ g.verifiedRemarks }}</p>
+        }
+    </div>
+    }
+
+    <!-- Waiting message -->
+    @if (g.status === 'Pending' && !g.canDecide) {
+    <div class="flex items-center gap-3 rounded-xl border border-slate-200/50 dark:border-white/10 px-4 py-3 text-[13px] text-slate-600 dark:text-slate-300">
+        <svg lucideIcon="clock" class="w-5 h-5 shrink-0"></svg>
+        Waiting for the Head of the branch or the Area Manager to approve the group.
+    </div>
+    }
+
+    <!-- Approve / Reject -->
+    @if (g.canDecide) {
+    <div class="flex flex-col gap-4 rounded-xl border border-slate-200/50 dark:border-white/10 p-4">
+        <p class="text-[13px] font-semibold text-slate-800 dark:text-white">Your decision</p>
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Comments</mat-label>
+            <textarea matInput rows="3" maxlength="200" [value]="comments()"
+                (input)="comments.set($any($event.target).value)" placeholder="Required to reject"></textarea>
+        </mat-form-field>
+        <div class="flex justify-end gap-3">
+            <button type="button" (click)="decide('Reject')" [disabled]="saving()"
+                class="h-11 px-5 rounded-xl border-2 border-red-500 text-red-700 dark:text-red-300 bg-red-500/5 inline-flex items-center gap-2 text-[13px] font-semibold transition cursor-pointer disabled:opacity-60">
+                <svg lucideIcon="x-circle" class="w-4 h-4"></svg>
+                Reject
+            </button>
+            <button type="button" (click)="decide('Approve')" [disabled]="saving()"
+                class="ripple-btn shadow h-11 px-5 rounded-xl inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer disabled:opacity-60">
+                <svg lucideIcon="circle-check" class="w-4 h-4"></svg>
+                Approve
+            </button>
+        </div>
+    </div>
+    }
+</div>
+}

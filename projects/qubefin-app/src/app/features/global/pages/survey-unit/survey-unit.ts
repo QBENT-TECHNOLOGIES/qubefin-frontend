@@ -18,6 +18,7 @@ import { Sort } from '@angular/material/sort';
 import { SurveyUnitView } from '../../components/survey-unit/survey-unit-view/survey-unit-view';
 import { SurveyUnitDetail } from '../../components/survey-unit/survey-unit-detail/survey-unit-detail';
 import { BranchSurveyFormComponent } from '../../components/survey-unit/branch-survey-form/branch-survey-form';
+import { GroupSurveyFormComponent } from '../../components/survey-unit/group-survey-form/group-survey-form';
 
 @Component({
   selector: 'qfin-survey-unit',
@@ -33,6 +34,7 @@ import { BranchSurveyFormComponent } from '../../components/survey-unit/branch-s
     SurveyUnitView,
     SurveyUnitDetail,
     BranchSurveyFormComponent,
+    GroupSurveyFormComponent,
   ],
   templateUrl: './survey-unit.html',
   styles: ``,

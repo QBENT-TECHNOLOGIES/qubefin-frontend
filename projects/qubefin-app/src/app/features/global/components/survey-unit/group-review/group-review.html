@@ -1,0 +1,143 @@
+@if (visible()) {
+@let d = data()!;
+<div class="rounded-2xl border border-slate-200/40 dark:border-white/10 bg-white/30 dark:bg-glass-dark shadow p-5 flex flex-col gap-5">
+    <div>
+        <h3 class="text-sm font-bold text-slate-800 dark:text-white">Recommendation and Approval</h3>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2"></div>
+    </div>
+
+    <!-- Recheck note for the Credit Officers -->
+    @if (d.recheckComment) {
+    <div class="flex items-start gap-3 rounded-xl border border-amber-300/50 bg-amber-500/5 px-4 py-3">
+        <svg lucideIcon="rotate-ccw" class="w-5 h-5 shrink-0 text-amber-600 mt-0.5"></svg>
+        <div class="min-w-0">
+            <p class="text-[13px] font-semibold text-amber-700 dark:text-amber-400">A recheck was asked by the {{ d.recheckBy ?? 'reviewer' }}</p>
+            <p class="text-[13px] text-slate-700 dark:text-slate-200 mt-1 break-words">{{ d.recheckComment }}</p>
+        </div>
+    </div>
+    }
+
+    <!-- Waiting messages -->
+    @if (d.status === 'PendingRecommendation' && !d.canRecommend) {
+    <div class="flex items-center gap-3 rounded-xl border border-slate-200/50 dark:border-white/10 px-4 py-3 text-[13px] text-slate-600 dark:text-slate-300">
+        <svg lucideIcon="hourglass" class="w-5 h-5 shrink-0"></svg>
+        Waiting for the Head of the branch to recommend the survey.
+    </div>
+    }
+    @if (d.status === 'PendingApproval' && !d.canApprove) {
+    <div class="flex items-center gap-3 rounded-xl border border-slate-200/50 dark:border-white/10 px-4 py-3 text-[13px] text-slate-600 dark:text-slate-300">
+        <svg lucideIcon="hourglass" class="w-5 h-5 shrink-0"></svg>
+        Waiting for the Area Manager to decide.
+    </div>
+    }
+
+    <!-- The Head's recommendation -->
+    @if (d.recommendation; as rec) {
+    <div class="rounded-xl border border-slate-200/50 dark:border-white/10 bg-slate-500/5 dark:bg-white/5 px-4 py-3">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+            <p class="text-[13px] font-semibold text-slate-800 dark:text-white">Recommended by {{ rec.employeeName }}</p>
+            <span class="rounded-full px-3 py-1 text-xs font-semibold" [class]="badgeClass(rec.recommendation)">{{ rec.recommendation }}</span>
+        </div>
+        @if (rec.comments) {
+        <p class="text-[13px] text-slate-600 dark:text-slate-300 mt-2 break-words">{{ rec.comments }}</p>
+        }
+        @if (rec.actionOn) {
+        <p class="text-xs text-slate-400 mt-2">{{ rec.actionOn | date: 'medium' }}</p>
+        }
+    </div>
+    }
+
+    <!-- The Area Manager decision -->
+    @if (d.decision; as result) {
+    <div class="rounded-xl border border-slate-200/50 dark:border-white/10 bg-slate-500/5 dark:bg-white/5 px-4 py-3">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+            <p class="text-[13px] font-semibold text-slate-800 dark:text-white">Decision by {{ result.employeeName }}</p>
+            <span class="rounded-full px-3 py-1 text-xs font-semibold" [class]="badgeClass(result.decision)">{{ result.decision }}</span>
+        </div>
+        @if (result.comments) {
+        <p class="text-[13px] text-slate-600 dark:text-slate-300 mt-2 break-words">{{ result.comments }}</p>
+        }
+        <p class="text-xs text-slate-400 mt-2">{{ result.actionOn | date: 'medium' }}</p>
+    </div>
+    }
+
+    <!-- Head of Branch form -->
+    @if (d.canRecommend) {
+    <div class="flex flex-col gap-4 rounded-xl border border-slate-200/50 dark:border-white/10 p-4">
+        <p class="text-[13px] font-semibold text-slate-800 dark:text-white">Your recommendation</p>
+
+        <div class="flex flex-wrap gap-3">
+            <button type="button" (click)="recommendAction.set('Recommend')"
+                class="h-11 px-5 rounded-xl border-2 inline-flex items-center gap-2 text-[13px] font-semibold transition cursor-pointer"
+                [class]="actionClass('Recommend', recommendAction() === 'Recommend')">
+                <svg lucideIcon="circle-check" class="w-4 h-4"></svg>
+                Recommend
+            </button>
+            <button type="button" (click)="recommendAction.set('Recheck')"
+                class="h-11 px-5 rounded-xl border-2 inline-flex items-center gap-2 text-[13px] font-semibold transition cursor-pointer"
+                [class]="actionClass('Recheck', recommendAction() === 'Recheck')">
+                <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                Send back (Recheck)
+            </button>
+        </div>
+
+        @if (recommendAction() === 'Recommend') {
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Recommendation</mat-label>
+            <mat-select [value]="recommendation()" (valueChange)="recommendation.set($event)" placeholder="Select">
+                @for (option of recommendationOptions; track option) {
+                <mat-option [value]="option">{{ option }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        }
+
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Comments</mat-label>
+            <textarea matInput rows="3" [formField]="recommendationForm.comments"
+                [placeholder]="recommendAction() === 'Recheck' ? 'Required: tell the Credit Officers what to correct' : 'Optional'"></textarea>
+        </mat-form-field>
+
+        <div class="flex justify-end">
+            <button type="button" (click)="saveRecommendation()" [disabled]="saving()"
+                class="ripple-btn shadow h-11 px-5 rounded-xl inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer disabled:opacity-60">
+                <svg lucideIcon="send" class="w-4 h-4"></svg>
+                {{ recommendAction() === 'Recommend' ? 'Submit Recommendation' : 'Send Back' }}
+            </button>
+        </div>
+    </div>
+    }
+
+    <!-- Area Manager form -->
+    @if (d.canApprove) {
+    <div class="flex flex-col gap-4 rounded-xl border border-slate-200/50 dark:border-white/10 p-4">
+        <p class="text-[13px] font-semibold text-slate-800 dark:text-white">Your decision</p>
+
+        <div class="flex flex-wrap gap-3">
+            @for (option of decisions; track option.value) {
+            <button type="button" (click)="decision.set(option.value)"
+                class="h-11 px-5 rounded-xl border-2 inline-flex items-center gap-2 text-[13px] font-semibold transition cursor-pointer"
+                [class]="decisionClass(option.value, decision() === option.value)">
+                <svg [lucideIcon]="option.icon" class="w-4 h-4"></svg>
+                {{ option.label }}
+            </button>
+            }
+        </div>
+
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Comments</mat-label>
+            <textarea matInput rows="3" [formField]="decisionForm.comments"
+                placeholder="Required for Recheck and Reject"></textarea>
+        </mat-form-field>
+
+        <div class="flex justify-end">
+            <button type="button" (click)="saveDecision()" [disabled]="saving()"
+                class="ripple-btn shadow h-11 px-5 rounded-xl inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer disabled:opacity-60">
+                <svg lucideIcon="send" class="w-4 h-4"></svg>
+                Submit Decision
+            </button>
+        </div>
+    </div>
+    }
+</div>
+}

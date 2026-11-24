@@ -107,7 +107,7 @@
                     <svg lucideIcon="clipboard-check" class="w-4 h-4"></svg>
                     Complete Form
                 </button>
-                } @else if (detail.surveyType === 'Branch Survey') {
+                } @else {
                 <!-- Everyone else who can see the survey can only read the form -->
                 <button type="button" (click)="onViewForm()"
                     class="h-11 px-5 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition lift cursor-pointer">
@@ -203,6 +203,47 @@
             }
         </div>
     </div>
+
+    <!-- Recommendation of the Head of Branch and approval of the Area Manager (Group Surveys) -->
+    @if (detail.surveyType === 'Group Survey') {
+    <qfin-group-review [surveyId]="detail.id"></qfin-group-review>
+
+    @if (detail.groupId) {
+    <!-- The group made from this survey -->
+    <div class="rounded-2xl border border-emerald-300/50 bg-emerald-500/5 shadow p-5 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-4 min-w-0">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                <svg lucideIcon="users" class="w-6 h-6"></svg>
+            </div>
+            <div class="min-w-0">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Group created</p>
+                <p class="text-base font-bold text-slate-800 dark:text-slate-100 break-words">{{ detail.groupName }}</p>
+                <p class="text-[13px] text-slate-500 dark:text-slate-400">Group code: {{ detail.groupCode }}</p>
+            </div>
+        </div>
+        <button type="button" (click)="openGroupMaster()"
+            class="h-11 px-5 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition lift cursor-pointer">
+            <svg lucideIcon="eye" class="w-4 h-4"></svg>
+            Open in Group Master
+        </button>
+    </div>
+    } @else if (detail.canCreateGroup) {
+    <!-- Approved: the Credit Officer or the Head of the branch creates the group -->
+    <div class="rounded-2xl border border-slate-200/40 dark:border-white/10 bg-white/30 dark:bg-glass-dark shadow p-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+            <h3 class="text-sm font-bold text-slate-800 dark:text-white">Create Group</h3>
+            <p class="text-[13px] text-slate-500 dark:text-slate-400 mt-1">
+                The Area Manager approved this survey. Create the group now.
+            </p>
+        </div>
+        <button type="button" (click)="openCreateGroup()"
+            class="ripple-btn shadow shine-sweep h-11 px-5 rounded-xl inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            <svg lucideIcon="users" class="w-4 h-4"></svg>
+            Create Group
+        </button>
+    </div>
+    }
+    }
 
     <!-- Survey Committee evaluation (Branch Surveys) -->
     @if (detail.surveyType === 'Branch Survey') {

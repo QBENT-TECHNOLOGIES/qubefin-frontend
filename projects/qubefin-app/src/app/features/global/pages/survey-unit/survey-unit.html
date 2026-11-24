@@ -145,7 +145,7 @@
               </div>
               <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
                 @if (isFormMode()) {
-                {{ isFormViewOnly() ? 'Review the branch survey form. It is read only.' : 'Fill in the branch survey form and save it as a draft.' }}
+                {{ isFormViewOnly() ? 'Review the survey form. It is read only.' : 'Fill in the survey form and save it as a draft.' }}
                 } @else if (selectedsurveyStoreId() === EMPTY_UUID) {
                 Add a survey for branch or group.
                 } @else if (isViewMode()) {
@@ -166,9 +166,15 @@
 
       <div>
         @if (isFormMode()) {
+        @if (surveyStore.surveyUnit()?.surveyType === 'Group Survey') {
+        <qfin-group-survey-form [surveyId]="selectedsurveyStoreId()" [viewOnly]="isFormViewOnly()"
+          (back)="onBackFromForm()">
+        </qfin-group-survey-form>
+        } @else {
         <qfin-branch-survey-form [surveyId]="selectedsurveyStoreId()" [viewOnly]="isFormViewOnly()"
           (back)="onBackFromForm()">
         </qfin-branch-survey-form>
+        }
         } @else if (isViewMode() && selectedsurveyStoreId() !== EMPTY_UUID) {
         <qfin-survey-unit-view [surveyId]="selectedsurveyStoreId()" (showEdit)="onEdit()" (viewForm)="onViewForm()"
           (completeForm)="onCompleteForm()">
