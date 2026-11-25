@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, model, output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { CreateGroupModal } from '../group-create/create-group-modal';
+import { GroupCreateModal } from '../group-create/group-create-modal';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { APP_ICONS_MAP } from '../../../../../lucide-icons';
 import { SurveyStore } from '../../../stores/survey-store';
@@ -14,10 +14,14 @@ import { SurveyEvaluation } from '../survey-evaluation/survey-evaluation';
 import { SurveyApproval } from '../survey-approval/survey-approval';
 import { BranchCreate } from '../branch-create/branch-create';
 import { GroupReview } from '../group-review/group-review';
+import { Mobilization } from '../mobilization/mobilization';
+import { Cgt } from '../cgt/cgt';
+import { Grt } from '../grt/grt';
+import { MobilizationStore } from '../../../stores/mobilization-store';
 
 @Component({
   selector: 'qfin-survey-unit-view',
-  imports: [DatePipe, LucideDynamicIcon, StatusBadgeComponentComponent, SurveyEvaluation, SurveyApproval, BranchCreate, GroupReview],
+  imports: [DatePipe, LucideDynamicIcon, StatusBadgeComponentComponent, SurveyEvaluation, SurveyApproval, BranchCreate, GroupReview, Mobilization, Cgt, Grt],
   templateUrl: './survey-unit-view.html',
   styles: ``,
 })
@@ -27,6 +31,7 @@ export class SurveyUnitView {
   private readonly administrativeUnitStore = inject(AdministrativeUnitStore);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
+  private readonly mobilizationStore = inject(MobilizationStore);
 
   // Input From Parant
   readonly surveyId = model<string>(EMPTY_UUID);
@@ -118,8 +123,8 @@ export class SurveyUnitView {
     if (!detail) return;
 
     this.dialog
-      .open(CreateGroupModal, {
-        data: { surveyId: detail.id, surveyNo: detail.assignmentNo, proposedArea: detail.proposedArea },
+      .open(GroupCreateModal, {
+        data: { surveyId: detail.id },
         width: '1100px',
         maxWidth: '95vw',
         panelClass: 'glass-modal',
@@ -128,7 +133,8 @@ export class SurveyUnitView {
       .afterClosed()
       .subscribe((created) => {
         if (created) {
-          // The survey now has a group, so the survey screens are reloaded.
+          // The survey now has a group, so the survey screens and the borrower list are reloaded.
+          this.mobilizationStore.refresh();
           this.surveyStore.refreshList();
           this.surveyStore.refreshDetail();
         }

@@ -47,6 +47,9 @@ export interface IGroupDetail {
   latitude: number | null;
   longitude: number | null;
   landMark: string | null;
+  sittingPlace: string | null;
+  policeStation: string | null;
+  postOffice: string | null;
   status: string;
   verifiedByName: string | null;
   verifiedOn: string | null;
@@ -59,7 +62,6 @@ export interface IGroupDetail {
 
 // What the screen sends to add or update a group. Dates are 'yyyy-MM-dd', time is 'HH:mm:ss'.
 export interface IGroupRequest {
-  surveyId: string | null;
   designationId: string;
   name: string;
   collectionDay: number;
@@ -73,21 +75,14 @@ export interface IGroupRequest {
   latitude: number | null;
   longitude: number | null;
   landMark: string | null;
+  sittingPlace: string | null;
+  policeStation: string | null;
+  postOffice: string | null;
 }
 
 export interface IGroupCreditOfficerOption {
   designationId: string;
   name: string;
-}
-
-export interface IGroupSurveyOption {
-  id: string;
-  assignmentNo: string;
-  proposedArea: string;
-  administrativeUnitId: string;
-  latitude: number | null;
-  longitude: number | null;
-  landMark: string | null;
 }
 
 export interface IGroupAddInfo {
@@ -96,7 +91,6 @@ export interface IGroupAddInfo {
   branchId: string | null;
   branchName: string | null;
   creditOfficers: IGroupCreditOfficerOption[];
-  surveys: IGroupSurveyOption[];
 }
 
 export interface IGroupDecisionRequest {

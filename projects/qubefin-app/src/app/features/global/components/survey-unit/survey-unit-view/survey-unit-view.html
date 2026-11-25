@@ -208,6 +208,15 @@
     @if (detail.surveyType === 'Group Survey') {
     <qfin-group-review [surveyId]="detail.id"></qfin-group-review>
 
+    <!-- Community Mobilization: the prospective borrowers, once the survey is Approved -->
+    <qfin-mobilization [surveyId]="detail.id"></qfin-mobilization>
+
+    <!-- CGT (Compulsory Group Training), once the survey is Approved -->
+    <qfin-cgt [surveyId]="detail.id"></qfin-cgt>
+
+    <!-- GRT (Group Recognition Test) with the Final Group Assessment, after the CGT -->
+    <qfin-grt [surveyId]="detail.id"></qfin-grt>
+
     @if (detail.groupId) {
     <!-- The group made from this survey -->
     <div class="rounded-2xl border border-emerald-300/50 bg-emerald-500/5 shadow p-5 flex flex-wrap items-center justify-between gap-4">
@@ -233,7 +242,7 @@
         <div>
             <h3 class="text-sm font-bold text-slate-800 dark:text-white">Create Group</h3>
             <p class="text-[13px] text-slate-500 dark:text-slate-400 mt-1">
-                The Area Manager approved this survey. Create the group now.
+                The GRT is passed. Create the group with its eligible borrowers and leaders.
             </p>
         </div>
         <button type="button" (click)="openCreateGroup()"

@@ -1,0 +1,185 @@
+@if (data(); as d) {
+@if (d.isOpen) {
+<div class="rounded-2xl border border-slate-200/40 dark:border-white/10 bg-white/30 dark:bg-glass-dark shadow p-5 flex flex-col gap-4">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+            <h3 class="text-sm font-bold text-slate-800 dark:text-white">Community Mobilization</h3>
+            <div class="w-10 h-1 rounded-full bg-primary-500 mt-2"></div>
+        </div>
+        @if (d.canEdit) {
+        <button type="button" (click)="openBorrower(null)"
+            class="ripple-btn shadow shine-sweep h-11 px-5 rounded-xl inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            <svg lucideIcon="plus" class="w-4 h-4"></svg>
+            Add Borrower
+        </button>
+        }
+    </div>
+
+    @if (d.borrowers.length === 0) {
+    <div class="flex items-center gap-3 rounded-xl border border-slate-200/50 dark:border-white/10 px-4 py-3 text-[13px] text-slate-600 dark:text-slate-300">
+        <svg lucideIcon="users" class="w-5 h-5 shrink-0"></svg>
+        {{ d.canEdit ? 'No borrower added yet. Add the prospective borrowers of the area.' : 'The Credit Officers have not added any borrower yet.' }}
+    </div>
+    } @else {
+    <div class="flex flex-col gap-3">
+        @for (b of d.borrowers; track b.id) {
+        <div class="rounded-2xl border bg-white/60 dark:bg-white/5 p-5 flex flex-col gap-4"
+            [class]="b.isFlagged ? 'border-amber-300/70' : 'border-slate-200/50 dark:border-white/10'">
+
+            <!-- Name, status and buttons -->
+            <div class="flex items-center gap-3 flex-wrap">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-semibold shrink-0"
+                    [class]="b.isFlagged ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' : 'bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300'">
+                    {{ initials(b.name) }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-[15px] font-semibold text-slate-800 dark:text-slate-100 break-words">{{ b.name }}</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 break-words">Husband / Father: {{ b.guardianName }}</p>
+                </div>
+                <span class="rounded-full px-3 py-1 text-xs font-semibold" [class]="statusClass(b.status)">{{ b.status }}</span>
+                @if (d.canEdit && b.canChange) {
+                <button type="button" (click)="openBorrower(b)"
+                    class="h-9 px-4 rounded-lg border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition cursor-pointer">
+                    <svg lucideIcon="square-pen" class="w-4 h-4"></svg>
+                    Edit
+                </button>
+                }
+            </div>
+
+            <!-- Details -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-300 flex items-center justify-center shrink-0">
+                        <svg lucideIcon="phone" class="w-4 h-4"></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Mobile</p>
+                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ b.mobileNo }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300 flex items-center justify-center shrink-0">
+                        <svg lucideIcon="calendar-days" class="w-4 h-4"></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Age</p>
+                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ b.age }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-300 flex items-center justify-center shrink-0">
+                        <svg lucideIcon="heart" class="w-4 h-4"></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Marital status</p>
+                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ b.maritalStatus }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300 flex items-center justify-center shrink-0">
+                        <svg lucideIcon="house" class="w-4 h-4"></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Own house</p>
+                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ b.ownHouse ? 'Yes' : 'No' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Amounts with the two Yes / No fields of the document -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="rounded-xl bg-emerald-500/5 border border-emerald-200/40 dark:border-emerald-400/10 px-4 py-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                            <svg lucideIcon="banknote" class="w-4 h-4"></svg>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Current yearly family income</p>
+                    </div>
+                    <div class="flex items-center justify-between gap-3 mt-2 flex-wrap">
+                        <p class="text-base font-bold text-slate-800 dark:text-slate-100">{{ rupees(b.income) }}</p>
+                        <span class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold"
+                            [class]="b.incomeWithinLimit ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'">
+                            <svg [lucideIcon]="b.incomeWithinLimit ? 'check' : 'x'" class="w-3.5 h-3.5"></svg>
+                            {{ b.incomeWithinLimit ? 'Within 3.00 lakh' : 'Over 3.00 lakh' }}
+                        </span>
+                    </div>
+                </div>
+                <div class="rounded-xl bg-amber-500/5 border border-amber-200/40 dark:border-amber-400/10 px-4 py-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300 flex items-center justify-center shrink-0">
+                            <svg lucideIcon="hand-coins" class="w-4 h-4"></svg>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Pending loan amount</p>
+                    </div>
+                    <div class="flex items-center justify-between gap-3 mt-2 flex-wrap">
+                        <p class="text-base font-bold text-slate-800 dark:text-slate-100">{{ rupees(b.loanAmount) }}</p>
+                        <span class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold"
+                            [class]="b.indebtednessWithinLimit ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'">
+                            <svg [lucideIcon]="b.indebtednessWithinLimit ? 'check' : 'x'" class="w-3.5 h-3.5"></svg>
+                            {{ b.indebtednessWithinLimit ? 'Within 2.00 lakh' : 'Over 2.00 lakh' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flagged: what was broken, the reason, and the Head's button -->
+            @if (b.isFlagged) {
+            <div class="flex items-start gap-3 rounded-xl border border-amber-300/50 bg-amber-500/5 px-4 py-3">
+                <svg lucideIcon="triangle-alert" class="w-5 h-5 shrink-0 text-amber-600 mt-0.5"></svg>
+                <div class="flex-1 min-w-0 text-[13px] text-slate-700 dark:text-slate-200">
+                    <p><span class="font-semibold text-amber-700 dark:text-amber-400">Breaks:</span> {{ b.flagReasons }}.</p>
+                    @if (b.decisionReason) {
+                    <p class="mt-1 break-words"><span class="font-semibold">Reason:</span> {{ b.decisionReason }}</p>
+                    }
+                </div>
+                @if (d.canChangeDecision && b.canChange) {
+                <button type="button" (click)="startChange(b)"
+                    class="h-9 px-3 rounded-lg border border-amber-400/60 bg-white dark:bg-slate-800 text-xs font-semibold text-amber-700 dark:text-amber-300 inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+                    <svg lucideIcon="rotate-ccw" class="w-3.5 h-3.5"></svg>
+                    Change decision
+                </button>
+                }
+            </div>
+            }
+
+            <!-- The Head changes Add / Block -->
+            @if (changingId() === b.id) {
+            <div class="flex flex-col gap-3 rounded-xl border border-slate-200/60 dark:border-white/10 p-4">
+                <p class="text-[13px] font-semibold text-slate-800 dark:text-white">Change the decision for {{ b.name }}</p>
+                <div class="flex flex-wrap gap-3">
+                    <button type="button" (click)="changeTo.set('Add')"
+                        class="h-10 px-4 rounded-xl border-2 text-[13px] font-semibold cursor-pointer"
+                        [class]="changeTo() === 'Add' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' : 'border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300'">
+                        Add
+                    </button>
+                    <button type="button" (click)="changeTo.set('Block')"
+                        class="h-10 px-4 rounded-xl border-2 text-[13px] font-semibold cursor-pointer"
+                        [class]="changeTo() === 'Block' ? 'border-red-500 bg-red-500/10 text-red-700 dark:text-red-300' : 'border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300'">
+                        Block
+                    </button>
+                </div>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Reason</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+                    </div>
+                    <textarea matInput rows="2" maxlength="500" [value]="changeReason()"
+                        (input)="changeReason.set($any($event.target).value)"></textarea>
+                </mat-form-field>
+                <div class="flex justify-end gap-3">
+                    <button type="button" (click)="cancelChange()"
+                        class="bg-white shadow rounded-lg px-4 py-2 text-sm font-medium cursor-pointer">Cancel</button>
+                    <button type="button" (click)="saveChange()" [disabled]="saving()"
+                        class="ripple-btn shadow rounded-lg px-5 py-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 cursor-pointer disabled:opacity-60">
+                        Save decision
+                    </button>
+                </div>
+            </div>
+            }
+        </div>
+        }
+    </div>
+    }
+</div>
+}
+}

@@ -1,0 +1,222 @@
+<!-- Header -->
+<div
+  class="flex items-center justify-between gap-3 px-5 py-3 bg-white/60 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+  <div class="flex items-center gap-4 min-w-0">
+    <div
+      class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50 dark:bg-secondary-600/50 text-indigo-600 dark:text-indigo-500 border border-indigo-100 dark:border-0 shrink-0">
+      <svg lucideIcon="clipboard-check" class="w-6 h-6"></svg>
+    </div>
+    <div class="min-w-0">
+      <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 leading-tight">Compulsory Group Training (CGT)</h2>
+      <p class="text-sm text-slate-500 font-medium mt-1 break-words">
+        @if (data(); as header) {
+        {{ header.branchName || '-' }}, {{ header.proposedArea }}
+        }
+      </p>
+    </div>
+  </div>
+  <div class="flex items-center gap-2 shrink-0">
+    @if (data(); as header) {
+    <span class="rounded-full px-3 py-1 text-xs font-semibold"
+      [class]="!header.isSaved ? 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300' : header.status === 'Completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'">
+      {{ header.isSaved ? header.status : 'Not started' }}
+    </span>
+    }
+    <button (click)="dialogRef.close(false)"
+      class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer focus:outline-none">
+      <svg lucideIcon="x" class="w-5 h-5"></svg>
+    </button>
+  </div>
+</div>
+
+@if (data(); as d) {
+<!-- Progress -->
+<div class="px-5 py-3 bg-slate-500/5 dark:bg-white/5 border-b border-slate-200/70 dark:border-white/10">
+  <div class="flex items-baseline justify-between gap-3 mb-1.5">
+    <p class="text-xs text-slate-500 dark:text-slate-400">Topics answered</p>
+    <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ answeredCount() }} of {{ d.topics.length }}</p>
+  </div>
+  <div class="h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+    <div class="h-full rounded-full bg-emerald-500 transition-all duration-300" [style.width.%]="progressPercent()"></div>
+  </div>
+</div>
+
+<mat-dialog-content class="p-5!">
+  <div class="flex flex-col gap-5">
+
+    <!-- Dates and who conducts -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      @if (d.canEdit) {
+      <!-- The tile opens the date picker -->
+      <div class="relative">
+      <button type="button" (click)="startPicker.open()"
+        class="w-full h-full flex items-center gap-3 text-left rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/60 dark:bg-white/5 px-3 py-2.5 cursor-pointer hover:shadow-glass transition">
+        <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300 flex items-center justify-center shrink-0">
+          <svg lucideIcon="calendar-days" class="w-4 h-4"></svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs text-slate-500 dark:text-slate-400">Start date</p>
+          <p class="text-sm font-semibold" [class]="startDate() ? 'text-slate-800 dark:text-slate-100' : 'text-slate-400 font-normal'">
+            {{ startDate() ? (startDate() | date) : 'Select date' }}
+          </p>
+        </div>
+      </button>
+      <input class="sr-only" tabindex="-1" aria-hidden="true" [matDatepicker]="startPicker" [value]="startDate()"
+        (dateChange)="startDate.set($event.value)" />
+      <mat-datepicker #startPicker></mat-datepicker>
+      </div>
+
+      <div class="relative">
+      <button type="button" (click)="endPicker.open()"
+        class="w-full h-full flex items-center gap-3 text-left rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/60 dark:bg-white/5 px-3 py-2.5 cursor-pointer hover:shadow-glass transition">
+        <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300 flex items-center justify-center shrink-0">
+          <svg lucideIcon="calendar-check" class="w-4 h-4"></svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs text-slate-500 dark:text-slate-400">End date</p>
+          <p class="text-sm font-semibold" [class]="endDate() ? 'text-slate-800 dark:text-slate-100' : 'text-slate-400 font-normal'">
+            {{ endDate() ? (endDate() | date) : 'Select date' }}
+          </p>
+        </div>
+      </button>
+      <input class="sr-only" tabindex="-1" aria-hidden="true" [matDatepicker]="endPicker" [value]="endDate()" [min]="startDate()"
+        (dateChange)="endDate.set($event.value)" />
+      <mat-datepicker #endPicker></mat-datepicker>
+      </div>
+      } @else {
+      <div class="flex items-center gap-3 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/60 dark:bg-white/5 px-3 py-2.5">
+        <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300 flex items-center justify-center shrink-0">
+          <svg lucideIcon="calendar-days" class="w-4 h-4"></svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs text-slate-500 dark:text-slate-400">Start date</p>
+          <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ d.startDate ? (d.startDate | date) : '-' }}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/60 dark:bg-white/5 px-3 py-2.5">
+        <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300 flex items-center justify-center shrink-0">
+          <svg lucideIcon="calendar-check" class="w-4 h-4"></svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs text-slate-500 dark:text-slate-400">End date</p>
+          <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ d.endDate ? (d.endDate | date) : '-' }}</p>
+        </div>
+      </div>
+      }
+
+      <div class="flex items-center gap-3 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/60 dark:bg-white/5 px-3 py-2.5">
+        <div class="w-9 h-9 rounded-xl bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-300 flex items-center justify-center shrink-0">
+          <svg lucideIcon="user" class="w-4 h-4"></svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs text-slate-500 dark:text-slate-400">Conducted by</p>
+          @if (d.conductedBy; as by) {
+          <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 break-words">{{ by.name }}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 break-words">{{ by.designation || '-' }}, code {{ by.employeeCode || '-' }}</p>
+          } @else {
+          <p class="text-sm text-slate-400">Filled in when it is saved</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- The 10 topics -->
+    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Key components explained during the CGT</p>
+
+    <div class="flex flex-col gap-3">
+      @for (t of d.topics; track t.topicNo) {
+      <div class="rounded-xl border bg-white/60 dark:bg-white/5 p-4 transition-colors"
+        [class]="(d.canEdit ? answerOf(t.topicNo)?.covered : t.covered) === true ? 'border-emerald-400/70' : (d.canEdit ? answerOf(t.topicNo)?.covered : t.covered) === false ? 'border-red-400/70' : 'border-slate-200/50 dark:border-white/10'">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 flex items-center justify-center text-[13px] font-bold shrink-0">
+            {{ t.topicNo }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-[13px] font-semibold text-slate-800 dark:text-slate-100">{{ t.title }}</p>
+            <ul class="list-disc pl-4 mt-1 text-xs text-slate-500 dark:text-slate-400 space-y-0.5">
+              @for (p of t.points; track p) {
+              <li>{{ p }}</li>
+              }
+            </ul>
+          </div>
+
+          <!-- Covered: Yes / No as one pill -->
+          @if (d.canEdit) {
+          <div class="inline-flex rounded-lg border border-slate-300/70 dark:border-white/15 overflow-hidden shrink-0">
+            <button type="button" (click)="setCovered(t.topicNo, true)"
+              class="px-4 py-1.5 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer transition-colors"
+              [class]="answerOf(t.topicNo)?.covered === true ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300'">
+              <svg lucideIcon="check" class="w-3.5 h-3.5"></svg>
+              Yes
+            </button>
+            <button type="button" (click)="setCovered(t.topicNo, false)"
+              class="px-4 py-1.5 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer border-l border-slate-300/70 dark:border-white/15 transition-colors"
+              [class]="answerOf(t.topicNo)?.covered === false ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300'">
+              <svg lucideIcon="x" class="w-3.5 h-3.5"></svg>
+              No
+            </button>
+          </div>
+          } @else {
+          <span class="rounded-lg px-3 py-1 text-xs font-semibold shrink-0"
+            [class]="t.covered === true ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : t.covered === false ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'">
+            {{ t.covered === true ? 'Covered: Yes' : t.covered === false ? 'Covered: No' : 'Not answered' }}
+          </span>
+          }
+        </div>
+
+        <!-- Remarks: opened on demand -->
+        @if (d.canEdit) {
+        @if (showRemark(t.topicNo)) {
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full mt-3">
+          <mat-label>Remarks</mat-label>
+          <div class="w-12 flex justify-center" matPrefix>
+            <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+          </div>
+          <input matInput maxlength="500" autocomplete="off" [value]="answerOf(t.topicNo)?.remarks ?? ''"
+            (input)="setRemarks(t.topicNo, $any($event.target).value)" />
+        </mat-form-field>
+        } @else {
+        <button type="button" (click)="openRemark(t.topicNo)"
+          class="mt-2 text-xs font-semibold text-primary-600 dark:text-primary-400 inline-flex items-center gap-1.5 cursor-pointer">
+          <svg lucideIcon="file-text" class="w-3.5 h-3.5"></svg>
+          Add remark
+        </button>
+        }
+        } @else if (t.remarks) {
+        <div class="mt-3 flex items-start gap-2 rounded-lg border border-slate-200/60 dark:border-white/10 bg-slate-500/5 dark:bg-white/5 px-3 py-2 text-[13px] text-slate-600 dark:text-slate-300">
+          <svg lucideIcon="file-text" class="w-4 h-4 shrink-0 mt-0.5"></svg>
+          <span class="break-words">{{ t.remarks }}</span>
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+</mat-dialog-content>
+
+<!-- Fixed footer -->
+<mat-dialog-actions class="px-5! py-3! border-t border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900">
+  <div class="flex items-center gap-3 w-full flex-wrap">
+    <p class="flex-1 min-w-[200px] text-xs text-slate-500 dark:text-slate-400">
+      {{ d.canEdit ? 'Complete needs both dates and all ' + d.topics.length + ' topics answered.' : 'This CGT is read only.' }}
+    </p>
+    <button type="button" (click)="dialogRef.close(false)"
+      class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer">
+      <svg lucideIcon="x" class="w-4 h-4"></svg>
+      {{ d.canEdit ? 'Cancel' : 'Close' }}
+    </button>
+    @if (d.canEdit) {
+    <button type="button" (click)="save(false)" [disabled]="saving()"
+      class="h-11 px-5 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition cursor-pointer disabled:opacity-60">
+      <svg lucideIcon="save" class="w-4 h-4"></svg>
+      Save
+    </button>
+    <button type="button" (click)="save(true)" [disabled]="saving()"
+      class="ripple-btn shadow shine-sweep h-11 px-5 rounded-xl inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer disabled:opacity-60">
+      <svg lucideIcon="circle-check" class="w-4 h-4"></svg>
+      Complete CGT
+    </button>
+    }
+  </div>
+</mat-dialog-actions>
+}

@@ -84,6 +84,9 @@
         @if (recommendAction() === 'Recommend') {
         <mat-form-field appearance="outline" class="w-full">
             <mat-label>Recommendation</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="badge-check" class="w-5 h-5"></svg>
+            </div>
             <mat-select [value]="recommendation()" (valueChange)="recommendation.set($event)" placeholder="Select">
                 @for (option of recommendationOptions; track option) {
                 <mat-option [value]="option">{{ option }}</mat-option>
@@ -94,6 +97,9 @@
 
         <mat-form-field appearance="outline" class="w-full">
             <mat-label>Comments</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+            </div>
             <textarea matInput rows="3" [formField]="recommendationForm.comments"
                 [placeholder]="recommendAction() === 'Recheck' ? 'Required: tell the Credit Officers what to correct' : 'Optional'"></textarea>
         </mat-form-field>
@@ -126,6 +132,9 @@
 
         <mat-form-field appearance="outline" class="w-full">
             <mat-label>Comments</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+            </div>
             <textarea matInput rows="3" [formField]="decisionForm.comments"
                 placeholder="Required for Recheck and Reject"></textarea>
         </mat-form-field>

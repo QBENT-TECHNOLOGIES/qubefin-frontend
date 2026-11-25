@@ -17,7 +17,6 @@ import { AdministrativeUnitCascade } from '../../administrative-unit-cascade/adm
 
 // What the user types. Dates are Date objects here and become 'yyyy-MM-dd' when saved.
 interface IGroupFormModel {
-  surveyId: string | null;
   designationId: string;
   name: string;
   collectionDay: number | null;
@@ -31,10 +30,12 @@ interface IGroupFormModel {
   latitude: number | null;
   longitude: number | null;
   landMark: string;
+  sittingPlace: string;
+  policeStation: string;
+  postOffice: string;
 }
 
-// Add or edit a group: the columns of Tbl_Group. A group is normally added from an Approved Group Survey,
-// but it can also be added manually.
+// Add or edit a group manually: the columns of Tbl_Group. (A group made from a survey is created in the Group Creation window.)
 @Component({
   selector: 'qfin-group-detail',
   imports: [
@@ -59,11 +60,8 @@ export class GroupDetail {
   private readonly dialog = inject(MatDialog);
 
   readonly groupId = input<string>(EMPTY_UUID);
-  // Set when the group is created from a survey page: that survey is chosen at the start.
-  readonly initialSurveyId = input<string | null>(null);
   readonly cancel = output<void>();
   readonly save = output<void>();
-  private initialSurveyApplied = false;
 
   readonly days = GROUP_DAYS;
   readonly today = new Date();
@@ -78,7 +76,6 @@ export class GroupDetail {
   // The branch and the Credit Officers: from the add info (new group) or from the group itself (edit).
   readonly branchName = computed(() => (this.isEditMode() ? this.group()?.branchName : this.addInfo()?.branchName) ?? '');
   readonly creditOfficers = computed(() => this.addInfo()?.creditOfficers ?? []);
-  readonly surveys = computed(() => this.addInfo()?.surveys ?? []);
   readonly creditOfficerName = computed(() => this.group()?.creditOfficerName ?? '');
   // A Credit Officer adds only for himself, so there is nothing to choose.
   readonly canChooseCreditOfficer = computed(() => this.creditOfficers().length > 1 || this.addInfo()?.isHead === true);
@@ -99,22 +96,11 @@ export class GroupDetail {
       }
     });
 
-    // Coming from a survey page: choose that survey once the list of approved surveys has loaded.
-    effect(() => {
-      const surveyId = this.initialSurveyId();
-      if (this.isEditMode() || !surveyId || this.initialSurveyApplied) return;
-      if (this.surveys().some((s) => s.id === surveyId)) {
-        this.initialSurveyApplied = true;
-        untracked(() => this.onSurveyChange(surveyId));
-      }
-    });
-
     // Edit: fill the form from the saved group.
     effect(() => {
       const g = this.group();
       if (!this.isEditMode() || !g) return;
       this.model.set({
-        surveyId: g.surveyId,
         designationId: g.designationId ?? '',
         name: g.name,
         collectionDay: g.collectionDay,
@@ -128,13 +114,15 @@ export class GroupDetail {
         latitude: g.latitude,
         longitude: g.longitude,
         landMark: g.landMark ?? '',
+        sittingPlace: g.sittingPlace ?? '',
+        policeStation: g.policeStation ?? '',
+        postOffice: g.postOffice ?? '',
       });
     });
   }
 
   private emptyModel(): IGroupFormModel {
     return {
-      surveyId: null,
       designationId: '',
       name: '',
       collectionDay: null,
@@ -148,6 +136,9 @@ export class GroupDetail {
       latitude: null,
       longitude: null,
       landMark: '',
+      sittingPlace: '',
+      policeStation: '',
+      postOffice: '',
     };
   }
 
@@ -167,19 +158,6 @@ export class GroupDetail {
     return new Date(y, m - 1, d);
   }
 
-  // Choosing an Approved Group Survey fills the area, location and landmark. "Manual" clears the survey link.
-  protected onSurveyChange(surveyId: string | null) {
-    const survey = this.surveys().find((s) => s.id === surveyId);
-    this.model.update((current) => ({
-      ...current,
-      surveyId: survey?.id ?? null,
-      administrativeUnitId: survey?.administrativeUnitId ?? current.administrativeUnitId,
-      latitude: survey?.latitude ?? current.latitude,
-      longitude: survey?.longitude ?? current.longitude,
-      landMark: survey?.landMark ?? current.landMark,
-    }));
-  }
-
   // The shared time picker (same as In Time / Out Time of a branch).
   protected openCollectionTimePicker() {
     openTimePicker(this.dialog, 'Collection Time', this.model().collectionTime, (time) =>
@@ -196,7 +174,6 @@ export class GroupDetail {
     }
 
     const request: IGroupRequest = {
-      surveyId: m.surveyId,
       designationId: m.designationId,
       name: m.name.trim(),
       collectionDay: m.collectionDay as number,
@@ -210,6 +187,9 @@ export class GroupDetail {
       latitude: m.latitude,
       longitude: m.longitude,
       landMark: m.landMark.trim() || null,
+      sittingPlace: m.sittingPlace.trim() || null,
+      policeStation: m.policeStation.trim() || null,
+      postOffice: m.postOffice.trim() || null,
     };
 
     this.alertService
@@ -245,6 +225,9 @@ export class GroupDetail {
     if (m.pinCode.trim() && !/^\d{6}$/.test(m.pinCode.trim())) return 'PIN Code must be 6 digits.';
     if (m.address.length > 500) return 'Address can be 500 characters at most.';
     if (m.landMark.length > 100) return 'Landmark can be 100 characters at most.';
+    if (m.sittingPlace.length > 200) return 'Sitting Place can be 200 characters at most.';
+    if (m.policeStation.length > 100) return 'Police Station can be 100 characters at most.';
+    if (m.postOffice.length > 100) return 'Post Office can be 100 characters at most.';
     if ((m.latitude === null) !== (m.longitude === null)) return 'Enter both Latitude and Longitude, or neither.';
     if (m.latitude !== null && (m.latitude < -90 || m.latitude > 90)) return 'Latitude must be between -90 and 90.';
     if (m.longitude !== null && (m.longitude < -180 || m.longitude > 180)) return 'Longitude must be between -180 and 180.';

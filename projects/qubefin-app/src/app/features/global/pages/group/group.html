@@ -48,6 +48,9 @@
           <div class="w-48">
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
               <mat-label>Status</mat-label>
+              <div class="w-12 flex justify-center" matPrefix>
+                  <svg lucideIcon="funnel" class="w-5 h-5"></svg>
+              </div>
               <mat-select [value]="statusText()" (valueChange)="statusText.set($event)">
                 <mat-option value="">All</mat-option>
                 @for (status of statuses; track status) {
@@ -134,7 +137,7 @@
         @if (isViewMode() && selectedGroupId() !== EMPTY_UUID) {
         <qfin-group-view [groupId]="selectedGroupId()" (showEdit)="onEdit()"></qfin-group-view>
         } @else {
-        <qfin-group-detail [groupId]="selectedGroupId()" [initialSurveyId]="initialSurveyId()" (cancel)="closePanel()" (save)="onSaved()">
+        <qfin-group-detail [groupId]="selectedGroupId()" (cancel)="closePanel()" (save)="onSaved()">
         </qfin-group-detail>
         }
       </div>

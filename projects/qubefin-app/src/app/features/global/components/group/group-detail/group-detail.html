@@ -4,13 +4,9 @@
         class="flex items-start gap-3 rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-3 text-sm text-slate-700 dark:text-slate-300">
         <svg lucideIcon="file-text" class="w-5 h-5 text-blue-500 shrink-0 mt-0.5"></svg>
         <ul class="list-disc pl-4 space-y-0.5">
-            @if (addInfo()?.isHead) {
-            <li>The Head of the branch adds groups manually, for a Credit Officer of the branch.</li>
-            } @else {
-            <li>A group is normally added from an Approved Group Survey. Choose the survey to fill the area, location and landmark.</li>
-            <li>You can also add a group manually: leave the survey empty.</li>
-            }
-            <li>A group made from a survey needs no approval. A group added manually waits for approval by the Head of the branch or the Area Manager.</li>
+            <li>{{ addInfo()?.isHead ? 'The Head of the branch adds groups manually, for a Credit Officer of the branch.' : 'Here you add a group manually.' }}</li>
+            <li>A manually added group waits for approval by the Head of the branch or the Area Manager.</li>
+            <li>A group made from a survey is created from the survey page, after the GRT is passed. It needs no approval.</li>
         </ul>
     </div>
     }
@@ -19,29 +15,6 @@
         <h3 class="text-base font-bold text-slate-800 dark:text-white">Group Information</h3>
         <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            @if (!isEditMode() && !addInfo()?.isHead) {
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
-                <mat-label>Approved Group Survey</mat-label>
-                <div class="w-12 flex justify-center" matPrefix>
-                    <svg lucideIcon="file-text" class="w-5 h-5"></svg>
-                </div>
-                <mat-select [value]="model().surveyId" (valueChange)="onSurveyChange($event)">
-                    <mat-option [value]="null">None (add manually)</mat-option>
-                    @for (survey of surveys(); track survey.id) {
-                    <mat-option [value]="survey.id">{{ survey.assignmentNo }} - {{ survey.proposedArea }}</mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
-            } @else if (group()?.surveyAssignmentNo) {
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
-                <mat-label>Survey</mat-label>
-                <div class="w-12 flex justify-center" matPrefix>
-                    <svg lucideIcon="file-text" class="w-5 h-5"></svg>
-                </div>
-                <input matInput [value]="group()?.surveyAssignmentNo" readonly />
-            </mat-form-field>
-            }
-
             @if (isEditMode()) {
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                 <mat-label>Group Code</mat-label>
@@ -192,6 +165,32 @@
                     (input)="update('landMark', $any($event.target).value)" />
             </mat-form-field>
 
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Sitting Place</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+                </div>
+                <input matInput maxlength="200" autocomplete="off" [value]="model().sittingPlace"
+                    (input)="update('sittingPlace', $any($event.target).value)" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Police Station</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                </div>
+                <input matInput maxlength="100" autocomplete="off" [value]="model().policeStation"
+                    (input)="update('policeStation', $any($event.target).value)" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Post Office</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                </div>
+                <input matInput maxlength="100" autocomplete="off" [value]="model().postOffice"
+                    (input)="update('postOffice', $any($event.target).value)" />
+            </mat-form-field>
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                 <mat-label>Latitude</mat-label>
                 <div class="w-12 flex justify-center" matPrefix>

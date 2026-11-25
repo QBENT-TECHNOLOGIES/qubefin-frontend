@@ -38,6 +38,9 @@
 
         <mat-form-field appearance="outline" class="w-full">
             <mat-label>Comments</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+            </div>
             <textarea matInput rows="3" [formField]="approvalForm.comments"
                 placeholder="Required for Recheck and Reject"></textarea>
         </mat-form-field>

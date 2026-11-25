@@ -1,0 +1,178 @@
+<div
+  class="flex items-center justify-between px-5 py-3 bg-white/60 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+  <div class="flex items-center gap-4">
+    <div
+      class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50 dark:bg-secondary-600/50 text-indigo-600 dark:text-indigo-500 border border-indigo-100 dark:border-0">
+      <svg lucideIcon="users" class="w-6 h-6"></svg>
+    </div>
+    <div>
+      <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 leading-tight">{{ isEdit ? 'Edit Borrower' : 'Add Borrower' }}</h2>
+      <p class="text-sm text-slate-500 font-medium mt-1">Prospective borrower of the Community Mobilization.</p>
+    </div>
+  </div>
+  <button (click)="dialogRef.close(false)"
+    class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer focus:outline-none">
+    <svg lucideIcon="x" class="w-5 h-5"></svg>
+  </button>
+</div>
+
+<mat-dialog-content class="p-5!">
+  <div class="space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Name</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="user" class="w-5 h-5"></svg>
+        </div>
+        <input matInput maxlength="100" autocomplete="off" [value]="model().name"
+          (input)="update('name', $any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Husband / Father</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="users" class="w-5 h-5"></svg>
+        </div>
+        <input matInput maxlength="100" autocomplete="off" [value]="model().guardianName"
+          (input)="update('guardianName', $any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Mobile No</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="phone" class="w-5 h-5"></svg>
+        </div>
+        <input matInput maxlength="10" inputmode="numeric" autocomplete="off" [value]="model().mobileNo"
+          (input)="update('mobileNo', $any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Marital Status</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="heart" class="w-5 h-5"></svg>
+        </div>
+        <mat-select [value]="model().maritalStatus" (valueChange)="update('maritalStatus', $event)">
+          @for (status of maritalStatuses; track status) {
+          <mat-option [value]="status">{{ status }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Age (years)</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="calendar-days" class="w-5 h-5"></svg>
+        </div>
+        <input matInput type="number" min="1" max="120" [value]="model().age ?? ''"
+          (input)="updateNumber('age', $any($event.target).value)" />
+      </mat-form-field>
+
+      <div class="flex items-center">
+        <mat-checkbox [checked]="model().ownHouse" (change)="update('ownHouse', $event.checked)">Own House</mat-checkbox>
+      </div>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-3">
+        <mat-label>Family income-generating activity</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="briefcase" class="w-5 h-5"></svg>
+        </div>
+        <input matInput maxlength="200" autocomplete="off" [value]="model().incomeActivity"
+          (input)="update('incomeActivity', $any($event.target).value)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Current Yearly Family Income (₹)</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="banknote" class="w-5 h-5"></svg>
+        </div>
+        <input matInput type="number" min="0" [value]="model().income ?? ''"
+          (input)="updateNumber('income', $any($event.target).value)" />
+      </mat-form-field>
+
+      <!-- Yes / No field of the document: worked out from the income -->
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
+        <mat-label>Yearly Family Household Income &lt;= 3.00 Lakh</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="badge-check" class="w-5 h-5"></svg>
+        </div>
+        <input matInput readonly [value]="incomeWithinLimit()" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Pending Loan Amount (₹)</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="hand-coins" class="w-5 h-5"></svg>
+        </div>
+        <input matInput type="number" min="0" [value]="model().loanAmount ?? ''"
+          (input)="updateNumber('loanAmount', $any($event.target).value)" />
+      </mat-form-field>
+
+      <!-- Yes / No field of the document: worked out from the pending loan amount -->
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full md:col-span-2">
+        <mat-label>Indebtedness Cap &lt;= 2.00 Lakh</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="badge-check" class="w-5 h-5"></svg>
+        </div>
+        <input matInput readonly [value]="indebtednessWithinLimit()" />
+      </mat-form-field>
+
+      <div class="flex items-center gap-6">
+        <mat-checkbox [checked]="model().hasNpa" (change)="update('hasNpa', $event.checked)">NPA</mat-checkbox>
+        <mat-checkbox [checked]="model().hasWriteOff" (change)="update('hasWriteOff', $event.checked)">Write-off</mat-checkbox>
+      </div>
+    </div>
+
+    <!-- The alert: every breached rule, then Add or Block with a reason -->
+    @if (breaches().length > 0) {
+    <div class="rounded-xl border border-amber-300/60 bg-amber-500/5 p-4 space-y-3">
+      <div class="flex items-start gap-3">
+        <svg lucideIcon="triangle-alert" class="w-5 h-5 shrink-0 text-amber-600 mt-0.5"></svg>
+        <div>
+          <p class="text-[13px] font-semibold text-amber-700 dark:text-amber-400">This borrower breaks an eligibility rule</p>
+          <ul class="list-disc pl-4 text-[13px] text-slate-700 dark:text-slate-200 mt-1">
+            @for (item of breaches(); track item) {
+            <li>{{ item }}</li>
+            }
+          </ul>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <button type="button" (click)="decision.set('Add')"
+          class="h-11 px-5 rounded-xl border-2 text-[13px] font-semibold transition cursor-pointer"
+          [class]="decision() === 'Add' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' : 'border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300'">
+          Add anyway
+        </button>
+        <button type="button" (click)="decision.set('Block')"
+          class="h-11 px-5 rounded-xl border-2 text-[13px] font-semibold transition cursor-pointer"
+          [class]="decision() === 'Block' ? 'border-red-500 bg-red-500/10 text-red-700 dark:text-red-300' : 'border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300'">
+          Block
+        </button>
+      </div>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Reason for your decision</mat-label>
+        <div class="w-12 flex justify-center" matPrefix>
+          <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+        </div>
+        <textarea matInput rows="2" maxlength="500" [value]="decisionReason()"
+          (input)="decisionReason.set($any($event.target).value)"></textarea>
+      </mat-form-field>
+    </div>
+    }
+
+    <div class="border-t border-slate-200 dark:border-slate-400/10 pt-4 flex justify-end gap-3">
+      <button type="button" (click)="dialogRef.close(false)"
+        class="bg-white shadow rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-medium hover:shadow-glass transition lift cursor-pointer">
+        <svg lucideIcon="x" class="w-4 h-4"></svg>
+        Cancel
+      </button>
+      <button type="button" (click)="onSave()" [disabled]="saving()"
+        class="ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer disabled:opacity-60">
+        <svg lucideIcon="save" class="w-4 h-4"></svg>
+        Save
+      </button>
+    </div>
+  </div>
+</mat-dialog-content>
+

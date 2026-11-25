@@ -39,6 +39,9 @@
             <div><p class="text-xs text-slate-400">Area</p><p class="font-semibold dark:text-slate-200">{{ g.areaName || '-' }}</p></div>
             <div><p class="text-xs text-slate-400">PIN Code</p><p class="font-semibold dark:text-slate-200">{{ g.pinCode || '-' }}</p></div>
             <div><p class="text-xs text-slate-400">Landmark</p><p class="font-semibold dark:text-slate-200">{{ g.landMark || '-' }}</p></div>
+            <div><p class="text-xs text-slate-400">Sitting Place</p><p class="font-semibold dark:text-slate-200">{{ g.sittingPlace || '-' }}</p></div>
+            <div><p class="text-xs text-slate-400">Police Station</p><p class="font-semibold dark:text-slate-200">{{ g.policeStation || '-' }}</p></div>
+            <div><p class="text-xs text-slate-400">Post Office</p><p class="font-semibold dark:text-slate-200">{{ g.postOffice || '-' }}</p></div>
             <div class="md:col-span-2"><p class="text-xs text-slate-400">Address</p><p class="font-semibold dark:text-slate-200">{{ g.address || '-' }}</p></div>
             <div><p class="text-xs text-slate-400">Location</p><p class="font-semibold dark:text-slate-200">{{ g.latitude !== null && g.longitude !== null ? g.latitude + ', ' + g.longitude : '-' }}</p></div>
             <div><p class="text-xs text-slate-400">Added By</p><p class="font-semibold dark:text-slate-200">{{ g.createdByName || '-' }}</p></div>
@@ -91,6 +94,9 @@
         <p class="text-[13px] font-semibold text-slate-800 dark:text-white">Your decision</p>
         <mat-form-field appearance="outline" class="w-full">
             <mat-label>Comments</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="file-text" class="w-5 h-5"></svg>
+            </div>
             <textarea matInput rows="3" maxlength="200" [value]="comments()"
                 (input)="comments.set($any($event.target).value)" placeholder="Required to reject"></textarea>
         </mat-form-field>

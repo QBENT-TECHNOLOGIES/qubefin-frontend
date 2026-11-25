@@ -45,17 +45,10 @@ export class GroupPage {
   readonly hasSelectedGroup = computed(() => this.selectedGroupId() !== EMPTY_UUID || !this.isViewMode());
   readonly statuses = ['Pending', 'Approved', 'Rejected'];
 
-  // Opened from a survey page: "Create Group" (surveyId) opens Add Group with that survey chosen; "Open in Group Master" (groupId) shows the group.
-  readonly initialSurveyId = signal<string | null>(null);
-
+  // Opened from a survey page with a group ("Open in Group Master"): show that group.
   constructor() {
-    const params = inject(ActivatedRoute).snapshot.queryParamMap;
-    const surveyId = params.get('surveyId');
-    const groupId = params.get('groupId');
-    if (surveyId) {
-      this.initialSurveyId.set(surveyId);
-      this.onAdd();
-    } else if (groupId) {
+    const groupId = inject(ActivatedRoute).snapshot.queryParamMap.get('groupId');
+    if (groupId) {
       this.onView(groupId);
     }
   }

@@ -1,0 +1,78 @@
+@if (data(); as d) {
+@if (d.isOpen) {
+<div class="rounded-2xl border border-slate-200/40 dark:border-white/10 bg-white/30 dark:bg-glass-dark shadow p-5 flex flex-col gap-4">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-4 min-w-0">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300 flex items-center justify-center shrink-0">
+                <svg lucideIcon="clipboard-check" class="w-6 h-6"></svg>
+            </div>
+            <div class="min-w-0">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-white">Compulsory Group Training (CGT)</h3>
+                <p class="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    @if (!d.isSaved) {
+                    {{ d.canEdit ? 'Conduct the CGT with the interested women and record the 10 topics.' : 'The Credit Officers have not started the CGT yet.' }}
+                    } @else {
+                    {{ answered() }} of {{ d.topics.length }} topics answered
+                    }
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 flex-wrap">
+            <span class="rounded-full px-3 py-1 text-xs font-semibold"
+                [class]="!d.isSaved ? 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300' : d.status === 'Completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'">
+                {{ d.isSaved ? d.status : 'Not started' }}
+            </span>
+            @if (d.canEdit) {
+            <button type="button" (click)="openCgt()"
+                class="ripple-btn shadow shine-sweep h-11 px-5 rounded-xl inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                <svg lucideIcon="clipboard-check" class="w-4 h-4"></svg>
+                {{ d.isSaved ? 'Continue CGT' : 'Start CGT' }}
+            </button>
+            } @else if (d.isSaved) {
+            <button type="button" (click)="openCgt()"
+                class="h-11 px-5 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition lift cursor-pointer">
+                <svg lucideIcon="eye" class="w-4 h-4"></svg>
+                View CGT
+            </button>
+            }
+        </div>
+    </div>
+
+    @if (d.isSaved) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300 flex items-center justify-center shrink-0">
+                <svg lucideIcon="calendar-check" class="w-4 h-4"></svg>
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs text-slate-500 dark:text-slate-400">Start date</p>
+                <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ d.startDate ? (d.startDate | date) : '-' }}</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300 flex items-center justify-center shrink-0">
+                <svg lucideIcon="calendar-check" class="w-4 h-4"></svg>
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs text-slate-500 dark:text-slate-400">End date</p>
+                <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ d.endDate ? (d.endDate | date) : '-' }}</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-300 flex items-center justify-center shrink-0">
+                <svg lucideIcon="user" class="w-4 h-4"></svg>
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs text-slate-500 dark:text-slate-400">Conducted by</p>
+                @if (d.conductedBy; as by) {
+                <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 break-words">{{ by.name }}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 break-words">{{ by.designation || '-' }}, code {{ by.employeeCode || '-' }}</p>
+                }
+            </div>
+        </div>
+    </div>
+    }
+</div>
+}
+}
