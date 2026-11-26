@@ -40,6 +40,15 @@ export interface ISurveyDetail {
   groupName?: string | null;
   groupCode?: string | null;
   canCreateGroup?: boolean;
+  // The company of the survey.
+  companyId: string | null;
+  companyName: string | null;
+  // Group Survey progress: the index of the current step (8 = all done) and true when the GRT was failed.
+  groupStep?: number;
+  groupStopped?: boolean;
+  // Where the survey was done (survey form, step 1), for the map.
+  latitude?: number | null;
+  longitude?: number | null;
   auditInfo: ISurveyAuditInfo | null;
   surveyAssigneds: ISurveyMembers[];
 }
@@ -74,6 +83,9 @@ export interface ICanCreateSurvey {
   canCreateGroupSurvey: boolean;
   inchargeBranchId: string | null;
   inchargeBranchName: string | null;
+  // The company of that branch: a Group Survey takes it.
+  inchargeBranchCompanyId: string | null;
+  inchargeBranchCompanyName: string | null;
 }
 
 // A Credit Officer who can be assigned to a Group Survey.

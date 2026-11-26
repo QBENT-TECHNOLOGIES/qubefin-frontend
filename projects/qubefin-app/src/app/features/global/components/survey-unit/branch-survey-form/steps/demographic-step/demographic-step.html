@@ -25,10 +25,11 @@
                 </div>
                 <mat-select [formField]="section().migrationTrend" placeholder="Select">
                     <mat-option [value]="null">-- Not selected --</mat-option>
-                    @for (option of ratingOptions; track option) {
+                    @for (option of migrationTrendOptions; track option) {
                     <mat-option [value]="option">{{ option }}</mat-option>
                     }
                 </mat-select>
+                <mat-error class="cus-error">{{ section().migrationTrend().errors()[0]?.message }}</mat-error>
             </mat-form-field>
         </div>
     </div>

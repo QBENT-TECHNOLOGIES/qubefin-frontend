@@ -85,6 +85,8 @@ export class GroupCreateModal {
     effect(() => {
       const d = this.info();
       if (!d || !d.canCreate) return;
+      // The group name starts as the proposed area of the survey (it can be edited).
+      if (!this.name().trim()) this.name.set(d.proposedArea);
       this.landMark.set(d.landMark ?? '');
       this.latitude.set(d.latitude);
       this.longitude.set(d.longitude);
@@ -155,6 +157,23 @@ export class GroupCreateModal {
   protected setNumber(target: 'amount', id: string, text: string) {
     const value = text.trim() === '' ? null : Number(text);
     this.updateMember(id, { [target]: value !== null && Number.isNaN(value) ? null : value });
+  }
+
+  // Update Location: fills the latitude and longitude from the browser location (same as the Group Survey form).
+  protected useCurrentLocation() {
+    if (!navigator.geolocation) {
+      this.alertService.error('Oops ....', 'Your browser does not support location.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.latitude.set(Number(position.coords.latitude.toFixed(6)));
+        this.longitude.set(Number(position.coords.longitude.toFixed(6)));
+      },
+      () => {
+        this.alertService.error('Oops ....', 'Could not get your location. Please allow location access or enter it manually.');
+      },
+    );
   }
 
   protected setCoordinate(target: 'latitude' | 'longitude', text: string) {

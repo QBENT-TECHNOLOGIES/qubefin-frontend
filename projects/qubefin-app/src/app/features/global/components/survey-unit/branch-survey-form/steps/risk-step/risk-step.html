@@ -18,6 +18,7 @@
                     <mat-option [value]="option">{{ option }}</mat-option>
                     }
                 </mat-select>
+                <mat-error class="cus-error">{{ section()[field.key]().errors()[0]?.message }}</mat-error>
             </mat-form-field>
             }
         </div>

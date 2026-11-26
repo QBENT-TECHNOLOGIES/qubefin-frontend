@@ -1,10 +1,15 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { FieldTree, FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { BRANCH_SURVEY_OPTIONS, IEconomicSection } from '../../../../../models/branch-survey';
+import {
+  ACTIVITY_TOTAL_MESSAGE,
+  BRANCH_SURVEY_OPTIONS,
+  IEconomicSection,
+  sumOfActivityShares,
+} from '../../../../../models/branch-survey';
 
 type EconomicPercentKey =
   | 'agriculturePercent'
@@ -31,6 +36,11 @@ type EconomicTextKey =
 })
 export class EconomicStep {
   readonly section = input.required<FieldTree<IEconomicSection>>();
+
+  readonly totalMessage = ACTIVITY_TOTAL_MESSAGE;
+
+  // Live total of the nine activity shares. It can be 100 at most.
+  readonly total = computed(() => Math.round(sumOfActivityShares(this.section()().value()) * 100) / 100);
 
   readonly conditionOptions = BRANCH_SURVEY_OPTIONS.economicCondition;
 

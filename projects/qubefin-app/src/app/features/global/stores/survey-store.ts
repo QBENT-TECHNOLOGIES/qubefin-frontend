@@ -71,6 +71,9 @@ export class SurveyStore {
   // The branch the user is in charge of (Group Survey).
   readonly inchargeBranchId = computed(() => this.canCreateResource.value()?.inchargeBranchId ?? null);
   readonly inchargeBranchName = computed(() => this.canCreateResource.value()?.inchargeBranchName ?? null);
+  // The company of that branch (a Group Survey takes it).
+  readonly inchargeBranchCompanyId = computed(() => this.canCreateResource.value()?.inchargeBranchCompanyId ?? null);
+  readonly inchargeBranchCompanyName = computed(() => this.canCreateResource.value()?.inchargeBranchCompanyName ?? null);
 
   // Credit Officers of that branch who can be assigned to a new Group Survey.
   readonly creditOfficersResource = httpResource<ICreditOfficer[]>(() =>

@@ -23,8 +23,8 @@
             </div>
         </div>
 
-        <!-- Survey progress (Branch Survey steps) -->
-        @if (detail.surveyType === 'Branch Survey') {
+        <!-- Survey progress: 5 steps for a Branch Survey, 8 for a Group Survey -->
+        @if (detail.surveyType === 'Branch Survey' || detail.surveyType === 'Group Survey') {
         <div class="mt-6 pt-5 border-t border-slate-200/50 dark:border-white/10">
             <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">
                 Survey Progress
@@ -36,8 +36,15 @@
                 This survey was rejected. The process has stopped.
             </div>
             } @else {
-            <ol class="flex items-start w-full">
-                @for (step of progressSteps; track step; let i = $index; let last = $last) {
+            @if (detail.groupStopped) {
+            <div
+                class="flex items-center gap-3 rounded-xl border border-red-300/50 bg-red-500/5 px-4 py-3 mb-4 text-[13px] font-medium text-red-700 dark:text-red-400">
+                <svg lucideIcon="triangle-alert" class="w-5 h-5 shrink-0"></svg>
+                The GRT was failed. The process has stopped and no group is created from this survey.
+            </div>
+            }
+            <ol class="flex items-start w-full overflow-x-auto scroll-thin pb-1">
+                @for (step of progressSteps(); track step; let i = $index; let last = $last) {
                 <li class="flex items-start" [class.flex-1]="!last">
                     <div class="flex flex-col items-center gap-2 w-20">
                         <span class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold border-2 transition"
@@ -70,32 +77,20 @@
         }
     </div>
 
-    <!-- General Information -->
-    <div class="rounded-2xl border border-slate-200/40 dark:border-white/10 bg-white/30 dark:bg-glass-dark shadow p-6 flex flex-col gap-6">
+    <!-- General Information (compact). Used by the Overview tab of a Group Survey and by a Branch Survey. -->
+    <ng-template #generalInfo>
+    <div class="rounded-2xl border border-slate-200/40 dark:border-white/10 bg-white/30 dark:bg-glass-dark shadow p-5 flex flex-col gap-4">
 
         <!-- Header: title on the left, survey form pill and buttons on the right -->
-        <header class="flex flex-wrap items-center justify-between gap-4">
-            <div class="flex flex-col gap-1">
+        <header class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-col gap-0.5">
                 <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Survey assignment</span>
-                <h3 class="text-lg font-bold tracking-tight text-slate-800 dark:text-slate-100">General Information</h3>
+                <h3 class="text-base font-bold tracking-tight text-slate-800 dark:text-slate-100">General Information</h3>
             </div>
-            <div class="flex items-center gap-3 flex-wrap">
-                @if (detail.surveyFormAttached) {
-                <span
-                    class="inline-flex items-center gap-2 h-9 px-3.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-                    <svg lucideIcon="file-check" class="w-4 h-4"></svg>
-                    Survey form attached
-                </span>
-                } @else {
-                <span
-                    class="inline-flex items-center gap-2 h-9 px-3.5 rounded-full border border-slate-300/60 dark:border-white/10 bg-slate-500/5 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                    <svg lucideIcon="file-text" class="w-4 h-4"></svg>
-                    Survey form not attached
-                </span>
-                }
+            <div class="flex items-center gap-2.5 flex-wrap">
                 @if (isEditable()) {
                 <button type="button" (click)="onEdit()"
-                    class="h-11 px-4 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition lift cursor-pointer">
+                    class="h-9 px-3.5 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition lift cursor-pointer">
                     <svg lucideIcon="pencil" class="w-4 h-4"></svg>
                     Edit Assignment
                 </button>
@@ -103,14 +98,14 @@
                 @if (detail.canEditForm) {
                 <!-- The Lead Surveyor fills in the form -->
                 <button type="button" (click)="onCompleteForm()"
-                    class="ripple-btn shadow shine-sweep h-11 px-5 rounded-xl inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                    class="ripple-btn shadow shine-sweep h-9 px-4 rounded-xl inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                     <svg lucideIcon="clipboard-check" class="w-4 h-4"></svg>
                     Complete Form
                 </button>
                 } @else {
                 <!-- Everyone else who can see the survey can only read the form -->
                 <button type="button" (click)="onViewForm()"
-                    class="h-11 px-5 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition lift cursor-pointer">
+                    class="h-9 px-4 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition lift cursor-pointer">
                     <svg lucideIcon="eye" class="w-4 h-4"></svg>
                     View Form
                 </button>
@@ -118,84 +113,89 @@
             </div>
         </header>
 
-        <!-- Highlight: proposed area, where it is, and the two dates -->
+        <!-- Highlight: proposed area and the two dates -->
         <div
-            class="rounded-2xl border border-slate-200/50 dark:border-white/10 bg-slate-500/5 dark:bg-black/20 p-6 flex flex-wrap items-center justify-between gap-8">
-            <div class="flex flex-col gap-5 min-w-0">
-                <div class="flex items-center gap-4">
-                    <div
-                        class="w-[52px] h-[52px] rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                        <svg lucideIcon="map-pin" class="w-6 h-6"></svg>
-                    </div>
-                    <div class="flex flex-col gap-0.5 min-w-0">
-                        <span class="text-xs text-slate-500 dark:text-slate-400">Proposed area</span>
-                        <span class="text-xl font-bold tracking-tight text-slate-800 dark:text-slate-100 break-words">{{ detail.proposedArea }}</span>
-                    </div>
+            class="rounded-xl border border-slate-200/50 dark:border-white/10 bg-slate-500/5 dark:bg-black/20 px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3 min-w-0">
+                <div
+                    class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                    <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
+                </div>
+                <div class="flex flex-col min-w-0">
+                    <span class="text-xs text-slate-500 dark:text-slate-400">Proposed area</span>
+                    <span class="text-base font-bold tracking-tight text-slate-800 dark:text-slate-100 break-words">{{ detail.proposedArea }}</span>
                 </div>
             </div>
 
             <dl class="flex shrink-0">
-                <div class="flex flex-col gap-1 pr-7">
+                <div class="flex flex-col pr-5">
                     <dt class="text-xs text-slate-500 dark:text-slate-400">Assignment date</dt>
                     <dd class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ detail.assignmentDate | date: 'mediumDate' }}</dd>
                 </div>
-                <div class="flex flex-col gap-1 pl-7 border-l border-slate-200/70 dark:border-white/10">
+                <div class="flex flex-col pl-5 border-l border-slate-200/70 dark:border-white/10">
                     <dt class="text-xs text-slate-500 dark:text-slate-400">Tentative submission</dt>
                     <dd class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ detail.tentativeSubmissionDate | date: 'mediumDate' }}</dd>
                 </div>
             </dl>
         </div>
 
-        <!-- Area details: one row for every level -->
-        <div class="rounded-2xl border border-slate-200/50 dark:border-white/10 p-6 flex flex-col gap-4">
-            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Area details</h4>
-            <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+        <!-- Area details: three columns -->
+        <div>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Area details</h4>
+            <dl class="grid grid-cols-1 md:grid-cols-3 gap-x-6">
                 @for (level of areaPath(); track level.id) {
-                <div class="flex items-center justify-between gap-3 py-3 border-b border-slate-200/60 dark:border-white/10">
-                    <dt class="text-[13px] text-slate-500 dark:text-slate-400">{{ level.administrativeUnitTypeName }}</dt>
+                <div class="flex items-center justify-between gap-3 py-2 border-b border-slate-200/60 dark:border-white/10">
+                    <dt class="text-xs text-slate-500 dark:text-slate-400">{{ level.administrativeUnitTypeName }}</dt>
                     <dd class="text-[13px] font-semibold text-slate-800 dark:text-slate-100 text-right">{{ level.name }}</dd>
                 </div>
                 }
+                @if (detail.companyName) {
+                <div class="flex items-center justify-between gap-3 py-2 border-b border-slate-200/60 dark:border-white/10">
+                    <dt class="text-xs text-slate-500 dark:text-slate-400">Company</dt>
+                    <dd class="text-[13px] font-semibold text-slate-800 dark:text-slate-100 text-right">{{ detail.companyName }}</dd>
+                </div>
+                }
                 @if (detail.surveyType === 'Group Survey' && detail.branchName) {
-                <div class="flex items-center justify-between gap-3 py-3 border-b border-slate-200/60 dark:border-white/10">
-                    <dt class="text-[13px] text-slate-500 dark:text-slate-400">Branch</dt>
+                <div class="flex items-center justify-between gap-3 py-2 border-b border-slate-200/60 dark:border-white/10">
+                    <dt class="text-xs text-slate-500 dark:text-slate-400">Branch</dt>
                     <dd class="text-[13px] font-semibold text-slate-800 dark:text-slate-100 text-right">{{ detail.branchName }}</dd>
                 </div>
                 }
-                <div class="flex items-center justify-between gap-3 py-3">
-                    <dt class="text-[13px] text-slate-500 dark:text-slate-400">Proposed area</dt>
-                    <dd class="text-[13px] font-semibold text-slate-800 dark:text-slate-100 text-right">{{ detail.proposedArea }}</dd>
-                </div>
             </dl>
         </div>
-    </div>
 
-    <!-- Surveyors: one full-width row for each surveyor, so the whole name is visible -->
+        <!-- Where the survey was done: a map and a Maps button -->
+        <qfin-location-map [latitude]="detail.latitude" [longitude]="detail.longitude" [title]="detail.surveyType === 'Group Survey' ? 'Group Survey location' : 'Branch Survey location'"></qfin-location-map>
+    </div>
+    </ng-template>
+
+    <!-- Surveyors / Credit Officers (compact rows) -->
+    <ng-template #peopleCard>
     <div class="rounded-2xl border border-slate-200/40 dark:border-white/10 bg-white/30 dark:bg-glass-dark shadow p-5">
         <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-slate-800 dark:text-white">{{ detail.surveyType === 'Group Survey' ? 'Credit Officers' : 'Surveyors' }}</h3>
             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ detail.surveyAssigneds.length }}</span>
         </div>
-        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-4"></div>
+        <div class="w-10 h-1 rounded-full bg-primary-500 mt-2 mb-3"></div>
 
         <div class="flex flex-col gap-2">
             @for (member of detail.surveyAssigneds; track member.employeeId) {
-            <div class="flex items-center justify-between gap-3 rounded-xl bg-slate-500/5 dark:bg-white/5 border border-slate-200/30 dark:border-white/5 px-4 py-3">
+            <div class="flex items-center justify-between gap-3 rounded-xl bg-slate-500/5 dark:bg-white/5 border border-slate-200/30 dark:border-white/5 px-3 py-2">
                 <div class="flex items-center gap-3 min-w-0">
-                    <div class="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center shrink-0">
-                        <svg lucideIcon="user" class="w-5 h-5 text-primary-600"></svg>
+                    <div class="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center shrink-0">
+                        <svg lucideIcon="user" class="w-4 h-4 text-primary-600"></svg>
                     </div>
                     <p class="text-[13px] font-semibold text-slate-800 dark:text-white break-words">{{ member.employeeName }}</p>
                 </div>
                 @if (member.isLead) {
                 <span
-                    class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 shrink-0">
-                    <svg class="w-4 h-4" lucideIcon="badge-check"></svg>
+                    class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 shrink-0">
+                    <svg class="w-3.5 h-3.5" lucideIcon="badge-check"></svg>
                     {{ detail.surveyType === 'Group Survey' ? 'Lead Credit Officer' : 'Lead Surveyor' }}
                 </span>
                 } @else {
                 <span
-                    class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300 shrink-0">
+                    class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300 shrink-0">
                     {{ detail.surveyType === 'Group Survey' ? 'Credit Officer' : 'Surveyor' }}
                 </span>
                 }
@@ -203,20 +203,48 @@
             }
         </div>
     </div>
+    </ng-template>
 
-    <!-- Recommendation of the Head of Branch and approval of the Area Manager (Group Surveys) -->
     @if (detail.surveyType === 'Group Survey') {
-    <qfin-group-review [surveyId]="detail.id"></qfin-group-review>
-
-    <!-- Community Mobilization: the prospective borrowers, once the survey is Approved -->
+    <!-- Group Survey: tabs keep the page short -->
+    @if (showWorkTabs()) {
+    <!-- Segmented pills: one rounded track, the active tab is a raised pill -->
+    <div class="max-w-full overflow-x-auto scroll-thin">
+        <div class="inline-flex gap-1 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200/60 dark:border-white/5">
+            @for (t of groupTabs(); track t.key) {
+            <button type="button" (click)="tab.set(t.key)"
+                class="px-4 py-2 rounded-xl text-[13px] whitespace-nowrap inline-flex items-center gap-2 cursor-pointer transition-all duration-200"
+                [class]="tab() === t.key ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold shadow border border-slate-200/70 dark:border-white/10' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 border border-transparent'">
+                <svg [lucideIcon]="t.icon" class="w-4 h-4" [class]="tab() === t.key ? 'text-primary-600 dark:text-primary-400' : ''"></svg>
+                {{ t.label }}
+                @if (t.count !== null) {
+                <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                    [class]="tab() === t.key ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300' : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'">{{ t.count }}</span>
+                }
+            </button>
+            }
+        </div>
+    </div>
+    }
+    @switch (showWorkTabs() ? tab() : 'overview') {
+    @case ('overview') {
+    <ng-container [ngTemplateOutlet]="generalInfo"></ng-container>
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
+        <ng-container [ngTemplateOutlet]="peopleCard"></ng-container>
+        <!-- Recommendation of the Head of Branch and approval of the Area Manager -->
+        <qfin-group-review [surveyId]="detail.id"></qfin-group-review>
+    </div>
+    }
+    @case ('borrowers') {
+    <!-- Community Mobilization: the prospective borrowers -->
     <qfin-mobilization [surveyId]="detail.id"></qfin-mobilization>
-
-    <!-- CGT (Compulsory Group Training), once the survey is Approved -->
+    }
+    @case ('trainings') {
+    <!-- CGT (Compulsory Group Training), then the GRT with the Final Group Assessment -->
     <qfin-cgt [surveyId]="detail.id"></qfin-cgt>
-
-    <!-- GRT (Group Recognition Test) with the Final Group Assessment, after the CGT -->
     <qfin-grt [surveyId]="detail.id"></qfin-grt>
-
+    }
+    @case ('group') {
     @if (detail.groupId) {
     <!-- The group made from this survey -->
     <div class="rounded-2xl border border-emerald-300/50 bg-emerald-500/5 shadow p-5 flex flex-wrap items-center justify-between gap-4">
@@ -237,7 +265,7 @@
         </button>
     </div>
     } @else if (detail.canCreateGroup) {
-    <!-- Approved: the Credit Officer or the Head of the branch creates the group -->
+    <!-- The GRT is passed: a Credit Officer of the survey creates the group -->
     <div class="rounded-2xl border border-slate-200/40 dark:border-white/10 bg-white/30 dark:bg-glass-dark shadow p-5 flex flex-wrap items-center justify-between gap-4">
         <div>
             <h3 class="text-sm font-bold text-slate-800 dark:text-white">Create Group</h3>
@@ -251,11 +279,20 @@
             Create Group
         </button>
     </div>
+    } @else {
+    <div class="flex items-center gap-3 rounded-xl border border-slate-200/50 dark:border-white/10 px-4 py-3 text-[13px] text-slate-600 dark:text-slate-300">
+        <svg lucideIcon="clock" class="w-5 h-5 shrink-0"></svg>
+        The group is created by a Credit Officer of the survey after the GRT is passed.
+    </div>
     }
     }
+    }
+    } @else {
+    <!-- Branch Survey -->
+    <ng-container [ngTemplateOutlet]="generalInfo"></ng-container>
+    <ng-container [ngTemplateOutlet]="peopleCard"></ng-container>
 
     <!-- Survey Committee evaluation (Branch Surveys) -->
-    @if (detail.surveyType === 'Branch Survey') {
     <qfin-survey-evaluation [surveyId]="detail.id"></qfin-survey-evaluation>
     <qfin-survey-approval [surveyId]="detail.id"></qfin-survey-approval>
     <qfin-branch-create [surveyId]="detail.id"></qfin-branch-create>

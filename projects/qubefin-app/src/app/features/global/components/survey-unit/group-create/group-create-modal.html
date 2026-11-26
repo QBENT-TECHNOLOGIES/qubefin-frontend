@@ -210,7 +210,14 @@
             (input)="setCoordinate('longitude', $any($event.target).value)" />
         </mat-form-field>
       </div>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">The landmark and location start as the Group Survey form had them.</p>
+      <div class="flex items-center justify-between gap-3 flex-wrap mt-2">
+        <p class="text-xs text-slate-500 dark:text-slate-400">The landmark and location start as the Group Survey form had them.</p>
+        <button type="button" (click)="useCurrentLocation()"
+          class="h-9 px-4 rounded-lg border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition cursor-pointer">
+          <svg lucideIcon="map-pin" class="w-4 h-4"></svg>
+          Update Location
+        </button>
+      </div>
     </div>
 
     <!-- 4. Leaders: three slots that fill as roles are chosen below -->

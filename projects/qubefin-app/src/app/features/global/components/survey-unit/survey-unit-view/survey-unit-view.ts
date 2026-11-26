@@ -1,5 +1,5 @@
-import { DatePipe } from '@angular/common';
-import { Component, computed, effect, inject, model, output } from '@angular/core';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import { Component, computed, effect, inject, model, output, signal, untracked } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { GroupCreateModal } from '../group-create/group-create-modal';
@@ -17,11 +17,12 @@ import { GroupReview } from '../group-review/group-review';
 import { Mobilization } from '../mobilization/mobilization';
 import { Cgt } from '../cgt/cgt';
 import { Grt } from '../grt/grt';
+import { LocationMap } from '../location-map/location-map';
 import { MobilizationStore } from '../../../stores/mobilization-store';
 
 @Component({
   selector: 'qfin-survey-unit-view',
-  imports: [DatePipe, LucideDynamicIcon, StatusBadgeComponentComponent, SurveyEvaluation, SurveyApproval, BranchCreate, GroupReview, Mobilization, Cgt, Grt],
+  imports: [DatePipe, NgTemplateOutlet, LucideDynamicIcon, StatusBadgeComponentComponent, SurveyEvaluation, SurveyApproval, BranchCreate, GroupReview, Mobilization, Cgt, Grt, LocationMap],
   templateUrl: './survey-unit-view.html',
   styles: ``,
 })
@@ -55,11 +56,15 @@ export class SurveyUnitView {
     return this.findAreaPath(this.administrativeUnitStore.administrativeUnitTree(), survey.administrativeUnitId);
   });
 
-  // Progress of a Branch Survey, shown as steps. Steps after "Draft" fill in as the later phases are built.
-  readonly progressSteps = ['Assigned', 'Draft', 'Evaluation', 'Approval', 'Branch Created'];
+  // Progress, shown as steps: a Branch Survey has 5, a Group Survey has 8.
+  readonly branchSteps = ['Assigned', 'Draft', 'Evaluation', 'Approval', 'Branch Created'];
+  readonly groupSteps = ['Assigned', 'Draft', 'Recommendation', 'Approval', 'Mobilization', 'CGT', 'GRT', 'Group Created'];
+  readonly progressSteps = computed(() => (this.surveyUnit()?.surveyType === 'Group Survey' ? this.groupSteps : this.branchSteps));
 
   // The step the survey is on now. A value equal to the number of steps means every step is done.
   readonly currentStepIndex = computed(() => {
+    // A Group Survey gets its step from the server (it depends on the borrowers, the CGT and the GRT).
+    if (this.surveyUnit()?.surveyType === 'Group Survey') return this.surveyUnit()?.groupStep ?? 0;
     switch (this.surveyUnit()?.status) {
       case 'Draft':
         return 1;
@@ -79,6 +84,19 @@ export class SurveyUnitView {
   });
 
   readonly isRejected = computed(() => this.surveyUnit()?.status === 'Rejected');
+
+  // Group Survey: tabs keep the page short. Before the survey is Approved there is only the Overview, so no tabs are shown.
+  readonly tab = signal<'overview' | 'borrowers' | 'trainings' | 'group'>('overview');
+  readonly showWorkTabs = computed(() => {
+    const survey = this.surveyUnit();
+    return survey?.surveyType === 'Group Survey' && survey.status === 'Approved';
+  });
+  readonly groupTabs = computed(() => [
+    { key: 'overview' as const, label: 'Overview', icon: 'layout-grid', count: null as number | null },
+    { key: 'borrowers' as const, label: 'Mobilization', icon: 'users', count: this.mobilizationStore.mobilization()?.borrowers.length ?? 0 },
+    { key: 'trainings' as const, label: 'CGT and GRT', icon: 'clipboard-check', count: null as number | null },
+    { key: 'group' as const, label: 'Group', icon: 'building-2', count: null as number | null },
+  ]);
 
   constructor() {
     effect(() => {

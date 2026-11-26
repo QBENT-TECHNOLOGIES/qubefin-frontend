@@ -22,6 +22,9 @@ export interface ICgt {
   // The survey's Credit Officers can write it until it is Completed.
   canEdit: boolean;
   isSaved: boolean;
+  // Borrowers in Community Mobilization now, and how many are needed before the CGT can start.
+  borrowerCount: number;
+  minBorrowers: number;
   // 'In Progress' or 'Completed'
   status: string;
   branchName: string | null;

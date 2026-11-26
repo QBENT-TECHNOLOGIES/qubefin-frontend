@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -32,8 +32,35 @@ export class Mobilization {
   readonly changeReason = signal('');
   readonly saving = signal(false);
 
+  // The table: search by name, husband / father or mobile, and pages of 10 borrowers.
+  readonly search = signal('');
+  readonly pageIndex = signal(0);
+  readonly pageSize = 10;
+
+  readonly filtered = computed(() => {
+    const text = this.search().trim().toLowerCase();
+    const all = this.data()?.borrowers ?? [];
+    if (!text) return all;
+    return all.filter((b) => b.name.toLowerCase().includes(text) || b.guardianName.toLowerCase().includes(text) || b.mobileNo.includes(text));
+  });
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.filtered().length / this.pageSize)));
+  readonly paged = computed(() => {
+    const start = Math.min(this.pageIndex(), this.totalPages() - 1) * this.pageSize;
+    return this.filtered().slice(start, start + this.pageSize);
+  });
+  readonly flaggedCount = computed(() => (this.data()?.borrowers ?? []).filter((b) => b.isFlagged).length);
+
   constructor() {
     effect(() => this.store.setSurveyId(this.surveyId()));
+  }
+
+  protected setSearch(text: string) {
+    this.search.set(text);
+    this.pageIndex.set(0);
+  }
+
+  protected goToPage(delta: number) {
+    this.pageIndex.update((p) => Math.min(Math.max(p + delta, 0), this.totalPages() - 1));
   }
 
   // Rupees with Indian grouping, for example ₹2,60,000.

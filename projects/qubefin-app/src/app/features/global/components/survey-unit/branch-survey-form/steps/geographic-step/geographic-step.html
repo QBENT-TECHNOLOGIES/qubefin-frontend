@@ -15,6 +15,7 @@
                     <svg lucideIcon="map-pinned" class="w-5 h-5"></svg>
                 </div>
                 <input matInput [formField]="section().proposedOperationalArea" autocomplete="off" />
+                <mat-error class="cus-error">{{ section().proposedOperationalArea().errors()[0]?.message }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -28,6 +29,7 @@
                     <mat-option [value]="name">{{ name }}</mat-option>
                     }
                 </mat-select>
+                <mat-error class="cus-error">{{ section().policeStation().errors()[0]?.message }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -36,6 +38,7 @@
                     <svg lucideIcon="hash" class="w-5 h-5"></svg>
                 </div>
                 <input matInput inputmode="numeric" [formField]="section().pinCode" autocomplete="off" />
+                <mat-error class="cus-error">{{ section().pinCode().errors()[0]?.message }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -44,6 +47,7 @@
                     <svg lucideIcon="landmark" class="w-5 h-5"></svg>
                 </div>
                 <input matInput [formField]="section().nearestLandmark" autocomplete="off" />
+                <mat-error class="cus-error">{{ section().nearestLandmark().errors()[0]?.message }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -57,6 +61,7 @@
                     <mat-option [value]="option">{{ option }}</mat-option>
                     }
                 </mat-select>
+                <mat-error class="cus-error">{{ section().administrativeStatus().errors()[0]?.message }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -66,6 +71,7 @@
                 </div>
                 <input matInput type="number" step="any" [formField]="section().distanceFromExistingWeGrowBranch" />
                 <span matTextSuffix class="pl-2 pr-4">km</span>
+                <mat-error class="cus-error">{{ section().distanceFromExistingWeGrowBranch().errors()[0]?.message }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -75,6 +81,7 @@
                 </div>
                 <input matInput type="number" step="any" [formField]="section().distanceFromDistrictHeadquarters" />
                 <span matTextSuffix class="pl-2 pr-4">km</span>
+                <mat-error class="cus-error">{{ section().distanceFromDistrictHeadquarters().errors()[0]?.message }}</mat-error>
             </mat-form-field>
         </div>
     </div>
@@ -91,6 +98,7 @@
                     <svg lucideIcon="map-pin" class="w-5 h-5"></svg>
                 </div>
                 <input matInput type="number" step="any" [formField]="section().latitude" />
+                <mat-error class="cus-error">{{ section().latitude().errors()[0]?.message }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -99,6 +107,7 @@
                     <svg lucideIcon="compass" class="w-5 h-5"></svg>
                 </div>
                 <input matInput type="number" step="any" [formField]="section().longitude" />
+                <mat-error class="cus-error">{{ section().longitude().errors()[0]?.message }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -107,6 +116,7 @@
                     <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
                 </div>
                 <input matInput [formField]="section().geoTag" />
+                <mat-error class="cus-error">{{ section().geoTag().errors()[0]?.message }}</mat-error>
             </mat-form-field>
 
             @if (!section().latitude().readonly()) {

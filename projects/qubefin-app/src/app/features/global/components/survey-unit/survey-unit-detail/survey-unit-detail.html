@@ -60,6 +60,22 @@
                 </mat-form-field>
                 }
 
+                <!-- Branch Survey: the company is chosen. Group Survey: the company of the branch, not changeable. -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Company</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="surveyForm.companyId" placeholder="Select company">
+                        @for (company of companies(); track company.id) {
+                        <mat-option [value]="company.id">{{ company.name }}</mat-option>
+                        }
+                    </mat-select>
+                    <mat-error class="cus-error">
+                        {{ surveyForm.companyId().errors()?.[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Assignment Date</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
@@ -107,12 +123,7 @@
                         placeholder="Enter proposed survey area" />
                 </mat-form-field>
 
-                <div class="flex items-center">
-                    <mat-checkbox [checked]="formModel().surveyFormAttached"
-                        (change)="updateField('surveyFormAttached', $event.checked)">
-                        Survey form attached
-                    </mat-checkbox>
-                </div>
+
 
                 <!-- <button
                     class="ripple-btn shine-sweep rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-linear-to-r from-primary-500 to-secondary-500 shadow-glow hover:shadow-glow transition cursor-pointer lift"
@@ -162,7 +173,7 @@
                     </mat-form-field>
                     <button type="button" (click)="addMember()" [class.pointer-events-none]="!isMemberSelected()"
                         [class.opacity-50]="!isMemberSelected()" [class.cursor-not-allowed]="!isMemberSelected()"
-                        class="w-[170px] ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+                        class="min-w-[170px] shrink-0 whitespace-nowrap justify-center ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
                         <svg lucideIcon="plus" class="w-5 h-5"></svg>
                         Add {{ assigneeLabel() }}
                     </button>

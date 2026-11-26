@@ -11,6 +11,7 @@
                     <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
                 </div>
                 <input matInput type="number" step="any" [formField]="marketPotential()[field.key]" />
+                <mat-error class="cus-error">{{ marketPotential()[field.key]().errors()[0]?.message }}</mat-error>
             </mat-form-field>
             }
         </div>

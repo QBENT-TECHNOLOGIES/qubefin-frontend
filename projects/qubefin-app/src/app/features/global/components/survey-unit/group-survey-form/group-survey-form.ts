@@ -148,6 +148,8 @@ export class GroupSurveyFormComponent {
     readonly(path.geographic.villageLocality);
     readonly(path.geographic.gramPanchayatMunicipality);
     readonly(path.geographic.block);
+    // The server works out the distance from the branch (straight line) from the location of step 1 and the branch location.
+    readonly(path.market.distanceFromBranchKm);
     required(path.surveyDate, { message: 'Date of survey is required' });
 
     // Counts, distances and times cannot be negative.

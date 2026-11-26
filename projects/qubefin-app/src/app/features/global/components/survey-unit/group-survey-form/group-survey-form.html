@@ -226,6 +226,9 @@
                         @if (field.suffix) {
                         <span matTextSuffix class="pl-2 pr-4">{{ field.suffix }}</span>
                         }
+                        @if (field.key === 'distanceFromBranchKm') {
+                        <mat-hint>{{ response()?.branchHasLocation === false ? 'The branch has no location yet.' : 'Worked out from the location in step 1 and the branch location.' }}</mat-hint>
+                        }
                     </mat-form-field>
                     }
                 </div>

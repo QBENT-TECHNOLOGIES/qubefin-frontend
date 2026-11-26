@@ -17,7 +17,7 @@ type DemographicNumberKey = Exclude<keyof IDemographicSection, 'migrationTrend'>
 export class DemographicStep {
   readonly section = input.required<FieldTree<IDemographicSection>>();
 
-  readonly ratingOptions = BRANCH_SURVEY_OPTIONS.rating;
+  readonly migrationTrendOptions = BRANCH_SURVEY_OPTIONS.migrationTrend;
 
   readonly numberFields: { key: DemographicNumberKey; label: string; icon: string; unit?: string }[] = [
     { key: 'estimatedPopulation', label: 'Estimated Population', icon: 'users' },

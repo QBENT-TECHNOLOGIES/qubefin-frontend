@@ -3,6 +3,9 @@ export interface IBranchCreateInfo {
   surveyId: string;
   canCreate: boolean;
   suggestedName: string;
+  // The company of the survey: the branch is created for it.
+  companyId: string | null;
+  companyName: string | null;
   stateId: string | null;
   stateName: string | null;
   districtId: string | null;

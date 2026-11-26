@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { SurveyStore } from '../../../stores/survey-store';
 import { SurveyService } from '../../../services/survey-service';
+import { CompanyService } from '../../../services/company-service';
 import { EmployeeService } from '../../../../hrms/services/employee-service';
 import { AdministrativeUnitService } from '../../../services/administrative-unit-service';
 import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
@@ -13,7 +14,7 @@ import {
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
-import { form, readonly, required, Schema, schema } from '@angular/forms/signals';
+import { disabled, form, FormField, readonly, required, Schema, schema } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
@@ -36,6 +37,7 @@ import { AdministrativeUnitCascade } from '../../administrative-unit-cascade/adm
     LucideDynamicIcon,
     MatDatepickerModule,
     MatSelectModule,
+    FormField,
     MatTooltipModule,
     AdministrativeUnitCascade,
   ],
@@ -46,6 +48,7 @@ import { AdministrativeUnitCascade } from '../../administrative-unit-cascade/adm
 export class SurveyUnitDetail {
   private readonly surveyStore = inject(SurveyStore);
   private readonly surveyService = inject(SurveyService);
+  private readonly companyService = inject(CompanyService);
   private readonly employeeService = inject(EmployeeService);
   private readonly alertService = inject(AlertService);
   private readonly dateAdapter = inject(DateAdapter<Date>);
@@ -78,6 +81,8 @@ export class SurveyUnitDetail {
 
   protected readonly formModel = signal<ISurveyDetail>(this.createEmptyModel());
   readonly isMemberSelected = signal<boolean>(false);
+  // The companies of the dropdown. A Branch Survey is created for the chosen company; a Group Survey takes its branch's company.
+  readonly companies = signal<{ id: string; name: string }[]>([]);
   private createEmptyModel(): ISurveyDetail {
     return {
       id: EMPTY_UUID,
@@ -92,6 +97,8 @@ export class SurveyUnitDetail {
       status: 'Assigned',
       surveyFormAttached: false,
       branchOrganizationUnitId: null,
+      companyId: null,
+      companyName: null,
       previousSurveyId: null,
       canEditGeneral: true,
       canEditForm: false,
@@ -120,6 +127,12 @@ export class SurveyUnitDetail {
       message: 'Administrative Unit is required',
     });
 
+    required(path.companyId, {
+      message: 'Company is required',
+      when: () => !this.isGroupSurvey(),
+    });
+    // A Group Survey shows the company of its branch and it cannot be changed.
+    disabled(path.companyId, { when: () => this.isGroupSurvey() });
     required(path.proposedArea, {
       message: 'Proposed Area is required',
     });
@@ -136,6 +149,10 @@ export class SurveyUnitDetail {
   selectedEmployee = signal<EmployeeSearchByText | null>(null);
   constructor() {
     this.dateAdapter.setLocale('en-GB');
+
+    this.companyService.getAll().subscribe((companies: any) => {
+      this.companies.set(companies.map((company: any) => ({ id: company.id, name: company.name.trim() })));
+    });
 
     this.employeeSearch$
       .pipe(
@@ -195,6 +212,7 @@ export class SurveyUnitDetail {
       ...current,
       surveyType: type,
       branchOrganizationUnitId: type === 'Group Survey' ? this.surveyStore.inchargeBranchId() : null,
+      companyId: type === 'Group Survey' ? this.surveyStore.inchargeBranchCompanyId() : null,
       surveyAssigneds: [],
     }));
     this.employeeOptions.set([]);

@@ -91,6 +91,8 @@ export interface IGroupSurveyResponse {
   status: string;
   // True only for the Lead Credit Officer while the survey is Assigned or Draft.
   canEditForm: boolean;
+  // False when the branch has no location, so the distance from the branch cannot be worked out.
+  branchHasLocation: boolean;
   isSaved: boolean;
   lastSavedOn: string | null;
   form: IGroupSurveyForm;

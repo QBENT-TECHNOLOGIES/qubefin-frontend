@@ -10,7 +10,11 @@
                 <h3 class="text-sm font-bold text-slate-800 dark:text-white">Compulsory Group Training (CGT)</h3>
                 <p class="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">
                     @if (!d.isSaved) {
+                    @if (d.canEdit && d.borrowerCount < d.minBorrowers) {
+                    Add at least {{ d.minBorrowers }} borrowers in Community Mobilization before starting the CGT ({{ d.borrowerCount }} now).
+                    } @else {
                     {{ d.canEdit ? 'Conduct the CGT with the interested women and record the 10 topics.' : 'The Credit Officers have not started the CGT yet.' }}
+                    }
                     } @else {
                     {{ answered() }} of {{ d.topics.length }} topics answered
                     }
@@ -24,8 +28,8 @@
                 {{ d.isSaved ? d.status : 'Not started' }}
             </span>
             @if (d.canEdit) {
-            <button type="button" (click)="openCgt()"
-                class="ripple-btn shadow shine-sweep h-11 px-5 rounded-xl inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer">
+            <button type="button" (click)="openCgt()" [disabled]="!d.isSaved && d.borrowerCount < d.minBorrowers"
+                class="ripple-btn shadow shine-sweep h-11 px-5 rounded-xl inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:shadow-glow transition lift cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                 <svg lucideIcon="clipboard-check" class="w-4 h-4"></svg>
                 {{ d.isSaved ? 'Continue CGT' : 'Start CGT' }}
             </button>

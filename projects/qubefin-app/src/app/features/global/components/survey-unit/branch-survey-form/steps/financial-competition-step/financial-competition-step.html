@@ -11,6 +11,7 @@
                     <svg [lucideIcon]="field.icon" class="w-5 h-5"></svg>
                 </div>
                 <input matInput type="number" step="1" [formField]="financialInclusion()[field.key]" />
+                <mat-error class="cus-error">{{ financialInclusion()[field.key]().errors()[0]?.message }}</mat-error>
             </mat-form-field>
             }
 
@@ -25,6 +26,7 @@
                     <mat-option [value]="option">{{ option }}</mat-option>
                     }
                 </mat-select>
+                <mat-error class="cus-error">{{ financialInclusion().digitalPaymentAcceptance().errors()[0]?.message }}</mat-error>
             </mat-form-field>
         </div>
     </div>
@@ -56,6 +58,7 @@
                         <svg lucideIcon="building-2" class="w-5 h-5"></svg>
                     </div>
                     <input matInput autocomplete="off" [formField]="competitor.nameOfInstitution" />
+                    <mat-error class="cus-error">{{ competitor.nameOfInstitution().errors()[0]?.message }}</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Approx. Clients</mat-label>
@@ -63,6 +66,7 @@
                         <svg lucideIcon="users" class="w-5 h-5"></svg>
                     </div>
                     <input matInput type="number" step="1" [formField]="competitor.approxClients" />
+                    <mat-error class="cus-error">{{ competitor.approxClients().errors()[0]?.message }}</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Approx. Portfolio</mat-label>
@@ -70,6 +74,7 @@
                         <svg lucideIcon="indian-rupee" class="w-5 h-5"></svg>
                     </div>
                     <input matInput type="number" step="any" [formField]="competitor.approxPortfolio" />
+                    <mat-error class="cus-error">{{ competitor.approxPortfolio().errors()[0]?.message }}</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>PAR</mat-label>

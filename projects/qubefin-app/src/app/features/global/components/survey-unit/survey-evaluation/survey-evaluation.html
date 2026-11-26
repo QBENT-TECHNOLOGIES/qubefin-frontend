@@ -47,9 +47,10 @@
     </div>
     }
 
-    <!-- Evaluations: the Lead sees every member, a member sees only his own -->
-    @if (d.isCommitteeLead && d.evaluations.length > 0) {
+    <!-- Evaluations: the Lead sees every member, and so does the Managing Director after the final decision; a member sees only his own -->
+    @if (d.evaluations.length > 0) {
     <div class="flex flex-col gap-2">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Member evaluations and remarks</p>
         @for (item of d.evaluations; track item.employeeName) {
         <div class="rounded-xl bg-slate-500/5 dark:bg-white/5 border border-slate-200/30 dark:border-white/5 px-4 py-3">
             <div class="flex items-center justify-between gap-3 flex-wrap">

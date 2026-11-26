@@ -169,9 +169,27 @@ export const BRANCH_SURVEY_OPTIONS = {
   economicCondition: ['Good', 'Average', 'Poor'],
   naturalRisk: ['High', 'Medium', 'Low'],
   riskLevel: ['Low', 'Medium', 'High'],
+  migrationTrend: ['Low', 'Moderate', 'High'],
   yesNo: ['Yes', 'No'],
   recommendation: ['Highly Recommended', 'Recommended', 'Not Recommended'],
 };
+
+// The nine income activity shares (Economic step) can add up to 100 at most.
+export const ACTIVITY_TOTAL_MESSAGE = 'The nine activity shares can add up to at most 100.';
+
+export function sumOfActivityShares(economic: IEconomicSection): number {
+  return (
+    (economic.agriculturePercent ?? 0) +
+    (economic.agriculturalLabour ?? 0) +
+    (economic.dairyLivestock ?? 0) +
+    (economic.smallBusiness ?? 0) +
+    (economic.pettyTrade ?? 0) +
+    (economic.cottageSmallIndustries ?? 0) +
+    (economic.transportActivities ?? 0) +
+    (economic.serviceHolders ?? 0) +
+    (economic.dailyWageEarners ?? 0)
+  );
+}
 
 // At most 10 competitors can be added.
 export const MAX_COMPETITORS = 10;

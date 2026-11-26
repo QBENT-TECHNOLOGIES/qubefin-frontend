@@ -180,6 +180,8 @@ export class OrganizationUnitDetailComponent {
           name: info.suggestedName,
           organizationUnitTypeId: branchType.id,
           districtId: info.districtId ?? '',
+          // The branch is created for the company of the survey.
+          companyId: info.companyId ?? m.companyId,
           latitude: info.latitude,
           longitude: info.longitude,
           // Defaults for a new branch: 50 meter check radius, working hours 8:00 AM to 4:00 PM.
@@ -294,6 +296,8 @@ export class OrganizationUnitDetailComponent {
     });
     // The Unit Type cannot be changed when the branch is created from a survey.
     disabled(path.organizationUnitTypeId, { when: () => this.isFromSurvey() });
+    // The company cannot be changed when the survey already has one.
+    disabled(path.companyId, { when: () => this.isFromSurvey() && !!this.branchInfo()?.companyId });
     readonly(path.attendanceInTime, { when: () => true });
     readonly(path.attendanceOutTime, { when: () => true });
   });
@@ -322,6 +326,27 @@ export class OrganizationUnitDetailComponent {
       this.loadOptionsForParentField(index + 1);
     }
   }
+  // Update Location (Create Branch window): fills the latitude and longitude from the browser location,
+  // the same way the Branch Survey form does.
+  useCurrentLocation() {
+    if (!navigator.geolocation) {
+      this.alertService.error('Oops ....', 'Your browser does not support location.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.organizationUnitModel.update((m) => ({
+          ...m,
+          latitude: Number(position.coords.latitude.toFixed(6)),
+          longitude: Number(position.coords.longitude.toFixed(6)),
+        }));
+      },
+      () => {
+        this.alertService.error('Oops ....', 'Could not get your location. Please allow location access or enter it manually.');
+      },
+    );
+  }
+
   openInTimePicker() {
     const currentTime = this.organizationUnitModel().attendanceInTime;
     this.openTimePicker('In Time', currentTime, (time: string) => {

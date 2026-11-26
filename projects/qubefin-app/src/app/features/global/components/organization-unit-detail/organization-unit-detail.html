@@ -170,6 +170,17 @@
                     </mat-error>
                 </mat-form-field>
 
+                <!-- Create Branch window: Update Location fills the latitude and longitude from the browser location -->
+                @if (branchInfo()) {
+                <div class="flex items-center">
+                    <button type="button" (click)="useCurrentLocation()"
+                        class="h-11 px-4 rounded-xl border border-slate-200/60 dark:border-white/10 bg-white dark:bg-slate-800 shadow text-[13px] font-semibold text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 hover:shadow-glass transition cursor-pointer">
+                        <svg lucideIcon="map-pin" class="w-4 h-4"></svg>
+                        Update Location
+                    </button>
+                </div>
+                }
+
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                     <mat-label>Check Radius (Meter)</mat-label>
                     <div class="w-12 flex justify-center" matPrefix>
