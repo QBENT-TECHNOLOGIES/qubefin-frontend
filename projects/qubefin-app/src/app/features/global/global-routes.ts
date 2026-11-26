@@ -56,6 +56,18 @@ export const GlobalRoutes: Routes = [
           icon: 'groups',
         },
       },
+      {
+        path: 'members',
+        loadComponent: () =>
+          import('../Members/pages/member-component/member-component').then(
+            (m) => m.MemberComponent,
+          ),
+        data: {
+          title: 'Members',
+          subTitle: 'Manage Members',
+          icon: 'users',
+        },
+      },
     ],
   },
 ];

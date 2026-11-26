@@ -1,0 +1,147 @@
+<div class="page-container">
+    <div class="header-group">
+        <div class="flex items-center gap-3"></div>
+        <div class="headerBtn-area">
+            @if (isViewMode() && selectedMemberId() === EMPTY_UUID) {
+            <button type="button" (click)="toggleFilterArea()" class="filter-btn glass-input lift shine-sweep">
+                <svg lucideIcon="funnel" class="w-4 h-4"></svg>
+                Filter
+            </button>
+            }
+            <button class="global-btn shine-sweep lift" (click)="onAdd()">
+                <svg lucideIcon="plus" class="w-4 h-4"></svg>
+                Add New
+            </button>
+        </div>
+    </div>
+
+    <div class="flex items-start" [ngClass]="{'gap-4': isViewMode() && selectedMemberId() !== EMPTY_UUID}">
+        <div class="mainCard-area glass" [ngClass]="{
+                'w-full opacity-100 translate-x-0': selectedMemberId() === EMPTY_UUID && isViewMode(),
+                'w-1/4 opacity-100 translate-x-0 sticky top-0 h-[calc(100vh-170px)]': isViewMode() && selectedMemberId() !== EMPTY_UUID,
+                'w-0 opacity-0 h-0 -translate-x-4 pointer-events-none': !isViewMode()
+            }">
+            @if (selectedMemberId() === EMPTY_UUID && isViewMode()) {
+            @if (showFilterArea()) {
+            <div class="filter-area">
+                <div class="filter-container">
+                    <!-- Search By Name / Code -->
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Search By Name / Code</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="search" class="w-5 h-5"></svg>
+                            </div>
+                            <input matInput autocomplete="off" placeholder="Enter name or code"
+                                [(ngModel)]="tempSearch">
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Branch Code -->
+                    <div class="flex-1 min-w-[200px]">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                            <mat-label>Branch Code</mat-label>
+                            <div class="w-12 flex justify-center" matPrefix>
+                                <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                            </div>
+                            <input matInput type="number" autocomplete="off" placeholder="Enter branch code"
+                                [ngModel]="srchBranchCode()" (ngModelChange)="srchBranchCode.set($event)">
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <button type="button" (click)="applyFilters()" class="global-btn shine-sweep lift">
+                            <svg lucideIcon="search" class="w-4 h-4"></svg>
+                            Search
+                        </button>
+                        <button type="button" (click)="resetFilters()" class="reset-btn lift">
+                            <svg lucideIcon="rotate-ccw" class="w-4 h-4"></svg>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+            }
+            } @else {
+            <div class="search-area">
+                <div class="search-input-area">
+                    <svg lucideIcon="search" class="w-4 h-4 text-slate-400 shrink-0"></svg>
+                    <input type="text" placeholder="Enter name or code" aria-label="Search members"
+                        [value]="memberStore.searchQuery()" (input)="onSearch($event)" class="search-input-style" />
+                </div>
+            </div>
+            }
+
+            <qfin-member-list [data]="members()" [selectedId]="selectedMemberId()"
+                [isCollapsed]="selectedMemberId() !== EMPTY_UUID || !isViewMode()"
+                [totalRecords]="memberStore.totalRecords()" [pageIndex]="memberStore.pageIndex()"
+                [pageSize]="memberStore.pageSize()" (onViewDetail)="onView($event)" (pageChanged)="pageChanged($event)"
+                (sortChanged)="onSortChanged($event)">
+            </qfin-member-list>
+        </div>
+
+        @if (selectedMemberId() !== EMPTY_UUID || !isViewMode()) {
+        <div class="viewArea-container glass" [ngClass]="{
+                'w-3/4': isViewMode() && selectedMemberId() !== EMPTY_UUID,
+                'w-full': !isViewMode()
+            }">
+            <div class="viewArea-header">
+                <div class="viewArea-headerInner">
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <div class="flex justify-start gap-2">
+                                <h2 class="viewArea-title">
+                                    @if (selectedMemberId() === EMPTY_UUID) {
+                                    Create Member
+                                    } @else if (isViewMode()) {
+                                    Details
+                                    } @else {
+                                    Edit Member
+                                    }
+                                </h2>
+                                <div class="viewArea-badge">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+                                    <span
+                                        class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                                        @if (selectedMemberId() === EMPTY_UUID) {
+                                        New Mode
+                                        } @else if (isViewMode()) {
+                                        View Mode
+                                        } @else {
+                                        Edit Mode
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="viewArea-description">
+                                @if (selectedMemberId() === EMPTY_UUID) {
+                                Create a new Member and configure personal details.
+                                } @else if (isViewMode()) {
+                                View the Member details.
+                                } @else {
+                                Update the Member information.
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <button aria-label="Close" matTooltip="Close" class="pannel-close" (click)="closePanel()">
+                    <svg lucideIcon="x" class="w-4 h-4"></svg>
+                </button>
+            </div>
+
+            <div>
+                @if (isViewMode() && selectedMemberId() !== EMPTY_UUID) {
+                <qfin-member-view [(memberId)]="selectedMemberId" (showEdit)="onEdit()">
+                </qfin-member-view>
+                } @else {
+                <qfin-member-detail [memberId]="selectedMemberId()" (onCancel)="handleCancel()"
+                    (onChildSave)="handleSave($event)">
+                </qfin-member-detail>
+                }
+            </div>
+        </div>
+        }
+    </div>
+</div>

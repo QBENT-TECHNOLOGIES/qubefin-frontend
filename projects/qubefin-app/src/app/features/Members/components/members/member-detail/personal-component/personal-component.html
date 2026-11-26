@@ -1,0 +1,327 @@
+<div class="animate-fade-in">
+    <!-- Primary Information Section -->
+    <div>
+        <h3 class="box-content-heading mb-2!">
+            Primary Information
+        </h3>
+        <div class="green-line"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Branch Code (Dropdown) -->
+        <!-- Branch Code (Auto from login-info) -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Branch Code</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.branchCode" autocomplete="off" placeholder="Branch code">
+            <mat-error class="cus-error">
+                {{ memberForm.branchCode().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Branch Name (Auto from login-info) -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Branch Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.branchName" autocomplete="off" placeholder="Branch name">
+        </mat-form-field>
+
+        <!-- Group Code (Searchable Autocomplete) -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Group Code</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="users" class="w-5 h-5"></svg>
+            </div>
+            <input matInput type="text" autocomplete="off" placeholder="Search group code or name"
+                [formField]="memberForm.groupCode" [matAutocomplete]="groupAuto" (focus)="onGroupFocus()"
+                (input)="searchGroups($any($event.target).value)">
+            <mat-autocomplete #groupAuto="matAutocomplete" [displayWith]="displayGroupCode"
+                (optionSelected)="selectGroup($event)" (closed)="onGroupPanelClosed()">
+                @for (group of groupOptions(); track group.id) {
+                <mat-option [value]="group">
+                    {{ group.groupCode ? group.groupCode + ' - ' + group.name : group.name }}
+                </mat-option>
+                }
+            </mat-autocomplete>
+            <mat-error class="cus-error">
+                {{ memberForm.groupCode().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Group Name (Auto-filled readonly) -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Group Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="users" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.groupName" autocomplete="off" placeholder="Group name">
+        </mat-form-field>
+
+        <!-- Credit Officer Name (Auto from login-info) -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Credit Officer Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.creditOfficerName" autocomplete="off"
+                placeholder="Credit officer name">
+        </mat-form-field>
+
+        <!-- Employee Code (Auto from login-info) -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Employee Code</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="id-card-lanyard" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.employeeCode" autocomplete="off" placeholder="Employee code">
+        </mat-form-field>
+
+        <!-- Admission Date (Datepicker) -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Admission Date</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [matDatepicker]="admPicker" [formField]="memberForm.admissionDate"
+                placeholder="Select Admission Date" autocomplete="off">
+            <mat-datepicker-toggle matIconSuffix [for]="admPicker"></mat-datepicker-toggle>
+            <mat-datepicker #admPicker></mat-datepicker>
+        </mat-form-field>
+    </div>
+
+    <!-- Personal Info Section -->
+    <div class="mt-6">
+        <h3 class="box-content-heading mb-2!">
+            Personal Info
+        </h3>
+        <div class="green-line"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Code</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="id-card-lanyard" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.code" autocomplete="off" placeholder="Auto generated">
+        </mat-form-field> -->
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Salutation</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="swatch-book" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="memberForm.salutation" placeholder="Select Salutation">
+                @for (sal of salutations(); track sal) {
+                <mat-option [value]="sal.sysVal">
+                    {{ sal.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>First Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.firstName" autocomplete="off" placeholder="Enter first name">
+            <mat-error class="cus-error">
+                {{ memberForm.firstName().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Middle Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.middleName" autocomplete="off" placeholder="Enter middle name">
+            <mat-error class="cus-error">
+                {{ memberForm.middleName().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Last Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.lastName" autocomplete="off" placeholder="Enter last name">
+            <mat-error class="cus-error">
+                {{ memberForm.lastName().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Date of Birth</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [matDatepicker]="dobPicker" [max]="maxDate" [formField]="memberForm.dateOfBirth"
+                placeholder="Select Date of Birth" autocomplete="off">
+            <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
+            <mat-datepicker #dobPicker></mat-datepicker>
+            <mat-error class="cus-error">
+                {{ memberForm.dateOfBirth().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Age</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="calendar-check" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.age" autocomplete="off" placeholder="Auto calculated">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Gender</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="memberForm.gender" placeholder="Select Gender">
+                @for (gen of genders(); track gen) {
+                <mat-option [value]="gen.sysVal">
+                    {{ gen.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+            <mat-error class="cus-error">
+                {{ memberForm.gender().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Guardian Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="mars" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.guardianName" autocomplete="off" placeholder="Enter guardian name">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Mother Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="venus" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.motherName" autocomplete="off" placeholder="Enter mother name">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Spouse Name</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="user" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.spouseName" autocomplete="off" placeholder="Enter spouse name">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Religion</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="chess-bishop" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="memberForm.religion" placeholder="Select Religion">
+                @for (rel of religions(); track rel) {
+                <mat-option [value]="rel.sysVal">
+                    {{ rel.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Caste</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="clipboard-check" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="memberForm.caste" placeholder="Select Caste">
+                @for (cst of castes(); track cst) {
+                <mat-option [value]="cst.sysVal">
+                    {{ cst.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Nationality</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="flag" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="memberForm.nationality" placeholder="Select Nationality">
+                @for (n of nationalities; track n) {
+                <mat-option [value]="n">
+                    {{ n }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Marital Status</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="tag" class="w-5 h-5"></svg>
+            </div>
+            <mat-select [formField]="memberForm.maritalStatus" placeholder="Select Marital Status">
+                @for (mrst of maritalStatuses(); track mrst) {
+                <mat-option [value]="mrst.sysVal">
+                    {{ mrst.sysVal }}
+                </mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Educational Qualification</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="graduation-cap" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.educationalQualification" autocomplete="off"
+                placeholder="Enter qualification">
+        </mat-form-field>
+    </div>
+
+    <!-- Contact Info Section -->
+    <div class="mt-6">
+        <h3 class="box-content-heading mb-2!">
+            Contact Info
+        </h3>
+        <div class="green-line"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Mobile No</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="phone" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.mobileNo" autocomplete="off" placeholder="Enter 10-digit mobile no">
+            <mat-error class="cus-error">
+                {{ memberForm.mobileNo().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-label>Alternate Mobile No</mat-label>
+            <div class="w-12 flex justify-center" matPrefix>
+                <svg lucideIcon="phone" class="w-5 h-5"></svg>
+            </div>
+            <input matInput [formField]="memberForm.alternateMobileNo" autocomplete="off"
+                placeholder="Enter 10-digit alternate mobile no">
+            <mat-error class="cus-error">
+                {{ memberForm.alternateMobileNo().errors()[0]?.message }}
+            </mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="step-footer-area">
+        <div class="flex flex-1 justify-end items-center gap-3">
+            <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">
+                Save &amp; Next
+                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+            </button>
+        </div>
+    </div>
+</div>
