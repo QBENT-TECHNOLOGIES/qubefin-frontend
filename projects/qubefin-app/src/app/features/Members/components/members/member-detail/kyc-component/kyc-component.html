@@ -9,7 +9,6 @@
     @for (doc of kycModel().documents; track $index) {
     <div class="flex items-start gap-3 border-b border-slate-200 pb-4">
         <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Document -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                 <mat-label>Document</mat-label>
                 <div class="w-12 flex justify-center" matPrefix>
@@ -29,7 +28,6 @@
             </mat-form-field>
 
             @if (selectedDocument($index)) {
-            <!-- Document Number -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                 <mat-label>Document Number</mat-label>
                 <div class="w-12 flex justify-center" matPrefix>
@@ -42,7 +40,6 @@
                 </mat-error>
             </mat-form-field>
 
-            <!-- Front Side Upload -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                 <mat-label>Front Side Document</mat-label>
                 <div class="w-12 flex justify-center" matPrefix>
@@ -74,7 +71,6 @@
                 </div>
             </mat-form-field>
 
-            <!-- Back Side Upload -->
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                 <mat-label>Back Side Document</mat-label>
                 <div class="w-12 flex justify-center" matPrefix>
@@ -107,7 +103,6 @@
             </mat-form-field>
             }
 
-            <!-- Issue Date & Expiry Date -->
             @if (selectedDocument($index)?.isDateValidate) {
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                 <mat-label>Issue Date</mat-label>
@@ -134,7 +129,6 @@
             </mat-form-field>
             }
 
-            <!-- Remarks -->
             @if (selectedDocument($index)) {
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                 <mat-label>Remarks</mat-label>
@@ -145,7 +139,6 @@
                     [formField]="kycForm.documents[$index].remarks">
             </mat-form-field>
 
-            <!-- Verify Checkbox -->
             <div class="flex items-center">
                 <mat-checkbox [formField]="kycForm.documents[$index].isVerify" color="primary">
                     Verify
@@ -154,7 +147,6 @@
             }
         </div>
 
-        <!-- Delete Button (Disabled when Verified) -->
         <button type="button" (click)="removeDocument($index)" [disabled]="doc.isVerify"
             [matTooltip]="doc.isVerify ? 'Verified document cannot be deleted' : 'Delete'"
             class="w-10 h-10 mt-1 rounded-full flex items-center justify-center transition-colors" [ngClass]="doc.isVerify
@@ -165,7 +157,6 @@
     </div>
     }
 
-    <!-- Add Document -->
     <div class="flex justify-end items-center">
         <button type="button" (click)="addDocument()"
             class="cursor-pointer ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r to-primary-500 from-secondary-500">
@@ -174,7 +165,6 @@
         </button>
     </div>
 
-    <!-- Save -->
     <div class="step-footer-area border-0!">
         <div class="flex flex-1 justify-end items-center gap-3">
             <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">

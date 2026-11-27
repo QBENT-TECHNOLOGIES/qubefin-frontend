@@ -14,10 +14,8 @@
         </button>
     </div>
 
-    <!-- Multiple Address Cards -->
     @for (addr of addressModel().addresses; track $index) {
     <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4 space-y-4">
-        <!-- Address Card Header: Sequence + Is Default + Delete -->
         <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
             <div class="flex items-center gap-4">
                 <span class="text-sm font-bold text-slate-700 dark:text-slate-200">
@@ -36,7 +34,6 @@
             }
         </div>
 
-        <!-- Present Address -->
         <div>
             <h4 class="box-content-heading mb-2!">
                 Present Address
@@ -94,7 +91,6 @@
             </mat-form-field>
         </div>
 
-        <!-- Present Administrative Unit Cascade -->
         <div>
             <qfin-administrative-unit-cascade [columns]="4" [administrativeUnitId]="addr.presentAdministrativeUnitId"
                 [emitAtEveryLevel]="true"
@@ -181,7 +177,6 @@
             </mat-form-field>
         </div>
 
-        <!-- Same Address Checkbox -->
         <div class="my-2 flex items-center">
             <mat-checkbox [formField]="addressForm.addresses[$index].presentPermanentAddressSame"
                 (change)="onSameAddressChange($index, $event.checked)" color="primary">
@@ -189,7 +184,6 @@
             </mat-checkbox>
         </div>
 
-        <!-- Permanent Address -->
         <div>
             <h4 class="box-content-heading mb-2!">
                 Permanent Address
@@ -249,7 +243,6 @@
                 </mat-form-field>
             </div>
 
-            <!-- Permanent Administrative Unit Cascade -->
             <div>
                 <qfin-administrative-unit-cascade [columns]="4"
                     [administrativeUnitId]="addr.parmanentAdministrativeUnitId" [emitAtEveryLevel]="true"
@@ -340,7 +333,6 @@
     </div>
     }
 
-    <!-- Save Footer -->
     <div class="step-footer-area">
         <div class="flex flex-1 justify-end items-center gap-3">
             <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">

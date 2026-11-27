@@ -1,5 +1,4 @@
 <div class="animate-fade-in">
-    <!-- Primary Information Section -->
     <div>
         <h3 class="box-content-heading mb-2!">
             Primary Information
@@ -8,8 +7,6 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <!-- Branch Code (Dropdown) -->
-        <!-- Branch Code (Auto from login-info) -->
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Branch Code</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -21,7 +18,6 @@
             </mat-error>
         </mat-form-field>
 
-        <!-- Branch Name (Auto from login-info) -->
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Branch Name</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -30,7 +26,6 @@
             <input matInput [formField]="memberForm.branchName" autocomplete="off" placeholder="Branch name">
         </mat-form-field>
 
-        <!-- Group Code (Searchable Autocomplete) -->
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Group Code</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -52,7 +47,6 @@
             </mat-error>
         </mat-form-field>
 
-        <!-- Group Name (Auto-filled readonly) -->
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Group Name</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -61,7 +55,6 @@
             <input matInput [formField]="memberForm.groupName" autocomplete="off" placeholder="Group name">
         </mat-form-field>
 
-        <!-- Credit Officer Name (Auto from login-info) -->
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Credit Officer Name</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -71,7 +64,6 @@
                 placeholder="Credit officer name">
         </mat-form-field>
 
-        <!-- Employee Code (Auto from login-info) -->
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Employee Code</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -80,7 +72,6 @@
             <input matInput [formField]="memberForm.employeeCode" autocomplete="off" placeholder="Employee code">
         </mat-form-field>
 
-        <!-- Admission Date (Datepicker) -->
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Admission Date</mat-label>
             <div class="w-12 flex justify-center" matPrefix>
@@ -93,7 +84,6 @@
         </mat-form-field>
     </div>
 
-    <!-- Personal Info Section -->
     <div class="mt-6">
         <h3 class="box-content-heading mb-2!">
             Personal Info
@@ -102,13 +92,6 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <!-- <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-label>Code</mat-label>
-            <div class="w-12 flex justify-center" matPrefix>
-                <svg lucideIcon="id-card-lanyard" class="w-5 h-5"></svg>
-            </div>
-            <input matInput [formField]="memberForm.code" autocomplete="off" placeholder="Auto generated">
-        </mat-form-field> -->
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Salutation</mat-label>
@@ -284,7 +267,6 @@
         </mat-form-field>
     </div>
 
-    <!-- Contact Info Section -->
     <div class="mt-6">
         <h3 class="box-content-heading mb-2!">
             Contact Info

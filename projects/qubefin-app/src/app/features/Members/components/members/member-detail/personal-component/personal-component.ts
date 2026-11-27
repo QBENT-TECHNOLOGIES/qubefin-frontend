@@ -73,7 +73,6 @@ export class PersonalComponent {
   readonly iconMap = APP_ICONS_MAP;
   readonly isEditMode = computed(() => !!this.memberId() && this.memberId() !== EMPTY_UUID);
 
-  // --- Group Search State ---
   readonly groupOptions = signal<IGroupSearchByText[]>([]);
   readonly groupSearchText = signal<string>('');
   private readonly groupSearch$ = new Subject<string>();
@@ -157,7 +156,6 @@ export class PersonalComponent {
   constructor() {
     this.dateAdapter.setLocale('en-GB');
 
-    // Group Search Pipeline
     this.groupSearch$
       .pipe(
         debounceTime(250),
@@ -170,7 +168,6 @@ export class PersonalComponent {
         this.groupOptions.set(resp ?? []);
       });
 
-    // Auto-calculate Age from DOB
     effect(() => {
       const dobValue = this.memberForm.dateOfBirth().value();
       if (dobValue) {
@@ -187,7 +184,6 @@ export class PersonalComponent {
       }
     });
 
-    // Auto-fill Branch, Credit Officer Name & Employee Code from login-info (Create mode only)
     effect(() => {
       if (this.isEditMode()) return;
       if (!this.userStore.loggedInUserInfoResource.hasValue()) return;
@@ -215,7 +211,6 @@ export class PersonalComponent {
     });
   }
 
-  // --- Group Search Actions ---
   protected onGroupFocus() {
     if (this.groupOptions().length === 0) {
       this.groupSearch$.next(this.groupSearchText().trim());

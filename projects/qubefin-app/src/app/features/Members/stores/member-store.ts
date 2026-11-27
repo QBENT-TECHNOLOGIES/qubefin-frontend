@@ -14,7 +14,6 @@ import {
 export class MemberStore {
   private readonly memberComponentId = signal<string | undefined>(undefined);
 
-  // --- Pagination & Filtering State ---
   readonly searchQuery = signal<string>('');
   readonly branchCode = signal<number | null>(null);
   readonly pageIndex = signal<number>(0);
@@ -53,8 +52,6 @@ export class MemberStore {
   readonly loading = computed(() => this.memberListComponentsResource.isLoading());
   readonly error = computed(() => this.memberListComponentsResource.error());
 
-  // --- Detail Resource ---
-  // --- Detail Resource ---
   private readonly memberInfoComponentResource = httpResource<IMemberPersonalInfo>(() => {
     const id = this.memberComponentId();
     if (!id || id === EMPTY_UUID) return undefined;
@@ -67,7 +64,6 @@ export class MemberStore {
       : undefined,
   );
 
-  // --- Utilities & KYC ---
   private readonly utilityResource = httpResource<Utility[]>(() => {
     return `${ApiPaths.GLOBAL}/utilities`;
   });
@@ -82,7 +78,6 @@ export class MemberStore {
     this.kycResource.hasValue() ? (this.kycResource.value() ?? []) : [],
   );
 
-  // --- State Setters ---
   setSearchQuery(query: string) {
     this.searchQuery.set(query);
     this.pageIndex.set(0);

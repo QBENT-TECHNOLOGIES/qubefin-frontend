@@ -380,7 +380,6 @@ export class KycComponent {
         );
       }
 
-      // Front Side
       if (doc.fontSideFileName) {
         formData.append(`documents[${index}].fontSideFileName`, doc.fontSideFileName);
       }
@@ -391,7 +390,6 @@ export class KycComponent {
         formData.append(`documents[${index}].fontSideFile`, doc.fontSideRawFile);
       }
 
-      // Back Side
       if (doc.backSideFileName) {
         formData.append(`documents[${index}].backSideFileName`, doc.backSideFileName);
       }

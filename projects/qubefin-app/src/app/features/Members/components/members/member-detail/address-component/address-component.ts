@@ -77,7 +77,6 @@ export class AddressComponent {
     required(path.addresses);
 
     applyEach(path.addresses, (addrPath) => {
-      // Present Address (All required)
       required(addrPath.presentHouseNo, { message: 'House/Plot No is required' });
       required(addrPath.presentStreetName, { message: 'Road/Street Name is required' });
       required(addrPath.presentCity, { message: 'City/Village is required' });
@@ -93,7 +92,6 @@ export class AddressComponent {
       required(addrPath.presentNearestLandmark, { message: 'Nearest Landmark is required' });
       required(addrPath.presentResidenceYear, { message: 'Residence Year is required' });
 
-      // Permanent Address (All required)
       required(addrPath.parmanentHouseNo, { message: 'House/Plot No is required' });
       required(addrPath.parmanentStreetName, { message: 'Road/Street Name is required' });
       required(addrPath.parmanentCity, { message: 'City/Village is required' });
@@ -133,7 +131,6 @@ export class AddressComponent {
   }
 
   constructor() {
-    // List khali thakle by default 1-ta address (isDefault = true) add hobe
     effect(() => {
       if (this.addressModel().addresses.length === 0) {
         this.addressModel.set({
@@ -143,7 +140,6 @@ export class AddressComponent {
       }
     });
 
-    // PresentPermanentAddressSame checked thakle Present -> Permanent auto-sync
     effect(() => {
       const addresses = this.addressModel().addresses;
       let needsSync = false;
@@ -210,7 +206,6 @@ export class AddressComponent {
             this.addressModel.set({ addresses: mapped });
             this.addressLookups.set(mapped.map(() => this.createEmptyLookup()));
 
-            // Saved pin codes-er jonne post office list load koro
             mapped.forEach((addr, index) => {
               if (addr.presentPinCode && addr.presentPinCode.length === 6) {
                 this.loadPostOffices(index, 'present', addr.presentPinCode, true);
@@ -230,7 +225,6 @@ export class AddressComponent {
     },
   });
 
-  // --- Lookup Getters ---
   getLookup(index: number): AddressLookupState {
     return this.addressLookups()[index] ?? this.createEmptyLookup();
   }
@@ -241,7 +235,6 @@ export class AddressComponent {
     );
   }
 
-  // --- Add / Remove Address ---
   addAddress() {
     this.addressModel.update((state) => ({
       addresses: [...state.addresses, this.createEmptyAddress(false)],
@@ -256,7 +249,6 @@ export class AddressComponent {
 
     this.addressModel.update((state) => {
       const remaining = state.addresses.filter((_, i) => i !== index);
-      // Default address remove hoye gele prothom-take default kore dao
       if (remaining.length > 0 && !remaining.some((a) => a.isDefault)) {
         remaining[0] = { ...remaining[0], isDefault: true };
       }
@@ -266,7 +258,6 @@ export class AddressComponent {
     this.addressLookups.update((list) => list.filter((_, i) => i !== index));
   }
 
-  // --- Is Default (Exactly 1 checked) ---
   onIsDefaultChange(index: number, checked: boolean) {
     this.addressModel.update((state) => ({
       addresses: state.addresses.map((addr, i) => {
@@ -278,7 +269,6 @@ export class AddressComponent {
     }));
   }
 
-  // --- Same as Present Checkbox ---
   onSameAddressChange(index: number, checked: boolean) {
     this.addressModel.update((state) => ({
       addresses: state.addresses.map((addr, i) => {
@@ -312,7 +302,6 @@ export class AddressComponent {
     }
   }
 
-  // --- Cascade & Police Station ---
   updateAddressField<K extends keyof IMemberAddressInfo>(
     index: number,
     field: K,
@@ -411,7 +400,6 @@ export class AddressComponent {
     });
   }
 
-  // --- Pin Code & Post Office ---
   onPinCodeChange(index: number, type: 'present' | 'permanent', event: Event) {
     const pinCode = (event.target as HTMLInputElement).value?.trim() ?? '';
 
@@ -490,7 +478,6 @@ export class AddressComponent {
     }
   }
 
-  // --- Submit ---
   onSubmit() {
     this.addressForm().markAsTouched();
 
