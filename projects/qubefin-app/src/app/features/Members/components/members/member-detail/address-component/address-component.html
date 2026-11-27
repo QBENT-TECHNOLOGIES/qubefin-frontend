@@ -1,1 +1,352 @@
-<p>address-component works!</p>
+<div class="space-y-6 animate-fade-in">
+    <!-- Top Bar with Add Address Button -->
+    <div class="flex items-center justify-between gap-4">
+        <div>
+            <h3 class="box-content-heading mb-2!">
+                Address Information
+            </h3>
+            <div class="green-line"></div>
+        </div>
+        <button type="button" (click)="addAddress()"
+            class="cursor-pointer ripple-btn shadow shine-sweep rounded-lg px-5 py-2.5 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r to-primary-500 from-secondary-500">
+            <svg lucideIcon="plus" class="w-5 h-5"></svg>
+            Add Address
+        </button>
+    </div>
+
+    <!-- Multiple Address Cards -->
+    @for (addr of addressModel().addresses; track $index) {
+    <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4 space-y-4">
+        <!-- Address Card Header: Sequence + Is Default + Delete -->
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
+            <div class="flex items-center gap-4">
+                <span class="text-sm font-bold text-slate-700 dark:text-slate-200">
+                    Address {{ $index + 1 }}
+                </span>
+                <mat-checkbox [formField]="addressForm.addresses[$index].isDefault"
+                    (change)="onIsDefaultChange($index, $event.checked)" color="primary">
+                    Is Default
+                </mat-checkbox>
+            </div>
+            @if (addressModel().addresses.length > 1) {
+            <div (click)="removeAddress($index)" matTooltip="Delete Address"
+                class="w-9 h-9 rounded-full flex items-center justify-center hover:bg-red-100 text-red-500 hover:text-red-700 cursor-pointer">
+                <svg lucideIcon="trash-2" class="w-5 h-5"></svg>
+            </div>
+            }
+        </div>
+
+        <!-- Present Address -->
+        <div>
+            <h4 class="box-content-heading mb-2!">
+                Present Address
+            </h4>
+            <div class="green-line"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>House/Plot No</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="house" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" [formField]="addressForm.addresses[$index].presentHouseNo"
+                    placeholder="Enter House/Plot No">
+                <mat-error class="cus-error">
+                    {{ addressForm.addresses[$index].presentHouseNo().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Road/Street Name</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="road" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" [formField]="addressForm.addresses[$index].presentStreetName"
+                    placeholder="Enter Road/Street Name">
+                <mat-error class="cus-error">
+                    {{ addressForm.addresses[$index].presentStreetName().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>City / Village</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" [formField]="addressForm.addresses[$index].presentCity"
+                    placeholder="Enter City / Village">
+                <mat-error class="cus-error">
+                    {{ addressForm.addresses[$index].presentCity().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Nearest Landmark</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="map-pin-house" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" [formField]="addressForm.addresses[$index].presentNearestLandmark"
+                    placeholder="Enter Nearest Landmark">
+                <mat-error class="cus-error">
+                    {{ addressForm.addresses[$index].presentNearestLandmark().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+        </div>
+
+        <!-- Present Administrative Unit Cascade -->
+        <div>
+            <qfin-administrative-unit-cascade [columns]="4" [administrativeUnitId]="addr.presentAdministrativeUnitId"
+                [emitAtEveryLevel]="true"
+                (selectedIdChanged)="updateAddressField($index, 'presentAdministrativeUnitId', $event)"
+                (districtChangedByUser)="onAdministrativeAreaChangedByUser($index, 'present')"
+                (districtChanged)="onDistrictChangeForPoliceStation($index, 'present', $event)">
+            </qfin-administrative-unit-cascade>
+            @if (addressForm.addresses[$index].presentAdministrativeUnitId().touched() &&
+            addressForm.addresses[$index].presentAdministrativeUnitId().errors().length > 0) {
+            <div class="text-xs text-red-500 mt-1">
+                {{ addressForm.addresses[$index].presentAdministrativeUnitId().errors()[0]?.message }}
+            </div>
+            }
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Police Station</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="siren" class="w-5 h-5"></svg>
+                </div>
+                <mat-select [formField]="addressForm.addresses[$index].presentPoliceStationId"
+                    placeholder="Select Police Station">
+                    @for (police of getLookup($index).presentPoliceStations; track police.id) {
+                    <mat-option [value]="police.id">
+                        {{ police.name }}
+                    </mat-option>
+                    }
+                </mat-select>
+                <mat-error class="cus-error">
+                    {{ addressForm.addresses[$index].presentPoliceStationId().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Pin Code</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
+                </div>
+                <input matInput autocomplete="off" [formField]="addressForm.addresses[$index].presentPinCode"
+                    placeholder="Enter Pin Code" (input)="onPinCodeChange($index, 'present', $event)">
+                <mat-error class="cus-error">
+                    {{ addressForm.addresses[$index].presentPinCode().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Post Office</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
+                </div>
+                @if (getLookup($index).presentPostOfficeNotFound || getLookup($index).presentPostOffices.length === 0) {
+                <input matInput autocomplete="off" [formField]="addressForm.addresses[$index].presentPostOffice"
+                    placeholder="Enter Post Office">
+                } @else {
+                <mat-select [formField]="addressForm.addresses[$index].presentPostOffice"
+                    placeholder="Select Post Office">
+                    @for (post of getLookup($index).presentPostOffices; track post.id) {
+                    <mat-option [value]="post.name">
+                        {{ post.name }}
+                    </mat-option>
+                    }
+                </mat-select>
+                }
+                @if (getLookup($index).presentPostOfficeNotFound) {
+                <mat-hint>No post office found for this pin code, please enter it</mat-hint>
+                }
+                <mat-error class="cus-error">
+                    {{ addressForm.addresses[$index].presentPostOffice().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                <mat-label>Residence Year</mat-label>
+                <div class="w-12 flex justify-center" matPrefix>
+                    <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
+                </div>
+                <input matInput type="number" autocomplete="off"
+                    [formField]="addressForm.addresses[$index].presentResidenceYear" (wheel)="$event.preventDefault()"
+                    placeholder="Enter residence years">
+                <mat-error class="cus-error">
+                    {{ addressForm.addresses[$index].presentResidenceYear().errors()[0]?.message }}
+                </mat-error>
+            </mat-form-field>
+        </div>
+
+        <!-- Same Address Checkbox -->
+        <div class="my-2 flex items-center">
+            <mat-checkbox [formField]="addressForm.addresses[$index].presentPermanentAddressSame"
+                (change)="onSameAddressChange($index, $event.checked)" color="primary">
+                Permanent Address is same as Present Address
+            </mat-checkbox>
+        </div>
+
+        <!-- Permanent Address -->
+        <div>
+            <h4 class="box-content-heading mb-2!">
+                Permanent Address
+            </h4>
+            <div class="blue-line"></div>
+        </div>
+
+        <div class="space-y-4" [ngClass]="{ 'pointer-events-none opacity-70': addr.presentPermanentAddressSame }">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>House/Plot No</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="house" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput autocomplete="off" [formField]="addressForm.addresses[$index].parmanentHouseNo"
+                        placeholder="Enter House/Plot No">
+                    <mat-error class="cus-error">
+                        {{ addressForm.addresses[$index].parmanentHouseNo().errors()[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Road/Street Name</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="road" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput autocomplete="off" [formField]="addressForm.addresses[$index].parmanentStreetName"
+                        placeholder="Enter Road/Street Name">
+                    <mat-error class="cus-error">
+                        {{ addressForm.addresses[$index].parmanentStreetName().errors()[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>City / Village</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="building-2" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput autocomplete="off" [formField]="addressForm.addresses[$index].parmanentCity"
+                        placeholder="Enter City / Village">
+                    <mat-error class="cus-error">
+                        {{ addressForm.addresses[$index].parmanentCity().errors()[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Nearest Landmark</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="map-pin-house" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput autocomplete="off"
+                        [formField]="addressForm.addresses[$index].parmanentNearestLandmark"
+                        placeholder="Enter Nearest Landmark">
+                    <mat-error class="cus-error">
+                        {{ addressForm.addresses[$index].parmanentNearestLandmark().errors()[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <!-- Permanent Administrative Unit Cascade -->
+            <div>
+                <qfin-administrative-unit-cascade [columns]="4"
+                    [administrativeUnitId]="addr.parmanentAdministrativeUnitId" [emitAtEveryLevel]="true"
+                    (selectedIdChanged)="updateAddressField($index, 'parmanentAdministrativeUnitId', $event)"
+                    (districtChangedByUser)="onAdministrativeAreaChangedByUser($index, 'permanent')"
+                    (districtChanged)="onDistrictChangeForPoliceStation($index, 'permanent', $event)">
+                </qfin-administrative-unit-cascade>
+                @if (addressForm.addresses[$index].parmanentAdministrativeUnitId().touched() &&
+                addressForm.addresses[$index].parmanentAdministrativeUnitId().errors().length > 0) {
+                <div class="text-xs text-red-500 mt-1">
+                    {{ addressForm.addresses[$index].parmanentAdministrativeUnitId().errors()[0]?.message }}
+                </div>
+                }
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Police Station</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="siren" class="w-5 h-5"></svg>
+                    </div>
+                    <mat-select [formField]="addressForm.addresses[$index].parmanentPoliceStationId"
+                        placeholder="Select Police Station">
+                        @for (police of getLookup($index).permanentPoliceStations; track police.id) {
+                        <mat-option [value]="police.id">
+                            {{ police.name }}
+                        </mat-option>
+                        }
+                    </mat-select>
+                    <mat-error class="cus-error">
+                        {{ addressForm.addresses[$index].parmanentPoliceStationId().errors()[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Pin Code</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="map-pin-search" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput autocomplete="off" [formField]="addressForm.addresses[$index].parmanentPinCode"
+                        placeholder="Enter Pin Code" (input)="onPinCodeChange($index, 'permanent', $event)">
+                    <mat-error class="cus-error">
+                        {{ addressForm.addresses[$index].parmanentPinCode().errors()[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Post Office</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="lamp-desk" class="w-5 h-5"></svg>
+                    </div>
+                    @if (getLookup($index).permanentPostOfficeNotFound || getLookup($index).permanentPostOffices.length
+                    === 0) {
+                    <input matInput autocomplete="off" [formField]="addressForm.addresses[$index].parmanentPostOffice"
+                        placeholder="Enter Post Office">
+                    } @else {
+                    <mat-select [formField]="addressForm.addresses[$index].parmanentPostOffice"
+                        placeholder="Select Post Office">
+                        @for (post of getLookup($index).permanentPostOffices; track post.id) {
+                        <mat-option [value]="post.name">
+                            {{ post.name }}
+                        </mat-option>
+                        }
+                    </mat-select>
+                    }
+                    @if (getLookup($index).permanentPostOfficeNotFound) {
+                    <mat-hint>No post office found for this pin code, please enter it</mat-hint>
+                    }
+                    <mat-error class="cus-error">
+                        {{ addressForm.addresses[$index].parmanentPostOffice().errors()[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                    <mat-label>Residence Year</mat-label>
+                    <div class="w-12 flex justify-center" matPrefix>
+                        <svg lucideIcon="calendar-clock" class="w-5 h-5"></svg>
+                    </div>
+                    <input matInput type="number" autocomplete="off"
+                        [formField]="addressForm.addresses[$index].parmanentResidenceYear"
+                        (wheel)="$event.preventDefault()" placeholder="Enter residence years">
+                    <mat-error class="cus-error">
+                        {{ addressForm.addresses[$index].parmanentResidenceYear().errors()[0]?.message }}
+                    </mat-error>
+                </mat-form-field>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Save Footer -->
+    <div class="step-footer-area">
+        <div class="flex flex-1 justify-end items-center gap-3">
+            <button type="button" (click)="onSubmit()" class="global-btn ripple-btn shadow shine-sweep lift">
+                Save &amp; Next
+                <svg lucideIcon="chevron-right" class="w-5 h-5"></svg>
+            </button>
+        </div>
+    </div>
+</div>

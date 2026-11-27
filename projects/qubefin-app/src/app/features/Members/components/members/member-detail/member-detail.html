@@ -27,7 +27,7 @@
             <mat-step>
                 <ng-template matStepLabel>KYC Info</ng-template>
                 @if (activeStepIndex() == 1) {
-                <qfin-kyc-component [memberId]="memberId()" (onKycUpdate)="handleKyc()">
+                <qfin-kyc-component [memberId]="memberId()" [kycDocs]="kycComponents()" (onKycUpdate)="handleKyc()">
                 </qfin-kyc-component>
                 }
             </mat-step>

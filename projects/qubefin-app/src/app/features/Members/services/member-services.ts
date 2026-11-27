@@ -27,4 +27,18 @@ export class MemberService {
       searchText,
     });
   }
+  getAddressData(id: string) {
+    return this.httpClient.get(`${ApiPaths.GLOBAL}/members/addresses/${id}`);
+  }
+
+  updateAddressInfo(memberId: string, addresses: any[]) {
+    return this.httpClient.put(`${ApiPaths.GLOBAL}/members/addresses/${memberId}`, addresses);
+  }
+  getKycData(id: string) {
+    return this.httpClient.get(`${ApiPaths.GLOBAL}/members/documents/${id}`);
+  }
+
+  updateKycInfo(memberId: string, formData: FormData) {
+    return this.httpClient.put(`${ApiPaths.GLOBAL}/members/documents/${memberId}`, formData);
+  }
 }
