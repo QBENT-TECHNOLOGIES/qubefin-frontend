@@ -81,7 +81,11 @@ export class TaskBuilder {
     if (!id) return undefined;
     return { url: `${ApiPaths.TRACKING}/geo-tags/points`, params: { organizationUnitId: id, kinds: PICKER_KINDS.join(',') } };
   });
-  readonly branchPlaces = computed(() => this.pointsResource.value()?.points ?? []);
+  /**
+   * Geo-tagged places only. B5 should send only places with a location (the rest are counted in `untaggedByKind`), but it
+   * has also sent them with `location: null`; one such point broke the whole map (no branch pin, no places), so drop them.
+   */
+  readonly branchPlaces = computed(() => (this.pointsResource.value()?.points ?? []).filter((p) => !!p.location));
   readonly untaggedByKind = computed(() => this.pointsResource.value()?.untaggedByKind ?? {});
   readonly pointsLoading = computed(() => this.pointsResource.isLoading());
 

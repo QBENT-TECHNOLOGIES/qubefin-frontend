@@ -14,13 +14,33 @@
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
                 <mat-label>Assign to</mat-label>
                 <div class="w-12 flex justify-center" matPrefix><svg lucideIcon="user" class="w-5 h-5"></svg></div>
-                <mat-select [formField]="jobForm.assigneeId" placeholder="Select who will do this job">
-                    @for (g of lookup.assignableByRole(); track g.role) {
+                <mat-select [formField]="jobForm.assigneeId" placeholder="Select who will do this job" (openedChange)="onAssigneeOpened($event)">
+                    <mat-select-trigger>
+                        @if (assignee(); as a) {
+                        {{ a.name }} <span class="text-slate-400 tabular-nums">· {{ a.employeeCode }}</span> · {{ a.unitName }}
+                        }
+                    </mat-select-trigger>
+                    <div class="trk-select-search">
+                        <svg lucideIcon="search" class="w-4 h-4 shrink-0"></svg>
+                        <input #assigneeSearch type="text" autocomplete="off" placeholder="Search by name, employee code or branch"
+                            aria-label="Search employees" [value]="assigneeQuery()" (input)="setAssigneeQuery($any($event.target).value)"
+                            (keydown)="onSearchKeydown($event)">
+                        @if (assigneeQuery()) {
+                        <button type="button" class="trk-icon-btn !w-6 !h-6" aria-label="Clear search" (click)="clearAssigneeQuery()">
+                            <svg lucideIcon="x" class="w-3.5 h-3.5"></svg>
+                        </button>
+                        }
+                    </div>
+                    @for (g of assigneeGroups(); track g.role) {
                     <mat-optgroup [label]="roleLabel(g.role) + 's'">
                         @for (o of g.officers; track o.id) {
-                        <mat-option [value]="o.id">{{ o.name }} · {{ o.unitName }}</mat-option>
+                        <mat-option [value]="o.id">
+                            {{ o.name }} <span class="text-slate-400 tabular-nums">· {{ o.employeeCode }}</span> · {{ o.unitName }}
+                        </mat-option>
                         }
                     </mat-optgroup>
+                    } @empty {
+                    <p class="trk-select-empty">No one matches “{{ assigneeQuery() }}”.</p>
                     }
                 </mat-select>
                 @if (jobForm.assigneeId().touched() && jobForm.assigneeId().invalid()) {

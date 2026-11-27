@@ -49,7 +49,6 @@ import { ApprovalDecisionRequest } from '../models/approval-request';
 import { GeoTag, GeoTagKind, GeoTagPoint, GeoTagPointsResponse, GeoTagSearchRequest } from '../models/geo-tag';
 import { TrackingSettings } from '../models/tracking-settings';
 import { GroupSearchRequest, PagedResult, TrackingGroup } from '../models/geo';
-import { MOCK_ACTOR_KEY } from './mock-actor-key';
 import { toDateKey } from '../utils/geo-utils';
 import { LOCATION_NOT_VERIFIED, PendingElsewhere, ROLE_RANK, canAssignWorkTo, canMonitor, duplicateCheck, inScope, isOpenJob, oversees, jobBranchConflict, needsVerifiedLocation, targetKey } from '../utils/job-rules';
 import { inDpdRange } from '../utils/dpd';
@@ -95,31 +94,17 @@ const bad = (message: string) => new MockError(400, message);
 const forbidden = (message: string) => new MockError(403, message);
 
 // ---------------------------------------------------------------------------------------------
-// Who is asking. The real backend takes this from the access token; the mock lets the Jobs page
-// switch between people ("Acting as", stored in sessionStorage) so the role rules can be tried out.
+// Who is asking. The real backend takes this from the access token; the mock always answers as
+// Head Office Admin.
 // ---------------------------------------------------------------------------------------------
 
 
 type Viewer = TrackingViewer & { id: string };
 let viewer: Viewer;
 
-function readActorId(): string | null {
-  try {
-    return sessionStorage.getItem(MOCK_ACTOR_KEY);
-  } catch {
-    return null;
-  }
-}
-
 function currentViewer(d: MockDb): Viewer {
-  const o = d.officers.find((x) => x.id === readActorId());
-  if (!o) {
-    d.currentUser = ADMIN_USER;
-    return { id: ADMIN_USER.id, employeeId: null, name: ADMIN_USER.name, role: 'Admin', unitName: 'All branches', organizationUnitIds: d.branches.map((b) => b.id), canCreateJobs: true };
-  }
-  d.currentUser = { id: o.id, name: o.name };
-  const v = { role: o.role, organizationUnitIds: unitIdsOf(o) };
-  return { id: o.id, employeeId: o.id, name: o.name, role: o.role, unitName: o.unitName, organizationUnitIds: unitIdsOf(o), canCreateJobs: d.officers.some((x) => canAssignWorkTo(v, x)) };
+  d.currentUser = ADMIN_USER;
+  return { id: ADMIN_USER.id, employeeId: null, name: ADMIN_USER.name, role: 'Admin', unitName: 'All branches', organizationUnitIds: d.branches.map((b) => b.id), canCreateJobs: true };
 }
 
 /** Rank of whoever created a job (an officer, or an administrator). */
@@ -394,7 +379,7 @@ function route(req: HttpRequest<unknown>, path: string, q: URLSearchParams): unk
       throw bad('Thresholds must be greater than zero.');
     }
     d.settings = { ...s, lastModifiedByName: d.currentUser.name, lastModifiedAt: new Date().toISOString() };
-    d.branches.forEach((b) => (b.branchOperatingRadiusInKm = s.branchRadiusKm * 1000)); // metres
+    d.branches.forEach((b) => (b.branchOperatingRadiusInKm = s.branchRadiusKm));
     return d.settings;
   }
 

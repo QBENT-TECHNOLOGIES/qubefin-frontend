@@ -1,6 +1,6 @@
 <div class="overflow-auto scroll-thin" [ngClass]="{ 'h-[calc(100vh-170px-72px)] overflow-y-auto': isCollapsed() }">
     <table mat-table [dataSource]="data()" matSort [matSortActive]="sortOn()" [matSortDirection]="sortDirection()"
-        matSortDisableClear (matSortChange)="sortChange.emit($event)" class="w-full table">
+        matSortDisableClear (matSortChange)="sortChange.emit($event)" class="w-full table trk-table-striped">
 
         <ng-container matColumnDef="job">
             <th mat-header-cell *matHeaderCellDef>Job</th>

@@ -58,7 +58,7 @@ export class OutOfRadiusApprovals {
   });
   readonly radiusKm = computed(() => {
     const r = this.selected();
-    return (r && (this.lookup.branchById().get(r.branchId)?.branchOperatingRadiusInKm ?? 0) / 1000) || 30;
+    return (r && (this.lookup.branchById().get(r.branchId)?.branchOperatingRadiusInKm ?? 0)) || 30;
   });
   readonly branchPin = computed(() => this.markers.pin('branch', 'B', '#0F172A', { small: true }));
   readonly destPin = computed(() => this.markers.pin('dest', '!', '#7C3AED', { selected: true }));

@@ -14,10 +14,7 @@ export interface TrackingBranch {
   areaName: string;
   divisionName: string;
   location: GeoPoint | null;
-  /**
-   * Allowed operating radius around the branch. **In metres** despite the API name (30000 = 30 km); divide by 1000
-   * when showing or comparing kilometres.
-   */
+  /** Allowed operating radius around the branch, in km (30 = 30 km); multiply by 1000 for map circles (metres). */
   branchOperatingRadiusInKm: number;
 }
 

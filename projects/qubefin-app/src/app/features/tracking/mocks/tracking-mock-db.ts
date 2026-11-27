@@ -167,7 +167,7 @@ const BRANCHES: TrackingBranch[] = BRANCH_SEED.map(([code, name, areaName, lat, 
   areaName,
   divisionName: DIVISION,
   location: { lat, lng },
-  branchOperatingRadiusInKm: 30000, // metres, as the API sends it
+  branchOperatingRadiusInKm: 30, // km, as the API sends it
 }));
 const branchByCode = (code: string) => BRANCHES.find((b) => b.code === code)!;
 

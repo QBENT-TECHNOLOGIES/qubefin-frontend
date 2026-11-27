@@ -1,9 +1,9 @@
 import { unitIdsOf } from '../../../models/field-officer';
-import { Component, computed, inject, output, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, Injector, afterNextRender, computed, inject, output, signal, viewChild } from '@angular/core';
 import { FormField, Schema, form, required, schema } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { AlertService } from 'qubefin-core';
 import { NewTaskInput } from '../../../models/job';
@@ -69,6 +69,76 @@ export class JobForm {
   protected readonly jobForm = form(this.model, this.jobSchema);
 
   readonly assignee = computed(() => this.lookup.officerById().get(this.model().assigneeId) ?? null);
+
+  /** Search text of the Assign to list (name, employee code, branch / unit or role). */
+  readonly assigneeQuery = signal('');
+  private readonly assigneeSearch = viewChild<ElementRef<HTMLInputElement>>('assigneeSearch');
+  private readonly assigneeSelect = viewChild(MatSelect);
+  private readonly injector = inject(Injector);
+
+  /** Assign to options filtered by the search. The chosen person always stays listed, so mat-select keeps showing them. */
+  readonly assigneeGroups = computed(() => {
+    const words = this.assigneeQuery().toLowerCase().split(/\s+/).filter(Boolean);
+    const groups = this.lookup.assignableByRole();
+    if (!words.length) return groups;
+    const chosen = this.model().assigneeId;
+    return groups
+      .map((g) => ({
+        ...g,
+        officers: g.officers.filter((o) => {
+          if (o.id === chosen) return true;
+          const text = `${o.name} ${o.employeeCode} ${o.unitName} ${o.organizationUnitName} ${o.role}`.toLowerCase();
+          return words.every((w) => text.includes(w));
+        }),
+      }))
+      .filter((g) => g.officers.length);
+  });
+
+  /** Each time the list opens: empty search (box and filter together), cursor in the box. */
+  onAssigneeOpened(open: boolean) {
+    if (!open) return;
+    this.assigneeQuery.set('');
+    const box = this.assigneeSearch()?.nativeElement;
+    if (box) box.value = '';
+    setTimeout(() => box?.focus());
+  }
+
+  /** New search text: once the list has re-rendered, highlight the first match so Enter picks it. */
+  setAssigneeQuery(q: string) {
+    this.assigneeQuery.set(q);
+    afterNextRender(() => this.assigneeSelect()?._keyManager?.setFirstItemActive(), { injector: this.injector });
+  }
+
+  clearAssigneeQuery() {
+    this.setAssigneeQuery('');
+    this.assigneeSearch()?.nativeElement.focus();
+  }
+
+  /**
+   * Letters and space stay in the search box (mat-select would use them for typeahead / selection). Arrows and Enter are
+   * handed to mat-select, which only listens on its trigger, so the list can still be driven from the keyboard. Esc and Tab
+   * bubble up and close the panel as usual.
+   */
+  onSearchKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape' || e.key === 'Tab') return;
+    e.stopPropagation();
+    const select = this.assigneeSelect();
+    if (!select) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      select._handleKeydown(e);
+    } else if (e.key === 'Enter') {
+      // Pick from the current matches: the highlighted one, else the first (the highlight may lag a fast typist or a paste).
+      e.preventDefault();
+      const ids = this.assigneeGroups().flatMap((g) => g.officers.map((o) => o.id));
+      const active = select._keyManager?.activeItem?.value as string | undefined;
+      const id = active && ids.includes(active) ? active : ids[0];
+      if (!id) return;
+      this.jobForm.assigneeId().value.set(id);
+      this.jobForm.assigneeId().markAsTouched();
+      select.close();
+    }
+  }
 
   /** Branches places can come from: the assignee's branch(es). */
   readonly allowedBranchIds = computed(() => {

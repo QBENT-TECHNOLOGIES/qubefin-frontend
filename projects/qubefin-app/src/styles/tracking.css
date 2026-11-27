@@ -461,7 +461,38 @@
 .dark .trk-kpi-value { color: #f1f5f9; }
 
 /* ---------- Cards / rows ---------- */
+/* Zebra stripes for long tables (body rows only; hover and the selected row still win). */
+.trk-table-striped tbody tr.mat-mdc-row:nth-child(even) { background: rgba(15, 23, 42, 0.035); }
+.dark .trk-table-striped tbody tr.mat-mdc-row:nth-child(even) { background: rgba(255, 255, 255, 0.035); }
+.trk-table-striped tbody tr.mat-mdc-row:hover { background: rgba(22, 199, 132, 0.06); }
+.dark .trk-table-striped tbody tr.mat-mdc-row:hover { background: rgba(255, 255, 255, 0.06); }
 .trk-row-selected { background: rgba(22, 199, 132, 0.08) !important; }
+
+/* Search box pinned at the top of a mat-select panel (searchable select). */
+.trk-select-search {
+  position: sticky;
+  top: -8px;
+  z-index: 2;
+  margin-top: -8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  background: var(--mat-select-panel-background-color, #fff);
+  border-bottom: 1px solid #e2e8f0;
+  color: #64748b;
+}
+.trk-select-search input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  color: #0f172a;
+}
+.dark .trk-select-search { border-bottom-color: rgba(148, 163, 184, 0.15); }
+.dark .trk-select-search input { color: #e2e8f0; }
+.trk-select-empty { padding: 0.9rem 1rem; font-size: 12px; color: #94a3b8; }
 .trk-row-open td:first-child { box-shadow: inset 3px 0 0 #e11d48; }
 
 .trk-info-box {

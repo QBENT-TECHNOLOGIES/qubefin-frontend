@@ -79,7 +79,7 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
 
 | Method | Path | Response |
 |---|---|---|
-| GET | `organization-units` (was `branches`) | `TrackingBranch[]`: id, name, code, `areaName`, `divisionName`, `location` (nullable), `branchOperatingRadiusInKm` (**metres**, see below) |
+| GET | `organization-units` (was `branches`) | `TrackingBranch[]`: id, name, code, `areaName`, `divisionName`, `location` (nullable), `branchOperatingRadiusInKm` (**km**, see below) |
 | POST | `groups/search` (was `GET groups`) | `{ items: TrackingGroup[], totalRecords }`: id, code, name, `organizationUnitId`/`branchName`, `coEmployeeId`/`coName` (mapped CO, nullable), plus address, location, photo, collection day/time… (not used). Groups in the caller's scope. Feeds the Group filter on OD Members (D2, see below). |
 | GET | `field-officers?organizationUnitId=` | `FieldOfficer[]`: id, employeeCode, name, `role` (role name, e.g. `Credit Officer`), designation, `organisationUnitId`/`organisationUnitName` (posting branch), `unitName` (branch / area / division in charge of), `organisationUnits` (`[{ id, name }]`, branches they may work in), phone, `presentLocation` (home, nullable), reportingOfficerName, `canAssign` |
 
@@ -91,8 +91,8 @@ Member whose loan account is overdue (Loan Status Report). Use these names in la
     returns `role`, `unitName`, `canCreateJobs` and `accessOrganizationUnits[]` (`{ id, name, latitude, longitude,
     attendanceInTime, attendanceOutTime, checkRadiusInMeter }`; the ids are the branch scope). `TrackingViewerStore` builds the
     web's `TrackingViewer` from it, so no tracking call is made for the user.
-  * `branches` (A2) is served at `organization-units`. `branchOperatingRadiusInKm` holds **metres** despite its name
-    (`30000` = 30 km); screens divide by 1000 to show or compare km (was `operatingRadiusKm` in km).
+  * `branches` (A2) is served at `organization-units`. `branchOperatingRadiusInKm` is in **km** (`30` = 30 km; it held
+    metres, `30000`, until 27 Nov 2026); map circles multiply by 1000.
   * `field-officers` (A3): query `organizationUnitId` (spelled with **z**; was `branchId`); `organisationUnitId` /
     `organisationUnitName` (posting branch; were `branchId` / `branchName`), `presentLocation` (the geo-tagged present / home
     address used for the near-home rule; was `homeLocation`). **Changed by 13 Nov 2026:** the branches an officer may work in come as
@@ -633,8 +633,7 @@ and can sort the task list by priority.
 2. **Step by step:** while `useTrackingMocks` is true, endpoints listed in `trackingLiveEndpoints` (dev environment, format
    `'METHOD path'`, `{x}` = one GUID path segment, e.g. `'GET jobs/{id}'`, which does not match `jobs/open`) already go to the real backend; the mock answers the rest.
    Add each endpoint there as the backend delivers it. When all are live, set `useTrackingMocks: false` in `environment*.ts`.
-3. Remove `trackingMockInterceptor` from `app.config.ts`, remove `<qfin-trk-mock-actor>` (the mock-only "acting as" picker) from
-   `pages/jobs/jobs.html` and its import in `jobs.ts`, and delete `features/tracking/mocks/`.
+3. Remove `trackingMockInterceptor` from `app.config.ts` and delete `features/tracking/mocks/`.
 
 ---
 
@@ -664,7 +663,9 @@ Found while connecting the web to the dev backend (A1–A3, B1–B5, C1–C7, D1
 6. **E1 `GeoTag` has no `id`, `verified` or `history`**, while B5 `GeoTagPoint` for the same places sends `id` and `verified`.
    The page needs `verified` (rule 3.2.13, "Location Not Verified" badge) and `history` (location changes, read only). Is `refId`
    the intended key?
-7. **`branchOperatingRadiusInKm` holds metres (A2).** Rename it (e.g. `branchOperatingRadiusInMeters`) or send km.
+7. ~~**`branchOperatingRadiusInKm` holds metres (A2).**~~ **Settled (27 Nov 2026):** the backend now sends km (`30`); the web follows.
+   **New (27 Nov 2026), B5 `geo-tags/points`:** `points` also carries places with `location: null`. The contract says only
+   geo-tagged places (the rest are counted in `untaggedByKind`); the web now drops them, but please stop sending them.
 8. ~~**`organizationUnitId` vs `organisationUnitId`.**~~ **Settled (18 Nov 2026):** the backend uses the z spelling everywhere;
    the web follows. Remaining: `geo-tags` (E1) rows send `branchId` (could be `organizationUnitId` too).
 9. **`typeCounts` (B1)** is not sent yet; the list shows the task-type icons without numbers.

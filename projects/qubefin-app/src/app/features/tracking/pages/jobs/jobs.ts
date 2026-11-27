@@ -20,13 +20,12 @@ import { JOB_STATUS, roleLabel, optionsOf } from '../../utils/tracking-labels';
 import { JobForm } from '../../components/jobs/job-form/job-form';
 import { JobList } from '../../components/jobs/job-list/job-list';
 import { JobView } from '../../components/jobs/job-view/job-view';
-import { MockActorSwitch } from '../../mocks/mock-actor-switch';
 import { DateKeyRange, TrkDateRangeField } from '../../components/shared/date-field/trk-date-range-field';
 
 /** Jobs: create (assignee required, with tasks), transfer, extend, and audit. */
 @Component({
   selector: 'qfin-jobs',
-  imports: [NgClass, FormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatPaginatorModule, MatTooltipModule, LucideDynamicIcon, JobList, JobView, JobForm, MockActorSwitch, TrkDateRangeField],
+  imports: [NgClass, FormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatPaginatorModule, MatTooltipModule, LucideDynamicIcon, JobList, JobView, JobForm, TrkDateRangeField],
   templateUrl: './jobs.html',
 })
 export class Jobs {
@@ -144,15 +143,6 @@ export class Jobs {
     this.selectedJobId.set(EMPTY_UUID);
     this.isViewMode.set(true);
     this.syncUrl(null);
-  }
-
-  /** Mock only: another user was picked, so reload everything that depends on who is asking. */
-  onActorChanged() {
-    this.closePanel();
-    this.store.setJobId(undefined);
-    this.resetFilters();
-    this.lookup.refresh();
-    this.store.refreshList();
   }
 
   private syncUrl(id: string | null) {
